@@ -43,6 +43,12 @@ void    bb_gui_window_pixel_size(int32_t handle, int32_t* w, int32_t* h);
 int32_t bb_gui_window_buffer(int32_t handle);
 void    bb_gui_window_show_picture(int32_t handle, int32_t wait);
 void*   bb_gui_window_sdl(int32_t handle);
+float   bb_gui_window_scale(int32_t handle); // How many pixels a unit of the program is in the window, which its gadgets are drawn with.
+float   bb_gui_desktop_scale(void);
+// Drawing for the GUI at a scale (graphics_draw2d.cpp, graphics_images.cpp): text in a font that is as many times bigger, and an image
+// stretched to w by h pixels.
+void    bb_gui_text_scaled(int32_t x, int32_t y, const char* s, int32_t font, int32_t size, float scale);
+void    bb_gui_draw_image(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h, int32_t rx, int32_t ry, int32_t rw, int32_t rh);
 void*   bb_gui_dialog_window(void); // The window of SDL that a requester of the system is put in front of: the active window, else the one of Graphics, else null.
 int32_t bb_internal_target(int32_t width, int32_t height); // An RGBA8 picture of the runtime's own to draw into (the canvases), no image of the program's.
 void    bb_free_internal_image(int32_t handle);
@@ -300,6 +306,10 @@ namespace bb::gui {
 	extern thread_local void (*overlay_draw)(int window, int w, int h);           // What is drawn on top of the gadgets of a window (0 the desktop of Graphics) of this size, before they are shown.
 	void render();
 	void show_window(int window, bool wait); // Draws one window and shows it now (FlipCanvas); wait returns once it was shown.
+	// Drawing into the window that is being drawn, at its scale, for the requesters: positions are in the units of the program.
+	void gui_fill(int x, int y, int w, int h);
+	void gui_clip(int x, int y, int w, int h);
+	void gui_text(int x, int y, const char* text, int font, int size);
 	void ensure_graphics();
 	int  font_size(gadget const& g);
 	int  row_height(gadget const& g);

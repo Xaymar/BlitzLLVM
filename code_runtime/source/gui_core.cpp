@@ -179,8 +179,10 @@ namespace bb::gui {
 		return desktop;
 	}
 
-	// The size of the primary display, with the area under the task bar and start menu, in the units of the GUI. The windows
-	// are drawn in the window of the program, so this is only what ClientWidth and ClientHeight tell for the desktop.
+	// The size of the primary display, with the area under the task bar and start menu, in the units of the program, which is
+	// what ClientWidth and ClientHeight tell for the desktop and what its windows have to fit in. A display with a high density
+	// of pixels has fewer units than pixels: one of 1920 by 1080 pixels at 150 % is a desktop of 1280 by 720, as the original
+	// sees it, whose windows the system scales.
 	void screen_size(int* w, int* h)
 	{
 		*w = bb_graphics_width();
@@ -188,13 +190,15 @@ namespace bb::gui {
 		if (SDL_WasInit(SDL_INIT_VIDEO)) {
 			SDL_DisplayID display = SDL_GetPrimaryDisplay();
 			SDL_Rect      bounds{};
+			float         units = bb_gui_desktop_scale();
+			units               = units > 0.0f ? units : 1.0f;
 			if (display && SDL_GetDisplayBounds(display, &bounds) && (bounds.w > 0) && (bounds.h > 0)) {
-				*w = bounds.w;
-				*h = bounds.h;
+				*w = int(lroundf(float(bounds.w) / units));
+				*h = int(lroundf(float(bounds.h) / units));
 			} else if (const SDL_DisplayMode* mode = display ? SDL_GetDesktopDisplayMode(display) : nullptr) {
 				if ((mode->w > 0) && (mode->h > 0)) {
-					*w = mode->w;
-					*h = mode->h;
+					*w = int(lroundf(float(mode->w) / units));
+					*h = int(lroundf(float(mode->h) / units));
 				}
 			}
 		}

@@ -183,6 +183,9 @@ namespace bb::gfx {
 				}
 				if (window == graphics_window) {
 					buffer_to_window(event.motion.x, event.motion.y, &event.motion.x, &event.motion.y);
+				} else if (surface_state* s = extra_surface_of_window(window); s && s->gui) {
+					event.motion.x *= s->units; // A window of the GUI is scaled: the mouse of SDL is in its units.
+					event.motion.y *= s->units;
 				}
 				placed_window = window;
 				placed_x      = event.motion.x;
@@ -242,17 +245,33 @@ namespace bb::gfx {
 		}
 	}
 
-	// What happened to a window of the GUI, for its gadget: 1 moved (to x, y), 2 sized (to w, h, in the units of the mouse), 3 asked to close,
-	// 4 got the focus, 5 lost it, 6 minimized, 7 maximized, 8 restored, 9 the mouse came in, 10 it left.
-	static void gui_window_event(int handle, SDL_Event const& event)
+	// What happened to a window of the GUI, for its gadget: 1 moved (to x, y), 2 sized (to w, h), 3 asked to close, 4 got the
+	// focus, 5 lost it, 6 minimized, 7 maximized, 8 restored, 9 the mouse came in, 10 it left, 11 is scaled differently now (it
+	// moved to another display). Places and sizes are in the units of the program, which the display scales (surface_state::units).
+	static int in_program_units(int value, float units)
+	{
+		return int(lroundf(float(value) / (units > 0.0f ? units : 1.0f)));
+	}
+
+	static void gui_window_event(surface_state& s, int handle, SDL_Event const& event)
 	{
 		switch (event.type) {
-		case SDL_EVENT_WINDOW_MOVED:
-			bb_gui_window_event(handle, 1, event.window.data1, event.window.data2);
+		case SDL_EVENT_WINDOW_MOVED: {
+			float units = gui_desktop_units();
+			bb_gui_window_event(handle, 1, in_program_units(event.window.data1, units), in_program_units(event.window.data2, units));
 			break;
+		}
 		case SDL_EVENT_WINDOW_RESIZED:
-			bb_gui_window_event(handle, 2, event.window.data1, event.window.data2);
+			bb_gui_window_event(handle, 2, in_program_units(event.window.data1, s.units), in_program_units(event.window.data2, s.units));
 			break;
+		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED: {
+			float scale = s.scale;
+			update_gui_scale(s);
+			if (scale != s.scale) {
+				bb_gui_window_event(handle, 11, 0, 0);
+			}
+			break;
+		}
 		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			bb_gui_window_event(handle, 3, 0, 0);
 			break;
@@ -294,7 +313,7 @@ namespace bb::gfx {
 				if (surface_state* other = extra_surface_of_window(event.window.windowID)) {
 					presenter_window_event(*other, event);
 					if (other->gui) {
-						gui_window_event(extra_surface_handle(other), event);
+						gui_window_event(*other, extra_surface_handle(other), event);
 					}
 					continue;
 				}
@@ -306,6 +325,29 @@ namespace bb::gfx {
 						continue; // A window that has no gadgets wants no input.
 					}
 					gui_window = handle;
+					// The mouse of SDL is in the units of the window, which the display scales: the GUI and the program count in theirs.
+					if (other->units != 1.0f) {
+						float into = 1.0f / other->units;
+						switch (event.type) {
+						case SDL_EVENT_MOUSE_MOTION:
+							event.motion.x *= into;
+							event.motion.y *= into;
+							event.motion.xrel *= into;
+							event.motion.yrel *= into;
+							break;
+						case SDL_EVENT_MOUSE_BUTTON_DOWN:
+						case SDL_EVENT_MOUSE_BUTTON_UP:
+							event.button.x *= into;
+							event.button.y *= into;
+							break;
+						case SDL_EVENT_MOUSE_WHEEL:
+							event.wheel.mouse_x *= into;
+							event.wheel.mouse_y *= into;
+							break;
+						default:
+							break;
+						}
+					}
 				}
 			}
 			if (bb_gui_event(&event, gui_window)) {

@@ -409,11 +409,14 @@ namespace bb::gfx {
 	}
 
 	// Draws a part of a frame, with its top left corner at the destination.
-	static void draw_part(image_entry* e, int32_t handle, int dx, int dy, int rx, int ry, int rw, int rh, int frame, bool masked)
+	static void draw_part(image_entry* e, int32_t handle, int dx, int dy, int rx, int ry, int rw, int rh, int frame, bool masked, int dw = 0, int dh = 0)
 	{
 		if (!active()) {
 			return;
 		}
+		// Stretched to dw by dh where those are given (the GUI in a window that the display scales): what is cut off the part at the
+		// edges of the frame is cut off the stretched part in the same proportion.
+		float stretch_x = (dw > 0) && (rw > 0) ? float(dw) / float(rw) : 1.0f, stretch_y = (dh > 0) && (rh > 0) ? float(dh) / float(rh) : 1.0f;
 		if ((frame < 0) || (frame >= e->frames)) {
 			bb_runtime_error("DrawImage: the frame does not exist.");
 		}
@@ -438,7 +441,8 @@ namespace bb::gfx {
 		frame_position(*e, frame, cx, cy);
 		float u0 = float(cx + rx) / float(e->sheet_w), v0 = float(cy + ry) / float(e->sheet_h);
 		float u1 = float(cx + rx + rw) / float(e->sheet_w), v1 = float(cy + ry + rh) / float(e->sheet_h);
-		float x0 = float(dx + g.origin_x), y0 = float(dy + g.origin_y), x1 = float(dx + rw + g.origin_x), y1 = float(dy + rh + g.origin_y);
+		float x0 = float(dx + g.origin_x), y0 = float(dy + g.origin_y);
+		float x1 = x0 + float(rw) * stretch_x, y1 = y0 + float(rh) * stretch_y;
 
 		float mask[4] = { 0, 0, 0, 0 };
 		if (masked && e->masked) {
@@ -754,6 +758,16 @@ void bb_draw_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
 void bb_draw_image_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame)
 {
 	draw_part(need_image(handle, "DrawImageRect"), handle, x, y, rx, ry, rw, rh, frame, true);
+}
+
+// For the GUI: the part rx, ry, rw, rh of the first frame of an image, stretched to w by h pixels at x, y (pixels as well).
+void bb_gui_draw_image(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h, int32_t rx, int32_t ry, int32_t rw, int32_t rh)
+{
+	image_entry* e = image_of(handle);
+	if (!e || (w <= 0) || (h <= 0)) {
+		return;
+	}
+	draw_part(e, handle, x, y, rx, ry, rw, rh, 0, true, w, h);
 }
 
 void bb_draw_block_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame)

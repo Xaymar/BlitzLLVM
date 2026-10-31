@@ -204,6 +204,7 @@ suite-debug-compile-plusgui_pixels
 suite-debug-compile-plusgui_windows_pixels
 suite-debug-compile-plusgui_canvas_pixels
 suite-debug-compile-plusgui_only_pixels
+suite-debug-compile-plusgui_scale_pixels
 suite-debug-compile-runtime
 suite-debug-compile-streams
 suite-debug-compile-streams_limits
@@ -384,6 +385,7 @@ suite-debug-run-plusgui_pixels
 suite-debug-run-plusgui_windows_pixels
 suite-debug-run-plusgui_canvas_pixels
 suite-debug-run-plusgui_only_pixels
+suite-debug-run-plusgui_scale_pixels
 suite-debug-run-runtime
 suite-debug-run-streams
 suite-debug-run-streams_limits
