@@ -31,7 +31,7 @@ The extension list is separated by commas, and a `;` splits it into groups: `"bb
 
 ## Differences
 
-* It is the file dialog of the operating system, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
+* It is the file dialog of the operating system, in front of the program's active window, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
 
 ## Examples
 

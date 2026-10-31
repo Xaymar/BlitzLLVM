@@ -30,7 +30,7 @@ Shows a question with an OK and a Cancel button and waits for the answer. Lines 
 
 ## Differences
 
-* The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
+* The box is a message box of the operating system in front of the program's active window, not part of it. When the program runs without a screen it writes the text to the error output and answers 0.
 
 ## Examples
 

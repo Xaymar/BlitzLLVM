@@ -31,7 +31,7 @@ Opens a color picker with three sliders and waits until the user presses OK or C
 
 ## Differences
 
-* The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors. Return confirms and Escape cancels.
+* The picker is drawn by the runtime inside the program's active window (the window of `Graphics` where there is none) and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors. Return confirms and Escape cancels; the mouse counts in that window only.
 
 ## Examples
 

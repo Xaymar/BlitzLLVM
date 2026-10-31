@@ -25,7 +25,7 @@ Opens a font picker and gives a font that was chosen, or 0 if the user cancelled
 
 ## Differences
 
-* Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview.
+* Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview. The picker is drawn by the runtime inside the program's active window (the window of `Graphics` where there is none).
 
 ## Examples
 

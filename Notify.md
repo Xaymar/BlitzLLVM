@@ -28,7 +28,7 @@ Shows a message with one OK button and waits until it is closed. Lines can be sp
 
 ## Differences
 
-* The box is a message box of the operating system and not part of the program window. Without a screen it writes the text to the error output.
+* The box is a message box of the operating system in front of the program's active window, not part of it. Without a screen it writes the text to the error output.
 
 ## Examples
 

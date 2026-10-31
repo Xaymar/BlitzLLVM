@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (299)</summary>
+<li><details><summary>Commands (297)</summary>
 <ul>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
 <li><a href="ActiveWindow#differences">ActiveWindow</a></li>
@@ -79,7 +79,6 @@
 <li><a href="Byte#differences">Byte</a> 〔BlitzLLVM〕</li>
 <li><a href="ByteSwap#differences">ByteSwap</a> 〔BlitzLLVM〕</li>
 <li><a href="CameraFogMode#differences">CameraFogMode</a></li>
-<li><a href="CanvasBuffer#differences">CanvasBuffer</a></li>
 <li><a href="ChannelPan#differences">ChannelPan</a></li>
 <li><a href="ChannelPitch#differences">ChannelPitch</a></li>
 <li><a href="ChannelPlaying#differences">ChannelPlaying</a></li>
@@ -142,7 +141,6 @@
 <li><a href="EntityStatic#differences">EntityStatic</a> 〔BlitzLLVM〕</li>
 <li><a href="EntityTexture#differences">EntityTexture</a></li>
 <li><a href="Flip#differences">Flip</a></li>
-<li><a href="FlipCanvas#differences">FlipCanvas</a></li>
 <li><a href="FlushJoy#differences">FlushJoy</a></li>
 <li><a href="FlushKeys#differences">FlushKeys</a></li>
 <li><a href="FlushMouse#differences">FlushMouse</a></li>

@@ -25,11 +25,7 @@ CanvasBuffer:Int32 canvas:Int32
 
 ## Description
 
-Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](FlipCanvas) to show the result. The buffer is as big as the canvas was when this was called first.
-
-## Differences
-
-* The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
+Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](FlipCanvas) to show the result. The buffer is as big as the canvas.
 
 ## Examples
 
@@ -48,6 +44,8 @@ FlipCanvas cv
 Repeat
 Until WaitEvent() = $803
 ```
+
+@difference The buffer has 32 bits of color (RGBA8) whatever depth `Graphics` has, and it is drawn to by the same renderer as the back buffer: `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way. When the canvas changes size (`SetGadgetShape`, or its layout following the window) the next `CanvasBuffer` gives a buffer of the new size, with what was drawn before gone, and keeps its handle as long as the size stays.
 
 ## Media
 

@@ -30,7 +30,7 @@ Shows a question with Yes, No and Cancel and waits for the answer. Lines can be 
 
 ## Differences
 
-* The box is a message box of the operating system. Without a screen it writes the text to the error output and answers -1.
+* The box is a message box of the operating system in front of the program's active window. Without a screen it writes the text to the error output and answers -1.
 
 ## Examples
 

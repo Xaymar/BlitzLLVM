@@ -29,7 +29,7 @@ Opens the folder picker of the system and gives the folder that was chosen, or a
 
 ## Differences
 
-* It is the folder dialog of the operating system, which differs between Windows, macOS and Linux. The prompt is the title, not text inside the dialog. Without a desktop session that can show one it returns an empty string.
+* It is the folder dialog of the operating system, in front of the program's active window, which differs between Windows, macOS and Linux. The prompt is the title, not text inside the dialog. Without a desktop session that can show one it returns an empty string.
 
 ## Examples
 

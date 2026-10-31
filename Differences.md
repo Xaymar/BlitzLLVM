@@ -70,7 +70,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.
 * [CameraFogMode](CameraFogMode#differences): Mode 2 is an extension of BlitzLLVM; the original only knows 0 and 1, and a program that uses 2 does not behave the same with the original Blitz3D.
-* [CanvasBuffer](CanvasBuffer#differences): The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit.
 * [ChannelPan](ChannelPan#differences): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
@@ -80,7 +79,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CloseMovie](CloseMovie#differences): Nothing , the same as the original.
 * [Collisions](Collisions#differences): Types outside 0 to 999, or a method outside 1 to 3, stop the program with a runtime error.
 * [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
-* [Confirm](Confirm#differences): The box is a message box of the operating system and not part of the program window.
+* [Confirm](Confirm#differences): The box is a message box of the operating system in front of the program's active window, not part of it.
 * [CopyPixel](CopyPixel#differences): A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
 * [CopyPixelFast](CopyPixelFast#differences): A buffer that is not locked is ignored by a build without `-d`, and stops a debug build (`-d`) with an error message.
 * [CopyRect](CopyRect#differences): Parts of the rectangle that lie outside of either buffer are cut off.
@@ -133,7 +132,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [EntityStatic](EntityStatic#differences) 〔BlitzLLVM〕: The original has no such command.
 * [EntityTexture](EntityTexture#differences): A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 * [Flip](Flip#differences): Without a graphics window nothing happens.
-* [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.
 * [FlushJoy](FlushJoy#differences): Buttons that are currently held are not released.
 * [FlushKeys](FlushKeys#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 * [FlushMouse](FlushMouse#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
@@ -242,7 +240,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [MoviePosition](MoviePosition#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [MovieVolume](MovieVolume#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [MovieWidth](MovieWidth#differences): Nothing , the same as the original.
-* [Notify](Notify#differences): The box is a message box of the operating system and not part of the program window.
+* [Notify](Notify#differences): The box is a message box of the operating system in front of the program's active window, not part of it.
 * [OpenMovie](OpenMovie#differences): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
 * [PauseChannel](PauseChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
 * [PauseMovie](PauseMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
@@ -253,7 +251,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [PlaySound](PlaySound#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [PopCount](PopCount#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Print](Print#differences): Without a graphics window the text goes to the console instead.
-* [Proceed](Proceed#differences): The box is a message box of the operating system.
+* [Proceed](Proceed#differences): The box is a message box of the operating system in front of the program's active window.
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
 * [RawInput](RawInput#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
@@ -264,9 +262,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 * [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [RenderWorld](RenderWorld#differences): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
-* [RequestColor](RequestColor#differences): The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
-* [RequestDir](RequestDir#differences): It is the folder dialog of the operating system, which differs between Windows, macOS and Linux.
-* [RequestFile](RequestFile#differences): It is the file dialog of the operating system, so it looks different on each system.
+* [RequestColor](RequestColor#differences): The picker is drawn by the runtime inside the program's active window (the window of `Graphics` where there is none) and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
+* [RequestDir](RequestDir#differences): It is the folder dialog of the operating system, in front of the program's active window, which differs between Windows, macOS and Linux.
+* [RequestFile](RequestFile#differences): It is the file dialog of the operating system, in front of the program's active window, so it looks different on each system.
 * [RequestFont](RequestFont#differences): Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font.
 * [ResizeImage](ResizeImage#differences): The picture is stretched with smooth filtering, where the original used simple pixel picking.
 * [ResumeChannel](ResumeChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.

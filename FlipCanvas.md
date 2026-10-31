@@ -24,11 +24,7 @@ FlipCanvas:Void canvas:Int32, vwait:Int32=0
 
 ## Description
 
-Shows what was drawn to the buffer of a canvas, like `Flip` does for a window opened with `Graphics`. Until it is called the canvas keeps showing what it showed before.
-
-## Differences
-
-* The second parameter is accepted, but there is nothing to wait for and it makes no difference.
+Shows what was drawn to the buffer of a canvas, like `Flip` does for a window opened with `Graphics`. Until it is called the canvas keeps showing what it showed before, and `Flip` has nothing to do with canvases.
 
 ## Examples
 
@@ -43,6 +39,7 @@ FlipCanvas cv, 0
 Repeat
 Until WaitEvent() = $803
 ```
+@difference The window of the canvas is drawn and handed to the thread that shows it right away, so a program that never waits for events still shows its canvases. With `vwait` 1 the call returns once the window has shown the picture, at the pace of its display, and after a quarter of a second at the latest where the window cannot show anything (it is covered or minimized); with 0 it returns at once, and a canvas flipped faster than the display shows the newest picture. What was drawn stays in the buffer after the flip.
 
 ## Related Commands
 
