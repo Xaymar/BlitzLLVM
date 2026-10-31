@@ -186,6 +186,9 @@ namespace bb {
 
 		int refs = 1; // Copies of an entity share its surfaces.
 
+		// Counts up whenever the vertices or the triangles change (surface_changed), for what is made from them and kept, like the mesh of the physics library.
+		uint32_t geometry_version = 0;
+
 		// Set by the renderer for its own use, and cleared whenever the geometry changes.
 		bool dirty = true;
 		void* gpu  = nullptr;
@@ -345,6 +348,7 @@ namespace bb {
 	inline void surface_changed(surface& s)
 	{
 		s.bound_valid = false;
+		s.geometry_version++;
 		if (s.cull_cached) {
 			s.cull_cached = false;
 			mesh_epoch++;
