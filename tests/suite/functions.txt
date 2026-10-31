@@ -268,7 +268,7 @@ setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
 samplerfiltermag	blitz3d	done	SamplerFilterMag%sampler%mode
 samplerfiltermin	blitz3d	done	SamplerFilterMin%sampler%mode
 samplerfiltermip	blitz3d	done	SamplerFilterMip%sampler%mode
-setsamplerlodbias	blitz3d	done	SetSamplerLodBias%sampler#bias
+samplerlodbias	blitz3d	done	SamplerLodBias%sampler#bias
 setsamplerlodmax	blitz3d	done	SetSamplerLodMax%sampler#lod
 setsamplerlodmin	blitz3d	done	SetSamplerLodMin%sampler#lod
 settexturesampler	blitz3d	done	SetTextureSampler%texture%sampler

@@ -1372,7 +1372,7 @@ void bb_set_sampler_address_mode_w(int32_t handle, int32_t mode)
 
 void bb_set_sampler_lod_bias(int32_t handle, float bias)
 {
-	need_sampler(handle, "SetSamplerLodBias")->lod_bias = bias;
+	need_sampler(handle, "SamplerLodBias")->lod_bias = bias;
 	apply_sampler(handle);
 }
 
