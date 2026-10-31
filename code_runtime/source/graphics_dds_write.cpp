@@ -141,20 +141,10 @@ namespace bb::gfx {
 			return true;
 		}
 
-		// Eight bytes of BC1 color: the two ends of the line the colors lie along, pulled in a little, and 2 bits for each pixel of where between.
-		void encode_bc1_color(const pixel* px, bool punch, uint8_t* out)
+		// Puts the colors lo and hi (the ends of the BC1 line) in a block, picks the closest of the colors between them for every pixel, and
+		// returns how far the result is from the pixels (squared, over red, green and blue).
+		int bc1_try(const pixel* px, bool punch, const int* lo, const int* hi, uint8_t* out)
 		{
-			int lo[3], hi[3];
-			if (!line_ends(px, 3, punch, lo, hi)) {
-				memset(out, 0, 8);
-				memset(out + 4, 0xff, 4); // every pixel is transparent (index 3)
-				return;
-			}
-			for (int k = 0; k < 3; k++) {
-				int inset = (hi[k] - lo[k]) / 16;
-				lo[k] += inset;
-				hi[k] -= inset;
-			}
 			uint16_t c0 = to565(hi), c1 = to565(lo);
 			bool     four = !punch;
 			if (four ? (c0 < c1) : (c0 > c1)) {
@@ -176,29 +166,88 @@ namespace bb::gfx {
 			out[1] = uint8_t(c0 >> 8);
 			out[2] = uint8_t(c1);
 			out[3] = uint8_t(c1 >> 8);
-			uint32_t bits = 0;
+			uint32_t bits  = 0;
+			int      total = 0;
 			for (int i = 0; i < 16; i++) {
 				int best = 0;
 				if (punch && px[i].c[3] < 128) {
 					best = 3;
 				} else {
 					int best_error = 1 << 30;
-					for (int p = 0; p < (four ? 4 : 3); p++) {
+					for (int q = 0; q < (four ? 4 : 3); q++) {
 						int e = 0;
 						for (int k = 0; k < 3; k++) {
-							int d = int(px[i].c[k]) - pal[p][k];
+							int d = int(px[i].c[k]) - pal[q][k];
 							e += d * d;
 						}
 						if (e < best_error) {
 							best_error = e;
-							best       = p;
+							best       = q;
 						}
 					}
+					total += best_error;
 				}
 				bits |= uint32_t(best) << (2 * i);
 			}
 			for (int i = 0; i < 4; i++) {
 				out[4 + i] = uint8_t(bits >> (8 * i));
+			}
+			return total;
+		}
+
+		// Eight bytes of BC1 color: the two ends of the line the colors lie along (pulled in a little) and 2 bits for each pixel of where
+		// between. The ends are then fitted again a few times to the pixels that picked them (least squares), as long as that gets closer.
+		void encode_bc1_color(const pixel* px, bool punch, uint8_t* out)
+		{
+			int lo[3], hi[3];
+			if (!line_ends(px, 3, punch, lo, hi)) {
+				memset(out, 0, 8);
+				memset(out + 4, 0xff, 4); // every pixel is transparent (index 3)
+				return;
+			}
+			for (int k = 0; k < 3; k++) {
+				int inset = (hi[k] - lo[k]) / 16;
+				lo[k] += inset;
+				hi[k] -= inset;
+			}
+			int best = bc1_try(px, punch, lo, hi, out);
+			for (int round = 0; round < 3 && best > 0; round++) {
+				// The weight of the first end for each of the four indices.
+				static const double weight4[4] = { 1.0, 0.0, 2.0 / 3.0, 1.0 / 3.0 };
+				static const double weight3[4] = { 1.0, 0.0, 0.5, 0.0 };
+				const double*       weight = punch ? weight3 : weight4;
+				uint32_t            bits   = uint32_t(out[4]) | uint32_t(out[5]) << 8 | uint32_t(out[6]) << 16 | uint32_t(out[7]) << 24;
+				double              aa = 0, ab = 0, bb = 0, ax[3] = {}, bx[3] = {};
+				for (int i = 0; i < 16; i++) {
+					int q = (bits >> (2 * i)) & 3;
+					if (punch && px[i].c[3] < 128) {
+						continue;
+					}
+					double a = weight[q], b = 1.0 - a;
+					aa += a * a;
+					ab += a * b;
+					bb += b * b;
+					for (int k = 0; k < 3; k++) {
+						ax[k] += a * px[i].c[k];
+						bx[k] += b * px[i].c[k];
+					}
+				}
+				double det = aa * bb - ab * ab;
+				if (det < 1e-6) {
+					break;
+				}
+				int nlo[3], nhi[3];
+				for (int k = 0; k < 3; k++) {
+					nhi[k] = std::clamp(int(std::lround((ax[k] * bb - bx[k] * ab) / det)), 0, 255);
+					nlo[k] = std::clamp(int(std::lround((bx[k] * aa - ax[k] * ab) / det)), 0, 255);
+				}
+				uint8_t trial[8];
+				int     e = bc1_try(px, punch, nlo, nhi, trial);
+				if (e >= best) {
+					break;
+				}
+				best = e;
+				memcpy(out, trial, 8);
 			}
 		}
 
@@ -256,10 +305,70 @@ namespace bb::gfx {
 			}
 		};
 
+		const int bc7_weights2[4]  = { 0, 21, 43, 64 };
+		const int bc7_weights3[8]  = { 0, 9, 18, 27, 37, 46, 55, 64 };
 		const int bc7_weights4[16] = { 0, 4, 9, 13, 17, 21, 26, 30, 34, 38, 43, 47, 51, 55, 60, 64 };
 
-		// BC7 in mode 6 only: one pair of 8 bit RGBA endpoints (7 bits and a shared lowest bit) and 4 bits per pixel.
-		void encode_bc7_block(const pixel* px, uint8_t* out)
+		// The partitions of the pixels into two subsets (mode 1), and the pixel of the second subset that has one index bit less.
+		const uint16_t bc7_subsets2[64] = {
+			0xcccc, 0x8888, 0xeeee, 0xecc8, 0xc880, 0xfeec, 0xfec8, 0xec80, 0xc800, 0xffec, 0xfe80, 0xe800, 0xffe8, 0xff00, 0xfff0, 0xf000,
+			0xf710, 0x008e, 0x7100, 0x08ce, 0x008c, 0x7310, 0x3100, 0x8cce, 0x088c, 0x3110, 0x6666, 0x366c, 0x17e8, 0x0ff0, 0x718e, 0x399c,
+			0xaaaa, 0xf0f0, 0x5a5a, 0x33cc, 0x3c3c, 0x55aa, 0x9696, 0xa55a, 0x73ce, 0x13c8, 0x324c, 0x3bdc, 0x6996, 0xc33c, 0x9966, 0x0660,
+			0x0272, 0x04e4, 0x4e40, 0x2720, 0xc936, 0x936c, 0x39c6, 0x639c, 0x9336, 0x9cc6, 0x817e, 0xe718, 0xccf0, 0x0fcc, 0x7744, 0xee22,
+		};
+		const uint8_t bc7_anchor2[64] = {
+			15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 2, 8, 2, 2, 8, 8, 15, 2, 8, 2, 2, 8, 8, 2, 2,
+			15, 15, 6, 8, 2, 8, 15, 15, 2, 8, 2, 2, 2, 15, 15, 6, 6, 2, 6, 8, 15, 15, 2, 2, 15, 15, 15, 15, 15, 2, 2, 15,
+		};
+
+		// What a stored value of qbits bits (and a shared lowest bit p, or -1 for none) is as a color of 8 bits.
+		int bc7_recon(int q, int p, int qbits)
+		{
+			int n = qbits + (p >= 0 ? 1 : 0);
+			int v = p >= 0 ? ((q << 1) | p) : q;
+			return n >= 8 ? v : ((v << (8 - n)) | (v >> (2 * n - 8)));
+		}
+
+		// The stored value closest to the color t, and how far it is off.
+		int bc7_quant(int t, int p, int qbits, int& q)
+		{
+			int max_q = (1 << qbits) - 1, center = (t * max_q + 127) / 255, best = 1 << 30;
+			for (int c = std::max(center - 2, 0); c <= std::min(center + 2, max_q); c++) {
+				int d = bc7_recon(c, p, qbits) - t;
+				if (d * d < best) {
+					best = d * d;
+					q    = c;
+				}
+			}
+			return best;
+		}
+
+		// The weight of the closest step between the ends a and b for channels [c0, c1) of a pixel, and the error of it.
+		int bc7_index(const pixel& px, const int* a, const int* b, const int* weights, int count, int c0, int c1, int& error)
+		{
+			int best = 0;
+			error    = 1 << 30;
+			for (int w = 0; w < count; w++) {
+				int e = 0;
+				for (int k = c0; k < c1; k++) {
+					int d = int(px.c[k]) - ((a[k] * (64 - weights[w]) + b[k] * weights[w] + 32) >> 6);
+					e += d * d;
+				}
+				if (e < error) {
+					error = e;
+					best  = w;
+				}
+			}
+			return best;
+		}
+
+		struct bc7_candidate {
+			int     error = 1 << 30;
+			uint8_t data[16];
+		};
+
+		// Mode 6: one pair of RGBA ends of 7 bits and a lowest bit each, 4 bits for each pixel.
+		void bc7_mode6(const pixel* px, bc7_candidate& result)
 		{
 			int lo[4], hi[4];
 			line_ends(px, 4, false, lo, hi);
@@ -268,38 +377,25 @@ namespace bb::gfx {
 				const int* v      = e ? hi : lo;
 				int        best_e = 1 << 30;
 				for (int p = 0; p < 2; p++) {
-					int q[4], r[4], err = 0;
+					int q[4], err = 0;
 					for (int k = 0; k < 4; k++) {
-						q[k] = std::clamp((v[k] - p + 1) / 2, 0, 127);
-						r[k] = q[k] * 2 + p;
-						err += (r[k] - v[k]) * (r[k] - v[k]);
+						err += bc7_quant(v[k], p, 7, q[k]);
 					}
 					if (err < best_e) {
 						best_e  = err;
 						pbit[e] = p;
 						for (int k = 0; k < 4; k++) {
 							quant[e][k] = q[k];
-							rec[e][k]   = r[k];
+							rec[e][k]   = bc7_recon(q[k], p, 7);
 						}
 					}
 				}
 			}
-			int index[16];
+			int index[16], total = 0;
 			for (int i = 0; i < 16; i++) {
-				int best = 0, best_error = 1 << 30;
-				for (int w = 0; w < 16; w++) {
-					int err = 0;
-					for (int k = 0; k < 4; k++) {
-						int v = (rec[0][k] * (64 - bc7_weights4[w]) + rec[1][k] * bc7_weights4[w] + 32) >> 6;
-						int d = int(px[i].c[k]) - v;
-						err += d * d;
-					}
-					if (err < best_error) {
-						best_error = err;
-						best       = w;
-					}
-				}
-				index[i] = best;
+				int e;
+				index[i] = bc7_index(px[i], rec[0], rec[1], bc7_weights4, 16, 0, 4, e);
+				total += e;
 			}
 			if (index[0] >= 8) { // The first index has only 3 bits, so the ends change places to keep it small.
 				for (int k = 0; k < 4; k++) {
@@ -310,9 +406,10 @@ namespace bb::gfx {
 					index[i] = 15 - index[i];
 				}
 			}
-			memset(out, 0, 16);
-			bit_writer w{ out };
-			w.put(1 << 6, 7); // Mode 6.
+			result.error = total;
+			memset(result.data, 0, 16);
+			bit_writer w{ result.data };
+			w.put(1 << 6, 7);
 			for (int k = 0; k < 4; k++) {
 				w.put(uint32_t(quant[0][k]), 7);
 				w.put(uint32_t(quant[1][k]), 7);
@@ -322,6 +419,175 @@ namespace bb::gfx {
 			for (int i = 0; i < 16; i++) {
 				w.put(uint32_t(index[i]), i == 0 ? 3 : 4);
 			}
+		}
+
+		// Mode 5: color ends of 7 bits and alpha ends of 8 bits, with 2 bits for each pixel for the color and 2 bits for the alpha apart
+		// from each other. Good where the alpha changes in another way than the color.
+		void bc7_mode5(const pixel* px, bc7_candidate& result)
+		{
+			int lo[3], hi[3];
+			line_ends(px, 3, false, lo, hi);
+			int alo = 255, ahi = 0;
+			for (int i = 0; i < 16; i++) {
+				alo = std::min<int>(alo, px[i].c[3]);
+				ahi = std::max<int>(ahi, px[i].c[3]);
+			}
+			int quant[2][4], rec[2][4];
+			for (int k = 0; k < 3; k++) {
+				bc7_quant(lo[k], -1, 7, quant[0][k]);
+				bc7_quant(hi[k], -1, 7, quant[1][k]);
+			}
+			bc7_quant(alo, -1, 8, quant[0][3]);
+			bc7_quant(ahi, -1, 8, quant[1][3]);
+			int total = 0, color_index[16], alpha_index[16];
+			auto reconstruct = [&]() {
+				for (int e = 0; e < 2; e++) {
+					for (int k = 0; k < 4; k++) {
+						rec[e][k] = bc7_recon(quant[e][k], -1, k == 3 ? 8 : 7);
+					}
+				}
+			};
+			reconstruct();
+			for (int i = 0; i < 16; i++) {
+				int e;
+				color_index[i] = bc7_index(px[i], rec[0], rec[1], bc7_weights2, 4, 0, 3, e);
+				total += e;
+				alpha_index[i] = bc7_index(px[i], rec[0], rec[1], bc7_weights2, 4, 3, 4, e);
+				total += e;
+			}
+			if (color_index[0] >= 2) {
+				for (int k = 0; k < 3; k++) {
+					std::swap(quant[0][k], quant[1][k]);
+				}
+				for (int i = 0; i < 16; i++) {
+					color_index[i] = 3 - color_index[i];
+				}
+			}
+			if (alpha_index[0] >= 2) {
+				std::swap(quant[0][3], quant[1][3]);
+				for (int i = 0; i < 16; i++) {
+					alpha_index[i] = 3 - alpha_index[i];
+				}
+			}
+			result.error = total;
+			memset(result.data, 0, 16);
+			bit_writer w{ result.data };
+			w.put(1 << 5, 6); // Mode 5.
+			w.put(0, 2);      // No rotation.
+			for (int k = 0; k < 3; k++) {
+				w.put(uint32_t(quant[0][k]), 7);
+				w.put(uint32_t(quant[1][k]), 7);
+			}
+			w.put(uint32_t(quant[0][3]), 8);
+			w.put(uint32_t(quant[1][3]), 8);
+			for (int i = 0; i < 16; i++) {
+				w.put(uint32_t(color_index[i]), i == 0 ? 1 : 2);
+			}
+			for (int i = 0; i < 16; i++) {
+				w.put(uint32_t(alpha_index[i]), i == 0 ? 1 : 2);
+			}
+		}
+
+		// Mode 1 for opaque blocks: two subsets (one of 64 partitions), each with its own RGB ends of 6 bits and a shared lowest bit.
+		void bc7_mode1(const pixel* px, bc7_candidate& result)
+		{
+			for (int partition = 0; partition < 64; partition++) {
+				pixel subset_pixels[2][16];
+				int   count[2] = { 0, 0 };
+				for (int i = 0; i < 16; i++) {
+					int s                              = (bc7_subsets2[partition] >> i) & 1;
+					subset_pixels[s][count[s]++] = px[i];
+				}
+				if (!count[0] || !count[1]) {
+					continue;
+				}
+				int quant[2][2][3], pbit[2], rec[2][2][3];
+				for (int s = 0; s < 2; s++) {
+					// line_ends wants 16 pixels, so the missing ones repeat the first.
+					for (int i = count[s]; i < 16; i++) {
+						subset_pixels[s][i] = subset_pixels[s][0];
+					}
+					int lo[4], hi[4];
+					line_ends(subset_pixels[s], 3, false, lo, hi);
+					int best_e = 1 << 30;
+					for (int p = 0; p < 2; p++) {
+						int q[2][3], err = 0;
+						for (int k = 0; k < 3; k++) {
+							err += bc7_quant(lo[k], p, 6, q[0][k]);
+							err += bc7_quant(hi[k], p, 6, q[1][k]);
+						}
+						if (err < best_e) {
+							best_e  = err;
+							pbit[s] = p;
+							for (int e = 0; e < 2; e++) {
+								for (int k = 0; k < 3; k++) {
+									quant[s][e][k] = q[e][k];
+									rec[s][e][k]   = bc7_recon(q[e][k], p, 6);
+								}
+							}
+						}
+					}
+				}
+				int index[16], total = 0;
+				for (int i = 0; i < 16 && total < result.error; i++) {
+					int s = (bc7_subsets2[partition] >> i) & 1, e;
+					int a[4] = { rec[s][0][0], rec[s][0][1], rec[s][0][2], 255 }, b[4] = { rec[s][1][0], rec[s][1][1], rec[s][1][2], 255 };
+					index[i] = bc7_index(px[i], a, b, bc7_weights3, 8, 0, 3, e);
+					total += e;
+				}
+				if (total >= result.error) {
+					continue;
+				}
+				// The first pixel of each subset has one index bit less, so its index has to be below 4.
+				int anchor[2] = { 0, bc7_anchor2[partition] };
+				for (int s = 0; s < 2; s++) {
+					if (index[anchor[s]] >= 4) {
+						for (int k = 0; k < 3; k++) {
+							std::swap(quant[s][0][k], quant[s][1][k]);
+						}
+						for (int i = 0; i < 16; i++) {
+							if (((bc7_subsets2[partition] >> i) & 1) == s) {
+								index[i] = 7 - index[i];
+							}
+						}
+					}
+				}
+				result.error = total;
+				memset(result.data, 0, 16);
+				bit_writer w{ result.data };
+				w.put(1 << 1, 2); // Mode 1.
+				w.put(uint32_t(partition), 6);
+				for (int k = 0; k < 3; k++) {
+					w.put(uint32_t(quant[0][0][k]), 6);
+					w.put(uint32_t(quant[0][1][k]), 6);
+					w.put(uint32_t(quant[1][0][k]), 6);
+					w.put(uint32_t(quant[1][1][k]), 6);
+				}
+				w.put(uint32_t(pbit[0]), 1);
+				w.put(uint32_t(pbit[1]), 1);
+				for (int i = 0; i < 16; i++) {
+					w.put(uint32_t(index[i]), (i == anchor[0] || i == anchor[1]) ? 2 : 3);
+				}
+			}
+		}
+
+		// BC7, with the modes 6, 5 and (for opaque blocks) 1: whichever is the closest to the pixels is written.
+		void encode_bc7_block(const pixel* px, uint8_t* out)
+		{
+			bc7_candidate best, other;
+			bc7_mode6(px, best);
+			bc7_mode5(px, other);
+			if (other.error < best.error) {
+				best = other;
+			}
+			bool opaque = true;
+			for (int i = 0; i < 16; i++) {
+				opaque = opaque && px[i].c[3] == 255;
+			}
+			if (opaque && best.error > 0) {
+				bc7_mode1(px, best);
+			}
+			memcpy(out, best.data, 16);
 		}
 
 		bool is_block(dds_format f)
