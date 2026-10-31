@@ -36,6 +36,10 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_VOLUME_FALLOFF` | `new` | The curve that the volume of 3D sounds falls off by: `new`, `legacy` (the curve of the original) or `soloud` (the curve of SoLoud), see [[CreateListener]]. |
 | `BLITZLLVM_ENTITY_LIGHTING` | `0` | The `EntityLighting` mode of entities that were not given one: `1` lights every pixel instead of every vertex. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |
+| `BLITZLLVM_AUTOHDR` | `0` | The mode `AutoHDR` starts with: 0 off, 1 HDR output, 2 with lifted highlights. |
+| `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for `AutoHDRWhite`, 0 follows the system. |
+| `BLITZLLVM_AUTOHDR_PEAK` | display | Peak brightness in nits for `AutoHDRPeak`, 0 uses the display's. |
+| `BLITZLLVM_AUTOHDR_EXPAND` | `0.5` | How far mode 2 lifts highlights (`AutoHDRExpand`), 0 to 1. |
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[Memory]]. |
