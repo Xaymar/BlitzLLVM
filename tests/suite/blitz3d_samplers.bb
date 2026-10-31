@@ -6,7 +6,7 @@
 ; SamplerFilterMip SetSamplerBorderColor GetSamplerFilterMin GetSamplerFilterMag GetSamplerFilterMip GetSamplerAnisotropy
 ; GetSamplerAddressModeU GetSamplerAddressModeV GetSamplerAddressModeW GetSamplerLodBias GetSamplerLodMin GetSamplerLodMax
 ; GetSamplerBorderColorR GetSamplerBorderColorG GetSamplerBorderColorB GetSamplerBorderColorA SamplerAnisotropy SamplerAddressModeU SamplerAddressModeV SamplerAddressModeW
-; SamplerLodBias SetSamplerLodMin SetSamplerLodMax
+; SamplerLodBias SamplerLodMin SetSamplerLodMax
 ; SetTextureSampler.
 Include "check.bb"
 
@@ -23,7 +23,7 @@ SamplerAddressModeU a, 1
 SamplerAddressModeV a, 2
 SamplerAddressModeW a, 3
 SamplerLodBias a, -0.5
-SetSamplerLodMin a, 1.0
+SamplerLodMin a, 1.0
 SetSamplerLodMax a, 3.0
 
 SetSamplerBorderColor a, 0.25, 0.5, 0.75, 1.5

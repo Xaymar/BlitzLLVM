@@ -1378,7 +1378,7 @@ void bb_set_sampler_lod_bias(int32_t handle, float bias)
 
 void bb_set_sampler_lod_min(int32_t handle, float lod)
 {
-	need_sampler(handle, "SetSamplerLodMin")->lod_min = lod < 0.0f ? 0.0f : lod;
+	need_sampler(handle, "SamplerLodMin")->lod_min = lod < 0.0f ? 0.0f : lod;
 	apply_sampler(handle);
 }
 
