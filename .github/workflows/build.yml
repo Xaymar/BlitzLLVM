@@ -359,3 +359,40 @@ jobs:
           path: packages/${{ env.ARTIFACT }}.pkg
           archive: false
 
+
+  vscode:
+    name: build (vscode extension)
+    needs: matrix
+    if: inputs.packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out the submodule for the version
+        run: git submodule update --init --depth 1 cmake/version
+      - name: Determine the version
+        run: |
+          VERSION="$(cmake -P cmake/project_version.cmake)"
+          echo "Version: $VERSION"
+          {
+            echo "VERSION=$VERSION"
+            echo "ARTIFACT=blitzllvm-${VERSION}-vscode"
+          } >> "$GITHUB_ENV"
+      - name: Package the extension
+        # The extension does not contain blitz-lsp: that is in every package of BlitzLLVM, and the extension finds it in PATH or in
+        # blitz.installPath. The version of a .vsix has three numbers, the first three of the version of the build.
+        working-directory: tools/vscode
+        run: |
+          python3 ../generate_vscode_grammar.py --check
+          npm install --no-audit --no-fund
+          npx vsce package "$(echo "$VERSION" | cut -d. -f1-3)" --no-git-tag-version --no-update-package-json --out "../../${ARTIFACT}.vsix"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: '!inputs.loose'
+        with:
+          # Named like the packages of the other platforms, so that the release takes the file as it is.
+          name: ${{ env.ARTIFACT }}-packages
+          path: ${{ env.ARTIFACT }}.vsix
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: inputs.loose
+        with:
+          path: ${{ env.ARTIFACT }}.vsix
+          archive: false
