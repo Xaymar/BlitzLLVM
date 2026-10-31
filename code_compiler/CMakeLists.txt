@@ -91,10 +91,10 @@ else()
 endif()
 
 # The runtime library has to live next to the compiler, which links it into every program it produces.
-add_dependencies(${PROJECT_NAME} blitzrt)
+add_dependencies(${PROJECT_NAME} blitzrt blitzphysics)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}/"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}/"
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
 )
@@ -102,7 +102,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 # Install layout, the same as the system layout of the packages below: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime (the libraries
 # and the sources of the hot parts of the runtime) and <prefix>/userlibs. blitzcc finds the runtime from where it is.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
+install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
 # The licenses of BlitzLLVM and of every bundled dependency that ends up in the program (the ones of the system's libraries are
@@ -118,6 +118,7 @@ function(blitz_install_licenses DESTINATION)
 	install(DIRECTORY "${_ROOT}/third_party/Vulkan-Headers/LICENSES" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
 	install(FILES "${_ROOT}/third_party/Vulkan-Headers/LICENSE.md" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
 	install(FILES "${_ROOT}/third_party/stb/LICENSE" DESTINATION "${DESTINATION}/stb" ${ARGN})
+	install(FILES "${_ROOT}/third_party/JoltPhysics/LICENSE" DESTINATION "${DESTINATION}/JoltPhysics" ${ARGN})
 	install(FILES "${_ROOT}/third_party/VulkanMemoryAllocator/LICENSE.txt" DESTINATION "${DESTINATION}/VulkanMemoryAllocator" ${ARGN})
 	# The shaders and lookup textures of AntiAlias (tools/generate_smaa.py).
 	install(FILES "${_ROOT}/tools/smaa/LICENSE" DESTINATION "${DESTINATION}/SMAA" ${ARGN})
@@ -130,7 +131,7 @@ blitz_install_licenses(licenses)
 # System layout for packages (deb, rpm, pkg), left out of a plain install: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime
 # and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
-install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR} COMPONENT system EXCLUDE_FROM_ALL)
+install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR} COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
@@ -262,6 +263,11 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			# Again without the local read extensions, which is how the pixel interlock gets used where it is there.
 			add_test(NAME "${_PREFIX}-run-${_NAME}-interlock" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
 			set_tests_properties("${_PREFIX}-run-${_NAME}-interlock" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite;gpu" ENVIRONMENT "BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_DITHER_LOCAL_READ=0;BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
+		endif()
+		if(_NAME STREQUAL "blitz3d_pick_large_meshes")
+			# Again with the physics library finding what is hit, which has to give the same answers.
+			add_test(NAME "${_PREFIX}-run-${_NAME}-jolt" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
+			set_tests_properties("${_PREFIX}-run-${_NAME}-jolt" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite" ENVIRONMENT "BLITZLLVM_HEADLESS=1;BLITZLLVM_PICK_BACKEND=jolt;BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
 		endif()
 		file(STRINGS "${_FILE}" _MOVES_MOUSE REGEX "[Mm]ove[Mm]ouse" LIMIT_COUNT 1)
 		if(_MOVES_MOUSE)
