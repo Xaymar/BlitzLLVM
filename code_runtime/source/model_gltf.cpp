@@ -13,20 +13,22 @@
 
 // Loading glTF 2.0 files (.gltf with its buffers next to it or inside it, and .glb) into a model (see model_internal.hpp), which b3d.cpp turns into entities.
 //
-// A glTF file is JSON that names buffers, views and accessors (the numbers in the buffers), meshes made of primitives (one material
-// and one triangle list each), a tree of nodes, skins (the joints that move the vertices) and animations (keys for the translation,
-// rotation and scale of nodes). A .glb file is the JSON and the first buffer in one file.
+// The file is read by cgltf (third_party/cgltf), which parses the JSON, reads the buffers and unpacks the accessors. What is made of it:
+// meshes of primitives (one material and one triangle list each), a tree of nodes, skins (the joints that move the vertices) and
+// animations (keys for the translation, rotation and scale of nodes).
 //
 // glTF is right-handed with y up and the front of things at +z, Blitz3D is left-handed with y up and looks along +z, so the
 // conversion is to mirror x: positions, normals and translations lose the sign of x, a rotation keeps its axis part along x and loses
 // the sign of the two others. A face keeps its look, but its front is where its corners go around the other way in Blitz3D, so two
 // corners of each triangle change places. The pictures of glTF start at the top, as those of Blitz3D do.
-// The file is read without the help of a library: there is a small JSON reader at the top of this file.
 
 #include "gltf.hpp"
 #include "model_internal.hpp"
 #include "memory.h"
 #include "path.h"
+
+#define CGLTF_IMPLEMENTATION
+#include "cgltf.h"
 
 #include <algorithm>
 #include <array>
@@ -47,647 +49,95 @@ namespace {
 	constexpr float frames_per_second = 60;
 
 	////////////////////////////////////////////////////////////////////////////
-	// JSON
+	// Reading the file with cgltf
 	////////////////////////////////////////////////////////////////////////////
-	struct jv {
-		enum kind_t : uint8_t { none, boolean, number, string, array, object };
-		kind_t                                 kind   = none;
-		bool                                   flag   = false;
-		double                                 value  = 0;
-		std::string                            text;
-		std::vector<jv>                        items;
-		std::vector<std::pair<std::string, jv>> members;
-
-		const jv* get(const char* key) const
-		{
-			if (kind != object) {
-				return nullptr;
-			}
-			for (auto const& m : members) {
-				if (m.first == key) {
-					return &m.second;
-				}
-			}
-			return nullptr;
-		}
-
-		const jv* at(size_t index) const
-		{
-			return (kind == array && index < items.size()) ? &items[index] : nullptr;
-		}
-
-		size_t count() const
-		{
-			return kind == array ? items.size() : 0;
-		}
-	};
-
-	struct json_reader {
-		const char* p;
-		const char* end;
-
-		void space()
-		{
-			while ((p < end) && ((*p == ' ') || (*p == '\t') || (*p == '\n') || (*p == '\r'))) {
-				p++;
-			}
-		}
-
-		static void utf8(std::string& out, uint32_t c)
-		{
-			if (c < 0x80) {
-				out += char(c);
-			} else if (c < 0x800) {
-				out += char(0xC0 | (c >> 6));
-				out += char(0x80 | (c & 63));
-			} else if (c < 0x10000) {
-				out += char(0xE0 | (c >> 12));
-				out += char(0x80 | ((c >> 6) & 63));
-				out += char(0x80 | (c & 63));
-			} else {
-				out += char(0xF0 | (c >> 18));
-				out += char(0x80 | ((c >> 12) & 63));
-				out += char(0x80 | ((c >> 6) & 63));
-				out += char(0x80 | (c & 63));
-			}
-		}
-
-		bool hex4(uint32_t& out)
-		{
-			if (end - p < 4) {
-				return false;
-			}
-			out = 0;
-			for (int i = 0; i < 4; i++) {
-				char c = *p++;
-				out <<= 4;
-				if ((c >= '0') && (c <= '9')) {
-					out |= uint32_t(c - '0');
-				} else if ((c >= 'a') && (c <= 'f')) {
-					out |= uint32_t(c - 'a' + 10);
-				} else if ((c >= 'A') && (c <= 'F')) {
-					out |= uint32_t(c - 'A' + 10);
-				} else {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		bool string_value(std::string& out)
-		{
-			if ((p >= end) || (*p != '"')) {
-				return false;
-			}
-			p++;
-			while (p < end) {
-				char c = *p++;
-				if (c == '"') {
-					return true;
-				}
-				if (c != '\\') {
-					out += c;
-					continue;
-				}
-				if (p >= end) {
-					return false;
-				}
-				c = *p++;
-				switch (c) {
-				case 'n': out += '\n'; break;
-				case 't': out += '\t'; break;
-				case 'r': out += '\r'; break;
-				case 'b': out += '\b'; break;
-				case 'f': out += '\f'; break;
-				case 'u': {
-					uint32_t u;
-					if (!hex4(u)) {
-						return false;
-					}
-					if ((u >= 0xD800) && (u < 0xDC00) && (end - p >= 6) && (p[0] == '\\') && (p[1] == 'u')) {
-						p += 2;
-						uint32_t low;
-						if (!hex4(low)) {
-							return false;
-						}
-						u = 0x10000 + ((u - 0xD800) << 10) + (low - 0xDC00);
-					}
-					utf8(out, u);
-					break;
-				}
-				default: out += c; break;
-				}
-			}
-			return false;
-		}
-
-		bool value(jv& out, int depth)
-		{
-			if (depth > 64) {
-				return false;
-			}
-			space();
-			if (p >= end) {
-				return false;
-			}
-			char c = *p;
-			if (c == '{') {
-				p++;
-				out.kind = jv::object;
-				space();
-				if ((p < end) && (*p == '}')) {
-					p++;
-					return true;
-				}
-				for (;;) {
-					space();
-					std::string key;
-					if (!string_value(key)) {
-						return false;
-					}
-					space();
-					if ((p >= end) || (*p != ':')) {
-						return false;
-					}
-					p++;
-					out.members.emplace_back(std::move(key), jv());
-					if (!value(out.members.back().second, depth + 1)) {
-						return false;
-					}
-					space();
-					if (p >= end) {
-						return false;
-					}
-					if (*p == ',') {
-						p++;
-						continue;
-					}
-					if (*p == '}') {
-						p++;
-						return true;
-					}
-					return false;
-				}
-			}
-			if (c == '[') {
-				p++;
-				out.kind = jv::array;
-				space();
-				if ((p < end) && (*p == ']')) {
-					p++;
-					return true;
-				}
-				for (;;) {
-					out.items.emplace_back();
-					if (!value(out.items.back(), depth + 1)) {
-						return false;
-					}
-					space();
-					if (p >= end) {
-						return false;
-					}
-					if (*p == ',') {
-						p++;
-						continue;
-					}
-					if (*p == ']') {
-						p++;
-						return true;
-					}
-					return false;
-				}
-			}
-			if (c == '"') {
-				out.kind = jv::string;
-				return string_value(out.text);
-			}
-			if ((end - p >= 4) && !memcmp(p, "true", 4)) {
-				p += 4;
-				out.kind = jv::boolean;
-				out.flag = true;
-				return true;
-			}
-			if ((end - p >= 5) && !memcmp(p, "false", 5)) {
-				p += 5;
-				out.kind = jv::boolean;
-				return true;
-			}
-			if ((end - p >= 4) && !memcmp(p, "null", 4)) {
-				p += 4;
-				return true;
-			}
-			// A number. strtod needs a string that ends, and so does this copy of the characters that can be in one.
-			const char* start = p;
-			while ((p < end) && (((*p >= '0') && (*p <= '9')) || (*p == '-') || (*p == '+') || (*p == '.') || (*p == 'e') || (*p == 'E'))) {
-				p++;
-			}
-			if (p == start) {
-				return false;
-			}
-			std::string digits(start, p);
-			char*       stop = nullptr;
-			out.kind         = jv::number;
-			out.value        = strtod(digits.c_str(), &stop);
-			return stop && (*stop == 0);
-		}
-	};
-
-	double num(const jv* v, double fallback)
+	// Files are opened by the paths of programs, which are not always the ones of the system.
+	cgltf_result read_file(const cgltf_memory_options*, const cgltf_file_options*, const char* path, cgltf_size* size, void** data)
 	{
-		return (v && (v->kind == jv::number)) ? v->value : fallback;
-	}
-
-	int integer(const jv* object, const char* key, int fallback)
-	{
-		if (!object) {
-			return fallback;
-		}
-		const jv* v = object->get(key);
-		return (v && (v->kind == jv::number) && (v->value >= -2147483648.0) && (v->value <= 2147483647.0)) ? int(v->value) : fallback;
-	}
-
-	float real(const jv* object, const char* key, float fallback)
-	{
-		return object ? float(num(object->get(key), fallback)) : fallback;
-	}
-
-	std::string text_of(const jv* object, const char* key)
-	{
-		const jv* v = object ? object->get(key) : nullptr;
-		return (v && (v->kind == jv::string)) ? v->text : std::string();
-	}
-
-	////////////////////////////////////////////////////////////////////////////
-	// The file and its buffers
-	////////////////////////////////////////////////////////////////////////////
-	struct document {
-		jv                                 root;
-		std::string                        directory;    // With the slash at the end, or empty.
-		std::string                        name;         // The file name without the folder.
-		const uint8_t*                     binary = nullptr; // The chunk of a .glb file.
-		size_t                             binary_size = 0;
-		std::vector<std::vector<uint8_t>>  buffers;
-		std::vector<char>                  tried;
-
-		const jv* list(const char* key, int index) const
-		{
-			const jv* a = root.get(key);
-			return (a && (index >= 0)) ? a->at(size_t(index)) : nullptr;
-		}
-	};
-
-	bool decode_base64(const char* s, size_t n, std::vector<uint8_t>& out)
-	{
-		uint32_t bits = 0;
-		int      have = 0;
-		for (size_t i = 0; i < n; i++) {
-			char     c = s[i];
-			uint32_t v;
-			if ((c >= 'A') && (c <= 'Z')) {
-				v = uint32_t(c - 'A');
-			} else if ((c >= 'a') && (c <= 'z')) {
-				v = uint32_t(c - 'a' + 26);
-			} else if ((c >= '0') && (c <= '9')) {
-				v = uint32_t(c - '0' + 52);
-			} else if ((c == '+') || (c == '-')) {
-				v = 62;
-			} else if ((c == '/') || (c == '_')) {
-				v = 63;
-			} else if (c == '=') {
-				break;
-			} else if ((c == '\n') || (c == '\r') || (c == ' ')) {
-				continue;
-			} else {
-				return false;
-			}
-			bits = (bits << 6) | v;
-			have += 6;
-			if (have >= 8) {
-				have -= 8;
-				out.push_back(uint8_t(bits >> have));
-			}
-		}
-		return true;
-	}
-
-	std::string percent_decode(const std::string& in)
-	{
-		std::string out;
-		for (size_t i = 0; i < in.size(); i++) {
-			if ((in[i] == '%') && (i + 2 < in.size() + 0) && isxdigit(static_cast<unsigned char>(in[i + 1])) && isxdigit(static_cast<unsigned char>(in[i + 2]))) {
-				out += char(strtol(in.substr(i + 1, 2).c_str(), nullptr, 16));
-				i += 2;
-			} else {
-				out += in[i];
-			}
-		}
-		return out;
-	}
-
-	bool read_whole_file(const std::string& path, std::vector<uint8_t>& out)
-	{
-		FILE* f = fopen(bb_native_path(path.c_str()), "rb");
+		FILE* f = fopen(bb_native_path(path), "rb");
 		if (!f) {
-			return false;
+			return cgltf_result_file_not_found;
 		}
 		fseek(f, 0, SEEK_END);
 		long length = ftell(f);
 		fseek(f, 0, SEEK_SET);
 		if (length < 0) {
 			fclose(f);
-			return false;
+			return cgltf_result_io_error;
 		}
-		out.resize(size_t(length));
-		size_t got = length ? fread(out.data(), 1, size_t(length), f) : 0;
+		void* bytes = malloc(size_t(length) + 1);
+		if (!bytes) {
+			fclose(f);
+			return cgltf_result_out_of_memory;
+		}
+		size_t got = length ? fread(bytes, 1, size_t(length), f) : 0;
 		fclose(f);
-		return got == size_t(length);
+		if (got != size_t(length)) {
+			free(bytes);
+			return cgltf_result_io_error;
+		}
+		*size = cgltf_size(length);
+		*data = bytes;
+		return cgltf_result_success;
 	}
 
-	// The bytes behind a uri of a buffer or an image: a data uri, or a file next to the model.
-	bool read_uri(document const& d, const std::string& uri, std::vector<uint8_t>& out)
+	void release_file(const cgltf_memory_options*, const cgltf_file_options*, void* data, cgltf_size)
 	{
-		if (uri.compare(0, 5, "data:") == 0) {
-			size_t comma = uri.find(',');
-			if ((comma == std::string::npos) || (uri.find(";base64") > comma)) {
-				return false;
-			}
-			return decode_base64(uri.c_str() + comma + 1, uri.size() - comma - 1, out);
-		}
-		std::string path = percent_decode(uri);
-		for (char& c : path) {
-			if (c == '\\') {
-				c = '/';
-			}
-		}
-		return read_whole_file(d.directory + path, out);
+		free(data);
 	}
 
-	bool buffer_bytes(document& d, int index, const uint8_t*& data, size_t& size)
+	cgltf_options make_options()
 	{
-		const jv* b = d.list("buffers", index);
-		if (!b) {
-			return false;
-		}
-		if (d.buffers.size() <= size_t(index)) {
-			d.buffers.resize(size_t(index) + 1);
-			d.tried.resize(size_t(index) + 1, 0);
-		}
-		if (!d.tried[size_t(index)]) {
-			d.tried[size_t(index)] = 1;
-			const jv* uri         = b->get("uri");
-			if (uri && (uri->kind == jv::string)) {
-				if (!read_uri(d, uri->text, d.buffers[size_t(index)])) {
-					d.buffers[size_t(index)].clear();
-				}
-			} else if ((index == 0) && d.binary) {
-				d.buffers[0].assign(d.binary, d.binary + d.binary_size);
-			}
-		}
-		data = d.buffers[size_t(index)].data();
-		size = d.buffers[size_t(index)].size();
-		return size > 0;
+		cgltf_options options = {};
+		options.file.read     = read_file;
+		options.file.release  = release_file;
+		return options;
 	}
 
-	// The bytes of a view of a buffer.
-	bool view_bytes(document& d, int view, const uint8_t*& data, size_t& size, size_t* stride)
-	{
-		const jv* v = d.list("bufferViews", view);
-		if (!v) {
-			return false;
+	struct document {
+		cgltf_data* data = nullptr;
+		~document()
+		{
+			cgltf_free(data);
 		}
-		const uint8_t* buffer = nullptr;
-		size_t         length = 0;
-		if (!buffer_bytes(d, integer(v, "buffer", -1), buffer, length)) {
-			return false;
-		}
-		double offset = num(v->get("byteOffset"), 0), count = num(v->get("byteLength"), -1);
-		if ((offset < 0) || (count < 0) || (offset + count > double(length))) {
-			return false;
-		}
-		data = buffer + size_t(offset);
-		size = size_t(count);
-		if (stride) {
-			*stride = size_t(num(v->get("byteStride"), 0));
-		}
-		return true;
-	}
-
-	////////////////////////////////////////////////////////////////////////////
-	// Accessors: the numbers of a mesh or an animation
-	////////////////////////////////////////////////////////////////////////////
-	struct accessor {
-		const uint8_t* data = nullptr; // Null when the accessor has no view, which makes it all zeros.
-		size_t         stride = 0;
-		uint32_t       count = 0;
-		int            comps = 0;
-		int            type = 5126;
-		bool           normalized = false;
 	};
 
-	int component_size(int type)
+	// Parses the bytes and reads the buffers. With checks, the accessors are verified to stay inside their buffers.
+	bool open_document(const uint8_t* bytes, size_t size, const char* path, document& d, bool checks)
 	{
-		switch (type) {
-		case 5120:
-		case 5121: return 1;
-		case 5122:
-		case 5123: return 2;
-		case 5125:
-		case 5126: return 4;
-		}
-		return 0;
-	}
-
-	int components_of(const std::string& t)
-	{
-		if (t == "SCALAR") return 1;
-		if (t == "VEC2") return 2;
-		if (t == "VEC3") return 3;
-		if (t == "VEC4") return 4;
-		if (t == "MAT2") return 4;
-		if (t == "MAT3") return 9;
-		if (t == "MAT4") return 16;
-		return 0;
-	}
-
-	bool open_accessor(document& d, int index, accessor& out)
-	{
-		const jv* a = d.list("accessors", index);
-		if (!a) {
+		cgltf_options options = make_options();
+		if (cgltf_parse(&options, bytes, size, &d.data) != cgltf_result_success) {
+			d.data = nullptr;
 			return false;
 		}
-		out.type       = integer(a, "componentType", 0);
-		out.comps      = components_of(text_of(a, "type"));
-		double count   = num(a->get("count"), -1);
-		const jv* norm = a->get("normalized");
-		out.normalized = norm && (norm->kind == jv::boolean) && norm->flag;
-		if (!component_size(out.type) || !out.comps || (count < 0) || (count > 100000000.0)) {
-			return false;
-		}
-		out.count = uint32_t(count);
-		size_t element = size_t(component_size(out.type)) * size_t(out.comps);
-		int    view    = integer(a, "bufferView", -1);
-		if (view < 0) {
-			out.data = nullptr;
-			return out.count <= (1u << 24); // All zeros, which has no bytes to be checked against.
-		}
-		const uint8_t* bytes  = nullptr;
-		size_t         length = 0, stride = 0;
-		if (!view_bytes(d, view, bytes, length, &stride)) {
-			return false;
-		}
-		double offset = num(a->get("byteOffset"), 0);
-		if (!stride) {
-			stride = element;
-		}
-		if ((offset < 0) || (stride < element)) {
-			return false;
-		}
-		if (out.count && (offset + double(stride) * double(out.count - 1) + double(element) > double(length))) {
-			return false;
-		}
-		out.data   = bytes + size_t(offset);
-		out.stride = stride;
-		return true;
-	}
-
-	float component(accessor const& a, uint32_t i, int c)
-	{
-		if (!a.data) {
-			return 0;
-		}
-		const uint8_t* p = a.data + a.stride * i + size_t(c) * size_t(component_size(a.type));
-		switch (a.type) {
-		case 5126: {
-			float v;
-			memcpy(&v, p, 4);
-			return v;
-		}
-		case 5120: {
-			float v = float(int8_t(p[0]));
-			return a.normalized ? std::max(v / 127.0f, -1.0f) : v;
-		}
-		case 5121: {
-			float v = float(p[0]);
-			return a.normalized ? v / 255.0f : v;
-		}
-		case 5122: {
-			int16_t s;
-			memcpy(&s, p, 2);
-			float v = float(s);
-			return a.normalized ? std::max(v / 32767.0f, -1.0f) : v;
-		}
-		case 5123: {
-			uint16_t s;
-			memcpy(&s, p, 2);
-			float v = float(s);
-			return a.normalized ? v / 65535.0f : v;
-		}
-		case 5125: {
-			uint32_t s;
-			memcpy(&s, p, 4);
-			return float(s);
-		}
-		}
-		return 0;
-	}
-
-	uint32_t index_at(accessor const& a, uint32_t i)
-	{
-		if (!a.data) {
-			return 0;
-		}
-		const uint8_t* p = a.data + a.stride * i;
-		switch (a.type) {
-		case 5121: return p[0];
-		case 5123: {
-			uint16_t s;
-			memcpy(&s, p, 2);
-			return s;
-		}
-		case 5125: {
-			uint32_t s;
-			memcpy(&s, p, 4);
-			return s;
-		}
-		}
-		return 0;
-	}
-
-	// All of an accessor as floats, with the number of values for each element.
-	bool floats(document& d, int index, std::vector<float>& out, int& comps, uint32_t& count)
-	{
-		accessor a;
-		if (!open_accessor(d, index, a)) {
-			return false;
-		}
-		comps = a.comps;
-		count = a.count;
-		out.resize(size_t(a.count) * size_t(a.comps));
-		for (uint32_t i = 0; i < a.count; i++) {
-			for (int c = 0; c < a.comps; c++) {
-				out[size_t(i) * size_t(a.comps) + size_t(c)] = component(a, i, c);
+		if (cgltf_load_buffers(&options, d.data, path) != cgltf_result_success) {
+			if (checks) {
+				return false;
 			}
 		}
+		return !checks || (cgltf_validate(d.data) == cgltf_result_success);
+	}
+
+	bool read_whole_file(const std::string& path, std::vector<uint8_t>& out)
+	{
+		cgltf_size size = 0;
+		void*      data = nullptr;
+		if (read_file(nullptr, nullptr, path.c_str(), &size, &data) != cgltf_result_success) {
+			return false;
+		}
+		out.assign(static_cast<uint8_t*>(data), static_cast<uint8_t*>(data) + size);
+		free(data);
 		return true;
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	// Finding the parts of the file
-	////////////////////////////////////////////////////////////////////////////
-	bool load_document(const uint8_t* data, size_t size, const char* path, document& d)
+	std::string name_of_file(const char* path)
 	{
 		const char* slash = strrchr(path, '/');
 		const char* back  = strrchr(path, '\\');
 		if (back && (!slash || (back > slash))) {
 			slash = back;
 		}
-		d.directory = slash ? std::string(path, size_t(slash - path) + 1) : std::string();
-		d.name      = slash ? std::string(slash + 1) : std::string(path);
-
-		const char* json = nullptr;
-		size_t      json_size = 0;
-		if ((size >= 12) && !memcmp(data, "glTF", 4)) {
-			uint32_t version;
-			memcpy(&version, data + 4, 4);
-			if (version != 2) {
-				return false;
-			}
-			size_t at = 12;
-			while (at + 8 <= size) {
-				uint32_t length, type;
-				memcpy(&length, data + at, 4);
-				memcpy(&type, data + at + 4, 4);
-				at += 8;
-				if (length > size - at) {
-					break;
-				}
-				if ((type == 0x4E4F534Au) && !json) {
-					json      = reinterpret_cast<const char*>(data + at);
-					json_size = length;
-				} else if ((type == 0x004E4942u) && !d.binary) {
-					d.binary      = data + at;
-					d.binary_size = length;
-				}
-				at += (length + 3) & ~size_t(3);
-			}
-		} else {
-			json      = reinterpret_cast<const char*>(data);
-			json_size = size;
-			if ((json_size >= 3) && !memcmp(json, "\xEF\xBB\xBF", 3)) {
-				json += 3;
-				json_size -= 3;
-			}
-		}
-		if (!json) {
-			return false;
-		}
-		json_reader reader = { json, json + json_size };
-		if (!reader.value(d.root, 0) || (d.root.kind != jv::object) || !d.root.get("asset")) {
-			return false;
-		}
-		const jv* asset = d.root.get("asset");
-		std::string version = text_of(asset, "version");
-		return !version.empty() && (version[0] == '2');
+		return slash ? std::string(slash + 1) : std::string(path);
 	}
 
 	bool has_extension(const std::string& s, const char* ext)
@@ -711,6 +161,18 @@ namespace {
 		return out;
 	}
 
+	// All of an accessor as floats, with the number of values for each element.
+	bool floats(const cgltf_accessor* a, std::vector<float>& out, int& comps, uint32_t& count)
+	{
+		if (!a || !a->count || (a->count > 100000000)) {
+			return false;
+		}
+		comps = int(cgltf_num_components(a->type));
+		count = uint32_t(a->count);
+		out.resize(size_t(count) * size_t(comps));
+		return cgltf_accessor_unpack_floats(a, out.data(), out.size()) == out.size();
+	}
+
 	////////////////////////////////////////////////////////////////////////////
 	// glTF to Blitz3D
 	////////////////////////////////////////////////////////////////////////////
@@ -724,15 +186,11 @@ namespace {
 	}
 
 	// The position, scale and rotation of a node, from its matrix or its parts.
-	void node_transform(const jv& node, float* pos, float* scale, float* rot)
+	void node_transform(const cgltf_node& node, float* pos, float* scale, float* rot)
 	{
 		float t[3] = { 0, 0, 0 }, s[3] = { 1, 1, 1 }, q[4] = { 0, 0, 0, 1 };
-		const jv* matrix = node.get("matrix");
-		if (matrix && (matrix->count() == 16)) {
-			float m[16];
-			for (int i = 0; i < 16; i++) {
-				m[i] = float(num(matrix->at(size_t(i)), 0));
-			}
+		if (node.has_matrix) {
+			const float* m = node.matrix;
 			t[0] = m[12];
 			t[1] = m[13];
 			t[2] = m[14];
@@ -781,16 +239,9 @@ namespace {
 				q[2] = 0.25f * S;
 			}
 		} else {
-			const jv* v;
-			if ((v = node.get("translation")) && (v->count() == 3)) {
-				for (int i = 0; i < 3; i++) t[i] = float(num(v->at(size_t(i)), 0));
-			}
-			if ((v = node.get("scale")) && (v->count() == 3)) {
-				for (int i = 0; i < 3; i++) s[i] = float(num(v->at(size_t(i)), 1));
-			}
-			if ((v = node.get("rotation")) && (v->count() == 4)) {
-				for (int i = 0; i < 4; i++) q[i] = float(num(v->at(size_t(i)), i == 3 ? 1 : 0));
-			}
+			if (node.has_translation) memcpy(t, node.translation, sizeof(t));
+			if (node.has_scale) memcpy(s, node.scale, sizeof(s));
+			if (node.has_rotation) memcpy(q, node.rotation, sizeof(q));
 		}
 		float len = sqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 		if (len > 1e-12f) {
@@ -810,10 +261,10 @@ namespace {
 	// The model
 	////////////////////////////////////////////////////////////////////////////
 	struct texture_ref {
-		int   texture = -1; // Index of the textures of the glTF file.
-		int   coord   = 0;
-		bool  transform = false;
-		float offset[2] = { 0, 0 }, scale[2] = { 1, 1 }, rotation = 0;
+		const cgltf_texture* texture = nullptr;
+		int                  coord   = 0;
+		bool                 transform = false;
+		float                offset[2] = { 0, 0 }, scale[2] = { 1, 1 }, rotation = 0;
 	};
 
 	struct material_data {
@@ -823,8 +274,8 @@ namespace {
 	};
 
 	struct pending_skin {
-		int node;
-		int skin;
+		int                node;
+		const cgltf_skin*  skin;
 	};
 
 	struct sample {
@@ -845,139 +296,102 @@ namespace {
 	};
 
 	struct builder {
-		document&                               d;
+		const cgltf_data*                       d;
 		model&                                  m;
-		std::vector<int>                        node_map; // glTF node to model node, -1 for those that are not in the scene.
+		std::string                             file_name;
+		std::map<const cgltf_node*, int>        node_map; // glTF node to model node.
 		std::vector<material_data>              materials;
 		material_data                           fallback;
 		std::map<std::pair<int, int>, int>      texture_cache;
 		std::vector<pending_skin>               skins;
 		std::vector<std::array<float, 16>>      binds; // Where the nodes are in the model when nothing moves.
 
-		builder(document& doc, model& mod) : d(doc), m(mod) {}
+		builder(const cgltf_data* doc, model& mod, const char* path) : d(doc), m(mod), file_name(name_of_file(path)) {}
 
 		////////////////////////////////////////////////////////////////////////
 		// Materials
 		////////////////////////////////////////////////////////////////////////
-		bool read_texture_ref(const jv* info, texture_ref& out)
+		static bool read_texture_ref(const cgltf_texture_view& view, texture_ref& out)
 		{
-			if (!info || (info->kind != jv::object)) {
+			if (!view.texture) {
 				return false;
 			}
-			out.texture = integer(info, "index", -1);
-			out.coord   = integer(info, "texCoord", 0);
-			if (out.texture < 0) {
-				return false;
-			}
-			const jv* extensions = info->get("extensions");
-			const jv* transform  = extensions ? extensions->get("KHR_texture_transform") : nullptr;
-			if (transform) {
+			out.texture = view.texture;
+			out.coord   = int(view.texcoord);
+			if (view.has_transform) {
 				out.transform = true;
-				const jv* o   = transform->get("offset");
-				const jv* s   = transform->get("scale");
-				if (o && (o->count() == 2)) {
-					out.offset[0] = float(num(o->at(0), 0));
-					out.offset[1] = float(num(o->at(1), 0));
+				memcpy(out.offset, view.transform.offset, sizeof(out.offset));
+				memcpy(out.scale, view.transform.scale, sizeof(out.scale));
+				out.rotation = view.transform.rotation;
+				if (view.transform.has_texcoord) {
+					out.coord = int(view.transform.texcoord);
 				}
-				if (s && (s->count() == 2)) {
-					out.scale[0] = float(num(s->at(0), 1));
-					out.scale[1] = float(num(s->at(1), 1));
-				}
-				out.rotation = real(transform, "rotation", 0);
-				out.coord    = integer(transform, "texCoord", out.coord);
 			}
 			return true;
 		}
 
 		// The texture of the model for a texture of the file, made once for each set of flags.
-		int model_texture(int texture, int flags)
+		int model_texture(const cgltf_texture* texture, int flags)
 		{
-			const jv* t = d.list("textures", texture);
-			if (!t) {
+			const cgltf_image* image = texture->image ? texture->image : (texture->webp_image ? texture->webp_image : texture->basisu_image);
+			if (!image) {
 				return -1;
 			}
-			int image = integer(t, "source", -1);
-			if (image < 0) {
-				const jv* extensions = t->get("extensions");
-				static const char* const names[] = { "EXT_texture_webp", "EXT_texture_avif", "KHR_texture_basisu" };
-				for (const char* name : names) {
-					const jv* e = extensions ? extensions->get(name) : nullptr;
-					if (e && (integer(e, "source", -1) >= 0)) {
-						image = integer(e, "source", -1);
-						break;
-					}
-				}
+			int number = int(image - d->images);
+			if (texture->sampler) {
+				if (texture->sampler->wrap_s == 33071) flags |= 16;
+				if (texture->sampler->wrap_t == 33071) flags |= 32;
 			}
-			const jv* picture = d.list("images", image);
-			if (!picture) {
-				return -1;
-			}
-			const jv* sampler = d.list("samplers", integer(t, "sampler", -1));
-			if (sampler) {
-				if (integer(sampler, "wrapS", 10497) == 33071) flags |= 16;
-				if (integer(sampler, "wrapT", 10497) == 33071) flags |= 32;
-			}
-			auto key = std::make_pair(image, flags);
+			auto key = std::make_pair(number, flags);
 			auto it  = texture_cache.find(key);
 			if (it != texture_cache.end()) {
 				return it->second;
 			}
 			tex_info info;
-			const jv* uri = picture->get("uri");
-			if (uri && (uri->kind == jv::string) && (uri->text.compare(0, 5, "data:") != 0)) {
-				std::string path = percent_decode(uri->text);
-				info.name        = duplicate(path);
+			if (image->uri && strncmp(image->uri, "data:", 5)) {
+				std::string path = image->uri;
+				path.resize(cgltf_decode_uri(&path[0]));
+				info.name = duplicate(path);
 			} else {
-				info.name = duplicate(d.name + "#" + std::to_string(image));
+				info.name = duplicate(file_name + "#" + std::to_string(number));
 			}
 			info.flags = flags;
 			m.textures.push(info);
-			int index = int(m.textures.size) - 1;
+			int index          = int(m.textures.size) - 1;
 			texture_cache[key] = index;
 			return index;
 		}
 
 		void read_materials()
 		{
-			const jv* list = d.root.get("materials");
-			size_t    n    = list ? list->count() : 0;
-			materials.resize(n);
-			for (size_t i = 0; i < n; i++) {
-				const jv*      mat = list->at(i);
-				material_data& out = materials[i];
-				const jv*      pbr = mat->get("pbrMetallicRoughness");
-				const jv*      extensions = mat->get("extensions");
-				const jv*      glossy     = extensions ? extensions->get("KHR_materials_pbrSpecularGlossiness") : nullptr;
-				const jv*      factor;
-				const jv*      colors = pbr ? pbr->get("baseColorFactor") : nullptr;
-				float          rough  = real(pbr, "roughnessFactor", 1);
-				bool           have   = read_texture_ref(pbr ? pbr->get("baseColorTexture") : nullptr, out.base);
-				if (!pbr && glossy) {
-					colors = glossy->get("diffuseFactor");
-					have   = read_texture_ref(glossy->get("diffuseTexture"), out.base);
-					rough  = 1 - real(glossy, "glossinessFactor", 1);
+			materials.resize(d->materials_count);
+			for (size_t i = 0; i < d->materials_count; i++) {
+				const cgltf_material& mat = d->materials[i];
+				material_data&        out = materials[i];
+				float rough = 1;
+				bool  have  = false;
+				if (mat.has_pbr_metallic_roughness) {
+					memcpy(out.brush.color, mat.pbr_metallic_roughness.base_color_factor, sizeof(out.brush.color));
+					rough = mat.pbr_metallic_roughness.roughness_factor;
+					have  = read_texture_ref(mat.pbr_metallic_roughness.base_color_texture, out.base);
+				} else if (mat.has_pbr_specular_glossiness) {
+					memcpy(out.brush.color, mat.pbr_specular_glossiness.diffuse_factor, sizeof(out.brush.color));
+					rough = 1 - mat.pbr_specular_glossiness.glossiness_factor;
+					have  = read_texture_ref(mat.pbr_specular_glossiness.diffuse_texture, out.base);
 				}
-				factor = colors;
-				if (factor && (factor->count() == 4)) {
-					for (int c = 0; c < 4; c++) {
-						out.brush.color[c] = float(num(factor->at(size_t(c)), 1));
-					}
-				}
-				std::string mode = text_of(mat, "alphaMode");
-				int         flags = 1 | 8;
-				if (mode == "BLEND") {
+				int flags = 1 | 8;
+				if (mat.alpha_mode == cgltf_alpha_mode_blend) {
 					flags |= 2;
-				} else if (mode == "MASK") {
+				} else if (mat.alpha_mode == cgltf_alpha_mode_mask) {
 					flags |= 4;
 				} else {
 					out.brush.color[3] = 1; // An opaque material has no alpha, whatever the color says.
 				}
 				out.brush.shininess = std::min(std::max(1 - rough, 0.0f), 1.0f);
-				const jv* two = mat->get("doubleSided");
-				if (two && (two->kind == jv::boolean) && two->flag) {
+				if (mat.double_sided) {
 					out.brush.fx |= 16;
 				}
-				if (extensions && extensions->get("KHR_materials_unlit")) {
+				if (mat.unlit) {
 					out.brush.fx |= 1;
 				}
 				if (have) {
@@ -985,16 +399,16 @@ namespace {
 					if (t >= 0) {
 						out.brush.texture = t;
 					} else {
-						out.base.texture = -1;
+						out.base.texture = nullptr;
 					}
 				}
 			}
 		}
 
 		// The brush of a material, for primitives with or without vertex colors.
-		int brush_of(int material, bool colored)
+		int brush_of(const cgltf_material* material, bool colored)
 		{
-			material_data* data = ((material >= 0) && (size_t(material) < materials.size())) ? &materials[size_t(material)] : &fallback;
+			material_data* data = material ? &materials[size_t(material - d->materials)] : &fallback;
 			int&           slot = data->made[colored ? 1 : 0];
 			if (slot < 0) {
 				brush_info b = data->brush;
@@ -1010,65 +424,80 @@ namespace {
 		////////////////////////////////////////////////////////////////////////
 		// Meshes
 		////////////////////////////////////////////////////////////////////////
-		bool add_primitive(node_info& n, const jv& prim, bool skinned)
+		bool add_primitive(node_info& n, const cgltf_primitive& prim, bool skinned)
 		{
-			int mode = integer(&prim, "mode", 4);
-			if ((mode < 4) || (mode > 6)) {
+			if ((prim.type != cgltf_primitive_type_triangles) && (prim.type != cgltf_primitive_type_triangle_strip) && (prim.type != cgltf_primitive_type_triangle_fan)) {
 				return false; // Points and lines are not drawn.
 			}
-			const jv* attributes = prim.get("attributes");
-			if (!attributes) {
-				return false;
-			}
-			std::vector<float> position, normal, uv0, uv1, color, joints0, joints1, weights0, weights1;
-			int                c_position = 0, c_normal = 0, c_uv0 = 0, c_uv1 = 0, c_color = 0, c_j0 = 0, c_j1 = 0, c_w0 = 0, c_w1 = 0;
+			std::vector<float> position, normal, uv[2], color, joints[2], weights[2];
+			int                c_position = 0, c_normal = 0, c_uv[2] = {}, c_color = 0, c_joints[2] = {}, c_weights[2] = {};
 			uint32_t           count = 0, other = 0;
-			if (!floats(d, integer(attributes, "POSITION", -1), position, c_position, count) || (c_position != 3) || !count) {
+			bool               has_position = false, has_normal = false, has_uv[2] = {}, has_color = false;
+			for (size_t i = 0; i < prim.attributes_count; i++) {
+				const cgltf_attribute& a = prim.attributes[i];
+				if (a.index < 0 || a.index > 1) {
+					if (a.type != cgltf_attribute_type_color || a.index != 0) {
+						continue;
+					}
+				}
+				switch (a.type) {
+				case cgltf_attribute_type_position:
+					has_position = floats(a.data, position, c_position, count) && (c_position == 3);
+					break;
+				case cgltf_attribute_type_normal:
+					has_normal = floats(a.data, normal, c_normal, other) && (c_normal == 3);
+					break;
+				case cgltf_attribute_type_texcoord:
+					has_uv[a.index] = floats(a.data, uv[a.index], c_uv[a.index], other) && (c_uv[a.index] == 2);
+					break;
+				case cgltf_attribute_type_color:
+					if (a.index == 0) has_color = floats(a.data, color, c_color, other) && (c_color >= 3) && (c_color <= 4);
+					break;
+				case cgltf_attribute_type_joints:
+					if (skinned) floats(a.data, joints[a.index], c_joints[a.index], other);
+					break;
+				case cgltf_attribute_type_weights:
+					if (skinned) floats(a.data, weights[a.index], c_weights[a.index], other);
+					break;
+				default: break;
+				}
+			}
+			if (!has_position || !count) {
 				return false;
 			}
-			auto optional = [&](const char* name, std::vector<float>& out, int& comps, int want_min, int want_max) {
-				int index = integer(attributes, name, -1);
-				if ((index >= 0) && floats(d, index, out, comps, other) && (other == count) && (comps >= want_min) && (comps <= want_max)) {
-					return true;
+			// Attributes must have one value for each vertex.
+			for (size_t i = 0; i < prim.attributes_count; i++) {
+				const cgltf_attribute& a = prim.attributes[i];
+				if (a.data && (a.data->count != count)) {
+					if (a.type == cgltf_attribute_type_normal) has_normal = false;
+					if (a.type == cgltf_attribute_type_texcoord && a.index >= 0 && a.index < 2) has_uv[a.index] = false;
+					if (a.type == cgltf_attribute_type_color) has_color = false;
+					if (a.type == cgltf_attribute_type_joints && a.index >= 0 && a.index < 2) joints[a.index].clear();
+					if (a.type == cgltf_attribute_type_weights && a.index >= 0 && a.index < 2) weights[a.index].clear();
 				}
-				out.clear();
-				comps = 0;
-				return false;
-			};
-			bool has_normal = optional("NORMAL", normal, c_normal, 3, 3);
-			bool has_uv0    = optional("TEXCOORD_0", uv0, c_uv0, 2, 2);
-			bool has_uv1    = optional("TEXCOORD_1", uv1, c_uv1, 2, 2);
-			bool has_color  = optional("COLOR_0", color, c_color, 3, 4);
-			if (skinned) {
-				optional("JOINTS_0", joints0, c_j0, 4, 4);
-				optional("JOINTS_1", joints1, c_j1, 4, 4);
-				optional("WEIGHTS_0", weights0, c_w0, 4, 4);
-				optional("WEIGHTS_1", weights1, c_w1, 4, 4);
+			}
+			for (int s = 0; s < 2; s++) {
+				if ((weights[s].size() != size_t(count) * 4) || (joints[s].size() != size_t(count) * 4)) {
+					weights[s].clear();
+					joints[s].clear();
+				}
 			}
 
 			// The corners of the triangles.
 			std::vector<uint32_t> order;
-			accessor              indices;
-			int                   index_accessor = integer(&prim, "indices", -1);
-			uint32_t              total          = count;
-			if (index_accessor >= 0) {
-				if (!open_accessor(d, index_accessor, indices) || (indices.comps != 1) || !indices.data) {
-					return false;
-				}
-				total = indices.count;
-			}
+			uint32_t              total = prim.indices ? uint32_t(prim.indices->count) : count;
 			order.reserve(total);
 			for (uint32_t i = 0; i < total; i++) {
-				order.push_back(index_accessor >= 0 ? index_at(indices, i) : i);
+				order.push_back(prim.indices ? uint32_t(cgltf_accessor_read_index(prim.indices, i)) : i);
 			}
 			std::vector<uint32_t> corners;
-			if (mode == 4) {
+			if (prim.type == cgltf_primitive_type_triangles) {
 				for (uint32_t i = 0; i + 2 < total; i += 3) {
 					corners.push_back(order[i]);
 					corners.push_back(order[i + 1]);
 					corners.push_back(order[i + 2]);
 				}
-			} else if (mode == 5) {
+			} else if (prim.type == cgltf_primitive_type_triangle_strip) {
 				for (uint32_t i = 0; i + 2 < total; i++) {
 					bool odd = (i & 1) != 0;
 					corners.push_back(order[i]);
@@ -1120,14 +549,11 @@ namespace {
 				}
 			}
 
-			int            material = integer(&prim, "material", -1);
-			material_data& data     = ((material >= 0) && (size_t(material) < materials.size())) ? materials[size_t(material)] : fallback;
-			// Which set of coordinates the picture of the material uses, and the second one for the other.
-			int  first_set = (data.base.texture >= 0) ? data.base.coord : 0;
+			material_data& data = prim.material ? materials[size_t(prim.material - d->materials)] : fallback;
+			// Which set of coordinates the picture of the material uses, and the other one for the second.
+			int  first_set = (data.base.texture) ? data.base.coord : 0;
 			auto set_of    = [&](int set) -> std::vector<float>* {
-                if (set == 0) return has_uv0 ? &uv0 : nullptr;
-                if (set == 1) return has_uv1 ? &uv1 : nullptr;
-                return nullptr;
+                return ((set == 0) || (set == 1)) && has_uv[set] ? &uv[set] : nullptr;
 			};
 			std::vector<float>* primary   = set_of(first_set);
 			std::vector<float>* secondary = set_of(first_set == 0 ? 1 : 0);
@@ -1153,7 +579,7 @@ namespace {
 					float u = (*primary)[size_t(v) * 2], w = (*primary)[size_t(v) * 2 + 1];
 					out.uv2[0] = u;
 					out.uv2[1] = w;
-					if (data.base.transform && (data.base.texture >= 0)) {
+					if (data.base.transform && data.base.texture) {
 						float su = u * data.base.scale[0], sv = w * data.base.scale[1];
 						u        = cs * su - sn * sv + data.base.offset[0];
 						w        = sn * su + cs * sv + data.base.offset[1];
@@ -1168,12 +594,15 @@ namespace {
 				n.vertices.push(out);
 				// The joints and weights: eight for each vertex, those that the file does not have are zero.
 				if (skinned) {
-					float sum = 0;
+					float sum  = 0;
 					float w[8] = {};
 					int   j[8] = {};
-					for (int k = 0; k < 4; k++) {
-						if (!weights0.empty()) { w[k] = weights0[size_t(v) * 4 + size_t(k)]; j[k] = int(joints0.empty() ? 0 : joints0[size_t(v) * 4 + size_t(k)]); }
-						if (!weights1.empty()) { w[4 + k] = weights1[size_t(v) * 4 + size_t(k)]; j[4 + k] = int(joints1.empty() ? 0 : joints1[size_t(v) * 4 + size_t(k)]); }
+					for (int s = 0; s < 2; s++) {
+						if (weights[s].empty()) continue;
+						for (int k = 0; k < 4; k++) {
+							w[s * 4 + k] = weights[s][size_t(v) * 4 + size_t(k)];
+							j[s * 4 + k] = int(joints[s][size_t(v) * 4 + size_t(k)]);
+						}
 					}
 					for (int k = 0; k < 8; k++) {
 						w[k] = w[k] > 0 ? w[k] : 0;
@@ -1186,7 +615,7 @@ namespace {
 				}
 			}
 			triangle_group* group = new triangle_group();
-			group->brush          = brush_of(material, has_color);
+			group->brush          = brush_of(prim.material, has_color);
 			// The front of a face is where its corners go around the other way here, so two corners of each face change places.
 			for (size_t i = 0; i + 2 < kept.size(); i += 3) {
 				group->indices.push(base + kept[i]);
@@ -1197,12 +626,10 @@ namespace {
 			return true;
 		}
 
-		void add_mesh(node_info& n, int mesh, bool skinned)
+		void add_mesh(node_info& n, const cgltf_mesh& mesh, bool skinned)
 		{
-			const jv* mesh_info = d.list("meshes", mesh);
-			const jv* prims     = mesh_info ? mesh_info->get("primitives") : nullptr;
-			for (size_t i = 0; prims && (i < prims->count()); i++) {
-				if (add_primitive(n, *prims->at(i), skinned)) {
+			for (size_t i = 0; i < mesh.primitives_count; i++) {
+				if (add_primitive(n, mesh.primitives[i], skinned)) {
 					n.has_mesh = true;
 				}
 			}
@@ -1211,38 +638,32 @@ namespace {
 		////////////////////////////////////////////////////////////////////////
 		// Nodes
 		////////////////////////////////////////////////////////////////////////
-		void add_node(int gltf, int parent, int depth)
+		void add_node(const cgltf_node* node, int parent, int depth)
 		{
-			const jv* node = d.list("nodes", gltf);
-			if (!node || (depth > 256) || (node_map[size_t(gltf)] >= 0)) {
+			if (!node || (depth > 256) || node_map.count(node)) {
 				return;
 			}
 			node_info* n = new node_info();
 			n->parent    = parent;
-			std::string name = text_of(node, "name");
-			if (!name.empty()) {
-				n->name = duplicate(name);
+			if (node->name && node->name[0]) {
+				n->name = duplicate(node->name);
 			}
 			node_transform(*node, n->pos, n->scale, n->rot);
 			m.nodes.push(n);
-			int index          = int(m.nodes.size) - 1;
-			node_map[size_t(gltf)] = index;
-			int  mesh   = integer(node, "mesh", -1);
-			int  skin   = integer(node, "skin", -1);
-			bool skinned = (mesh >= 0) && (skin >= 0) && d.list("skins", skin);
-			if (mesh >= 0) {
-				add_mesh(*n, mesh, skinned);
+			int index       = int(m.nodes.size) - 1;
+			node_map[node]  = index;
+			bool skinned    = node->mesh && node->skin;
+			if (node->mesh) {
+				add_mesh(*n, *node->mesh, skinned);
 			}
 			if (skinned && n->has_mesh) {
-				skins.push_back({ index, skin });
+				skins.push_back({ index, node->skin });
 			} else {
 				n->skin_joint.release();
 				n->skin_weight.release();
 			}
-			const jv* children = node->get("children");
-			for (size_t i = 0; children && (i < children->count()); i++) {
-				const jv* child = children->at(i);
-				add_node((child && (child->kind == jv::number)) ? int(child->value) : -1, index, depth + 1);
+			for (size_t i = 0; i < node->children_count; i++) {
+				add_node(node->children[i], index, depth + 1);
 			}
 		}
 
@@ -1272,9 +693,8 @@ namespace {
 		{
 			for (pending_skin const& pending : skins) {
 				node_info& n    = *m.nodes[uint32_t(pending.node)];
-				const jv*  skin = d.list("skins", pending.skin);
-				const jv*  joints = skin ? skin->get("joints") : nullptr;
-				if (!joints || (joints->count() == 0)) {
+				const cgltf_skin* skin = pending.skin;
+				if (skin->joints_count == 0) {
 					n.skin_joint.release();
 					n.skin_weight.release();
 					continue;
@@ -1283,13 +703,12 @@ namespace {
 				std::vector<float> matrices;
 				int                matrix_comps = 0;
 				uint32_t           matrix_count = 0;
-				if (!floats(d, integer(skin, "inverseBindMatrices", -1), matrices, matrix_comps, matrix_count) || (matrix_comps != 16)) {
+				if (!floats(skin->inverse_bind_matrices, matrices, matrix_comps, matrix_count) || (matrix_comps != 16)) {
 					matrices.clear();
 				}
-				for (size_t j = 0; j < joints->count(); j++) {
-					const jv* child = joints->at(j);
-					int       g     = (child && (child->kind == jv::number)) ? int(child->value) : -1;
-					int       found = ((g >= 0) && (size_t(g) < node_map.size())) ? node_map[size_t(g)] : -1;
+				for (size_t j = 0; j < skin->joints_count; j++) {
+					auto at    = node_map.find(skin->joints[j]);
+					int  found = (at != node_map.end()) ? at->second : -1;
 					n.skin_nodes.push(found);
 					if (found >= 0) {
 						node_info& joint = *m.nodes[uint32_t(found)];
@@ -1353,38 +772,32 @@ namespace {
 
 		void read_animations()
 		{
-			const jv* animations = d.root.get("animations");
-			if (!animations || (animations->count() == 0)) {
+			if (d->animations_count == 0) {
 				return;
 			}
 			std::vector<animation_info> list;
 			float                       start = 0;
-			for (size_t a = 0; a < animations->count(); a++) {
-				const jv*      info     = animations->at(a);
-				const jv*      samplers = info->get("samplers");
-				const jv*      channels = info->get("channels");
-				animation_info made;
-				for (size_t c = 0; channels && (c < channels->count()); c++) {
-					const jv* channel_info = channels->at(c);
-					const jv* target       = channel_info->get("target");
-					std::string path_name  = text_of(target, "path");
-					int path               = path_name == "translation" ? 0 : (path_name == "rotation" ? 1 : (path_name == "scale" ? 2 : -1));
-					int node               = integer(target, "node", -1);
-					const jv* sampler      = samplers ? samplers->at(size_t(std::max(integer(channel_info, "sampler", -1), -1)) ) : nullptr;
-					if ((path < 0) || (node < 0) || (size_t(node) >= node_map.size()) || (node_map[size_t(node)] < 0) || !sampler || (integer(channel_info, "sampler", -1) < 0)) {
+			for (size_t a = 0; a < d->animations_count; a++) {
+				const cgltf_animation& info = d->animations[a];
+				animation_info         made;
+				for (size_t c = 0; c < info.channels_count; c++) {
+					const cgltf_animation_channel& channel_info = info.channels[c];
+					const cgltf_animation_sampler* sampler      = channel_info.sampler;
+					int path = channel_info.target_path == cgltf_animation_path_type_translation ? 0 : (channel_info.target_path == cgltf_animation_path_type_rotation ? 1 : (channel_info.target_path == cgltf_animation_path_type_scale ? 2 : -1));
+					auto at  = node_map.find(channel_info.target_node);
+					if ((path < 0) || (at == node_map.end()) || !sampler) {
 						continue;
 					}
 					channel ch;
-					ch.node = node_map[size_t(node)];
-					ch.path = path;
-					std::string interpolation = text_of(sampler, "interpolation");
-					ch.interpolation          = interpolation == "STEP" ? 1 : (interpolation == "CUBICSPLINE" ? 2 : 0);
+					ch.node                   = at->second;
+					ch.path                   = path;
+					ch.interpolation          = sampler->interpolation == cgltf_interpolation_type_step ? 1 : (sampler->interpolation == cgltf_interpolation_type_cubic_spline ? 2 : 0);
 					int      in_comps = 0, out_comps = 0;
 					uint32_t in_count = 0, out_count = 0;
-					if (!floats(d, integer(sampler, "input", -1), ch.times, in_comps, in_count) || (in_comps != 1) || !in_count) {
+					if (!floats(sampler->input, ch.times, in_comps, in_count) || (in_comps != 1) || !in_count) {
 						continue;
 					}
-					if (!floats(d, integer(sampler, "output", -1), ch.values, out_comps, out_count)) {
+					if (!floats(sampler->output, ch.values, out_comps, out_count)) {
 						continue;
 					}
 					int want = path == 1 ? 4 : 3;
@@ -1542,43 +955,24 @@ namespace {
 		////////////////////////////////////////////////////////////////////////
 		bool build()
 		{
-			const jv* nodes = d.root.get("nodes");
-			size_t    count = nodes ? nodes->count() : 0;
-			node_map.assign(count, -1);
 			read_materials();
 
 			// Everything hangs from one node at the top, which the animation does not move.
 			node_info* top = new node_info();
 			m.nodes.push(top);
 
-			std::vector<int> roots;
-			const jv* scenes = d.root.get("scenes");
-			const jv* scene  = d.list("scenes", integer(&d.root, "scene", 0));
+			// The scene of the file, the first one, or every node without a parent.
+			const cgltf_scene* scene = d->scene ? d->scene : (d->scenes_count ? &d->scenes[0] : nullptr);
 			if (scene) {
-				const jv* list = scene->get("nodes");
-				for (size_t i = 0; list && (i < list->count()); i++) {
-					const jv* r = list->at(i);
-					if (r && (r->kind == jv::number)) {
-						roots.push_back(int(r->value));
+				for (size_t i = 0; i < scene->nodes_count; i++) {
+					add_node(scene->nodes[i], 0, 0);
+				}
+			} else {
+				for (size_t i = 0; i < d->nodes_count; i++) {
+					if (!d->nodes[i].parent) {
+						add_node(&d->nodes[i], 0, 0);
 					}
 				}
-			} else if (!scenes) {
-				std::vector<char> child(count, 0);
-				for (size_t i = 0; i < count; i++) {
-					const jv* children = nodes->at(i)->get("children");
-					for (size_t k = 0; children && (k < children->count()); k++) {
-						const jv* c = children->at(k);
-						if (c && (c->kind == jv::number) && (c->value >= 0) && (size_t(c->value) < count)) {
-							child[size_t(c->value)] = 1;
-						}
-					}
-				}
-				for (size_t i = 0; i < count; i++) {
-					if (!child[i]) roots.push_back(int(i));
-				}
-			}
-			for (int root : roots) {
-				add_node(root, 0, 0);
 			}
 			finish_skins();
 			read_animations();
@@ -1595,10 +989,10 @@ namespace {
 bool read_gltf(const char* path, const uint8_t* data, size_t size, model& m)
 {
 	document d;
-	if (!load_document(data, size, path, d)) {
+	if (!open_document(data, size, path, d, true)) {
 		return false;
 	}
-	builder b(d, m);
+	builder b(d.data, m, path);
 	return b.build();
 }
 
@@ -1630,32 +1024,51 @@ bool gltf_image_bytes(const std::string& file, int index, std::vector<uint8_t>& 
 		return false;
 	}
 	document d;
-	if (!load_document(whole.data(), whole.size(), file.c_str(), d)) {
+	// Not every buffer has to be there: only the ones that hold the picture are used.
+	if (!open_document(whole.data(), whole.size(), file.c_str(), d, false) || (index < 0) || (size_t(index) >= d.data->images_count)) {
 		return false;
 	}
-	const jv* image = d.list("images", index);
-	if (!image) {
-		return false;
-	}
+	const cgltf_image& image = d.data->images[index];
 	bytes.clear();
-	const jv* uri = image->get("uri");
 	std::string hint;
-	if (uri && (uri->kind == jv::string)) {
-		if (!read_uri(d, uri->text, bytes)) {
+	if (image.uri && !strncmp(image.uri, "data:", 5)) {
+		const char* comma = strchr(image.uri, ',');
+		if (!comma || !strstr(image.uri, ";base64")) {
 			return false;
 		}
-		hint = uri->text.compare(0, 5, "data:") == 0 ? std::string() : uri->text;
+		size_t length = strlen(comma + 1);
+		size_t pad    = 0;
+		while ((pad < length) && (comma[length - pad] == '=')) {
+			pad++;
+		}
+		size_t decoded = length / 4 * 3 - pad;
+		void*  out     = nullptr;
+		cgltf_options options = make_options();
+		if (cgltf_load_buffer_base64(&options, decoded, comma + 1, &out) != cgltf_result_success) {
+			return false;
+		}
+		bytes.assign(static_cast<uint8_t*>(out), static_cast<uint8_t*>(out) + decoded);
+		free(out);
+	} else if (image.uri) {
+		std::string uri = image.uri;
+		uri.resize(cgltf_decode_uri(&uri[0]));
+		for (char& c : uri) {
+			if (c == '\\') c = '/';
+		}
+		size_t slash = file.find_last_of("/\\");
+		if (!read_whole_file((slash == std::string::npos ? std::string() : file.substr(0, slash + 1)) + uri, bytes)) {
+			return false;
+		}
+		hint = uri;
+	} else if (image.buffer_view && image.buffer_view->buffer && image.buffer_view->buffer->data && (image.buffer_view->offset + image.buffer_view->size <= image.buffer_view->buffer->size)) {
+		const uint8_t* view = static_cast<const uint8_t*>(image.buffer_view->buffer->data) + image.buffer_view->offset;
+		bytes.assign(view, view + image.buffer_view->size);
 	} else {
-		const uint8_t* view = nullptr;
-		size_t         length = 0;
-		if (!view_bytes(d, integer(image, "bufferView", -1), view, length, nullptr)) {
-			return false;
-		}
-		bytes.assign(view, view + length);
+		return false;
 	}
-	std::string mime = text_of(image, "mimeType");
 	if (hint.empty()) {
-		hint = mime == "image/jpeg" ? "image.jpg" : (mime == "image/webp" ? "image.webp" : (mime == "image/avif" ? "image.avif" : "image.png"));
+		std::string mime = image.mime_type ? image.mime_type : "";
+		hint             = mime == "image/jpeg" ? "image.jpg" : (mime == "image/webp" ? "image.webp" : (mime == "image/avif" ? "image.avif" : "image.png"));
 	}
 	name = hint;
 	return !bytes.empty();
