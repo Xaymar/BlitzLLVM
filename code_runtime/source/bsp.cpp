@@ -27,11 +27,14 @@
 #include <string.h>
 
 #include <map>
+#include <string>
+#include <vector>
 #include "path.h"
 
 extern "C" {
 void    bb_runtime_error(const char* message);
 int32_t bb_load_texture(const char* file, int32_t flags);
+void    bb_light_cone_angles(int32_t handle, float inner, float outer);
 int32_t bb_texture_from_rgba(int32_t width, int32_t height, int32_t flags, int32_t blend, const uint8_t* pixels);
 }
 
@@ -240,16 +243,24 @@ namespace {
 		return true;
 	}
 
-	// The light entities of a level become point lights that are children of the level, at the place that the map says. The
-	// level itself is not lit by them while its lightmaps are used, as the lightmaps already hold their light.
+	// What a light entity of the map says.
+	struct map_light {
+		float       origin[3], color[3], intensity, radius;
+		std::string target;
+	};
+	// The light entities of a level become point lights, or spot lights when they have a target, that are children of the level,
+	// at the place that the map says. The level itself is not lit by them while its lightmaps are used, as the lightmaps already hold their light.
 	int make_lights(int level, const char* text, size_t length)
 	{
 		int         count = 0;
 		const char* p     = text;
 		const char* end   = text + length;
 		char        key[64], value[256];
-		float       origin[3] = {}, color[3] = { 1, 1, 1 }, intensity = 300;
-		bool        is_light = false, has_origin = false, has_target = false;
+		float       origin[3] = {}, color[3] = { 1, 1, 1 }, intensity = 300, radius = 64;
+		bool        is_light = false, has_origin = false;
+		std::string target, targetname;
+		std::vector<map_light>                  lights;
+		std::vector<std::pair<std::string, std::vector<float>>> named; // The origins of entities that a light can point at.
 		while (p < end) {
 			while (p < end && *p != '{' && *p != '}') {
 				p++;
@@ -265,7 +276,10 @@ namespace {
 			origin[0] = origin[1] = origin[2] = 0;
 			color[0] = color[1] = color[2] = 1;
 			intensity  = 300;
-			is_light   = has_origin = has_target = false;
+			radius     = 64;
+			is_light   = has_origin = false;
+			target.clear();
+			targetname.clear();
 			// Pairs of key and value until the closing brace.
 			while (true) {
 				const char* q = p;
@@ -298,19 +312,49 @@ namespace {
 						}
 					}
 				} else if (!strcmp(key, "target")) {
-					has_target = true;
+					target = value;
+				} else if (!strcmp(key, "targetname")) {
+					targetname = value;
+				} else if (!strcmp(key, "radius")) {
+					sscanf(value, "%f", &radius);
 				}
 			}
-			(void)has_target; // A light with a target is a spot light in the map; it is a point light here.
+			if (has_origin && !targetname.empty()) {
+				named.push_back({ targetname, { origin[0], origin[1], origin[2] } });
+			}
 			if (!is_light || !has_origin || intensity <= 0) {
 				continue;
 			}
-			int light = bb_create_light(2, level);
+			map_light l = { { origin[0], origin[1], origin[2] }, { color[0], color[1], color[2] }, intensity, radius, target };
+			lights.push_back(l);
+		}
+		for (map_light const& l : lights) {
+			// A light with a target is a spot light that points at it, and its cone reaches the radius around the target.
+			const std::vector<float>* aim = nullptr;
+			for (auto const& n : named) {
+				if (!l.target.empty() && n.first == l.target) {
+					aim = &n.second;
+					break;
+				}
+			}
+			int   light = bb_create_light(aim ? 3 : 2, level);
 			float converted[3];
-			convert(origin, converted);
+			convert(l.origin, converted);
 			bb_position_entity(light, converted[0], converted[1], converted[2], 0);
-			bb_light_color(light, color[0] * 255.0f, color[1] * 255.0f, color[2] * 255.0f);
-			bb_light_range(light, intensity);
+			bb_light_color(light, l.color[0] * 255.0f, l.color[1] * 255.0f, l.color[2] * 255.0f);
+			bb_light_range(light, l.intensity);
+			if (aim) {
+				float target_position[3] = { (*aim)[0], (*aim)[1], (*aim)[2] }, t[3];
+				convert(target_position, t);
+				float d[3] = { t[0] - converted[0], t[1] - converted[1], t[2] - converted[2] };
+				float flat = sqrtf(d[0] * d[0] + d[2] * d[2]);
+				float dist = sqrtf(flat * flat + d[1] * d[1]);
+				// Blitz3D looks down the Z axis: yaw turns it around Y, a positive pitch looks down.
+				bb_rotate_entity(light, -atan2f(d[1], flat) * 57.29578f, atan2f(d[0], d[2]) * 57.29578f, 0, 0);
+				float outer = dist > 1e-3f ? 2.0f * atanf(l.radius / dist) * 57.29578f : 90.0f;
+				outer       = outer < 1 ? 1 : (outer > 179 ? 179 : outer);
+				bb_light_cone_angles(light, outer * 0.6f, outer);
+			}
 			count++;
 		}
 		return count;
