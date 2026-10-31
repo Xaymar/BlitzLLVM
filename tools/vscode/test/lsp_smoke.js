@@ -15,7 +15,7 @@ const { pathToFileURL } = require('url');
 const until = process.argv[4];
 const exe = process.argv[2];
 if (!exe) { console.error('usage: lsp_smoke.js <blitz-lsp> [commands.txt]'); process.exit(2); }
-const env = Object.assign({}, process.env);
+const env = Object.assign({}, process.env, { BLITZLLVM_LSP_TRACE: '1' });
 if (process.argv[3]) env.BLITZLLVM_COMMANDS = process.argv[3];
 
 const child = spawn(exe, ['--stdio'], { stdio: ['pipe', 'pipe', 'inherit'], env });

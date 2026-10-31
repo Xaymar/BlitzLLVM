@@ -20,6 +20,16 @@
 #endif
 
 namespace {
+	// BLITZLLVM_LSP_TRACE=1 writes what the server does to standard error (the editor shows that as the output of the server).
+	bool tracing = false;
+	void trace(const char* what, long long value = -1)
+	{
+		if (!tracing) return;
+		if (value < 0) std::fprintf(stderr, "blitz-lsp: %s\n", what);
+		else std::fprintf(stderr, "blitz-lsp: %s %lld\n", what, value);
+		std::fflush(stderr);
+	}
+
 	std::filesystem::path executable_path()
 	{
 #if defined(_WIN32)
@@ -67,6 +77,7 @@ namespace {
 #else
 			ssize_t got = ::read(0, buffer, sizeof(buffer));
 #endif
+			trace("read", got);
 			if (got <= 0) return false;
 			if (_at > 0) {
 				_buffer.erase(0, _at);
@@ -116,6 +127,8 @@ namespace {
 			}
 		}
 
+		if (const char* env = std::getenv("BLITZLLVM_LSP_TRACE"); env && *env && *env != '0') tracing = true;
+		trace("start");
 		// The protocol owns standard output; whatever else writes to it would corrupt the stream, so the library code gets standard error.
 #if defined(_WIN32)
 		_setmode(0, _O_BINARY);
@@ -126,6 +139,7 @@ namespace {
 		dup2(2, 1);
 #endif
 		if (!out) return 2;
+		trace("output ready");
 
 		blitz::lsp::server server(
 			[out](blitz::lsp::json const& message) {
@@ -136,6 +150,7 @@ namespace {
 			},
 			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true));
 
+		trace("server ready");
 		input in;
 		for (;;) {
 			// Nothing waiting: the editor is idle, so this is when the changed files are checked.
@@ -152,10 +167,13 @@ namespace {
 				}
 			}
 			if (!have_length) continue;
+			trace("message of", (long long)length);
 			std::string body;
 			if (!in.read_bytes(length, body)) return server.exit_code();
 			try {
-				if (!server.handle(blitz::lsp::json::parse(body))) return server.exit_code();
+				auto message = blitz::lsp::json::parse(body);
+				trace(message["method"].as_string().c_str());
+				if (!server.handle(message)) return server.exit_code();
 			} catch (std::exception const& ex) {
 				std::fprintf(stderr, "blitz-lsp: %s\n", ex.what());
 			}
