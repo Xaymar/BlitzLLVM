@@ -1341,7 +1341,7 @@ void bb_set_sampler_filter_mip(int32_t handle, int32_t mode)
 // Below 1 is 1, and the device limit is the most.
 void bb_set_sampler_anisotropy(int32_t handle, float anisotropy)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerAnisotropy");
+	sampler_entry* s = need_sampler(handle, "SamplerAnisotropy");
 	s->anisotropy    = anisotropy < 1.0f ? 1.0f : anisotropy;
 	apply_sampler(handle);
 }

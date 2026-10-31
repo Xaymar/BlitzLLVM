@@ -12,7 +12,7 @@ SetBuffer BackBuffer()
 tex = LoadTexture("wall.png", 1 + 8)
 sampler = CreateSampler()
 SamplerFilterMag sampler, 0       ; show the texels as blocks up close
-SetSamplerAnisotropy sampler, 8      ; and keep floors sharp from afar
+SamplerAnisotropy sampler, 8      ; and keep floors sharp from afar
 SetTextureSampler tex, sampler
 ```
 @returns The handle of the new sampler.

@@ -98,7 +98,7 @@ EXTENSIONS = {
     "samplerfiltermin": ("blitz3d", "SamplerFilterMin%sampler%mode"),
     "samplerfiltermag": ("blitz3d", "SamplerFilterMag%sampler%mode"),
     "samplerfiltermip": ("blitz3d", "SamplerFilterMip%sampler%mode"),
-    "setsampleranisotropy": ("blitz3d", "SetSamplerAnisotropy%sampler#anisotropy"),
+    "sampleranisotropy": ("blitz3d", "SamplerAnisotropy%sampler#anisotropy"),
     "setsampleraddressmodeu": ("blitz3d", "SetSamplerAddressModeU%sampler%mode"),
     "setsampleraddressmodev": ("blitz3d", "SetSamplerAddressModeV%sampler%mode"),
     "setsampleraddressmodew": ("blitz3d", "SetSamplerAddressModeW%sampler%mode"),

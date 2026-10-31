@@ -33,7 +33,7 @@ Global BenchSampler = 0
 Function BenchFilter(t)
 	If BenchSampler = 0 Then
 		BenchSampler = CreateSampler()
-		SetSamplerAnisotropy BenchSampler, 16
+		SamplerAnisotropy BenchSampler, 16
 	EndIf
 	SetTextureSampler t, BenchSampler
 End Function
