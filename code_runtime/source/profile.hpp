@@ -34,17 +34,12 @@ namespace bb {
 	constexpr int PROFILE_ITEMS = 1 + PROFILE_COUNT + 1 + 5 + 1;
 	extern const char* const profile_item_names[PROFILE_ITEMS];
 
-	// Everything that profiling says goes through profile_print: to stderr, or to the file of ProfileOutput, and also to the string of ProfileText$ while it is captured.
+	// Everything that profiling says goes through profile_print: to stderr, or to the file of ProfileOutput.
 	void        profile_print(const char* format, ...);
 	void        profile_set_output(const char* path);
-	void        profile_set_capture(bool on);
-	const char* profile_take_text();
-	void        profile_set_recording(bool on);
-	bool        profile_recording();
-	void        profile_record_frame(uint32_t number, const double* values);
-	int         profile_frame_count();
-	int         profile_frame_number(int index);
-	float       profile_frame_value(int index, int item);
+	void        profile_set_last_frame(uint32_t number, const double* values);
+	int         profile_last_frame_number();
+	float       profile_last_frame_value(const char* key);
 
 	struct profile_scope {
 		int      slot;

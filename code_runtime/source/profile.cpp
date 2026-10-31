@@ -14,25 +14,16 @@
 #include "runtime_internal.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string>
-#include <vector>
 
-// Where the text of the profiling goes (stderr, a file, a string the program can take) and the numbers of every frame.
+// Where the text of the profiling goes (stderr, a file, a string the program can take) and the numbers of the last frame.
 namespace bb {
 	namespace {
 		FILE*       output_file    = nullptr;
-		bool        capturing      = false;
-		std::string captured;
-		bool        recording      = false;
-		constexpr size_t capture_limit = size_t(64) << 20; // The oldest text is dropped beyond this, so a forgotten capture does not eat the memory.
-		constexpr size_t frames_limit  = size_t(1) << 16;  // The newest frames are kept.
 
-		struct frame_record {
-			uint32_t number;
-			float    values[PROFILE_ITEMS];
-		};
-		std::vector<frame_record> frames;
-		size_t                    frames_first = 0; // Where the oldest frame is in the ring once it is full.
+		uint32_t last_number = 0;               // The Flip that ended the last measured frame.
+		float    last_values[PROFILE_ITEMS] = {}; // And what it measured.
 	} // namespace
 
 	const char* const profile_item_names[PROFILE_ITEMS] = { "frame", "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay", "RenderWorld: lights+cameras", "RenderWorld: collect", "RenderWorld: draws", "RenderWorld: sort+group", "clusters for GPU culling", "record commands", "waiting for the GPU", "gpu scene", "gpu 2d", "gpu copy", "gpu present", "gpu frame", "vkQueueSubmit" };
@@ -60,12 +51,6 @@ namespace bb {
 		FILE* target = output_file ? output_file : stderr;
 		fwrite(text, 1, size_t(length), target);
 		fflush(target);
-		if (capturing) {
-			captured.append(text, size_t(length));
-			if (captured.size() > capture_limit) {
-				captured.erase(0, captured.size() - capture_limit / 2);
-			}
-		}
 	}
 
 	void profile_set_output(const char* path)
@@ -82,72 +67,33 @@ namespace bb {
 		}
 	}
 
-	void profile_set_capture(bool on)
+	void profile_set_last_frame(uint32_t number, const double* values)
 	{
-		capturing = on;
-		if (!on) {
-			captured.clear();
-		}
-	}
-
-	const char* profile_take_text()
-	{
-		const char* result = bb_copy(captured.data(), captured.size());
-		captured.clear();
-		return result;
-	}
-
-	void profile_set_recording(bool on)
-	{
-		recording = on;
-		if (on) {
-			frames.clear();
-			frames_first = 0;
-		}
-	}
-
-	bool profile_recording()
-	{
-		return recording;
-	}
-
-	void profile_record_frame(uint32_t number, const double* values)
-	{
-		frame_record record;
-		record.number = number;
+		last_number = number;
 		for (int i = 0; i < PROFILE_ITEMS; i++) {
-			record.values[i] = float(values[i]);
-		}
-		if (frames.size() < frames_limit) {
-			frames.push_back(record);
-		} else {
-			frames[frames_first] = record;
-			frames_first         = (frames_first + 1) % frames_limit;
+			last_values[i] = float(values[i]);
 		}
 	}
 
-	int profile_frame_count()
+	int profile_last_frame_number()
 	{
-		return int(frames.size());
+		return int(last_number);
 	}
 
-	static const frame_record* frame_at(int index)
+	// The key of an item is its name, in any case: "frame", "RenderWorld", "RenderWorld: draws", "waiting for the GPU", ...
+	float profile_last_frame_value(const char* key)
 	{
-		if (index < 0 || size_t(index) >= frames.size()) {
-			return nullptr;
+		for (int item = 0; key && item < PROFILE_ITEMS; item++) {
+			const char* a = key;
+			const char* b = profile_item_names[item];
+			while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) {
+				a++;
+				b++;
+			}
+			if (!*a && !*b) {
+				return last_values[item];
+			}
 		}
-		return &frames[(frames_first + size_t(index)) % frames.size()];
-	}
-
-	int profile_frame_number(int index)
-	{
-		const frame_record* record = frame_at(index);
-		return record ? int(record->number) : 0;
-	}
-
-	float profile_frame_value(int index, int item)
-	{
-		const frame_record* record = frame_at(index);
-		return (record && item >= 0 && item < PROFILE_ITEMS) ? record->values[item] : 0.0f;
+		return 0.0f;
 	}
 } // namespace bb
