@@ -101,6 +101,7 @@ suite-debug-compile-blitz3d_textures
 suite-debug-compile-blitz3d_transparency_batching_pixels
 suite-debug-compile-blitz3d_transparency_depth_pixels
 suite-debug-compile-blitz3d_transparency_pixels
+suite-debug-compile-blitz3d_transparency_sort_pixels
 suite-debug-compile-blitz3d_transparency_sprites_pixels
 suite-debug-compile-blitz3d_world
 suite-debug-compile-displays
@@ -272,6 +273,7 @@ suite-debug-run-blitz3d_textures
 suite-debug-run-blitz3d_transparency_batching_pixels
 suite-debug-run-blitz3d_transparency_depth_pixels
 suite-debug-run-blitz3d_transparency_pixels
+suite-debug-run-blitz3d_transparency_sort_pixels
 suite-debug-run-blitz3d_transparency_sprites_pixels
 suite-debug-run-blitz3d_world
 suite-debug-run-displays

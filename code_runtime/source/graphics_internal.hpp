@@ -776,7 +776,8 @@ namespace bb::gfx {
 	struct draw_item {
 		int   handle;
 		float alpha; // What is left of it after fading out with distance.
-		float depth; // Distance from the camera along its view direction.
+		float depth; // Distance in space from the camera, which fading goes by.
+		float sort;  // What see-through draws are ordered by: the distance in space, or with TransparencyDistanceSortMode the distance along the view axis.
 		int   order;
 	};
 

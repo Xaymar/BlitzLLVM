@@ -1679,6 +1679,18 @@ namespace bb::gfx {
 		return sphere_outside_view(bb::cull_record_of(handle), c->origin, c->planes, c->camera_growth);
 	}
 
+	static float current_camera[16]; // Where the camera is, for sprites that face it.
+
+	// Whether see-through draws are ordered along the view axis (TransparencyDistanceSortMode, BLITZLLVM_TRANSPARENCY_DISTANCE_SORT_MODE) and not by distance in space.
+	static int sort_view = -1;
+	static bool transparency_distance_sort_mode()
+	{
+		if (sort_view < 0) {
+			sort_view = (bb_env_int("BLITZLLVM_TRANSPARENCY_DISTANCE_SORT_MODE", 0) == 1) ? 1 : 0;
+		}
+		return sort_view != 0;
+	}
+
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
@@ -1732,7 +1744,14 @@ namespace bb::gfx {
 				has_solid = true;
 			}
 		}
-		draw_item item         = { handle, alpha, depth, mesh.order };
+		// With TransparencyDistanceSortMode see-through draws are ordered by how far they are in front of the camera instead, which is what the
+		// depth buffer compares, so draws at nearly the same depth (flat layers, sprites that face the camera) do not swap towards the edges.
+		float sort = depth;
+		if (transparency_distance_sort_mode()) {
+			float length = sqrtf(current_camera[8] * current_camera[8] + current_camera[9] * current_camera[9] + current_camera[10] * current_camera[10]);
+			sort         = (length > 0) ? (dx * current_camera[8] + dy * current_camera[9] + dz * current_camera[10]) / length : depth;
+		}
+		draw_item item         = { handle, alpha, depth, sort, mesh.order };
 		if (mesh.order > 0) {
 			c->list->behind.push(item);
 		} else if (mesh.order < 0) {
@@ -1753,7 +1772,7 @@ namespace bb::gfx {
 		if (items.size < 2) {
 			return;
 		}
-		auto before = [by_order](draw_item const& a, draw_item const& b) { return by_order ? (a.order > b.order) : (a.depth > b.depth); };
+		auto before = [by_order](draw_item const& a, draw_item const& b) { return by_order ? (a.order > b.order) : (a.sort > b.sort); };
 		std::stable_sort(items.data, items.data + items.size, before);
 	}
 
@@ -1937,7 +1956,6 @@ namespace bb::gfx {
 	// in better than six small ones, and the edges of an octagon are not worth it, nor are the faint halos it would cut off.
 	constexpr float sprite_hull_min_pixels = 128.0f;
 
-	static float current_camera[16]; // Where the camera is, for sprites that face it.
 	static bool  current_reflected;  // Whether the camera is the mirrored one of a mirror, which turns the other way around.
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
 
@@ -3700,6 +3718,14 @@ int32_t bb_draw_stats(int32_t which)
 }
 
 // Draw only the edges of everything, if the GPU can.
+// A BlitzLLVM extension: how see-through draws are ordered: along the view axis of the camera (the distance in front of it, as the
+// depth buffer sees it) and not by the distance in space like the original does. Mode 0 is the default, mode 1 the view distance. It applies from the next
+// RenderWorld, and does not change fading with EntityAutoFade, which keeps going by the distance in space.
+void bb_transparency_distance_sort_mode(int32_t mode)
+{
+	sort_view = (mode == 1) ? 1 : 0;
+}
+
 void bb_wire_frame(int32_t on)
 {
 	g.wireframe = (on != 0) && g.can_wireframe;
