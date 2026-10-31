@@ -396,6 +396,7 @@ namespace bb::gfx {
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
 		VkPipeline            add3d          = VK_NULL_HANDLE;
 		VkPipeline            dot33d         = VK_NULL_HANDLE; // Dot product with what is there, for Dot3 on a texture after the first one.
+		bool                  dot33d_tried   = false;          // Whether dot3_pipeline has tried to make it since the pipelines were made.
 		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
