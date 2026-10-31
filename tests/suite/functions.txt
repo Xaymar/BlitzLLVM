@@ -784,15 +784,15 @@ freetimer	runtime	done	FreeTimer%timer
 getenv	runtime	done	$GetEnv$env_var
 microseconds	runtime	done	&Microseconds
 millisecs	runtime	done	%MilliSecs
+profilebegin	runtime	done	ProfileBegin$key
 profileenable	runtime	done	ProfileEnable%enable
+profileend	runtime	done	ProfileEnd$key
 profileflipcount	runtime	done	%ProfileFlipCount
 profilefps	runtime	done	ProfileFPS%enable
 profileitemcount	runtime	done	%ProfileItemCount
 profileitemname	runtime	done	$ProfileItemName%item
 profileoutput	runtime	done	ProfileOutput$file
 profilesample	runtime	done	ProfileSample$file
-profilesectionend	runtime	done	ProfileSectionEnd$key
-profilesectionstart	runtime	done	ProfileSectionStart$key
 profileslow	runtime	done	ProfileSlow#milliseconds
 profilevalue	runtime	done	#ProfileValue$key
 runtimeerror	runtime	done	RuntimeError$message

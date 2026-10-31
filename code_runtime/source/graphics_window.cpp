@@ -570,16 +570,16 @@ extern "C" float bb_profile_value(const char* key)
 	return bb::profile_compiled ? bb::profile_last_frame_value(bb_s(key)) : 0.0f;
 }
 
-// ProfileSectionStart key$ / ProfileSectionEnd key$: Times a part of the program, which gets a key of its own next to the ones of the runtime.
+// ProfileBegin key$ / ProfileEnd key$: Times a part of the program, which gets a key of its own next to the ones of the runtime.
 // The time that a key collects between two Flips is its number for that frame. A key that is started again after it ended adds up.
-extern "C" void bb_profile_section_start(const char* key)
+extern "C" void bb_profile_begin(const char* key)
 {
 	if (bb::profile_compiled) {
 		bb::profile_section_start(bb_s(key));
 	}
 }
 
-extern "C" void bb_profile_section_end(const char* key)
+extern "C" void bb_profile_end(const char* key)
 {
 	if (bb::profile_compiled) {
 		bb::profile_section_end(bb_s(key));

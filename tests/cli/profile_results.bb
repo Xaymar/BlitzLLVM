@@ -9,10 +9,10 @@ ProfileOutput file
 ProfileSlow 0.0001 ; every frame is slow
 Local i
 For i = 1 To 20
-	ProfileSectionStart "Mine"
+	ProfileBegin "Mine"
 	Delay 2
-	ProfileSectionEnd "mine"
-	ProfileSectionEnd "never started"
+	ProfileEnd "mine"
+	ProfileEnd "never started"
 	Cls
 	Flip
 Next
