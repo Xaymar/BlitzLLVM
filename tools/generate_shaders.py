@@ -20,7 +20,7 @@ OP = dict(
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, ImageSampleExplicitLod=88, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
-    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
+    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalOr=166, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
@@ -483,6 +483,87 @@ def spec_limits(b, f, first_id):
     return limits
 
 
+def conditional(b, flag, make, defaults, types):
+    """Runs make() only where the flag is true, and gives the values it makes there (a list) and the defaults elsewhere."""
+    before, then, merge = b.m.id(), b.m.id(), b.m.id()
+    b.m.code += [Module.inst("Branch", before), Module.inst("Label", before), Module.inst("SelectionMerge", merge, 0),
+                 Module.inst("BranchConditional", flag, then, merge), Module.inst("Label", then)]
+    made = make()
+    last = b.m.id()  # make() may have blocks of its own, so the one that leaves is a new one
+    b.m.code += [Module.inst("Branch", last), Module.inst("Label", last), Module.inst("Branch", merge), Module.inst("Label", merge)]
+    return [b.emit("Phi", t, m, last, d, before) for t, m, d in zip(types, made, defaults)]
+
+
+def light_code(b, ubo, world, n, eye, params, packed):
+    """
+    The lighting of a point: the color the lights add to the ambient light (the first value) and the highlight they leave (the second),
+    from the world position and (unit) normal, the position of the eye, the params of the entity (fullbright in x, shininess in w), and
+    the places of its eight lights in the table, two to a float (packed, a vec4). The vertex shader uses this per vertex, and the
+    fragment shader per pixel for entities with EntityLighting 1.
+    """
+    f, v3, v4 = b.float(), b.vec(3), b.vec(4)
+    c0, c1 = b.const_float(0.0), b.const_float(1.0)
+    lit = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(1))), 3)
+    ones, zeros = b.const_vec(3, 1.0), b.const_vec(3, 0.0)
+    to_eye = b.fsub(v3, eye, world)
+    view = b.scale(3, to_eye, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, to_eye), b.const_float(1e-4))))
+    shininess = b.extract(params, 3)
+    power = b.ext(f, GLSL_FMAX, b.fmul(f, shininess, b.const_float(128.0)), b.const_float(1e-3))
+    specular = zeros
+    # The eight lights of this draw: entity.lights holds their places in the table, two to a float (even + 256 * odd).
+    chosen = []
+    for pair in range(4):
+        both = b.extract(packed, pair)
+        high = b.ext(f, GLSL_FLOOR, b.fmul(f, both, b.const_float(1.0 / 256.0)))
+        chosen.append(b.emit("ConvertFToS", b.int(), b.fsub(f, both, b.fmul(f, high, b.const_float(256.0)))))
+        chosen.append(b.emit("ConvertFToS", b.int(), high))
+    boolean = b.new_type("bool", "TypeBool")
+    unused = b.const_int(MAX_LIGHTS - 1)  # The place of the light that is off, which fills what an entity has fewer than eight lights of.
+    for light in range(8):
+        def one_light(light=light):
+            lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), chosen[light]))
+            lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), chosen[light]))
+            ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), chosen[light]))
+            lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
+            delta = b.fsub(v3, lpos, world)
+            dist = b.ext(f, GLSL_LENGTH, delta)
+            to_point = b.scale(3, delta, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4))))
+            is_point = b.ext(f, GLSL_FCLAMP, b.fmul(f, w, b.const_float(1000.0)), c0, c1)
+            direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
+            ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
+            range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
+            # Direct3D 7 attenuation 1 / (a1 * d) with a1 = 1 / range, which is range / d: it is not clamped and is above one close by.
+            falloff = b.fdiv(f, range_, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4)))
+            attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
+            # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
+            # and ld.w is below -1 for lights that are not spots.
+            rho = b.fsub(f, c0, b.dot(direction, b.swizzle(ld, 3)))
+            cone_span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(lc, 3), b.extract(ld, 3)), b.const_float(1e-4))
+            cone = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, rho, b.extract(ld, 3)), cone_span), c0, c1)
+            is_spot = b.ext(f, GLSL_STEP, b.const_float(-1.5), b.extract(ld, 3))
+            spot = b.fadd(f, c1, b.fmul(f, b.fsub(f, cone, c1), is_spot))
+            attenuation = b.fmul(f, attenuation, spot)
+            contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
+            # Blinn-Phong with the viewer where the camera is, and the light itself white.
+            half = b.fadd(v3, direction, view)
+            half = b.scale(3, half, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, half), b.const_float(1e-4))))
+            ndoth = b.ext(f, GLSL_FMAX, b.dot(n, half), b.const_float(1e-4))
+            facing = b.ext(f, GLSL_STEP, b.const_float(1e-6), ndotl)
+            highlight = b.fmul(f, b.fmul(f, b.ext(f, GLSL_POW, ndoth, power), facing), attenuation)
+            return [contribution, b.scale(3, ones, highlight)]
+        used = b.emit("SLessThan", boolean, chosen[light], unused)
+        # Slots are filled in order, so the first unused one ends the entity's lights: only the real ones are evaluated.
+        added, shine = conditional(b, used, one_light, [zeros, zeros], [v3, v3])
+        lit = b.fadd(v3, lit, added)
+        specular = b.fadd(v3, specular, shine)
+
+    fullbright = b.extract(params, 0)
+    lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
+    strength = b.ext(f, GLSL_FCLAMP, shininess, c0, c1)
+    specular = b.scale(3, specular, b.fmul(f, strength, b.fsub(f, c1, fullbright)))
+    return lit, specular
+
+
 def vertex_shader_3d():
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
@@ -510,7 +591,7 @@ def vertex_shader_3d():
         vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
         vec4 mask;                   // For the fragment shader.
-        vec4 extra;                  // x: whether the second set of texture coordinates is used, y and z: sine and cosine minus one of RotateTexture.
+        vec4 extra;                  // x: whether the second set of texture coordinates is used, y and z: sine and cosine minus one of RotateTexture, w: EntityLighting (1 per pixel).
         vec4 texgen;                 // x: 1 for a sphere map, 2 for a cube map. y: what a cube map shows (1 reflection, 2 normal, 3 position), z: whether in camera space, w: half a texel of a face.
     };
     layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
@@ -564,6 +645,10 @@ def vertex_shader_3d():
     out_color_flat = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
     out_spec = b.variable("Output", v3, [(DECORATION["Location"], 4)])
     out_spec_flat = b.variable("Output", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
+    out_normal = b.variable("Output", v3, [(DECORATION["Location"], 9)])  # For the lighting of EntityLighting 1: the normal, and what else the lights need.
+    out_params = b.variable("Output", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
+    out_lights = b.variable("Output", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
+    out_pixel = b.variable("Output", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])  # EntityLighting: 1 if the fragment shader lights.
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -573,7 +658,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, out_normal, out_params, out_lights, out_pixel))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -603,59 +688,16 @@ def vertex_shader_3d():
     b.store(b.access("Output", v4, out_vertex, b.const_int(0)), clip)
     b.store(b.access("Output", f, out_vertex, b.const_int(1)), c1)
 
-    lit = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(1))), 3)
-    ones, zeros = b.const_vec(3, 1.0), b.const_vec(3, 0.0)
     eye = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(6))), 3)
-    to_eye = b.fsub(v3, eye, world)
-    view = b.scale(3, to_eye, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, to_eye), b.const_float(1e-4))))
-    shininess = b.extract(params, 3)
-    power = b.ext(f, GLSL_FMAX, b.fmul(f, shininess, b.const_float(128.0)), b.const_float(1e-3))
-    specular = zeros
-    # The eight lights of this draw: entity.lights holds their places in the table, two to a float (even + 256 * odd).
     packed = push_member(9)
-    chosen = []
-    for pair in range(4):
-        both = b.extract(packed, pair)
-        high = b.ext(f, GLSL_FLOOR, b.fmul(f, both, b.const_float(1.0 / 256.0)))
-        chosen.append(b.emit("ConvertFToS", b.int(), b.fsub(f, both, b.fmul(f, high, b.const_float(256.0)))))
-        chosen.append(b.emit("ConvertFToS", b.int(), high))
-    for light in range(8):
-        lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), chosen[light]))
-        lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), chosen[light]))
-        ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), chosen[light]))
-        lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
-        delta = b.fsub(v3, lpos, world)
-        dist = b.ext(f, GLSL_LENGTH, delta)
-        to_point = b.scale(3, delta, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4))))
-        is_point = b.ext(f, GLSL_FCLAMP, b.fmul(f, w, b.const_float(1000.0)), c0, c1)
-        direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
-        ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
-        range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
-        # Direct3D 7 attenuation 1 / (a1 * d) with a1 = 1 / range, which is range / d: it is not clamped and is above one close by.
-        falloff = b.fdiv(f, range_, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4)))
-        attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
-        # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
-        # and ld.w is below -1 for lights that are not spots.
-        rho = b.fsub(f, c0, b.dot(direction, b.swizzle(ld, 3)))
-        cone_span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(lc, 3), b.extract(ld, 3)), b.const_float(1e-4))
-        cone = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, rho, b.extract(ld, 3)), cone_span), c0, c1)
-        is_spot = b.ext(f, GLSL_STEP, b.const_float(-1.5), b.extract(ld, 3))
-        spot = b.fadd(f, c1, b.fmul(f, b.fsub(f, cone, c1), is_spot))
-        attenuation = b.fmul(f, attenuation, spot)
-        contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
-        lit = b.fadd(v3, lit, contribution)
-        # Blinn-Phong with the viewer where the camera is, and the light itself white.
-        half = b.fadd(v3, direction, view)
-        half = b.scale(3, half, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, half), b.const_float(1e-4))))
-        ndoth = b.ext(f, GLSL_FMAX, b.dot(n, half), b.const_float(1e-4))
-        facing = b.ext(f, GLSL_STEP, b.const_float(1e-6), ndotl)
-        highlight = b.fmul(f, b.fmul(f, b.ext(f, GLSL_POW, ndoth, power), facing), attenuation)
-        specular = b.fadd(v3, specular, b.scale(3, ones, highlight))
-
-    fullbright = b.extract(params, 0)
-    lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
-    strength = b.ext(f, GLSL_FCLAMP, shininess, c0, c1)
-    specular = b.scale(3, specular, b.fmul(f, strength, b.fsub(f, c1, fullbright)))
+    ones = b.const_vec(3, 1.0)
+    # With EntityLighting 1 (extra.w) the fragment shader lights the entity, except if it is flat shaded: that keeps the lighting of its first vertex.
+    boolean = b.new_type("bool", "TypeBool")
+    per_pixel_value = b.extract(extra, 3)
+    per_pixel = b.emit("FOrdGreaterThan", boolean, per_pixel_value, b.const_float(0.5))
+    flat_entity = b.emit("FOrdGreaterThan", boolean, b.extract(push_member(6), 2), b.const_float(0.5))
+    vertex_lit = b.emit("LogicalOr", boolean, b.emit("LogicalNot", boolean, per_pixel), flat_entity)
+    lit, specular = conditional(b, vertex_lit, lambda: light_code(b, ubo, world, n, eye, params, packed), [ones, b.const_vec(3, 0.0)], [v3, v3])
     # The vertex color replaces the color of the entity if the effect says so, and only then does its alpha count.
     use_vertex_color, use_vertex_alpha = b.extract(params, 1), b.extract(params, 2)
     entity_rgb = b.swizzle(material, 3)
@@ -674,6 +716,10 @@ def vertex_shader_3d():
     b.store(out_color_flat, final)
     b.store(out_spec, specular)
     b.store(out_spec_flat, specular)
+    b.store(out_normal, n)
+    b.store(out_params, params)
+    b.store(out_lights, packed)
+    b.store(out_pixel, per_pixel_value)
     # Textures can be scaled and moved: the first two are factors, the last two offsets.
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
     first_uv, second_uv = b.load(v2, in_uv), b.load(v2, in_uv2)
@@ -711,6 +757,7 @@ def vertex_shader_3d():
     b.store(out_depth, b.construct(4, b.extract(clip, 3), b.extract(world, 0), b.extract(world, 1), b.extract(world, 2)))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
+
 
 
 
@@ -819,6 +866,10 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         in_dir = b.variable("Input", v4, [(DECORATION["Location"], 7)])
         in_soft = b.variable("Input", v4, [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+        in_normal = b.variable("Input", v3, [(DECORATION["Location"], 9)])
+        in_params = b.variable("Input", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
+        in_lights = b.variable("Input", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
+        in_pixel = b.variable("Input", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
         if interlock:
@@ -828,7 +879,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights, in_pixel]
 
     # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
     # fragment_shader_palette for how it is laid out: see palette_nearest_code).
@@ -915,6 +966,24 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         color = b.fadd(v4, color, b.scale(4, b.fsub(v4, b.load(v4, in_color_flat), color), flat))
         spec = b.load(v3, in_spec)
         spec = b.fadd(v3, spec, b.scale(3, b.fsub(v3, b.load(v3, in_spec_flat), spec), flat))
+        # EntityLighting 1 (a flat input of the vertex shader): the lights are applied here instead of in the vertex shader, which left the
+        # color unlit (flat shaded entities are lit by their first vertex as before). The color is limited as the vertex shader does it.
+        low, high = spec_limits(b, f, 6)
+        lows, highs = b.construct(3, low, low, low), b.construct(3, high, high, high)
+        bool_type = b.new_type("bool", "TypeBool")
+        pixel_lit = b.emit("LogicalAnd", bool_type, b.emit("FOrdGreaterThan", bool_type, b.load(f, in_pixel), b.const_float(0.5)), b.emit("FOrdLessThan", bool_type, flat, b.const_float(0.5)))
+        scene_world = b.swizzle(b.emit("VectorShuffle", v4, b.load(v4, in_depth), b.load(v4, in_depth), 1, 2, 3, 3), 3)
+
+        def light_pixel():
+            normal = b.load(v3, in_normal)
+            unit = b.scale(3, normal, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, normal), b.const_float(1e-6))))
+            eye_pos = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(6))), 3)
+            return light_code(b, scene, scene_world, unit, eye_pos, b.load(v4, in_params), b.load(v4, in_lights))
+
+        pixel_light, pixel_spec = conditional(b, pixel_lit, light_pixel, [b.const_vec(3, 1.0), b.const_vec(3, 0.0)], [v3, v3])
+        lit_color = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, b.swizzle(color, 3), pixel_light), lows, highs)
+        color = b.construct(4, b.extract(lit_color, 0), b.extract(lit_color, 1), b.extract(lit_color, 2), b.extract(color, 3))
+        spec = b.fadd(v3, spec, pixel_spec)
 
     # In 3D the first three values of the mask mean other things, and the color that is not there is black.
     key = b.const_vec(3, 0.0) if fog else b.swizzle(mask, 3)
@@ -939,8 +1008,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         # color of the lighting the second. Each result is limited to what a color can be, as a stage is.
         zeros3, ones3 = b.const_vec(3, 0.0), b.const_vec(3, 1.0)
         # Specialization constants 6 and 7 are the limits of the color of a stage: 0 and 1, but wider for a target of half precision floats.
-        low, high = spec_limits(b, f, 6)
-        lows, highs = b.construct(3, low, low, low), b.construct(3, high, high, high)
         col, texel = b.swizzle(color, 3), b.swizzle(t, 3)
         half3 = b.const_vec(3, 0.5)
         by_alpha = b.fadd(v3, col, b.scale(3, b.fsub(v3, texel, col), b.extract(t, 3)))

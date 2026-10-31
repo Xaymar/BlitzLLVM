@@ -142,6 +142,7 @@ entitydistance	blitz3d	done	#EntityDistance%source_entity%destination_entity
 entitydepthfade	blitz3d	done	EntityDepthFade%entity#fade_distance
 entityfx	blitz3d	done	EntityFX%entity%fx
 entityinview	blitz3d	done	%EntityInView%entity%camera
+entitylighting	blitz3d	done	EntityLighting%entity%mode
 entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
 entityname	blitz3d	done	$EntityName%entity
 entityorder	blitz3d	done	EntityOrder%entity%order

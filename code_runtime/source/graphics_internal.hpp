@@ -959,6 +959,8 @@ namespace bb::gfx {
 	bool blend_interlock();
 	/** Whether Dither 2 blends in the shader when drawing to a target of that format: only for 8 bits per color. */
 	bool blends_in_shader(VkFormat target);
+	/** The EntityLighting of entities that were not given one (1 if BLITZLLVM_ENTITY_LIGHTING is set). */
+	int entity_lighting_default();
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();

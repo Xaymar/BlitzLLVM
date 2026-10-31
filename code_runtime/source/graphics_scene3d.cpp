@@ -242,6 +242,17 @@ namespace bb::gfx {
 		return gpu;
 	}
 
+	// EntityLighting: whether the fragment shader lights an entity (smooth highlights and spot cones) instead of the vertex shader, which is what Direct3D 7
+	// and the original do. This is the mode of entities that were not given one: 0 unless BLITZLLVM_ENTITY_LIGHTING is 1 (read once).
+	int entity_lighting_default()
+	{
+		static int value = -1;
+		if (value < 0) {
+			value = bb_env_bool("BLITZLLVM_ENTITY_LIGHTING", false) ? 1 : 0;
+		}
+		return value;
+	}
+
 	// With shader_blend the fragment shader is the one that blends itself (Dither 2) and the pipeline does not blend.
 	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend)
 	{
@@ -2661,6 +2672,7 @@ namespace bb::gfx {
 			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
 			push.extra[0] = (texture && (texture->flags & 0x10000)) ? 1.0f : 0.0f;
 			texture_rotation(texture, push.extra);
+			push.extra[3] = (e->lighting < 0 ? entity_lighting_default() : e->lighting) ? 1.0f : 0.0f; // EntityLighting.
 			texture_texgen(texture, push.texgen);
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 			if (texture && texture->set) {

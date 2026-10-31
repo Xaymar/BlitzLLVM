@@ -269,6 +269,7 @@
 		{ "entitycolor", "bb_entity_color", 'v', "ifff", 4, {}, false },
 		{ "entityalpha", "bb_entity_alpha", 'v', "if", 2, {}, false },
 		{ "entityfx", "bb_entity_fx", 'v', "ii", 2, {}, false },
+		{ "entitylighting", "bb_entity_lighting", 'v', "ii", 2, {}, false },
 		{ "entitylightchannel", "bb_entity_light_channel", 'v', "iu", 2, {}, false },
 		{ "entitytexture", "bb_entity_texture", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
 		{ "loadtexture", "bb_load_texture", 'i', "si", 1, { 0, 9 }, false },
