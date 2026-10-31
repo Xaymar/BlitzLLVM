@@ -45,6 +45,8 @@ void    bb_gui_window_show_picture(int32_t handle, int32_t wait);
 void*   bb_gui_window_sdl(int32_t handle);
 float   bb_gui_window_scale(int32_t handle); // How many pixels a unit of the program is in the window, which its gadgets are drawn with.
 float   bb_gui_desktop_scale(void);
+float   bb_gui_window_display_scale(int32_t handle); // The scale of the display the window is on, whether or not the window is scaled by it.
+void    bb_gui_scaling(int32_t on);                  // Whether the runtime scales the windows by their display (WindowScaling).
 // Drawing for the GUI at a scale (graphics_draw2d.cpp, graphics_images.cpp): text in a font that is as many times bigger, and an image
 // stretched to w by h pixels.
 void    bb_gui_text_scaled(int32_t x, int32_t y, const char* s, int32_t font, int32_t size, float scale);
@@ -74,6 +76,7 @@ namespace bb::gui {
 	constexpr int event_window_size   = 0x802;
 	constexpr int event_window_close  = 0x803;
 	constexpr int event_window_active = 0x804;
+	constexpr int event_window_scale  = 0x805; // A BlitzLLVM addition: the scale of the display of a window changed, the percent in the data.
 	constexpr int event_menu_action   = 0x1001;
 	constexpr int event_begin_modal   = 0x2004;
 	constexpr int event_end_modal     = 0x2005;
