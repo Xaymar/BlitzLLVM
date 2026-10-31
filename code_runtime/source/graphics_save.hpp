@@ -34,6 +34,18 @@ namespace bb::gfx {
 	/** A zlib stream of the data, malloc'ed, at a level from 0 (stored) to 9 (smallest) like zlib's. Null if it ran out of memory. */
 	unsigned char* zlib_compress(const unsigned char* data, int size, int* out_size, int level);
 
+	/** What a DDS file holds. The block formats are last. */
+	enum class dds_format { rgba8, bgra8, bgr8, rgb565, r8, rg8, bc1, bc2, bc3, bc4, bc5, bc7 };
+	struct dds_options {
+		dds_format format = dds_format::rgba8;
+		int        levels = 1;     // 1 is the picture alone, 0 all the mip maps down to 1x1, otherwise at most that many.
+		bool       srgb   = false; // The colors are sRGB (a DX10 header says so).
+	};
+	/** The format a name says ("bc3", "rgba8"...). False if there is no such format. */
+	bool parse_dds_format(const char* name, dds_format& out);
+	/** Encodes RGBA pixels (without row padding) to a DDS file in memory. */
+	bool dds_encode(const uint8_t* rgba, int width, int height, const dds_options& options, std::vector<uint8_t>& out);
+
 	/** What the settings string of the save commands says. A value that is -1 (or unset) was not given and the format picks. */
 	struct save_settings {
 		int   quality     = -1;    // 0 to 100: JPEG, WebP and JPEG XL.
@@ -45,12 +57,13 @@ namespace bb::gfx {
 		int   compression = -1;    // PNG: 0 (stored) to 9 (smallest), like zlib.
 		bool  rle         = true;  // TGA.
 		bool  metadata    = true;  // Whether the file says which program made it.
+		dds_options dds;           // DDS: format, mipmaps and levels.
 	};
 
 	/** Reads "key=value, key=value" (separated by commas, semicolons or spaces). Returns the text of the first problem, or an empty string. */
 	std::string parse_save_settings(const char* text, save_settings& out);
 
-	enum class save_format { bmp, png, jpeg, webp, jxl, tga, avif };
+	enum class save_format { bmp, png, jpeg, webp, jxl, tga, avif, dds };
 	/** The format that the extension of a file name says. Every extension that is not known is a BMP, like it was before there were other formats. */
 	save_format save_format_of(const char* file);
 
