@@ -268,6 +268,7 @@ namespace {
 		if (word == "endif") return block::conditional;
 		if (word == "endselect") return block::select;
 		if (word == "endfunction") return block::function;
+		if (word == "endtype") return block::type;
 		return std::nullopt;
 	}
 

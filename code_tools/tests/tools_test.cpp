@@ -68,6 +68,7 @@ static void test_keywords()
 	CHECK(keyword_spelling("wend") == "Wend");
 	CHECK(keyword_spelling("ENDSELECT") == "EndSelect");
 	CHECK(keyword_spelling("endfunction") == "EndFunction");
+	CHECK(keyword_spelling("ENDTYPE") == "EndType");
 	CHECK(keyword_spelling("Print").empty());
 	CHECK(keyword_spelling("Zzz").empty());
 	CHECK(keyword_spelling("Abs") == "Abs");

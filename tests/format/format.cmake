@@ -208,7 +208,7 @@ elseif(CASE STREQUAL "indent")
 	expect_format("Function F()\n.top\nGoto top\nEnd Function\n" "Function F()\n.top\n\tGoto top\nEnd Function\n")
 	expect_format("Function F()\n.top\nGoto top\nEnd Function\n" "Function F()\n\t.top\n\tGoto top\nEnd Function\n" --indent-labels)
 	# EndSelect, EndFunction and EndIf are block ends like their two-word forms, and are written as they were.
-	expect_format("function f()\nif a\nselect a\ncase 1\nprint 1\nendselect\nendif\nendfunction\n" "Function f()\n\tIf a\n\t\tSelect a\n\t\t\tCase 1\n\t\t\t\tprint 1\n\t\tEndSelect\n\tEndIf\nEndFunction\n")
+	expect_format("function f()\nif a\nselect a\ncase 1\nprint 1\nendselect\nendif\nendfunction\ntype t\nfield a\nendtype\n" "Function f()\n\tIf a\n\t\tSelect a\n\t\t\tCase 1\n\t\t\t\tprint 1\n\t\tEndSelect\n\tEndIf\nEndFunction\n\nType t\n\tField a\nEndType\n")
 	# Unbalanced code doesn't go below the first column.
 	expect_format("Next\nWend\nEndIf\nPrint 1\n" "Next\nWend\nEndIf\nPrint 1\n")
 
