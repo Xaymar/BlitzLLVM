@@ -18,6 +18,7 @@
 #include "memory.h"
 #include "graphics_save.hpp"
 #include "environment.h"
+#include "runtime_internal.h"
 #include <atomic>
 
 using namespace bb::gfx;
@@ -510,7 +511,9 @@ extern "C" void bb_set_profile(int32_t profile)
 	bb::profile_enabled  = bb::profile_compiled;
 	bb::profile_symbols  = ((profile & 2) != 0);
 	if (bb::profile_compiled) {
+		bb::profile_set_output(bb_env("BLITZLLVM_PROFILE_OUTPUT"));
 		bb::profile_report = bb_env_bool("BLITZLLVM_PROFILE_FPS", false);
+		bb::profile_slow_ms = bb_env_double("BLITZLLVM_PROFILE_SLOW", 0.0);
 		bb::profile_start_sampler(bb_env("BLITZLLVM_PROFILE_SAMPLE"));
 	}
 }
@@ -540,6 +543,195 @@ extern "C" void bb_profile_sample(const char* file)
 	}
 }
 
+// ProfileSlow milliseconds: Lists every frame that takes longer than this, like BLITZLLVM_PROFILE_SLOW=<ms>. 0 stops it.
+extern "C" void bb_profile_slow(float milliseconds)
+{
+	if (bb::profile_compiled) {
+		bb::profile_slow_ms = (milliseconds > 0.0f) ? double(milliseconds) : 0.0;
+	}
+}
+
+// ProfileOutput file$: Sends what the profiling says to a file instead of the standard error output, like BLITZLLVM_PROFILE_OUTPUT=<file>. An empty name goes back to stderr.
+extern "C" void bb_profile_output(const char* file)
+{
+	if (bb::profile_compiled) {
+		bb::profile_set_output(file);
+	}
+}
+
+// ProfileCapture enable: Keeps what the profiling says in a string as well, which ProfileText$ hands over.
+extern "C" void bb_profile_capture(int32_t on)
+{
+	if (bb::profile_compiled) {
+		bb::profile_set_capture(on != 0);
+	}
+}
+
+extern "C" const char* bb_profile_text(void)
+{
+	return bb::profile_compiled ? bb::profile_take_text() : bb_copy("", 0);
+}
+
+// ProfileFrames enable: Keeps the numbers of every frame (the last 65536), which ProfileFrameValue reads without any text to parse.
+extern "C" void bb_profile_frames(int32_t on)
+{
+	if (bb::profile_compiled) {
+		bb::profile_set_recording(on != 0);
+	}
+}
+
+extern "C" int32_t bb_profile_frame_count(void)
+{
+	return bb::profile_compiled ? bb::profile_frame_count() : 0;
+}
+
+extern "C" int32_t bb_profile_frame_number(int32_t index)
+{
+	return bb::profile_compiled ? bb::profile_frame_number(index) : 0;
+}
+
+extern "C" float bb_profile_frame_value(int32_t index, int32_t item)
+{
+	return bb::profile_compiled ? bb::profile_frame_value(index, item) : 0.0f;
+}
+
+extern "C" int32_t bb_profile_item_count(void)
+{
+	return bb::PROFILE_ITEMS;
+}
+
+extern "C" const char* bb_profile_item_name(int32_t item)
+{
+	const char* name = (item >= 0 && item < bb::PROFILE_ITEMS) ? bb::profile_item_names[item] : "";
+	return bb_copy(name, strlen(name));
+}
+
+namespace {
+	// Everything the profiling counts only goes up (the reports take the difference to the last time), so that the report of a second, the list of the
+	// slow frames and the numbers of every frame can all use the same counters.
+	struct profile_counters {
+		Uint64 time;
+		Uint64 ticks[bb::PROFILE_COUNT];
+		Uint64 wait, submit, present;
+		double pass[5];
+		int    submits, overlap;
+	};
+
+	profile_counters profile_now()
+	{
+		profile_counters now = {};
+		now.time = SDL_GetPerformanceCounter();
+		for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+			now.ticks[i] = bb::profile_ticks[i];
+		}
+		now.wait    = profile_wait;
+		now.submit  = profile_gpu_submit;
+		now.present = profile_gpu_present;
+		for (int i = 0; i < 5; i++) {
+			now.pass[i] = profile_gpu_pass[i];
+		}
+		now.submits = profile_submits;
+		now.overlap = profile_overlap;
+		return now;
+	}
+
+	double profile_ms(Uint64 ticks)
+	{
+		return double(ticks) * 1000.0 / double(SDL_GetPerformanceFrequency());
+	}
+
+	// The profiling of one Flip: the numbers of the frame that ends here, the list of slow frames and the report of a second.
+	bool profile_was_enabled = false;
+
+	void profile_flip()
+	{
+		if (!bb::profile_enabled) {
+			profile_was_enabled = false;
+			return;
+		}
+		static profile_counters last_frame    = {};
+		static bool             have_frame    = false;
+		static int              slow_follow   = 0;
+		static profile_counters last_report   = {};
+		static Uint64           report_time   = 0;
+		static int              report_frames = 0;
+		static bool             report_was_on = false;
+		profile_counters        now           = profile_now();
+		if (!profile_was_enabled) {
+			// Profiling was off (ProfileEnable 0): the first frame after it has nothing to be measured against.
+			have_frame          = false;
+			profile_was_enabled = true;
+		}
+		if (have_frame && (bb::profile_slow_ms > 0.0 || bb::profile_recording())) {
+			double values[bb::PROFILE_ITEMS];
+			int    at = 0;
+			values[at++] = profile_ms(now.time - last_frame.time);
+			for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+				values[at++] = profile_ms(now.ticks[i] - last_frame.ticks[i]);
+			}
+			values[at++] = profile_ms(now.wait - last_frame.wait);
+			for (int i = 0; i < 5; i++) {
+				values[at++] = (now.pass[i] - last_frame.pass[i]) * 1e-6;
+			}
+			values[at++] = profile_ms(now.submit - last_frame.submit);
+			if (bb::profile_recording()) {
+				bb::profile_record_frame(bb::profile_frame, values);
+			}
+			// A frame that takes longer than ProfileSlow lists where its time went. The Flip of the frame before is part of the frame.
+			if (bb::profile_slow_ms > 0.0 && values[0] >= bb::profile_slow_ms) {
+				bb::profile_print("slow frame %u: %.1f ms:", unsigned(bb::profile_frame), values[0]);
+				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+					if (values[1 + i] >= 0.5) {
+						const char* name = bb::profile_names[i];
+						while (*name == ' ') {
+							name++;
+						}
+						bb::profile_print(" %s %.1f,", name, values[1 + i]);
+					}
+				}
+				bb::profile_print(" waiting for the GPU %.1f\n", values[1 + bb::PROFILE_COUNT]);
+				slow_follow = 4;
+			}
+			// The GPU times come back a frame or two late, so the slow frame and the three after it each list what the GPU finished since the Flip before.
+			if (slow_follow > 0) {
+				const double* gpu = values + 2 + bb::PROFILE_COUNT;
+				bb::profile_print("  gpu finished since the Flip before: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms, vkQueueSubmit %.1f ms\n", gpu[0], gpu[1], gpu[2], gpu[3], gpu[4], gpu[5]);
+				slow_follow--;
+			}
+		}
+		last_frame = now;
+		have_frame = true;
+
+		// ProfileFPS: the frames per second and the timers, for the last second.
+		bool report = bb::profile_report;
+		if (report && !report_was_on) {
+			char cpu[512];
+			bb_cpu_describe(cpu, sizeof(cpu));
+			bb::profile_print("cpu: %s\n", cpu);
+			report_frames = 0;
+			report_time   = SDL_GetTicks();
+			last_report   = now;
+		}
+		report_was_on = report;
+		if (report) {
+			report_frames++;
+			Uint64 ticks = SDL_GetTicks();
+			if (ticks - report_time >= 1000) {
+				bb::profile_print("fps: %d, submits: %d, waiting: %.1f ms\n", report_frames, now.submits - last_report.submits, profile_ms(now.wait - last_report.wait));
+				bb::profile_print("  gpu thread: vkQueueSubmit %.1f ms, vkQueuePresentKHR %.1f ms, frames that had to be waited for %d\n", profile_ms(now.submit - last_report.submit), profile_ms(now.present - last_report.present), now.overlap - last_report.overlap);
+				bb::profile_print("  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", (now.pass[0] - last_report.pass[0]) * 1e-6, (now.pass[1] - last_report.pass[1]) * 1e-6, (now.pass[2] - last_report.pass[2]) * 1e-6, (now.pass[3] - last_report.pass[3]) * 1e-6, (now.pass[4] - last_report.pass[4]) * 1e-6);
+				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+					bb::profile_print("  %s: %.1f ms\n", bb::profile_names[i], profile_ms(now.ticks[i] - last_report.ticks[i]));
+				}
+				report_frames = 0;
+				report_time   = ticks;
+				last_report   = now;
+			}
+		}
+	}
+} // namespace
+
+
 // Flip [vwait]: show what was drawn to the back buffer. 0 shows at once, 1 syncs with the display, 2 syncs only the picture.
 void bb_flip(int32_t vwait)
 {
@@ -553,112 +745,7 @@ void bb_flip(int32_t vwait)
 	}
 	recovery_flip_begin(); // Where a device that was lost is made good again.
 	async_pump();
-	// BLITZLLVM_PROFILE_SLOW=<ms> lists where the time went in every frame that took longer than that (needs --profile): the timers of the frame, as
-	// the second timers of BLITZLLVM_PROFILE_FPS add them up and hide the one frame that stutters. The Flip of the frame before is part of the frame.
-	static double slow_ms = -1.0;
-	static Uint64 slow_last_time = 0;
-	static Uint64 slow_last_ticks[bb::PROFILE_COUNT] = {};
-	static Uint64 slow_last_wait = 0;
-	static double slow_last_pass[5] = {};
-	static Uint64 slow_last_submit = 0;
-	static int    slow_follow = 0;
-	if (slow_ms < 0.0) {
-		slow_ms = bb::profile_enabled ? bb_env_double("BLITZLLVM_PROFILE_SLOW", 0.0) : 0.0;
-		if (slow_ms <= 0.0) {
-			slow_ms = 0.0;
-		}
-	}
-	if (slow_ms > 0.0) {
-		Uint64 now_time = SDL_GetPerformanceCounter();
-		double ms       = double(now_time - slow_last_time) * 1000.0 / double(SDL_GetPerformanceFrequency());
-		if (slow_last_time && (ms >= slow_ms)) {
-			fprintf(stderr, "slow frame %u: %.1f ms:", unsigned(bb::profile_frame), ms);
-			for (int i = 0; i < bb::PROFILE_COUNT; i++) {
-				// The report of BLITZLLVM_PROFILE_FPS sets the timers back to 0, then the whole value is the frame's.
-				Uint64 delta = (bb::profile_ticks[i] >= slow_last_ticks[i]) ? (bb::profile_ticks[i] - slow_last_ticks[i]) : bb::profile_ticks[i];
-				double part  = double(delta) * 1000.0 / double(SDL_GetPerformanceFrequency());
-				if (part >= 0.5) {
-					const char* name = bb::profile_names[i];
-					while (*name == ' ') {
-						name++;
-					}
-					fprintf(stderr, " %s %.1f,", name, part);
-				}
-			}
-			Uint64 wait = (profile_wait >= slow_last_wait) ? (profile_wait - slow_last_wait) : profile_wait;
-			fprintf(stderr, " waiting for the GPU %.1f\n", double(wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
-		}
-		if (slow_last_time && (ms >= slow_ms)) {
-			slow_follow = 4;
-		}
-		// The GPU times come back a frame or two late, so the slow frame and the three after it each list what the GPU finished since the Flip before.
-		if (slow_follow > 0) {
-			double dp[5];
-			for (int i = 0; i < 5; i++) {
-				dp[i] = (profile_gpu_pass[i] >= slow_last_pass[i]) ? (profile_gpu_pass[i] - slow_last_pass[i]) : profile_gpu_pass[i];
-			}
-			Uint64 dsub = (profile_gpu_submit >= slow_last_submit) ? (profile_gpu_submit - slow_last_submit) : profile_gpu_submit;
-			fprintf(stderr, "  gpu finished since the Flip before: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms, vkQueueSubmit %.1f ms\n", dp[0] * 1e-6, dp[1] * 1e-6, dp[2] * 1e-6, dp[3] * 1e-6, dp[4] * 1e-6, double(dsub) * 1000.0 / double(SDL_GetPerformanceFrequency()));
-			slow_follow--;
-		}
-		for (int i = 0; i < 5; i++) {
-			slow_last_pass[i] = profile_gpu_pass[i];
-		}
-		slow_last_submit = profile_gpu_submit;
-		slow_last_time = now_time;
-		for (int i = 0; i < bb::PROFILE_COUNT; i++) {
-			slow_last_ticks[i] = bb::profile_ticks[i];
-		}
-		slow_last_wait = profile_wait;
-	}
-	{
-		// BLITZLLVM_PROFILE_FPS=1 (or ProfileFPS) reports how many frames are shown each second.
-		static Uint64 last    = 0;
-		static int    frames  = 0;
-		static bool   was_on  = false;
-		bool          enabled = bb::profile_enabled && bb::profile_report;
-		if (enabled && !was_on) {
-			char cpu[512];
-			bb_cpu_describe(cpu, sizeof(cpu));
-			fprintf(stderr, "cpu: %s\n", cpu);
-			frames = 0;
-			last   = SDL_GetTicks();
-			for (int i = 0; i < bb::PROFILE_COUNT; i++) {
-				bb::profile_ticks[i] = 0;
-			}
-		}
-		was_on = enabled;
-		if (enabled) {
-			frames++;
-			Uint64 now = SDL_GetTicks();
-			if (now - last >= 1000) {
-				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
-				fprintf(stderr, "  gpu thread: vkQueueSubmit %.1f ms, vkQueuePresentKHR %.1f ms, frames that had to be waited for %d\n", double(profile_gpu_submit) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
-				fprintf(stderr, "  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", profile_gpu_pass[0] * 1e-6, profile_gpu_pass[1] * 1e-6, profile_gpu_pass[2] * 1e-6, profile_gpu_pass[3] * 1e-6, profile_gpu_pass[4] * 1e-6);
-				for (double& pass : profile_gpu_pass) {
-					pass = 0.0;
-				}
-				profile_gpu_submit = profile_gpu_present = 0;
-				profile_overlap     = 0;
-				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
-					fprintf(stderr, "  %s: %.1f ms\n", bb::profile_names[i], double(bb::profile_ticks[i]) * 1000.0 / double(SDL_GetPerformanceFrequency()));
-					bb::profile_ticks[i] = 0;
-				}
-				profile_submits = 0;
-				profile_wait    = 0;
-				for (Uint64& ticks : slow_last_ticks) {
-					ticks = 0;
-				}
-				slow_last_wait = 0;
-				for (double& pass : slow_last_pass) {
-					pass = 0.0;
-				}
-				slow_last_submit = 0;
-				frames = 0;
-				last   = now;
-			}
-		}
-	}
+	profile_flip();
 	pump();
 
 	int vsync = (vwait == 0) ? 0 : ((vwait == 2) ? 2 : 1);
