@@ -58,6 +58,7 @@ void bb_gui_idle(void);
 // Vulkan functions
 ////////////////////////////////////////////////////////////////////////////////
 #define BB_VK_GLOBAL(X) \
+	X(vkEnumerateInstanceExtensionProperties) \
 	X(vkCreateInstance)
 
 #define BB_VK_INSTANCE(X) \
@@ -85,6 +86,7 @@ void bb_gui_idle(void);
 	X(vkQueueSubmit) \
 	X(vkQueuePresentKHR) \
 	X(vkWaitForPresentKHR) \
+	X(vkSetHdrMetadataEXT) \
 	X(vkWaitSemaphores) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \
@@ -284,6 +286,8 @@ namespace bb::gfx {
 		uint32_t       swap_count = 0;
 		VkExtent2D     swap_extent = {};
 		VkSemaphore    acquired = VK_NULL_HANDLE;
+		bool           hdr_offered = false; // The surface offers scRGB (a 16 bit float format in the extended sRGB linear colorspace) and the driver can blit to it.
+		bool           hdr         = false; // The swapchain is scRGB: the picture is converted by the HDR pass (AutoHDR) before it is blitted.
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
 	};
@@ -385,6 +389,7 @@ namespace bb::gfx {
 		bool                  can_interlock     = false; // Prototype: VK_EXT_fragment_shader_interlock is on.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
+		bool                  can_hdr_metadata  = false; // VK_EXT_hdr_metadata is on: the luminance of the display can be told to the system.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
 		VmaAllocation         scene_allocation = VK_NULL_HANDLE;
@@ -934,6 +939,19 @@ namespace bb::gfx {
 	void allocate_descriptor(VkDescriptorSet& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
+	/** AutoHDR (graphics_hdr.cpp): what was asked for, 0 off, 1 the picture in HDR, 2 with its highlights stretched. */
+	int auto_hdr_mode();
+	/** Whether the main window should get an HDR swapchain if the surface offers one. */
+	bool hdr_wanted(const surface_state& s);
+	/** After the swapchain of a surface was made: tells the system the luminance range of the picture, if it is HDR. */
+	void hdr_swapchain_made(surface_state& s);
+	/** Turns the picture that is shown into scRGB (HDR) for the swapchain. Expects an open command buffer and the picture in the transfer source layout, returns the image to present. */
+	gpu_image* apply_hdr(gpu_image& picture);
+	void destroy_hdr();
+	/** Whether the HDR pass runs for BLITZLLVM_TEST_HDR even without an HDR swapchain, so that tests can read what it makes. */
+	bool hdr_test();
+	/** Writes the picture of the HDR pass to the file of BLITZLLVM_TEST_HDR, for tests. */
+	void hdr_after_present();
 	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
 	float dither_code();
 	/** Whether the noise of Dither moves from picture to picture (DitherTemporal); when not, dither_code() has no shift. */
