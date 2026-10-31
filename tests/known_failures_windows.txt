@@ -141,6 +141,7 @@ suite-debug-compile-files
 suite-debug-compile-files_case
 suite-debug-compile-gfx_driver_pixels
 suite-debug-compile-graphics
+suite-debug-compile-graphics_autohdr_pixels
 suite-debug-compile-graphics_borderless_pixels
 suite-debug-compile-graphics_copyrect_limits_pixels
 suite-debug-compile-graphics_dds
@@ -316,6 +317,7 @@ suite-debug-run-files
 suite-debug-run-files_case
 suite-debug-run-gfx_driver_pixels
 suite-debug-run-graphics
+suite-debug-run-graphics_autohdr_pixels
 suite-debug-run-graphics_borderless_pixels
 suite-debug-run-graphics_copyrect_limits_pixels
 suite-debug-run-graphics_dds
