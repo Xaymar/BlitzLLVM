@@ -169,6 +169,7 @@ suite-debug-compile-graphics_pixel_fast_unlocked_pixels
 suite-debug-compile-graphics_pixels
 suite-debug-compile-graphics_png_pixels
 suite-debug-compile-graphics_save_async_pixels
+suite-debug-compile-graphics_save_dds_pixels
 suite-debug-compile-graphics_save_pixels
 suite-debug-compile-graphics_save_nowindow_pixels
 suite-debug-compile-graphics_regraphics_pixels
@@ -343,6 +344,7 @@ suite-debug-run-graphics_pixel_fast_unlocked_pixels
 suite-debug-run-graphics_pixels
 suite-debug-run-graphics_png_pixels
 suite-debug-run-graphics_save_async_pixels
+suite-debug-run-graphics_save_dds_pixels
 suite-debug-run-graphics_save_pixels
 suite-debug-run-graphics_save_nowindow_pixels
 suite-debug-run-graphics_regraphics_pixels
