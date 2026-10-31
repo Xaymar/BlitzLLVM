@@ -296,6 +296,7 @@ for what, listener, after in (
 	("waiting in a loop", "CreateListener CreatePivot(), 1, 1, 1\n", WAIT),
 	("no listener", "", "Delay 500\n"),
 	("no listener, waiting in a loop", "", WAIT),
+	("an emitter that is freed at once", "CreateListener CreatePivot(), 1, 1, 1\n", "FreeEntity source\nDelay 500\n"),
 	("a freed listener", "Local l = CreateListener(CreatePivot(), 1, 1, 1)\nFreeEntity l\n", "Delay 500\n"),
 ):
 	gain = play_emitted(EMIT % (100, listener, after)) / reference
