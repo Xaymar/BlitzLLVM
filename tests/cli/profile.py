@@ -36,10 +36,10 @@ def main():
             return 1
         got = dict(item.split("=") for item in line[0].split())
         if mode == "off":
-            expected_values = {"frame0": "0", "file": "0", "number": "0"}
+            expected_values = {"frame0": "0", "mine": "0", "file": "0", "number": "0"}
         else:
             expected_values = {}
-            if got["frame0"] != "1" or got["number"] != "1" or int(got["file"]) < 100:
+            if got["frame0"] != "1" or got["mine"] != "1" or got["number"] != "1" or int(got["file"]) < 100:
                 print("profile (results): got %s, but the frame and file should all have something." % line[0])
                 return 1
         for key, value in expected_values.items():
