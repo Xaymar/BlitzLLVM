@@ -47,6 +47,7 @@ suite-debug-compile-blitz3d_b3d_brush_range
 suite-debug-compile-blitz3d_b3d_limits
 suite-debug-compile-blitz3d_batching_pixels
 suite-debug-compile-blitz3d_bigmesh_pixels
+suite-debug-compile-blitz3d_bsp_lights_pixels
 suite-debug-compile-blitz3d_camera_culling_pixels
 suite-debug-compile-blitz3d_capture_world_pixels
 suite-debug-compile-blitz3d_cameras
@@ -225,6 +226,7 @@ suite-debug-run-blitz3d_b3d_brush_range
 suite-debug-run-blitz3d_b3d_limits
 suite-debug-run-blitz3d_batching_pixels
 suite-debug-run-blitz3d_bigmesh_pixels
+suite-debug-run-blitz3d_bsp_lights_pixels
 suite-debug-run-blitz3d_camera_culling_pixels
 suite-debug-run-blitz3d_capture_world_pixels
 suite-debug-run-blitz3d_cameras
