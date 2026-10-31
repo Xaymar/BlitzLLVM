@@ -77,7 +77,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
 * [ChannelVolume](ChannelVolume#differences): A debug build (`-d`) stops the program when the channel was never given out.
-* [Chr](Chr#differences): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
 * [ClientHeight](ClientHeight#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [ClientWidth](ClientWidth#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [CloseMovie](CloseMovie#differences): Nothing , the same as the original.

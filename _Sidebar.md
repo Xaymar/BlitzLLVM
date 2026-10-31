@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (305)</summary>
+<li><details><summary>Commands (304)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -86,7 +86,6 @@
 <li><a href="ChannelPitch#differences">ChannelPitch</a></li>
 <li><a href="ChannelPlaying#differences">ChannelPlaying</a></li>
 <li><a href="ChannelVolume#differences">ChannelVolume</a></li>
-<li><a href="Chr#differences">Chr</a></li>
 <li><a href="ClientHeight#differences">ClientHeight</a></li>
 <li><a href="ClientWidth#differences">ClientWidth</a></li>
 <li><a href="CloseMovie#differences">CloseMovie</a></li>

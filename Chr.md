@@ -27,10 +27,6 @@ Chr:String ascii:Int32
 
 Returns the one-character string for a character code. [Asc](Asc) does the opposite.
 
-## Differences
-
-* Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
-
 ## Examples
 
 ```blitzbasic
