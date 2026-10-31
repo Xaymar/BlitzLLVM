@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (304)</summary>
+<li><details><summary>Commands (303)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -81,7 +81,6 @@
 <li><a href="ByteSwap#differences">ByteSwap</a> 〔BlitzLLVM〕</li>
 <li><a href="CameraFogMode#differences">CameraFogMode</a></li>
 <li><a href="CanvasBuffer#differences">CanvasBuffer</a></li>
-<li><a href="CaptureWorld#differences">CaptureWorld</a></li>
 <li><a href="ChannelPan#differences">ChannelPan</a></li>
 <li><a href="ChannelPitch#differences">ChannelPitch</a></li>
 <li><a href="ChannelPlaying#differences">ChannelPlaying</a></li>

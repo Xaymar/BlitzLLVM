@@ -72,7 +72,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.
 * [CameraFogMode](CameraFogMode#differences): Mode 2 is an extension of BlitzLLVM; the original only knows 0 and 1, and a program that uses 2 does not behave the same with the original Blitz3D.
 * [CanvasBuffer](CanvasBuffer#differences): The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit.
-* [CaptureWorld](CaptureWorld#differences): The original also remembers the alpha and the color of every entity and blends them during a tween.
 * [ChannelPan](ChannelPan#differences): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
