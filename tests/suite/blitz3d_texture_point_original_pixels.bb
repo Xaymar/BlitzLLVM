@@ -77,7 +77,7 @@ CheckRow "Point with the color flag", 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 25
 ; A sampler overrides the flag, and taking it away brings the flag back.
 sampler = CreateSampler()
 SamplerFilterMin sampler, 1
-SetSamplerFilterMag sampler, 1
+SamplerFilterMag sampler, 1
 point = Strip(1024)
 SetTextureSampler point, sampler
 Show point

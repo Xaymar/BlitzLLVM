@@ -285,7 +285,7 @@
 		{ "createsampler", "bb_create_sampler", 'i', "", 0, {}, false },
 		{ "freesampler", "bb_free_sampler", 'v', "i", 1, {}, false },
 		{ "samplerfiltermin", "bb_set_sampler_filter_min", 'v', "ii", 2, {}, false },
-		{ "setsamplerfiltermag", "bb_set_sampler_filter_mag", 'v', "ii", 2, {}, false },
+		{ "samplerfiltermag", "bb_set_sampler_filter_mag", 'v', "ii", 2, {}, false },
 		{ "setsamplerfiltermip", "bb_set_sampler_filter_mip", 'v', "ii", 2, {}, false },
 		{ "setsampleranisotropy", "bb_set_sampler_anisotropy", 'v', "if", 2, {}, false },
 		{ "setsampleraddressmodeu", "bb_set_sampler_address_mode_u", 'v', "ii", 2, {}, false },

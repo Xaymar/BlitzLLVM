@@ -1324,8 +1324,8 @@ void bb_set_sampler_filter_min(int32_t handle, int32_t mode)
 
 void bb_set_sampler_filter_mag(int32_t handle, int32_t mode)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMag");
-	check_mode("SetSamplerFilterMag", mode, 2);
+	sampler_entry* s = need_sampler(handle, "SamplerFilterMag");
+	check_mode("SamplerFilterMag", mode, 2);
 	s->filter_mag = mode;
 	apply_sampler(handle);
 }
