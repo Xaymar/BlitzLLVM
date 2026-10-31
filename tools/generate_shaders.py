@@ -1365,6 +1365,62 @@ def fragment_shader_gamma():
     return b.m.assemble()
 
 
+def fragment_shader_hdr():
+    """
+    Shows an RGBA8 picture in a window that has an HDR swapchain (scRGB: linear, 1.0 is 80 nits, in 16 bit floating point). The
+    picture is made linear (the sRGB curve), scaled so that SDR white lands on the brightness it has on the display, and with
+    AutoHDR 2 the bright parts of it are stretched toward the peak of the display. push.white is the SDR white in scRGB (nits / 80),
+    push.boost is how much more than white the brightest parts get (0 for AutoHDR 1: the same picture, in HDR):
+    the gain grows with the square of the luminance, so mid tones stay where they were and only highlights are lifted. The
+    brightest color (white) ends up at white * (1 + boost), which the host sets to the peak of the display at most.
+
+    #version 450
+    layout(set = 0, binding = 0) uniform sampler2D tex;
+    layout(push_constant) uniform Hdr { float white; float boost; } pc;
+    layout(location = 0) in vec2 inUV;
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        vec3 s = texture(tex, inUV).rgb;
+        vec3 lin = mix(s / 12.92, pow((s + 0.055) / 1.055, vec3(2.4)), step(0.04045, s));
+        float y = dot(lin, vec3(0.2126, 0.7152, 0.0722));
+        outColor = vec4(lin * pc.white * (1.0 + pc.boost * y * y), 1.0);
+    }
+    """
+    b = Builder()
+    f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
+    c1 = b.const_float(1.0)
+    void, fn = b.void(), b.fn()
+    image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled = b.new_type("sampled", "TypeSampledImage", image)
+    push_block = b.struct("hdr", f, f)
+    b.m.annotations += [Module.inst("MemberDecorate", push_block, member, DECORATION["Offset"], member * 4) for member in range(2)]
+    b.m.annotations.append(Module.inst("Decorate", push_block, DECORATION["Block"]))
+    push = b.variable("PushConstant", push_block)
+    tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
+    in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    s = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
+    low = b.scale(3, s, b.const_float(1.0 / 12.92))
+    curve = b.scale(3, b.fadd(v3, s, b.const_vec(3, 0.055)), b.const_float(1.0 / 1.055))
+    high = b.ext(v3, GLSL_POW, curve, b.const_vec(3, 2.4))
+    above = b.ext(v3, GLSL_STEP, b.const_vec(3, 0.04045), s)
+    linear = b.fadd(v3, low, b.fmul(v3, b.fsub(v3, high, low), above))
+    luma = b.dot(linear, b.construct(3, b.const_float(0.2126), b.const_float(0.7152), b.const_float(0.0722)))
+    white = b.load(f, b.access("PushConstant", f, push, b.const_int(0)))
+    boost = b.load(f, b.access("PushConstant", f, push, b.const_int(1)))
+    gain = b.fmul(f, b.fadd(f, c1, b.fmul(f, boost, b.fmul(f, luma, luma))), white)
+    color = b.scale(3, linear, gain)
+    b.store(out_color, b.construct(4, b.extract(color, 0), b.extract(color, 1), b.extract(color, 2), c1))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def fragment_shader_palette():
     """
     The same as the gamma shader for a Graphics of depth 8: the color that results is made into the nearest color of the palette. The
@@ -1702,5 +1758,6 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_fragment_palette", fragment_shader_palette(), out)
+    emit("bb_shader_fragment_hdr", fragment_shader_hdr(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
     emit("bb_shader_compute_static", compute_shader_static(), out)

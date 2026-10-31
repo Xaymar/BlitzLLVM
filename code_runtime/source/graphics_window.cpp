@@ -262,6 +262,7 @@ void bb::gfx::destroy_device_objects()
 	destroy_surface_buffers();
 	destroy_antialias();
 	destroy_gamma();
+	destroy_hdr();
 	destroy_frame_slot_buffers();
 	destroy_pipelines_3d();
 	if (g.cull_pipeline) {
