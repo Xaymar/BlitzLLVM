@@ -130,4 +130,23 @@ Check "Lightmaps on again", R(80, 60), 100, 2
 FreeEntity level
 DeleteFile "suite_bsp_lights.bsp"
 
+; A light with a target is a spot light that points at it. Both are 40 units in front of the wall's middle with a cone of
+; about 100 degrees: one points at the wall, the other along it, where it lights nothing of the wall.
+For aim = 0 To 1
+	q$ = Chr(34)
+	e$ = "{" + Chr(10) + q + "classname" + q + " " + q + "light" + q + Chr(10) + q + "origin" + q + " " + q + "60 0 0" + q + Chr(10)
+	e$ = e$ + q + "light" + q + " " + q + "40" + q + Chr(10) + q + "radius" + q + " " + q + "48" + q + Chr(10) + q + "target" + q + " " + q + "t1" + q + Chr(10) + "}" + Chr(10)
+	If aim = 0 Then target$ = "100 0 0" Else target$ = "60 300 0"
+	e$ = e$ + "{" + Chr(10) + q + "classname" + q + " " + q + "info_null" + q + Chr(10) + q + "targetname" + q + " " + q + "t1" + q + Chr(10) + q + "origin" + q + " " + q + target + q + Chr(10) + "}" + Chr(10)
+	WriteLevel "suite_bsp_spot.bsp", e$
+	spot = LoadBSP("suite_bsp_spot.bsp")
+	Check "A target makes one light", CountChildren(spot), 1
+	BSPLighting spot, False
+	RenderWorld
+	If aim = 0 Then CheckTrue "A spot light that points at the wall lights it", R(80, 60) > 40
+	If aim = 1 Then Check "A spot light that points along the wall does not light it", R(80, 60), 0, 2
+	FreeEntity spot
+Next
+DeleteFile "suite_bsp_spot.bsp"
+
 Done "blitz3d_bsp_lights_pixels"
