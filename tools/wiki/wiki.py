@@ -344,7 +344,7 @@ def differences_menu(cats):
     features = sorted(feature_pages(), key=lambda f: f[1].lower())
     gapped = sorted((c for dialect in cats for cmds in cats[dialect].values() for c in cmds
                      if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
-    out = ['<details><summary><b><a href="Differences">Differences</a></b></summary>', "<ul>"]
+    out = ["<details><summary><b>Differences</b></summary>", "<ul>", '<li><a href="Differences">Overview</a></li>']
     for title, items in (("Features", ['<a href="%s">%s</a>' % (page, t) for page, t, _ in features]),
                          ("Commands", ['<a href="%s#differences">%s</a>%s' % (c.name, c.name, c.mark) for c in gapped])):
         if items:
@@ -358,7 +358,8 @@ def differences_menu(cats):
 
 def sidebar(cats):
     """The GitHub wiki shows _Sidebar.md next to every page. Dialects and categories fold open with <details>, so the
-    sidebar stays short until a submenu is opened. A dialect is a <details> with a bold title. Below it, each
+    sidebar stays short until a submenu is opened. A dialect is a <details> with a bold plain text title (a link there would navigate instead of fold; the page it
+    pointed to is the first entry, Overview). Below it, each
     category is a <details> inside the <li> of a list, and holds the <ul> of its commands, so that a submenu is
     indented under its parent. There are no headings, because their anchors get in the way of the page navigation.
     The menu is HTML because Markdown does not render inside <details>, and it uses no styling because the wiki strips
@@ -372,14 +373,14 @@ def sidebar(cats):
         out += ["", "<hr>", ""]
     out += differences_menu(cats)
     for dialect in DIALECT_ORDER:
-        out.append('<details><summary><b><a href="%s">%s</a></b></summary>' %
-                   (dialect, categories.TITLES.get(dialect, dialect)))
+        out.append("<details><summary><b>%s</b></summary>" % categories.TITLES.get(dialect, dialect))
         out.append("<ul>")
+        out.append('<li><a href="%s">Overview</a></li>' % dialect)
         for category in sorted(cats[dialect]):
             cmds = sorted(cats[dialect][category], key=lambda c: c.key)
-            out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' %
-                       (cmds[0].page, categories.display(category), len(cmds)))
+            out.append("<li><details><summary>%s (%d)</summary>" % (categories.display(category), len(cmds)))
             out.append("<ul>")
+            out.append('<li><a href="%s">Overview</a></li>' % cmds[0].page)
             out.extend('<li><a href="%s">%s</a>%s</li>' % (c.name, c.name, c.mark) for c in cmds)
             out.append("</ul>")
             out.append("</details></li>")
