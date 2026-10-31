@@ -63,7 +63,7 @@ Repeat
 Until asked = 2
 ```
 
-@difference Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that uses the GUI still gets the window of `Graphics` (1024 by 768 where it did not ask for one); that window is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program.
+@difference Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that never calls `Graphics` opens exactly the windows it makes and runs until it ends; one that calls `Graphics` as well has that window too, which is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program. `Graphics` called after windows were made keeps them.
 
 ## Media
 

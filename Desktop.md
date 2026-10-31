@@ -26,13 +26,12 @@ Gives the handle of the desktop, the group that top level windows live in. Pass 
 ## Examples
 
 ```blitzbasic
-Graphics 320, 240, 32, 2
 win = CreateWindow("Centered", 0, 0, 180, 100, Desktop(), 15)
 SetGadgetShape win, (ClientWidth(Desktop()) - 180) / 2, (ClientHeight(Desktop()) - 100) / 2, 180, 100
 Repeat
 Until WaitEvent() = $803
 ```
-@difference The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer). Where no window can be made, the windows are drawn inside the window of `Graphics` and cannot leave it.
+@difference The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer). A program needs no `Graphics` call for this. Where no window can be made, the windows are drawn inside the window of `Graphics` (1024 by 768 where the program did not ask for one) and cannot leave it.
 
 ## Related Commands
 
