@@ -18,8 +18,9 @@
 
 <hr>
 
-<details><summary><b><a href="Differences">Differences</a></b></summary>
+<details><summary><b>Differences</b></summary>
 <ul>
+<li><a href="Differences">Overview</a></li>
 <li><details><summary>Features (36)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
@@ -364,10 +365,12 @@
 </ul>
 </details>
 
-<details><summary><b><a href="Language-Features">Language Features</a></b></summary>
+<details><summary><b>Language Features</b></summary>
 <ul>
-<li><details><summary><a href="Language-Features-Control-Flow">Control Flow</a> (9)</summary>
+<li><a href="Language-Features">Overview</a></li>
+<li><details><summary>Control Flow (9)</summary>
 <ul>
+<li><a href="Language-Features-Control-Flow">Overview</a></li>
 <li><a href="Case">Case</a></li>
 <li><a href="Default">Default</a></li>
 <li><a href="Else">Else</a></li>
@@ -379,8 +382,9 @@
 <li><a href="Then">Then</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Functions">Functions</a> (5)</summary>
+<li><details><summary>Functions (5)</summary>
 <ul>
+<li><a href="Language-Features-Functions">Overview</a></li>
 <li><a href="EndFunction">EndFunction</a></li>
 <li><a href="Function">Function</a></li>
 <li><a href="Gosub">Gosub</a></li>
@@ -388,8 +392,9 @@
 <li><a href="Return">Return</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Keywords">Keywords</a> (6)</summary>
+<li><details><summary>Keywords (6)</summary>
 <ul>
+<li><a href="Language-Features-Keywords">Overview</a></li>
 <li><a href="Const">Const</a></li>
 <li><a href="End">End</a></li>
 <li><a href="Global">Global</a></li>
@@ -398,8 +403,9 @@
 <li><a href="Stop">Stop</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Loops">Loops</a> (10)</summary>
+<li><details><summary>Loops (10)</summary>
 <ul>
+<li><a href="Language-Features-Loops">Overview</a></li>
 <li><a href="Exit">Exit</a></li>
 <li><a href="For">For</a></li>
 <li><a href="Forever">Forever</a></li>
@@ -412,8 +418,9 @@
 <li><a href="While">While</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Math">Math</a> (31)</summary>
+<li><details><summary>Math (31)</summary>
 <ul>
+<li><a href="Language-Features-Math">Overview</a></li>
 <li><a href="Abs">Abs</a></li>
 <li><a href="ACos">ACos</a></li>
 <li><a href="ASin">ASin</a></li>
@@ -447,8 +454,9 @@
 <li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Other">Other</a> (10)</summary>
+<li><details><summary>Other (10)</summary>
 <ul>
+<li><a href="Language-Features-Other">Overview</a></li>
 <li><a href="AppTitle">AppTitle</a></li>
 <li><a href="CallDLL">CallDLL</a></li>
 <li><a href="CommandLine">CommandLine</a></li>
@@ -461,16 +469,18 @@
 <li><a href="SystemProperty">SystemProperty</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Randomization">Randomization</a> (4)</summary>
+<li><details><summary>Randomization (4)</summary>
 <ul>
+<li><a href="Language-Features-Randomization">Overview</a></li>
 <li><a href="Rand">Rand</a></li>
 <li><a href="Rnd">Rnd</a></li>
 <li><a href="RndSeed">RndSeed</a></li>
 <li><a href="SeedRnd">SeedRnd</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Strings">Strings</a> (16)</summary>
+<li><details><summary>Strings (16)</summary>
 <ul>
+<li><a href="Language-Features-Strings">Overview</a></li>
 <li><a href="Asc">Asc</a></li>
 <li><a href="Bin">Bin</a></li>
 <li><a href="Chr">Chr</a></li>
@@ -489,8 +499,9 @@
 <li><a href="Upper">Upper</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Time-and-Date">Time & Date</a> (8)</summary>
+<li><details><summary>Time & Date (8)</summary>
 <ul>
+<li><a href="Language-Features-Time-and-Date">Overview</a></li>
 <li><a href="CreateTimer">CreateTimer</a></li>
 <li><a href="CurrentDate">CurrentDate</a></li>
 <li><a href="CurrentTime">CurrentTime</a></li>
@@ -501,8 +512,9 @@
 <li><a href="WaitTimer">WaitTimer</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Language-Features-Types">Types</a> (14)</summary>
+<li><details><summary>Types (14)</summary>
 <ul>
+<li><a href="Language-Features-Types">Overview</a></li>
 <li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
 <li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
 <li><a href="Float">Float</a></li>
@@ -522,10 +534,12 @@
 </ul>
 </details>
 
-<details><summary><b><a href="BlitzBasic">BlitzBasic</a></b></summary>
+<details><summary><b>BlitzBasic</b></summary>
 <ul>
-<li><details><summary><a href="BlitzBasic-Audio">Audio</a> (17)</summary>
+<li><a href="BlitzBasic">Overview</a></li>
+<li><details><summary>Audio (17)</summary>
 <ul>
+<li><a href="BlitzBasic-Audio">Overview</a></li>
 <li><a href="ChannelPan">ChannelPan</a></li>
 <li><a href="ChannelPitch">ChannelPitch</a></li>
 <li><a href="ChannelPlaying">ChannelPlaying</a></li>
@@ -545,8 +559,9 @@
 <li><a href="StopChannel">StopChannel</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Banks">Banks</a> (15)</summary>
+<li><details><summary>Banks (15)</summary>
 <ul>
+<li><a href="BlitzBasic-Banks">Overview</a></li>
 <li><a href="BankSize">BankSize</a></li>
 <li><a href="CopyBank">CopyBank</a></li>
 <li><a href="CreateBank">CreateBank</a></li>
@@ -564,8 +579,9 @@
 <li><a href="WriteBytes">WriteBytes</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Buffers-and-Pixels">Buffers and Pixels</a> (20)</summary>
+<li><details><summary>Buffers and Pixels (20)</summary>
 <ul>
+<li><a href="BlitzBasic-Buffers-and-Pixels">Overview</a></li>
 <li><a href="BackBuffer">BackBuffer</a></li>
 <li><a href="BufferDirty">BufferDirty</a></li>
 <li><a href="CopyPixel">CopyPixel</a></li>
@@ -588,8 +604,9 @@
 <li><a href="WritePixelFast64">WritePixelFast64</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Display">Display</a> (46)</summary>
+<li><details><summary>Display (46)</summary>
 <ul>
+<li><a href="BlitzBasic-Display">Overview</a></li>
 <li><a href="AvailVidMem">AvailVidMem</a></li>
 <li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
 <li><a href="CountDisplays">CountDisplays</a> 〔BlitzLLVM〕</li>
@@ -638,8 +655,9 @@
 <li><a href="VWait">VWait</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Drawing">Drawing</a> (14)</summary>
+<li><details><summary>Drawing (14)</summary>
 <ul>
+<li><a href="BlitzBasic-Drawing">Overview</a></li>
 <li><a href="Cls">Cls</a></li>
 <li><a href="ClsColor">ClsColor</a></li>
 <li><a href="Color">Color</a></li>
@@ -656,8 +674,9 @@
 <li><a href="Viewport">Viewport</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Files">Files</a> (18)</summary>
+<li><details><summary>Files (18)</summary>
 <ul>
+<li><a href="BlitzBasic-Files">Overview</a></li>
 <li><a href="ChangeDir">ChangeDir</a></li>
 <li><a href="CloseDir">CloseDir</a></li>
 <li><a href="CloseFile">CloseFile</a></li>
@@ -678,8 +697,9 @@
 <li><a href="WriteFile">WriteFile</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Fonts-and-Text">Fonts and Text</a> (12)</summary>
+<li><details><summary>Fonts and Text (12)</summary>
 <ul>
+<li><a href="BlitzBasic-Fonts-and-Text">Overview</a></li>
 <li><a href="FontHeight">FontHeight</a></li>
 <li><a href="FontWidth">FontWidth</a></li>
 <li><a href="FreeFont">FreeFont</a></li>
@@ -694,8 +714,9 @@
 <li><a href="Write">Write</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Images">Images</a> (39)</summary>
+<li><details><summary>Images (39)</summary>
 <ul>
+<li><a href="BlitzBasic-Images">Overview</a></li>
 <li><a href="AsyncLoading">AsyncLoading</a> 〔BlitzLLVM〕</li>
 <li><a href="AsyncSaving">AsyncSaving</a> 〔BlitzLLVM〕</li>
 <li><a href="AutoMidHandle">AutoMidHandle</a></li>
@@ -737,8 +758,9 @@
 <li><a href="TileImage">TileImage</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Joystick">Joystick</a> (26)</summary>
+<li><details><summary>Joystick (26)</summary>
 <ul>
+<li><a href="BlitzBasic-Joystick">Overview</a></li>
 <li><a href="FlushJoy">FlushJoy</a></li>
 <li><a href="GetJoy">GetJoy</a></li>
 <li><a href="JoyChanged">JoyChanged</a></li>
@@ -767,8 +789,9 @@
 <li><a href="WaitJoy">WaitJoy</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Keyboard">Keyboard</a> (11)</summary>
+<li><details><summary>Keyboard (11)</summary>
 <ul>
+<li><a href="BlitzBasic-Keyboard">Overview</a></li>
 <li><a href="FlushKeys">FlushKeys</a></li>
 <li><a href="GetKey">GetKey</a></li>
 <li><a href="KeyboardChanged">KeyboardChanged</a></li>
@@ -782,8 +805,9 @@
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (23)</summary>
+<li><details><summary>Mouse (23)</summary>
 <ul>
+<li><a href="BlitzBasic-Mouse">Overview</a></li>
 <li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
 <li><a href="EnableDirectInput">EnableDirectInput</a></li>
 <li><a href="FlushMouse">FlushMouse</a></li>
@@ -809,8 +833,9 @@
 <li><a href="WaitMouse">WaitMouse</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Movies">Movies</a> (15)</summary>
+<li><details><summary>Movies (15)</summary>
 <ul>
+<li><a href="BlitzBasic-Movies">Overview</a></li>
 <li><a href="CloseMovie">CloseMovie</a></li>
 <li><a href="DrawMovie">DrawMovie</a></li>
 <li><a href="GetMovieTexture">GetMovieTexture</a> 〔BlitzLLVM〕</li>
@@ -828,8 +853,9 @@
 <li><a href="StopMovie">StopMovie</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Multiplayer">Multiplayer</a> (14)</summary>
+<li><details><summary>Multiplayer (14)</summary>
 <ul>
+<li><a href="BlitzBasic-Multiplayer">Overview</a></li>
 <li><a href="CreateNetPlayer">CreateNetPlayer</a></li>
 <li><a href="DeleteNetPlayer">DeleteNetPlayer</a></li>
 <li><a href="HostNetGame">HostNetGame</a></li>
@@ -846,8 +872,9 @@
 <li><a href="StopNetGame">StopNetGame</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Network">Network</a> (20)</summary>
+<li><details><summary>Network (20)</summary>
 <ul>
+<li><a href="BlitzBasic-Network">Overview</a></li>
 <li><a href="AcceptTCPStream">AcceptTCPStream</a></li>
 <li><a href="CloseTCPServer">CloseTCPServer</a></li>
 <li><a href="CloseTCPStream">CloseTCPStream</a></li>
@@ -870,8 +897,9 @@
 <li><a href="UDPTimeouts">UDPTimeouts</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Streams">Streams</a> (15)</summary>
+<li><details><summary>Streams (15)</summary>
 <ul>
+<li><a href="BlitzBasic-Streams">Overview</a></li>
 <li><a href="CopyStream">CopyStream</a></li>
 <li><a href="Eof">Eof</a></li>
 <li><a href="ReadAvail">ReadAvail</a></li>
@@ -892,16 +920,19 @@
 </ul>
 </details>
 
-<details><summary><b><a href="Blitz3D">Blitz3D</a></b></summary>
+<details><summary><b>Blitz3D</b></summary>
 <ul>
-<li><details><summary><a href="Blitz3D-3D-Sound">3D Sound</a> (2)</summary>
+<li><a href="Blitz3D">Overview</a></li>
+<li><details><summary>3D Sound (2)</summary>
 <ul>
+<li><a href="Blitz3D-3D-Sound">Overview</a></li>
 <li><a href="CreateListener">CreateListener</a></li>
 <li><a href="EmitSound">EmitSound</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Animation">Animation</a> (16)</summary>
+<li><details><summary>Animation (16)</summary>
 <ul>
+<li><a href="Blitz3D-Animation">Overview</a></li>
 <li><a href="AddAnimSeq">AddAnimSeq</a></li>
 <li><a href="Animate">Animate</a></li>
 <li><a href="AnimateEntity">AnimateEntity</a> 〔BlitzLLVM〕</li>
@@ -920,16 +951,18 @@
 <li><a href="SetAnimTime">SetAnimTime</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-BSP">BSP</a> (4)</summary>
+<li><details><summary>BSP (4)</summary>
 <ul>
+<li><a href="Blitz3D-BSP">Overview</a></li>
 <li><a href="BSPAmbientLight">BSPAmbientLight</a></li>
 <li><a href="BSPLighting">BSPLighting</a></li>
 <li><a href="BSPLightmapColor">BSPLightmapColor</a> 〔BlitzLLVM〕</li>
 <li><a href="LoadBSP">LoadBSP</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Brushes">Brushes</a> (12)</summary>
+<li><details><summary>Brushes (12)</summary>
 <ul>
+<li><a href="Blitz3D-Brushes">Overview</a></li>
 <li><a href="BrushAlpha">BrushAlpha</a></li>
 <li><a href="BrushBlend">BrushBlend</a></li>
 <li><a href="BrushColor">BrushColor</a></li>
@@ -944,8 +977,9 @@
 <li><a href="LoadBrush">LoadBrush</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Cameras">Cameras</a> (13)</summary>
+<li><details><summary>Cameras (13)</summary>
 <ul>
+<li><a href="Blitz3D-Cameras">Overview</a></li>
 <li><a href="CameraClsColor">CameraClsColor</a></li>
 <li><a href="CameraClsMode">CameraClsMode</a></li>
 <li><a href="CameraCulling">CameraCulling</a></li>
@@ -961,8 +995,9 @@
 <li><a href="CreateCamera">CreateCamera</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Collisions">Collisions</a> (19)</summary>
+<li><details><summary>Collisions (19)</summary>
 <ul>
+<li><a href="Blitz3D-Collisions">Overview</a></li>
 <li><a href="ClearCollisions">ClearCollisions</a></li>
 <li><a href="CollisionEntity">CollisionEntity</a></li>
 <li><a href="CollisionNX">CollisionNX</a></li>
@@ -984,8 +1019,9 @@
 <li><a href="ResetEntity">ResetEntity</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Display">Display</a> (9)</summary>
+<li><details><summary>Display (9)</summary>
 <ul>
+<li><a href="Blitz3D-Display">Overview</a></li>
 <li><a href="CountGfxModes3D">CountGfxModes3D</a></li>
 <li><a href="GfxDriver3D">GfxDriver3D</a></li>
 <li><a href="GfxDriverCaps3D">GfxDriverCaps3D</a></li>
@@ -997,8 +1033,9 @@
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Entities">Entities</a> (44)</summary>
+<li><details><summary>Entities (44)</summary>
 <ul>
+<li><a href="Blitz3D-Entities">Overview</a></li>
 <li><a href="AlignToVector">AlignToVector</a></li>
 <li><a href="CopyEntity">CopyEntity</a></li>
 <li><a href="CountChildren">CountChildren</a></li>
@@ -1045,8 +1082,9 @@
 <li><a href="TurnEntity">TurnEntity</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Lights">Lights</a> (5)</summary>
+<li><details><summary>Lights (5)</summary>
 <ul>
+<li><a href="Blitz3D-Lights">Overview</a></li>
 <li><a href="CreateLight">CreateLight</a></li>
 <li><a href="LightColor">LightColor</a></li>
 <li><a href="LightConeAngles">LightConeAngles</a></li>
@@ -1054,8 +1092,9 @@
 <li><a href="LightRange">LightRange</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Meshes">Meshes</a> (23)</summary>
+<li><details><summary>Meshes (23)</summary>
 <ul>
+<li><a href="Blitz3D-Meshes">Overview</a></li>
 <li><a href="AddMesh">AddMesh</a></li>
 <li><a href="CopyMesh">CopyMesh</a></li>
 <li><a href="CreateCone">CreateCone</a></li>
@@ -1081,8 +1120,9 @@
 <li><a href="ScaleMesh">ScaleMesh</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Picking">Picking</a> (15)</summary>
+<li><details><summary>Picking (15)</summary>
 <ul>
+<li><a href="Blitz3D-Picking">Overview</a></li>
 <li><a href="CameraPick">CameraPick</a></li>
 <li><a href="EntityPick">EntityPick</a></li>
 <li><a href="EntityPickMode">EntityPickMode</a></li>
@@ -1100,8 +1140,9 @@
 <li><a href="PickedZ">PickedZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Sprites">Sprites</a> (7)</summary>
+<li><details><summary>Sprites (7)</summary>
 <ul>
+<li><a href="Blitz3D-Sprites">Overview</a></li>
 <li><a href="CreateSprite">CreateSprite</a></li>
 <li><a href="HandleSprite">HandleSprite</a></li>
 <li><a href="LoadSprite">LoadSprite</a></li>
@@ -1111,8 +1152,9 @@
 <li><a href="SpriteViewMode">SpriteViewMode</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Surfaces">Surfaces</a> (29)</summary>
+<li><details><summary>Surfaces (29)</summary>
 <ul>
+<li><a href="Blitz3D-Surfaces">Overview</a></li>
 <li><a href="AddTriangle">AddTriangle</a></li>
 <li><a href="AddVertex">AddVertex</a></li>
 <li><a href="ClearSurface">ClearSurface</a></li>
@@ -1144,8 +1186,9 @@
 <li><a href="VertexZ">VertexZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Terrain">Terrain</a> (10)</summary>
+<li><details><summary>Terrain (10)</summary>
 <ul>
+<li><a href="Blitz3D-Terrain">Overview</a></li>
 <li><a href="CreateTerrain">CreateTerrain</a></li>
 <li><a href="LoadTerrain">LoadTerrain</a></li>
 <li><a href="ModifyTerrain">ModifyTerrain</a></li>
@@ -1158,8 +1201,9 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (51)</summary>
+<li><details><summary>Textures (51)</summary>
 <ul>
+<li><a href="Blitz3D-Textures">Overview</a></li>
 <li><a href="AtlasTexture">AtlasTexture</a></li>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
 <li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
@@ -1213,8 +1257,9 @@
 <li><a href="TextureWidth">TextureWidth</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Transforms">Transforms</a> (13)</summary>
+<li><details><summary>Transforms (13)</summary>
 <ul>
+<li><a href="Blitz3D-Transforms">Overview</a></li>
 <li><a href="DeltaPitch">DeltaPitch</a></li>
 <li><a href="DeltaYaw">DeltaYaw</a></li>
 <li><a href="ProjectedX">ProjectedX</a></li>
@@ -1230,8 +1275,9 @@
 <li><a href="VectorYaw">VectorYaw</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-World">World</a> (20)</summary>
+<li><details><summary>World (20)</summary>
 <ul>
+<li><a href="Blitz3D-World">Overview</a></li>
 <li><a href="ActiveTextures">ActiveTextures</a></li>
 <li><a href="AmbientLight">AmbientLight</a></li>
 <li><a href="AntiAlias">AntiAlias</a></li>
@@ -1257,10 +1303,12 @@
 </ul>
 </details>
 
-<details><summary><b><a href="BlitzPlus">BlitzPlus</a></b></summary>
+<details><summary><b>BlitzPlus</b></summary>
 <ul>
-<li><details><summary><a href="BlitzPlus-Canvas">Canvas</a> (7)</summary>
+<li><a href="BlitzPlus">Overview</a></li>
+<li><details><summary>Canvas (7)</summary>
 <ul>
+<li><a href="BlitzPlus-Canvas">Overview</a></li>
 <li><a href="CanvasBuffer">CanvasBuffer</a></li>
 <li><a href="CreateCanvas">CreateCanvas</a></li>
 <li><a href="DesktopBuffer">DesktopBuffer</a></li>
@@ -1270,8 +1318,9 @@
 <li><a href="LockedPixels">LockedPixels</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Dialogs">Dialogs</a> (7)</summary>
+<li><details><summary>Dialogs (7)</summary>
 <ul>
+<li><a href="BlitzPlus-Dialogs">Overview</a></li>
 <li><a href="RequestColor">RequestColor</a></li>
 <li><a href="RequestDir">RequestDir</a></li>
 <li><a href="RequestedBlue">RequestedBlue</a></li>
@@ -1281,8 +1330,9 @@
 <li><a href="RequestFont">RequestFont</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Events">Events</a> (8)</summary>
+<li><details><summary>Events (8)</summary>
 <ul>
+<li><a href="BlitzPlus-Events">Overview</a></li>
 <li><a href="EventData">EventData</a></li>
 <li><a href="EventID">EventID</a></li>
 <li><a href="EventSource">EventSource</a></li>
@@ -1293,8 +1343,9 @@
 <li><a href="WaitEvent">WaitEvent</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Gadgets">Gadgets</a> (50)</summary>
+<li><details><summary>Gadgets (50)</summary>
 <ul>
+<li><a href="BlitzPlus-Gadgets">Overview</a></li>
 <li><a href="ActivateGadget">ActivateGadget</a></li>
 <li><a href="AddGadgetItem">AddGadgetItem</a></li>
 <li><a href="ButtonState">ButtonState</a></li>
@@ -1347,8 +1398,9 @@
 <li><a href="UpdateProgBar">UpdateProgBar</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Menus">Menus</a> (9)</summary>
+<li><details><summary>Menus (9)</summary>
 <ul>
+<li><a href="BlitzPlus-Menus">Overview</a></li>
 <li><a href="CheckMenu">CheckMenu</a></li>
 <li><a href="CreateMenu">CreateMenu</a></li>
 <li><a href="DisableMenu">DisableMenu</a></li>
@@ -1360,8 +1412,9 @@
 <li><a href="UncheckMenu">UncheckMenu</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-System">System</a> (19)</summary>
+<li><details><summary>System (19)</summary>
 <ul>
+<li><a href="BlitzPlus-System">Overview</a></li>
 <li><a href="ActiveObjects">ActiveObjects</a></li>
 <li><a href="AutoSuspend">AutoSuspend</a></li>
 <li><a href="Confirm">Confirm</a></li>
@@ -1383,8 +1436,9 @@
 <li><a href="TimerTicks">TimerTicks</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Text-Areas">Text Areas</a> (18)</summary>
+<li><details><summary>Text Areas (18)</summary>
 <ul>
+<li><a href="BlitzPlus-Text-Areas">Overview</a></li>
 <li><a href="AddTextAreaText">AddTextAreaText</a></li>
 <li><a href="CreateTextArea">CreateTextArea</a></li>
 <li><a href="CreateTextField">CreateTextField</a></li>
@@ -1405,8 +1459,9 @@
 <li><a href="UnlockTextArea">UnlockTextArea</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Toolbars">Toolbars</a> (7)</summary>
+<li><details><summary>Toolbars (7)</summary>
 <ul>
+<li><a href="BlitzPlus-Toolbars">Overview</a></li>
 <li><a href="CreateToolBar">CreateToolBar</a></li>
 <li><a href="DisableToolBarItem">DisableToolBarItem</a></li>
 <li><a href="EnableToolBarItem">EnableToolBarItem</a></li>
@@ -1416,8 +1471,9 @@
 <li><a href="SetToolBarTips">SetToolBarTips</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Tree-Views">Tree Views</a> (12)</summary>
+<li><details><summary>Tree Views (12)</summary>
 <ul>
+<li><a href="BlitzPlus-Tree-Views">Overview</a></li>
 <li><a href="AddTreeViewNode">AddTreeViewNode</a></li>
 <li><a href="CollapseTreeViewNode">CollapseTreeViewNode</a></li>
 <li><a href="CountTreeViewNodes">CountTreeViewNodes</a></li>
@@ -1432,8 +1488,9 @@
 <li><a href="TreeViewRoot">TreeViewRoot</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Windows">Windows</a> (15)</summary>
+<li><details><summary>Windows (15)</summary>
 <ul>
+<li><a href="BlitzPlus-Windows">Overview</a></li>
 <li><a href="ActivateWindow">ActivateWindow</a></li>
 <li><a href="ActiveWindow">ActiveWindow</a></li>
 <li><a href="ClientHeight">ClientHeight</a></li>
