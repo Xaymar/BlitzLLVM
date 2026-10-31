@@ -1,0 +1,188 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "BlitzBasic",
+	"scopeName": "source.blitzbasic",
+	"patterns": [
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#string"
+		},
+		{
+			"include": "#label"
+		},
+		{
+			"include": "#declaration"
+		},
+		{
+			"include": "#number"
+		},
+		{
+			"include": "#typename"
+		},
+		{
+			"include": "#field"
+		},
+		{
+			"include": "#keyword"
+		},
+		{
+			"include": "#builtin"
+		},
+		{
+			"include": "#operator"
+		},
+		{
+			"include": "#suffix"
+		}
+	],
+	"repository": {
+		"comment": {
+			"name": "comment.line.semicolon.blitzbasic",
+			"match": ";.*$"
+		},
+		"string": {
+			"name": "string.quoted.double.blitzbasic",
+			"begin": "\"",
+			"end": "(\"|$)"
+		},
+		"label": {
+			"match": "^\\s*(\\.)([A-Za-z_][A-Za-z0-9_]*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.label.blitzbasic"
+				},
+				"2": {
+					"name": "entity.name.label.blitzbasic"
+				}
+			}
+		},
+		"declaration": {
+			"patterns": [
+				{
+					"match": "(?i)\\b(Function)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": {
+							"name": "keyword.declaration.function.blitzbasic"
+						},
+						"2": {
+							"name": "entity.name.function.blitzbasic"
+						}
+					}
+				},
+				{
+					"match": "(?i)\\b(Type)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": {
+							"name": "keyword.declaration.type.blitzbasic"
+						},
+						"2": {
+							"name": "entity.name.type.blitzbasic"
+						}
+					}
+				},
+				{
+					"match": "(?i)\\b(Field)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": {
+							"name": "keyword.declaration.field.blitzbasic"
+						},
+						"2": {
+							"name": "variable.other.member.blitzbasic"
+						}
+					}
+				},
+				{
+					"match": "(?i)\\b(Const)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+					"captures": {
+						"1": {
+							"name": "keyword.declaration.const.blitzbasic"
+						},
+						"2": {
+							"name": "variable.other.constant.blitzbasic"
+						}
+					}
+				}
+			]
+		},
+		"number": {
+			"patterns": [
+				{
+					"name": "constant.numeric.hex.blitzbasic",
+					"match": "(?i)(\\$|\\b0x)[0-9a-f]+\\b"
+				},
+				{
+					"name": "constant.numeric.binary.blitzbasic",
+					"match": "(\\%|\\b0b)[01]+\\b"
+				},
+				{
+					"name": "constant.numeric.float.blitzbasic",
+					"match": "(\\b\\d+\\.\\d*|\\.\\d+)([eE][+-]?\\d+)?"
+				},
+				{
+					"name": "constant.numeric.integer.blitzbasic",
+					"match": "\\b\\d+\\b"
+				}
+			]
+		},
+		"typename": {
+			"match": "(?i)(?<=[A-Za-z0-9_%#$\\)])(:)(Int|Int8|Int16|Int32|Int64|UInt|UInt8|UInt16|UInt32|UInt64|Byte|Short|Long|ULong|Float|Float32|Float64|Real|Real32|Real64|Double|String|Void|[A-Za-z_][A-Za-z0-9_]*)\\b",
+			"captures": {
+				"1": {
+					"name": "punctuation.separator.type.blitzbasic"
+				},
+				"2": {
+					"name": "storage.type.blitzbasic"
+				}
+			}
+		},
+		"field": {
+			"match": "(\\\\)[ \\t]*([A-Za-z_][A-Za-z0-9_]*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.accessor.blitzbasic"
+				},
+				"2": {
+					"name": "variable.other.member.blitzbasic"
+				}
+			}
+		},
+		"keyword": {
+			"patterns": [
+				{
+					"name": "keyword.declaration.blitzbasic",
+					"match": "(?i)\\b(?:End[ \\t]+Function|EndFunction|End[ \\t]+Type|Function|EndType|Global|Const|Field|Local|Type|Dim)\\b"
+				},
+				{
+					"name": "keyword.control.blitzbasic",
+					"match": "(?i)\\b(?:End[ \\t]+Select|EndSelect|Default|Forever|Include|Restore|ElseIf|End[ \\t]+If|Repeat|Return|Select|EndIf|Gosub|Until|While|Case|Data|Else|Exit|Goto|Next|Read|Step|Stop|Then|Wend|End|For|If|To)\\b"
+				},
+				{
+					"name": "keyword.other.object.blitzbasic",
+					"match": "(?i)\\b(?:Before|Delete|Insert|After|First|Each|Last|New)\\b"
+				},
+				{
+					"name": "keyword.operator.word.blitzbasic",
+					"match": "(?i)\\b(?:And|Mod|Not|Sar|Shl|Shr|Xor|Or)\\b"
+				},
+				{
+					"name": "constant.language.blitzbasic",
+					"match": "(?i)\\b(?:False|Null|True|Pi)\\b"
+				}
+			]
+		},
+		"builtin": {
+			"name": "support.function.builtin.blitzbasic",
+			"match": "(?i)\\b(?:GraphicsOrderIndependentTransparency|HWOrderIndependentTransparency|TransparencyDistanceSortMode|KeyboardDeviceConnected|DisplayModeRefreshRate|GetSamplerAddressModeU|GetSamplerAddressModeV|GetSamplerAddressModeW|GetSamplerBorderColorA|GetSamplerBorderColorB|GetSamplerBorderColorG|GetSamplerBorderColorR|SetSamplerAddressModeU|SetSamplerAddressModeV|SetSamplerAddressModeW|SetSamplerBorderColor|CollapseTreeViewNode|GetSamplerAnisotropy|MouseDeviceConnected|SelectedTreeViewNode|SetSamplerAnisotropy|CameraCullingSource|ClearTextureFilters|GetSamplerFilterMag|GetSamplerFilterMin|GetSamplerFilterMip|KeyboardDeviceCount|SetSamplerFilterMag|SetSamplerFilterMin|SetSamplerFilterMip|CountTreeViewNodes|DirectInputEnabled|DisableToolBarItem|DisplayRefreshRate|EntityLightChannel|ExpandTreeViewNode|FormatTextAreaText|HtmlViewCurrentURL|InsertTreeViewNode|JoyDeviceConnected|KeyboardDeviceName|LastKeyboardDevice|ModifyTreeViewNode|SelectTreeViewNode|SelectedGadgetItem|SetGadgetIconStrip|CollisionTriangle|CountDisplayModes|CountRefreshRates|DisplayModeHeight|EnableDirectInput|EnableToolBarItem|GetSamplerLodBias|SetSamplerLodBias|SetTextureSampler|TextureFrameDelay|BSPLightmapColor|ClearGadgetItems|CollisionSurface|CountGadgetItems|DisplayModeDepth|DisplayModeWidth|FreeTreeViewNode|GetSamplerLodMax|GetSamplerLodMin|HtmlViewEventURL|ImageRectCollide|ImageRectOverlap|InsertGadgetItem|ModifyGadgetItem|MouseDeviceCount|RemoveGadgetItem|SelectGadgetItem|SetMinWindowSize|SetSamplerLodMax|SetSamplerLodMin|SetTextAreaColor|TreeViewNodeText|UpdateWindowMenu|WritePixelFast64|AcceptTCPStream|AddTextAreaText|AddTreeViewNode|BSPAmbientLight|ClearCollisions|CollisionEntity|CountCollisions|CountGfxDrivers|CountGfxModes3D|CreateNetPlayer|CreateTCPServer|CreateTextField|CreateUDPStream|DeleteNetPlayer|EntityDepthFade|EntityShininess|GetBrushTexture|GetMovieTexture|GetSurfaceBrush|GfxDriverCaps3D|GfxMode3DExists|GfxMode3DHeight|GraphicsPalette|HtmlViewForward|ImageFrameDelay|KeyboardChanged|LastMouseDevice|LightConeAngles|LoadAnimTexture|MeshesIntersect|MouseDeviceName|PositionTexture|RawInputEnabled|ReadPixelFast64|SetGadgetLayout|SetTextAreaFont|SetTextAreaTabs|SetTextAreaText|SpriteDepthFade|TextAreaLineLen|TranslateEntity|VertexTexCoords|WindowMaximized|WindowMinimized|ActivateGadget|ActivateWindow|ActiveTextures|BrushShininess|CameraClsColor|CameraFogColor|CameraFogRange|CameraProjMode|CameraViewport|ChannelPlaying|CloseTCPServer|CloseTCPStream|CloseUDPStream|CountTriangles|CreateComboBox|CreateCylinder|CreateHtmlView|CreateListener|CreateTextArea|CreateTreeView|DitherTemporal|EntityAutoFade|EntityCollided|EntityDistance|EntityLighting|EntityPickMode|ExtractAnimSeq|GadgetItemText|GetEntityBrush|GfxMode3DWidth|GraphicsBuffer|GraphicsFormat|GraphicsHeight|HtmlViewStatus|JoyDeviceCount|MaximizeWindow|MinimizeWindow|NetPlayerLocal|PickedTriangle|PositionEntity|PrimaryDisplay|RequestedGreen|SetButtonState|SetGadgetShape|SetSliderRange|SetSliderValue|SetToolBarTips|SpriteViewMode|SystemProperty|TerrainShading|TextAreaCursor|TextAreaSelLen|TriangleVertex|UnlockTextArea|WritePixelFast|ActiveObjects|AddGadgetItem|AlignToVector|AnimateEntity|AutoMidHandle|CameraClsMode|CameraCulling|CameraFogMode|CameraProject|ChannelVolume|CollisionTime|CopyPixelFast|CountChildren|CountDisplays|CountGfxModes|CountSurfaces|CountVertices|CreateListBox|CreateProcess|CreateProgBar|CreateSampler|CreateSurface|CreateTerrain|CreateTexture|CreateToolBar|DesktopBuffer|DisableGadget|DisplayHeight|DrawBlockRect|DrawImageRect|EntityTexture|EntityVisible|FreeIconStrip|GetEntityType|GetMatElement|GfxDriverName|GfxModeExists|GfxModeFormat|GfxModeHeight|GraphicsDepth|GraphicsWidth|ImagesCollide|ImagesOverlap|JoyDeviceName|LastJoyDevice|LoadAnimImage|LoadIconStrip|MD2AnimLength|ModifyTerrain|MoviePosition|NetPlayerName|OpenTCPStream|PickedSurface|ReadPixelFast|RefreshRateAt|RequestedBlue|RestoreWindow|ResumeChannel|RotateTexture|SetGadgetFont|SetGadgetText|SetPanelColor|SetPanelImage|SetStatusText|TCPStreamPort|TerrainDetail|TerrainHeight|TextFieldText|TextureBuffer|TextureCoords|TextureFilter|TextureFrames|TextureHeight|TrailingZeros|UDPStreamPort|UpdateNormals|UpdateProgBar|ActiveWindow|AmbientLight|AsyncLoading|AtlasTexture|BrushTexture|CanvasBuffer|CaptureWorld|ChannelPitch|ClearSurface|ClientHeight|CountHostIPs|CreateButton|CreateCamera|CreateCanvas|CreateMirror|CreateSlider|CreateSphere|CreateSprite|CreateTabber|CreateWindow|DebugObjects|DisplayDepth|DisplayScale|DisplayWidth|EnableGadget|EntityInView|EntityParent|EntityRadius|EntityStatic|GadgetHeight|GfxModeDepth|GfxModeWidth|GraphicsLost|HandleSprite|HtmlViewBack|ImageXHandle|ImageYHandle|LeadingZeros|LoadAnimMesh|LoaderMatrix|LockTextArea|LockedFormat|LockedPixels|MD2Animating|MouseChanged|MoviePlaying|PaintSurface|PauseChannel|PickedEntity|PositionMesh|RectsOverlap|RequestColor|RequestedRed|RotateEntity|RotateSprite|RuntimeError|RuntimeStats|SavesPending|ScaleTexture|SetGfxDriver|StartNetGame|StringHeight|TextAreaChar|TextAreaLine|TextAreaText|TextureBlend|TextureReady|TextureWidth|TreeViewRoot|TrisRendered|UnlockBuffer|VertexCoords|VertexNormal|WritePixel64|AddTriangle|AsyncSaving|AutoSuspend|AvailVidMem|BSPLighting|BufferDirty|ButtonState|CameraRange|ClientWidth|CollisionNX|CollisionNY|CollisionNZ|CommandLine|CreateBrush|CreateImage|CreateLabel|CreateLight|CreatePanel|CreatePivot|CreatePlane|CreateTimer|CurrentDate|CurrentTime|DisableMenu|DisplayName|EndGraphics|EntityAlpha|EntityBlend|EntityClass|EntityColor|EntityOrder|EntityPitch|EntityReady|EventSource|FindSurface|FlushEvents|FontDescent|FreeSampler|FreeTexture|FrontBuffer|GadgetGroup|GadgetWidth|GfxDriver3D|HandleImage|HidePointer|HostNetGame|HotKeyEvent|HtmlViewRun|ImageBuffer|ImageFrames|ImageHeight|JoinNetGame|Load3DSound|LoadAnimSeq|LoadTerrain|LoadTexture|LockedPitch|MD2AnimTime|MenuChecked|MenuEnabled|MeshCullBox|MouseXSpeed|MouseYSpeed|MouseZSpeed|MovieHeight|MovieLength|MovieVolume|PaintEntity|PlayCDTrack|PointEntity|QueryObject|ReadPixel64|RenderWorld|RequestFile|RequestFont|ResetEntity|ResizeImage|ResumeTimer|RotateImage|SaveTexture|SavesFailed|ScaleEntity|ScaleSprite|SetAnimTime|SetCubeFace|SetCubeMode|SetMenuText|ShowPointer|SliderValue|SoundVolume|StopChannel|StopNetGame|StringWidth|TCPStreamIP|TCPTimeouts|TFormFilter|TFormNormal|TFormVector|TerrainSize|TextAreaLen|TextureName|TotalVidMem|UDPStreamIP|UDPTimeouts|UncheckMenu|UpdateGamma|UpdateWorld|VectorPitch|VertexAlpha|VertexColor|VertexGreen|WriteString|AddAnimSeq|AnimLength|AnimateMD2|BackBuffer|BrushAlpha|BrushBlend|BrushColor|CameraPick|CameraZoom|ChannelPan|ClearWorld|CloseMovie|CollisionX|CollisionY|CollisionZ|Collisions|ColorGreen|CopyEntity|CopyStream|CreateBank|CreateCone|CreateCube|CreateMenu|CreateMesh|CurrentDir|DeleteFile|DeltaPitch|DitherMode|EnableMenu|EntityName|EntityPick|EntityRoll|EntityType|FlipCanvas|FlushMouse|FontAscent|FontHeight|FreeEntity|FreeGadget|GadgetFont|GadgetText|GammaGreen|GetSurface|Graphics3D|HWMultiTex|HWRawInput|HWTexUnits|HideEntity|HideGadget|HtmlViewGo|ImageReady|ImageWidth|JoyChanged|LightColor|LightRange|LoadBuffer|LoadSprite|LockBuffer|MeshHeight|MoveEntity|MovieWidth|NameEntity|NetMsgData|NetMsgFrom|NetMsgType|PauseMovie|PauseTimer|PickedTime|ProjectedX|ProjectedY|ProjectedZ|ReadString|RecvNetMsg|RecvUDPMsg|RequestDir|ResetTimer|ResizeBank|RotateMesh|SaveBuffer|ScaleImage|SendNetMsg|SendUDPMsg|SetAnimKey|ShowEntity|ShowGadget|SoundPitch|TFormImage|TFormPoint|TimerTicks|TurnEntity|UDPMsgPort|VertexBlue|WindowMenu|Windowed3D|WriteBytes|WriteFloat|WritePixel|WriteShort|AddVertex|Animating|AntiAlias|ChangeDir|CheckMenu|CloseFile|ColorBlue|CopyImage|CopyPixel|CreateDir|DeleteDir|DrawBlock|DrawImage|DrawMovie|EmitSound|EntityBox|EntityYaw|EventData|FindChild|FlushKeys|FontStyle|FontWidth|FreeBrush|FreeImage|FreeSound|FreeTimer|GammaBlue|GetParent|GfxDriver|GfxMode3D|GrabImage|LightMesh|LoadAtlas|LoadBrush|LoadImage|LoadSound|LoopMovie|LoopSound|MaskImage|MeshDepth|MeshWidth|MidHandle|MilliSecs|MoreFiles|MouseDown|MouseWait|MoveMouse|OpenMovie|PaintMesh|PeekEvent|PeekFloat|PeekShort|PlayMovie|PlayMusic|PlaySound|PokeFloat|PokeShort|ReadAvail|ReadBytes|ReadFloat|ReadPixel|ReadShort|SatUShort|SaveImage|ScaleMesh|SeekMovie|SetBuffer|StopMovie|TileBlock|TileImage|VectorYaw|VertexRed|WaitEvent|WaitMouse|WaitTimer|WireFrame|WriteByte|WriteFile|WriteLine|AnimTime|AppTitle|BankSize|ByteSwap|CloseDir|ClsColor|ColorRed|CopyBank|CopyFile|CopyMesh|CopyRect|DebugLog|DeltaYaw|DisplayX|DisplayY|DottedIP|EntityFX|ExecFile|FileSize|FileType|FlipMesh|FlushJoy|FontName|FontSize|FreeBank|FreeFont|GammaRed|GetChild|GetColor|GetMouse|Graphics|HWDither|JoyPitch|LinePick|LoadFont|LoadMesh|MenuText|MouseHit|NetMsgTo|NextFile|OpenFile|PeekByte|PickedNX|PickedNY|PickedNZ|PokeByte|PopCount|RawInput|ReadByte|ReadFile|ReadLine|SatShort|SatUByte|SatULong|ScanLine|SeekFile|SetGamma|SoundPan|TFormedX|TFormedY|TFormedZ|TerrainX|TerrainY|TerrainZ|UDPMsgIP|VertexNX|VertexNY|VertexNZ|Viewport|WriteInt|AddMesh|AnimSeq|Animate|BrushFX|CallDLL|Confirm|Desktop|EntityX|EntityY|EntityZ|EventID|FilePos|FitMesh|GadgetX|GadgetY|JoyDown|JoyRoll|JoyType|JoyUDir|JoyVDir|JoyWait|JoyXDir|JoyYDir|JoyZDir|KeyDown|KeyWait|LoadBSP|LoadMD2|PeekInt|PickedX|PickedY|PickedZ|PokeInt|Proceed|ReadDir|ReadInt|Replace|RndSeed|SatByte|SatLong|SatUInt|SeedRnd|SetFont|Stats3D|VertexU|VertexV|VertexW|VertexX|VertexY|VertexZ|WBuffer|WaitJoy|WaitKey|Dither|Double|EventX|EventY|EventZ|GetEnv|GetJoy|GetKey|HostIP|JoyHat|JoyHit|JoyYaw|KeyHit|Locate|MouseX|MouseY|MouseZ|Notify|Origin|SatInt|SetEnv|String|UShort|ATan2|Color|Delay|Floor|Input|Instr|Log10|Lower|Print|Right|Short|UByte|ULong|Upper|VWait|Write|ACos|ASin|ATan|Byte|Ceil|Flip|Half|JoyU|JoyV|JoyX|JoyY|JoyZ|LSet|Left|Line|Long|Oval|Plot|RSet|Rand|Rect|RotL|RotR|Stop|Text|Trim|UInt|Asc|Bin|Chr|Cls|Cos|End|Eof|Exp|Hex|Len|Log|Mid|Rnd|Sin|Sqr|Tan)\\b"
+		},
+		"operator": {
+			"name": "keyword.operator.blitzbasic",
+			"match": "<>|<=|>=|[-+*/^=<>~]"
+		},
+		"suffix": {
+			"name": "storage.type.suffix.blitzbasic",
+			"match": "(?<=[A-Za-z0-9_\\)])(##|%%|[%#$])"
+		}
+	}
+}
