@@ -110,6 +110,14 @@ jobs:
       - name: Install Arch dependencies
         if: matrix.kind == 'pacman'
         run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
+      - name: Pin Python (Windows)
+        if: runner.os == 'Windows' && runner.arch == 'X64'
+        # CMake records the path of the Python it was configured with, and the tests (test.yml) run on another runner of another
+        # image version. Without a pinned version the build had Python 3.15.2 and the test runner did not, so every test that runs
+        # Python was "Not Run". test.yml installs the same version.
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12.10'
       - name: Install CMake
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
         # is a fixed version, so the release binaries are not built with a CMake that nobody looked at; raise it by hand.
