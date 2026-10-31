@@ -159,6 +159,10 @@ namespace bb::gui {
 	}
 
 	// The desktop is the group of the windows. It is as big as the window of the program.
+	void screen_size(int* w, int* h);
+
+	// The desktop is as big as the display (the window of Graphics where there is no display), which is what the windows that
+	// are drawn on it have to fit in.
 	int desktop_handle()
 	{
 		if (!desktop) {
@@ -166,7 +170,8 @@ namespace bb::gui {
 			g->used    = true;
 			g->kind    = K_DESKTOP;
 			g->visible = true;
-			int width = bb_graphics_width(), height = bb_graphics_height();
+			int width = 0, height = 0;
+			screen_size(&width, &height);
 			g->w = g->cw = width > 0 ? width : 1024;
 			g->h = g->ch = height > 0 ? height : 768;
 			desktop = new_handle(g);

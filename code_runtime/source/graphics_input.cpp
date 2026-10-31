@@ -605,7 +605,7 @@ namespace bb::gfx {
 		}
 		last = now;
 		drain();
-		while (g.auto_suspend && surface().suspended && surface().window && !extra_surface_focused()) {
+		while (g.auto_suspend && surface().suspended && surface().window && !g.offscreen && !extra_surface_focused()) {
 			SDL_WaitEventTimeout(nullptr, 50);
 			drain();
 		}

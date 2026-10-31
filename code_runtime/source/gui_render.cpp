@@ -1015,9 +1015,15 @@ namespace bb::gui {
 		needs_draw = true;
 	}
 
+	// The GUI draws with the machinery of Graphics, but a program that never calls Graphics gets no window of it: the windows it
+	// makes are the only ones (ensure_offscreen: a device around a hidden window, which the desktop of the GUI stands on). Without
+	// a window system (BLITZLLVM_HEADLESS, or none) Graphics is called as before, and the windows are drawn on its desktop.
 	void ensure_graphics()
 	{
-		if (!bb_graphics_width()) {
+		if (bb_graphics_width()) {
+			return;
+		}
+		if (bb_env_bool("BLITZLLVM_HEADLESS", 0) || !bb::gfx::ensure_offscreen()) {
 			bb_graphics(1024, 768, 32, 3);
 		}
 	}
@@ -1203,38 +1209,41 @@ namespace bb::gui {
 		needs_draw    = false;
 		overlay_combo = 0;
 		drawing_guard guard;
-		bb_set_buffer(bb_back_buffer());
-		bb_origin(0, 0);
-		rect screen = { 0, 0, w, h };
-		clip_to(screen);
-		bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
-		bb_cls();
-		// The desktop of the window of Graphics has the windows that are no window of the computer, and what is open in them.
-		gadget* desk = gadget_of(desktop_handle());
-		for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
-			gadget* k = gadget_of(desk->kids[i]);
-			if (k && !k->surface) {
-				draw_window(desk->kids[i], screen);
+		gadget*       desk = gadget_of(desktop_handle());
+		// The desktop of the window of Graphics has the windows that are no window of the computer, and what is open in them. A
+		// program that never called Graphics has no window of it to show a desktop in (the hidden one of ensure_offscreen).
+		if (!bb::gfx::g.offscreen) {
+			bb_set_buffer(bb_back_buffer());
+			bb_origin(0, 0);
+			rect screen = { 0, 0, w, h };
+			clip_to(screen);
+			bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
+			bb_cls();
+			for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
+				gadget* k = gadget_of(desk->kids[i]);
+				if (k && !k->surface) {
+					draw_window(desk->kids[i], screen);
+				}
 			}
-		}
-		clip_to(screen);
-		if (overlay_combo) {
-			gadget* k = gadget_of(window_of(overlay_combo));
-			if (k && !k->surface) {
-				draw_combo_list(overlay_combo, 0, 0);
+			clip_to(screen);
+			if (overlay_combo) {
+				gadget* k = gadget_of(window_of(overlay_combo));
+				if (k && !k->surface) {
+					draw_combo_list(overlay_combo, 0, 0);
+				}
 			}
+			if (gadget* k = gadget_of(ui.menu_window); k && !k->surface) {
+				draw_menu_popups(screen, 0, 0);
+			}
+			clip_to(screen);
+			if (gadget* k = gadget_of(window_of(tip_gadget)); !tip_gadget || (k && !k->surface)) {
+				draw_tool_tip(w, 0, 0);
+			}
+			if (overlay_draw) {
+				overlay_draw(0, w, h); // A requester draws itself here when its window is on this desktop.
+			}
+			bb_flip(0);
 		}
-		if (gadget* k = gadget_of(ui.menu_window); k && !k->surface) {
-			draw_menu_popups(screen, 0, 0);
-		}
-		clip_to(screen);
-		if (gadget* k = gadget_of(window_of(tip_gadget)); !tip_gadget || (k && !k->surface)) {
-			draw_tool_tip(w, 0, 0);
-		}
-		if (overlay_draw) {
-			overlay_draw(0, w, h); // A requester draws itself here when its window is on this desktop.
-		}
-		bb_flip(0);
 		// The windows of the computer show their pictures by themselves.
 		for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
 			gadget* k = gadget_of(desk->kids[i]);
