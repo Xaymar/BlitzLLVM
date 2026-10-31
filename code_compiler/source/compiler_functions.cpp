@@ -378,6 +378,14 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		emit("call void @bb_loop_leave(ptr " + each.second + ", ptr " + each.first + ")");
 	}
 	gen_copy_outs();
+	if (!fn.is_void && (fn.type == type::STRUCT) && !fn.struct_name.empty()) {
+		// An object that was deleted is not given back: the locals are about to let go of it, which frees it. The caller gets Null.
+		auto held = tmp(), alive = tmp();
+		declare("bb_object_alive", "declare ptr @bb_object_alive(ptr)");
+		emit(held + " = load ptr, ptr " + _ret_slot);
+		emit(alive + " = call ptr @bb_object_alive(ptr " + held + ")");
+		emit("store ptr " + alive + ", ptr " + _ret_slot);
+	}
 	for (auto const& local : _object_locals) {
 		if (local.count) {
 			declare("bb_object_drop_array", "declare void @bb_object_drop_array(ptr, i64, ptr)");

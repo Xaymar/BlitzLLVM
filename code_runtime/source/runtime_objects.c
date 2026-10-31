@@ -267,6 +267,12 @@ void bb_object_drop(bb_object* object, bb_list* list)
 	}
 }
 
+// What a function that gives back an object gives back: Null for an object that was deleted in the meantime.
+bb_object* bb_object_alive(bb_object* object)
+{
+	return (object && (object->flags & BB_OBJECT_DELETED)) ? NULL : object;
+}
+
 // The generated code lets go of an object itself and calls this when the last holder of a deleted object went.
 void bb_object_unheld(bb_object* object, bb_list* list)
 {
