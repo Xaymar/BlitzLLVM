@@ -269,6 +269,40 @@ for model in ("new", "soloud", "legacy"):
 		gain = play_distance(units, rolloff, distance, model) / reference
 		check("%s falloff at %g units, rolloff %g, distance scale %g: gain %.3f is %.3f" % (model, units, rolloff, distance, gain, wanted), abs(gain - wanted) < 0.03)
 
+# The volume is right from the first sample and without Delay, RenderWorld or Flip ever being called (a program that only waits in a loop), and
+# also without a listener: it is then at the origin with the options that FMOD starts with (rolloff 1, doppler 1, distance 1), like the original.
+def play_emitted(body):
+	with open("play.bb", "w") as source:
+		source.write(body)
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZLLVM_HEADLESS", None)
+	env.pop("BLITZLLVM_VOLUME_FALLOFF", None)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read()
+	count = len(data) // 4
+	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+	start = [i for i, v in enumerate(samples) if abs(v) > 300][0]
+	return max(abs(v) for v in samples[start : start + OUTPUT_RATE // 10])  # The first 100 ms.
+
+
+EMIT = 'Local s = Load3DSound("tone.wav")\nLocal source = CreatePivot()\nPositionEntity source, 0, 0, %d\n%sLocal c = EmitSound(s, source)\n%s'
+WAIT = "Local t = MilliSecs()\nWhile MilliSecs() - t < 500\nWend\n"
+reference = play_emitted(EMIT % (0, "CreateListener CreatePivot(), 1, 1, 1\n", "Delay 500\n"))
+for what, listener, after in (
+	("waiting in a loop", "CreateListener CreatePivot(), 1, 1, 1\n", WAIT),
+	("no listener", "", "Delay 500\n"),
+	("no listener, waiting in a loop", "", WAIT),
+	("an emitter that is freed at once", "CreateListener CreatePivot(), 1, 1, 1\n", "FreeEntity source\nDelay 500\n"),
+	("a freed listener", "Local l = CreateListener(CreatePivot(), 1, 1, 1)\nFreeEntity l\n", "Delay 500\n"),
+):
+	gain = play_emitted(EMIT % (100, listener, after)) / reference
+	wanted = 1.0 / (1.0 + 100 * 0.05)
+	check("falloff from the first sample, %s: gain %.3f is %.3f" % (what, gain, wanted), abs(gain - wanted) < 0.03)
+
 # Programs that draw every frame never call Delay, so the position of what they emit from has to be followed while they render and
 # flip, and a program that sets ChannelVolume every frame (as the original allows) must not undo it for the time that the frame takes. A sound to the right of the listener comes out of the right speaker, and the pitch still follows the movement. Skipped (77)
 # without a window.
