@@ -298,6 +298,10 @@ void bb_joy_attach_virtual(int32_t attach)
 	static int            virtual_count = 0;
 	scan();
 	if (attach) {
+		// SDL drops the input of a joystick while no window has the keyboard focus, as the original did with DirectInput's
+		// foreground level. A test program cannot count on the focus (no window manager under Xvfb, other tests' windows
+		// beside it), so the joystick that isn't real is let through in the background too.
+		SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 		if (virtual_count < 8) {
 			SDL_VirtualJoystickDesc desc;
 			SDL_INIT_INTERFACE(&desc);
