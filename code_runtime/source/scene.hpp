@@ -251,6 +251,7 @@ namespace bb {
 		bool  captured = false;
 		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
 		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
+		float capt_color[3] = { 1, 1, 1 }, capt_alpha = 1;
 		float sprite_angle    = 0;
 		float depth_fade = 0;             // SpriteDepthFade, EntityDepthFade: how far from what is behind it a blended entity fades out, 0 for not at all.
 		int   static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
@@ -378,6 +379,9 @@ namespace bb {
 	extern float ambient_light[3];
 	/** How far between CaptureWorld and now entities are drawn, 1 for where they are. Set by RenderWorld. */
 	extern float render_tween;
+	/** The alpha and color of an entity as RenderWorld draws them: between where they were at CaptureWorld and now. */
+	float        tweened_alpha(entity const& e);
+	void         tweened_color(entity const& e, float* out);
 
 	// For loading models (animation.cpp), which builds entities and surfaces itself.
 	int       create_entity(int kind, int parent);

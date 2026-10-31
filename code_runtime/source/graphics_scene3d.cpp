@@ -1780,7 +1780,7 @@ namespace bb::gfx {
 		float depth = sqrtf(dx * dx + dy * dy + dz * dz);
 
 		// Things can fade out with distance.
-		float alpha = mesh.alpha;
+		float alpha = bb::tweened_alpha(mesh);
 		if (mesh.fade_far > 0) {
 			if (depth >= mesh.fade_far) {
 				return;
@@ -2653,9 +2653,11 @@ namespace bb::gfx {
 				continue;
 			}
 
-			push.material[0] = e->color[0] * paint.color[0];
-			push.material[1] = e->color[1] * paint.color[1];
-			push.material[2] = e->color[2] * paint.color[2];
+			float tween_color[3];
+			bb::tweened_color(*e, tween_color);
+			push.material[0] = tween_color[0] * paint.color[0];
+			push.material[1] = tween_color[1] * paint.color[1];
+			push.material[2] = tween_color[2] * paint.color[2];
 			push.material[3] = item.alpha * paint.alpha;
 			int fx = e->fx | paint.fx;
 			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
