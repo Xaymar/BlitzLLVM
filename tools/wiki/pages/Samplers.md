@@ -11,6 +11,6 @@
 | Setting | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
 | Filters (`SamplerFilterMin`, `Mag`, `Mip`) | Nearest | Linear | | |
-| Address modes (`SetSamplerAddressModeU`, `V`, `W`) | Repeat | Mirror | Clamp | Border (`SetSamplerBorderColor`, opaque black by default) |
+| Address modes (`SamplerAddressModeU`, `V`, `W`) | Repeat | Mirror | Clamp | Border (`SetSamplerBorderColor`, opaque black by default) |
 
 `SamplerAnisotropy` takes 1 (off) or more and is kept inside the limit of the graphics card, which is also what happens to `SetSamplerLodBias`. `SetSamplerLodMin` and `SetSamplerLodMax` count mip levels from level 0. A sampler does not make mip levels (flag 8 does, see [Mip maps](Mip-Maps)). Every setting can be read back with the `GetSampler...` commands (`GetSamplerAnisotropy`, `GetSamplerBorderColorR` to `A` and so on), which return what the sampler keeps. Without the `VK_EXT_custom_border_color` extension a border color is read as the closest of transparent black, opaque black and opaque white. `FreeSampler` sends the textures that use the sampler back to the settings of their flags.

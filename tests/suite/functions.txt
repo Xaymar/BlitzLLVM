@@ -260,7 +260,7 @@ setanimkey	blitz3d	done	SetAnimKey%entity%frame%pos_key=1%rot_key=1%scale_key=1
 setanimtime	blitz3d	done	SetAnimTime%entity#time%anim_seq=0
 setcubeface	blitz3d	done	SetCubeFace%texture%face
 setcubemode	blitz3d	done	SetCubeMode%texture%mode
-setsampleraddressmodeu	blitz3d	done	SetSamplerAddressModeU%sampler%mode
+sampleraddressmodeu	blitz3d	done	SamplerAddressModeU%sampler%mode
 setsampleraddressmodev	blitz3d	done	SetSamplerAddressModeV%sampler%mode
 setsampleraddressmodew	blitz3d	done	SetSamplerAddressModeW%sampler%mode
 sampleranisotropy	blitz3d	done	SamplerAnisotropy%sampler#anisotropy

@@ -5,7 +5,7 @@
 ; Samplers work as objects without a window: CreateSampler FreeSampler SamplerFilterMin SamplerFilterMag
 ; SamplerFilterMip SetSamplerBorderColor GetSamplerFilterMin GetSamplerFilterMag GetSamplerFilterMip GetSamplerAnisotropy
 ; GetSamplerAddressModeU GetSamplerAddressModeV GetSamplerAddressModeW GetSamplerLodBias GetSamplerLodMin GetSamplerLodMax
-; GetSamplerBorderColorR GetSamplerBorderColorG GetSamplerBorderColorB GetSamplerBorderColorA SamplerAnisotropy SetSamplerAddressModeU SetSamplerAddressModeV SetSamplerAddressModeW
+; GetSamplerBorderColorR GetSamplerBorderColorG GetSamplerBorderColorB GetSamplerBorderColorA SamplerAnisotropy SamplerAddressModeU SetSamplerAddressModeV SetSamplerAddressModeW
 ; SetSamplerLodBias SetSamplerLodMin SetSamplerLodMax
 ; SetTextureSampler.
 Include "check.bb"
@@ -19,7 +19,7 @@ SamplerFilterMin a, 0
 SamplerFilterMag a, 1
 SamplerFilterMip a, 0
 SamplerAnisotropy a, 4.0
-SetSamplerAddressModeU a, 1
+SamplerAddressModeU a, 1
 SetSamplerAddressModeV a, 2
 SetSamplerAddressModeW a, 3
 SetSamplerLodBias a, -0.5

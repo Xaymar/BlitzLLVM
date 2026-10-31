@@ -1348,8 +1348,8 @@ void bb_set_sampler_anisotropy(int32_t handle, float anisotropy)
 
 void bb_set_sampler_address_mode_u(int32_t handle, int32_t mode)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerAddressModeU");
-	check_mode("SetSamplerAddressModeU", mode, 4);
+	sampler_entry* s = need_sampler(handle, "SamplerAddressModeU");
+	check_mode("SamplerAddressModeU", mode, 4);
 	s->address[0] = mode;
 	apply_sampler(handle);
 }
