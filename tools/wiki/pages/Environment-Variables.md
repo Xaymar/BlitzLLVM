@@ -75,9 +75,9 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 
 | Variable | Default | What it does |
 |---|---|---|
-| `BLITZLLVM_PROFILE_FPS` | `0` | Prints the frames per second and the timers of the runtime once a second. Needs a program made with `--profile` or `-d`. |
+| `BLITZLLVM_PROFILE_FPS` | `0` | Prints the frames per second and the timers of the runtime once a second. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileFPS]] (and [[ProfileEnable]] for the timers). |
 | `BLITZLLVM_PROFILE_SLOW` | `0` | A number of milliseconds: every frame that takes longer than that is listed on stderr, with the frame number and the timers of just that frame (collect, draws, clusters, record, waiting for the GPU, ...) and the GPU pass times that came back for it and the three frames after it, so a single stutter shows in a long run. Needs a program made with `--profile` or `-d`. |
-| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. |
+| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. [[ProfileSample]] starts and stops it while the program runs. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[Memory]]. |

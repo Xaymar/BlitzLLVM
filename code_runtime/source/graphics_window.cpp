@@ -503,10 +503,41 @@ void bb_app_title(const char* title, const char* close_prompt)
 }
 
 // A program compiled with --profile (or -d) turns the timers of profile.hpp on, which BLITZLLVM_PROFILE_FPS and BLITZLLVM_PROFILE_SAMPLE then report.
+// The environment only gives the state at the start; ProfileEnable, ProfileFPS and ProfileSample change it later.
 extern "C" void bb_set_profile(int32_t profile)
 {
-	bb::profile_enabled = ((profile & 1) != 0);
-	bb::profile_symbols = ((profile & 2) != 0);
+	bb::profile_compiled = ((profile & 1) != 0);
+	bb::profile_enabled  = bb::profile_compiled;
+	bb::profile_symbols  = ((profile & 2) != 0);
+	if (bb::profile_compiled) {
+		bb::profile_report = bb_env_bool("BLITZLLVM_PROFILE_FPS", false);
+		bb::profile_start_sampler(bb_env("BLITZLLVM_PROFILE_SAMPLE"));
+	}
+}
+
+// ProfileEnable on: Turns the timers of the runtime on or off. Off, they cost nothing, and neither the report of ProfileFPS nor the sampling of ProfileSample sees them.
+// Does nothing in a program that was not compiled with --profile.
+extern "C" void bb_profile_enable(int32_t on)
+{
+	if (bb::profile_compiled) {
+		bb::profile_enabled = (on != 0);
+	}
+}
+
+// ProfileFPS on: Prints the frames per second and the timers once a second, like BLITZLLVM_PROFILE_FPS=1.
+extern "C" void bb_profile_fps(int32_t on)
+{
+	if (bb::profile_compiled) {
+		bb::profile_report = (on != 0);
+	}
+}
+
+// ProfileSample file$: Samples where the program spends its time into the file, like BLITZLLVM_PROFILE_SAMPLE=<file>. An empty name stops it.
+extern "C" void bb_profile_sample(const char* file)
+{
+	if (bb::profile_compiled) {
+		bb::profile_start_sampler(file);
+	}
 }
 
 // Flip [vwait]: show what was drawn to the back buffer. 0 shows at once, 1 syncs with the display, 2 syncs only the picture.
@@ -581,21 +612,22 @@ void bb_flip(int32_t vwait)
 		slow_last_wait = profile_wait;
 	}
 	{
-		// BLITZLLVM_PROFILE_FPS=1 reports how many frames are shown each second.
-		static int    enabled = -1;
+		// BLITZLLVM_PROFILE_FPS=1 (or ProfileFPS) reports how many frames are shown each second.
 		static Uint64 last    = 0;
 		static int    frames  = 0;
-		if (enabled < 0) {
-			enabled = (bb::profile_enabled && bb_env_bool("BLITZLLVM_PROFILE_FPS", false)) ? 1 : 0;
-			if (enabled) {
-				char cpu[512];
-				bb_cpu_describe(cpu, sizeof(cpu));
-				fprintf(stderr, "cpu: %s\n", cpu);
-			}
-			if (bb::profile_enabled) {
-				bb::profile_start_sampler();
+		static bool   was_on  = false;
+		bool          enabled = bb::profile_enabled && bb::profile_report;
+		if (enabled && !was_on) {
+			char cpu[512];
+			bb_cpu_describe(cpu, sizeof(cpu));
+			fprintf(stderr, "cpu: %s\n", cpu);
+			frames = 0;
+			last   = SDL_GetTicks();
+			for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+				bb::profile_ticks[i] = 0;
 			}
 		}
+		was_on = enabled;
 		if (enabled) {
 			frames++;
 			Uint64 now = SDL_GetTicks();

@@ -784,6 +784,9 @@ freetimer	runtime	done	FreeTimer%timer
 getenv	runtime	done	$GetEnv$env_var
 microseconds	runtime	done	&Microseconds
 millisecs	runtime	done	%MilliSecs
+profileenable	runtime	done	ProfileEnable%enable
+profilefps	runtime	done	ProfileFPS%enable
+profilesample	runtime	done	ProfileSample$file
 runtimeerror	runtime	done	RuntimeError$message
 setenv	runtime	done	SetEnv$env_var$value
 stop	runtime	done	Stop
