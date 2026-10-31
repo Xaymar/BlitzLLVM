@@ -383,6 +383,7 @@ extern "C" {
 // CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.
 int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames)
 {
+	ensure_offscreen(); // No Graphics yet: these are made on the GPU all the same.
 	if ((width <= 0) || (height <= 0)) {
 		bb_runtime_error("CreateTexture: needs a size.");
 	}
@@ -796,6 +797,7 @@ static int32_t texture_from_picture(const char* file, int32_t flags, picture& so
 // not there, and with it the alpha channel of the image if it has one, and otherwise how bright each pixel is.
 int32_t bb_load_texture_flags(const char* file, int32_t flags)
 {
+	ensure_offscreen(); // No Graphics yet: these are made on the GPU all the same.
 	if (!file) {
 		return 0;
 	}
@@ -988,6 +990,7 @@ int32_t bb_texture_height(int32_t handle)
 // count of them from the first. 0 if there are not that many frames in the picture. Where the coordinates wrap around, they do so over the whole sheet.
 int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int32_t height, int32_t first, int32_t count)
 {
+	ensure_offscreen(); // No Graphics yet: these are made on the GPU all the same.
 	// An animated file with no frame size is its frames, packed into a sheet: the extension of the original.
 	if (file && ((width < 1) || (height < 1))) {
 		animation_sheet animation;

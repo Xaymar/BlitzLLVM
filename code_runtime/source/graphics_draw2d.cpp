@@ -497,7 +497,7 @@ namespace {
 // there is no window to show it in.
 int32_t bb_screen_print(const char* s, int32_t newline)
 {
-	if (!active()) {
+	if (!active() || g.offscreen) {
 		return 0;
 	}
 	int        height = current_height();
@@ -530,7 +530,7 @@ int32_t bb_screen_print(const char* s, int32_t newline)
 // Returns null if there is no window to do it in.
 const char* bb_screen_input(const char* prompt)
 {
-	if (!active()) {
+	if (!active() || g.offscreen) {
 		return nullptr;
 	}
 	bb_screen_print(prompt, 0);
