@@ -106,7 +106,7 @@ namespace {
 	system_levels ask_system()
 	{
 		system_levels levels;
-		if (g.created && !g.headless && surface().window) {
+		if (!g.headless && surface().window) {
 			SDL_PropertiesID props = SDL_GetWindowProperties(surface().window);
 			levels.hdr             = SDL_GetBooleanProperty(props, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false);
 			levels.white           = SDL_GetFloatProperty(props, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) * scrgb_white_nits;
@@ -186,9 +186,11 @@ namespace bb::gfx {
 		return test_path() && (auto_hdr_mode() > 0) && !g.headless;
 	}
 
+	// Only where the system has HDR switched on for the window: some drivers list scRGB for a display that has none, and the picture
+	// would then be scaled for a brightness the display does not have.
 	bool hdr_wanted(const surface_state& s)
 	{
-		return (&s == &g.surf) && !g.headless && (auto_hdr_mode() > 0);
+		return (&s == &g.surf) && !g.headless && (auto_hdr_mode() > 0) && ask_system().hdr;
 	}
 
 	void hdr_swapchain_made(surface_state& s)
