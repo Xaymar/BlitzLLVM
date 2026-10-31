@@ -15,18 +15,13 @@ ProfileEnable 0
 ProfileEnable 1
 CheckTrue "the commands of profiling can be called in any order", True
 
-; The results can be taken into the program. Without --profile (or -d) there is nothing to take, with it nothing happens until a frame is flipped.
+; The numbers of the last frame can be read by key. Without --profile (or -d) there is nothing to take, with it nothing happens until a frame is flipped.
 ProfileOutput ""
-ProfileCapture 1
-CheckTrue "ProfileText$ is a string", Len(ProfileText$()) >= 0
-ProfileCapture 0
-ProfileFrames 1
-ProfileFrames 0
 ProfileSlow 5
 ProfileSlow 0
-CheckTrue "the frame count is not negative", ProfileFrameCount() >= 0
-CheckTrue "a frame that is not kept is 0", ProfileFrameValue(100000, 0) = 0
-CheckTrue "a frame number that is not kept is 0", ProfileFrameNumber(-1) = 0
+CheckTrue "the number of the last frame is not negative", ProfileFrameNumber() >= 0
+CheckTrue "a key that does not exist is 0", ProfileFrameValue("no such item") = 0
+CheckTrue "the time of the last frame is not negative", ProfileFrameValue("frame") >= 0
 CheckTrue "there is a name for every item", ProfileItemName$(0) <> "" And ProfileItemName$(ProfileItemCount() - 1) <> ""
 CheckTrue "no name for an item that does not exist", ProfileItemName$(ProfileItemCount()) = ""
 

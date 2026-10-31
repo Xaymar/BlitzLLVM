@@ -559,40 +559,15 @@ extern "C" void bb_profile_output(const char* file)
 	}
 }
 
-// ProfileCapture enable: Keeps what the profiling says in a string as well, which ProfileText$ hands over.
-extern "C" void bb_profile_capture(int32_t on)
+// ProfileFrameNumber, ProfileFrameValue key$: what the last measured frame took, from one Flip to the next, by the name of the item, without any text to parse.
+extern "C" int32_t bb_profile_frame_number(void)
 {
-	if (bb::profile_compiled) {
-		bb::profile_set_capture(on != 0);
-	}
+	return bb::profile_compiled ? bb::profile_last_frame_number() : 0;
 }
 
-extern "C" const char* bb_profile_text(void)
+extern "C" float bb_profile_frame_value(const char* key)
 {
-	return bb::profile_compiled ? bb::profile_take_text() : bb_copy("", 0);
-}
-
-// ProfileFrames enable: Keeps the numbers of every frame (the last 65536), which ProfileFrameValue reads without any text to parse.
-extern "C" void bb_profile_frames(int32_t on)
-{
-	if (bb::profile_compiled) {
-		bb::profile_set_recording(on != 0);
-	}
-}
-
-extern "C" int32_t bb_profile_frame_count(void)
-{
-	return bb::profile_compiled ? bb::profile_frame_count() : 0;
-}
-
-extern "C" int32_t bb_profile_frame_number(int32_t index)
-{
-	return bb::profile_compiled ? bb::profile_frame_number(index) : 0;
-}
-
-extern "C" float bb_profile_frame_value(int32_t index, int32_t item)
-{
-	return bb::profile_compiled ? bb::profile_frame_value(index, item) : 0.0f;
+	return bb::profile_compiled ? bb::profile_last_frame_value(bb_s(key)) : 0.0f;
 }
 
 extern "C" int32_t bb_profile_item_count(void)
@@ -608,7 +583,7 @@ extern "C" const char* bb_profile_item_name(int32_t item)
 
 namespace {
 	// Everything the profiling counts only goes up (the reports take the difference to the last time), so that the report of a second, the list of the
-	// slow frames and the numbers of every frame can all use the same counters.
+	// slow frames and the numbers of the last frame can all use the same counters.
 	struct profile_counters {
 		Uint64 time;
 		Uint64 ticks[bb::PROFILE_COUNT];
@@ -662,7 +637,7 @@ namespace {
 			have_frame          = false;
 			profile_was_enabled = true;
 		}
-		if (have_frame && (bb::profile_slow_ms > 0.0 || bb::profile_recording())) {
+		if (have_frame) {
 			double values[bb::PROFILE_ITEMS];
 			int    at = 0;
 			values[at++] = profile_ms(now.time - last_frame.time);
@@ -674,9 +649,7 @@ namespace {
 				values[at++] = (now.pass[i] - last_frame.pass[i]) * 1e-6;
 			}
 			values[at++] = profile_ms(now.submit - last_frame.submit);
-			if (bb::profile_recording()) {
-				bb::profile_record_frame(bb::profile_frame, values);
-			}
+			bb::profile_set_last_frame(bb::profile_frame, values);
 			// A frame that takes longer than ProfileSlow lists where its time went. The Flip of the frame before is part of the frame.
 			if (bb::profile_slow_ms > 0.0 && values[0] >= bb::profile_slow_ms) {
 				bb::profile_print("slow frame %u: %.1f ms:", unsigned(bb::profile_frame), values[0]);

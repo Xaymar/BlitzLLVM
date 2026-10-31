@@ -83,7 +83,7 @@ for _names, _category in (
         ("millisecs microseconds currentdate currenttime delay createtimer waittimer freetimer", "Time and Date"),
         ("byte ubyte short ushort uint long ulong half double", "Types"),
         ("end stop", "Keywords"),
-        ("apptitle calldll commandline debuglog getenv profilecapture profileenable profileframecount profileframenumber profileframes profileframevalue profilefps profileitemcount profileitemname profileoutput profilesample profileslow profiletext runtimeerror runtimestats setenv systemproperty execfile",
+        ("apptitle calldll commandline debuglog getenv profileenable profileframenumber profileframevalue profilefps profileitemcount profileitemname profileoutput profilesample profileslow runtimeerror runtimestats setenv systemproperty execfile",
          "Other")):
     for _name in _names.split():
         _OVERRIDES[_name] = (LANG, _category)
