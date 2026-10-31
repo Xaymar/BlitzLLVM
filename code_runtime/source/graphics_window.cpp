@@ -527,6 +527,9 @@ void bb_flip(int32_t vwait)
 	static Uint64 slow_last_time = 0;
 	static Uint64 slow_last_ticks[bb::PROFILE_COUNT] = {};
 	static Uint64 slow_last_wait = 0;
+	static double slow_last_pass[5] = {};
+	static Uint64 slow_last_submit = 0;
+	static int    slow_follow = 0;
 	if (slow_ms < 0.0) {
 		slow_ms = bb::profile_enabled ? bb_env_double("BLITZLLVM_PROFILE_SLOW", 0.0) : 0.0;
 		if (slow_ms <= 0.0) {
@@ -553,6 +556,23 @@ void bb_flip(int32_t vwait)
 			Uint64 wait = (profile_wait >= slow_last_wait) ? (profile_wait - slow_last_wait) : profile_wait;
 			fprintf(stderr, " waiting for the GPU %.1f\n", double(wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
 		}
+		if (slow_last_time && (ms >= slow_ms)) {
+			slow_follow = 4;
+		}
+		// The GPU times come back a frame or two late, so the slow frame and the three after it each list what the GPU finished since the Flip before.
+		if (slow_follow > 0) {
+			double dp[5];
+			for (int i = 0; i < 5; i++) {
+				dp[i] = (profile_gpu_pass[i] >= slow_last_pass[i]) ? (profile_gpu_pass[i] - slow_last_pass[i]) : profile_gpu_pass[i];
+			}
+			Uint64 dsub = (profile_gpu_submit >= slow_last_submit) ? (profile_gpu_submit - slow_last_submit) : profile_gpu_submit;
+			fprintf(stderr, "  gpu finished since the Flip before: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms, vkQueueSubmit %.1f ms\n", dp[0] * 1e-6, dp[1] * 1e-6, dp[2] * 1e-6, dp[3] * 1e-6, dp[4] * 1e-6, double(dsub) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+			slow_follow--;
+		}
+		for (int i = 0; i < 5; i++) {
+			slow_last_pass[i] = profile_gpu_pass[i];
+		}
+		slow_last_submit = profile_gpu_submit;
 		slow_last_time = now_time;
 		for (int i = 0; i < bb::PROFILE_COUNT; i++) {
 			slow_last_ticks[i] = bb::profile_ticks[i];
@@ -597,6 +617,10 @@ void bb_flip(int32_t vwait)
 					ticks = 0;
 				}
 				slow_last_wait = 0;
+				for (double& pass : slow_last_pass) {
+					pass = 0.0;
+				}
+				slow_last_submit = 0;
 				frames = 0;
 				last   = now;
 			}
