@@ -85,6 +85,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_input.cpp"
 	"source/graphics_joystick.cpp"
 	"source/graphics_devices.cpp"
+	"source/profile.cpp"
 	"source/graphics_clipboard.cpp"
 	"source/scene_entities.cpp"
 	"source/scene_math.cpp"

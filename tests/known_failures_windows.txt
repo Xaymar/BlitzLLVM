@@ -203,6 +203,7 @@ suite-debug-compile-plusgui_pixels
 suite-debug-compile-plusgui_windows_pixels
 suite-debug-compile-plusgui_canvas_pixels
 suite-debug-compile-runtime
+suite-debug-compile-runtime_profile
 suite-debug-compile-streams
 suite-debug-compile-streams_limits
 suite-debug-compile-strings
@@ -381,6 +382,7 @@ suite-debug-run-plusgui_pixels
 suite-debug-run-plusgui_windows_pixels
 suite-debug-run-plusgui_canvas_pixels
 suite-debug-run-runtime
+suite-debug-run-runtime_profile
 suite-debug-run-streams
 suite-debug-run-streams_limits
 suite-debug-run-strings
