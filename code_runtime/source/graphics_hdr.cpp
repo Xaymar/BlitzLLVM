@@ -202,6 +202,7 @@ namespace bb::gfx {
 	{
 		if (bb_env_bool("BLITZLLVM_AUTOHDR_DEBUG", 0) && (&s == &surface())) {
 			// What AutoHDR knew when the swapchain was made, for finding out why a display is not shown in HDR.
+			read_environment();
 			SDL_Window* window  = surface().window;
 			SDL_PropertiesID wp = window ? SDL_GetWindowProperties(window) : 0;
 			SDL_DisplayID shown = window ? SDL_GetDisplayForWindow(window) : 0;
