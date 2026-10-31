@@ -1384,7 +1384,7 @@ void bb_set_sampler_lod_min(int32_t handle, float lod)
 
 void bb_set_sampler_lod_max(int32_t handle, float lod)
 {
-	need_sampler(handle, "SetSamplerLodMax")->lod_max = lod < 0.0f ? 0.0f : lod;
+	need_sampler(handle, "SamplerLodMax")->lod_max = lod < 0.0f ? 0.0f : lod;
 	apply_sampler(handle);
 }
 

@@ -104,7 +104,7 @@ EXTENSIONS = {
     "sampleraddressmodew": ("blitz3d", "SamplerAddressModeW%sampler%mode"),
     "samplerlodbias": ("blitz3d", "SamplerLodBias%sampler#bias"),
     "samplerlodmin": ("blitz3d", "SamplerLodMin%sampler#lod"),
-    "setsamplerlodmax": ("blitz3d", "SetSamplerLodMax%sampler#lod"),
+    "samplerlodmax": ("blitz3d", "SamplerLodMax%sampler#lod"),
     "setsamplerbordercolor": ("blitz3d", "SetSamplerBorderColor%sampler#r#g#b#a"),
     "getsamplerfiltermin": ("blitz3d", "%GetSamplerFilterMin%sampler"),
     "getsamplerfiltermag": ("blitz3d", "%GetSamplerFilterMag%sampler"),
