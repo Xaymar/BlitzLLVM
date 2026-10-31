@@ -130,7 +130,6 @@ deltayaw	blitz3d	done	#DeltaYaw%src_entity%dest_entity
 dither	blitz3d	done	Dither%enable
 dithertemporal	blitz3d	done	DitherTemporal%enable
 dithermode	blitz3d	done	DitherMode%mode%level=1
-perpixellighting	blitz3d	done	PerPixelLighting%enable
 emitsound	blitz3d	done	%EmitSound%sound%entity
 entityalpha	blitz3d	done	EntityAlpha%entity#alpha
 entityautofade	blitz3d	done	EntityAutoFade%entity#near#far
@@ -143,6 +142,7 @@ entitydistance	blitz3d	done	#EntityDistance%source_entity%destination_entity
 entitydepthfade	blitz3d	done	EntityDepthFade%entity#fade_distance
 entityfx	blitz3d	done	EntityFX%entity%fx
 entityinview	blitz3d	done	%EntityInView%entity%camera
+entitylighting	blitz3d	done	EntityLighting%entity%mode
 entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
 entityname	blitz3d	done	$EntityName%entity
 entityorder	blitz3d	done	EntityOrder%entity%order

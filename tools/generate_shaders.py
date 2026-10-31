@@ -483,15 +483,6 @@ def spec_limits(b, f, first_id):
     return limits
 
 
-def per_pixel_constant(b):
-    """Specialization constant 13 of both 3D shaders: whether the fragment shader lights (PerPixelLighting) instead of the vertex shader."""
-    boolean = b.new_type("bool", "TypeBool")
-    constant = b.m.id()
-    b.m.types.append(Module.inst("SpecConstantFalse", boolean, constant))
-    b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], PER_PIXEL_SPEC_ID))
-    return constant
-
-
 def conditional(b, flag, make, defaults, types):
     """Runs make() only where the flag is true, and gives the values it makes there (a list) and the defaults elsewhere."""
     before, then, merge = b.m.id(), b.m.id(), b.m.id()
@@ -508,7 +499,7 @@ def light_code(b, ubo, world, n, eye, params, packed):
     The lighting of a point: the color the lights add to the ambient light (the first value) and the highlight they leave (the second),
     from the world position and (unit) normal, the position of the eye, the params of the entity (fullbright in x, shininess in w), and
     the places of its eight lights in the table, two to a float (packed, a vec4). The vertex shader uses this per vertex, and the
-    fragment shader per pixel if PerPixelLighting is on.
+    fragment shader per pixel for entities with EntityLighting 1.
     """
     f, v3, v4 = b.float(), b.vec(3), b.vec(4)
     c0, c1 = b.const_float(0.0), b.const_float(1.0)
@@ -600,7 +591,7 @@ def vertex_shader_3d():
         vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
         vec4 mask;                   // For the fragment shader.
-        vec4 extra;                  // x: whether the second set of texture coordinates is used, y and z: sine and cosine minus one of RotateTexture.
+        vec4 extra;                  // x: whether the second set of texture coordinates is used, y and z: sine and cosine minus one of RotateTexture, w: EntityLighting (1 per pixel).
         vec4 texgen;                 // x: 1 for a sphere map, 2 for a cube map. y: what a cube map shows (1 reflection, 2 normal, 3 position), z: whether in camera space, w: half a texel of a face.
     };
     layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
@@ -654,9 +645,10 @@ def vertex_shader_3d():
     out_color_flat = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
     out_spec = b.variable("Output", v3, [(DECORATION["Location"], 4)])
     out_spec_flat = b.variable("Output", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
-    out_normal = b.variable("Output", v3, [(DECORATION["Location"], 9)])  # For the lighting of PerPixelLighting: the normal, and what else the lights need.
+    out_normal = b.variable("Output", v3, [(DECORATION["Location"], 9)])  # For the lighting of EntityLighting 1: the normal, and what else the lights need.
     out_params = b.variable("Output", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
     out_lights = b.variable("Output", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
+    out_pixel = b.variable("Output", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])  # EntityLighting: 1 if the fragment shader lights.
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -666,7 +658,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, out_normal, out_params, out_lights))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, out_normal, out_params, out_lights, out_pixel))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -699,10 +691,10 @@ def vertex_shader_3d():
     eye = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(6))), 3)
     packed = push_member(9)
     ones = b.const_vec(3, 1.0)
-    # With PerPixelLighting (specialization constant 13) the fragment shader lights, except for flat shaded entities, which keep the
-    # lighting of their first vertex.
-    per_pixel = per_pixel_constant(b)
+    # With EntityLighting 1 (extra.w) the fragment shader lights the entity, except if it is flat shaded: that keeps the lighting of its first vertex.
     boolean = b.new_type("bool", "TypeBool")
+    per_pixel_value = b.extract(extra, 3)
+    per_pixel = b.emit("FOrdGreaterThan", boolean, per_pixel_value, b.const_float(0.5))
     flat_entity = b.emit("FOrdGreaterThan", boolean, b.extract(push_member(6), 2), b.const_float(0.5))
     vertex_lit = b.emit("LogicalOr", boolean, b.emit("LogicalNot", boolean, per_pixel), flat_entity)
     lit, specular = conditional(b, vertex_lit, lambda: light_code(b, ubo, world, n, eye, params, packed), [ones, b.const_vec(3, 0.0)], [v3, v3])
@@ -727,6 +719,7 @@ def vertex_shader_3d():
     b.store(out_normal, n)
     b.store(out_params, params)
     b.store(out_lights, packed)
+    b.store(out_pixel, per_pixel_value)
     # Textures can be scaled and moved: the first two are factors, the last two offsets.
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
     first_uv, second_uv = b.load(v2, in_uv), b.load(v2, in_uv2)
@@ -768,7 +761,6 @@ def vertex_shader_3d():
 
 
 
-PER_PIXEL_SPEC_ID = 13  # Keep in sync with build_pipeline_3d in graphics_scene3d.cpp.
 
 PALETTE_ROWS = 68  # Rows of the lookup texture of the palette: 64 of the 6 bit lookup, the gaps and the grid flag, 3 of the per channel lookup.
 
@@ -877,6 +869,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         in_normal = b.variable("Input", v3, [(DECORATION["Location"], 9)])
         in_params = b.variable("Input", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
         in_lights = b.variable("Input", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
+        in_pixel = b.variable("Input", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
         if interlock:
@@ -886,7 +879,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights]
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights, in_pixel]
 
     # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
     # fragment_shader_palette for how it is laid out: see palette_nearest_code).
@@ -973,12 +966,12 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         color = b.fadd(v4, color, b.scale(4, b.fsub(v4, b.load(v4, in_color_flat), color), flat))
         spec = b.load(v3, in_spec)
         spec = b.fadd(v3, spec, b.scale(3, b.fsub(v3, b.load(v3, in_spec_flat), spec), flat))
-        # PerPixelLighting (specialization constant 13): the lights are applied here instead of in the vertex shader, which left the
+        # EntityLighting 1 (a flat input of the vertex shader): the lights are applied here instead of in the vertex shader, which left the
         # color unlit (flat shaded entities are lit by their first vertex as before). The color is limited as the vertex shader does it.
         low, high = spec_limits(b, f, 6)
         lows, highs = b.construct(3, low, low, low), b.construct(3, high, high, high)
         bool_type = b.new_type("bool", "TypeBool")
-        pixel_lit = b.emit("LogicalAnd", bool_type, per_pixel_constant(b), b.emit("FOrdLessThan", bool_type, flat, b.const_float(0.5)))
+        pixel_lit = b.emit("LogicalAnd", bool_type, b.emit("FOrdGreaterThan", bool_type, b.load(f, in_pixel), b.const_float(0.5)), b.emit("FOrdLessThan", bool_type, flat, b.const_float(0.5)))
         scene_world = b.swizzle(b.emit("VectorShuffle", v4, b.load(v4, in_depth), b.load(v4, in_depth), 1, 2, 3, 3), 3)
 
         def light_pixel():
