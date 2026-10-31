@@ -526,38 +526,45 @@ def light_code(b, ubo, world, n, eye, params, packed):
         high = b.ext(f, GLSL_FLOOR, b.fmul(f, both, b.const_float(1.0 / 256.0)))
         chosen.append(b.emit("ConvertFToS", b.int(), b.fsub(f, both, b.fmul(f, high, b.const_float(256.0)))))
         chosen.append(b.emit("ConvertFToS", b.int(), high))
+    boolean = b.new_type("bool", "TypeBool")
+    unused = b.const_int(MAX_LIGHTS - 1)  # The place of the light that is off, which fills what an entity has fewer than eight lights of.
     for light in range(8):
-        lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), chosen[light]))
-        lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), chosen[light]))
-        ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), chosen[light]))
-        lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
-        delta = b.fsub(v3, lpos, world)
-        dist = b.ext(f, GLSL_LENGTH, delta)
-        to_point = b.scale(3, delta, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4))))
-        is_point = b.ext(f, GLSL_FCLAMP, b.fmul(f, w, b.const_float(1000.0)), c0, c1)
-        direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
-        ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
-        range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
-        # Direct3D 7 attenuation 1 / (a1 * d) with a1 = 1 / range, which is range / d: it is not clamped and is above one close by.
-        falloff = b.fdiv(f, range_, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4)))
-        attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
-        # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
-        # and ld.w is below -1 for lights that are not spots.
-        rho = b.fsub(f, c0, b.dot(direction, b.swizzle(ld, 3)))
-        cone_span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(lc, 3), b.extract(ld, 3)), b.const_float(1e-4))
-        cone = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, rho, b.extract(ld, 3)), cone_span), c0, c1)
-        is_spot = b.ext(f, GLSL_STEP, b.const_float(-1.5), b.extract(ld, 3))
-        spot = b.fadd(f, c1, b.fmul(f, b.fsub(f, cone, c1), is_spot))
-        attenuation = b.fmul(f, attenuation, spot)
-        contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
-        lit = b.fadd(v3, lit, contribution)
-        # Blinn-Phong with the viewer where the camera is, and the light itself white.
-        half = b.fadd(v3, direction, view)
-        half = b.scale(3, half, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, half), b.const_float(1e-4))))
-        ndoth = b.ext(f, GLSL_FMAX, b.dot(n, half), b.const_float(1e-4))
-        facing = b.ext(f, GLSL_STEP, b.const_float(1e-6), ndotl)
-        highlight = b.fmul(f, b.fmul(f, b.ext(f, GLSL_POW, ndoth, power), facing), attenuation)
-        specular = b.fadd(v3, specular, b.scale(3, ones, highlight))
+        def one_light(light=light):
+            lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), chosen[light]))
+            lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), chosen[light]))
+            ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), chosen[light]))
+            lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
+            delta = b.fsub(v3, lpos, world)
+            dist = b.ext(f, GLSL_LENGTH, delta)
+            to_point = b.scale(3, delta, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4))))
+            is_point = b.ext(f, GLSL_FCLAMP, b.fmul(f, w, b.const_float(1000.0)), c0, c1)
+            direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
+            ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
+            range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
+            # Direct3D 7 attenuation 1 / (a1 * d) with a1 = 1 / range, which is range / d: it is not clamped and is above one close by.
+            falloff = b.fdiv(f, range_, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4)))
+            attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
+            # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
+            # and ld.w is below -1 for lights that are not spots.
+            rho = b.fsub(f, c0, b.dot(direction, b.swizzle(ld, 3)))
+            cone_span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(lc, 3), b.extract(ld, 3)), b.const_float(1e-4))
+            cone = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, rho, b.extract(ld, 3)), cone_span), c0, c1)
+            is_spot = b.ext(f, GLSL_STEP, b.const_float(-1.5), b.extract(ld, 3))
+            spot = b.fadd(f, c1, b.fmul(f, b.fsub(f, cone, c1), is_spot))
+            attenuation = b.fmul(f, attenuation, spot)
+            contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
+            # Blinn-Phong with the viewer where the camera is, and the light itself white.
+            half = b.fadd(v3, direction, view)
+            half = b.scale(3, half, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, half), b.const_float(1e-4))))
+            ndoth = b.ext(f, GLSL_FMAX, b.dot(n, half), b.const_float(1e-4))
+            facing = b.ext(f, GLSL_STEP, b.const_float(1e-6), ndotl)
+            highlight = b.fmul(f, b.fmul(f, b.ext(f, GLSL_POW, ndoth, power), facing), attenuation)
+            return [contribution, b.scale(3, ones, highlight)]
+        used = b.emit("SLessThan", boolean, chosen[light], unused)
+        # Slots are filled in order, so the first unused one ends the entity's lights: only the real ones are evaluated.
+        added, shine = conditional(b, used, one_light, [zeros, zeros], [v3, v3])
+        lit = b.fadd(v3, lit, added)
+        specular = b.fadd(v3, specular, shine)
 
     fullbright = b.extract(params, 0)
     lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
