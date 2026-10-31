@@ -58,8 +58,9 @@ void    bb_gui_windows_reopen(void);
 float   bb_gui_desktop_scale(void);
 float   bb_gui_window_display_scale(int32_t handle);
 void    bb_gui_scaling(int32_t on);
+void*   bb_gui_window_sdl(int32_t handle);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
-int32_t bb_gui_area(int32_t handle, int32_t* x, int32_t* y, int32_t* w, int32_t* h);
+int32_t bb_gui_area(int32_t handle, int32_t* surface, int32_t* x, int32_t* y, int32_t* w, int32_t* h);
 int32_t bb_gui_translate(int32_t kind, int32_t* x, int32_t* y, int32_t* source);
 void bb_gui_idle(void);
 }
