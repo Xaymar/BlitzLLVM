@@ -30,6 +30,7 @@ const notifications = [];
 let nextId = 1;
 
 child.stdout.on('data', (chunk) => {
+  console.error(`client: received ${chunk.length} bytes`);
   buffer = Buffer.concat([buffer, chunk]);
   for (;;) {
     const end = buffer.indexOf('\r\n\r\n');
