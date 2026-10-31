@@ -17,6 +17,7 @@
 
 #include "scene.hpp"
 #include "offscreen_hold.hpp"
+#include "scene_internal.hpp"
 #include "memory.h"
 
 #include <math.h>
@@ -65,6 +66,7 @@ namespace {
 #pragma pack(pop)
 
 	enum {
+		LUMP_ENTITIES = 0,
 		LUMP_TEXTURES = 1,
 		LUMP_VERTICES = 10,
 		LUMP_MESHVERTS = 11,
@@ -213,6 +215,106 @@ namespace {
 		bb_free(up);
 		return texture;
 	}
+
+	// Reads the next quoted string of the entities lump into out. Returns false at the end.
+	bool next_quoted(const char*& p, const char* end, char* out, size_t capacity)
+	{
+		while (p < end && *p != '"') {
+			p++;
+		}
+		if (p >= end) {
+			return false;
+		}
+		p++;
+		size_t n = 0;
+		while (p < end && *p != '"') {
+			if (n + 1 < capacity) {
+				out[n++] = *p;
+			}
+			p++;
+		}
+		out[n] = 0;
+		if (p < end) {
+			p++;
+		}
+		return true;
+	}
+
+	// The light entities of a level become point lights that are children of the level, at the place that the map says. The
+	// level itself is not lit by them while its lightmaps are used, as the lightmaps already hold their light.
+	int make_lights(int level, const char* text, size_t length)
+	{
+		int         count = 0;
+		const char* p     = text;
+		const char* end   = text + length;
+		char        key[64], value[256];
+		float       origin[3] = {}, color[3] = { 1, 1, 1 }, intensity = 300;
+		bool        is_light = false, has_origin = false, has_target = false;
+		while (p < end) {
+			while (p < end && *p != '{' && *p != '}') {
+				p++;
+			}
+			if (p >= end) {
+				break;
+			}
+			if (*p == '}') {
+				p++;
+				continue;
+			}
+			p++;
+			origin[0] = origin[1] = origin[2] = 0;
+			color[0] = color[1] = color[2] = 1;
+			intensity  = 300;
+			is_light   = has_origin = has_target = false;
+			// Pairs of key and value until the closing brace.
+			while (true) {
+				const char* q = p;
+				while (q < end && *q != '"' && *q != '}') {
+					q++;
+				}
+				if (q >= end || *q == '}') {
+					p = q;
+					break;
+				}
+				p = q;
+				if (!next_quoted(p, end, key, sizeof(key)) || !next_quoted(p, end, value, sizeof(value))) {
+					break;
+				}
+				if (!strcmp(key, "classname")) {
+					is_light = !strcmp(value, "light");
+				} else if (!strcmp(key, "origin")) {
+					has_origin = sscanf(value, "%f %f %f", &origin[0], &origin[1], &origin[2]) == 3;
+				} else if (!strcmp(key, "light") || !strcmp(key, "_light")) {
+					float f = 0;
+					if (sscanf(value, "%f", &f) == 1) {
+						intensity = f;
+					}
+				} else if (!strcmp(key, "_color") || !strcmp(key, "color")) {
+					float c[3];
+					if (sscanf(value, "%f %f %f", &c[0], &c[1], &c[2]) == 3) {
+						// The colors of a map are 0 to 1.
+						for (int i = 0; i < 3; i++) {
+							color[i] = c[i] < 0 ? 0 : (c[i] > 1 ? 1 : c[i]);
+						}
+					}
+				} else if (!strcmp(key, "target")) {
+					has_target = true;
+				}
+			}
+			(void)has_target; // A light with a target is a spot light in the map; it is a point light here.
+			if (!is_light || !has_origin || intensity <= 0) {
+				continue;
+			}
+			int light = bb_create_light(2, level);
+			float converted[3];
+			convert(origin, converted);
+			bb_position_entity(light, converted[0], converted[1], converted[2], 0);
+			bb_light_color(light, color[0] * 255.0f, color[1] * 255.0f, color[2] * 255.0f);
+			bb_light_range(light, intensity);
+			count++;
+		}
+		return count;
+	}
 } // namespace
 
 extern "C" {
@@ -281,6 +383,9 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 	int      handle = create_entity(MESH, parent);
 	entity*  e      = get_entity(handle);
 	e->cls          = "BSP";
+	// The lights of the map, which are children of the level. The lightmaps hold their light already, so only the colors of the
+	// vertices are lit by them when the lightmaps are not used (BSPLighting).
+	e->bsp_lights = make_lights(handle, reinterpret_cast<const char*>(data + h.lumps[LUMP_ENTITIES].offset), size_t(h.lumps[LUMP_ENTITIES].length));
 	e->fx           = 1; // It is not lit by lights. What lights it is a lightmap, or the colors of its vertices where there is none.
 	int*      handle_of_texture  = static_cast<int*>(bb_calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(int)));
 	bool*     tried              = static_cast<bool*>(bb_calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(bool)));
@@ -439,6 +544,8 @@ void bb_bsp_lighting(int32_t handle, int32_t lightmaps)
 		s->paint.layers[0] = lightmaps ? s->lightmap : 0;
 		s->paint.fx        = lightmaps ? 0 : 2;
 	}
+	// Without lightmaps the lights of the map light the level, if it has any.
+	e->fx = (lightmaps || !e->bsp_lights) ? 1 : 0;
 }
 
 // The color that the level is multiplied with: 255, 255, 255 leaves it as it is, smaller values tint and darken it.
