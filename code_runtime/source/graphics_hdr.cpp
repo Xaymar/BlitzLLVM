@@ -111,6 +111,11 @@ namespace {
 			levels.hdr             = SDL_GetBooleanProperty(props, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false);
 			levels.white           = SDL_GetFloatProperty(props, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) * scrgb_white_nits;
 			levels.headroom        = std::max(1.0f, SDL_GetFloatProperty(props, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 1.0f));
+			if (!levels.hdr) {
+				// SDL sets what the window knows once, where the window was made, and does not follow the window to another display. Ask the display it is on now.
+				SDL_DisplayID display = SDL_GetDisplayForWindow(surface().window);
+				levels.hdr            = display && SDL_GetBooleanProperty(SDL_GetDisplayProperties(display), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false);
+			}
 		} else if (!bb_env_bool("BLITZLLVM_HEADLESS", 0) && !g.headless && SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 			SDL_DisplayID display = SDL_GetPrimaryDisplay();
 			if (display) {
@@ -195,6 +200,17 @@ namespace bb::gfx {
 
 	void hdr_swapchain_made(surface_state& s)
 	{
+		if (bb_env_bool("BLITZLLVM_AUTOHDR_DEBUG", 0) && (&s == &surface())) {
+			// What AutoHDR knew when the swapchain was made, for finding out why a display is not shown in HDR.
+			SDL_Window* window  = surface().window;
+			SDL_PropertiesID wp = window ? SDL_GetWindowProperties(window) : 0;
+			SDL_DisplayID shown = window ? SDL_GetDisplayForWindow(window) : 0;
+			SDL_DisplayID first = SDL_GetPrimaryDisplay();
+			fprintf(stderr, "AutoHDR: mode %d, window HDR %d (SDR white %.2f, headroom %.2f), display of the window %u HDR %d, primary display %u HDR %d, driver offers scRGB %d, in HDR %d\n", mode,
+					wp ? int(SDL_GetBooleanProperty(wp, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false)) : -1, wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) : 0.0f,
+					wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 0.0f) : 0.0f, unsigned(shown), shown ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(shown), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1,
+					unsigned(first), first ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(first), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1, int(s.hdr_offered), int(s.hdr));
+		}
 		if (s.hdr) {
 			meta_dirty = true;
 			tell_system(s);
