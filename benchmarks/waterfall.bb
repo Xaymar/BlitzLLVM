@@ -55,7 +55,7 @@ Function BenchRnd#(low#, high#)
 End Function
 
 If GetEnv$("BENCH_GPU") <> "" Then SetGfxDriver Int(GetEnv$("BENCH_GPU"))
-Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
+Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), Int(Env$("BENCH_DEPTH", 32)), 2
 SetBuffer BackBuffer()
 Dither Int(Env$("BENCH_DITHER", 0))
 
