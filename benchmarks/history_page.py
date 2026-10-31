@@ -28,14 +28,14 @@ PR_URL = "https://github.com/Xaymar/BlitzLLVM/pull/%d"
 # The three categories of the page and their tables: (category, title, benchmark, [(key, column, unit)]). A key "bench/metric" names its own benchmark.
 TABLES = [
     ("Real World Applications", "Stranded II (map Survival Guide, 640x480, 300 frames)", "stranded2",
-     [("ms_avg", "Per frame", "ms"), ("draws", "Draw calls", ""), ("tris", "Triangles", "")]),
+     [("ms_avg", "Per frame", "ms")]),
     ("Benchmarks", "Emitted code (`emitted.bb`)", "emitted",
      [("int_loop_ms", "Integer loop", "ms"), ("float_loop_ms", "Float loop", "ms"), ("math_ms", "`Sin` `Cos` `Sqr` `Floor`", "ms"),
       ("array1_ms", "1D array", "ms"), ("array2_ms", "2D array", "ms"), ("types_ms", "Type list walk", "ms"), ("new_delete_ms", "`New` `Delete`", "ms"),
       ("strings_ms", "Strings", "ms"), ("calls_ms", "Calls", "ms"), ("bank_ms", "Banks", "ms"), ("select_ms", "`Select`", "ms")]),
     ("Benchmarks", "Scene: fly-through, waterfall, dungeon (320x180, per frame)", "flythrough",
-     [("flythrough/ms_avg", "Fly-through 5000 objects", "ms"), ("flythrough/draws", "Draws", ""), ("waterfall/ms_avg", "Waterfall 2000 sprites", "ms"),
-      ("waterfall/draws", "Draws", ""), ("dungeon/ms_avg", "Dungeon 16 rooms", "ms"), ("dungeon/draws", "Draws", "")]),
+     [("flythrough/ms_avg", "Fly-through 5000 objects", "ms"), ("waterfall/ms_avg", "Waterfall 2000 sprites", "ms"),
+      ("dungeon/ms_avg", "Dungeon 16 rooms", "ms")]),
     ("Benchmarks", "Many lights (`many_lights.bb`, 5000 cubes, 640x360, per frame)", "lights",
      [("8_lights_ms", "8 lights", "ms"), ("32_lights_ms", "32 lights", "ms"), ("127_lights_ms", "127 lights", "ms"),
       ("127_lights_one_moving_ms", "127 lights, one moving", "ms")]),
@@ -110,7 +110,7 @@ def mann_whitney_p(a, b):
 
 
 def verdict(prev, cur, kind):
-    """The change of the mean in percent against the row above, and the symbol: 📈 better, 📉 worse, ➖ the same. A change counts when it is at
+    """The change of the mean in percent against the baseline (the first row with a number), and the symbol: 📈 better, 📉 worse, ➖ the same. A change counts when it is at
     least 3% and larger than two standard deviations of the difference of the two rows."""
     if prev["mean"] == 0:
         return None, ""
@@ -172,7 +172,7 @@ def metric_table(revs, machine_results, bench, metrics, only_changes=False):
                 if pct is not None:
                     cell += "<br>%+.1f%% %s" % (pct, sym)
             cells.append(cell)
-            prev[(key)] = st
+            prev.setdefault(key, st)  # the change is against the baseline, the first row with a number
         if all(c == "n/a" for c in cells):
             missing += 1
             continue
@@ -227,7 +227,7 @@ def render(results_dir, out):
         "",
         "How fast BlitzLLVM is, and what each performance change did to it. Every row is a revision of the compiler and runtime, oldest first: the "
         "baseline at the top, the original Blitz3D, then every merged change that affects performance. A row shows the numbers **after** its change, "
-        "and in brackets the change against the row above it, so there is no separate \"before\" column. 📈 is better, 📉 is worse and ➖ is the same "
+        "and below it the change against the baseline, so there is no separate \"before\" column. 📈 is better, 📉 is worse and ➖ is the same "
         "(a change of the mean under 3%%, or one smaller than two standard deviations of the difference of the two rows). Last updated %s." % datetime.date.today().isoformat(),
         "",
         "## How the numbers are made",
@@ -237,7 +237,7 @@ def render(results_dir, out):
         "* The programs are the ones of the latest `root` (`benchmarks/`, run by `benchmarks/history.py`), so every compiler runs the same program. Where an "
         "old compiler can not build the BlitzLLVM include (no `Microseconds`, no `Stats3D`), the include for the original Blitz3D is used: its timer has a "
         "resolution of a millisecond and it has no draw counters. Programs are shown as `n/a` where a compiler can not build or run them.",
-        "* A change in brackets is against the last row above that has a number, so after a run of `n/a` rows it spans several revisions.",
+        "* The change is against the baseline: the first row that has a number (for most tables the original Blitz3D).",
         "* Results are sectioned by **machine definition**: CPU, GPU, OS and version, RAM, VRAM and the renderer or converter. Numbers of different "
         "machine definitions can not be compared.",
         "* The original Blitz3D 1.118 is a Windows program. Here it runs under Wine, and its Direct3D 7 is converted to OpenGL by wined3d on llvmpipe. "
@@ -341,7 +341,7 @@ def render_tags(results_dir, out):
         "# Performance History by Version",
         "",
         "One row per version tag of BlitzLLVM, built and benchmarked on its own with the short benchmark set (`benchmarks/history_commits.py --tags`, 3 runs, "
-        "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the row above "
+        "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the first version "
         "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). The machine is the one of "
         "[Performance History](Performance-History). Last updated %s." % datetime.date.today().isoformat(),
         "",
