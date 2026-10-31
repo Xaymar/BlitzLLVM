@@ -42,6 +42,26 @@ namespace bb::gfx {
 		return nullptr;
 	}
 
+	int extra_surface_handle(surface_state const* s)
+	{
+		for (int i = 1; i <= max_extra_surfaces; i++) {
+			if (extras[i - 1] == s) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
+	bool extra_surface_focused()
+	{
+		for (surface_state* s : extras) {
+			if (s && s->window && (SDL_GetWindowFlags(s->window) & SDL_WINDOW_INPUT_FOCUS)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void destroy_extra_surface(int handle)
 	{
 		surface_state* s = extra_surface(handle);
@@ -245,3 +265,142 @@ namespace bb::gfx {
 		}
 	}
 } // namespace bb::gfx
+
+////////////////////////////////////////////////////////////////////////////////
+// The windows of the BlitzPlus GUI (gui_windows.cpp): a top-level CreateWindow is one of these, with a thread that shows its
+// picture. The gadgets stay with the GUI; this is only the window, its picture and what SDL knows about it.
+////////////////////////////////////////////////////////////////////////////////
+extern "C" {
+
+// Opens a window for a gadget. flags: 1 the window can be sized, 2 it has no frame, 4 it is a tool window, 8 it starts hidden.
+// 0 where no window can be made (no graphics, or headless): the gadget is then drawn on the desktop as before.
+int32_t bb_gui_window_open(const char* title, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flags)
+{
+	if (!active()) {
+		return 0;
+	}
+	int handle = create_extra_surface(title, w, h, (flags & 1) ? 1 : 0, (flags & 2) ? 1 : 0);
+	surface_state* s = extra_surface(handle);
+	if (!s) {
+		return 0;
+	}
+	s->gui = true;
+	SDL_SetWindowPosition(s->window, x, y);
+	SDL_StartTextInput(s->window);
+	if (flags & 4) {
+		SDL_SetWindowParent(s->window, surface().window);
+	}
+	if (flags & 8) {
+		SDL_HideWindow(s->window);
+	}
+	if (!start_presenter(*s)) {
+		destroy_extra_surface(handle);
+		return 0;
+	}
+	return handle;
+}
+
+void bb_gui_window_close(int32_t handle)
+{
+	destroy_extra_surface(handle);
+}
+
+void bb_gui_window_set_title(int32_t handle, const char* title)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		SDL_SetWindowTitle(s->window, title ? title : "");
+	}
+}
+
+void bb_gui_window_set_shape(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		int cx = 0, cy = 0, cw = 0, ch = 0;
+		SDL_GetWindowPosition(s->window, &cx, &cy);
+		SDL_GetWindowSize(s->window, &cw, &ch);
+		if ((cx != x) || (cy != y)) {
+			SDL_SetWindowPosition(s->window, x, y);
+		}
+		if ((cw != w) || (ch != h)) {
+			SDL_SetWindowSize(s->window, w > 0 ? w : 1, h > 0 ? h : 1);
+		}
+	}
+}
+
+void bb_gui_window_show(int32_t handle, int32_t show)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		if (show) {
+			SDL_ShowWindow(s->window);
+		} else {
+			SDL_HideWindow(s->window);
+		}
+	}
+}
+
+void bb_gui_window_raise(int32_t handle)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		SDL_RaiseWindow(s->window);
+	}
+}
+
+// 0 restores the window, 1 minimizes it, 2 maximizes it.
+void bb_gui_window_state(int32_t handle, int32_t state)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		switch (state) {
+		case 1:
+			SDL_MinimizeWindow(s->window);
+			break;
+		case 2:
+			SDL_MaximizeWindow(s->window);
+			break;
+		default:
+			SDL_RestoreWindow(s->window);
+			break;
+		}
+	}
+}
+
+void bb_gui_window_min_size(int32_t handle, int32_t w, int32_t h)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		SDL_SetWindowMinimumSize(s->window, w > 0 ? w : 0, h > 0 ? h : 0);
+	}
+}
+
+// The size of the window in pixels, which is what its picture has to be.
+void bb_gui_window_pixel_size(int32_t handle, int32_t* w, int32_t* h)
+{
+	*w = *h = 0;
+	if (surface_state* s = extra_surface(handle)) {
+		int pw = 0, ph = 0;
+		SDL_GetWindowSizeInPixels(s->window, &pw, &ph);
+		*w = pw;
+		*h = ph;
+	}
+}
+
+// The buffer to draw the window into (for SetBuffer), with its pictures as big as the window is.
+int32_t bb_gui_window_buffer(int32_t handle)
+{
+	surface_state* s = extra_surface(handle);
+	if (!s || !s->show) {
+		return 0;
+	}
+	int pw = 0, ph = 0;
+	SDL_GetWindowSizeInPixels(s->window, &pw, &ph);
+	presenter_resize(*s, pw, ph);
+	return presenter_buffer(*s);
+}
+
+// What was drawn into the buffer is shown: handed to the thread of the window, which never makes the program wait.
+void bb_gui_window_show_picture(int32_t handle)
+{
+	if (surface_state* s = extra_surface(handle); s && s->show) {
+		presenter_handover(*s, false);
+	}
+}
+}
+

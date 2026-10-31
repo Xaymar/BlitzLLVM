@@ -19,6 +19,7 @@ int32_t bb_graphics_width(void);
 int32_t bb_graphics_height(void);
 int32_t bb_graphics_buffer(void);
 int32_t bb_native_window(void);
+int32_t bb_gui_window_surface(int32_t handle);
 int32_t bb_set_buffer(int32_t buffer);
 void    bb_clscolor(int32_t r, int32_t g, int32_t b);
 void    bb_cls(void);
@@ -97,6 +98,20 @@ namespace bb::gui {
 			gui_error(message);
 		}
 		return g;
+	}
+
+	int gadget_of_surface(int surface)
+	{
+		if (!surface) {
+			return 0;
+		}
+		for (uint32_t i = 0; i < gadgets.size; i++) {
+			gadget* g = gadgets[i];
+			if (g && g->used && (g->kind == K_WINDOW) && (g->surface == surface)) {
+				return handle_of(g);
+			}
+		}
+		return 0;
 	}
 
 	int handle_of(gadget const* g)
@@ -203,7 +218,7 @@ namespace bb::gui {
 
 	void window_decoration(gadget const& g, int* left, int* top, int* right, int* bottom)
 	{
-		int frame = (g.style & 1) ? ((g.style & 2) ? frame_width : 3) : 1;
+		int frame = window_frame(g);
 		*left = *right = frame;
 		*top    = frame + ((g.style & 1) ? title_bar_height(g) : 0) + ((g.style & 4) ? menu_height : 0);
 		*bottom = frame + ((g.style & 8) ? status_height : 0);
@@ -420,6 +435,9 @@ namespace bb::gui {
 			update_client(handle);
 		}
 		if (g->kind == K_WINDOW) {
+			if (g->surface && (moved || sized)) {
+				bb_gui_window_set_shape(g->surface, x, y, w, h);
+			}
 			if (moved && g->visible) {
 				post_to(event_window_move, handle, 0, x, y);
 			}
@@ -498,6 +516,10 @@ namespace bb::gui {
 		if (active_window() == handle) {
 			set_active_window(0, false);
 		}
+		if (g->surface) {
+			bb_gui_window_close(g->surface);
+			g->surface = 0;
+		}
 		bb_free(g->text);
 		g->text = nullptr;
 		for (uint32_t i = 0; i < g->items.size; i++) {
@@ -570,6 +592,9 @@ void bb_set_gadget_text(int32_t handle, const char* text)
 		break;
 	default:
 		set_string(g->text, text);
+		if ((g->kind == K_WINDOW) && g->surface) {
+			bb_gui_window_set_title(g->surface, g->text);
+		}
 		break;
 	}
 	dirty();
@@ -618,6 +643,9 @@ void bb_show_gadget(int32_t handle)
 {
 	gadget* g = need_gadget(handle, "ShowGadget");
 	g->visible = true;
+	if (g->surface) {
+		bb_gui_window_show(g->surface, 1);
+	}
 	dirty();
 }
 
@@ -625,6 +653,9 @@ void bb_hide_gadget(int32_t handle)
 {
 	gadget* g = need_gadget(handle, "HideGadget");
 	g->visible = false;
+	if (g->surface) {
+		bb_gui_window_show(g->surface, 0);
+	}
 	dirty();
 }
 
@@ -719,10 +750,15 @@ int32_t bb_client_height(int32_t handle)
 
 // What the system has for a gadget: the window it is in (1 and 2), which is the one window of the program. There is no
 // handle for fonts (3), or for what is not a gadget.
+// 1 and 2 are the window of the computer that the gadget is in, which is the window of its window where that has one of its
+// own, and the window of Graphics for the rest. There is no handle of the system to be had for them.
 int32_t bb_gui_query(int32_t handle, int32_t query)
 {
 	if (!gadget_of(handle) || ((query != 1) && (query != 2))) {
 		return 0;
+	}
+	if (int32_t surface = bb_gui_window_surface(handle)) {
+		return surface;
 	}
 	return bb_native_window();
 }
@@ -742,5 +778,34 @@ int32_t bb_desktop_buffer(void)
 	gui_used = true;
 	ensure_graphics();
 	return bb::gui::desktop_buffer();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// What the graphics side asks (graphics_input.cpp): the windows of the computer and what is in them.
+////////////////////////////////////////////////////////////////////////////////
+// Whether the program made gadgets, which is when closing the window of Graphics is for the program to answer.
+int32_t bb_gui_used(void)
+{
+	return gui_used ? 1 : 0;
+}
+
+// Where a window of the computer is on the desktop of the GUI, which is where the mouse in it is for the program. 0 for one
+// that has no gadget any more, or whose gadget is hidden.
+int32_t bb_gui_window_origin(int32_t window, int32_t* x, int32_t* y)
+{
+	gadget* g = gadget_of(gadget_of_surface(window));
+	if (!g || !g->visible) {
+		return 0;
+	}
+	*x = g->x;
+	*y = g->y;
+	return 1;
+}
+
+// The window of the computer that a gadget is in, 0 for one on the desktop of the window of Graphics.
+int32_t bb_gui_window_surface(int32_t handle)
+{
+	gadget* w = gadget_of(window_of(handle));
+	return w ? w->surface : 0;
 }
 }

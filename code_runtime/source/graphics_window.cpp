@@ -412,6 +412,7 @@ void bb_end_graphics(void)
 	}
 	if (!g.headless) {
 		flush(); // What was asked for is drawn before it all goes away.
+		destroy_extra_surfaces(); // The threads of the other windows stop before the pictures that they show are freed with the images.
 		gpu_idle();
 		for (uint32_t i = 0; i < texture_table.size; i++) {
 			if (texture_table[i].used) {
