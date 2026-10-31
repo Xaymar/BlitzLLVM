@@ -11,6 +11,8 @@ const path = require('path');
 const assert = require('assert');
 const { pathToFileURL } = require('url');
 
+// Optional third argument: the stage to stop after (see stage()), so that a failure says which part broke.
+const until = process.argv[4];
 const exe = process.argv[2];
 if (!exe) { console.error('usage: lsp_smoke.js <blitz-lsp> [commands.txt]'); process.exit(2); }
 const env = Object.assign({}, process.env);
@@ -97,6 +99,14 @@ const applyEdits = (text, edits) => {
     .reduce((t, e) => t.slice(0, offset(e.range.start)) + e.newText + t.slice(offset(e.range.end)), text);
 };
 
+function stage(name) {
+  if (until !== name) return;
+  finished = true;
+  console.log('ok (until ' + name + ')');
+  child.kill();
+  process.exit(0);
+}
+
 (async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blitz-lsp-'));
   const file = path.join(dir, 'main.bb');
@@ -115,11 +125,15 @@ const applyEdits = (text, edits) => {
   let diagnostics = await diagnosticsFor(uri);
   assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), [], JSON.stringify(diagnostics));
 
+  stage('diagnostics');
+
   // Symbols
   result = await request('textDocument/documentSymbol', { textDocument: { uri } });
   const names = result.result.map((s) => s.name);
   for (const n of ['Player', 'Add', 'total', 'MAX', 'start']) assert(names.includes(n), `symbol ${n} in ${names}`);
   assert.deepStrictEqual(result.result.find((s) => s.name === 'Player').children.map((c) => c.name), ['name', 'score']);
+
+  stage('symbols');
 
   // Hover: a command and a function of the program
   result = await request('textDocument/hover', { textDocument: { uri }, position: position(source, 'Print', 0, 1) });
@@ -127,16 +141,22 @@ const applyEdits = (text, edits) => {
   result = await request('textDocument/hover', { textDocument: { uri }, position: position(source, 'Add(1', 0, 1) });
   assert(/Function Add\(a, b\)/.test(result.result.contents.value), JSON.stringify(result));
 
+  stage('hover');
+
   // Definition: the call goes to the function, the local to its Local
   result = await request('textDocument/definition', { textDocument: { uri }, position: position(source, 'Add(1', 0, 1) });
   assert.strictEqual(result.result[0].range.start.line, 8);
   result = await request('textDocument/definition', { textDocument: { uri }, position: position(source, 'Return result', 0, 8) });
   assert.strictEqual(result.result[0].range.start.line, 9);
 
+  stage('definition');
+
   // Completion
   result = await request('textDocument/completion', { textDocument: { uri }, position: { line: 0, character: 0 } });
   const labels = result.result.items.map((i) => i.label);
   for (const l of ['While', 'Print', 'Add', 'Player']) assert(labels.includes(l), l);
+
+  stage('completion');
 
   // Rename: a global (three places), a local (only inside the function), a field (declaration and the two uses)
   const rename = async (needle, nth, to) => {
@@ -161,6 +181,8 @@ const applyEdits = (text, edits) => {
   result = await request('textDocument/rename', { textDocument: { uri }, position: position(source, 'total', 0, 1), newName: 'End' });
   assert(result.error, 'End is a keyword');
 
+  stage('rename');
+
   // Rename in a workspace: the file that includes lib.bb and lib.bb change, other.bb does not
   const multi = 'Include "lib.bb"\nPrint shared\nPrint Helper()\n';
   notify('textDocument/didChange', { textDocument: { uri, version: 10 }, contentChanges: [{ text: multi }] });
@@ -172,6 +194,8 @@ const applyEdits = (text, edits) => {
   const libChanges = Object.entries(result.result.changes).find(([u]) => path.basename(u) === 'lib.bb')[1];
   assert.strictEqual(libChanges.length, 2);
 
+  stage('workspace');
+
   // Formatting
   const messy = 'If  1=1 Then\nPrint   "x"\n   EndIf\n';
   notify('textDocument/didChange', { textDocument: { uri, version: 2 }, contentChanges: [{ text: messy }] });
@@ -179,6 +203,8 @@ const applyEdits = (text, edits) => {
   result = await request('textDocument/formatting', { textDocument: { uri }, options: { tabSize: 4, insertSpaces: false } });
   const formatted = applyEdits(messy, result.result);
   assert(/^If 1 = 1 Then\n\tPrint "x"\nEndIf\n$/.test(formatted), JSON.stringify(formatted));
+
+  stage('format');
 
   // Errors: with the position of the compiler, and fixed again by the next change
   notify('textDocument/didChange', { textDocument: { uri, version: 3 }, contentChanges: [{ text: 'Print "a"\nNoSuchCommand(1)\n' }] });
@@ -189,6 +215,8 @@ const applyEdits = (text, edits) => {
   diagnostics = await diagnosticsFor(uri);
   assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), []);
 
+  stage('errors');
+
   // Tidy
   notify('textDocument/didChange', { textDocument: { uri, version: 5 }, contentChanges: [{ text: 'Local x% = 1.5\nPrint x\n' }] });
   await diagnosticsFor(uri);
@@ -196,6 +224,7 @@ const applyEdits = (text, edits) => {
   assert(Array.isArray(result.result), JSON.stringify(result));
   console.log('tidy actions:', result.result.map((a) => a.title).join(', ') || '(none)');
 
+  stage('tidy');
   result = await request('shutdown', null);
   notify('exit', null);
   finished = true;

@@ -488,8 +488,11 @@ endforeach()
 # blitz-lsp: the language server answers what the Visual Studio Code extension asks of it (tools/vscode/test/lsp_smoke.js). Needs Node.js.
 find_program(NODE_EXECUTABLE NAMES node nodejs)
 if(NODE_EXECUTABLE)
-	add_test(NAME lsp-smoke COMMAND ${NODE_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/vscode/test/lsp_smoke.js" "$<TARGET_FILE:lsp>" "${TEST_DIRECTORY}/suite/functions.txt")
-	set_tests_properties(lsp-smoke PROPERTIES LABELS "tools" TIMEOUT 120)
+	# One test per stage, each runs the program up to its stage, so that the first failing one says what broke.
+	foreach(_STAGE IN ITEMS diagnostics symbols hover definition completion rename workspace format errors tidy)
+		add_test(NAME "lsp-smoke-${_STAGE}" COMMAND ${NODE_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/vscode/test/lsp_smoke.js" "$<TARGET_FILE:lsp>" "${TEST_DIRECTORY}/suite/functions.txt" "${_STAGE}")
+		set_tests_properties("lsp-smoke-${_STAGE}" PROPERTIES LABELS "tools" TIMEOUT 120)
+	endforeach()
 endif()
 if(Python3_FOUND)
 	add_test(NAME vscode-grammar COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/generate_vscode_grammar.py" --check)
