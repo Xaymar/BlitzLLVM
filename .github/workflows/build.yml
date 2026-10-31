@@ -3,6 +3,8 @@ name: Build
 # The build and packaging of all platforms, for the Nightly workflow (which publishes the result), the Periodic workflow (through
 # Nightly, with 'clean') and the Test workflow (which builds pull requests and tests them). The caller decides what to do with the
 # artifacts, which are named blitzllvm-<version>-<platform> and, for the Linux and macOS packages, blitzllvm-<version>-<platform>-packages.
+# A call builds every platform of the matrix below, except without 'packages': then only the ones with a "test" entry (Linux, Windows and
+# macOS) are built, as the others would only be built to be packaged. With 'tests' those also upload their build tree for the Test workflow.
 on:
   workflow_call:
     inputs:
@@ -14,16 +16,12 @@ on:
         description: 'Upload every package and archive as a file of its own that is not zipped again, instead of one artifact per platform that holds a directory'
         type: boolean
         default: false
-      platforms:
-        description: 'Only build these platforms (names from the list in the job "Select the platforms", separated by spaces). Empty builds all of them'
-        type: string
-        default: ''
-      exclude:
-        description: 'Do not build these platforms (names, separated by spaces)'
-        type: string
-        default: ''
       packages:
         description: 'Package the build (archives, deb, rpm, Arch package, snap, macOS package) and upload them. Without it only the build is made'
+        type: boolean
+        default: true
+      all-tests:
+        description: 'Without packages: build all the test platforms. Off builds Linux alone (a change that only some of the tests depend on is tested on Linux alone)'
         type: boolean
         default: true
       tests:
@@ -35,54 +33,23 @@ permissions:
   contents: read
 
 jobs:
-  matrix:
-    name: Select the platforms
-    runs-on: ubuntu-latest
-    outputs:
-      include: ${{ steps.select.outputs.include }}
-    steps:
-      - name: Select the platforms
-        id: select
-        env:
-          PLATFORMS: ${{ inputs.platforms }}
-          EXCLUDE: ${{ inputs.exclude }}
-        # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
-        # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
-        # is made from the 24.04 build (core24). The Test workflow uses ubuntu24.04-x64, windows-x64 and macos-universal.
-        run: |
-          cat > all.json <<'JSON'
-          [
-            { "name": "windows-x64", "os": "windows-latest", "platform": "x64", "msystem": "UCRT64", "msys": "make nasm diffutils mingw-w64-ucrt-x86_64-gcc" },
-            { "name": "windows-arm64", "os": "windows-11-arm", "platform": "ARM64", "msystem": "CLANGARM64", "msys": "make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread" },
-            { "name": "ubuntu24.04-x64", "os": "ubuntu-24.04", "kind": "deb", "snap": true },
-            { "name": "ubuntu26.04-x64", "os": "ubuntu-26.04", "kind": "deb" },
-            { "name": "fedora-x64", "os": "ubuntu-latest", "container": "fedora:latest", "kind": "rpm" },
-            { "name": "arch-x64", "os": "ubuntu-latest", "container": "archlinux:latest", "kind": "pacman" },
-            { "name": "ubuntu24.04-arm64", "os": "ubuntu-24.04-arm", "kind": "deb", "snap": true },
-            { "name": "ubuntu26.04-arm64", "os": "ubuntu-26.04-arm", "kind": "deb" },
-            { "name": "fedora-arm64", "os": "ubuntu-24.04-arm", "container": "fedora:latest", "kind": "rpm" },
-            { "name": "macos-universal", "os": "macos-latest", "architectures": "arm64;x86_64" }
-          ]
-          JSON
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os
-          wanted = os.environ["PLATFORMS"].split()
-          every = json.load(open("all.json"))
-          unknown = set(wanted) - {p["name"] for p in every}
-          assert not unknown, "unknown platforms: " + " ".join(sorted(unknown))
-          exclude = os.environ["EXCLUDE"].split()
-          include = [p for p in every if (not wanted or p["name"] in wanted) and p["name"] not in exclude]
-          print("include=" + json.dumps(include))
-          PY
-
   build:
     name: build (${{ matrix.name }})
-    needs: matrix
     strategy:
       # One platform failing fails the whole run: the other platforms are cancelled instead of building to the end.
       fail-fast: true
+      # The repository has 20 runners in total (5 of them macOS), shared by every run. Only this many platforms of a run build at the same
+      # time, so that other pull requests can run too. The platforms that run the tests are first in the list, so they start first.
+      max-parallel: 3
       matrix:
-        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+        # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
+        # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
+        # is made from the 24.04 build (core24). "test" is the name of the platform in the test comment, and marks the ones that are
+        # built without packages, and tested by the Test workflow.
+        # This is the list of all of them; the entries with "test" are repeated in the shorter lists for builds without packages (all test
+        # platforms, or Linux alone with 'all-tests' off),
+        # because a matrix can only be cut down by an expression on the inputs (an 'exclude' does not apply to entries of 'include').
+        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"UCRT64","msys":"make nasm diffutils mingw-w64-ucrt-x86_64-gcc","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"ubuntu26.04-x64","os":"ubuntu-26.04","kind":"deb"},{"name":"fedora-x64","os":"ubuntu-latest","container":"fedora:latest","kind":"rpm"},{"name":"arch-x64","os":"ubuntu-latest","container":"archlinux:latest","kind":"pacman"},{"name":"ubuntu24.04-arm64","os":"ubuntu-24.04-arm","kind":"deb","snap":true},{"name":"ubuntu26.04-arm64","os":"ubuntu-26.04-arm","kind":"deb"},{"name":"fedora-arm64","os":"ubuntu-24.04-arm","container":"fedora:latest","kind":"rpm"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"UCRT64","msys":"make nasm diffutils mingw-w64-ucrt-x86_64-gcc","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"}]')) }}
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -112,9 +79,8 @@ jobs:
         run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
       - name: Pin Python (Windows)
         if: runner.os == 'Windows' && runner.arch == 'X64'
-        # CMake records the path of the Python it was configured with, and the tests (test.yml) run on another runner of another
-        # image version. Without a pinned version the build had Python 3.15.2 and the test runner did not, so every test that runs
-        # Python was "Not Run". test.yml installs the same version.
+        # CMake records the path of the Python it was configured with, and the tests run on this runner right after the build, so the
+        # version is fixed to keep every run the same (a newer image brought Python 3.15.2 once, which the tests did not work with).
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.12.10'
@@ -197,8 +163,8 @@ jobs:
         shell: bash
         env:
           ARCHITECTURES: ${{ matrix.architectures }}
-          # Registers the tests that need a window and a GPU, which the Test workflow runs (it does not change what is built).
-          GPU_TESTS: ${{ inputs.tests && '-DBLITZ_TEST_GPU=ON' || '' }}
+          # Registers the tests that need a window and a GPU, which the test steps below run (it does not change what is built).
+          GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
             cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
@@ -222,14 +188,14 @@ jobs:
       - name: Keep the build for the tests
         # The Test workflow runs ctest on this tree instead of building again. Without the objects and the dependencies' sources (the runtime
         # and everything the tests run are in the tree), as a tar file because artifacts lose the permissions of the files.
-        if: inputs.tests
+        if: inputs.tests && matrix.test
         shell: bash
         run: |
           # Through a pipe: GNU tar reads "D:\a\..." as a file on a computer called D.
           tar -cf - --exclude='*.o' --exclude='*.obj' --exclude='*.pdb' --exclude='*.ilk' --exclude='*.pch' --exclude='.ninja_*' --exclude='build/ExternalContentFiles' build | gzip -1 > "$RUNNER_TEMP/test-build.tgz"
           ls -l "$RUNNER_TEMP/test-build.tgz"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: inputs.tests
+        if: inputs.tests && matrix.test
         with:
           name: test-build-${{ matrix.name }}
           path: ${{ runner.temp }}/test-build.tgz
