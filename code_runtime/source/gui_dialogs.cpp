@@ -241,7 +241,22 @@ namespace bb::gui {
 			if (gadget* g = gadget_of(active_window()); g && g->surface) {
 				dialog.window  = active_window();
 				dialog.surface = g->surface;
-				bb_gui_window_pixel_size(g->surface, &dialog.w, &dialog.h);
+			} else if (bb::gfx::g.offscreen) {
+				// No window of Graphics to draw it in: the first window of the computer that is shown, or nothing is asked.
+				gadget* desk = gadget_of(desktop_handle());
+				for (uint32_t i = 0; desk && (i < desk->kids.size) && !dialog.surface; i++) {
+					gadget* k = gadget_of(desk->kids[i]);
+					if (k && k->surface && k->visible && !k->minimized) {
+						dialog.window  = desk->kids[i];
+						dialog.surface = k->surface;
+					}
+				}
+				if (!dialog.surface) {
+					return false;
+				}
+			}
+			if (dialog.surface) {
+				bb_gui_window_pixel_size(dialog.surface, &dialog.w, &dialog.h);
 			}
 			ui.modal       = 1;
 			modal_handler  = on_event;
