@@ -261,7 +261,7 @@ setanimtime	blitz3d	done	SetAnimTime%entity#time%anim_seq=0
 setcubeface	blitz3d	done	SetCubeFace%texture%face
 setcubemode	blitz3d	done	SetCubeMode%texture%mode
 sampleraddressmodeu	blitz3d	done	SamplerAddressModeU%sampler%mode
-setsampleraddressmodev	blitz3d	done	SetSamplerAddressModeV%sampler%mode
+sampleraddressmodev	blitz3d	done	SamplerAddressModeV%sampler%mode
 setsampleraddressmodew	blitz3d	done	SetSamplerAddressModeW%sampler%mode
 sampleranisotropy	blitz3d	done	SamplerAnisotropy%sampler#anisotropy
 setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
