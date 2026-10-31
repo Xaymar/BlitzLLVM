@@ -521,6 +521,44 @@ void bb_flip(int32_t vwait)
 	}
 	recovery_flip_begin(); // Where a device that was lost is made good again.
 	async_pump();
+	// BLITZLLVM_PROFILE_SLOW=<ms> lists where the time went in every frame that took longer than that (needs --profile): the timers of the frame, as
+	// the second timers of BLITZLLVM_PROFILE_FPS add them up and hide the one frame that stutters. The Flip of the frame before is part of the frame.
+	static double slow_ms = -1.0;
+	static Uint64 slow_last_time = 0;
+	static Uint64 slow_last_ticks[bb::PROFILE_COUNT] = {};
+	static Uint64 slow_last_wait = 0;
+	if (slow_ms < 0.0) {
+		slow_ms = bb::profile_enabled ? bb_env_double("BLITZLLVM_PROFILE_SLOW", 0.0) : 0.0;
+		if (slow_ms <= 0.0) {
+			slow_ms = 0.0;
+		}
+	}
+	if (slow_ms > 0.0) {
+		Uint64 now_time = SDL_GetPerformanceCounter();
+		double ms       = double(now_time - slow_last_time) * 1000.0 / double(SDL_GetPerformanceFrequency());
+		if (slow_last_time && (ms >= slow_ms)) {
+			fprintf(stderr, "slow frame %u: %.1f ms:", unsigned(bb::profile_frame), ms);
+			for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+				// The report of BLITZLLVM_PROFILE_FPS sets the timers back to 0, then the whole value is the frame's.
+				Uint64 delta = (bb::profile_ticks[i] >= slow_last_ticks[i]) ? (bb::profile_ticks[i] - slow_last_ticks[i]) : bb::profile_ticks[i];
+				double part  = double(delta) * 1000.0 / double(SDL_GetPerformanceFrequency());
+				if (part >= 0.5) {
+					const char* name = bb::profile_names[i];
+					while (*name == ' ') {
+						name++;
+					}
+					fprintf(stderr, " %s %.1f,", name, part);
+				}
+			}
+			Uint64 wait = (profile_wait >= slow_last_wait) ? (profile_wait - slow_last_wait) : profile_wait;
+			fprintf(stderr, " waiting for the GPU %.1f\n", double(wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+		}
+		slow_last_time = now_time;
+		for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+			slow_last_ticks[i] = bb::profile_ticks[i];
+		}
+		slow_last_wait = profile_wait;
+	}
 	{
 		// BLITZLLVM_PROFILE_FPS=1 reports how many frames are shown each second.
 		static int    enabled = -1;
@@ -555,6 +593,10 @@ void bb_flip(int32_t vwait)
 				}
 				profile_submits = 0;
 				profile_wait    = 0;
+				for (Uint64& ticks : slow_last_ticks) {
+					ticks = 0;
+				}
+				slow_last_wait = 0;
 				frames = 0;
 				last   = now;
 			}
