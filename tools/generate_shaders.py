@@ -1205,9 +1205,21 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
             there_factor = b.fadd(v3, b.scale(3, rgb, fe), b.construct(3, *([b.fadd(f, fc, b.fmul(f, fd, alpha))] * 3)))
             blended = b.fadd(v3, b.emit("FMul", v3, rgb, drawn_factor), b.emit("FMul", v3, there_rgb, there_factor))
-            quiet = b.emit("Select", f, palette, zero_f, c1)  # the palette picks with its own noise
+            # Dot3 (specialization constant 13 is 1 for it) is the stage of Direct3D 7 that is the dot product of the texture and what the
+            # stages before it made, which is what is there. All channels get it, the alpha too.
+            #   dotted = clamp(4 * dot(rgb - 0.5, there.rgb - 0.5), 0, 1);  rgb = mix(rgb, vec3(dotted), dot3);  alpha = mix(alpha, dotted, dot3);
+            dot3 = b.m.id()
+            b.m.types.append(Module.inst("SpecConstant", f, dot3, float_bits(0.0)))
+            b.m.annotations.append(Module.inst("Decorate", dot3, DECORATION["SpecId"], 13))
+            half3 = b.const_vec(3, 0.5)
+            dotted = b.ext(f, GLSL_FCLAMP, b.fmul(f, b.dot(b.fsub(v3, rgb, half3), b.fsub(v3, there_rgb, half3)), b.const_float(4.0)), b.const_float(0.0), c1)
+            dotted3 = b.construct(3, dotted, dotted, dotted)
+            blended = b.fadd(v3, blended, b.scale(3, b.fsub(v3, dotted3, blended), dot3))
+            alpha = b.fadd(f, alpha, b.fmul(f, b.fsub(f, dotted, alpha), dot3))
+            quiet = b.emit("Select", f, dither_on, b.emit("Select", f, palette, zero_f, c1), zero_f)  # the palette picks with its own noise; without Dither there is none
             blended = palette_finish(b.fadd(v3, blended, b.scale(3, noise_for(blended), quiet)), blended)
-            blended_alpha = b.fadd(f, alpha, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)))
+            # The alpha of Dot3 is the dot product itself.
+            blended_alpha = b.fadd(f, alpha, b.fmul(f, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)), b.fsub(f, c1, dot3)))
             result = b.construct(4, b.extract(blended, 0), b.extract(blended, 1), b.extract(blended, 2), blended_alpha)
         else:
             not_palette = b.emit("LogicalNot", boolean, palette)
