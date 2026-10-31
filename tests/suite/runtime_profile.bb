@@ -20,11 +20,11 @@ ProfileOutput ""
 ProfileSlow 5
 ProfileSlow 0
 CheckTrue "the number of the last frame is not negative", ProfileFlipCount() >= 0
-ProfileSectionStart "section"
-ProfileSectionEnd "section"
-ProfileSectionEnd "section"
-ProfileSectionStart "frame"
-ProfileSectionEnd "frame"
+ProfileBegin "section"
+ProfileEnd "section"
+ProfileEnd "section"
+ProfileBegin "frame"
+ProfileEnd "frame"
 CheckTrue "a section is found by its key in any case", ProfileValue("SECTION") >= 0
 CheckTrue "a key that does not exist is 0", ProfileValue("no such item") = 0
 CheckTrue "the time of the last frame is not negative", ProfileValue("frame") >= 0
