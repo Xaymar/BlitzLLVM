@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <fstream>
 #include <regex>
+#include <cstdio>
+#include <cstdlib>
 #include "bridge.hpp"
 #include "compiler.hpp"
 #include "error.hpp"
@@ -13,6 +15,21 @@
 #include "warnings.hpp"
 
 namespace blitz::lsp {
+	namespace {
+		// BLITZLLVM_LSP_TRACE=1: what the server is doing, on standard error.
+		void trace(const char* what)
+		{
+			static const bool on = [] {
+				const char* env = std::getenv("BLITZLLVM_LSP_TRACE");
+				return env && *env && *env != '0';
+			}();
+			if (on) {
+				std::fprintf(stderr, "blitz-lsp:   %s\n", what);
+				std::fflush(stderr);
+			}
+		}
+	} // namespace
+
 	////////////////////////////////////////////////////////////////////////////
 	// Paths and URIs
 	////////////////////////////////////////////////////////////////////////////
@@ -144,6 +161,7 @@ namespace blitz::lsp {
 
 	void server::reply(json const& id, json result)
 	{
+		trace("reply");
 		json m = json::object();
 		m.set("jsonrpc", "2.0").set("id", id).set("result", std::move(result));
 		_send(m);
@@ -219,12 +237,15 @@ namespace blitz::lsp {
 
 	json server::initialize(json const& params)
 	{
+		trace("initialize: options");
 		configuration(params["initializationOptions"]);
+		trace("initialize: workspace");
 		_workspace.clear();
 		for (auto const& folder : params["workspaceFolders"].items()) {
 			if (folder["uri"].is_string()) _workspace.emplace_back(path_from_uri(folder["uri"].as_string()));
 		}
 		if (_workspace.empty() && params["rootUri"].is_string()) _workspace.emplace_back(path_from_uri(params["rootUri"].as_string()));
+		trace("initialize: capabilities");
 		json caps = json::object();
 		json sync = json::object();
 		sync.set("openClose", true).set("change", 1).set("save", json::object());
@@ -249,6 +270,7 @@ namespace blitz::lsp {
 		info.set("name", "blitz-lsp");
 		json result = json::object();
 		result.set("capabilities", caps).set("serverInfo", info);
+		trace("initialize: done");
 		return result;
 	}
 
