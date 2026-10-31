@@ -559,13 +559,13 @@ extern "C" void bb_profile_output(const char* file)
 	}
 }
 
-// ProfileFrameNumber, ProfileFrameValue key$: what the last measured frame took, from one Flip to the next, by the name of the item, without any text to parse.
-extern "C" int32_t bb_profile_frame_number(void)
+// ProfileFlipCount, ProfileValue key$: what the last measured frame took, from one Flip to the next, by the name of the item, without any text to parse.
+extern "C" int32_t bb_profile_flip_count(void)
 {
 	return bb::profile_compiled ? bb::profile_last_frame_number() : 0;
 }
 
-extern "C" float bb_profile_frame_value(const char* key)
+extern "C" float bb_profile_value(const char* key)
 {
 	return bb::profile_compiled ? bb::profile_last_frame_value(bb_s(key)) : 0.0f;
 }

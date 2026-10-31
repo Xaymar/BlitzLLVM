@@ -8,7 +8,7 @@ Graphics 64, 64, 0, 2
 For i = 1 To 10
 	Cls
 	Flip
-	Print "frame " + ProfileFrameNumber() + ": " + ProfileFrameValue("frame") + " ms, draws " + ProfileFrameValue("RenderWorld: draws")
+	Print "frame " + ProfileFlipCount() + ": " + ProfileValue("frame") + " ms, draws " + ProfileValue("RenderWorld: draws")
 Next
 ```
 @param key  The name of the item, such as `frame` or `RenderWorld: draws`.

@@ -785,9 +785,8 @@ getenv	runtime	done	$GetEnv$env_var
 microseconds	runtime	done	&Microseconds
 millisecs	runtime	done	%MilliSecs
 profileenable	runtime	done	ProfileEnable%enable
+profileflipcount	runtime	done	%ProfileFlipCount
 profilefps	runtime	done	ProfileFPS%enable
-profileframenumber	runtime	done	%ProfileFrameNumber
-profileframevalue	runtime	done	#ProfileFrameValue$key
 profileitemcount	runtime	done	%ProfileItemCount
 profileitemname	runtime	done	$ProfileItemName%item
 profileoutput	runtime	done	ProfileOutput$file
@@ -795,6 +794,7 @@ profilesample	runtime	done	ProfileSample$file
 profilesectionend	runtime	done	ProfileSectionEnd$key
 profilesectionstart	runtime	done	ProfileSectionStart$key
 profileslow	runtime	done	ProfileSlow#milliseconds
+profilevalue	runtime	done	#ProfileValue$key
 runtimeerror	runtime	done	RuntimeError$message
 setenv	runtime	done	SetEnv$env_var$value
 stop	runtime	done	Stop
