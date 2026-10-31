@@ -262,7 +262,7 @@ setcubeface	blitz3d	done	SetCubeFace%texture%face
 setcubemode	blitz3d	done	SetCubeMode%texture%mode
 sampleraddressmodeu	blitz3d	done	SamplerAddressModeU%sampler%mode
 sampleraddressmodev	blitz3d	done	SamplerAddressModeV%sampler%mode
-setsampleraddressmodew	blitz3d	done	SetSamplerAddressModeW%sampler%mode
+sampleraddressmodew	blitz3d	done	SamplerAddressModeW%sampler%mode
 sampleranisotropy	blitz3d	done	SamplerAnisotropy%sampler#anisotropy
 setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
 samplerfiltermag	blitz3d	done	SamplerFilterMag%sampler%mode

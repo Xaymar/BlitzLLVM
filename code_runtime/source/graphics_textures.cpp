@@ -1364,8 +1364,8 @@ void bb_set_sampler_address_mode_v(int32_t handle, int32_t mode)
 
 void bb_set_sampler_address_mode_w(int32_t handle, int32_t mode)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerAddressModeW");
-	check_mode("SetSamplerAddressModeW", mode, 4);
+	sampler_entry* s = need_sampler(handle, "SamplerAddressModeW");
+	check_mode("SamplerAddressModeW", mode, 4);
 	s->address[2] = mode;
 	apply_sampler(handle);
 }

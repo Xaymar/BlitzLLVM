@@ -11,7 +11,7 @@ Chooses what is read where the horizontal texture coordinate (u) is not between 
 | 2 | Clamp: the edge texel is stretched out. |
 | 3 | Border: the color of [SetSamplerBorderColor](SetSamplerBorderColor), opaque black by default. |
 
-[SamplerAddressModeV](SamplerAddressModeV) does the same for the vertical coordinate (v), and [SetSamplerAddressModeW](SetSamplerAddressModeW) for the depth coordinate (w), which flat textures do not use.
+[SamplerAddressModeV](SamplerAddressModeV) does the same for the vertical coordinate (v), and [SamplerAddressModeW](SamplerAddressModeW) for the depth coordinate (w), which flat textures do not use.
 @param sampler  The sampler to change.
 @param mode     The address mode from the table above.
 @gap The mode has to be 0 to 3, other values stop the program with an error. Mirror once (the coordinate is mirrored and then clamped) is not offered, since not every graphics card can do it.
