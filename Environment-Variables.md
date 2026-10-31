@@ -32,7 +32,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_ASYNC_SAVE` | `0` | Saves pictures on other threads, see [[Saving-Pictures]]. |
 | `BLITZLLVM_GPU_DRAWS` | `0` | Draws the meshes that stay as they are from a table that the GPU drives (experimental), see [[GPU-Driven-Draws]]. |
 | `BLITZLLVM_FULLSCREEN_FILTER` | by size | `nearest` or `linear` for the picture of a fullscreen program, see [[Fullscreen]]. |
-| `BLITZLLVM_GUI_SCALE` | the scale of the display | How many pixels a unit of the windows of BlitzPlus is, see [[CreateWindow]]: `0` (or `1`) makes every unit one pixel, as the original has it; `1.5` or `2` scales the windows as a display of that scale would. |
+| `BLITZLLVM_GUI_SCALE` | the scale of the display | How many pixels a unit of the windows of BlitzPlus is, see [[CreateWindow]]: `0` (or `1`) makes every unit one pixel, as the original has it; `1.5` or `2` scales the windows as a display of that scale would, see [[DPI-Scaling]]. |
 | `BLITZLLVM_FULLSCREEN_SCALE` | smooth | `integer` only enlarges the picture by whole numbers, see [[Fullscreen]]. |
 | `BLITZLLVM_VOLUME_FALLOFF` | `new` | The curve that the volume of 3D sounds falls off by: `new`, `legacy` (the curve of the original) or `soloud` (the curve of SoLoud), see [[CreateListener]]. |
 | `BLITZLLVM_ENTITY_LIGHTING` | `0` | The `EntityLighting` mode of entities that were not given one: `1` lights every pixel instead of every vertex. |

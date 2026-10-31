@@ -23,6 +23,10 @@ Desktop:Int32
 
 Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). Windows without a group are always on it. With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the primary display. [DesktopBuffer](DesktopBuffer) does nothing here.
 
+## Differences
+
+* The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer). A program needs no `Graphics` call for this. On a display with a high density of pixels the desktop is in the units of the program, which are fewer than the pixels of the display: a display of 1920 by 1080 pixels at 150 % is a desktop of 1280 by 720, see [CreateWindow](CreateWindow). Where no window can be made, the windows are drawn inside the window of `Graphics` (1024 by 768 where the program did not ask for one) and cannot leave it.
+
 ## Examples
 
 ```blitzbasic
@@ -31,7 +35,6 @@ SetGadgetShape win, (ClientWidth(Desktop()) - 180) / 2, (ClientHeight(Desktop())
 Repeat
 Until WaitEvent() = $803
 ```
-@difference The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer). A program needs no `Graphics` call for this. On a display with a high density of pixels the desktop is in the units of the program, which are fewer than the pixels of the display: a display of 1920 by 1080 pixels at 150 % is a desktop of 1280 by 720, see [CreateWindow](CreateWindow). Where no window can be made, the windows are drawn inside the window of `Graphics` (1024 by 768 where the program did not ask for one) and cannot leave it.
 
 ## Related Commands
 

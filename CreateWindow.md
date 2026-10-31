@@ -46,6 +46,10 @@ The style is a sum of these flags, and 15 is the default:
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
 
+## Differences
+
+* Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that never calls `Graphics` opens exactly the windows it makes and runs until it ends; one that calls `Graphics` as well has that window too, which is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program. `Graphics` called after windows were made keeps them. On a display with a high density of pixels (Windows at 150 %, a Retina display) a window has that many times more pixels than the width and height say, and its gadgets are drawn that many times bigger, sharp: the program keeps counting in its own units for the sizes and positions of gadgets, the mouse and the buffers of canvases, as it does in the original, whose windows the system scales. `BLITZLLVM_GUI_SCALE` sets the scale by hand, `0` turns it off.
+
 ## Examples
 
 ```blitzbasic
@@ -62,8 +66,6 @@ Repeat
 	EndIf
 Until asked = 2
 ```
-
-@difference Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that never calls `Graphics` opens exactly the windows it makes and runs until it ends; one that calls `Graphics` as well has that window too, which is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program. `Graphics` called after windows were made keeps them. On a display with a high density of pixels (Windows at 150 %, a Retina display) a window has that many times more pixels than the width and height say, and its gadgets are drawn that many times bigger, sharp: the program keeps counting in its own units for the sizes and positions of gadgets, the mouse and the buffers of canvases, as it does in the original, whose windows the system scales. `BLITZLLVM_GUI_SCALE` sets the scale by hand, `0` turns it off.
 
 ## Media
 

@@ -25,6 +25,10 @@ ActivateWindow:Void window:Int32
 
 Brings a window of your program to the front and makes it the active one, as if the user had clicked on its title. The window gets a [WindowActivate](EventID) event ($804). It only works for your own windows, never for other programs.
 
+## Differences
+
+* The window is raised the way the operating system allows, which on some systems only raises it among the windows of your program and does not take the focus from another application.
+
 ## Examples
 
 ```blitzbasic
@@ -35,8 +39,6 @@ ActivateWindow back
 Repeat
 Until WaitEvent() = $803
 ```
-
-@difference The window is raised the way the operating system allows, which on some systems only raises it among the windows of your program and does not take the focus from another application.
 
 ## Media
 

@@ -45,6 +45,7 @@ Differences that are not caused by one command.
 * [Spherical fog](Spherical-Fog): Extension: `CameraFogMode camera, 2` fogs by the distance to the camera instead of the depth along its view direction; the original only has linear fog by depth.
 * [Sprite depth fade (soft edges)](Sprite-Depth-Fade): Extension: `SpriteDepthFade` and `EntityDepthFade` fade see-through sprites and entities out where they get close to solid geometry (soft particles); the original has no such command.
 * [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
+* [The windows of BlitzPlus](Windows-of-BlitzPlus): Every window that `CreateWindow` makes on the desktop is a window of the operating system with a frame, a title bar and a thread of its own that shows it, `Graphics` keeps a window of its own, and a program needs no `Graphics` for its windows.
 * [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
 * [Warnings](Warnings): Extension: `blitzcc` has warnings with levels (`-W0` to `-W4`), `-W<name>` and `-Wno-<name>` options and `-Werror`; the original has none.
@@ -53,6 +54,7 @@ Differences that are not caused by one command.
 
 Commands that differ from the original or are not finished, with the first of the differences from the "Differences" part of their page.
 
+* [ActivateWindow](ActivateWindow#differences): The window is raised the way the operating system allows, which on some systems only raises it among the windows of your program and does not take the focus from another application.
 * [ActiveObjects](ActiveObjects#differences): Windows and gadgets are not counted here.
 * [ActiveWindow](ActiveWindow#differences): There is no "none of ours is active" state: the answer is always the window of the program that was activated most recently, by the user or by [ActivateWindow](ActivateWindow).
 * [AddVertex](AddVertex#differences): `w` is ignored.
@@ -70,6 +72,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.
 * [CameraFogMode](CameraFogMode#differences): Mode 2 is an extension of BlitzLLVM; the original only knows 0 and 1, and a program that uses 2 does not behave the same with the original Blitz3D.
+* [CanvasBuffer](CanvasBuffer#differences): The buffer has 32 bits of color (RGBA8) whatever depth `Graphics` has, and it is drawn to by the same renderer as the back buffer: `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way.
 * [ChannelPan](ChannelPan#differences): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
@@ -104,7 +107,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
 * [CreateTexture](CreateTexture#differences): Flag 4096 (render target) is new.
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
+* [CreateWindow](CreateWindow#differences): Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
+* [Desktop](Desktop#differences): The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell.
 * [DesktopBuffer](DesktopBuffer#differences): Drawing on, or reading from, the desktop does not work: it is a buffer of one black pixel that starts over every time this is called, so the screen of the computer is never touched and nothing shows behind the windows.
 * [DirectInputEnabled](DirectInputEnabled#differences): There is no DirectInput on this platform.
 * [DisplayDepth](DisplayDepth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
@@ -132,6 +137,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [EntityStatic](EntityStatic#differences) 〔BlitzLLVM〕: The original has no such command.
 * [EntityTexture](EntityTexture#differences): A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 * [Flip](Flip#differences): Without a graphics window nothing happens.
+* [FlipCanvas](FlipCanvas#differences): The window of the canvas is drawn and handed to the thread that shows it right away, so a program that never waits for events still shows its canvases.
 * [FlushJoy](FlushJoy#differences): Buttons that are currently held are not released.
 * [FlushKeys](FlushKeys#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 * [FlushMouse](FlushMouse#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
@@ -254,6 +260,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Proceed](Proceed#differences): The box is a message box of the operating system in front of the program's active window.
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
+* [QueryObject](QueryObject#differences): Queries 1 and 2 give a number for the window of the operating system that the gadget is in: the same number for every gadget in a window, and it is the runtime's number for the window, not an HWND that the Windows API can use.
 * [RawInput](RawInput#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
 * [RawInputEnabled](RawInputEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
