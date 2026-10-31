@@ -132,21 +132,32 @@ namespace {
 		// The protocol owns standard output; whatever else writes to it would corrupt the stream, so the library code gets standard error.
 #if defined(_WIN32)
 		_setmode(0, _O_BINARY);
-		FILE* out = _fdopen(_dup(1), "wb");
+		int out = _dup(1);
+		_setmode(out, _O_BINARY);
 		_dup2(2, 1);
 #else
-		FILE* out = fdopen(dup(1), "wb");
+		int out = dup(1);
 		dup2(2, 1);
 #endif
-		if (!out) return 2;
+		if (out < 0) return 2;
 		trace("output ready");
 
 		blitz::lsp::server server(
 			[out](blitz::lsp::json const& message) {
-				std::string body = message.dump();
-				std::fprintf(out, "Content-Length: %zu\r\n\r\n", body.size());
-				std::fwrite(body.data(), 1, body.size(), out);
-				std::fflush(out);
+				std::string body   = message.dump();
+				std::string packet = "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;
+				// One unbuffered write of the whole packet to the duplicated standard output.
+				size_t done = 0;
+				while (done < packet.size()) {
+#if defined(_WIN32)
+					int put = _write(out, packet.data() + done, unsigned(packet.size() - done));
+#else
+					ssize_t put = ::write(out, packet.data() + done, packet.size() - done);
+#endif
+					trace("written", (long long)put);
+					if (put <= 0) break;
+					done += size_t(put);
+				}
 			},
 			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true));
 
