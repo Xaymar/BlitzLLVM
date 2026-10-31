@@ -15,6 +15,7 @@
 // What the parts of the collision code share: the maths of lines, planes and triangles, and how entities give their
 // triangles. Nothing in here is for programs, those only see the functions of the Blitz API.
 #pragma once
+#include <stdio.h>
 #include <math.h>
 #include <stdint.h>
 
@@ -224,6 +225,33 @@ namespace bb::collision {
 	// The entities (by number, in their order) that a pick along the line could hit. False if every entity is to be looked at.
 	bool pick_candidates(vec3 origin, vec3 direction, float radius, buffer<int> const*& out);
 	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method);
+
+	// Everything that the place and the shape of a pickable entity are made from, to tell that it changed without making its matrix.
+	struct pick_signature {
+		int     parent;
+		float   state[9]; // Position, rotation and scale.
+		float   radius[2];
+		float   box[6];
+		float   mesh[6];
+		uint8_t mode, hidden, has_box, has_mesh, terrain, deep;
+		struct ancestor {
+			int     handle;
+			float   state[9];
+			uint8_t hidden;
+		} above[3];
+	};
+	// bounds: whether the box around the mesh is part of it, which costs a pass over the surfaces.
+	void make_pick_signature(pick_signature& s, int handle, entity* e, bool bounds = true);
+
+	// Picks through the physics library (pick_physics.cpp), for the polygons of entities that it can take: the library is asked for the closest one.
+	// False if it is not used (BLITZLLVM_PICK_BACKEND, or the library is not there); then everything is picked by the runtime.
+	bool pick_physics_begin();
+	// Writes what the physics picks did, for BLITZLLVM_PICK_STATS.
+	void pick_physics_stats(FILE* f);
+	// Whether the polygons of the entity are picked by the library, which is only so after pick_physics_begin said yes.
+	bool pick_physics_serves(int handle);
+	// Finds the closest polygon of the entities that the library serves, and if it is nearer than the hit, puts it in. Returns its entity or 0.
+	int pick_physics_cast(vec3 origin, vec3 direction, float radius, int ignore, int ignore2, bool only_obscuring, hit_info& hit);
 
 	bool hit_sphere(hit_info& c, line3 const& line, float radius, vec3 dest, float dest_radius);
 	bool hit_triangle(hit_info& c, line3 const& line, float radius, vec3 v0, vec3 v1, vec3 v2);

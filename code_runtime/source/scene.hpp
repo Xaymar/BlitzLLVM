@@ -186,6 +186,9 @@ namespace bb {
 
 		int refs = 1; // Copies of an entity share its surfaces.
 
+		// Counts up whenever the vertices or the triangles change (surface_changed), for what is made from them and kept, like the mesh of the physics library.
+		uint32_t geometry_version = 0;
+
 		// Set by the renderer for its own use, and cleared whenever the geometry changes.
 		bool dirty = true;
 		void* gpu  = nullptr;
@@ -330,6 +333,8 @@ namespace bb {
 	extern uint32_t texture_epoch;
 	/** The draws that the GPU drives (BLITZLLVM_GPU_DRAWS=1) have to know when an entity may have changed. */
 	extern bool     gpu_static_active;
+	// Counts every call of entity_moved, for what keeps something made from where entities are (the bodies of the physics library) and has to look again after any.
+	extern uint32_t entity_epoch;
 	void            gpu_static_touched(int handle);
 	/** While the meshes are collected for a camera that the GPU draws the table for, the ones in it are not visited: the table is checked by this. */
 	extern bool            gpu_static_skip;
@@ -345,6 +350,7 @@ namespace bb {
 	inline void surface_changed(surface& s)
 	{
 		s.bound_valid = false;
+		s.geometry_version++;
 		if (s.cull_cached) {
 			s.cull_cached = false;
 			mesh_epoch++;
@@ -421,6 +427,7 @@ namespace bb {
 	/** To be called when an entity (or the numbers a cull_record is made from) may have changed. */
 	inline void entity_moved(int handle)
 	{
+		entity_epoch++;
 		if (gpu_static_active) {
 			gpu_static_touched(handle);
 		}

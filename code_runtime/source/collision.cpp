@@ -647,19 +647,6 @@ namespace bb::collision {
 	// line. Nothing tells the tree that an entity moved, so every pick compares what the box of each entity is made from with what it
 	// was made from (a few numbers, no matrices), and what changed is looked at without the tree until the tree is made again.
 	// The tree is only a filter: what it lets through is tested the same as before, and in the order of the entities.
-	struct pick_signature {
-		int     parent;
-		float   state[9]; // Position, rotation and scale.
-		float   radius[2];
-		float   box[6];
-		float   mesh[6];
-		uint8_t mode, hidden, has_box, has_mesh, terrain, deep;
-		struct ancestor {
-			int     handle;
-			float   state[9];
-			uint8_t hidden;
-		} above[3];
-	};
 
 	struct pick_phase {
 		buffer<pick_signature> signatures; // Of every entity by its number, as the tree was made.
@@ -683,7 +670,7 @@ namespace bb::collision {
 		return enabled;
 	}
 
-	void make_pick_signature(pick_signature& s, int handle, entity* e)
+	void make_pick_signature(pick_signature& s, int handle, entity* e, bool bounds)
 	{
 		memset(&s, 0, sizeof(s));
 		if (!e) {
@@ -702,7 +689,7 @@ namespace bb::collision {
 		memcpy(s.radius, e->radius, sizeof(s.radius));
 		s.has_box = e->has_box;
 		memcpy(s.box, e->box, sizeof(s.box));
-		if (s.mode == 2 && !s.terrain) {
+		if (bounds && s.mode == 2 && !s.terrain) {
 			s.has_mesh = mesh_bounds(*e, s.mesh, s.mesh + 3);
 		}
 		int up = e->parent;
@@ -888,6 +875,7 @@ namespace bb::collision {
 			        (unsigned long long)pick_tree.used, (unsigned long long)pick_tree.disabled, (unsigned long long)pick_tree.few, (unsigned long long)pick_tree.cooled, (unsigned long long)pick_tree.builds,
 			        (unsigned long long)pick_tree.overflow, (unsigned long long)pick_tree.count_changed, entity_count(), pick_tree.items.size, pick_tree.loose_list.size, pick_tree.always.size,
 			        pick_tree.used ? double(pick_tree.found_total) / double(pick_tree.used) : 0.0);
+			pick_physics_stats(f);
 			fclose(f);
 		}
 	}
