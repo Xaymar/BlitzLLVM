@@ -333,6 +333,8 @@ namespace bb {
 	extern uint32_t texture_epoch;
 	/** The draws that the GPU drives (BLITZLLVM_GPU_DRAWS=1) have to know when an entity may have changed. */
 	extern bool     gpu_static_active;
+	// Counts every call of entity_moved, for what keeps something made from where entities are (the bodies of the physics library) and has to look again after any.
+	extern uint32_t entity_epoch;
 	void            gpu_static_touched(int handle);
 	/** While the meshes are collected for a camera that the GPU draws the table for, the ones in it are not visited: the table is checked by this. */
 	extern bool            gpu_static_skip;
@@ -425,6 +427,7 @@ namespace bb {
 	/** To be called when an entity (or the numbers a cull_record is made from) may have changed. */
 	inline void entity_moved(int handle)
 	{
+		entity_epoch++;
 		if (gpu_static_active) {
 			gpu_static_touched(handle);
 		}

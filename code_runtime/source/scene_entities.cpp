@@ -26,6 +26,7 @@ using namespace bb::scene;
 namespace bb {
 	uint32_t mesh_epoch = 1;
 	uint32_t surface_epoch = 1;
+	uint32_t entity_epoch  = 1;
 	uint32_t texture_epoch = 1;
 	bool     gpu_static_active = false;
 	bool     gpu_static_skip = false;
