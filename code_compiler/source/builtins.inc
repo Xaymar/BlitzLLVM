@@ -294,7 +294,7 @@
 		{ "samplerlodbias", "bb_set_sampler_lod_bias", 'v', "if", 2, {}, false },
 		{ "samplerlodmin", "bb_set_sampler_lod_min", 'v', "if", 2, {}, false },
 		{ "samplerlodmax", "bb_set_sampler_lod_max", 'v', "if", 2, {}, false },
-		{ "setsamplerbordercolor", "bb_set_sampler_border_color", 'v', "iffff", 5, {}, false },
+		{ "samplerbordercolor", "bb_set_sampler_border_color", 'v', "iffff", 5, {}, false },
 		{ "getsamplerfiltermin", "bb_get_sampler_filter_min", 'i', "i", 1, {}, false },
 		{ "getsamplerfiltermag", "bb_get_sampler_filter_mag", 'i', "i", 1, {}, false },
 		{ "getsamplerfiltermip", "bb_get_sampler_filter_mip", 'i', "i", 1, {}, false },

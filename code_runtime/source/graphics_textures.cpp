@@ -1404,7 +1404,7 @@ void bb_set_texture_sampler(int32_t texture, int32_t handle)
 // Colors go from 0 to 1, what is outside of it is kept inside.
 void bb_set_sampler_border_color(int32_t handle, float r, float g, float b, float a)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerBorderColor");
+	sampler_entry* s = need_sampler(handle, "SamplerBorderColor");
 	float          v[4] = { r, g, b, a };
 	for (int i = 0; i < 4; i++) {
 		s->border[i] = v[i] < 0.0f ? 0.0f : (v[i] > 1.0f ? 1.0f : v[i]);

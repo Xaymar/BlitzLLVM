@@ -264,7 +264,7 @@ sampleraddressmodeu	blitz3d	done	SamplerAddressModeU%sampler%mode
 sampleraddressmodev	blitz3d	done	SamplerAddressModeV%sampler%mode
 sampleraddressmodew	blitz3d	done	SamplerAddressModeW%sampler%mode
 sampleranisotropy	blitz3d	done	SamplerAnisotropy%sampler#anisotropy
-setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
+samplerbordercolor	blitz3d	done	SamplerBorderColor%sampler#r#g#b#a
 samplerfiltermag	blitz3d	done	SamplerFilterMag%sampler%mode
 samplerfiltermin	blitz3d	done	SamplerFilterMin%sampler%mode
 samplerfiltermip	blitz3d	done	SamplerFilterMip%sampler%mode

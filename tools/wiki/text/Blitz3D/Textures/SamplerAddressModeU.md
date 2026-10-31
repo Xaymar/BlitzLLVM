@@ -9,7 +9,7 @@ Chooses what is read where the horizontal texture coordinate (u) is not between 
 | 0 | Repeat: the texture starts again, the default. |
 | 1 | Mirror: every second repeat is turned around. |
 | 2 | Clamp: the edge texel is stretched out. |
-| 3 | Border: the color of [SetSamplerBorderColor](SetSamplerBorderColor), opaque black by default. |
+| 3 | Border: the color of [SamplerBorderColor](SamplerBorderColor), opaque black by default. |
 
 [SamplerAddressModeV](SamplerAddressModeV) does the same for the vertical coordinate (v), and [SamplerAddressModeW](SamplerAddressModeW) for the depth coordinate (w), which flat textures do not use.
 @param sampler  The sampler to change.
