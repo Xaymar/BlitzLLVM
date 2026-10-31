@@ -101,6 +101,8 @@ target_sources(blitzrt PRIVATE
 	"source/b3d.cpp"
 	"source/model_3ds.cpp"
 	"source/model_x.cpp"
+	"source/model_gltf.cpp"
+	"source/gltf.hpp"
 	"source/model_internal.hpp"
 	"source/animation_internal.hpp"
 	"source/md2.cpp"
@@ -138,6 +140,7 @@ target_include_directories(blitzrt PRIVATE
 target_include_directories(blitzrt SYSTEM PRIVATE
 	${BLITZRT_INCLUDE_DIRECTORIES}
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
+	"${PROJECT_SOURCE_DIR}/third_party/cgltf"
 	"${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include"
 )
 if(NOT MSVC AND NOT APPLE)

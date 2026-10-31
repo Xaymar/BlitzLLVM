@@ -18,6 +18,7 @@
 #include "memory.h"
 #include "load_pool.hpp"
 #include "path.h"
+#include "gltf.hpp"
 #include <mutex>
 
 using namespace bb;
@@ -192,11 +193,24 @@ namespace {
 		return true;
 	}
 
-	// Whether the bytes start like a model that is parsed on another thread: .b3d, .3ds and .x, which are the ones that need nothing from
+	// A .glb file starts with "glTF", a .gltf file is JSON: the first thing in it that is no white space (or byte order mark) is a brace.
+	bool looks_like_gltf(const uint8_t* data, size_t got)
+	{
+		if ((got > 20) && !memcmp(data, "glTF", 4)) {
+			return true;
+		}
+		size_t at = ((got > 3) && !memcmp(data, "\xEF\xBB\xBF", 3)) ? 3 : 0;
+		while ((at < got) && ((data[at] == ' ') || (data[at] == '\t') || (data[at] == '\n') || (data[at] == '\r'))) {
+			at++;
+		}
+		return (got > 20) && (at < got) && (data[at] == '{');
+	}
+
+	// Whether the bytes start like a model that is parsed on another thread: .b3d, .3ds, .x and glTF, which are the ones that need nothing from
 	// the program's thread. Anything else (what is no model at all) is handled before LoadMesh returns.
 	bool model_recognized(const uint8_t* data, size_t got)
 	{
-		return ((got > 12) && !memcmp(data, "BB3D", 4)) || ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D)) || ((got > 16) && !memcmp(data, "xof ", 4));
+		return ((got > 12) && !memcmp(data, "BB3D", 4)) || ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D)) || ((got > 16) && !memcmp(data, "xof ", 4)) || looks_like_gltf(data, got);
 	}
 
 	// Parses the bytes of a model. Only reads its input and fills m, so it can run on a loader thread.
@@ -271,6 +285,8 @@ namespace {
 				memcpy(matrix, x_matrix, sizeof(matrix));
 			}
 			ok = read_x(data, got, m, turned ? matrix : nullptr);
+		} else if (looks_like_gltf(data, got)) {
+			ok = read_gltf(path, data, got, m);
 		}
 
 		// Textures are found next to the model.
@@ -300,6 +316,12 @@ namespace {
 
 	bool file_exists(const char* path)
 	{
+		// A picture inside a glTF file is named by the file and its number ("model.glb#2"): what has to be there is the file.
+		std::string inside;
+		int         number = 0;
+		if (gltf_split(path, inside, number)) {
+			path = inside.c_str();
+		}
 		FILE* f = fopen(bb_native_path(path), "rb");
 		if (f) {
 			fclose(f);
@@ -585,13 +607,16 @@ namespace {
 		anim->frames    = (m.frames > 0 || m.animated) ? m.frames : 1;
 		anim->fps       = m.fps;
 		anim->sequences.push({ 0, anim->frames });
+		for (uint32_t i = 0; i < m.sequences.size; i++) {
+			anim->sequences.push(m.sequences[i]);
+		}
 
 		bool has_motion = m.animated;
 		buffer<int> handles;
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
 			node_info& n = *m.nodes[i];
 			int        up = n.parent >= 0 ? handles[uint32_t(n.parent)] : parent;
-			int        kind   = n.has_mesh ? MESH : (n.light ? LIGHT : PIVOT);
+			int        kind   = n.has_mesh ? MESH : (n.light ? LIGHT : (n.camera ? CAMERA : PIVOT));
 			int        handle = i == 0 && reuse ? reuse : create_entity(kind, up);
 			if (reuse && (handle == reuse)) {
 				set_entity_kind(handle, kind);
@@ -604,6 +629,13 @@ namespace {
 				memcpy(light->light_color, n.light_color, sizeof(n.light_color));
 				light->light_range = n.light_range;
 				memcpy(light->light_cone, n.light_cone, sizeof(n.light_cone));
+			}
+			if (n.camera) {
+				entity* camera       = get_entity(handle);
+				camera->cam_zoom     = n.cam_zoom;
+				camera->cam_near     = n.cam_near;
+				camera->cam_far      = n.cam_far;
+				camera->cam_projection = 0; // Switched on by CameraProjMode, so that it does not draw over the camera of the program.
 			}
 			if (n.hidden) {
 				get_entity(handle)->hidden = true;
@@ -633,7 +665,11 @@ namespace {
 			} else {
 				memcpy(node->bind_model, local, sizeof(local));
 			}
-			mat_affine_inverse(node->bind_model, node->inverse_bind);
+			if (n.has_inverse_bind) {
+				memcpy(node->inverse_bind, n.inverse_bind, sizeof(node->inverse_bind));
+			} else {
+				mat_affine_inverse(node->bind_model, node->inverse_bind);
+			}
 			anim->nodes.push(node);
 		}
 
@@ -650,7 +686,7 @@ namespace {
 			build_surfaces(m, n, handles[i], prepared.nodes[i], &sources, &surfaces);
 
 			// Every bone below this node (or this node) that pulls on its vertices.
-			bool skinned = false;
+			bool skinned = n.skin_nodes.size > 0;
 			for (uint32_t b = 0; b < m.nodes.size && !skinned; b++) {
 				if (!m.nodes[b]->is_bone) {
 					continue;
@@ -692,6 +728,18 @@ namespace {
 				}
 				for (uint32_t v = 0; v < ids.size; v++) {
 					skin->start.push(skin->bone.size);
+					if (n.skin_nodes.size) {
+						// The vertex says itself which joints pull on it.
+						for (uint32_t k = 0; k < 8; k++) {
+							float weight = n.skin_weight[ids[v] * 8 + k];
+							int   joint  = n.skin_joint[ids[v] * 8 + k];
+							if ((weight > 0) && (joint >= 0) && (uint32_t(joint) < n.skin_nodes.size) && (n.skin_nodes[uint32_t(joint)] >= 0)) {
+								skin->bone.push(n.skin_nodes[uint32_t(joint)]);
+								skin->weight.push(weight);
+							}
+						}
+						continue;
+					}
 					for (uint32_t b = 0; b < m.nodes.size; b++) {
 						node_info& bone = *m.nodes[b];
 						if (!bone.is_bone) {

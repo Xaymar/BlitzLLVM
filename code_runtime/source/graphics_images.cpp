@@ -522,7 +522,7 @@ int32_t bb_load_image(const char* file)
 	if (async_loading() && active() && file) {
 		// Like LoadTexture: the file is read now and the decoding goes on another thread.
 		size_t size = 0;
-		void*  data = SDL_LoadFile(bb_native_path(file), &size);
+		void*  data = read_picture_file(file, &size);
 		if (!data) {
 			return 0;
 		}
