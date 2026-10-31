@@ -77,6 +77,10 @@ typedef struct bp_cast {
 	uint32_t        ignore_count;
 	uint64_t        user_mask;
 	uint64_t        user_value;
+	// 0: triangles are hit from both sides. 1: only from the front: the side that the normal (v1 - v0) x (v2 - v0) of the triangle is on, so a cast that goes with the normal passes through.
+	uint32_t        front_faces_only;
+	// 1: a shape that already overlaps a triangle where it starts does not hit it (else that is a hit with fraction 0, which hides all others).
+	uint32_t        ignore_overlaps;
 } bp_cast;
 
 typedef struct bp_hit {

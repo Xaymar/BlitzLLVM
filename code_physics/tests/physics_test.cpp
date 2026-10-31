@@ -91,9 +91,36 @@ static void test_line()
 	bp_cast_closest(world, &masked, &hit);
 	CHECK(hit.hit == 0);
 
+	// Only from the front: the floor faces up or down, and the cast from above and the one from below do not both hit it.
+	bp_cast front_above = cast, front_below = below;
+	front_above.front_faces_only = front_below.front_faces_only = 1;
+	bp_hit hit_above, hit_below;
+	bp_cast_closest(world, &front_above, &hit_above);
+	bp_cast_closest(world, &front_below, &hit_below);
+	CHECK(hit_above.hit != hit_below.hit);
+
 	bp_body_remove(world, body);
 	bp_cast_closest(world, &cast, &hit);
 	CHECK(hit.hit == 0);
+	bp_mesh_destroy(floor);
+	bp_world_destroy(world);
+}
+
+static void test_moving_mesh()
+{
+	bp_world* world = bp_world_create(1);
+	bp_mesh*  floor = make_floor(0);
+	bp_body   body  = bp_body_add_mesh(world, floor, zero, turn0, one, 1, 1);
+	CHECK(body != 0);
+	bp_cast ray = { { 2, 5, 3 }, { 0, -10, 0 }, { 0, 0, 0 } };
+	bp_hit  hit;
+	bp_cast_closest(world, &ray, &hit);
+	CHECK(hit.hit == 1);
+	float moved[3] = { 0, 2, 0 };
+	bp_body_set_transform(world, body, moved, turn0, one);
+	bp_cast_closest(world, &ray, &hit);
+	CHECK(hit.hit == 1);
+	CHECK(near(hit.fraction, 0.3f, 2e-3f));
 	bp_mesh_destroy(floor);
 	bp_world_destroy(world);
 }
@@ -230,6 +257,7 @@ int main()
 {
 	CHECK(bp_version() == BP_VERSION);
 	test_line();
+	test_moving_mesh();
 	test_ellipsoid();
 	test_bodies();
 	test_batch();

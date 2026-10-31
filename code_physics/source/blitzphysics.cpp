@@ -20,6 +20,7 @@
 #include <Jolt/Physics/Collision/Shape/ConvexShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/RegisterTypes.h>
@@ -214,6 +215,12 @@ bp_body add(bp_world* world, body_entry entry, const float* position, const floa
 	}
 	BodyCreationSettings settings(shape, RVec3(to_vec(position)), to_quat(rotation), moves ? EMotionType::Kinematic : EMotionType::Static, moves ? layer_moving : layer_static);
 	settings.mUserData = entry.user;
+	if (moves) {
+		// A kinematic body never answers to forces, but Jolt asks the shape for its mass, which a mesh cannot give.
+		settings.mOverrideMassProperties                = EOverrideMassProperties::MassAndInertiaProvided;
+		settings.mMassPropertiesOverride.mMass          = 1.0f;
+		settings.mMassPropertiesOverride.mInertia       = Mat44::sIdentity();
+	}
 	// The shapes are not placed by their center of mass, as the caller's transform is the one of the entity.
 	BodyInterface& interface = world->system.GetBodyInterface();
 	Body*          body      = interface.CreateBody(settings);
@@ -234,6 +241,20 @@ bp_body add(bp_world* world, body_entry entry, const float* position, const floa
 struct cast_scratch {
 	float        radii[3] = { -1, -1, -1 };
 	RefConst<Shape> shape;
+};
+
+// The closest hit of a shape cast, without the ones where the shape already was inside what it hits, if the cast says so.
+class closest_cast_hit final : public ClosestHitCollisionCollector<CastShapeCollector> {
+public:
+	bool ignore_overlaps = false;
+
+	void AddHit(const ResultType& inResult) override
+	{
+		if (ignore_overlaps && (inResult.mFraction <= 0.0f)) {
+			return;
+		}
+		ClosestHitCollisionCollector<CastShapeCollector>::AddHit(inResult);
+	}
 };
 
 // Leaves out the bodies that a cast says to leave out.
@@ -272,7 +293,7 @@ void cast_one(bp_world* world, const bp_cast* cast, bp_hit* hit, cast_scratch& s
 
 	if (is_ray) {
 		RayCastSettings settings;
-		settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
+		settings.mBackFaceModeTriangles = cast->front_faces_only ? EBackFaceMode::IgnoreBackFaces : EBackFaceMode::CollideWithBackFaces;
 		settings.mBackFaceModeConvex    = EBackFaceMode::CollideWithBackFaces;
 		ClosestHitCollisionCollector<CastRayCollector> collector;
 		query.CastRay(RRayCast(RVec3(origin), displacement), settings, collector, {}, {}, user_filter(cast));
@@ -289,16 +310,23 @@ void cast_one(bp_world* world, const bp_cast* cast, bp_hit* hit, cast_scratch& s
 		}
 	} else {
 		if (scratch.radii[0] != cast->radii[0] || scratch.radii[1] != cast->radii[1] || scratch.radii[2] != cast->radii[2]) {
-			scratch.shape    = new ellipsoid_shape(Vec3::sMax(Vec3(std::abs(cast->radii[0]), std::abs(cast->radii[1]), std::abs(cast->radii[2])), Vec3::sReplicate(1e-6f)));
+			Vec3 radii = Vec3::sMax(Vec3(std::abs(cast->radii[0]), std::abs(cast->radii[1]), std::abs(cast->radii[2])), Vec3::sReplicate(1e-6f));
+			// A sphere has a shape of its own in Jolt, which is exact and does not need to iterate to the surface like the support function of an ellipsoid.
+			if ((radii.GetX() == radii.GetY()) && (radii.GetX() == radii.GetZ())) {
+				scratch.shape = new SphereShape(radii.GetX());
+			} else {
+				scratch.shape = new ellipsoid_shape(radii);
+			}
 			scratch.radii[0] = cast->radii[0];
 			scratch.radii[1] = cast->radii[1];
 			scratch.radii[2] = cast->radii[2];
 		}
 		ShapeCastSettings settings;
-		settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
+		settings.mBackFaceModeTriangles = cast->front_faces_only ? EBackFaceMode::IgnoreBackFaces : EBackFaceMode::CollideWithBackFaces;
 		settings.mBackFaceModeConvex    = EBackFaceMode::CollideWithBackFaces;
 		settings.mReturnDeepestPoint    = false;
-		ClosestHitCollisionCollector<CastShapeCollector> collector;
+		closest_cast_hit collector;
+		collector.ignore_overlaps = cast->ignore_overlaps != 0;
 		RShapeCast                                       shape_cast(scratch.shape, Vec3::sReplicate(1.0f), RMat44::sTranslation(RVec3(origin)), displacement);
 		query.CastShape(shape_cast, settings, RVec3::sZero(), collector, {}, {}, user_filter(cast));
 		if (!collector.HadHit()) {
