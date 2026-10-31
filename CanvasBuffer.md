@@ -45,7 +45,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-@difference The buffer has 32 bits of color (RGBA8) whatever depth `Graphics` has, and it is drawn to by the same renderer as the back buffer: `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way. When the canvas changes size (`SetGadgetShape`, or its layout following the window) the next `CanvasBuffer` gives a buffer of the new size, with what was drawn before gone, and keeps its handle as long as the size stays.
+@difference The buffer has 32 bits of color (RGBA8) whatever depth `Graphics` has, and it is drawn to by the same renderer as the back buffer: `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way. When the canvas changes size (`SetGadgetShape`, or its layout following the window) the next `CanvasBuffer` gives a buffer of the new size, with what was drawn before gone, and keeps its handle as long as the size stays. The buffer is as big as the canvas is in the units of the program whatever the display scales the window by, see [CreateWindow](CreateWindow): on a display with a high density of pixels the picture is enlarged when the window is drawn.
 
 ## Media
 
