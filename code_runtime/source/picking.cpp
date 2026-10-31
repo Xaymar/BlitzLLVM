@@ -53,11 +53,24 @@ namespace {
 		if (!pick_candidates(origin, direction, radius, near_entities)) {
 			near_entities = nullptr;
 		}
+		// The polygons that the physics library takes are picked by it, and only the closest of them is looked at.
+		bool physics = pick_physics_begin();
+		if (physics) {
+			if (int handle = pick_physics_cast(origin, direction, radius, ignore, ignore2, only_obscuring, hit)) {
+				memory.entity = handle;
+				best.entity   = handle;
+			} else if (!(length(direction) > 1e-9f)) {
+				physics = false; // Nothing was asked of the library, so the runtime picks everything.
+			}
+		}
 		uint32_t count = near_entities ? near_entities->size : uint32_t(entity_count());
 		for (uint32_t n = 0; n < count; n++) {
 			int     handle = near_entities ? (*near_entities)[n] : int(n) + 1;
 			entity* e      = get_entity(handle);
 			if (!e || (handle == ignore) || (handle == ignore2) || (e->pick_mode == 0) || !is_enabled(handle)) {
+				continue;
+			}
+			if (physics && pick_physics_serves(handle)) {
 				continue;
 			}
 			if (only_obscuring && !e->pick_obscure) {
@@ -121,6 +134,7 @@ void bb_entity_pick_mode(int32_t handle, int32_t mode, int32_t obscurer)
 	}
 	e->pick_mode    = mode;
 	e->pick_obscure = obscurer != 0;
+	entity_moved(handle); // The grid and the bodies of the physics library have to look at it again.
 }
 
 // Collisions between type, and what it can hit. Method: 1 = sphere, 2 = polygons, 3 = box.
