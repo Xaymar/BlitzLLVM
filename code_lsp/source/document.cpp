@@ -273,21 +273,22 @@ namespace blitz::lsp {
 		return found;
 	}
 
-	std::vector<std::pair<size_t, size_t>> document::rename_targets(size_t offset, std::string& why, std::string const& builtin_hint) const
+	document::rename_plan document::plan_rename(size_t offset, std::string const& builtin_hint, bool global_known) const
 	{
-		std::vector<std::pair<size_t, size_t>> out;
+		rename_plan plan;
+		std::string& why = plan.why;
 		auto* at = word_at(offset);
 		if (!at) {
 			why = "There is no name here.";
-			return out;
+			return plan;
 		}
 		if (bridge::is_keyword(at->name)) {
 			why = "'" + at->text + "' is a keyword.";
-			return out;
+			return plan;
 		}
 		if (!builtin_hint.empty()) {
 			why = builtin_hint;
-			return out;
+			return plan;
 		}
 		const std::string name = at->name;
 		size_t p = previous_token(at->token);
@@ -307,7 +308,7 @@ namespace blitz::lsp {
 			return std::any_of(keywords.begin(), keywords.end(), [&](const char* k) { return l == k; });
 		};
 
-		enum class what { field, type, function, label, variable } role;
+		what role;
 		if (after_backslash || previous_is(at->token, { "field" })) {
 			role = what::field;
 		} else if (previous_is(at->token, { "type", "new", "each", "first", "last" }) || (after_dot && !called)) {
@@ -338,7 +339,7 @@ namespace blitz::lsp {
 			}
 			if (!local) {
 				// Without any declaration the name is a local of this function unless some Global of that name exists.
-				bool global = std::any_of(decls.begin(), decls.end(), [](declaration const& d) { return d.scope_begin == 0 && (d.what == declaration::kind::variable || d.what == declaration::kind::constant || d.what == declaration::kind::dim); });
+				bool global = global_known || std::any_of(decls.begin(), decls.end(), [](declaration const& d) { return d.scope_begin == 0 && (d.what == declaration::kind::variable || d.what == declaration::kind::constant || d.what == declaration::kind::dim); });
 				local = !global;
 			}
 		}
@@ -346,6 +347,33 @@ namespace blitz::lsp {
 			// Main program: functions' own locals are not the same variable.
 		}
 
+		plan.ok    = true;
+		plan.role  = role;
+		plan.local = local;
+		plan.scope = fb;
+		plan.name  = name;
+		return plan;
+	}
+
+	std::vector<std::pair<size_t, size_t>> document::apply_rename(rename_plan const& plan, bool origin, size_t origin_offset) const
+	{
+		std::vector<std::pair<size_t, size_t>> out;
+		const std::string& name = plan.name;
+		const what role = plan.role;
+		const bool local = plan.local;
+		if (local && !origin) return out;
+		size_t fb = plan.scope;
+		auto decls = declarations_of(name);
+		auto has = [&](declaration::kind k) {
+			return std::any_of(decls.begin(), decls.end(), [&](declaration const& d) { return d.what == k; });
+		};
+		auto previous_is = [&](size_t token, std::initializer_list<const char*> keywords) {
+			size_t q = previous_token(token);
+			if (q == size_t(-1) || !_tokens[q].is(tools::kind::word)) return false;
+			auto l = lower(_tokens[q].text);
+			return std::any_of(keywords.begin(), keywords.end(), [&](const char* k) { return l == k; });
+		};
+		(void)origin_offset;
 		for (auto const& w : _words) {
 			if (w.name != name) continue;
 			size_t wp = previous_token(w.token);
@@ -406,7 +434,6 @@ namespace blitz::lsp {
 			}
 			if (match) out.emplace_back(w.begin, w.core_end);
 		}
-		if (out.empty()) why = "Nothing to rename.";
 		return out;
 	}
 
@@ -427,5 +454,33 @@ namespace blitz::lsp {
 		c.end = from.size() - tail;
 		c.replacement = to.substr(start, to.size() - tail - start);
 		return c;
+	}
+} // namespace blitz::lsp
+
+namespace blitz::lsp {
+	std::vector<std::pair<size_t, size_t>> document::rename_targets(size_t offset, std::string& why, std::string const& builtin_hint) const
+	{
+		auto plan = plan_rename(offset, builtin_hint, false);
+		if (!plan.ok) {
+			why = plan.why;
+			return {};
+		}
+		auto out = apply_rename(plan, true, offset);
+		if (out.empty()) why = "Nothing to rename.";
+		return out;
+	}
+
+	std::vector<std::string> document::includes() const
+	{
+		std::vector<std::string> out;
+		for (size_t i = 0; i < _tokens.size(); i++) {
+			if (!is_word(_tokens[i], "include")) continue;
+			size_t n = next_token(i);
+			if (n == size_t(-1) || !_tokens[n].is(tools::kind::string)) continue;
+			std::string t = _tokens[n].text;
+			if (t.size() >= 2 && t.front() == '"') t = t.substr(1, t.size() - (t.back() == '"' ? 2 : 1));
+			out.push_back(t);
+		}
+		return out;
 	}
 } // namespace blitz::lsp

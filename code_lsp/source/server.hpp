@@ -89,6 +89,7 @@ namespace blitz::lsp {
 		json           format(json const& params);
 		json           rename(json const& params);
 		json           prepare_rename(json const& params);
+		std::vector<std::filesystem::path> program_files(state& s);
 		json           references(json const& params);
 		json           code_actions(json const& params);
 		json           edit_to(state& s, std::string const& result);
@@ -104,6 +105,7 @@ namespace blitz::lsp {
 		std::map<std::string, std::unique_ptr<state>> _states; // By uri
 		std::set<std::string>           _dirty;
 		std::map<std::string, std::unique_ptr<document>> _files; // Files read for symbols, by path
+		std::vector<std::filesystem::path> _workspace; // The folders that are open, empty if the editor has only files
 		int                             _warning_level = 2;
 		bool                            _shutdown      = false;
 		bool                            _exit          = false;
