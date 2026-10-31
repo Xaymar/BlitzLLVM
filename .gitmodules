@@ -62,3 +62,7 @@
 	path = third_party/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
 	shallow = true
+[submodule "third_party/JoltPhysics"]
+	path = third_party/JoltPhysics
+	url = https://github.com/jrouwe/JoltPhysics.git
+	shallow = true
