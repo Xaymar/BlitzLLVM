@@ -12,14 +12,14 @@ Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs (`.bb
 | Quick fixes | The fix the compiler suggests for a warning (the lightbulb). |
 | Formatting | `blitz-format`, with the `.blitz-format` file next to the program or above it. Without one the tabs/spaces of the editor are used. |
 | Tidying | `blitz-tidy`, with the `.blitz-tidy` file. Command *Tidy the File*, or on save: `"editor.codeActionsOnSave": { "source.fixAll.blitz": "explicit" }`. |
-| Rename (F2), find references, go to definition | Functions, Types, fields, labels, Globals, Consts, Locals and parameters. It works on the names in the open file (see Limits). |
+| Rename (F2), find references, go to definition | Functions, Types, fields, labels, Globals, Consts, Locals and parameters. Rename changes every file of the program (the files that `Include` each other) in the open folders; without a folder it changes the open file only. Find references and go to definition look at the open file and what it includes. |
 | Outline, hover, completion | Functions, Types (with fields), Globals, Consts, labels, and the commands of the runtime with their signature. |
 | Run, Build, Check | Tasks and commands with *Debug* (`-d -g`: no optimisation, exact math, debug information) and *Release*. The problem matcher `$blitzcc` puts the errors into the Problems view. |
-| Debugging | F5 builds the program with debug information and starts a native debugger on it: `cppvsdbg` (Windows), `cppdbg` or CodeLLDB (`blitz.debug.adapter`). Needs the C/C++ extension or CodeLLDB. |
+| Debugging | F5 builds the program with debug information and starts a native debugger on it: `cppvsdbg` (Windows), `cppdbg` or CodeLLDB (`blitz.debug.adapter`). Needs the C/C++ extension or CodeLLDB. A debugger that knows BlitzLLVM (LLDB with its own integration) is planned. |
 
 ## Setting up
 
-Install BlitzLLVM, then either put its `bin` folder into `PATH` or set `blitz.installPath` to the folder that has `bin/blitzcc` and `bin/blitz-lsp`.
+The `.vsix` is a file of every release and nightly (`blitzllvm-<version>-vscode.vsix`); install it with *Extensions: Install from VSIX*. `blitz-lsp` is part of every package of BlitzLLVM. Install BlitzLLVM, then either put its `bin` folder into `PATH` or set `blitz.installPath` to the folder that has `bin/blitzcc` and `bin/blitz-lsp`.
 
 ## Building the extension
 
@@ -34,7 +34,7 @@ code --install-extension blitzllvm-0.1.0.vsix
 
 ## Limits
 
-* Rename, references and go to definition are based on the tokens and on the declarations of the file: a name that is also declared in an included file is only changed in the open file.
+* Rename, references and go to definition are based on the tokens and on the declarations of the files, not on a full analysis of the program. Check the preview of a rename (the refactor preview of VS Code) for names that are used in many places.
 * `blitz-tidy` compiles the program a few times, so it runs only when it is asked for, not as you type.
 * The debugger shows what the native debugger sees. Whether the debug information maps to the lines of the `.bb` file is the job of the compiler (`-g`).
 
