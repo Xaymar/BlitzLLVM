@@ -382,6 +382,11 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 			COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/profile.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/profile_silenced.bb" "${PROJECT_BINARY_DIR}/cli/profile-silenced-${_PROFILE}" ${_PROFILE} silenced
 		)
 		set_tests_properties(profile-silenced-${_PROFILE}_pixels PROPERTIES LABELS "gpu")
+		add_test(
+			NAME profile-results-${_PROFILE}_pixels
+			COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/profile.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/profile_results.bb" "${PROJECT_BINARY_DIR}/cli/profile-results-${_PROFILE}" ${_PROFILE} results
+		)
+		set_tests_properties(profile-results-${_PROFILE}_pixels PROPERTIES LABELS "gpu")
 	endforeach()
 endif()
 
