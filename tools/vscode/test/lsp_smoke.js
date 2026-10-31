@@ -95,8 +95,11 @@ const applyEdits = (text, edits) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'blitz-lsp-'));
   const file = path.join(dir, 'main.bb');
   fs.writeFileSync(file, '');
+  // A program of two files, and another program in the same folder that must not be touched by a rename
+  fs.writeFileSync(path.join(dir, 'lib.bb'), 'Global shared = 1\nFunction Helper()\n\tReturn shared\nEnd Function\n');
+  fs.writeFileSync(path.join(dir, 'other.bb'), 'Global shared = 2\nPrint shared\n');
   const uri = 'file://' + file;
-  let result = await request('initialize', { processId: null, rootUri: null, capabilities: {}, initializationOptions: { warningLevel: 3 } });
+  let result = await request('initialize', { processId: null, rootUri: 'file://' + dir, capabilities: {}, initializationOptions: { warningLevel: 3 } });
   for (const c of ['hoverProvider', 'definitionProvider', 'renameProvider', 'documentFormattingProvider', 'documentSymbolProvider', 'codeActionProvider'])
     assert(result.result.capabilities[c], c);
   notify('initialized', {});
@@ -151,6 +154,16 @@ const applyEdits = (text, edits) => {
   assert(result.error, 'Print is a command');
   result = await request('textDocument/rename', { textDocument: { uri }, position: position(source, 'total', 0, 1), newName: 'End' });
   assert(result.error, 'End is a keyword');
+
+  // Rename in a workspace: the file that includes lib.bb and lib.bb change, other.bb does not
+  const multi = 'Include "lib.bb"\nPrint shared\nPrint Helper()\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 10 }, contentChanges: [{ text: multi }] });
+  diagnostics = await diagnosticsFor(uri);
+  assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), [], JSON.stringify(diagnostics));
+  result = await request('textDocument/rename', { textDocument: { uri }, position: position(multi, 'shared', 0, 1), newName: 'common' });
+  const files = Object.keys(result.result.changes).map((u) => path.basename(u)).sort();
+  assert.deepStrictEqual(files, ['lib.bb', 'main.bb'], JSON.stringify(result));
+  assert.strictEqual(result.result.changes['file://' + path.join(dir, 'lib.bb')].length, 2);
 
   // Formatting
   const messy = 'If  1=1 Then\nPrint   "x"\n   EndIf\n';

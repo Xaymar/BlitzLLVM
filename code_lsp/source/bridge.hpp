@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace blitz::lsp::bridge {
 	/** Whether the word (any case) is a keyword of the language. */
@@ -14,6 +15,9 @@ namespace blitz::lsp::bridge {
 
 	/** All bytes of the file, throws std::runtime_error. */
 	std::string read_file(std::filesystem::path const& file);
+
+	/** Every .bb file beneath the folder (links are not followed), sorted. Empty if the folder can't be read. */
+	std::vector<std::filesystem::path> find_sources(std::filesystem::path const& folder);
 
 	/** The source formatted with blitz-format. Without a configuration file next to the program (or in a folder above it)
 	 * the indentation is the one of the editor: tabs, or spaces of the given width (0 for the default of blitz-format).

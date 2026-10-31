@@ -70,9 +70,30 @@ namespace blitz::lsp {
 		/** The byte range of the function that the offset is in. false if it is in the main program. */
 		bool function_at(size_t offset, size_t& begin, size_t& end, std::string* name = nullptr) const;
 
-		/** Every place that a rename of the word at the offset has to change, as byte ranges of the name (without the type
-		 * character). Empty and 'why' set if the word can't be renamed (keywords, commands of the runtime). */
+		/** What a rename of a name is: which kind of name it is and, for a variable, where it lives. */
+		enum class what { field, type, function, label, variable };
+		struct rename_plan {
+			bool        ok = false;
+			std::string why; // If not ok: why the word can't be renamed (keywords, commands of the runtime)
+			what        role = what::variable;
+			bool        local = false; // A Local or parameter, which only exists in one function of one file
+			size_t      scope = 0;     // Start of that function
+			std::string name;          // Lower case
+		};
+
+		/** The plan for renaming the word at the offset. A word that is declared in no file but written in a function of this
+		 * one is a local, unless global_known says that a Global of that name exists in another file of the program. */
+		rename_plan plan_rename(size_t offset, std::string const& builtin_hint = std::string(), bool global_known = false) const;
+
+		/** Every place in this document that the plan changes, as byte ranges of the name (without the type character).
+		 * origin: this is the document the plan was made in (locals are only changed there). */
+		std::vector<std::pair<size_t, size_t>> apply_rename(rename_plan const& plan, bool origin, size_t origin_offset = 0) const;
+
+		/** Convenience for one document: plan and apply. Empty and 'why' set if nothing can be renamed. */
 		std::vector<std::pair<size_t, size_t>> rename_targets(size_t offset, std::string& why, std::string const& builtin_hint = std::string()) const;
+
+		/** The files named by `Include "..."`, as written. */
+		std::vector<std::string> includes() const;
 
 		private:
 		void build();

@@ -20,6 +20,15 @@ namespace blitz::lsp::bridge {
 		return tools::read_file(file);
 	}
 
+	std::vector<std::filesystem::path> find_sources(std::filesystem::path const& folder)
+	{
+		try {
+			return tools::find_sources(folder);
+		} catch (std::exception const&) {
+			return {};
+		}
+	}
+
 	std::string format_text(std::string const& source, std::filesystem::path const& file, bool use_tabs, int tab_width, bool editor_indentation)
 	{
 		blitz::format::options options;

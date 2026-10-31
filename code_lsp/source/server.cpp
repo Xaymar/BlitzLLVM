@@ -220,6 +220,11 @@ namespace blitz::lsp {
 	json server::initialize(json const& params)
 	{
 		configuration(params["initializationOptions"]);
+		_workspace.clear();
+		for (auto const& folder : params["workspaceFolders"].items()) {
+			if (folder["uri"].is_string()) _workspace.emplace_back(path_from_uri(folder["uri"].as_string()));
+		}
+		if (_workspace.empty() && params["rootUri"].is_string()) _workspace.emplace_back(path_from_uri(params["rootUri"].as_string()));
 		json caps = json::object();
 		json sync = json::object();
 		sync.set("openClose", true).set("change", 1).set("save", json::object());
@@ -908,6 +913,43 @@ namespace blitz::lsp {
 		return r;
 	}
 
+	// The files that make up the program the file belongs to: the ones that include it or are included by it, and so on. Only the
+	// files in the open folders and the open files take part; without folders it is the file alone.
+	std::vector<std::filesystem::path> server::program_files(state& s)
+	{
+		std::vector<std::filesystem::path> result{ s.path };
+		if (_workspace.empty()) return result;
+		std::map<std::string, std::filesystem::path> known; // by key
+		for (auto const& folder : _workspace) {
+			for (auto const& file : bridge::find_sources(folder)) known.emplace(path_key(file), file);
+		}
+		for (auto const& [uri, other] : _states) known.emplace(other->key, other->path);
+		std::map<std::string, std::set<std::string>> edges;
+		for (auto const& [key, file] : known) {
+			document* doc = document_for(file);
+			if (!doc) continue;
+			for (auto const& include : doc->includes()) {
+				std::string target = path_key(file.parent_path() / include);
+				if (!known.count(target)) continue;
+				edges[key].insert(target);
+				edges[target].insert(key);
+			}
+		}
+		std::set<std::string> seen{ s.key };
+		std::vector<std::string> queue{ s.key };
+		while (!queue.empty()) {
+			std::string at = queue.back();
+			queue.pop_back();
+			for (auto const& next : edges[at]) {
+				if (seen.insert(next).second) {
+					queue.push_back(next);
+					result.push_back(known[next]);
+				}
+			}
+		}
+		return result;
+	}
+
 	json server::rename(json const& params)
 	{
 		auto* s = find(params["textDocument"]["uri"].as_string());
@@ -916,12 +958,36 @@ namespace blitz::lsp {
 		if (!std::regex_match(name, std::regex("[A-Za-z_][A-Za-z0-9_]*"))) throw std::runtime_error("'" + name + "' is not a valid name.");
 		if (bridge::is_keyword(name)) throw std::runtime_error("'" + name + "' is a keyword.");
 		prepare_rename(params); // Refuses what can't be renamed
-		std::string why;
-		auto        targets = s->doc->rename_targets(s->doc->to_offset(position_from(params["position"])), why);
-		json        edits   = json::array();
-		for (auto const& [b, e] : targets) edits.push(edit_json(*s->doc, b, e, name));
+		_files.clear(); // The files on disk may have changed
+		size_t offset = s->doc->to_offset(position_from(params["position"]));
+		bool global_known = false;
+		if (auto* w = s->doc->word_at(offset)) {
+			for (auto const& sym : s->symbols) {
+				if (sym.lower == w->name && (sym.what == symbol::kind::variable || sym.what == symbol::kind::constant)) global_known = true;
+			}
+		}
+		auto plan = s->doc->plan_rename(offset, std::string(), global_known);
 		json changes = json::object();
-		changes.set(s->uri, edits);
+		auto add_file = [&](std::filesystem::path const& file, bool origin) {
+			document* doc = origin ? s->doc.get() : document_for(file);
+			if (!doc) return;
+			auto targets = doc->apply_rename(plan, origin, offset);
+			if (targets.empty()) return;
+			json edits = json::array();
+			for (auto const& [b, e] : targets) edits.push(edit_json(*doc, b, e, name));
+			std::string key = path_key(file);
+			std::string uri = origin ? s->uri : uri_from_path(file.generic_string());
+			for (auto const& [open_uri, other] : _states) {
+				if (other->key == key) uri = open_uri;
+			}
+			changes.set(uri, edits);
+		};
+		add_file(s->path, true);
+		if (!plan.local) {
+			for (auto const& file : program_files(*s)) {
+				if (path_key(file) != s->key) add_file(file, false);
+			}
+		}
 		json r = json::object();
 		r.set("changes", changes);
 		return r;
