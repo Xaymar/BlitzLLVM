@@ -6,7 +6,7 @@
 
 @difference Extension: samplers hold how a texture is read and can be shared between textures.
 
-`CreateSampler`, `TextureSampler` and the `SetSampler...` commands are an extension. A sampler holds how a texture is read, and one sampler can be set on many textures. Without a sampler a texture is read with what its flags say. The modes are numbers:
+`CreateSampler`, `TextureSampler` and the `Sampler...` setter commands (`SamplerFilterMin` and so on) are an extension. A sampler holds how a texture is read, and one sampler can be set on many textures. Without a sampler a texture is read with what its flags say. The modes are numbers:
 
 | Setting | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
