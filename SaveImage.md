@@ -27,11 +27,11 @@ SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0
 
 ## Description
 
-Writes one frame of an image into a picture file. The format comes from the end of the file name, as for [SaveBuffer](SaveBuffer): `.bmp`, `.png`, `.jpg`, `.webp`, `.jxl` and `.tga`, and any other name is a BMP. If the image has see-through pixels, PNG, WebP, JPEG XL, TGA and BMP files keep them (JPEG has no alpha). The optional `settings` choose how the file is made, see [Saving pictures](Saving-Pictures).
+Writes one frame of an image into a picture file. The format comes from the end of the file name, as for [SaveBuffer](SaveBuffer): `.bmp`, `.png`, `.jpg`, `.webp`, `.jxl`, `.tga` and `.dds`, and any other name is a BMP. If the image has see-through pixels, PNG, WebP, JPEG XL, TGA, DDS and BMP files keep them (JPEG has no alpha). The optional `settings` choose how the file is made, see [Saving pictures](Saving-Pictures).
 
 ## Differences
 
-* The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA or BMP, and the `settings` argument is new.
+* The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA, DDS or BMP, and the `settings` argument is new.
 
 ## Examples
 

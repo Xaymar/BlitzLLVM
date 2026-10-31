@@ -30,7 +30,7 @@ SaveTexture:Int32 texture:Int32, file:String, frame:Int32=0, settings:String=\
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Writes one frame of a texture into a picture file, the same as saving its [TextureBuffer](TextureBuffer) with [SaveBuffer](SaveBuffer). The format comes from the end of the file name (`.bmp`, `.png`, `.jpg`, `.webp`, `.jxl`, `.tga`, any other name is a BMP), and the optional `settings` choose how the file is made, see [Saving pictures](Saving-Pictures).
+Writes one frame of a texture into a picture file, the same as saving its [TextureBuffer](TextureBuffer) with [SaveBuffer](SaveBuffer). The format comes from the end of the file name (`.bmp`, `.png`, `.jpg`, `.webp`, `.jxl`, `.tga`, `.dds`, any other name is a BMP), and the optional `settings` choose how the file is made, see [Saving pictures](Saving-Pictures).
 
 ## Examples
 

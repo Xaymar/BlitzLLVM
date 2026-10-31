@@ -40,7 +40,7 @@ Differences that are not caused by one command.
 * [Parameter modes (In, Out, InOut)](Parameter-Modes): Extension: function parameters can be written as `In`, `Out` or `InOut`, which decides if a value goes into the function, comes back out of it, or both.
 * [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
-* [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
+* [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA, DDS and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` restores the FMOD sound.
 * [Spherical fog](Spherical-Fog): Extension: `CameraFogMode camera, 2` fogs by the distance to the camera instead of the depth along its view direction; the original only has linear fog by depth.
 * [Sprite depth fade (soft edges)](Sprite-Depth-Fade): Extension: `SpriteDepthFade` and `EntityDepthFade` fade see-through sprites and entities out where they get close to solid geometry (soft particles); the original has no such command.

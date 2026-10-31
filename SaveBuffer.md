@@ -26,11 +26,11 @@ SaveBuffer:Int32 buffer:Int32, bmpfile:String
 
 ## Description
 
-Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](Flip) makes a screenshot. The format comes from the end of the file name: `.bmp`, `.png`, `.jpg` (or `.jpeg`), `.webp`, `.jxl` and `.tga` are written, and a name with any other ending is a BMP, as every name was in the original. `.avif` is refused (the result is 0), because the encoder for it would about double the size of every program. The optional `settings` choose how the file is made, for example the quality of a JPEG, see [Saving pictures](Saving-Pictures) for all of them.
+Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](Flip) makes a screenshot. The format comes from the end of the file name: `.bmp`, `.png`, `.jpg` (or `.jpeg`), `.webp`, `.jxl`, `.tga` and `.dds` are written, and a name with any other ending is a BMP, as every name was in the original. `.avif` is refused (the result is 0), because the encoder for it would about double the size of every program. The optional `settings` choose how the file is made, for example the quality of a JPEG, see [Saving pictures](Saving-Pictures) for all of them.
 
 ## Differences
 
-* The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA or BMP, the `settings` argument is new, and files other than BMP and TGA say which program made them.
+* The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA, DDS or BMP, the `settings` argument is new, and files other than BMP and TGA say which program made them.
 
 ## Examples
 
@@ -45,6 +45,7 @@ If SaveBuffer(FrontBuffer(), "screenshot.bmp") Then Print "saved" Else Print "fa
 SaveBuffer FrontBuffer(), "screenshot.png"
 SaveBuffer FrontBuffer(), "screenshot.jpg", "quality=80, progressive=1"
 SaveBuffer FrontBuffer(), "screenshot.jxl", "lossless=1"
+SaveBuffer FrontBuffer(), "screenshot.dds", "format=bc7, mipmaps=1"
 WaitKey
 ```
 
