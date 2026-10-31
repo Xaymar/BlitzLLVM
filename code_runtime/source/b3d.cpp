@@ -14,6 +14,7 @@
 // Loading models: the .b3d files of Blitz3D (and the .3ds files of 3D Studio, see model_3ds.cpp) are read into a tree of nodes, which become entities, meshes and an animation.
 
 #include "model_internal.hpp"
+#include "offscreen_hold.hpp"
 #include "memory.h"
 #include "load_pool.hpp"
 #include "path.h"
@@ -341,10 +342,12 @@ namespace {
 		for (const char* candidate : candidates) {
 			sprintf(path, "%s%s", m.directory, candidate);
 			if (file_exists(path)) {
+				offscreen_hold hold;
 				t.handle = bb_load_texture_flags(path, flags);
 				break;
 			}
 			if (file_exists(candidate)) {
+				offscreen_hold hold2;
 				t.handle = bb_load_texture_flags(candidate, flags);
 				break;
 			}

@@ -18,6 +18,7 @@
 #include "memory.h"
 #include "graphics_save.hpp"
 #include "environment.h"
+#include <atomic>
 
 using namespace bb::gfx;
 
@@ -291,10 +292,20 @@ bool bb::gfx::ensure_device()
 
 // Images, textures and their buffers are made on the GPU, so a program that never calls Graphics gets the machinery of Graphics around a window
 // that stays hidden, the first time it makes one. The window is only there for the device to be picked with.
+static std::atomic<int> offscreen_held{ 0 };
+
+extern "C" void bb_offscreen_hold(int delta)
+{
+	offscreen_held += delta;
+}
+
 bool bb::gfx::ensure_offscreen()
 {
 	if (g.created) {
 		return !g.headless;
+	}
+	if (offscreen_held > 0) {
+		return false; // The runtime making something for itself, such as the picture of a movie.
 	}
 	if (bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
 		return false;

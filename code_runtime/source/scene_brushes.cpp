@@ -14,6 +14,7 @@
 // Brushes.
 
 #include "scene_internal.hpp"
+#include "offscreen_hold.hpp"
 #include "handle_check.h"
 
 using namespace bb;
@@ -240,6 +241,7 @@ int32_t bb_get_entity_brush(int32_t handle)
 // A brush with a texture from a file, which is scaled by the numbers. 0 if the file can't be loaded.
 int32_t bb_load_brush(const char* file, int32_t flags, float u_scale, float v_scale)
 {
+	offscreen_hold hold;
 	int32_t texture = bb_load_texture(file, flags);
 	if (!texture) {
 		return 0;
