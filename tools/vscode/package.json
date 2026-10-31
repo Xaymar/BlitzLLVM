@@ -1,0 +1,306 @@
+{
+	"name": "blitzllvm",
+	"displayName": "BlitzLLVM (BlitzBasic, Blitz3D, BlitzPlus)",
+	"description": "Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM: highlighting, diagnostics, formatting, tidying, renaming, building and debugging.",
+	"version": "0.1.0",
+	"publisher": "xaymar",
+	"license": "BSD-3-Clause",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Xaymar/BlitzLLVM.git",
+		"directory": "tools/vscode"
+	},
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Formatters",
+		"Linters",
+		"Debuggers"
+	],
+	"keywords": [
+		"blitz",
+		"blitzbasic",
+		"blitz3d",
+		"blitzplus",
+		"blitzllvm"
+	],
+	"main": "./src/extension.js",
+	"activationEvents": [
+		"onLanguage:blitzbasic",
+		"onDebugResolve:blitz"
+	],
+	"scripts": {
+		"package": "vsce package",
+		"test": "node test/lsp_smoke.js"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^9.0.1"
+	},
+	"devDependencies": {
+		"@vscode/vsce": "^3.0.0"
+	},
+	"contributes": {
+		"languages": [
+			{
+				"id": "blitzbasic",
+				"aliases": [
+					"BlitzBasic",
+					"Blitz3D",
+					"BlitzPlus",
+					"BlitzLLVM"
+				],
+				"extensions": [
+					".bb"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "blitzbasic",
+				"scopeName": "source.blitzbasic",
+				"path": "./syntaxes/blitzbasic.tmLanguage.json"
+			}
+		],
+		"configurationDefaults": {
+			"[blitzbasic]": {
+				"editor.insertSpaces": false,
+				"editor.tabSize": 4,
+				"editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?"
+			}
+		},
+		"configuration": {
+			"title": "BlitzLLVM",
+			"properties": {
+				"blitz.installPath": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "The folder BlitzLLVM is installed in (the one that has `bin/blitzcc` and `bin/blitz-lsp`). Empty: the programs are looked for in `PATH`."
+				},
+				"blitz.server.path": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Path of `blitz-lsp`. Empty: `bin/blitz-lsp` of `blitz.installPath`, or `PATH`."
+				},
+				"blitz.compiler.path": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Path of `blitzcc`. Empty: `bin/blitzcc` of `blitz.installPath`, or `PATH`."
+				},
+				"blitz.compiler.arguments": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"markdownDescription": "More arguments for `blitzcc`, such as `-Wall` or `--userlibs-dir`. They come before the file."
+				},
+				"blitz.userlibsDirectory": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Where the userlibs (`.decls` files) are. Empty: the ones of the installation."
+				},
+				"blitz.warningLevel": {
+					"type": "number",
+					"enum": [
+						1,
+						2,
+						3,
+						4
+					],
+					"default": 2,
+					"markdownDescription": "How many of the warnings of the compiler are shown (`-W1` to `-W4`)."
+				},
+				"blitz.debug.adapter": {
+					"type": "string",
+					"enum": [
+						"auto",
+						"cppvsdbg",
+						"cppdbg",
+						"lldb"
+					],
+					"default": "auto",
+					"markdownDescription": "The debugger that runs a program built with debug information: `cppvsdbg` (C/C++ extension, Windows), `cppdbg` (C/C++ extension, GDB or LLDB) or `lldb` (CodeLLDB). `auto` picks one for the system."
+				},
+				"blitz.build.outputDirectory": {
+					"type": "string",
+					"default": "build/blitz",
+					"markdownDescription": "Where `Build` puts the programs, relative to the workspace folder, with a folder `debug` or `release` in it."
+				},
+				"blitz.trace.server": {
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Writes the messages between the editor and the language server to the output."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "blitz.run.debug",
+				"title": "Run the Program (Debug)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.run.release",
+				"title": "Run the Program (Release)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.build.debug",
+				"title": "Build the Program (Debug)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.build.release",
+				"title": "Build the Program (Release)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.check",
+				"title": "Check the Program for Errors",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.tidy",
+				"title": "Tidy the File (blitz-tidy)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.restartServer",
+				"title": "Restart the Language Server",
+				"category": "Blitz"
+			}
+		],
+		"menus": {
+			"editor/title/run": [
+				{
+					"command": "blitz.run.release",
+					"when": "resourceLangId == blitzbasic",
+					"group": "navigation@1"
+				},
+				{
+					"command": "blitz.run.debug",
+					"when": "resourceLangId == blitzbasic",
+					"group": "navigation@2"
+				}
+			]
+		},
+		"taskDefinitions": [
+			{
+				"type": "blitz",
+				"required": [
+					"action",
+					"mode"
+				],
+				"properties": {
+					"action": {
+						"type": "string",
+						"enum": [
+							"build",
+							"run",
+							"check"
+						],
+						"description": "Build an executable, run the program, or only check it."
+					},
+					"mode": {
+						"type": "string",
+						"enum": [
+							"debug",
+							"release"
+						],
+						"description": "Debug: no optimisation, debug information, exact floating point math. Release: optimised."
+					},
+					"file": {
+						"type": "string",
+						"description": "The program. ${file} (the open file) if not given."
+					}
+				}
+			}
+		],
+		"problemMatchers": [
+			{
+				"name": "blitzcc",
+				"owner": "blitz",
+				"fileLocation": [
+					"autoDetect",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.+?):(\\d+):(\\d+): (error|warning|notice): (.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		],
+		"breakpoints": [
+			{
+				"language": "blitzbasic"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "blitz",
+				"label": "BlitzLLVM",
+				"languages": [
+					"blitzbasic"
+				],
+				"configurationAttributes": {
+					"launch": {
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "The program (.bb) to build with debug information and debug.",
+								"default": "${file}"
+							},
+							"args": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"description": "Arguments for the program.",
+								"default": []
+							},
+							"cwd": {
+								"type": "string",
+								"description": "The folder the program runs in. The folder of the program (.bb) if not given, like the original."
+							},
+							"stopAtEntry": {
+								"type": "boolean",
+								"default": false
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "blitz",
+						"request": "launch",
+						"name": "Debug the open program",
+						"program": "${file}"
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "BlitzLLVM: Debug the open program",
+						"body": {
+							"type": "blitz",
+							"request": "launch",
+							"name": "Debug the open program",
+							"program": "^\"\\${file}\""
+						}
+					}
+				]
+			}
+		]
+	}
+}
