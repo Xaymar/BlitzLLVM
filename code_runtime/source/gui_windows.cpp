@@ -317,6 +317,21 @@ int32_t bb_window_maximized(int32_t handle)
 	return need_kind(handle, K_WINDOW, "WindowMaximized")->maximized ? 1 : 0;
 }
 
+// WindowScale: the scale of the display that a window is on (1.5 for Windows at 150 %, 2 for a Retina display), which the
+// runtime scales the window by unless the program said it does that itself. 1 for a window drawn inside the window of Graphics.
+float bb_window_scale(int32_t handle)
+{
+	gadget* g = need_kind(handle, K_WINDOW, "WindowScale");
+	return g->surface ? bb_gui_window_display_scale(g->surface) : 1.0f;
+}
+
+// WindowScaling: 1 (the default) has the runtime scale the windows by their display, 0 leaves them as many pixels as the
+// program says and lets it scale by itself with WindowScale.
+void bb_window_scaling(int32_t mode)
+{
+	bb_gui_scaling(mode != 0 ? 1 : 0);
+}
+
 int32_t bb_window_menu(int32_t handle)
 {
 	need_kind(handle, K_WINDOW, "WindowMenu");
@@ -395,10 +410,14 @@ void bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b)
 		dirty();
 		break;
 	case 11:
-		// Another display, another scale: the window keeps its size in the units of the program, so its size in those of the
-		// computer changes, and its gadgets are drawn again at the new scale.
+		// Another display, another scale (or WindowScaling changed): the window keeps its size in the units of the program, so
+		// its size in those of the computer changes, and its gadgets are drawn again at the new scale. The program is told the
+		// scale of the display in percent, for when it scales by itself.
 		if (!g->minimized && !g->maximized) {
 			bb_gui_window_set_shape(g->surface, g->x, g->y, g->w, g->h);
+		}
+		if (g->visible) {
+			post_to(event_window_scale, handle, int(lroundf(bb_gui_window_display_scale(g->surface) * 100.0f)));
 		}
 		dirty();
 		break;
