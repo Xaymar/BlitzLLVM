@@ -48,6 +48,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_SPRITE_HULL` | The outline that fits the picture of a sprite, see [[Sprite-Shapes]]. |
 | `BLITZLLVM_BLEND_DITHER` | Dither 2 through reading the target in the shader (`HWDither`). |
 | `BLITZLLVM_DITHER_TEMPORAL` | The noise of `Dither` moving from picture to picture (`DitherTemporal`). |
+| `BLITZLLVM_TRANSPARENCY_DISTANCE_SORT_MODE` | `1` orders see-through draws by View Distance and not by distance in space (`TransparencyDistanceSortMode`), 0 by default. |
 | `BLITZLLVM_DITHER_LOCAL_READ` | Blending in the shader through the local read extensions (only used where the GPU has them). |
 | `BLITZLLVM_DITHER_INTERLOCK` | Blending in the shader through the pixel interlock (only used where the GPU has it and the local read extensions are missing or off). |
 | `BLITZLLVM_COLLISION_BROADPHASE` | The broad phase of the collisions. |

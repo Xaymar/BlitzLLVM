@@ -34,7 +34,7 @@ Index 1000 to 1004 count what the last [RenderWorld](RenderWorld) cost, which do
 
 ## Related Commands
 
-[HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld), [TrisRendered](TrisRendered), [UpdateWorld](UpdateWorld)
+[HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld), [TransparencyDistanceSortMode](TransparencyDistanceSortMode), [TrisRendered](TrisRendered)
 
 <div align="center">
 

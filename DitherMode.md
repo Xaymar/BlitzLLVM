@@ -31,7 +31,7 @@ Both patterns move from frame to frame, which makes them average out over time a
 
 ## Related Commands
 
-[ClearWorld](ClearWorld), [Dither](Dither), [DitherTemporal](DitherTemporal), [HWDither](HWDither)
+[Dither](Dither), [DitherTemporal](DitherTemporal), [HWDither](HWDither), [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
 
 <div align="center">
 

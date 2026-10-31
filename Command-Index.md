@@ -853,6 +853,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TotalVidMem](TotalVidMem)
 * [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 * [TranslateEntity](TranslateEntity)
+* [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
 * [TreeViewNodeText](TreeViewNodeText)
 * [TreeViewRoot](TreeViewRoot)
 * [TriangleVertex](TriangleVertex)

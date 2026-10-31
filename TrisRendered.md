@@ -39,7 +39,7 @@ WaitKey
 
 ## Related Commands
 
-[RenderWorld](RenderWorld), [Stats3D](Stats3D), [UpdateWorld](UpdateWorld), [WBuffer](WBuffer)
+[Stats3D](Stats3D), [TransparencyDistanceSortMode](TransparencyDistanceSortMode), [UpdateWorld](UpdateWorld), [WBuffer](WBuffer)
 
 <div align="center">
 

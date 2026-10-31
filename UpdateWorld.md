@@ -52,7 +52,7 @@ Wend
 
 ## Related Commands
 
-[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [RenderWorld](RenderWorld), [Stats3D](Stats3D)
+[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [RenderWorld](RenderWorld), [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
 
 <div align="center">
 
