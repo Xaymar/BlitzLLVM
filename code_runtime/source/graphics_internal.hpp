@@ -175,6 +175,7 @@ namespace bb::gfx {
 	struct image_recipe {
 		enum class content { blank, pixels, blocks };
 		uint32_t           width = 0, height = 0, mips = 1, layers = 1; // pixels: all layers one after the other.
+		uint32_t           samples = 1;                                // Samples per pixel, for the images of order-independent transparency.
 		VkImageUsageFlags  usage = 0;
 		VkFormat           format = VK_FORMAT_R8G8B8A8_UNORM;
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -379,6 +380,11 @@ namespace bb::gfx {
 		VkPipeline            static_pipeline = VK_NULL_HANDLE;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
+		VkPipeline            oit3d[4]       = {}; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
+		VkPipeline            oit3dm[4]      = {}; // The same for the second pass of the moment based kind (it reads the sums of the first).
+		VkPipeline            oit_moments3d  = VK_NULL_HANDLE; // The first pass of the moment based kind.
+		VkPipeline            oit_slots3d    = VK_NULL_HANDLE; // Alpha-blended things for the slots of samples.
+		VkPipeline            oit_peel3d     = VK_NULL_HANDLE; // Alpha-blended things for a layer of the depth peeling (BLITZLLVM_OIT=5).
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
@@ -644,7 +650,7 @@ namespace bb::gfx {
 		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
-		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off. y: the layer of the texture (its frame, if it has them).
+		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off. y: the layer of the texture (its frame, if it has them). z: the place among the see-through entities, 0 (far) to 1 (near). w: the places per unit of distance across them, for fragments that are nearer or farther than the origin.
 	};
 
 
@@ -729,6 +735,7 @@ namespace bb::gfx {
 		uint32_t    first_command; // Where the GPU writes the commands to draw the clusters, once it is recorded.
 		float       growth; // How much its matrix lengthens a vector, at most.
 		bool        cone;   // Whether the GPU can leave out clusters of faces that all look away (CameraCulling bit 4), see record_culling.
+		bool        oit;    // Blended by the pass of order-independent transparency (see graphics_oit.cpp), with the pipeline of its blend mode in oit3d.
 	};
 
 
@@ -909,7 +916,7 @@ namespace bb::gfx {
 	bool mesh_buffers_write_only();
 	void mesh_allocation_info(VmaAllocationCreateInfo& alloc);
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1);
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1, uint32_t samples = 1);
 	void destroy_image(gpu_image& img);
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
 	void release_image(gpu_image& img);
@@ -969,6 +976,30 @@ namespace bb::gfx {
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
+	// Order-independent transparency (graphics_oit.cpp).
+	bool oit_active();
+	bool oit_moments(); // Whether the moment based kind is on (BLITZLLVM_OIT=2).
+	uint32_t oit_slots(); // The slots of samples of the kind that sorts fragments in the samples of a pixel (BLITZLLVM_OIT=3 for 4, =4 for 8): 0 if it is off or the driver has no such samples.
+	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth);
+	void oit_slots_to_sampled(uint32_t width, uint32_t height);
+	bool oit_peel();             // The exact reference (BLITZLLVM_OIT=5): the alpha-blended things are drawn one layer per pass, from the farthest layer to the nearest.
+	uint32_t oit_peel_layers();  // How many layers there are most (BLITZLLVM_OIT_LAYERS, 128 if it is not set).
+	/** Starts layer `layer` of the peeling: a pass with the color of the layer (cleared to nothing) and the depth that the layer writes, and gives the set (for set 3) of the depth it has to be nearer than. */
+	VkDescriptorSet oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	void oit_peel_to_sampled(uint32_t width, uint32_t height, uint32_t layer);
+	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out);
+	void oit_composite_layer(uint32_t width, uint32_t height);
+	void oit_accumulated_to_sampled(uint32_t width, uint32_t height);
+	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height);
+	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
+	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
+	void oit_moments_to_sampled(uint32_t width, uint32_t height);
+	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	VkDescriptorSet oit_moment_set(uint32_t width, uint32_t height);
+	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	void oit_to_sampled(uint32_t width, uint32_t height);
+	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
+	void oit_destroy();
 	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();

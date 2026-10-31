@@ -118,7 +118,7 @@ namespace bb::gfx {
 		}
 	}
 
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers)
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
 		gpu_image img;
 		img.format = format;
@@ -131,6 +131,7 @@ namespace bb::gfx {
 		img.recipe->height = height;
 		img.recipe->mips   = mips;
 		img.recipe->layers = layers;
+		img.recipe->samples = samples;
 		img.recipe->usage  = usage;
 		img.recipe->format = format;
 		img.recipe->aspect = aspect;
@@ -152,7 +153,7 @@ namespace bb::gfx {
 		info.extent            = { width, height, 1 };
 		info.mipLevels         = mips;
 		info.arrayLayers       = layers;
-		info.samples           = VK_SAMPLE_COUNT_1_BIT;
+		info.samples           = VkSampleCountFlagBits(samples);
 		info.tiling            = VK_IMAGE_TILING_OPTIMAL;
 		info.usage             = usage;
 		info.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
@@ -187,7 +188,7 @@ namespace bb::gfx {
 		view.subresourceRange.layerCount   = 1;
 		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
 		// Textures are sampled as arrays, with a layer for each frame of an animated one.
-		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (usage & VK_IMAGE_USAGE_SAMPLED_BIT)) {
+		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (samples == 1)) {
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 			view.subresourceRange.layerCount = layers;
 			check(vkCreateImageView(g.device, &view, nullptr, &img.array_view), "vkCreateImageView");
@@ -815,7 +816,7 @@ namespace bb::gfx {
 			break;
 		}
 		case image_recipe::content::blank:
-			fresh = create_image(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers);
+			fresh = create_image(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
 			if (fresh.image && (layout != VK_IMAGE_LAYOUT_UNDEFINED)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();

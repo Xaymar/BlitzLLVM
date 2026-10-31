@@ -30,3 +30,21 @@ End Function
 Function BenchFlip()
 	Flip 2
 End Function
+
+; Writes the buffer as the raw 16-bit halves of red, green and blue of every pixel from the top left (little endian): a buffer of depth 64 holds half floats,
+; which an 8-bit picture can't show. They stay halves because turning one into a Float needs a runtime function that not every platform's link has.
+Function BenchSaveRaw(path$)
+	Local f = WriteFile(path$)
+	Local x, y, c:Long
+	LockBuffer BackBuffer()
+	For y = 0 To GraphicsHeight() - 1
+		For x = 0 To GraphicsWidth() - 1
+			c = ReadPixelFast64(x, y, BackBuffer())
+			WriteShort f, Int((c Shr 32) And $FFFF)
+			WriteShort f, Int((c Shr 16) And $FFFF)
+			WriteShort f, Int(c And $FFFF)
+		Next
+	Next
+	UnlockBuffer BackBuffer()
+	CloseFile f
+End Function
