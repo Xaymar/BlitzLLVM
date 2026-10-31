@@ -581,10 +581,10 @@ elseif(CASE STREQUAL "repository")
 
 elseif(CASE STREQUAL "return_types")
 	# The type of a function is written without spaces, Void as well, and the formatter never adds one.
-	expect_format("Function Show:Void(a%)\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n")
-	expect_format("Function Show:Void( a% )\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n")
-	expect_format("Function Count:Int32()\n\tReturn 3\nEnd Function\n" "Function Count:Int32()\n\tReturn 3\nEnd Function\n")
-	expect_format("Function Show(a%)\nEnd Function\n" "Function Show(a%)\nEnd Function\n")
+	expect_format("Function Show:Void(a%)\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Show:Void( a% )\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Count:Int32()\n\tReturn 3\nEnd Function\n" "Function Count:Int32()\n\tReturn 3\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Show(a%)\nEnd Function\n" "Function Show(a%)\nEnd Function\n" --line-ending=lf)
 
 else()
 	message(FATAL_ERROR "Unknown case '${CASE}'.")
