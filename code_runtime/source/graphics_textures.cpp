@@ -809,7 +809,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 		// The file is read now, so it can be deleted or replaced right after, and so a missing file or one that is no picture
 		// gives 0 as ever. The decoding is what goes on another thread.
 		size_t size = 0;
-		void*  data = SDL_LoadFile(bb_native_path(file), &size);
+		void*  data = read_picture_file(file, &size);
 		if (!data) {
 			return 0;
 		}

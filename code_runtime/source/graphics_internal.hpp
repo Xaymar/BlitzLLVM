@@ -1233,6 +1233,8 @@ namespace bb::gfx {
 	};
 	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
 	bool load_picture(const char* file, picture& out);
+	/** The bytes of a picture file, as SDL_LoadFile gives them (to free with SDL_free); the pictures inside glTF files are found as well. Null if there are none. */
+	void* read_picture_file(const char* file, size_t* size);
 	/** PNG files of 16 bits per channel: SDL_image cuts them down to 8, so they are read with all of them (graphics_png16.cpp). */
 	bool png_has_16_bits(const uint8_t* data, size_t size);
 	SDL_Surface* load_png_16(const uint8_t* data, size_t size, bool& has_alpha);
