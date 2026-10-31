@@ -419,6 +419,16 @@ set_tests_properties(memory-allocator-debug PROPERTIES ENVIRONMENT "BLITZLLVM_DE
 set_tests_properties(memory-allocator-keep-spans PROPERTIES ENVIRONMENT "BLITZLLVM_ALLOC_RELEASE=0")
 set_tests_properties(memory-allocator memory-allocator-debug memory-allocator-keep-spans PROPERTIES LABELS "memory")
 
+# The physics library (code_physics), through its C interface: what it answers against what is worked out by hand, and one thread against all of them.
+add_executable(physics_test "${PROJECT_SOURCE_DIR}/../code_physics/tests/physics_test.cpp")
+target_link_libraries(physics_test PRIVATE blitzphysics)
+if(WIN32)
+	# Windows looks for the library next to the program.
+	add_custom_command(TARGET physics_test POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzphysics>" "$<TARGET_FILE_DIR:physics_test>")
+endif()
+add_test(NAME physics-library COMMAND physics_test)
+set_tests_properties(physics-library PROPERTIES LABELS "physics")
+
 # The detection of CPU features of the runtime (code_runtime/source/cpu.c): the rules of BLITZLLVM_CPU on made up CPUs, and this CPU through
 # every setting, which must never report more than the CPU has. Built on its own, it needs nothing but the C library.
 add_executable(cpu_test "${TEST_DIRECTORY}/cpu/cpu_test.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/cpu.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/environment.c")
