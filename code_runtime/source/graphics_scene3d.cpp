@@ -16,10 +16,12 @@
 
 #include "graphics_internal.hpp"
 #include "memory.h"
+#include "parallel.hpp"
 
 #include "shaders.inc"
 
 #include <algorithm>
+#include <atomic>
 #include <mutex>
 #include <tuple>
 #include <map>
@@ -602,19 +604,48 @@ namespace bb::gfx {
 		if (gpu.clusters_made && (flush_number - gpu.clusters_flush < 30)) {
 			return false; // A surface that changes every frame would be sorted every frame.
 		}
-		uint32_t triangles = s.indices.size / 3;
-		float    lo[3] = { INFINITY, INFINITY, INFINITY }, hi[3] = { -INFINITY, -INFINITY, -INFINITY };
-		for (uint32_t i = 0; i < s.indices.size; i++) {
-			if (s.indices[i] >= s.vertices.size) {
-				return false;
+		bb::profile_scope timer(bb::PROFILE_CLUSTERS);
+		// Surfaces with many triangles are split over the threads: what each element does does not depend on the others, and the result is the
+		// same as one thread makes. Smaller ones are not worth waking the threads for.
+		constexpr uint32_t grain = 4096;
+		bb::work_pool&     threads = bb::pool();
+		uint32_t           triangles = s.indices.size / 3;
+		bool               bad       = false;
+		float              lo[3] = { INFINITY, INFINITY, INFINITY }, hi[3] = { -INFINITY, -INFINITY, -INFINITY };
+		{
+			uint32_t parts = threads.parts(s.vertices.size, grain);
+			float    part_lo[16][3], part_hi[16][3];
+			std::atomic<bool> outside{ false };
+			threads.split(parts, s.vertices.size, [&](uint32_t part, uint32_t first, uint32_t last) {
+				float l[3] = { INFINITY, INFINITY, INFINITY }, h[3] = { -INFINITY, -INFINITY, -INFINITY };
+				for (uint32_t v = first; v < last; v++) {
+					const float p[3] = { s.vertices[v].x, s.vertices[v].y, s.vertices[v].z };
+					for (int k = 0; k < 3; k++) {
+						l[k] = fminf(l[k], p[k]);
+						h[k] = fmaxf(h[k], p[k]);
+					}
+				}
+				memcpy(part_lo[part], l, sizeof(l));
+				memcpy(part_hi[part], h, sizeof(h));
+			});
+			threads.split(threads.parts(s.indices.size, grain), s.indices.size, [&](uint32_t, uint32_t first, uint32_t last) {
+				for (uint32_t i = first; i < last; i++) {
+					if (s.indices[i] >= s.vertices.size) {
+						outside.store(true, std::memory_order_relaxed);
+						return;
+					}
+				}
+			});
+			bad = outside.load();
+			for (uint32_t part = 0; part < parts; part++) {
+				for (int k = 0; k < 3; k++) {
+					lo[k] = fminf(lo[k], part_lo[part][k]);
+					hi[k] = fmaxf(hi[k], part_hi[part][k]);
+				}
 			}
 		}
-		for (uint32_t v = 0; v < s.vertices.size; v++) {
-			const float p[3] = { s.vertices[v].x, s.vertices[v].y, s.vertices[v].z };
-			for (int k = 0; k < 3; k++) {
-				lo[k] = fminf(lo[k], p[k]);
-				hi[k] = fmaxf(hi[k], p[k]);
-			}
+		if (bad) {
+			return false;
 		}
 		float extent[3];
 		for (int k = 0; k < 3; k++) {
@@ -629,95 +660,122 @@ namespace bb::gfx {
 			return x;
 		};
 		std::vector<std::pair<uint32_t, uint32_t>> order(triangles);
-		for (uint32_t t = 0; t < triangles; t++) {
-			float center[3] = { 0, 0, 0 };
-			for (int c = 0; c < 3; c++) {
-				bb::vertex3d const& v = s.vertices[s.indices[t * 3 + c]];
-				center[0] += v.x;
-				center[1] += v.y;
-				center[2] += v.z;
+		uint32_t parts = threads.parts(triangles, grain);
+		threads.split(parts, triangles, [&](uint32_t, uint32_t first, uint32_t last) {
+			for (uint32_t t = first; t < last; t++) {
+				float center[3] = { 0, 0, 0 };
+				for (int c = 0; c < 3; c++) {
+					bb::vertex3d const& v = s.vertices[s.indices[t * 3 + c]];
+					center[0] += v.x;
+					center[1] += v.y;
+					center[2] += v.z;
+				}
+				uint32_t q[3];
+				for (int k = 0; k < 3; k++) {
+					float unit = (center[k] / 3.0f - lo[k]) / extent[k];
+					q[k]       = uint32_t(fminf(fmaxf(unit, 0.0f), 1.0f) * 1023.0f);
+				}
+				order[t] = { spread(q[0]) | (spread(q[1]) << 1) | (spread(q[2]) << 2), t };
 			}
-			uint32_t q[3];
-			for (int k = 0; k < 3; k++) {
-				float unit = (center[k] / 3.0f - lo[k]) / extent[k];
-				q[k]       = uint32_t(fminf(fmaxf(unit, 0.0f), 1.0f) * 1023.0f);
-			}
-			order[t] = { spread(q[0]) | (spread(q[1]) << 1) | (spread(q[2]) << 2), t };
+		});
+		// Every part sorts its share and the shares are merged in pairs. The triangle numbers are all different, so the order is the same
+		// whatever the number of threads.
+		threads.split(parts, triangles, [&](uint32_t, uint32_t first, uint32_t last) { std::sort(order.begin() + first, order.begin() + last); });
+		for (uint32_t width = 1; width < parts; width *= 2) {
+			uint32_t pairs = (parts + 2 * width - 1) / (2 * width);
+			auto     edge  = [&](uint32_t part) { return uint32_t(uint64_t(triangles) * std::min(part, parts) / parts); };
+			threads.split(pairs, pairs, [&](uint32_t, uint32_t first, uint32_t last) {
+				for (uint32_t pair = first; pair < last; pair++) {
+					uint32_t begin = pair * 2 * width, middle = begin + width;
+					if (middle < parts) {
+						std::inplace_merge(order.begin() + edge(begin), order.begin() + edge(middle), order.begin() + edge(begin + 2 * width));
+					}
+				}
+			});
 		}
-		std::sort(order.begin(), order.end());
 
 		VkBuffer      buffer     = VK_NULL_HANDLE;
 		VmaAllocation allocation = VK_NULL_HANDLE;
 		uint32_t*     mapped     = nullptr;
 		create_buffer(VkDeviceSize(triangles) * 3 * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, true, buffer, allocation, reinterpret_cast<void**>(&mapped));
+		uint32_t count_clusters = (triangles + cluster_triangles - 1) / cluster_triangles;
 		gpu.clusters.clear();
-		for (uint32_t first = 0; first < triangles; first += cluster_triangles) {
-			uint32_t count = std::min(cluster_triangles, triangles - first);
-			float    box_lo[3] = { INFINITY, INFINITY, INFINITY }, box_hi[3] = { -INFINITY, -INFINITY, -INFINITY };
-			for (uint32_t k = 0; k < count; k++) {
-				for (int c = 0; c < 3; c++) {
-					uint32_t index = s.indices[order[first + k].second * 3 + c];
-					mapped[(first + k) * 3 + c] = index;
-					bb::vertex3d const& v = s.vertices[index];
-					const float p[3] = { v.x, v.y, v.z };
-					for (int a = 0; a < 3; a++) {
-						box_lo[a] = fminf(box_lo[a], p[a]);
-						box_hi[a] = fmaxf(box_hi[a], p[a]);
+		gpu.clusters.reserve(count_clusters);
+		gpu.clusters.size = count_clusters;
+		threads.split(threads.parts(count_clusters, 32), count_clusters, [&](uint32_t, uint32_t first_cluster, uint32_t last_cluster) {
+			for (uint32_t number = first_cluster; number < last_cluster; number++) {
+				uint32_t first = number * cluster_triangles;
+				uint32_t count = std::min(cluster_triangles, triangles - first);
+				uint32_t indices[cluster_triangles * 3];
+				float    box_lo[3] = { INFINITY, INFINITY, INFINITY }, box_hi[3] = { -INFINITY, -INFINITY, -INFINITY };
+				for (uint32_t k = 0; k < count; k++) {
+					for (int c = 0; c < 3; c++) {
+						uint32_t index = s.indices[order[first + k].second * 3 + c];
+						indices[k * 3 + c] = index;
+						mapped[(first + k) * 3 + c] = index;
+						bb::vertex3d const& v = s.vertices[index];
+						const float p[3] = { v.x, v.y, v.z };
+						for (int a = 0; a < 3; a++) {
+							box_lo[a] = fminf(box_lo[a], p[a]);
+							box_hi[a] = fmaxf(box_hi[a], p[a]);
+						}
 					}
 				}
-			}
-			gpu_cluster cluster = {};
-			float       reach   = 0;
-			for (int a = 0; a < 3; a++) {
-				cluster.sphere[a] = 0.5f * (box_lo[a] + box_hi[a]);
-			}
-			for (uint32_t k = 0; k < count * 3; k++) {
-				bb::vertex3d const& v = s.vertices[mapped[first * 3 + k]];
-				float dx = v.x - cluster.sphere[0], dy = v.y - cluster.sphere[1], dz = v.z - cluster.sphere[2];
-				reach = fmaxf(reach, dx * dx + dy * dy + dz * dz);
-			}
-			cluster.sphere[3]   = sqrtf(reach) * 1.0001f + 1e-6f;
-			// The cone around the directions that the faces look in: the faces that all look away from the camera need not be drawn.
-			// Faces without an area do not draw anything and are left out. Clockwise faces look at the camera.
-			const float front_sign = 1.0f;
-			float sum[3] = { 0, 0, 0 };
-			std::vector<float> normals;
-			for (uint32_t k = 0; k < count; k++) {
-				bb::vertex3d const* v[3];
-				for (int c = 0; c < 3; c++) {
-					v[c] = &s.vertices[mapped[(first + k) * 3 + c]];
-				}
-				float e1[3] = { v[1]->x - v[0]->x, v[1]->y - v[0]->y, v[1]->z - v[0]->z };
-				float e2[3] = { v[2]->x - v[0]->x, v[2]->y - v[0]->y, v[2]->z - v[0]->z };
-				float n[3]  = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
-				float len   = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-				if (!(len > 1e-20f)) {
-					continue;
-				}
+				gpu_cluster cluster = {};
+				float       reach   = 0;
 				for (int a = 0; a < 3; a++) {
-					n[a] /= len;
-					sum[a] += n[a];
-					normals.push_back(n[a]);
+					cluster.sphere[a] = 0.5f * (box_lo[a] + box_hi[a]);
 				}
-			}
-			float axis_len = sqrtf(sum[0] * sum[0] + sum[1] * sum[1] + sum[2] * sum[2]);
-			cluster.cone[3] = 2.0f;
-			if (axis_len > 1e-6f) {
-				float mindot = 1.0f;
-				for (size_t k = 0; k < normals.size(); k += 3) {
-					mindot = fminf(mindot, (normals[k] * sum[0] + normals[k + 1] * sum[1] + normals[k + 2] * sum[2]) / axis_len);
+				for (uint32_t k = 0; k < count * 3; k++) {
+					bb::vertex3d const& v = s.vertices[indices[k]];
+					float dx = v.x - cluster.sphere[0], dy = v.y - cluster.sphere[1], dz = v.z - cluster.sphere[2];
+					reach = fmaxf(reach, dx * dx + dy * dy + dz * dz);
 				}
-				if (mindot > 0.1f) {
-					for (int a = 0; a < 3; a++) {
-						cluster.cone[a] = front_sign * sum[a] / axis_len;
+				cluster.sphere[3]   = sqrtf(reach) * 1.0001f + 1e-6f;
+				// The cone around the directions that the faces look in: the faces that all look away from the camera need not be drawn.
+				// Faces without an area do not draw anything and are left out. Clockwise faces look at the camera.
+				const float front_sign = 1.0f;
+				float sum[3] = { 0, 0, 0 };
+				float normals[cluster_triangles * 3];
+				uint32_t kept = 0;
+				for (uint32_t k = 0; k < count; k++) {
+					bb::vertex3d const* v[3];
+					for (int c = 0; c < 3; c++) {
+						v[c] = &s.vertices[indices[k * 3 + c]];
 					}
-					cluster.cone[3] = fminf(1.0f, sqrtf(fmaxf(0.0f, 1.0f - mindot * mindot)) + 0.002f);
+					float e1[3] = { v[1]->x - v[0]->x, v[1]->y - v[0]->y, v[1]->z - v[0]->z };
+					float e2[3] = { v[2]->x - v[0]->x, v[2]->y - v[0]->y, v[2]->z - v[0]->z };
+					float n[3]  = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
+					float len   = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+					if (!(len > 1e-20f)) {
+						continue;
+					}
+					for (int a = 0; a < 3; a++) {
+						n[a] /= len;
+						sum[a] += n[a];
+						normals[kept * 3 + a] = n[a];
+					}
+					kept++;
 				}
+				float axis_len = sqrtf(sum[0] * sum[0] + sum[1] * sum[1] + sum[2] * sum[2]);
+				cluster.cone[3] = 2.0f;
+				if (axis_len > 1e-6f) {
+					float mindot = 1.0f;
+					for (uint32_t k = 0; k < kept * 3; k += 3) {
+						mindot = fminf(mindot, (normals[k] * sum[0] + normals[k + 1] * sum[1] + normals[k + 2] * sum[2]) / axis_len);
+					}
+					if (mindot > 0.1f) {
+						for (int a = 0; a < 3; a++) {
+							cluster.cone[a] = front_sign * sum[a] / axis_len;
+						}
+						cluster.cone[3] = fminf(1.0f, sqrtf(fmaxf(0.0f, 1.0f - mindot * mindot)) + 0.002f);
+					}
+				}
+				cluster.first_index = int32_t(first * 3);
+				cluster.index_count = int32_t(count * 3);
+				gpu.clusters.data[number] = cluster;
 			}
-			cluster.first_index = int32_t(first * 3);
-			cluster.index_count = int32_t(count * 3);
-			gpu.clusters.push(cluster);
-		}
+		});
 		if (gpu.cluster_index_buffer) {
 			graveyard.push({ gpu.cluster_index_buffer, gpu.cluster_index_allocation });
 		}
