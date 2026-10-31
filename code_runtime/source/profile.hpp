@@ -22,11 +22,29 @@ namespace bb {
 
 	inline bool              profile_compiled = false; // The program was compiled with --profile (or -d), so the commands of profiling work.
 	inline bool              profile_enabled = false;  // The timers run right now (profile_compiled, and not turned off by ProfileEnable).
+	inline double            profile_slow_ms = 0.0;    // Frames that take longer than this are listed (BLITZLLVM_PROFILE_SLOW, ProfileSlow), 0 is off.
 	inline bool              profile_report  = false;  // Flip prints the fps and the timers once a second (BLITZLLVM_PROFILE_FPS, ProfileFPS).
 	inline bool              profile_symbols = false; // The program was built with -g or -d, so addresses can be turned into names.
 	inline volatile uint32_t profile_frame   = 0;     // How many Flips there were, which the call stacks of the sampler are tagged with.
 	inline uint64_t          profile_ticks[PROFILE_COUNT] = {};
 	inline const char* const profile_names[PROFILE_COUNT] = { "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay", "  RenderWorld: lights+cameras", "  RenderWorld: collect", "  RenderWorld: draws", "  RenderWorld: sort+group", "    (part of draws) clusters for GPU culling", "  record commands" };
+
+	// The numbers of one frame (what profile_record_frame takes): 0 is the time of the frame in ms, then the timers above (ms), the time spent waiting for
+	// the GPU, the GPU passes (scene, 2d, copy, present, frame; the GPU reports them a frame or two late, so they are what finished during this frame) and vkQueueSubmit.
+	constexpr int PROFILE_ITEMS = 1 + PROFILE_COUNT + 1 + 5 + 1;
+	extern const char* const profile_item_names[PROFILE_ITEMS];
+
+	// Everything that profiling says goes through profile_print: to stderr, or to the file of ProfileOutput, and also to the string of ProfileText$ while it is captured.
+	void        profile_print(const char* format, ...);
+	void        profile_set_output(const char* path);
+	void        profile_set_capture(bool on);
+	const char* profile_take_text();
+	void        profile_set_recording(bool on);
+	bool        profile_recording();
+	void        profile_record_frame(uint32_t number, const double* values);
+	int         profile_frame_count();
+	int         profile_frame_number(int index);
+	float       profile_frame_value(int index, int item);
 
 	struct profile_scope {
 		int      slot;
