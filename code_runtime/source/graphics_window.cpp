@@ -570,14 +570,30 @@ extern "C" float bb_profile_frame_value(const char* key)
 	return bb::profile_compiled ? bb::profile_last_frame_value(bb_s(key)) : 0.0f;
 }
 
+// ProfileSectionStart key$ / ProfileSectionEnd key$: Times a part of the program, which gets a key of its own next to the ones of the runtime.
+// The time that a key collects between two Flips is its number for that frame. A key that is started again after it ended adds up.
+extern "C" void bb_profile_section_start(const char* key)
+{
+	if (bb::profile_compiled) {
+		bb::profile_section_start(bb_s(key));
+	}
+}
+
+extern "C" void bb_profile_section_end(const char* key)
+{
+	if (bb::profile_compiled) {
+		bb::profile_section_end(bb_s(key));
+	}
+}
+
 extern "C" int32_t bb_profile_item_count(void)
 {
-	return bb::PROFILE_ITEMS;
+	return bb::PROFILE_ITEMS + bb::profile_section_count();
 }
 
 extern "C" const char* bb_profile_item_name(int32_t item)
 {
-	const char* name = (item >= 0 && item < bb::PROFILE_ITEMS) ? bb::profile_item_names[item] : "";
+	const char* name = bb::profile_item_name(item);
 	return bb_copy(name, strlen(name));
 }
 
@@ -628,6 +644,7 @@ namespace {
 		static bool             have_frame    = false;
 		static int              slow_follow   = 0;
 		static profile_counters last_report   = {};
+		static double           section_report[64] = {}; // The totals of the sections at the last report.
 		static Uint64           report_time   = 0;
 		static int              report_frames = 0;
 		static bool             report_was_on = false;
@@ -662,7 +679,13 @@ namespace {
 						bb::profile_print(" %s %.1f,", name, values[1 + i]);
 					}
 				}
-				bb::profile_print(" waiting for the GPU %.1f\n", values[1 + bb::PROFILE_COUNT]);
+				bb::profile_print(" waiting for the GPU %.1f", values[1 + bb::PROFILE_COUNT]);
+				for (int i = 0; i < bb::profile_section_count(); i++) {
+					if (bb::profile_section_last(i) >= 0.5) {
+						bb::profile_print(", %s %.1f", bb::profile_section_key(i), bb::profile_section_last(i));
+					}
+				}
+				bb::profile_print("\n");
 				slow_follow = 4;
 			}
 			// The GPU times come back a frame or two late, so the slow frame and the three after it each list what the GPU finished since the Flip before.
@@ -684,6 +707,9 @@ namespace {
 			report_frames = 0;
 			report_time   = SDL_GetTicks();
 			last_report   = now;
+			for (int i = 0; i < bb::profile_section_count(); i++) {
+				section_report[i] = bb::profile_section_total(i);
+			}
 		}
 		report_was_on = report;
 		if (report) {
@@ -695,6 +721,10 @@ namespace {
 				bb::profile_print("  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", (now.pass[0] - last_report.pass[0]) * 1e-6, (now.pass[1] - last_report.pass[1]) * 1e-6, (now.pass[2] - last_report.pass[2]) * 1e-6, (now.pass[3] - last_report.pass[3]) * 1e-6, (now.pass[4] - last_report.pass[4]) * 1e-6);
 				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
 					bb::profile_print("  %s: %.1f ms\n", bb::profile_names[i], profile_ms(now.ticks[i] - last_report.ticks[i]));
+				}
+				for (int i = 0; i < bb::profile_section_count(); i++) {
+					bb::profile_print("  %s: %.1f ms\n", bb::profile_section_key(i), bb::profile_section_total(i) - section_report[i]);
+					section_report[i] = bb::profile_section_total(i);
 				}
 				report_frames = 0;
 				report_time   = ticks;

@@ -546,6 +546,8 @@
 		{ "profileenable", "bb_profile_enable", 'v', "i", 1, {}, false },
 		{ "profilefps", "bb_profile_fps", 'v', "i", 1, {}, false },
 		{ "profilesample", "bb_profile_sample", 'v', "s", 1, {}, false },
+		{ "profilesectionstart", "bb_profile_section_start", 'v', "s", 1, {}, false },
+		{ "profilesectionend", "bb_profile_section_end", 'v', "s", 1, {}, false },
 		{ "profileslow", "bb_profile_slow", 'v', "f", 1, {}, false },
 		{ "profileoutput", "bb_profile_output", 'v', "s", 1, {}, false },
 		{ "profileframenumber", "bb_profile_frame_number", 'i', "", 0, {}, false },

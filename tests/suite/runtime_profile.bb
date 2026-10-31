@@ -20,6 +20,12 @@ ProfileOutput ""
 ProfileSlow 5
 ProfileSlow 0
 CheckTrue "the number of the last frame is not negative", ProfileFrameNumber() >= 0
+ProfileSectionStart "section"
+ProfileSectionEnd "section"
+ProfileSectionEnd "section"
+ProfileSectionStart "frame"
+ProfileSectionEnd "frame"
+CheckTrue "a section is found by its key in any case", ProfileFrameValue("SECTION") >= 0
 CheckTrue "a key that does not exist is 0", ProfileFrameValue("no such item") = 0
 CheckTrue "the time of the last frame is not negative", ProfileFrameValue("frame") >= 0
 CheckTrue "there is a name for every item", ProfileItemName$(0) <> "" And ProfileItemName$(ProfileItemCount() - 1) <> ""

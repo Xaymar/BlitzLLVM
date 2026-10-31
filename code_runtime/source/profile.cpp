@@ -15,12 +15,56 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <SDL3/SDL_timer.h>
 #include <string>
 
 // Where the text of the profiling goes (stderr, a file, a string the program can take) and the numbers of the last frame.
 namespace bb {
 	namespace {
 		FILE*       output_file    = nullptr;
+
+		// Sections of the program (ProfileSectionStart/End): their keys come after the ones above, in the order they were first used.
+		constexpr int custom_max = 64;
+		struct section {
+			char     key[64];
+			Uint64   start;
+			bool     open;
+			double   frame; // Milliseconds since the last Flip.
+			double   last;  // Milliseconds in the last measured frame.
+			double   total; // Milliseconds since the start, which the report of a second takes the difference of.
+		};
+		section sections[custom_max];
+		int     section_count = 0;
+
+		bool same_key(const char* a, const char* b)
+		{
+			while (*a && *b && tolower((unsigned char)*a) == tolower((unsigned char)*b)) {
+				a++;
+				b++;
+			}
+			return !*a && !*b;
+		}
+
+		section* find_section(const char* key, bool create)
+		{
+			for (int i = 0; i < section_count; i++) {
+				if (same_key(key, sections[i].key)) {
+					return &sections[i];
+				}
+			}
+			if (!create || section_count == custom_max || !*key) {
+				return nullptr;
+			}
+			for (int i = 0; i < PROFILE_ITEMS; i++) {
+				if (same_key(key, profile_item_names[i])) {
+					return nullptr; // The keys of the runtime are not the program's.
+				}
+			}
+			section* result = &sections[section_count++];
+			*result         = {};
+			snprintf(result->key, sizeof(result->key), "%s", key);
+			return result;
+		}
 
 		uint32_t last_number = 0;               // The Flip that ended the last measured frame.
 		float    last_values[PROFILE_ITEMS] = {}; // And what it measured.
@@ -67,8 +111,67 @@ namespace bb {
 		}
 	}
 
+	void profile_section_start(const char* key)
+	{
+		if (!profile_enabled) {
+			return;
+		}
+		if (section* s = find_section(key, true)) {
+			s->start = SDL_GetPerformanceCounter();
+			s->open  = true;
+		}
+	}
+
+	void profile_section_end(const char* key)
+	{
+		if (!profile_enabled) {
+			return;
+		}
+		if (section* s = find_section(key, false)) {
+			if (s->open) {
+				double ms = double(SDL_GetPerformanceCounter() - s->start) * 1000.0 / double(SDL_GetPerformanceFrequency());
+				s->frame += ms;
+				s->total += ms;
+				s->open = false;
+			}
+		}
+	}
+
+	int profile_section_count()
+	{
+		return section_count;
+	}
+
+	const char* profile_section_key(int index)
+	{
+		return sections[index].key;
+	}
+
+	double profile_section_last(int index)
+	{
+		return sections[index].last;
+	}
+
+	double profile_section_total(int index)
+	{
+		return sections[index].total;
+	}
+
+	const char* profile_item_name(int item)
+	{
+		if (item >= 0 && item < PROFILE_ITEMS) {
+			return profile_item_names[item];
+		}
+		item -= PROFILE_ITEMS;
+		return (item >= 0 && item < section_count) ? sections[item].key : "";
+	}
+
 	void profile_set_last_frame(uint32_t number, const double* values)
 	{
+		for (int i = 0; i < section_count; i++) {
+			sections[i].last  = sections[i].frame;
+			sections[i].frame = 0.0;
+		}
 		last_number = number;
 		for (int i = 0; i < PROFILE_ITEMS; i++) {
 			last_values[i] = float(values[i]);
@@ -92,6 +195,13 @@ namespace bb {
 			}
 			if (!*a && !*b) {
 				return last_values[item];
+			}
+		}
+		if (key) {
+			for (int i = 0; i < section_count; i++) {
+				if (same_key(key, sections[i].key)) {
+					return float(sections[i].last);
+				}
 			}
 		}
 		return 0.0f;

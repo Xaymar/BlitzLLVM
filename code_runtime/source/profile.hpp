@@ -37,6 +37,13 @@ namespace bb {
 	// Everything that profiling says goes through profile_print: to stderr, or to the file of ProfileOutput.
 	void        profile_print(const char* format, ...);
 	void        profile_set_output(const char* path);
+	void        profile_section_start(const char* key);
+	void        profile_section_end(const char* key);
+	int         profile_section_count();
+	const char* profile_section_key(int index);
+	double      profile_section_last(int index);
+	double      profile_section_total(int index);
+	const char* profile_item_name(int item); // The names of the runtime first, then the keys of the sections.
 	void        profile_set_last_frame(uint32_t number, const double* values);
 	int         profile_last_frame_number();
 	float       profile_last_frame_value(const char* key);

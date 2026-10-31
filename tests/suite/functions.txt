@@ -792,6 +792,8 @@ profileitemcount	runtime	done	%ProfileItemCount
 profileitemname	runtime	done	$ProfileItemName%item
 profileoutput	runtime	done	ProfileOutput$file
 profilesample	runtime	done	ProfileSample$file
+profilesectionend	runtime	done	ProfileSectionEnd$key
+profilesectionstart	runtime	done	ProfileSectionStart$key
 profileslow	runtime	done	ProfileSlow#milliseconds
 runtimeerror	runtime	done	RuntimeError$message
 setenv	runtime	done	SetEnv$env_var$value
