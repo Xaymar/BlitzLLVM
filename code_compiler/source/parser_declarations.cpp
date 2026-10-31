@@ -181,7 +181,8 @@ void blitz::parser::parse_type_decl()
 			advance();
 			break;
 		} else if (is_keyword(tk(), "endtype")) {
-			throw error(tk(), blitz::format("'%s' is not a keyword, write 'End Type' with a space.", tk().text.c_str()));
+			advance();
+			break;
 		} else if (!is_keyword(tk(), "field")) {
 			throw error(tk(), blitz::format("Unexpected %s, expected 'Field' or 'End Type'.", tk().to_string().c_str()));
 		}

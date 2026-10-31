@@ -254,7 +254,7 @@ namespace {
 
 std::vector<std::string> blitz::keywords::language()
 {
-	std::vector<std::string> words{ "Dim", "Goto", "Gosub", "Return", "Exit", "If", "Then", "Else", "EndIf", "EndSelect", "EndFunction", "ElseIf", "While", "Wend", "For", "To", "Step", "Next", "Function", "Type", "Each", "Local", "Global", "Field", "Const", "Select", "Case", "Default", "Repeat", "Until", "Forever", "Data", "Read", "Restore", "Abs", "Sgn", "Mod", "Pi", "True", "False", "Int", "Float", "Str", "Include", "New", "Delete", "First", "Last", "Insert", "Before", "After", "Null", "Object", "Handle", "And", "Or", "Xor", "Not", "Shl", "Shr", "Sar", "In", "Out", "InOut" };
+	std::vector<std::string> words{ "Dim", "Goto", "Gosub", "Return", "Exit", "If", "Then", "Else", "EndIf", "EndSelect", "EndFunction", "EndType", "ElseIf", "While", "Wend", "For", "To", "Step", "Next", "Function", "Type", "Each", "Local", "Global", "Field", "Const", "Select", "Case", "Default", "Repeat", "Until", "Forever", "Data", "Read", "Restore", "Abs", "Sgn", "Mod", "Pi", "True", "False", "Int", "Float", "Str", "Include", "New", "Delete", "First", "Last", "Insert", "Before", "After", "Null", "Object", "Handle", "And", "Or", "Xor", "Not", "Shl", "Shr", "Sar", "In", "Out", "InOut" };
 	std::sort(words.begin(), words.end());
 	return words;
 }

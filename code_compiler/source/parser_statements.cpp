@@ -210,12 +210,6 @@ void blitz::parser::parse_statement_inner(ast::block& into)
 	}
 
 	std::string word = lower(first.text);
-	// EndIf, EndSelect and EndFunction are accepted as the one-word form of their two-word counterparts. End Type has no
-	// one-word form, so on a line of its own say how to write it.
-	static const std::map<std::string, const char*> joined_ends{ { "endtype", "End Type" } };
-	if (auto joined = joined_ends.find(word); (joined != joined_ends.end()) && is_terminator(tk(1))) {
-		throw error(first, blitz::format("'%s' is not a keyword, write '%s' with a space.", first.text.c_str(), joined->second));
-	}
 	if ((word == "local") || (word == "global") || (word == "const")) {
 		parse_declare(into);
 	} else if (word == "if") {

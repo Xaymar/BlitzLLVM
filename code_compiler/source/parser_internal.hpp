@@ -29,7 +29,7 @@ namespace blitz::parser_detail {
 
 	// Words that can never be used as a variable or function name.
 	inline const std::set<std::string> reserved = {
-		"then",  "to",     "step",   "else",    "elseif", "endif",     "endselect", "endfunction", "end",    "wend",  "next", "until", "forever", "case",
+		"then",  "to",     "step",   "else",    "elseif", "endif",     "endselect", "endfunction", "endtype", "end",    "wend",  "next", "until", "forever", "case",
 		"default", "local", "global", "const",   "if",     "while",     "repeat", "for",   "select", "function",
 		"return", "exit",  "include", "dim",    "type",   "and",       "or",     "xor",   "mod",  "shl",   "shr",     "sar",
 		"not",    "data",   "read",   "restore", "goto",   "gosub",  "dim",    "type",   "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
