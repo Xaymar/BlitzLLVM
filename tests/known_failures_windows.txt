@@ -394,7 +394,6 @@ disabled: suite-run-graphics_save_pixels
 disabled: suite-run-graphics_save_nowindow_pixels
 suite-run-input_pixels
 suite-run-plusgui_pixels
-suite-run-plusgui_windows_pixels
 suite-run-runtime
 suite-debug-run-graphics_movies
 # Movies fail every other run under load (the decoder times out); they are not run until that is looked at.
