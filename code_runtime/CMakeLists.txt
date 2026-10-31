@@ -140,6 +140,7 @@ target_include_directories(blitzrt PRIVATE
 target_include_directories(blitzrt SYSTEM PRIVATE
 	${BLITZRT_INCLUDE_DIRECTORIES}
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
+	"${PROJECT_SOURCE_DIR}/third_party/cgltf"
 	"${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include"
 )
 if(NOT MSVC AND NOT APPLE)
