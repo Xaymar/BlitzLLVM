@@ -561,7 +561,7 @@ endforeach()
 find_program(NODE_EXECUTABLE NAMES node nodejs)
 if(NODE_EXECUTABLE)
 	# One test per stage, each runs the program up to its stage, so that the first failing one says what broke.
-	foreach(_STAGE IN ITEMS diagnostics symbols hover definition completion rename workspace format errors tidy)
+	foreach(_STAGE IN ITEMS diagnostics symbols semantic hover definition completion rename workspace format errors tidy)
 		add_test(NAME "lsp-smoke-${_STAGE}" COMMAND ${NODE_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/vscode/test/lsp_smoke.js" "$<TARGET_FILE:lsp>" "${TEST_DIRECTORY}/suite/functions.txt" "${_STAGE}")
 		set_tests_properties("lsp-smoke-${_STAGE}" PROPERTIES LABELS "tools" TIMEOUT 120)
 	endforeach()

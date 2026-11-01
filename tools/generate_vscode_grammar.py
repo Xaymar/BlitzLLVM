@@ -57,9 +57,9 @@ def grammar():
         "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
         "name": "BlitzBasic",
         "scopeName": "source.blitzbasic",
-        "patterns": [{"include": "#comment"}, {"include": "#string"}, {"include": "#label"}, {"include": "#declaration"}, {"include": "#number"},
+        "patterns": [{"include": "#comment"}, {"include": "#string"}, {"include": "#label"}, {"include": "#declaration"}, {"include": "#variable_list"}, {"include": "#type_ref"}, {"include": "#number"},
                      {"include": "#typename"}, {"include": "#field"}, {"include": "#keyword"}, {"include": "#builtin"}, {"include": "#operator"},
-                     {"include": "#suffix"}],
+                     {"include": "#sigil_variable"}, {"include": "#suffix"}],
         "repository": {
             "comment": {"name": "comment.line.semicolon.blitzbasic", "match": ";.*$"},
             "string": {"name": "string.quoted.double.blitzbasic", "begin": "\"", "end": "(\"|$)"},
@@ -85,6 +85,19 @@ def grammar():
                 {"name": "keyword.operator.word.blitzbasic", "match": "(?i)" + words(OPERATOR)},
                 {"name": "constant.language.blitzbasic", "match": "(?i)" + words(CONSTANT)},
             ]},
+            # `x.Type` and `New Type`, `Each Type`, `First Type`, `Last Type`
+            "type_ref": {"patterns": [
+                {"match": r"(?<=[A-Za-z0-9_%#$\)])(\.)(" + name + ")", "captures": {"1": {"name": "punctuation.separator.type.blitzbasic"}, "2": {"name": "storage.type.blitzbasic"}}},
+                {"match": r"(?i)\b(New|Each|First|Last)[ \t]+(" + name + ")", "captures": {"1": {"name": "keyword.other.object.blitzbasic"}, "2": {"name": "storage.type.blitzbasic"}}},
+            ]},
+            # Everything in a Local, Global or Dim statement that is not a keyword, a command or a type is a variable.
+            "variable_list": {"begin": r"(?i)\b(Local|Global|Dim)\b", "beginCaptures": {"1": {"name": "keyword.declaration.variable.blitzbasic"}}, "end": r"(?=;)|$", "patterns": [
+                {"include": "#string"}, {"include": "#number"}, {"include": "#type_ref"}, {"include": "#typename"}, {"include": "#field"}, {"include": "#keyword"}, {"include": "#builtin"},
+                {"include": "#operator"}, {"include": "#suffix"},
+                {"match": r"(?<![\\.\w])" + name, "name": "variable.other.readwrite.blitzbasic"},
+            ]},
+            # A name with a type character is a variable, wherever it is (the others need the language server, which knows the declarations).
+            "sigil_variable": {"match": r"\b(" + name + r")(?=[%#$])", "name": "variable.other.readwrite.blitzbasic"},
             "builtin": {"name": "support.function.builtin.blitzbasic", "match": "(?i)" + words(commands())},
             "operator": {"name": "keyword.operator.blitzbasic", "match": r"<>|<=|>=|[-+*/^=<>~]"},
             "suffix": {"name": "storage.type.suffix.blitzbasic", "match": r"(?<=[A-Za-z0-9_\)])(##|%%|[%#$])"},

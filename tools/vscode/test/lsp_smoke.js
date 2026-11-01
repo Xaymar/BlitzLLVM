@@ -117,7 +117,7 @@ function stage(name) {
   fs.writeFileSync(path.join(dir, 'other.bb'), 'Global shared = 2\nPrint shared\n');
   const uri = pathToFileURL(file).href;
   let result = await request('initialize', { processId: null, rootUri: pathToFileURL(dir).href, capabilities: {}, initializationOptions: { warningLevel: 3 } });
-  for (const c of ['hoverProvider', 'definitionProvider', 'renameProvider', 'documentFormattingProvider', 'documentSymbolProvider', 'codeActionProvider'])
+  for (const c of ['hoverProvider', 'definitionProvider', 'renameProvider', 'documentFormattingProvider', 'documentSymbolProvider', 'codeActionProvider', 'semanticTokensProvider'])
     assert(result.result.capabilities[c], c);
   notify('initialized', {});
   notify('textDocument/didOpen', { textDocument: { uri, languageId: 'blitzbasic', version: 1, text: source } });
@@ -135,6 +135,34 @@ function stage(name) {
   assert.deepStrictEqual(result.result.find((s) => s.name === 'Player').children.map((c) => c.name), ['name', 'score']);
 
   stage('symbols');
+
+  // Semantic tokens: variables, parameters, fields, functions, types, labels and commands get their own colours
+  result = await request('textDocument/semanticTokens/full', { textDocument: { uri } });
+  const types = ['variable', 'parameter', 'property', 'function', 'type', 'label'];
+  const tokens = [];
+  for (let i = 0, line = 0, column = 0; i < result.result.data.length; i += 5) {
+    const [dl, dc, length, type, modifiers] = result.result.data.slice(i, i + 5);
+    line += dl;
+    column = dl ? dc : column + dc;
+    tokens.push({ line, column, length, type: types[type], modifiers });
+  }
+  const tokenAt = (needle, nth = 0) => { const at = position(source, needle, nth); return tokens.find((t) => t.line === at.line && t.column === at.character); };
+  assert.strictEqual(tokenAt('total').type, 'variable');
+  assert.strictEqual(tokenAt('total').modifiers & 1, 1, 'declaration');
+  assert.strictEqual(tokenAt('MAX').modifiers & 2, 2, 'readonly');
+  assert.strictEqual(tokenAt('a, b').type, 'parameter');
+  assert.strictEqual(tokenAt('result').type, 'variable');
+  assert.strictEqual(tokenAt('Add').type, 'function');
+  assert.strictEqual(tokenAt('Player').type, 'type');
+  assert.strictEqual(tokenAt('name').type, 'property');
+  assert.strictEqual(tokenAt('start').type, 'label');
+  assert.strictEqual(tokenAt('Print').type, 'function');
+  assert.strictEqual(tokenAt('Print').modifiers & 4, 4, 'defaultLibrary');
+  assert.strictEqual(tokenAt('Local'), undefined, 'keywords are left to the grammar');
+  assert.strictEqual(tokenAt('score', 1).type, 'property');
+  assert.strictEqual(tokenAt('p\\score').type, 'variable');
+
+  stage('semantic');
 
   // Hover: a command and a function of the program
   result = await request('textDocument/hover', { textDocument: { uri }, position: position(source, 'Print', 0, 1) });

@@ -5,6 +5,7 @@
 // columns, counted from 0), and the token based searches that rename and go to definition use.
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 #include "tokens.hpp"
@@ -62,10 +63,14 @@ namespace blitz::lsp {
 			size_t end   = 0;
 			size_t scope_begin = 0; // Function that it is local to (byte range), the whole file if it is global
 			size_t scope_end   = 0;
+			std::string name; // Lower case, without the type character
 		};
 
 		/** The places that the declarations of a name are, in the order they are written in the file. */
 		std::vector<declaration> declarations_of(std::string const& lower_name) const;
+
+		/** Every declaration of the file, in the order they are written. */
+		std::vector<declaration> all_declarations() const { return collect(nullptr); }
 
 		/** The byte range of the function that the offset is in. false if it is in the main program. */
 		bool function_at(size_t offset, size_t& begin, size_t& end, std::string* name = nullptr) const;
@@ -92,16 +97,40 @@ namespace blitz::lsp {
 		/** Convenience for one document: plan and apply. Empty and 'why' set if nothing can be renamed. */
 		std::vector<std::pair<size_t, size_t>> rename_targets(size_t offset, std::string& why, std::string const& builtin_hint = std::string()) const;
 
+		/** What the words of the file are, for the colours of the editor. The types are the legend of the server. */
+		enum class semantic_type { variable, parameter, property, function, type, label };
+		static constexpr int semantic_declaration = 1; // Modifier bits
+		static constexpr int semantic_readonly    = 2;
+		static constexpr int semantic_library     = 4;
+		struct semantic_word {
+			size_t        begin = 0; // Byte offsets of the name without its type character
+			size_t        end   = 0;
+			semantic_type type  = semantic_type::variable;
+			int           modifiers = 0;
+		};
+		/** is_command: tells if a lower case name is a command of the runtime. */
+		std::vector<semantic_word> semantic_words(std::function<bool(std::string const&)> const& is_command) const;
+
 		/** The files named by `Include "..."`, as written. */
 		std::vector<std::string> includes() const;
 
 		private:
 		void build();
+		void find_functions();
+		/** The declarations of one name, or of every name if the filter is null. */
+		std::vector<declaration> collect(std::string const* filter) const;
 
 		std::vector<tools::token> _tokens;
 		std::vector<size_t>       _offsets; // Start of each token
 		std::vector<size_t>       _starts;  // Start of each line
 		std::vector<word>         _words;
+		struct function_range {
+			size_t      begin = 0;
+			size_t      end   = 0;
+			std::string name;
+		};
+		std::vector<function_range> _functions;
+		std::vector<size_t>       _word_of; // Word of each token (-1 if it is none)
 	};
 
 	/** The edit that turns `from` into `to` with the least text: the common start and end are kept. */

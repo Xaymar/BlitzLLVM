@@ -85,6 +85,7 @@ namespace blitz::lsp {
 		json           symbols_of(state& s);
 		json           definition(json const& params);
 		json           hover(json const& params);
+		json           semantic_tokens(json const& params);
 		json           completion(json const& params);
 		json           format(json const& params);
 		json           rename(json const& params);

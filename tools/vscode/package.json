@@ -68,6 +68,7 @@
 			"[blitzbasic]": {
 				"editor.insertSpaces": false,
 				"editor.tabSize": 4,
+				"editor.semanticHighlighting.enabled": true,
 				"editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?"
 			}
 		},

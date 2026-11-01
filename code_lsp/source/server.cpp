@@ -222,6 +222,8 @@ namespace blitz::lsp {
 				reply(id, prepare_rename(params));
 			} else if (method == "textDocument/rename") {
 				reply(id, rename(params));
+			} else if (method == "textDocument/semanticTokens/full") {
+				reply(id, semantic_tokens(params));
 			} else if (method == "textDocument/references") {
 				reply(id, references(params));
 			} else if (method == "textDocument/codeAction") {
@@ -261,6 +263,15 @@ namespace blitz::lsp {
 		json rename = json::object();
 		rename.set("prepareProvider", true);
 		caps.set("renameProvider", rename);
+		json legend = json::object();
+		json types  = json::array();
+		types.push("variable").push("parameter").push("property").push("function").push("type").push("label");
+		json modifiers = json::array();
+		modifiers.push("declaration").push("readonly").push("defaultLibrary");
+		legend.set("tokenTypes", types).set("tokenModifiers", modifiers);
+		json semantic = json::object();
+		semantic.set("legend", legend).set("full", true).set("range", false);
+		caps.set("semanticTokensProvider", semantic);
 		json actions = json::object();
 		json kinds   = json::array();
 		kinds.push("quickfix").push("source.fixAll").push("source.fixAll.blitz");
@@ -906,6 +917,32 @@ namespace blitz::lsp {
 			}
 		}
 		return actions;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Semantic tokens: the names of variables, parameters, fields, functions, types and labels
+	////////////////////////////////////////////////////////////////////////////
+	json server::semantic_tokens(json const& params)
+	{
+		json r    = json::object();
+		json data = json::array();
+		auto* s   = find(params["textDocument"]["uri"].as_string());
+		if (s) {
+			auto words = s->doc->semantic_words([this](std::string const& name) { return _commands.find(name) != nullptr; });
+			uint32_t previous_line = 0, previous_column = 0;
+			for (auto const& w : words) {
+				auto from = s->doc->to_position(w.begin);
+				auto to   = s->doc->to_position(w.end);
+				if (to.line != from.line || to.character <= from.character) continue;
+				uint32_t column = (from.line == previous_line) ? from.character - previous_column : from.character;
+				data.push(int64_t(from.line - previous_line)).push(int64_t(column)).push(int64_t(to.character - from.character));
+				data.push(int64_t(w.type)).push(int64_t(w.modifiers));
+				previous_line   = from.line;
+				previous_column = from.character;
+			}
+		}
+		r.set("data", data);
+		return r;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
