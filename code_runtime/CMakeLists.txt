@@ -82,6 +82,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_info.cpp"
 	"source/graphics_gamma.cpp"
 	"source/graphics_oit.cpp"
+	"source/graphics_hdr.cpp"
 	"source/graphics_smaa.cpp"
 	"source/graphics_recovery.cpp"
 	"source/graphics_presenter.cpp"

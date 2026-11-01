@@ -437,6 +437,9 @@ namespace bb::gfx {
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 				surface().resized = true;
 				break;
+			case SDL_EVENT_WINDOW_HDR_STATE_CHANGED:
+				surface().resized = true; // AutoHDR: HDR was switched on or off, or the window moved to a display that differs; the swapchain follows.
+				break;
 			case SDL_EVENT_KEY_DOWN: {
 				if (!event.key.repeat) {
 					device_used(false, event.key.which);

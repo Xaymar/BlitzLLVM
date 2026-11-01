@@ -38,6 +38,11 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_ENTITY_LIGHTING` | `0` | The `EntityLighting` mode of entities that were not given one: `1` lights every pixel instead of every vertex. |
 | `BLITZLLVM_NET_IPV6` | `1` | `0` makes the network commands use IPv4 only, see [[IPv6]]. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |
+| `BLITZLLVM_AUTOHDR` | `2` | The mode `AutoHDR` starts with: 0 off, 1 HDR output, 2 with lifted highlights. It does nothing without an HDR display. |
+| `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for `AutoHDRWhite`, 0 follows the system. |
+| `BLITZLLVM_AUTOHDR_PEAK` | display | Peak brightness in nits for `AutoHDRPeak`, 0 uses the display's. |
+| `BLITZLLVM_AUTOHDR_EXPAND` | `1` | How far mode 2 lifts highlights (`AutoHDRExpand`), 0 to 1. |
+| `BLITZLLVM_AUTOHDR_DEBUG` | `0` | Prints to the console, and adds to `autohdr_debug.txt` in the working folder, what `AutoHDR` knew about the display each time the window's swapchain is made, for finding out why a display is not shown in HDR. |
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
@@ -122,7 +127,7 @@ x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.sta
 
 ## Tests
 
-`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS` and `BLITZLLVM_TEST_WINDOW_SHOTS` are read by the runtime and let the tests of BlitzLLVM look at what a window shows, press keys, open and close more windows than Graphics has, make the graphics device before the window of Graphics, show pictures in windows with a thread each, and save what every window of the BlitzPlus GUI shows as a picture; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs. The tests of BlitzLLVM set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program so that the program can set these with `SetEnv`; that variable is read at the start as well and is not for programs.
+`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_HDR`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS` and `BLITZLLVM_TEST_WINDOW_SHOTS` are read by the runtime and let the tests of BlitzLLVM look at what a window shows, press keys, open and close more windows than Graphics has, make the graphics device before the window of Graphics, show pictures in windows with a thread each, run the HDR pass without an HDR display and write what it made, and save what every window of the BlitzPlus GUI shows as a picture; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs. The tests of BlitzLLVM set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program so that the program can set these with `SetEnv`; that variable is read at the start as well and is not for programs.
 ## Old names
 
 Before these names were unified the variables started with `BLITZ_`. The old names still work while the new one is not set, and a program made with `-d` prints a note once for every old name it used. They will be removed; `BLITZ_NO_<FEATURE>=1` is `BLITZLLVM_<FEATURE>=0` now.

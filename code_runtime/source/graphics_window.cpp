@@ -267,6 +267,7 @@ void bb::gfx::destroy_device_objects()
 	destroy_surface_buffers();
 	destroy_antialias();
 	destroy_gamma();
+	destroy_hdr();
 	destroy_frame_slot_buffers();
 	oit_destroy();
 	destroy_pipelines_3d();
