@@ -115,6 +115,9 @@ target_sources(blitzrt PRIVATE
 	"source/collision_geometry.cpp"
 	"source/collision_internal.hpp"
 	"source/picking.cpp"
+	"source/pick_physics.cpp"
+	"source/physics_library.cpp"
+	"source/physics_library.hpp"
 	"source/gui_core.cpp"
 	"source/gui_windows.cpp"
 	"source/gui_widgets.cpp"
@@ -139,6 +142,7 @@ elseif(BLITZ_REPLACE_MALLOC)
 endif()
 target_include_directories(blitzrt PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}/source"
+	"${PROJECT_SOURCE_DIR}/code_physics/include"
 )
 target_include_directories(blitzrt SYSTEM PRIVATE
 	${BLITZRT_INCLUDE_DIRECTORIES}
