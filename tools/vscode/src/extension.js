@@ -9,6 +9,9 @@ const { execFile } = require('child_process');
 const { LanguageClient, TransportKind } = require('vscode-languageclient/node');
 
 let client;
+let settingsTimer;
+let pendingRestart = false;
+const SETTINGS_DELAY = 1500; // ms without a change before a setting is used
 let output;
 
 const exeName = (name) => (process.platform === 'win32' ? name + '.exe' : name);
@@ -36,7 +39,6 @@ function startServer(context) {
   client = new LanguageClient('blitz', 'BlitzLLVM', { command, args: ['--stdio'], transport: TransportKind.stdio, options: { env } }, {
     documentSelector: [{ scheme: 'file', language: 'blitzbasic' }],
     initializationOptions: { warningLevel: settings().get('warningLevel', 2) },
-    synchronize: { configurationSection: 'blitz' },
     outputChannel: output
   });
   client.start().catch((error) => {
@@ -199,9 +201,18 @@ function activate(context) {
     vscode.tasks.registerTaskProvider('blitz', new BlitzTaskProvider()),
     vscode.debug.registerDebugConfigurationProvider('blitz', new BlitzDebugConfigurationProvider()),
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('blitz.installPath') || event.affectsConfiguration('blitz.server.path') || event.affectsConfiguration('blitz.userlibsDirectory')) {
-        restartServer(context);
-      }
+      if (!event.affectsConfiguration('blitz')) return;
+      // The settings editor reports every key that is typed into a field: wait until the user is done before using the value.
+      if (event.affectsConfiguration('blitz.installPath') || event.affectsConfiguration('blitz.server.path') || event.affectsConfiguration('blitz.userlibsDirectory')) pendingRestart = true;
+      clearTimeout(settingsTimer);
+      settingsTimer = setTimeout(() => {
+        if (pendingRestart) {
+          pendingRestart = false;
+          restartServer(context);
+        } else if (client) {
+          client.sendNotification('workspace/didChangeConfiguration', { settings: { blitz: { warningLevel: settings().get('warningLevel', 2) } } });
+        }
+      }, SETTINGS_DELAY);
     })
   );
 }
