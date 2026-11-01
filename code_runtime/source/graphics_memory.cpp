@@ -23,6 +23,7 @@
 #define VMA_ASSERT(expr)
 #include "graphics_internal.hpp"
 #include "environment.h"
+#include <atomic>
 
 namespace bb::gfx {
 	// The loader threads make the buffers of the surfaces of models (surface_prebuild), and the graphics state belongs to the thread of the
@@ -52,6 +53,9 @@ namespace bb::gfx {
 		info.physicalDevice         = g.physical;
 		info.device                 = g.device;
 		info.pVulkanFunctions       = &functions;
+		if (g.can_memory_budget) {
+			info.flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT; // Usage and budget come from the driver, which sees the other programs too.
+		}
 		check(vmaCreateAllocator(&info, &g.allocator), "vmaCreateAllocator");
 		std::unique_lock<std::shared_mutex> guard(prebuild_gate);
 		prebuild_allocator = g.allocator;
@@ -75,6 +79,102 @@ namespace bb::gfx {
 		g.allocator = VK_NULL_HANDLE;
 	}
 
+
+	static thread_local bool spill_allowed = false;
+
+	image_spill_scope::image_spill_scope(bool allow) : previous(spill_allowed) { spill_allowed = allow; }
+	image_spill_scope::~image_spill_scope() { spill_allowed = previous; }
+	bool image_spill_allowed() { return spill_allowed; }
+
+	bool is_out_of_memory(VkResult result)
+	{
+		return (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) || (result == VK_ERROR_OUT_OF_HOST_MEMORY);
+	}
+
+	// BLITZLLVM_VRAM_LIMIT_MB pretends that video memory is that big: what does not fit is treated as if the driver had refused it. It is for testing
+	// the code that runs when video memory is full, which a machine with plenty of it never gets to.
+	static uint64_t vram_limit()
+	{
+		static const uint64_t limit = uint64_t(bb_env_int("BLITZLLVM_VRAM_LIMIT_MB", 0)) * 1024 * 1024;
+		return limit;
+	}
+
+	void video_memory_budget(uint64_t& used, uint64_t& total)
+	{
+		used  = 0;
+		total = 0;
+		if (!g.allocator) {
+			return;
+		}
+		VmaBudget budgets[VK_MAX_MEMORY_HEAPS] = {};
+		vmaGetHeapBudgets(g.allocator, budgets);
+		for (uint32_t i = 0; i < g.memory.memoryHeapCount; i++) {
+			if (g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+				// With a limit pretended, only what was given out counts: the blocks the allocator took from the driver are mostly empty.
+				used += vram_limit() ? budgets[i].statistics.allocationBytes : budgets[i].usage;
+				total += budgets[i].budget;
+			}
+		}
+		if (vram_limit() && (total > vram_limit())) {
+			total = vram_limit();
+		}
+	}
+
+	static bool over_vram_limit(VkDeviceSize size)
+	{
+		if (!vram_limit()) {
+			return false;
+		}
+		uint64_t used, total;
+		video_memory_budget(used, total);
+		return (used + size) > vram_limit();
+	}
+
+	void video_memory_exhausted(const char* what, VkDeviceSize size)
+	{
+		uint64_t used, total;
+		video_memory_budget(used, total);
+		double mb = 1.0 / (1024.0 * 1024.0);
+		char   message[256];
+		snprintf(message, sizeof(message), "out of video memory: %s needs %.1f MB, but only %.1f of %.1f MB are free. Use fewer or smaller textures, or a lower resolution.", what, double(size) * mb, double(total > used ? total - used : 0) * mb, double(total) * mb);
+		fail(message);
+	}
+
+	static void note_spill()
+	{
+		static std::atomic<bool> noted(false);
+		if (!noted.exchange(true)) {
+			fprintf(stderr, "Video memory is full: some memory is taken from system memory now, which is slower. Texture flag 256 keeps a texture in video memory.\n");
+		}
+	}
+
+	static VkDeviceSize image_size_estimate(const VkImageCreateInfo& info)
+	{
+		VkDeviceSize size = VkDeviceSize(info.extent.width) * info.extent.height * 4 * info.arrayLayers * info.samples;
+		return (info.mipLevels > 1) ? size + size / 3 : size;
+	}
+
+	VkResult create_image_memory(const VkImageCreateInfo& info, VkImage& image, VmaAllocation& allocation)
+	{
+		VmaAllocationCreateInfo alloc = {};
+		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
+		alloc.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		VkResult created              = over_vram_limit(image_size_estimate(info)) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && spill_allowed) {
+			// Only what the program allowed (no flag 256): system memory does it, slower.
+			alloc.requiredFlags  = 0;
+			alloc.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			created              = vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			if (created == VK_SUCCESS) {
+				note_spill();
+			}
+		}
+		if (is_out_of_memory(created)) {
+			video_memory_exhausted("an image", image_size_estimate(info));
+		}
+		return created;
+	}
+
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
 	{
 		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
@@ -92,7 +192,19 @@ namespace bb::gfx {
 			alloc.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		}
 		VmaAllocationInfo result;
-		VkResult created = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		VkResult created = (!host && over_vram_limit(size)) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && !host) {
+			// The GPU reads buffers in system memory too, over PCIe.
+			alloc.requiredFlags  = 0;
+			alloc.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			created              = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+			if (created == VK_SUCCESS) {
+				note_spill();
+			}
+		}
+		if (is_out_of_memory(created)) {
+			video_memory_exhausted("a buffer", size);
+		}
 		check(created, "vmaCreateBuffer");
 		if (created != VK_SUCCESS) {
 			// Only a lost device gets here. The code that goes on writes to the mapping, so it gets memory that is no buffer.
@@ -139,6 +251,9 @@ namespace bb::gfx {
 		mesh_allocation_info(alloc);
 		VmaAllocationInfo result;
 		VkResult          created = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		if (is_out_of_memory(created)) {
+			video_memory_exhausted("a mesh buffer", size);
+		}
 		check(created, "vmaCreateBuffer");
 		if (created != VK_SUCCESS) {
 			buffer     = VK_NULL_HANDLE;

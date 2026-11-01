@@ -192,6 +192,7 @@ namespace bb::gfx {
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkComponentMapping mapping = {};
 		bool               has_mapping = false;
+		bool               may_spill = false;          // The image may live in system memory when video memory is full (see image_spill_scope).
 		content            kind = content::blank;
 		bool               mipmaps = false, srgb = false, ten = false, opaque = false;
 		block_format       block = block_format::none;
@@ -409,6 +410,7 @@ namespace bb::gfx {
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
+		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
 		bool                  can_interlock     = false; // Prototype: VK_EXT_fragment_shader_interlock is on.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
@@ -613,7 +615,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Textures
 	////////////////////////////////////////////////////////////////////////////
-	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32, TEXTURE_POINT = 1024, TEXTURE_SRGB = 2048, TEXTURE_TARGET = 4096 };
+	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32, TEXTURE_VRAM = 256, TEXTURE_POINT = 1024, TEXTURE_SRGB = 2048, TEXTURE_TARGET = 4096 };
 
 
 	// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 8 = mip maps, 16/32 = clamp U/V.
@@ -934,6 +936,21 @@ namespace bb::gfx {
 	bool mesh_buffers_write_only();
 	void mesh_allocation_info(VmaAllocationCreateInfo& alloc);
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
+	/** Images made while one of these lives (and allows it) may fall back to system memory when video memory is full. Without one they must fit in video memory. */
+	struct image_spill_scope {
+		bool previous;
+		explicit image_spill_scope(bool allow);
+		~image_spill_scope();
+	};
+	bool image_spill_allowed();
+	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
+	void video_memory_budget(uint64_t& used, uint64_t& total);
+	/** Ends the program with a message that says what did not fit into video memory. */
+	[[noreturn]] void video_memory_exhausted(const char* what, VkDeviceSize size);
+	/** Whether a result of a Vulkan allocation is a lack of memory. */
+	bool is_out_of_memory(VkResult result);
+	/** The memory of an image: video memory, or system memory when an image_spill_scope allows it and video memory is full. */
+	VkResult create_image_memory(const VkImageCreateInfo& info, VkImage& image, VmaAllocation& allocation);
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1, uint32_t samples = 1);
 	void destroy_image(gpu_image& img);
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
