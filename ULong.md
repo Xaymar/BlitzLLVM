@@ -14,12 +14,9 @@
 
 
 ```blitzbasic
-ULong:Int32 value:Float32
+ULong(value)
+ULong:UInt64(value)
 ```
-
-| Parameter | Mode | Type | Default | Description |
-|---|---|---|---|---|
-| `value` | In | Float32 | required | A number or a text with a number in it. A text may start with `$`, `0x`, `%` or `0b` for hexadecimal or binary digits. |
 
 **Returns:** The ULong.
 

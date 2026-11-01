@@ -14,12 +14,9 @@
 
 
 ```blitzbasic
-Half:Int32 value:Float32
+Half(value)
+Half:Float16(value)
 ```
-
-| Parameter | Mode | Type | Default | Description |
-|---|---|---|---|---|
-| `value` | In | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The Half.
 

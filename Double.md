@@ -14,12 +14,9 @@
 
 
 ```blitzbasic
-Double:Int32 value:Float32
+Double(value)
+Double:Float64(value)
 ```
-
-| Parameter | Mode | Type | Default | Description |
-|---|---|---|---|---|
-| `value` | In | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The Double.
 

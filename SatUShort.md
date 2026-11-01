@@ -14,12 +14,9 @@
 
 
 ```blitzbasic
-SatUShort:Int32 value:Float32
+SatUShort(value)
+SatUShort:UInt16(value)
 ```
-
-| Parameter | Mode | Type | Default | Description |
-|---|---|---|---|---|
-| `value` | In | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The number, or the closest number of the type if it does not fit.
 
