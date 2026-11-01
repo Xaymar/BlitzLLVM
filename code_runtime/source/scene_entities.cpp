@@ -33,6 +33,7 @@ namespace bb {
 	uint32_t gpu_static_member_size = 0, gpu_static_generation = 0;
 	float ambient_light[3] = { 0.5f, 0.5f, 0.5f };
 	float render_tween = 1.0f;
+	bool  rendering_world = false;
 }
 
 namespace bb::scene {
@@ -199,6 +200,9 @@ namespace bb::scene {
 		if (e->terrain) {
 			bb_free(e->terrain->heights);
 			delete e->terrain;
+		}
+		if (physics_bodies_exist) {
+			physics_entity_destroyed(handle);
 		}
 		bb_free(e->name);
 		grid_entity_removed(handle, e->kind);
