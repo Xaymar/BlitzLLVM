@@ -367,7 +367,7 @@ static int32_t bb_tcp_add(bb_socket sock, const struct sockaddr* peer, int32_t p
 	int no_signal = 1;
 	setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (const char*)&no_signal, sizeof(no_signal));
 #endif
-	bb_tcp* tcp = (bb_tcp*)bb_calloc(1, sizeof(bb_tcp));
+	bb_tcp* tcp = (bb_tcp*)bb_calloc_or_fail(1, sizeof(bb_tcp));
 	tcp->sock   = sock;
 	tcp->port   = port;
 	tcp->server = server;
@@ -775,7 +775,7 @@ static size_t bb_udp_write(bb_stream* stream, const void* data, size_t size)
 	bb_udp* udp = (bb_udp*)stream->user;
 	if (udp->out_size + size > udp->out_cap) {
 		udp->out_cap = (udp->out_size + size) * 2;
-		udp->out     = (uint8_t*)bb_realloc(udp->out, udp->out_cap);
+		udp->out     = (uint8_t*)bb_realloc_or_fail(udp->out, udp->out_cap);
 	}
 	memcpy(udp->out + udp->out_size, data, size);
 	udp->out_size += size;
@@ -845,9 +845,9 @@ int32_t bb_create_udp_stream(int32_t port)
 	local.length = (socklen_t)sizeof(local.storage);
 	getsockname(sock, (struct sockaddr*)&local.storage, &local.length);
 
-bb_udp* udp = (bb_udp*)bb_calloc(1, sizeof(bb_udp));
+	bb_udp* udp = (bb_udp*)bb_calloc_or_fail(1, sizeof(bb_udp));
 	udp->sock   = sock;
-	udp->in     = (uint8_t*)bb_malloc(BB_UDP_MAX_MESSAGE + 1);
+	udp->in     = (uint8_t*)bb_malloc_or_fail(BB_UDP_MAX_MESSAGE + 1);
 	udp->port   = bb_sockaddr_port((struct sockaddr*)&local.storage);
 	udp->dual   = dual;
 

@@ -31,6 +31,8 @@
 #include "environment.h"
 
 extern void bb_runtime_error(const char* message);
+extern void* bb_malloc_or_fail(size_t size);
+extern void* bb_realloc_or_fail(void* ptr, size_t size);
 extern int  bb_entity_world_matrix(int32_t handle, float* matrix);
 extern int32_t bb_create_listener_entity(int32_t parent);
 
@@ -167,11 +169,11 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 	spec.freq     = file->freq;
 
 	size_t capacity = 1 << 16, used = 0;
-	char*  data     = (char*)bb_malloc(capacity);
+	char*  data     = (char*)bb_malloc_or_fail(capacity);
 	for (;;) {
 		if (used + 8192 > capacity) {
 			capacity *= 2;
-			data = (char*)bb_realloc(data, capacity);
+			data = (char*)bb_realloc_or_fail(data, capacity);
 		}
 		int got = MIX_DecodeAudio(decoder, data + used, 8192, &spec);
 		if (got <= 0) {
@@ -187,7 +189,7 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 	MIX_Audio* audio  = NULL;
 	if (frames > 1 && out > 1) {
 		float* in  = (float*)data;
-		float* res = (float*)bb_malloc(out * (size_t)channels * sizeof(float));
+		float* res = (float*)bb_malloc_or_fail(out * (size_t)channels * sizeof(float));
 		double step = (double)file->freq / device.freq;
 		for (size_t i = 0; i < out; i++) {
 			double  at = (double)i * step;
@@ -291,7 +293,7 @@ static int32_t bb_load(const char* path, int is_3d)
 	}
 	if (bb_audio.sound_count >= bb_audio.sound_cap) {
 		bb_audio.sound_cap = bb_audio.sound_cap ? bb_audio.sound_cap * 2 : 64;
-		bb_audio.sounds    = (bb_sound*)bb_realloc(bb_audio.sounds, (size_t)bb_audio.sound_cap * sizeof(bb_sound));
+		bb_audio.sounds    = (bb_sound*)bb_realloc_or_fail(bb_audio.sounds, (size_t)bb_audio.sound_cap * sizeof(bb_sound));
 	}
 	bb_audio.sounds[bb_audio.sound_count] = sound;
 	return bb_audio.sound_count++;
@@ -387,7 +389,7 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	if (!slot) {
 		if (bb_audio.channel_count >= bb_audio.channel_cap) {
 			bb_audio.channel_cap = bb_audio.channel_cap ? bb_audio.channel_cap * 2 : 64;
-			bb_audio.channels    = (bb_channel*)bb_realloc(bb_audio.channels, (size_t)bb_audio.channel_cap * sizeof(bb_channel));
+			bb_audio.channels    = (bb_channel*)bb_realloc_or_fail(bb_audio.channels, (size_t)bb_audio.channel_cap * sizeof(bb_channel));
 		}
 		slot = bb_audio.channel_count++;
 	}

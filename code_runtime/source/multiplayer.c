@@ -145,7 +145,7 @@ static bb_player* bb_net_find(int32_t id)
 
 static bb_player* bb_net_add_player(int32_t id, const char* name, size_t length, int remote, int connection)
 {
-	bb_net_players = (bb_player*)bb_realloc(bb_net_players, (size_t)(bb_net_player_count + 1) * sizeof(bb_player));
+	bb_net_players = (bb_player*)bb_realloc_or_fail(bb_net_players, (size_t)(bb_net_player_count + 1) * sizeof(bb_player));
 	bb_player* p   = &bb_net_players[bb_net_player_count++];
 	p->id          = id;
 	p->name        = bb_net_copy(name, length);
@@ -153,7 +153,7 @@ static bb_player* bb_net_add_player(int32_t id, const char* name, size_t length,
 	p->connection  = connection;
 	p->pending     = 0;
 	if (remote) {
-		bb_net_new = (int32_t*)bb_realloc(bb_net_new, (size_t)(bb_net_new_count + 1) * sizeof(int32_t));
+		bb_net_new = (int32_t*)bb_realloc_or_fail(bb_net_new, (size_t)(bb_net_new_count + 1) * sizeof(int32_t));
 		bb_net_new[bb_net_new_count++] = id;
 	}
 	return p;
@@ -192,7 +192,7 @@ static void bb_net_push_from(int connection, int type, int32_t from, int32_t to,
 			sender->pending += length + 1;
 		}
 	}
-	bb_net_inbox = (bb_message*)bb_realloc(bb_net_inbox, (size_t)(bb_net_inbox_count + 1) * sizeof(bb_message));
+	bb_net_inbox = (bb_message*)bb_realloc_or_fail(bb_net_inbox, (size_t)(bb_net_inbox_count + 1) * sizeof(bb_message));
 	bb_message* m = &bb_net_inbox[bb_net_inbox_count++];
 	m->type       = type;
 	m->from       = from;
@@ -225,7 +225,7 @@ static void bb_net_send(int connection, uint8_t kind, const uint8_t* payload, si
 	if (!c->stream) {
 		return;
 	}
-	uint8_t* frame = (uint8_t*)bb_malloc(length + 5);
+	uint8_t* frame = (uint8_t*)bb_malloc_or_fail(length + 5);
 	put32(frame, (int32_t)(length + 1));
 	frame[4] = kind;
 	if (length) {
@@ -248,7 +248,7 @@ static void bb_net_close_connection(int connection)
 static void bb_net_send_player(int connection, bb_player const* p)
 {
 	size_t   length = strlen(p->name);
-	uint8_t* frame  = (uint8_t*)bb_malloc(length + 4);
+	uint8_t* frame  = (uint8_t*)bb_malloc_or_fail(length + 4);
 	put32(frame, p->id);
 	memcpy(frame + 4, p->name, length);
 	bb_net_send(connection, FRAME_PLAYER_NEW, frame, length + 4);
@@ -427,7 +427,7 @@ static int bb_net_read(int connection)
 		}
 		if (c->size + (size_t)available > c->capacity) {
 			c->capacity = (c->size + (size_t)available) * 2;
-			c->buffer   = (uint8_t*)bb_realloc(c->buffer, c->capacity);
+			c->buffer   = (uint8_t*)bb_realloc_or_fail(c->buffer, c->capacity);
 		}
 		size_t got = bb_stream_read(stream, c->buffer + c->size, (size_t)available);
 		if (got == 0) {
@@ -450,7 +450,7 @@ static int bb_net_read(int connection)
 		uint8_t kind = c->buffer[used + 4];
 		// The frame is copied: handling it can close the connection and its buffer.
 		size_t   payload_length = (size_t)length - 1;
-		uint8_t* payload        = (uint8_t*)bb_malloc(payload_length + 1);
+		uint8_t* payload        = (uint8_t*)bb_malloc_or_fail(payload_length + 1);
 		memcpy(payload, c->buffer + used + 5, payload_length);
 		used += (size_t)length + 4;
 		if (bb_net_host) {
@@ -715,7 +715,7 @@ int32_t bb_send_net_msg(int32_t type, const char* data, int32_t from, int32_t to
 	if (length > MAX_MESSAGE_DATA) {
 		return 0; // Too big for one frame, and the other side would drop the connection for it.
 	}
-	uint8_t* frame  = (uint8_t*)bb_malloc(length + 9);
+	uint8_t* frame  = (uint8_t*)bb_malloc_or_fail(length + 9);
 	put32(frame, from);
 	put32(frame + 4, to);
 	frame[8] = (uint8_t)type;
