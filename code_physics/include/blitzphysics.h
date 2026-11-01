@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 // Bumped when the interface changes.
-#define BP_VERSION 2
+#define BP_VERSION 3
 
 typedef struct bp_world bp_world;
 typedef struct bp_mesh  bp_mesh;
@@ -50,6 +50,10 @@ BP_API void      bp_world_destroy(bp_world* world);
 // number of worlds and is freed once it was destroyed and no body has it any more.
 BP_API bp_mesh* bp_mesh_create(const float* positions, uint32_t vertex_count, const uint32_t* indices, uint32_t triangle_count);
 BP_API void     bp_mesh_destroy(bp_mesh* mesh);
+// The numbers of the triangles of a mesh that touch the box (in the space of the mesh), in ascending order. At most capacity of them are
+// written, and the number of all is returned, so a larger buffer can be asked for. A triangle that does not touch the box is
+// never in it, one that does is always there.
+BP_API uint32_t bp_mesh_query_box(bp_mesh* mesh, const float lo[3], const float hi[3], uint32_t* out, uint32_t capacity);
 
 // Bodies. position: 3 floats, rotation: a quaternion (x, y, z, w), scale: 3 floats; user is given back by hits.
 // moves: 0 if it stays where it is (the cheapest), 1 if bp_body_set_transform is going to be called for it.

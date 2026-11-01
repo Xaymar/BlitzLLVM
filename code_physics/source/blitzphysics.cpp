@@ -13,7 +13,9 @@
 #include <Jolt/Physics/Body/BodyFilter.h>
 #include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Physics/Collision/CollideSoftBodyVertexIterator.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -427,6 +429,47 @@ bp_mesh* bp_mesh_create(const float* positions, uint32_t vertex_count, const uin
 void bp_mesh_destroy(bp_mesh* mesh)
 {
 	release_mesh(mesh);
+}
+
+namespace {
+// Every triangle that a box touches, as the number of the triangle.
+class touched_triangles final : public CollideShapeCollector {
+public:
+	explicit touched_triangles(const MeshShape* mesh) : mesh_(mesh) {}
+
+	void AddHit(const ResultType& result) override
+	{
+		indices.push_back(mesh_->GetTriangleUserData(result.mSubShapeID2));
+	}
+
+	std::vector<uint32_t> indices;
+
+private:
+	const MeshShape* mesh_;
+};
+} // namespace
+
+uint32_t bp_mesh_query_box(bp_mesh* mesh, const float lo[3], const float hi[3], uint32_t* out, uint32_t capacity)
+{
+	if (!mesh || !lo || !hi || (mesh->shape->GetSubType() != EShapeSubType::Mesh)) {
+		return 0;
+	}
+	Vec3 low = to_vec(lo), high = to_vec(hi);
+	Vec3 half = Vec3::sMax((high - low) * 0.5f, Vec3::sReplicate(1e-6f));
+	Vec3 center = (high + low) * 0.5f;
+	RefConst<Shape> box = new BoxShape(half, 0.0f);
+	CollideShapeSettings settings;
+	settings.mBackFaceMode  = EBackFaceMode::CollideWithBackFaces;
+	settings.mActiveEdgeMode = EActiveEdgeMode::CollideWithAll;
+	touched_triangles collector(static_cast<const MeshShape*>(mesh->shape.GetPtr()));
+	CollisionDispatch::sCollideShapeVsShape(box, mesh->shape, Vec3::sReplicate(1.0f), Vec3::sReplicate(1.0f), Mat44::sTranslation(center), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), settings, collector);
+	std::sort(collector.indices.begin(), collector.indices.end());
+	collector.indices.erase(std::unique(collector.indices.begin(), collector.indices.end()), collector.indices.end());
+	uint32_t count = uint32_t(collector.indices.size());
+	for (uint32_t i = 0; i < count && i < capacity; i++) {
+		out[i] = collector.indices[i];
+	}
+	return count;
 }
 
 bp_body bp_body_add_mesh(bp_world* world, bp_mesh* mesh, const float position[3], const float rotation[4], const float scale[3], uint64_t user, int moves)
