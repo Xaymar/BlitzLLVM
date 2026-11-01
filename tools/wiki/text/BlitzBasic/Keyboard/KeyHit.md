@@ -16,7 +16,8 @@ While Not KeyHit(1)
 	Flip
 Wend
 ```
-@param key  The scancode of the key: 1 to 237 as in the original, or 256 to 767 for the keys that have no original code (see Scan Codes).
+@param key  The scancode of the key, 1 to 237 (the DirectInput scancodes of the original, see Scan Codes). Any other value is 0.
 @param device  Only look at this keyboard, counted from 0 as in KeyboardDeviceCount. -1 (the default) means all keyboards together.
 @returns How many times the key was pressed since the last call.
+@gap Keys that DirectInput has no code for, such as F16 to F24 and Help, are only reachable with VKeyHit.
 @gap The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
