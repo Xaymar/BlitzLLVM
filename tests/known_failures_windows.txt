@@ -441,3 +441,6 @@ suite-debug-compile-fail-object_freed_in_field_assign
 suite-debug-run-fail-object_freed_in_field_assign
 suite-debug-compile-language_object_field_call
 suite-debug-run-language_object_field_call
+# The Windows Debug link of these misses the C runtime (unresolved __imp_atof and others); the clang toolchain work (#464) is to fix it.
+suite-debug-compile-language_object_goto_loop
+suite-debug-run-language_object_goto_loop
