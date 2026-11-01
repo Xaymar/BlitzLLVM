@@ -261,6 +261,7 @@ namespace bb::gfx {
 			return;
 		}
 		flush();
+		ensure_color_image(t.image, t.set);
 		uint8_t*             sheet = read_pixels(t.image, 0, 0, t.width, t.height);
 		size_t               row = size_t(t.frame_w) * 4, layer_bytes = row * size_t(t.frame_h);
 		int                  cols = t.width / t.frame_w;
@@ -664,7 +665,7 @@ namespace bb::gfx {
 				p.hull       = sprite_hull();
 				entry.image.array_sets = true;
 				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
-				upload_compressed(entry.image, entry.set, p.source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0);
+				upload_compressed(entry.image, entry.set, p.source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, true);
 				free_picture(p.source);
 			} else {
 				entry.width  = p.rgba->w;
@@ -674,7 +675,7 @@ namespace bb::gfx {
 				bool ten = p.ten != nullptr;
 				entry.image.array_sets = true;
 				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
-				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten);
+				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten, 1, true);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;
 				bb_free(p.ten);

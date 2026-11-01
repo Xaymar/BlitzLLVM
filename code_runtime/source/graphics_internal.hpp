@@ -196,6 +196,8 @@ namespace bb::gfx {
 		VkImageCreateInfo  create_info = {};            // As the image was made (with the usage bits added), for moving it to other memory.
 		bool               in_system = false;          // The image was moved to system memory to make room for one that has to be in video memory.
 		bool               may_spill = false;          // The image may live in system memory when video memory is full (see image_spill_scope).
+		uint32_t           drop = 0;                   // Texture streaming: how many of the biggest mip levels are not in video memory. The image holds the smaller ones; the data here is still the whole picture. width and height stay those of the whole picture.
+		bool               gpu_written = false;        // The GPU drew to the image, so the data here is not what it holds: it can not be made smaller (or again).
 		content            kind = content::blank;
 		bool               mipmaps = false, srgb = false, ten = false, opaque = false;
 		block_format       block = block_format::none;
@@ -510,6 +512,7 @@ namespace bb::gfx {
 		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
 		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
+		uint32_t        last_used = 0;          // The streaming frame (see streaming_frame) in which a scene last drew it.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -954,6 +957,16 @@ namespace bb::gfx {
 	};
 	/** Moves textures that may use system memory (no flag 256) out of video memory, biggest first, until 'needed' bytes are free or none is left. False if nothing was moved. */
 	bool textures_evict(VkDeviceSize needed);
+	/** Texture streaming (graphics_streaming.cpp). Drops the biggest mip level of textures that may use system memory, least recently drawn first, one level of each at a time, until 'needed' bytes are freed or none can be made smaller. Returns what was freed. Cheaper for the picture than textures_evict, so it comes first. */
+	VkDeviceSize textures_drop_mips(VkDeviceSize needed);
+	/** For a texture that is made while video memory is short: how many of the biggest levels to leave out so that it fits, 0 if it fits or may not be made smaller. */
+	uint32_t streaming_initial_drop(uint32_t width, uint32_t height, uint32_t layers, bool ten, bool mipmaps, VkDeviceSize full_bytes);
+	/** Called once for every Flip: gives the levels that were dropped back to textures that are drawn, while video memory has room to spare. */
+	void textures_stream_frame();
+	/** The number of the current streaming frame, to mark textures as used. */
+	uint32_t streaming_frame();
+	/** Makes an image that has dropped levels whole again, for what reads or draws to it. 'set' is the descriptor set that samples it. */
+	void restore_resident(gpu_image& img, VkDescriptorSet set);
 	/** For BLITZLLVM_VRAM_LIMIT_MB: an allocation that is in system memory on a GPU where all memory looks like one heap. */
 	void forget_system_allocation(VmaAllocation allocation);
 	bool image_spill_allowed();
@@ -1071,7 +1084,7 @@ namespace bb::gfx {
 	void textures_rebuild();
 	void images_release();
 	void images_rebuild();
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1, bool streamable = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -1345,7 +1358,7 @@ namespace bb::gfx {
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb = false);
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb = false, bool streamable = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
 	VkSampler texture_sampler(int flags);
 	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */
