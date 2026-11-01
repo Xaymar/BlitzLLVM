@@ -276,8 +276,9 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 			addr_first = false;
 		}
 		// The same goes for a field: a function of the program can let go of the last holder of a deleted object, which frees the memory
-		// that the address of the field points into. The object is not held across the call, so the value is worked out first.
-		if (addr_first && targets_field(node->target.get()) && calls_function_of_program(node->value.get())) {
+		// that the address of the field points into. The object is not held across the call, so the value is worked out first. A target that
+		// calls a function itself (p\v[T(1)] = T(2)) keeps the order of the original, which logs its calls.
+		if (addr_first && targets_field(node->target.get()) && !calls_function_of_program(node->target.get()) && calls_function_of_program(node->value.get())) {
 			addr_first = false;
 		}
 		place(addr_first ? addr_code : value_part.code);
