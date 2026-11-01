@@ -69,7 +69,7 @@ CheckS "SatUInt big", Str(SatUInt(Long(5000000000i64))), "4294967295"
 CheckS "SatLong of ULong", Str(SatLong(ULong(-1))), "9223372036854775807"
 CheckS "SatLong fits", Str(SatLong(ULong(7))), "7"
 CheckS "SatULong -1", Str(SatULong(-1)), "0"
-CheckS "SatULong of Long", Str(SatULong(Long(9000000000))), "9000000000"
+CheckS "SatULong of Long", Str(SatULong(Long(9000000000i64))), "9000000000"
 CheckS "SatByte real", Str(SatByte(500.5)), "127"
 CheckS "SatInt string", Str(SatInt("99999999999")), "2147483647"
 
@@ -88,7 +88,7 @@ a:UByte = UByte(250)
 CheckS "UByte add", Str(a + 10), "260"
 b:Byte = Byte(-6)
 CheckS "Byte add", Str(b + 1), "-5"
-c:UInt = UInt(4000000000)
+c:UInt = UInt(4000000000u)
 CheckS "UInt add", Str(c + 1), "4000000001"
 big:ULong = ULong(-1)
 CheckS "ULong shr", Str(big Shr 60), "15"

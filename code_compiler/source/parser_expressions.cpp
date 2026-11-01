@@ -386,7 +386,7 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 		node->object = parse_unary();
 		return node;
 	}
-	if (is_symbol(op, "-") && ((tk(1).type == blitz::token::variant::INTEGER) || (tk(1).type == blitz::token::variant::REAL)) && has_typed_suffix(tk(1)) && (tk(1).text.compare(0, 2, "0x") != 0) &&
+	if (is_symbol(op, "-") && ((tk(1).type == blitz::token::variant::INTEGER) || (tk(1).type == blitz::token::variant::REAL)) && (has_typed_suffix(tk(1)) || (tk(1).text == "2147483648")) && (tk(1).text.compare(0, 2, "0x") != 0) &&
 		(tk(1).text.compare(0, 2, "0X") != 0) && (tk(1).text.compare(0, 2, "0b") != 0) && (tk(1).text.compare(0, 2, "0B") != 0) && !is_symbol(tk(2), "^")) {
 		// `-128i8` is one number, as 128 does not fit into an Int8 on its own.
 		auto number = tk(1);
@@ -523,7 +523,10 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 		return node;
 	}
 
-	if (is_unsigned) {
+	if (negate && !is_unsigned && (ui == uintmax_t(INT32_MAX) + 1)) {
+		node->kind = ast::literal::variant::INTEGER; // -2147483648 is the smallest Int, even though 2147483648 is not an Int.
+		node->i    = INT32_MIN;
+	} else if (is_unsigned) {
 		node->kind = ast::literal::variant::UNSIGNED_INTEGER;
 		node->u    = ui;
 	} else if (prefixed && (ui <= UINT32_MAX)) {
