@@ -16,7 +16,7 @@ The original Blitz3D is the baseline at the top, then one row per version tag of
 | VRAM | 16 GB |
 | Renderer / converter | Vulkan, NVIDIA driver (native) |
 
-Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.
+The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.
 
 ## Benchmarks: Emitted code (`emitted.bb`)
 
@@ -47,18 +47,3 @@ Numbers of different machine definitions can not be compared. Every program runs
 | [0.10.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.10.0)<br>2026-10-29<br>[`510736e3`](https://github.com/Xaymar/BlitzLLVM/commit/510736e32a41884c402511aeea36145316738bbb) | **0.21 ms** ±0.01<br>-72.5% 📈 | **0.53 ms** ±0.01<br>-67.1% 📈 | **0.26 ms** ±0.00<br>-56.8% 📈 |
 | [0.11.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.11.0)<br>2026-10-30<br>[`502251a8`](https://github.com/Xaymar/BlitzLLVM/commit/502251a851cc32a76291262825f44cf693031367) | **0.21 ms** ±0.01<br>-73.4% 📈 | **0.53 ms** ±0.00<br>-67.1% 📈 | **0.26 ms** ±0.00<br>-57.6% 📈 |
 | [0.12.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.12.0)<br>2026-10-31<br>[`c84b148a`](https://github.com/Xaymar/BlitzLLVM/commit/c84b148a28b95ff9ae36b214ea7a3f5d8cccd64a) | **0.22 ms** ±0.00<br>-71.5% 📈 | **0.53 ms** ±0.01<br>-67.5% 📈 | **0.26 ms** ±0.00<br>-57.6% 📈 |
-
-## Compile time: Compiling and size of the program
-
-| Version | Hello world (ms) | 3D program (ms) | Stranded II (about 40,000 lines) (ms) | Hello world size (KB) | 3D program size (KB) | Stranded II size (KB) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Baseline: original Blitz3D 1.118 | **18.81 ms** ±0.53 | **22.04 ms** ±1.00 | n/a | **1.07 MB** | **1.09 MB** | n/a |
-| [0.5.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.5.0)<br>2026-10-26<br>[`d05823a6`](https://github.com/Xaymar/BlitzLLVM/commit/d05823a64b116829ce98b2b367538851fe4bca6a) | **216.8 ms** ±26.89<br>+1052.9% 📉 | **242.1 ms** ±16.03<br>+998.5% 📉 | n/a | **6.14 MB**<br>+471.6% 📉 | **6.27 MB**<br>+473.5% 📉 | n/a |
-| [0.6.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.6.0)<br>2026-10-27<br>[`55619842`](https://github.com/Xaymar/BlitzLLVM/commit/55619842614b8fc17b4c12f629c3bad0116ef788) | **601.0 ms** ±5.62<br>+3095.9% 📉 | **642.0 ms** ±12.63<br>+2813.2% 📉 | n/a | **6.21 MB**<br>+477.6% 📉 | **6.44 MB**<br>+488.8% 📉 | n/a |
-| [0.7.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.7.0)<br>2026-10-27<br>[`b180af1b`](https://github.com/Xaymar/BlitzLLVM/commit/b180af1bc687f3e084063a98648dd07ac0f4776b) | **579.7 ms** ±20.70<br>+2982.6% 📉 | **623.1 ms** ±13.87<br>+2727.4% 📉 | n/a | **2.89 MB**<br>+168.8% 📉 | **3.13 MB**<br>+186.3% 📉 | n/a |
-| [0.8.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.8.0)<br>2026-10-28<br>[`68c6b9db`](https://github.com/Xaymar/BlitzLLVM/commit/68c6b9dbf6ba2657d7047b68655e5f8960312a31) | **567.3 ms** ±2.36<br>+2916.6% 📉 | **608.0 ms** ±4.08<br>+2659.2% 📉 | n/a | **2.94 MB**<br>+173.6% 📉 | **3.38 MB**<br>+208.8% 📉 | n/a |
-| [0.9.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.9.0)<br>2026-10-28<br>[`3c10ee17`](https://github.com/Xaymar/BlitzLLVM/commit/3c10ee179927f9fc0f3c0e73f7b8866af417c327) | **567.8 ms** ±6.82<br>+2919.4% 📉 | **614.8 ms** ±9.01<br>+2689.8% 📉 | n/a | **2.97 MB**<br>+176.2% 📉 | **3.43 MB**<br>+213.9% 📉 | n/a |
-| [0.9.1](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.9.1)<br>2026-10-29<br>[`41a9babd`](https://github.com/Xaymar/BlitzLLVM/commit/41a9babd9a9dd51a6e08291bdfd1bd65e76b4dcc) | **581.6 ms** ±2.39<br>+2992.6% 📉 | **622.9 ms** ±11.83<br>+2726.5% 📉 | n/a | **3.04 MB**<br>+182.5% 📉 | **3.47 MB**<br>+217.3% 📉 | n/a |
-| [0.10.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.10.0)<br>2026-10-29<br>[`510736e3`](https://github.com/Xaymar/BlitzLLVM/commit/510736e32a41884c402511aeea36145316738bbb) | **577.8 ms** ±8.46<br>+2972.6% 📉 | **629.6 ms** ±5.58<br>+2757.1% 📉 | n/a | **3.21 MB**<br>+198.7% 📉 | **3.67 MB**<br>+236.0% 📉 | n/a |
-| [0.11.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.11.0)<br>2026-10-30<br>[`502251a8`](https://github.com/Xaymar/BlitzLLVM/commit/502251a851cc32a76291262825f44cf693031367) | **589.0 ms** ±5.51<br>+3032.0% 📉 | **633.1 ms** ±10.93<br>+2773.1% 📉 | n/a | **3.22 MB**<br>+199.9% 📉 | **3.70 MB**<br>+238.3% 📉 | n/a |
-| [0.12.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.12.0)<br>2026-10-31<br>[`c84b148a`](https://github.com/Xaymar/BlitzLLVM/commit/c84b148a28b95ff9ae36b214ea7a3f5d8cccd64a) | **585.6 ms** ±10.41<br>+3013.8% 📉 | **631.0 ms** ±10.95<br>+2763.2% 📉 | n/a | **3.28 MB**<br>+205.3% 📉 | **3.81 MB**<br>+248.8% 📉 | n/a |
