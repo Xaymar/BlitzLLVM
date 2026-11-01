@@ -20,6 +20,39 @@ On Windows the children live in a Job Object that is killed with the script; els
 the script and by a small watcher process if the script dies without cleaning up. `tests/cli/procutil.py` (the `procutil` test) proves
 this for exit, exception, kill, interrupt and timeout. New scripts that start programs must use `procutil`, not `subprocess` directly.
 
+== history: the numbers of the Performance History wiki page
+
+`history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The
+results and the page are not in `root`: they are on the empty branch `performance-history` (check it out next to the repository, or set
+`PERF_HISTORY`), one folder per machine (`areldir/`). The programs are always the ones of the latest `root`, built with the compiler of the commit in
+question, so every compiler runs the same program (a compiler that can not build the BlitzLLVM include of a benchmark uses the original's, which counts
+in milliseconds). The page lists the original Blitz3D as the baseline and one row per version tag (`X.Y.Z`), each linking to its release notes, with the
+change against the baseline.
+
+[source,sh]
+----
+# on the machine (PERF_HISTORY=<checkout of performance-history>/areldir, PERF_MACHINE=<machine.json> for a machine that is not the Linux container)
+python3 benchmarks/history.py --blitzcc /path/to/original/bin/blitzcc.exe --label r00-original      # the baseline, the original Blitz3D 1.118
+python3 benchmarks/history_commits.py --repo <clone> --since 0a33d2cc --tags \
+    --build-script benchmarks/build_windows.ps1 --build-dir <kept build folder>                       # builds and runs the commit of every version tag
+python3 benchmarks/history_page.py                                                                    # writes Performance-History.md there
+----
+
+`history_commits.py` without `--tags` does every distinct code state of `root`, `--max-minutes` stops it after a time so that it can run in chunks, and
+`--download OWNER/REPO` takes the Windows CI binaries instead of building (CI only keeps them for about a day). `build_windows.ps1` builds like the Windows CI does.
+
+The tables of the page:
+
+[cols="1,3"]
+|===
+| Section | Benchmark
+
+| Real World Applications | Stranded II (`tools/benchmark_stranded2.py`): milliseconds per frame
+| Benchmarks | `emitted.bb` (loops, math, arrays, types, strings, calls, banks, `Select`), `flythrough.bb`, `waterfall.bb` and `dungeon.bb` at 320x180, and more
+|===
+
+The old versions of the compiler (the first few tags) have no runtime, so they have no numbers and are not listed. The compile time is not part of the page: the original does no optimization at all.
+
 == flythrough: a camera through a field of many entities
 
 `flythrough.bb` makes a field of entities (a million with `--objects 1000000`) and flies a camera through it on a loop that is
