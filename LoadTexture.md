@@ -48,6 +48,7 @@ Textures that [TextureFilter](TextureFilter) matches by file name get extra flag
 ## Differences
 
 * Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
+* A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [glTF models](glTF-Models).
 * JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 * The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
 

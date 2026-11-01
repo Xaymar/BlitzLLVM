@@ -32,7 +32,7 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 
 ## Differences
 
-* Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [DirectX models](DirectX-Models) and the 3D Studio loader in [3D Studio models](3D-Studio-Models).
+* Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [DirectX models](DirectX-Models) and the 3D Studio loader in [3D Studio models](3D-Studio-Models). glTF 2.0 files (`.gltf` and `.glb`) can be loaded as well, see [glTF models](glTF-Models).
 
 ## Related Commands
 

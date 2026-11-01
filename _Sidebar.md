@@ -21,7 +21,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (37)</summary>
+<li><details><summary>Features (38)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -38,6 +38,7 @@
 <li><a href="Displays">Displays</a></li>
 <li><a href="DPI-Scaling">DPI scaling on Windows</a></li>
 <li><a href="Fullscreen">Fullscreen</a></li>
+<li><a href="glTF-Models">glTF models</a></li>
 <li><a href="Image-Formats">Image formats</a></li>
 <li><a href="Language">Language</a></li>
 <li><a href="Large-Meshes">Large Meshes</a></li>

@@ -27,6 +27,7 @@ Differences that are not caused by one command.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
+* [glTF models](glTF-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read glTF 2.0 files, and `LoadTexture` and `LoadImage` read the pictures inside them.
 * [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
@@ -208,7 +209,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well, but not JPEG 2000 or TIFF with Deflate or JPEG compression, see [Image formats](Image-Formats).
 * [LoaderMatrix](LoaderMatrix#differences): Only the matrix for `x` is used.
 * [LoadFont](LoadFont#differences): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
-* [LoadImage](LoadImage#differences): JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read.
+* [LoadImage](LoadImage#differences): A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [glTF models](glTF-Models).
 * [LoadMesh](LoadMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist.
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.

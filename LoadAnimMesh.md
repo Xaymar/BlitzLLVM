@@ -30,7 +30,7 @@ Loads a model together with its parts and animation. The result is a pivot at th
 
 ## Differences
 
-* Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh). A DirectX `.x` file brings its frames as entities and the animation keys of its animation sets, see [DirectX models](DirectX-Models). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
+* Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh). A DirectX `.x` file brings its frames as entities and the animation keys of its animation sets, see [DirectX models](DirectX-Models). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models). A glTF 2.0 file (`.gltf` or `.glb`) brings its nodes as entities, its skins and its animations, see [glTF models](glTF-Models).
 
 ## Related Commands
 
