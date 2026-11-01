@@ -177,7 +177,7 @@ jobs:
           GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
+            cmake -S . -B build -G "Visual Studio 18 2026" -T ClangCL -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           else
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           fi
