@@ -218,6 +218,23 @@ static void test_thread_smoke()
 		WaitForSingleObject(h, INFINITE);
 		CloseHandle(h);
 		fprintf(stderr, " raw alloc thread joined\n");
+		static void* handed = bb_malloc(48);
+		h = CreateThread(nullptr, 0, [](LPVOID) -> DWORD { bb_free(handed); return 0; }, nullptr, 0, nullptr);
+		WaitForSingleObject(h, INFINITE);
+		CloseHandle(h);
+		fprintf(stderr, " raw cross free joined\n");
+		static void* made = nullptr;
+		h = CreateThread(nullptr, 0, [](LPVOID) -> DWORD { made = bb_malloc(48); return 0; }, nullptr, 0, nullptr);
+		WaitForSingleObject(h, INFINITE);
+		CloseHandle(h);
+		bb_free(made);
+		fprintf(stderr, " raw made-there free-here done\n");
+		{
+			int* n = new int(3);
+			std::thread e([n] { delete n; });
+			e.join();
+		}
+		fprintf(stderr, " std cross delete joined\n");
 	}
 #endif
 	fprintf(stderr, " empty thread\n");
