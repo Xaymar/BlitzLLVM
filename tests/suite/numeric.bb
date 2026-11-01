@@ -216,3 +216,5 @@ Check "dot left out fp32", 0.25fp32 * 2, 0.5
 Check "dot left out fp64", 0.1fp64 * 3, 0.3
 Check "dotted on a real", 2.5.h * 2, 5.0
 Check "negative real", -1.5d, -1.5
+Local hex_int:Int32 = 0xFFFFFFFF
+CheckS "0xFFFFFFFF fits an Int32", Str(hex_int), "-1"
