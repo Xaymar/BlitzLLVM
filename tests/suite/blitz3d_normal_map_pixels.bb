@@ -67,30 +67,30 @@ EntityLighting mesh, 1
 RotateEntity light, 0, -45, 0
 RenderWorld
 plain = Grey()
-CheckTrue "The surface is lit by the light from the right", plain > 100
 
 flat = Lit(128, 128, 255, 6)
-Check "A flat normal map lights like the surface", flat, plain, 4
-
-; Light that comes from the right (it shines to the left and into the screen).
 right = Lit(230, 128, 200, 6)
 left  = Lit(26, 128, 200, 6)
-CheckTrue "A map that leans to the right is brighter than a flat one", right > flat + 20
-CheckTrue "A map that leans to the left is darker than a flat one", left < flat - 20
 
 ; Light that comes from above.
 RotateEntity light, 45, 0, 0
 plainTop = Lit(128, 128, 255, 6)
 up   = Lit(128, 230, 200, 6)
 down = Lit(128, 26, 200, 6)
-CheckTrue "With green up, a map that leans up is brighter in light from above", up > plainTop + 20
-CheckTrue "With green up, a map that leans down is darker in light from above", down < plainTop - 20
-
-; Mode 7 has the green channel the other way round.
 up7   = Lit(128, 230, 200, 7)
 down7 = Lit(128, 26, 200, 7)
-Check "Mode 7 mirrors the green channel (up)", up7, down, 3
-Check "Mode 7 mirrors the green channel (down)", down7, up, 3
+
+values$ = "plain " + plain + ", flat " + flat + ", right " + right + ", left " + left + ", plainTop " + plainTop + ", up " + up + ", down " + down + ", up7 " + up7 + ", down7 " + down7
+CheckTrue "The surface is lit by the light from the right (" + values$ + ")", plain > 100
+Check "A flat normal map lights like the surface (" + values$ + ")", flat, plain, 4
+; Light that comes from the right (it shines to the left and into the screen).
+CheckTrue "A map that leans to the right is brighter than a flat one (" + values$ + ")", right > flat + 20
+CheckTrue "A map that leans to the left is darker than a flat one (" + values$ + ")", left < flat - 20
+CheckTrue "With green up, a map that leans up is brighter in light from above (" + values$ + ")", up > plainTop + 20
+CheckTrue "With green up, a map that leans down is darker in light from above (" + values$ + ")", down < plainTop - 20
+; Mode 7 has the green channel the other way round.
+Check "Mode 7 mirrors the green channel (up) (" + values$ + ")", up7, down, 3
+Check "Mode 7 mirrors the green channel (down) (" + values$ + ")", down7, up, 3
 
 ; The map is no color of its own: a color texture on the next layer multiplies the lit result, here red.
 RotateEntity light, 0, -45, 0
