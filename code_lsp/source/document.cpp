@@ -299,7 +299,7 @@ namespace blitz::lsp {
 		return found;
 	}
 
-	document::rename_plan document::plan_rename(size_t offset, std::string const& builtin_hint, bool global_known) const
+	document::rename_plan document::plan_rename(size_t offset, std::string const& builtin_hint, bool global_known, bool function_known) const
 	{
 		rename_plan plan;
 		std::string& why = plan.why;
@@ -342,11 +342,11 @@ namespace blitz::lsp {
 			size_t pp = (p != size_t(-1)) ? previous_token(p) : size_t(-1);
 			bool label = after_dot && (pp == size_t(-1) || _tokens[pp].is(tools::kind::newline) || _tokens[pp].is(tools::kind::separator));
 			role = label ? what::label : what::type;
-		} else if (previous_is(at->token, { "function" }) || (called && has(declaration::kind::function))) {
+		} else if (previous_is(at->token, { "function" }) || (called && (has(declaration::kind::function) || (function_known && !has(declaration::kind::dim))))) {
 			role = what::function;
 		} else if (previous_is(at->token, { "goto", "gosub", "restore" })) {
 			role = what::label;
-		} else if (has(declaration::kind::function) && !has(declaration::kind::variable) && !has(declaration::kind::parameter) && !has(declaration::kind::dim)) {
+		} else if ((has(declaration::kind::function) || (function_known && !global_known)) && !has(declaration::kind::variable) && !has(declaration::kind::parameter) && !has(declaration::kind::dim) && !has(declaration::kind::constant)) {
 			role = what::function;
 		} else if (!has(declaration::kind::variable) && !has(declaration::kind::parameter) && !has(declaration::kind::constant) && !has(declaration::kind::dim)) {
 			// Not declared anywhere: it is an implicit variable, a command of the runtime or a name from an included file.
@@ -419,7 +419,8 @@ namespace blitz::lsp {
 				break;
 			}
 			case what::function:
-				match = previous_is(w.token, { "function" }) || (w_called && !w_backslash && !w_dot);
+				// Commands can be called without parentheses (`Draw 1, 2`), so every use of the name counts that is not another kind of name.
+				match = previous_is(w.token, { "function" }) || (!w_backslash && !w_dot && !previous_is(w.token, { "type", "new", "each", "first", "last", "field", "goto", "gosub", "restore" }));
 				break;
 			case what::label: {
 				size_t wpp = (wp != size_t(-1)) ? previous_token(wp) : size_t(-1);

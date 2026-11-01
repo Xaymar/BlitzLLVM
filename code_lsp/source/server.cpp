@@ -1019,13 +1019,15 @@ namespace blitz::lsp {
 		prepare_rename(params); // Refuses what can't be renamed
 		_files.clear(); // The files on disk may have changed
 		size_t offset = s->doc->to_offset(position_from(params["position"]));
-		bool global_known = false;
+		bool global_known   = false;
+		bool function_known = false;
 		if (auto* w = s->doc->word_at(offset)) {
 			for (auto const& sym : s->symbols) {
 				if (sym.lower == w->name && (sym.what == symbol::kind::variable || sym.what == symbol::kind::constant)) global_known = true;
+				if (sym.lower == w->name && sym.what == symbol::kind::function) function_known = true;
 			}
 		}
-		auto plan = s->doc->plan_rename(offset, std::string(), global_known);
+		auto plan = s->doc->plan_rename(offset, std::string(), global_known, function_known);
 		json changes = json::object();
 		auto add_file = [&](std::filesystem::path const& file, bool origin) {
 			document* doc = origin ? s->doc.get() : document_for(file);

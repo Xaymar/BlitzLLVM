@@ -113,7 +113,7 @@ function stage(name) {
   const file = path.join(dir, 'main.bb');
   fs.writeFileSync(file, '');
   // A program of two files, and another program in the same folder that must not be touched by a rename
-  fs.writeFileSync(path.join(dir, 'lib.bb'), 'Global shared = 1\nFunction Helper()\n\tReturn shared\nEnd Function\n');
+  fs.writeFileSync(path.join(dir, 'lib.bb'), 'Global shared = 1\nFunction Helper()\n\tReturn shared\nEnd Function\nFunction Draw(a)\n\tReturn a\nEnd Function\n');
   fs.writeFileSync(path.join(dir, 'other.bb'), 'Global shared = 2\nPrint shared\n');
   const uri = pathToFileURL(file).href;
   let result = await request('initialize', { processId: null, rootUri: pathToFileURL(dir).href, capabilities: {}, initializationOptions: { warningLevel: 3 } });
@@ -222,6 +222,15 @@ function stage(name) {
   assert.deepStrictEqual(files, ['lib.bb', 'main.bb'], JSON.stringify(result));
   const libChanges = Object.entries(result.result.changes).find(([u]) => path.basename(u) === 'lib.bb')[1];
   assert.strictEqual(libChanges.length, 2);
+
+  // A function of the included file, used without parentheses in this one and renamed from its use: both files change
+  const calls = 'Include "lib.bb"\nDraw 1\nFunction Other()\n\tDraw 2\nEnd Function\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 11 }, contentChanges: [{ text: calls }] });
+  diagnostics = await diagnosticsFor(uri);
+  assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), [], JSON.stringify(diagnostics));
+  result = await request('textDocument/rename', { textDocument: { uri }, position: position(calls, 'Draw 1', 0, 1), newName: 'Paint' });
+  const changed = Object.fromEntries(Object.entries(result.result.changes).map(([u, e]) => [path.basename(u), e.length]));
+  assert.deepStrictEqual(changed, { 'lib.bb': 1, 'main.bb': 2 }, JSON.stringify(result));
 
   stage('workspace');
 

@@ -87,8 +87,9 @@ namespace blitz::lsp {
 		};
 
 		/** The plan for renaming the word at the offset. A word that is declared in no file but written in a function of this
-		 * one is a local, unless global_known says that a Global of that name exists in another file of the program. */
-		rename_plan plan_rename(size_t offset, std::string const& builtin_hint = std::string(), bool global_known = false) const;
+		 * one is a local, unless global_known says that a Global of that name exists in another file of the program.
+		 * function_known: a Function of that name exists in another file of the program. */
+		rename_plan plan_rename(size_t offset, std::string const& builtin_hint = std::string(), bool global_known = false, bool function_known = false) const;
 
 		/** Every place in this document that the plan changes, as byte ranges of the name (without the type character).
 		 * origin: this is the document the plan was made in (locals are only changed there). */
