@@ -38,6 +38,15 @@ def main():
     if result.returncode != 0 or "evicted ok" not in result.stderr:
         print("vram: textures without flag 256 should make room for one with it.\n%s" % result.stderr)
         return 1
+
+    # What is drawn on textures that the allocator moved is still there.
+    defrag = os.path.join(work, "vram_defrag")
+    procutil.run([blitzcc, "-d", os.path.join(os.path.dirname(source), "vram_defrag.bb"), "-o", defrag], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([defrag], env=dict(os.environ, BLITZLLVM_DEFRAG_TEST="1", BLITZLLVM_DEFRAG_REPORT="1"), capture_output=True, text=True, timeout=120)
+    moved = [line for line in result.stderr.splitlines() if line.startswith("defragmentation moved") and not line.endswith(" 0 images")]
+    if result.returncode != 0 or "defrag ok" not in result.stderr or not moved:
+        print("vram: textures that were moved together should keep their pictures (and some should have moved).\n%s" % result.stderr)
+        return 1
     return 0
 
 

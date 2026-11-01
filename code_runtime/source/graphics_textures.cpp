@@ -14,6 +14,8 @@
 // Textures: loading, flags, filters and the layers of a texture.
 
 #include <string>
+#include <unordered_map>
+#include "environment.h"
 #include "memory.h"
 #include <vector>
 
@@ -1473,12 +1475,77 @@ namespace bb::gfx {
 		}
 	}
 
+	// Defragmentation: the allocator picks allocations to move into gaps, and what is ours to move is the images of textures and 2D images.
+	// Everything else is left where it is. The sets that sample the images that moved are written again.
+	bool defragment_images()
+	{
+		if (!g.allocator) {
+			return false;
+		}
+		flush();
+		wait_gpu();
+		struct owner {
+			gpu_image*      image;
+			VkDescriptorSet* set;
+			VkSampler       sampler;
+		};
+		std::unordered_map<VmaAllocation, owner> owners;
+		auto movable = [](gpu_image const& image) {
+			return image.image && image.allocation && image.recipe && image.recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT && image.recipe->create_info.samples == VK_SAMPLE_COUNT_1_BIT;
+		};
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			// Atlas views and cube map faces hold copies of the handles of another image.
+			if (t.used && !t.atlas && !t.is_atlas && !t.cube && !t.pending && t.set && !t.alias && movable(t.image)) {
+				owners[t.image.allocation] = { &t.image, &t.set, t.sampler ? sampler_vk(sampler_table[uint32_t(t.sampler) - 1]) : texture_sampler(t.flags) };
+			}
+		}
+		for (uint32_t i = 0; i < image_table.size; i++) {
+			image_entry& e = image_table[i];
+			if (e.used && !e.pending && e.set && movable(e.image)) {
+				owners[e.image.allocation] = { &e.image, &e.set, g.sampler };
+			}
+		}
+
+		VmaDefragmentationInfo info = {};
+		VmaDefragmentationContext context;
+		if (vmaBeginDefragmentation(g.allocator, &info, &context) != VK_SUCCESS) {
+			return false;
+		}
+		uint32_t moved = 0;
+		for (;;) {
+			VmaDefragmentationPassMoveInfo pass = {};
+			if (vmaBeginDefragmentationPass(g.allocator, context, &pass) != VK_INCOMPLETE) {
+				break;
+			}
+			for (uint32_t i = 0; i < pass.moveCount; i++) {
+				VmaDefragmentationMove& move = pass.pMoves[i];
+				auto                    found = owners.find(move.srcAllocation);
+				if ((found != owners.end()) && move_image(*found->second.image, move.dstTmpAllocation)) {
+					moved++;
+					describe_image(*found->second.set, *found->second.image, found->second.sampler);
+					found->second.image->sampler = found->second.sampler;
+				} else {
+					move.operation = VMA_DEFRAGMENTATION_MOVE_OPERATION_IGNORE;
+				}
+			}
+			if (vmaEndDefragmentationPass(g.allocator, context, &pass) != VK_INCOMPLETE) {
+				break;
+			}
+		}
+		vmaEndDefragmentation(g.allocator, context, nullptr);
+		if (bb_env_bool("BLITZLLVM_DEFRAG_REPORT", false)) {
+			fprintf(stderr, "defragmentation moved %u images\n", moved);
+		}
+		return moved > 0;
+	}
+
 	// Moves textures that may use system memory to it: their images are made again there from their recipes, and the set that samples them is written again.
 	bool textures_evict(VkDeviceSize needed)
 	{
 		auto size_of = [](texture_entry const& t) { return VkDeviceSize(t.image.width) * t.image.height * 4 * t.image.layers; };
 		auto movable = [](texture_entry const& t) {
-			return t.used && !t.atlas && !t.cube && !t.pending && t.set && t.image.image && t.image.recipe && t.image.recipe->may_spill && !t.image.recipe->in_system
+			return t.used && !t.atlas && !t.is_atlas && !t.cube && !t.pending && t.set && t.image.image && t.image.recipe && t.image.recipe->may_spill && !t.image.recipe->in_system
 				&& ((t.image.recipe->kind == image_recipe::content::pixels) || (t.image.recipe->kind == image_recipe::content::blocks)) && recovery_enabled();
 		};
 		bool moved_any = false;

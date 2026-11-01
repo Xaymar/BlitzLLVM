@@ -204,8 +204,25 @@ namespace bb::gfx {
 			return created;
 		}
 		alloc.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		bool defragmented = false;
+		if (evict_allowed && !evicting && bb_env_bool("BLITZLLVM_DEFRAG_TEST", false)) {
+			// For tests: every texture is made after the allocator moved what it can.
+			evicting = true;
+			defragment_images();
+			evicting = false;
+		}
 		for (;;) {
 			created = over_vram_limit(size) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && evict_allowed && !evicting && !defragmented) {
+				// The video memory may be in pieces that are too small: the allocator moves the images of textures together first.
+				defragmented = true;
+				evicting     = true;
+				bool moved   = defragment_images();
+				evicting     = false;
+				if (moved) {
+					continue;
+				}
+			}
 			if ((created != VK_ERROR_OUT_OF_DEVICE_MEMORY) || spill_allowed || !evict_allowed || evicting) {
 				break;
 			}
