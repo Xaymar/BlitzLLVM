@@ -13,12 +13,43 @@
 #include "parser.hpp"
 #include <algorithm>
 #include <cerrno>
+#include <cmath>
 #include <cstdlib>
 #include <map>
 #include <set>
 #include "error.hpp"
 #include "parser_internal.hpp"
 #include "util.hpp"
+
+namespace {
+	// Splits the text of a number token into what the digits are and the suffix that says its type (lower case, may be empty).
+	void split_number(std::string const& text, std::string& body, std::string& suffix)
+	{
+		size_t end = 0;
+		auto   is_hex = [](char c) { return isxdigit((unsigned char)c) != 0; };
+		if ((text.length() >= 2) && (text[0] == '0') && ((text[1] == 'x') || (text[1] == 'X'))) {
+			for (end = 2; (end < text.length()) && is_hex(text[end]); end++) {}
+		} else if ((text.length() >= 2) && (text[0] == '0') && ((text[1] == 'b') || (text[1] == 'B'))) {
+			for (end = 2; (end < text.length()) && ((text[end] == '0') || (text[end] == '1')); end++) {}
+		} else if ((text.length() >= 1) && ((text[0] == '$') || (text[0] == '%'))) {
+			end = text.length();
+		} else {
+			for (; (end < text.length()) && (isdigit((unsigned char)text[end]) || (text[end] == '.')); end++) {}
+		}
+		body   = text.substr(0, end);
+		suffix = text.substr(end);
+		for (auto& c : suffix) {
+			c = char(tolower((unsigned char)c));
+		}
+	}
+
+	bool has_typed_suffix(blitz::token const& token)
+	{
+		std::string body, suffix;
+		split_number(token.text, body, suffix);
+		return !suffix.empty() && (suffix != "u");
+	}
+} // namespace
 
 using namespace blitz::parser_detail;
 
@@ -348,6 +379,16 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 		node->object = parse_unary();
 		return node;
 	}
+	if (is_symbol(op, "-") && ((tk(1).type == blitz::token::variant::INTEGER) || (tk(1).type == blitz::token::variant::REAL)) && has_typed_suffix(tk(1)) && (tk(1).text.compare(0, 2, "0x") != 0) &&
+		(tk(1).text.compare(0, 2, "0X") != 0) && (tk(1).text.compare(0, 2, "0b") != 0) && (tk(1).text.compare(0, 2, "0B") != 0) && !is_symbol(tk(2), "^")) {
+		// `-128i8` is one number, as 128 does not fit into an Int8 on its own.
+		auto number = tk(1);
+		advance();
+		advance();
+		auto node   = parse_number(number, true);
+		node->where = here(op);
+		return node;
+	}
 	if (is_symbol(op, "-") || is_symbol(op, "+") || is_symbol(op, "~")) {
 		advance();
 		auto node     = std::make_unique<ast::unary>();
@@ -359,28 +400,58 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 	return parse_primary();
 }
 
-blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token)
+
+blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token, bool negate)
 {
+	using blitz::types::type;
 	auto node   = std::make_unique<ast::literal>();
 	node->where = here(token);
 
+	std::string text, suffix;
+	split_number(token.text, text, suffix);
+
+	// Suffixes that name the exact type, see the Literals page.
+	static const std::map<std::string, std::pair<type, unsigned>> typed = {
+		{ "i8", { type::INT8, 8 } },    { "ui8", { type::UINT8, 8 } },    { "i16", { type::INT16, 16 } }, { "ui16", { type::UINT16, 16 } },
+		{ "i32", { type::INT32, 32 } }, { "ui32", { type::UINT32, 32 } }, { "i64", { type::INT64, 64 } }, { "ui64", { type::UINT64, 64 } },
+		{ "h", { type::FLOAT16, 16 } }, { "fp16", { type::FLOAT16, 16 } }, { "f", { type::FLOAT32, 32 } }, { "fp32", { type::FLOAT32, 32 } },
+		{ "d", { type::FLOAT64, 64 } }, { "fp64", { type::FLOAT64, 64 } },
+	};
+	auto found = typed.find(suffix);
+
+	if ((found != typed.end()) && blitz::types::is_real(found->second.first)) {
+		type   as = found->second.first;
+		errno     = 0;
+		double v  = strtod(text.c_str(), nullptr);
+		if (negate) {
+			v = -v;
+		}
+		bool fits = (errno != ERANGE) && !std::isinf(v);
+		if (as == type::FLOAT32) {
+			fits = fits && !std::isinf(float(v));
+		} else if (as == type::FLOAT16) {
+			fits = fits && (std::fabs(v) < 65520.0); // The largest Half is 65504, and anything from 65520 on rounds to infinity.
+		}
+		if (!fits) {
+			throw error(token, blitz::format("Real '%s' does not fit into %s.", token.text.c_str(), (as == type::FLOAT16) ? "a Half" : ((as == type::FLOAT32) ? "a Float" : "a Double")));
+		}
+		node->kind   = ast::literal::variant::REAL;
+		node->f      = v;
+		node->suffix = as;
+		return node;
+	}
 	if (token.type == blitz::token::variant::REAL) {
 		node->kind = ast::literal::variant::REAL;
 		errno      = 0;
-		node->f    = strtod(token.text.c_str(), nullptr);
+		node->f    = strtod(text.c_str(), nullptr);
 		if (errno == ERANGE) {
 			throw error(token, blitz::format("Real '%s' is not representable on this system.", token.text.c_str()));
 		}
 		return node;
 	}
 
-	std::string text = token.text;
-	bool        is_unsigned = false;
-	if (!text.empty() && ((text.back() == 'u') || (text.back() == 'U'))) {
-		is_unsigned = true;
-		text.pop_back();
-	}
-	int base = 10;
+	bool is_unsigned = (suffix == "u");
+	int  base = 10;
 	if ((text.length() >= 2) && ((text[0] == '$') || (text[0] == '%'))) {
 		// Like in the original, `$` and `%` numbers only keep their lowest 32 bits, so $FFFFFFFF is -1 and not 4294967295.
 		base                  = (text[0] == '$') ? 16 : 2;
@@ -392,12 +463,15 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 		node->i    = int32_t(wrapped);
 		return node;
 	}
+	bool prefixed = false;
 	if ((text.length() >= 2) && (text[0] == '0') && ((text[1] == 'x') || (text[1] == 'X'))) {
-		base = 16;
-		text = text.substr(2);
+		base     = 16;
+		prefixed = true;
+		text     = text.substr(2);
 	} else if ((text.length() >= 2) && (text[0] == '0') && ((text[1] == 'b') || (text[1] == 'B'))) {
-		base = 2;
-		text = text.substr(2);
+		base     = 2;
+		prefixed = true;
+		text     = text.substr(2);
 	}
 	if (text.empty()) {
 		throw error(token, blitz::format("Integer '%s' has no digits.", token.text.c_str()));
@@ -408,13 +482,48 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	if (errno == ERANGE) {
 		throw error(token, blitz::format("Integer '%s' is not representable on this system.", token.text.c_str()));
 	}
-	if ((base != 10) && !is_unsigned && (ui <= uintmax_t(UINT32_MAX))) {
-		// Like `$` and `%`, a 0x or 0b number that fits in 32 bits is an Int with the bits reinterpreted, so 0xFFFFFFFF is -1.
-		node->kind = ast::literal::variant::INTEGER;
-		node->i    = int32_t(uint32_t(ui));
-	} else if (is_unsigned || (ui > uintmax_t(INTMAX_MAX))) {
+
+	if (found != typed.end()) {
+		type     as     = found->second.first;
+		unsigned bits   = found->second.second;
+		bool     sign   = blitz::types::is_signed(as);
+		uintmax_t mask  = (bits >= 64) ? UINTMAX_MAX : ((uintmax_t(1) << bits) - 1);
+		uintmax_t top   = uintmax_t(1) << (bits - 1);
+		bool      fits  = false;
+		intmax_t  value = 0;
+		if (prefixed) {
+			// A 0x or 0b number is a bit pattern of the type, so 0xFFi8 is -1 and 0xFFui8 is 255.
+			fits  = (ui <= mask);
+			value = sign ? ((ui & top) ? intmax_t(ui | ~mask) : intmax_t(ui)) : intmax_t(ui);
+		} else if (negate) {
+			fits  = sign && (ui <= top);
+			value = intmax_t(0 - ui);
+		} else {
+			fits  = sign ? (ui < top) : (ui <= mask);
+			value = intmax_t(ui);
+		}
+		if (!fits) {
+			throw error(token, blitz::format("Integer '%s' does not fit into %s.", (negate ? ("-" + token.text) : token.text).c_str(), blitz::types::long_name(as).c_str()));
+		}
+		if (as == type::UINT64) {
+			node->kind = ast::literal::variant::UNSIGNED_INTEGER;
+			node->u    = ui;
+		} else {
+			node->kind = ast::literal::variant::INTEGER;
+			node->i    = value;
+		}
+		node->suffix = as;
+		return node;
+	}
+
+	if (is_unsigned) {
 		node->kind = ast::literal::variant::UNSIGNED_INTEGER;
 		node->u    = ui;
+	} else if (prefixed && (ui <= UINT32_MAX)) {
+		node->kind = ast::literal::variant::INTEGER; // 0xFFFFFFFF is the same bit pattern as $FFFFFFFF.
+		node->i    = int32_t(uint32_t(ui));
+	} else if (ui > uintmax_t(INT32_MAX)) {
+		throw error(token, blitz::format("Integer '%s' does not fit into an Int. Write 'i64' or 'ui64' (or 'ui32' where 32 bits are enough) behind it.", token.text.c_str()));
 	} else {
 		node->kind = ast::literal::variant::INTEGER;
 		node->i    = intmax_t(ui);
@@ -473,7 +582,7 @@ blitz::ast::expression_ptr blitz::parser::parse_primary_inner()
 	case blitz::token::variant::INTEGER:
 	case blitz::token::variant::REAL:
 		advance();
-		return parse_number(token);
+		return parse_number(token, false);
 	case blitz::token::variant::STRING: {
 		advance();
 		auto node   = std::make_unique<ast::literal>();
