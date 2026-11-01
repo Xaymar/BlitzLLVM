@@ -19,7 +19,7 @@ OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `server` | In | String | required | The address of the server, as a name or as dotted numbers. |
+| `server` | In | String | required | The address of the server, as a name or as text: dotted numbers for IPv4, or an IPv6 address like `::1` (brackets are allowed). A name with several addresses tries them in the order the system prefers, until one connects. |
 | `server_port` | In | Int32 | required | The port the server listens on. |
 | `local_port` | In | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
 
@@ -28,6 +28,10 @@ OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 ## Description
 
 Connects to a TCP server. It returns once the connection is made or has failed.
+
+## Differences
+
+* IPv6 addresses and names that have them work. See [IPv6](IPv6).
 
 ## Examples
 
@@ -42,7 +46,7 @@ Print OpenTCPStream("127.0.0.1", 40754)
 
 ## Related Commands
 
-[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [CreateUDPStream](CreateUDPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [GetTCPStreamAddress](GetTCPStreamAddress), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

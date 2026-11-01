@@ -27,6 +27,10 @@ CreateUDPStream:Int32 port:Int32=0
 
 Creates a UDP stream that can send and receive messages. Use a fixed port when other programs have to find you, and no port to let the system pick one.
 
+## Differences
+
+* The stream receives IPv4 and IPv6 messages (where the system has IPv6), see [IPv6](IPv6).
+
 ## Examples
 
 ```blitzbasic
@@ -51,7 +55,7 @@ CloseUDPStream b
 
 ## Related Commands
 
-[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [OpenTCPStream](OpenTCPStream), [RecvUDPMsg](RecvUDPMsg), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [GetUDPStreamAddress](GetUDPStreamAddress), [OpenTCPStream](OpenTCPStream), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort)
 
 <div align="center">
 

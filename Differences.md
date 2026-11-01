@@ -29,6 +29,7 @@ Differences that are not caused by one command.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
 * [glTF models](glTF-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read glTF 2.0 files, and `LoadTexture` and `LoadImage` read the pictures inside them.
 * [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
+* [IPv6](IPv6): The network commands also work over IPv6, and have text versions of the commands that use an address as a whole number.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
@@ -91,7 +92,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [CountDisplays](CountDisplays#differences) 〔BlitzLLVM〕: When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes).
 * [CountGfxDrivers](CountGfxDrivers#differences): Every GPU that Vulkan reports is a driver, including software ones.
 * [CountGfxModes](CountGfxModes#differences): The modes are the ones of the main display.
-* [CountHostIPs](CountHostIPs#differences): Only IPv4 addresses are counted.
+* [CountHostAddresses](CountHostAddresses#differences): Not in the original, which only knows IPv4 ([CountHostIPs](CountHostIPs)).
+* [CountHostIPs](CountHostIPs#differences): Only IPv4 addresses are counted, use [CountHostAddresses](CountHostAddresses) for IPv6 too.
 * [CountRefreshRates](CountRefreshRates#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [CreateButton](CreateButton#differences): Buttons are drawn in the look of the program, not with the controls of the operating system.
 * [CreateCanvas](CreateCanvas#differences): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
@@ -104,10 +106,12 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
+* [CreateTCPServer](CreateTCPServer#differences): The server accepts IPv4 and IPv6 connections on the same port (where the system has IPv6), see [IPv6](IPv6).
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
 * [CreateTexture](CreateTexture#differences): Flag 4096 (render target) is new.
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
+* [CreateUDPStream](CreateUDPStream#differences): The stream receives IPv4 and IPv6 messages (where the system has IPv6), see [IPv6](IPv6).
 * [CreateWindow](CreateWindow#differences): Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
 * [Desktop](Desktop#differences): The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell.
@@ -154,11 +158,15 @@ Commands that differ from the original or are not finished, with the first of th
 * [GammaGreen](GammaGreen#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 * [GammaRed](GammaRed#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 * [GetBrushTexture](GetBrushTexture#differences): A layer without a texture gives 0.
+* [GetHostAddress](GetHostAddress#differences): Without a call of [CountHostAddresses](CountHostAddresses) the addresses of this computer are used.
 * [GetJoy](GetJoy#differences): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
 * [GetKey](GetKey#differences): The queue holds 64 characters, and the oldest ones are dropped when it is full.
 * [GetMouse](GetMouse#differences): The queue holds 15 presses and forgets the oldest ones when it is full.
 * [GetMovieTexture](GetMovieTexture#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [GetSurfaceBrush](GetSurfaceBrush#differences): A surface that was never painted gives a plain white brush.
+* [GetTCPStreamAddress](GetTCPStreamAddress#differences): Not in the original, which only knows IPv4.
+* [GetUDPMsgAddress](GetUDPMsgAddress#differences): Not in the original, which only knows IPv4.
+* [GetUDPStreamAddress](GetUDPStreamAddress#differences): Not in the original, which only knows IPv4.
 * [GfxDriver3D](GfxDriver3D#differences): A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0.
 * [GfxDriverCaps3D](GfxDriverCaps3D#differences): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
 * [GfxDriverName](GfxDriverName#differences): The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER".
@@ -250,6 +258,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [MovieWidth](MovieWidth#differences): Nothing , the same as the original.
 * [Notify](Notify#differences): The box is a message box of the operating system in front of the program's active window, not part of it.
 * [OpenMovie](OpenMovie#differences): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
+* [OpenTCPStream](OpenTCPStream#differences): IPv6 addresses and names that have them work.
 * [PauseChannel](PauseChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
 * [PauseMovie](PauseMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [PickedTime](PickedTime#differences): The official help describes this as the time taken to calculate the pick.
@@ -293,6 +302,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.
 * [SeekMovie](SeekMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [SendUDPMsg](SendUDPMsg#differences): Only IPv4 addresses fit in a number, use [SendUDPMsgTo](SendUDPMsgTo) for IPv6.
+* [SendUDPMsgTo](SendUDPMsgTo#differences): Not in the original.
 * [SetBuffer](SetBuffer#differences): A debug build (`-d`) stops with an error when the buffer is the `TextureBuffer` of a texture that was not made with flag 4096 (render target), see CreateTexture.
 * [SetCubeFace](SetCubeFace#differences): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
 * [SetCubeMode](SetCubeMode#differences): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
@@ -330,6 +341,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [StringHeight](StringHeight#differences): Text has only one line, so this is always the height of one character.
 * [StringWidth](StringWidth#differences): With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
 * [SystemProperty](SystemProperty#differences): Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
+* [TCPStreamIP](TCPStreamIP#differences): A peer that uses IPv6 has no address as a number, so this returns 0 for it; use [GetTCPStreamAddress](GetTCPStreamAddress).
 * [TerrainDetail](TerrainDetail#differences): The terrain has no level of detail here.
 * [TerrainShading](TerrainShading#differences): The terrain is always lit with normals that follow the height, whatever this is set to.
 * [Text](Text#differences): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
@@ -343,7 +355,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer.
 * [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [UByte](UByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [UDPStreamIP](UDPStreamIP#differences): It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
+* [UDPMsgIP](UDPMsgIP#differences): A sender that uses IPv6 has no address as a number, so this returns 0 for it; use [GetUDPMsgAddress](GetUDPMsgAddress).
+* [UDPStreamIP](UDPStreamIP#differences): Only IPv4, use [GetUDPStreamAddress](GetUDPStreamAddress) for IPv6 too.
 * [UInt](UInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ULong](ULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [UnlockMouse](UnlockMouse#differences): This is a BlitzLLVM extension: the original has no such command.

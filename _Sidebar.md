@@ -21,7 +21,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (38)</summary>
+<li><details><summary>Features (39)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -40,6 +40,7 @@
 <li><a href="Fullscreen">Fullscreen</a></li>
 <li><a href="glTF-Models">glTF models</a></li>
 <li><a href="Image-Formats">Image formats</a></li>
+<li><a href="IPv6">IPv6</a></li>
 <li><a href="Language">Language</a></li>
 <li><a href="Large-Meshes">Large Meshes</a></li>
 <li><a href="Lost-Graphics-Device">Lost graphics device</a></li>
@@ -63,7 +64,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (308)</summary>
+<li><details><summary>Commands (320)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -101,6 +102,7 @@
 <li><a href="CountDisplays#differences">CountDisplays</a> 〔BlitzLLVM〕</li>
 <li><a href="CountGfxDrivers#differences">CountGfxDrivers</a></li>
 <li><a href="CountGfxModes#differences">CountGfxModes</a></li>
+<li><a href="CountHostAddresses#differences">CountHostAddresses</a></li>
 <li><a href="CountHostIPs#differences">CountHostIPs</a></li>
 <li><a href="CountRefreshRates#differences">CountRefreshRates</a> 〔BlitzLLVM〕</li>
 <li><a href="CreateButton#differences">CreateButton</a></li>
@@ -114,10 +116,12 @@
 <li><a href="CreateMenu#differences">CreateMenu</a></li>
 <li><a href="CreatePlane#differences">CreatePlane</a></li>
 <li><a href="CreateTabber#differences">CreateTabber</a></li>
+<li><a href="CreateTCPServer#differences">CreateTCPServer</a></li>
 <li><a href="CreateTerrain#differences">CreateTerrain</a></li>
 <li><a href="CreateTextArea#differences">CreateTextArea</a></li>
 <li><a href="CreateTexture#differences">CreateTexture</a></li>
 <li><a href="CreateToolBar#differences">CreateToolBar</a></li>
+<li><a href="CreateUDPStream#differences">CreateUDPStream</a></li>
 <li><a href="CreateWindow#differences">CreateWindow</a></li>
 <li><a href="DebugObjects#differences">DebugObjects</a></li>
 <li><a href="Desktop#differences">Desktop</a></li>
@@ -164,11 +168,15 @@
 <li><a href="GammaGreen#differences">GammaGreen</a></li>
 <li><a href="GammaRed#differences">GammaRed</a></li>
 <li><a href="GetBrushTexture#differences">GetBrushTexture</a></li>
+<li><a href="GetHostAddress#differences">GetHostAddress</a></li>
 <li><a href="GetJoy#differences">GetJoy</a></li>
 <li><a href="GetKey#differences">GetKey</a></li>
 <li><a href="GetMouse#differences">GetMouse</a></li>
 <li><a href="GetMovieTexture#differences">GetMovieTexture</a> 〔BlitzLLVM〕</li>
 <li><a href="GetSurfaceBrush#differences">GetSurfaceBrush</a></li>
+<li><a href="GetTCPStreamAddress#differences">GetTCPStreamAddress</a></li>
+<li><a href="GetUDPMsgAddress#differences">GetUDPMsgAddress</a></li>
+<li><a href="GetUDPStreamAddress#differences">GetUDPStreamAddress</a></li>
 <li><a href="GfxDriver3D#differences">GfxDriver3D</a></li>
 <li><a href="GfxDriverCaps3D#differences">GfxDriverCaps3D</a></li>
 <li><a href="GfxDriverName#differences">GfxDriverName</a></li>
@@ -260,6 +268,7 @@
 <li><a href="MovieWidth#differences">MovieWidth</a></li>
 <li><a href="Notify#differences">Notify</a></li>
 <li><a href="OpenMovie#differences">OpenMovie</a></li>
+<li><a href="OpenTCPStream#differences">OpenTCPStream</a></li>
 <li><a href="PauseChannel#differences">PauseChannel</a></li>
 <li><a href="PauseMovie#differences">PauseMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="PickedTime#differences">PickedTime</a></li>
@@ -303,6 +312,8 @@
 <li><a href="ScaleImage#differences">ScaleImage</a></li>
 <li><a href="ScanLine#differences">ScanLine</a></li>
 <li><a href="SeekMovie#differences">SeekMovie</a> 〔BlitzLLVM〕</li>
+<li><a href="SendUDPMsg#differences">SendUDPMsg</a></li>
+<li><a href="SendUDPMsgTo#differences">SendUDPMsgTo</a></li>
 <li><a href="SetBuffer#differences">SetBuffer</a></li>
 <li><a href="SetCubeFace#differences">SetCubeFace</a></li>
 <li><a href="SetCubeMode#differences">SetCubeMode</a></li>
@@ -340,6 +351,7 @@
 <li><a href="StringHeight#differences">StringHeight</a></li>
 <li><a href="StringWidth#differences">StringWidth</a></li>
 <li><a href="SystemProperty#differences">SystemProperty</a></li>
+<li><a href="TCPStreamIP#differences">TCPStreamIP</a></li>
 <li><a href="TerrainDetail#differences">TerrainDetail</a></li>
 <li><a href="TerrainShading#differences">TerrainShading</a></li>
 <li><a href="Text#differences">Text</a></li>
@@ -353,6 +365,7 @@
 <li><a href="TotalVidMem#differences">TotalVidMem</a></li>
 <li><a href="TrailingZeros#differences">TrailingZeros</a> 〔BlitzLLVM〕</li>
 <li><a href="UByte#differences">UByte</a> 〔BlitzLLVM〕</li>
+<li><a href="UDPMsgIP#differences">UDPMsgIP</a></li>
 <li><a href="UDPStreamIP#differences">UDPStreamIP</a></li>
 <li><a href="UInt#differences">UInt</a> 〔BlitzLLVM〕</li>
 <li><a href="ULong#differences">ULong</a> 〔BlitzLLVM〕</li>
@@ -889,21 +902,27 @@
 <li><a href="StopNetGame">StopNetGame</a></li>
 </ul>
 </details></li>
-<li><details><summary>Network (20)</summary>
+<li><details><summary>Network (26)</summary>
 <ul>
 <li><a href="BlitzBasic-Network">Overview</a></li>
 <li><a href="AcceptTCPStream">AcceptTCPStream</a></li>
 <li><a href="CloseTCPServer">CloseTCPServer</a></li>
 <li><a href="CloseTCPStream">CloseTCPStream</a></li>
 <li><a href="CloseUDPStream">CloseUDPStream</a></li>
+<li><a href="CountHostAddresses">CountHostAddresses</a></li>
 <li><a href="CountHostIPs">CountHostIPs</a></li>
 <li><a href="CreateTCPServer">CreateTCPServer</a></li>
 <li><a href="CreateUDPStream">CreateUDPStream</a></li>
 <li><a href="DottedIP">DottedIP</a></li>
+<li><a href="GetHostAddress">GetHostAddress</a></li>
+<li><a href="GetTCPStreamAddress">GetTCPStreamAddress</a></li>
+<li><a href="GetUDPMsgAddress">GetUDPMsgAddress</a></li>
+<li><a href="GetUDPStreamAddress">GetUDPStreamAddress</a></li>
 <li><a href="HostIP">HostIP</a></li>
 <li><a href="OpenTCPStream">OpenTCPStream</a></li>
 <li><a href="RecvUDPMsg">RecvUDPMsg</a></li>
 <li><a href="SendUDPMsg">SendUDPMsg</a></li>
+<li><a href="SendUDPMsgTo">SendUDPMsgTo</a></li>
 <li><a href="TCPStreamIP">TCPStreamIP</a></li>
 <li><a href="TCPStreamPort">TCPStreamPort</a></li>
 <li><a href="TCPTimeouts">TCPTimeouts</a></li>

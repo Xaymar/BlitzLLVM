@@ -27,9 +27,13 @@ SendUDPMsg:Void udp_stream:Int32, dest_ip:Int32, dest_port:Int32=0
 
 Sends what you wrote to the stream as one message and empties the stream for the next one.
 
+## Differences
+
+* Only IPv4 addresses fit in a number, use [SendUDPMsgTo](SendUDPMsgTo) for IPv6.
+
 ## Related Commands
 
-[CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [RecvUDPMsg](RecvUDPMsg), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
+[CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [GetUDPMsgAddress](GetUDPMsgAddress), [GetUDPStreamAddress](GetUDPStreamAddress), [RecvUDPMsg](RecvUDPMsg), [SendUDPMsgTo](SendUDPMsgTo), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort)
 
 <div align="center">
 

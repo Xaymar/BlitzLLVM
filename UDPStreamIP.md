@@ -29,7 +29,7 @@ _Not documented yet._
 
 ## Differences
 
-* It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
+* Only IPv4, use [GetUDPStreamAddress](GetUDPStreamAddress) for IPv6 too. It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
 
 ## Related Commands
 

@@ -27,9 +27,13 @@ CreateTCPServer:Int32 port:Int32
 
 Starts listening for TCP connections on a port. Clients connect with [OpenTCPStream](OpenTCPStream) and you take them with [AcceptTCPStream](AcceptTCPStream).
 
+## Differences
+
+* The server accepts IPv4 and IPv6 connections on the same port (where the system has IPv6), see [IPv6](IPv6).
+
 ## Related Commands
 
-[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CreateUDPStream](CreateUDPStream), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort), [TCPTimeouts](TCPTimeouts)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CreateUDPStream](CreateUDPStream), [GetTCPStreamAddress](GetTCPStreamAddress), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

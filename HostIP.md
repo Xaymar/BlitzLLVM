@@ -29,11 +29,11 @@ _Not documented yet._
 
 ## Differences
 
-* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
+* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned (use [GetHostAddress](GetHostAddress) for IPv6 too), and an index past the last one returns 0.
 
 ## Related Commands
 
-[CountHostIPs](CountHostIPs), [DottedIP](DottedIP), [TCPStreamIP](TCPStreamIP), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)
+[CountHostAddresses](CountHostAddresses), [CountHostIPs](CountHostIPs), [DottedIP](DottedIP), [GetHostAddress](GetHostAddress), [TCPStreamIP](TCPStreamIP), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)
 
 <div align="center">
 

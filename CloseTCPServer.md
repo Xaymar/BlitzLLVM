@@ -27,7 +27,7 @@ Stops a TCP server. Streams that it accepted stay open.
 
 ## Related Commands
 
-[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort), [TCPTimeouts](TCPTimeouts)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [GetTCPStreamAddress](GetTCPStreamAddress), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

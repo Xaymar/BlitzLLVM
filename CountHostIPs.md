@@ -29,7 +29,7 @@ Looks up a host name and returns how many addresses it has. Use [HostIP](HostIP)
 
 ## Differences
 
-* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
+* Only IPv4 addresses are counted, use [CountHostAddresses](CountHostAddresses) for IPv6 too. `UDPStreamIP` is the first address of this computer.
 
 ## Examples
 
@@ -43,7 +43,7 @@ Print CountHostIPs("localhost") >= 1
 
 ## Related Commands
 
-[CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [HostIP](HostIP)
+[CloseUDPStream](CloseUDPStream), [CountHostAddresses](CountHostAddresses), [GetHostAddress](GetHostAddress), [HostIP](HostIP)
 
 <div align="center">
 

@@ -27,6 +27,10 @@ TCPStreamIP:Int32 tcp_stream:Int32
 
 _Not documented yet._
 
+## Differences
+
+* A peer that uses IPv6 has no address as a number, so this returns 0 for it; use [GetTCPStreamAddress](GetTCPStreamAddress). IPv4 peers are not changed.
+
 ## Related Commands
 
 [AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [DottedIP](DottedIP), [HostIP](HostIP), [TCPStreamPort](TCPStreamPort), [TCPTimeouts](TCPTimeouts), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)

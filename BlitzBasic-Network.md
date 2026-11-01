@@ -10,7 +10,7 @@ A TCP or UDP connection is a stream, so everything on [[BlitzBasic-Streams]] wor
 
 **TCP** is a connection: one side calls [CreateTCPServer](CreateTCPServer) and [AcceptTCPStream](AcceptTCPStream), the other [OpenTCPStream](OpenTCPStream), and both can then read and write. Data arrives in order, and reading waits for data until the timeout of [TCPTimeouts](TCPTimeouts) is over.
 
-**UDP** is a series of messages: you write into the stream to build a message, send it with [SendUDPMsg](SendUDPMsg), and the other side takes the next one with [RecvUDPMsg](RecvUDPMsg) and reads it from its stream. Messages may be lost or arrive out of order. Only IPv4 addresses are supported.
+**UDP** is a series of messages: you write into the stream to build a message, send it with [SendUDPMsg](SendUDPMsg), and the other side takes the next one with [RecvUDPMsg](RecvUDPMsg) and reads it from its stream. Messages may be lost or arrive out of order. Addresses that are whole numbers can only be IPv4. For IPv6, the commands that give an address as text work with both: see [IPv6](IPv6).
 
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
@@ -18,14 +18,20 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [CloseTCPServer](CloseTCPServer)
 * [CloseTCPStream](CloseTCPStream)
 * [CloseUDPStream](CloseUDPStream)
+* [CountHostAddresses](CountHostAddresses)
 * [CountHostIPs](CountHostIPs)
 * [CreateTCPServer](CreateTCPServer)
 * [CreateUDPStream](CreateUDPStream)
 * [DottedIP](DottedIP)
+* [GetHostAddress](GetHostAddress)
+* [GetTCPStreamAddress](GetTCPStreamAddress)
+* [GetUDPMsgAddress](GetUDPMsgAddress)
+* [GetUDPStreamAddress](GetUDPStreamAddress)
 * [HostIP](HostIP)
 * [OpenTCPStream](OpenTCPStream)
 * [RecvUDPMsg](RecvUDPMsg)
 * [SendUDPMsg](SendUDPMsg)
+* [SendUDPMsgTo](SendUDPMsgTo)
 * [TCPStreamIP](TCPStreamIP)
 * [TCPStreamPort](TCPStreamPort)
 * [TCPTimeouts](TCPTimeouts)

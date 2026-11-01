@@ -145,6 +145,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountGfxModes](CountGfxModes)
 * [CountGfxModes3D](CountGfxModes3D)
+* [CountHostAddresses](CountHostAddresses)
 * [CountHostIPs](CountHostIPs)
 * [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 * [CountSurfaces](CountSurfaces)
@@ -356,6 +357,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetEntityBrush](GetEntityBrush)
 * [GetEntityType](GetEntityType)
 * [GetEnv](GetEnv)
+* [GetHostAddress](GetHostAddress)
 * [GetJoy](GetJoy)
 * [GetKey](GetKey)
 * [GetMatElement](GetMatElement)
@@ -378,6 +380,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [GetSurface](GetSurface)
 * [GetSurfaceBrush](GetSurfaceBrush)
+* [GetTCPStreamAddress](GetTCPStreamAddress)
+* [GetUDPMsgAddress](GetUDPMsgAddress)
+* [GetUDPStreamAddress](GetUDPStreamAddress)
 * [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriver3D](GfxDriver3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)
@@ -745,6 +750,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SelectTreeViewNode](SelectTreeViewNode)
 * [SendNetMsg](SendNetMsg)
 * [SendUDPMsg](SendUDPMsg)
+* [SendUDPMsgTo](SendUDPMsgTo)
 * [SetAnimKey](SetAnimKey)
 * [SetAnimTime](SetAnimTime)
 * [SetBuffer](SetBuffer)

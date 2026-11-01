@@ -29,7 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[CloseUDPStream](CloseUDPStream), [RecvUDPMsg](RecvUDPMsg), [SendUDPMsg](SendUDPMsg), [TCPStreamPort](TCPStreamPort), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
+[GetUDPMsgAddress](GetUDPMsgAddress), [RecvUDPMsg](RecvUDPMsg), [SendUDPMsg](SendUDPMsg), [TCPStreamPort](TCPStreamPort), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

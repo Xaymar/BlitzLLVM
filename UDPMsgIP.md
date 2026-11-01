@@ -27,9 +27,13 @@ UDPMsgIP:Int32 udp_stream:Int32
 
 _Not documented yet._
 
+## Differences
+
+* A sender that uses IPv6 has no address as a number, so this returns 0 for it; use [GetUDPMsgAddress](GetUDPMsgAddress). IPv4 senders are not changed.
+
 ## Related Commands
 
-[DottedIP](DottedIP), [HostIP](HostIP), [RecvUDPMsg](RecvUDPMsg), [TCPStreamIP](TCPStreamIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
+[DottedIP](DottedIP), [GetUDPMsgAddress](GetUDPMsgAddress), [HostIP](HostIP), [TCPStreamIP](TCPStreamIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 
