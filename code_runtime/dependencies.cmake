@@ -242,7 +242,7 @@ endif()
 # decoders listed here are built, and for size (--enable-small), which keeps the libraries at about 6 MiB.
 #
 # FFmpeg does not build with CMake: it has a configure script and Makefiles that need a Unix shell, and a compiler that is GCC or Clang.
-# On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the UCRT64 environment with gcc, make, nasm and
+# On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the CLANG64 environment with clang, make, nasm and
 # diffutils), found through the environment variable BLITZLLVM_MSYS2 or in C:/msys64. The libraries are built there, once, at configure
 # time, and what programs load from them is only the C interface of the DLLs, which any compiler's programs can use.
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/FFmpeg/configure")
@@ -267,7 +267,7 @@ if(APPLE)
 	list(APPEND _FFMPEG_ARGS --install-name-dir=@loader_path)
 endif()
 if(WIN32)
-	# Windows on ARM64 has no gcc in MSYS2: its CLANGARM64 environment has clang, which needs no libgcc.
+	# Windows uses the clang of MSYS2 (CLANG64, CLANGARM64 on ARM64), which needs no libgcc.
 	if(CMAKE_GENERATOR_PLATFORM)
 		set(_WINDOWS_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
 	else()
@@ -278,9 +278,9 @@ if(WIN32)
 		set(_MSYS2_COMPILER_ARGS --arch=aarch64 --cc=clang)
 		set(_FFMPEG_LIBGCC "")
 	else()
-		set(_MSYS2_ENVIRONMENT UCRT64)
-		set(_MSYS2_COMPILER_ARGS --cc=gcc)
-		set(_FFMPEG_LIBGCC --extra-ldflags=-static-libgcc)
+		set(_MSYS2_ENVIRONMENT CLANG64)
+		set(_MSYS2_COMPILER_ARGS --cc=clang)
+		set(_FFMPEG_LIBGCC "")
 	endif()
 	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
 	# clock_gettime comes from MSYS2's libwinpthread-1.dll (clock_gettime64 is missing from older copies on PATH), so link it statically.
@@ -365,7 +365,7 @@ function(blitz_start_ffmpeg)
 		endif()
 		file(TO_CMAKE_PATH "${_MSYS2}" _MSYS2)
 		if(NOT EXISTS "${_MSYS2}/usr/bin/bash.exe")
-			message(FATAL_ERROR "FFmpeg is built with MSYS2, which was not found in '${_MSYS2}'. Install it from https://www.msys2.org (and gcc, make, nasm and diffutils in its UCRT64 environment, or clang for ARM64 in CLANGARM64), or set the environment variable BLITZLLVM_MSYS2 to where it is.")
+			message(FATAL_ERROR "FFmpeg is built with MSYS2, which was not found in '${_MSYS2}'. Install it from https://www.msys2.org (and clang, make, nasm and diffutils in its CLANG64 environment, or clang for ARM64 in CLANGARM64), or set the environment variable BLITZLLVM_MSYS2 to where it is.")
 		endif()
 		set(_WINDOWS ON)
 	else()
