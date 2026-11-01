@@ -8,6 +8,9 @@
 param([Parameter(Mandatory)] $Repo, [Parameter(Mandatory)] $Commit, [Parameter(Mandatory)] $Out, [Parameter(Mandatory)] $Build)
 $ErrorActionPreference = "Stop"
 $PSDefaultParameterValues["Out-File:Encoding"] = "utf8"  # Windows PowerShell writes the log as UTF-16 otherwise, which the Python side can not read.
+# Compile the files of each project in parallel (MSVC compiles them one by one otherwise), also in the nested dependency builds.
+$env:CL = "/MP"
+$env:CMAKE_BUILD_PARALLEL_LEVEL = [string][Environment]::ProcessorCount
 if (-not $env:BLITZLLVM_MSYS2) { $env:BLITZLLVM_MSYS2 = "C:\msys64" }
 Set-Location $Repo
 git checkout -q --detach $Commit
@@ -26,7 +29,7 @@ if ($LASTEXITCODE -ne 0 -and (Select-String -Path $log -Pattern "did not install
     cmake -S . -B $Build -G "Visual Studio 18 2026" -A x64 -DBLITZLLVM_REQUIRE_NASM=ON *>> $log
 }
 if ($LASTEXITCODE -ne 0) { exit 2 }
-cmake --build $Build --config Release *>> $log
+cmake --build $Build --config Release --parallel *>> $log
 if ($LASTEXITCODE -ne 0) { exit 2 }
 cmake --install $Build --config Release --prefix $Out *>> $log
 if ($LASTEXITCODE -ne 0) { exit 2 }
