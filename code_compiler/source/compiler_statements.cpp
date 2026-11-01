@@ -243,6 +243,19 @@ bool blitz::compiler::calls_function_of_program(ast::expression const* expr) con
 	return false;
 }
 
+// Whether the place that is assigned to is (or is inside) a field of an object.
+static bool targets_field(blitz::ast::expression const* expr)
+{
+	namespace ast = blitz::ast;
+	if (dynamic_cast<ast::field_access const*>(expr)) {
+		return true;
+	}
+	if (auto i = dynamic_cast<ast::index_access const*>(expr)) {
+		return targets_field(i->base.get());
+	}
+	return false;
+}
+
 void blitz::compiler::gen_assign(ast::assign const* node)
 {
 	value   rhs;
@@ -260,6 +273,12 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 		// A function of the program can Dim the array again, which frees the memory that the address of the element points into.
 		auto const* target_call = dynamic_cast<ast::call const*>(node->target.get());
 		if (addr_first && target_call && find_dim(target_call->name) && _redim_in_function.count(lower(target_call->name)) && calls_function_of_program(node->value.get())) {
+			addr_first = false;
+		}
+		// The same goes for a field: a function of the program can let go of the last holder of a deleted object, which frees the memory
+		// that the address of the field points into. The object is not held across the call, so the value is worked out first. A target that
+		// calls a function itself (p\v[T(1)] = T(2)) keeps the order of the original, which logs its calls.
+		if (addr_first && targets_field(node->target.get()) && !calls_function_of_program(node->target.get()) && calls_function_of_program(node->value.get())) {
 			addr_first = false;
 		}
 		place(addr_first ? addr_code : value_part.code);

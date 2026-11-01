@@ -437,3 +437,7 @@ suite-debug-run-fail-object_deleted_param
 suite-debug-run-language_object_refs
 suite-debug-compile-language_object_return
 suite-debug-run-language_object_return
+suite-debug-compile-fail-object_freed_in_field_assign
+suite-debug-run-fail-object_freed_in_field_assign
+suite-debug-compile-language_object_field_call
+suite-debug-run-language_object_field_call
