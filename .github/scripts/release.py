@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Publishes a GitHub release for a version tag, using the binaries that the Nightly workflow built for the tagged commit.
+"""Publishes a GitHub release for a version tag.
 
-    release.py <tag> [--repo OWNER/NAME] [--dry-run] [--notes-file FILE] [--timeout MINUTES]
+    release.py <tag> [--files DIR] [--repo OWNER/NAME] [--dry-run] [--notes-file FILE] [--timeout MINUTES]
+
+With --files, every file in DIR (the clean build of the tag, made by the Release workflow) is attached. Without it, the
+binaries that the Nightly workflow built for the tagged commit are used.
 
 Needs git (with the full history and all tags) and, unless --dry-run is given, the GitHub CLI with GH_TOKEN set.
 --dry-run only prints the release notes and what would be done, and touches neither the network nor GitHub, so it can be
@@ -179,6 +182,7 @@ def publish(repo, tag, prerelease, notes_file, files):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("tag")
+    parser.add_argument("--files", help="directory with the files to attach, instead of the artifacts of the Nightly run")
     parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", "Xaymar/BlitzLLVM"))
     parser.add_argument("--dry-run", action="store_true", help="print the notes and the plan, change nothing")
     parser.add_argument("--notes-file", help="where to write the release notes (default: a temporary file)")
@@ -207,6 +211,9 @@ def main():
     print(text)
 
     if args.dry_run:
+        if args.files:
+            print(f"Dry run: would publish release {tag} with the files in {args.files}.")
+            return
         print(f"Dry run: would wait for the {NIGHTLY_WORKFLOW} run of {sha}, zip its artifacts and publish release {tag}.")
         return
 
@@ -214,9 +221,15 @@ def main():
         notes_file = args.notes_file or os.path.join(directory, "notes.md")
         with open(notes_file, "w", encoding="utf-8") as f:
             f.write(text)
-        run_id = find_nightly_run(args.repo, sha, args.timeout)
-        print(f"Using Nightly run {run_id}")
-        files = collect_assets(args.repo, run_id, directory)
+        if args.files:
+            files = sorted(os.path.join(args.files, f) for f in os.listdir(args.files))
+            if not files:
+                raise ReleaseError(f"{args.files} has no files to release.")
+            print("Release files:", *files, sep="\n  ")
+        else:
+            run_id = find_nightly_run(args.repo, sha, args.timeout)
+            print(f"Using Nightly run {run_id}")
+            files = collect_assets(args.repo, run_id, directory)
         publish(args.repo, tag, prerelease, notes_file, files)
     print(f"Published https://github.com/{args.repo}/releases/tag/{tag}")
 
