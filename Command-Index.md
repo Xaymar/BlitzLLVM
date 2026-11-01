@@ -790,6 +790,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ShowGadget](ShowGadget)
 * [ShowPointer](ShowPointer)
 * [Sin](Sin)
+* [Single](Single) 〔BlitzLLVM〕
 * [SliderValue](SliderValue)
 * [SoundPan](SoundPan)
 * [SoundPitch](SoundPitch)

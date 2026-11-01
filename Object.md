@@ -39,7 +39,7 @@ Print Object.Box(Handle(b))\w
 
 ## Related Commands
 
-[Int](Int), [Long](Long) 〔BlitzLLVM〕, [Short](Short) 〔BlitzLLVM〕, [Str](Str)
+[Int](Int), [Long](Long) 〔BlitzLLVM〕, [Short](Short) 〔BlitzLLVM〕, [Single](Single) 〔BlitzLLVM〕
 
 <div align="center">
 

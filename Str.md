@@ -37,7 +37,7 @@ n = 12
 
 ## Related Commands
 
-[Object](Object), [Short](Short) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕
+[Short](Short) 〔BlitzLLVM〕, [Single](Single) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕
 
 <div align="center">
 

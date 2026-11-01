@@ -50,7 +50,7 @@ Print Short(100000.0)
 
 ## Related Commands
 
-[Long](Long) 〔BlitzLLVM〕, [Object](Object), [Str](Str), [UShort](UShort) 〔BlitzLLVM〕
+[Long](Long) 〔BlitzLLVM〕, [Object](Object), [Single](Single) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

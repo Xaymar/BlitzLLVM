@@ -13,7 +13,7 @@ A type is written in one of two ways. The **short notation** puts a character ri
 | Long notation | Short | Size and range |
 |---|---|---|
 | `Int` / `Int32` | `%` | 32-bit integer, -2147483648 to 2147483647 |
-| `Float` / `Float32` | `#` | 32-bit real |
+| `Float` / `Float32` / `Single` / `Real` / `Real32` | `#` | 32-bit real |
 | `String` | `$` | Text |
 | `Byte` / `Int8`, `UByte` / `UInt8` | | 8-bit integer, with and without a sign |
 | `Short` / `Int16`, `UShort` / `UInt16` | | 16-bit integer, with and without a sign |
@@ -22,7 +22,7 @@ A type is written in one of two ways. The **short notation** puts a character ri
 | `Half` / `Float16` | | 16-bit real |
 | `Double` / `Float64` | `##` | 64-bit real |
 
-Converting to a type is done with a function of the same name: `Int`, `Float`, `Str`, `Handle` and `Object` below, and `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` for the types BlitzLLVM adds. An Int assigned to a Float, and the other way around, is converted for you.
+Converting to a type is done with a function of the same name: `Int`, `Float`, `Str`, `Handle` and `Object` below, and `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half`, `Double` and `Single` (the same as `Float`) for the types BlitzLLVM adds. An Int assigned to a Float, and the other way around, is converted for you.
 
 Back to [Language Features](Language-Features) or the [Command Index](Command-Index).
 
@@ -36,6 +36,7 @@ Back to [Language Features](Language-Features) or the [Command Index](Command-In
 * [Long](Long) 〔BlitzLLVM〕
 * [Object](Object)
 * [Short](Short) 〔BlitzLLVM〕
+* [Single](Single) 〔BlitzLLVM〕
 * [Str](Str)
 * [UByte](UByte) 〔BlitzLLVM〕
 * [UInt](UInt) 〔BlitzLLVM〕

@@ -315,6 +315,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetToolBarTips](SetToolBarTips#differences): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
 * [Short](Short#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ShowPointer](ShowPointer#differences): BlitzPlus lets the pointer be shown per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
+* [Single](Single#differences) 〔BlitzLLVM〕: Not in the originals, which only have `Float`.
 * [SoundPan](SoundPan#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [SoundPitch](SoundPitch#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [SoundVolume](SoundVolume#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
@@ -332,7 +333,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TerrainDetail](TerrainDetail#differences): The terrain has no level of detail here.
 * [TerrainShading](TerrainShading#differences): The terrain is always lit with normals that follow the height, whatever this is set to.
 * [Text](Text#differences): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
-* [TextureBlend](TextureBlend#differences): Modes 1, 2, 3 and 5 are drawn on layers above the first.
+* [TextureBlend](TextureBlend#differences): Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does.
 * [TextureBuffer](TextureBuffer#differences): SetBuffer on a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
 * [TextureCoords](TextureCoords#differences): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
 * [TextureHeight](TextureHeight#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).

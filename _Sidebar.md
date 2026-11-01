@@ -63,7 +63,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (307)</summary>
+<li><details><summary>Commands (308)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -325,6 +325,7 @@
 <li><a href="SetToolBarTips#differences">SetToolBarTips</a></li>
 <li><a href="Short#differences">Short</a> 〔BlitzLLVM〕</li>
 <li><a href="ShowPointer#differences">ShowPointer</a></li>
+<li><a href="Single#differences">Single</a> 〔BlitzLLVM〕</li>
 <li><a href="SoundPan#differences">SoundPan</a></li>
 <li><a href="SoundPitch#differences">SoundPitch</a></li>
 <li><a href="SoundVolume#differences">SoundVolume</a></li>
@@ -524,7 +525,7 @@
 <li><a href="WaitTimer">WaitTimer</a></li>
 </ul>
 </details></li>
-<li><details><summary>Types (15)</summary>
+<li><details><summary>Types (16)</summary>
 <ul>
 <li><a href="Language-Features-Types">Overview</a></li>
 <li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
@@ -537,6 +538,7 @@
 <li><a href="Long">Long</a> 〔BlitzLLVM〕</li>
 <li><a href="Object">Object</a></li>
 <li><a href="Short">Short</a> 〔BlitzLLVM〕</li>
+<li><a href="Single">Single</a> 〔BlitzLLVM〕</li>
 <li><a href="Str">Str</a></li>
 <li><a href="UByte">UByte</a> 〔BlitzLLVM〕</li>
 <li><a href="UInt">UInt</a> 〔BlitzLLVM〕</li>
