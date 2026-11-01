@@ -65,7 +65,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (322)</summary>
+<li><details><summary>Commands (333)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -280,6 +280,17 @@
 <li><a href="PopCount#differences">PopCount</a> 〔BlitzLLVM〕</li>
 <li><a href="Print#differences">Print</a></li>
 <li><a href="Proceed#differences">Proceed</a></li>
+<li><a href="ProfileBegin#differences">ProfileBegin</a></li>
+<li><a href="ProfileEnable#differences">ProfileEnable</a></li>
+<li><a href="ProfileEnd#differences">ProfileEnd</a></li>
+<li><a href="ProfileFlipCount#differences">ProfileFlipCount</a></li>
+<li><a href="ProfileFPS#differences">ProfileFPS</a></li>
+<li><a href="ProfileItemCount#differences">ProfileItemCount</a></li>
+<li><a href="ProfileItemName#differences">ProfileItemName</a></li>
+<li><a href="ProfileOutput#differences">ProfileOutput</a></li>
+<li><a href="ProfileSample#differences">ProfileSample</a></li>
+<li><a href="ProfileSlow#differences">ProfileSlow</a></li>
+<li><a href="ProfileValue#differences">ProfileValue</a></li>
 <li><a href="ProjectedX#differences">ProjectedX</a></li>
 <li><a href="ProjectedZ#differences">ProjectedZ</a></li>
 <li><a href="QueryObject#differences">QueryObject</a></li>
@@ -483,7 +494,7 @@
 <li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary>Other (10)</summary>
+<li><details><summary>Other (21)</summary>
 <ul>
 <li><a href="Language-Features-Other">Overview</a></li>
 <li><a href="AppTitle">AppTitle</a></li>
@@ -492,6 +503,17 @@
 <li><a href="DebugLog">DebugLog</a></li>
 <li><a href="ExecFile">ExecFile</a></li>
 <li><a href="GetEnv">GetEnv</a></li>
+<li><a href="ProfileBegin">ProfileBegin</a></li>
+<li><a href="ProfileEnable">ProfileEnable</a></li>
+<li><a href="ProfileEnd">ProfileEnd</a></li>
+<li><a href="ProfileFlipCount">ProfileFlipCount</a></li>
+<li><a href="ProfileFPS">ProfileFPS</a></li>
+<li><a href="ProfileItemCount">ProfileItemCount</a></li>
+<li><a href="ProfileItemName">ProfileItemName</a></li>
+<li><a href="ProfileOutput">ProfileOutput</a></li>
+<li><a href="ProfileSample">ProfileSample</a></li>
+<li><a href="ProfileSlow">ProfileSlow</a></li>
+<li><a href="ProfileValue">ProfileValue</a></li>
 <li><a href="RuntimeError">RuntimeError</a></li>
 <li><a href="RuntimeStats">RuntimeStats</a></li>
 <li><a href="SetEnv">SetEnv</a></li>

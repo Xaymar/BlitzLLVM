@@ -13,7 +13,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Keywords](Language-Features-Keywords) (6): Declaring variables and constants, including other files, and ending the program.
 * [Loops](Language-Features-Loops) (10): Repeating code with For, While and Repeat.
 * [Math](Language-Features-Math) (31): Trigonometry, rounding, bit functions and other numeric helpers.
-* [Other](Language-Features-Other) (10): Program information, the environment, debugging and calling libraries.
+* [Other](Language-Features-Other) (21): Program information, the environment, debugging and calling libraries.
 * [Randomization](Language-Features-Randomization) (4): Random numbers and their seed.
 * [Strings](Language-Features-Strings) (16): Searching, slicing, converting and formatting text.
 * [Time & Date](Language-Features-Time-and-Date) (8): Clocks, the date, delays and timers.

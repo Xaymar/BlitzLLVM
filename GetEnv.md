@@ -40,7 +40,7 @@ hello
 
 ## Related Commands
 
-[DebugLog](DebugLog), [ExecFile](ExecFile), [RuntimeError](RuntimeError), [SetEnv](SetEnv)
+[DebugLog](DebugLog), [ExecFile](ExecFile), [ProfileBegin](ProfileBegin), [SetEnv](SetEnv)
 
 <div align="center">
 

@@ -39,7 +39,7 @@ Print ExecFile("this-program-does-not-exist")
 
 ## Related Commands
 
-[CommandLine](CommandLine), [DebugLog](DebugLog), [GetEnv](GetEnv), [RuntimeError](RuntimeError)
+[CommandLine](CommandLine), [DebugLog](DebugLog), [GetEnv](GetEnv), [ProfileBegin](ProfileBegin)
 
 <div align="center">
 

@@ -37,7 +37,7 @@ If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
 
 ## Related Commands
 
-[ExecFile](ExecFile), [GetEnv](GetEnv), [RuntimeStats](RuntimeStats), [SetEnv](SetEnv)
+[ProfileSlow](ProfileSlow), [ProfileValue](ProfileValue), [RuntimeStats](RuntimeStats), [SetEnv](SetEnv)
 
 <div align="center">
 

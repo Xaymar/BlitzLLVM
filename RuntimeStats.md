@@ -29,7 +29,7 @@ RuntimeStats
 
 ## Related Commands
 
-[GetEnv](GetEnv), [RuntimeError](RuntimeError), [SetEnv](SetEnv), [SystemProperty](SystemProperty)
+[ProfileValue](ProfileValue), [RuntimeError](RuntimeError), [SetEnv](SetEnv), [SystemProperty](SystemProperty)
 
 <div align="center">
 

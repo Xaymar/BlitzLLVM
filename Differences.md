@@ -270,6 +270,17 @@ Commands that differ from the original or are not finished, with the first of th
 * [PopCount](PopCount#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Print](Print#differences): Without a graphics window the text goes to the console instead.
 * [Proceed](Proceed#differences): The box is a message box of the operating system in front of the program's active window.
+* [ProfileBegin](ProfileBegin#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileEnable](ProfileEnable#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileEnd](ProfileEnd#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileFlipCount](ProfileFlipCount#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileFPS](ProfileFPS#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileItemCount](ProfileItemCount#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileItemName](ProfileItemName#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileOutput](ProfileOutput#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileSample](ProfileSample#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileSlow](ProfileSlow#differences): This is a BlitzLLVM extension: the original has no such command.
+* [ProfileValue](ProfileValue#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
 * [QueryObject](QueryObject#differences): Queries 1 and 2 give a number for the window of the operating system that the gadget is in: the same number for every gadget in a window, and it is the runtime's number for the window, not an HWND that the Windows API can use.
