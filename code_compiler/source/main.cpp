@@ -511,7 +511,7 @@ static int compiler_main(int argc, char** argv)
 		}
 		// Windows with MSVC uses CodeView for its debug information, everything else DWARF.
 		bool windows_msvc = opt.target.empty() ?
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 								true
 #else
 								false

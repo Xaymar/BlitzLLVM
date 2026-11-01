@@ -166,20 +166,14 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ExternalContentFiles
-          key: submodule-dependencies-clang-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
+          key: submodule-dependencies-mingw-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
           restore-keys: |
-            submodule-dependencies-clang-${{ matrix.name }}-
-      # Windows is built with clang (Ninja, lld) against the Windows SDK and C runtime of Visual Studio, whose environment is imported here.
-      - name: Set up clang for Windows
+            submodule-dependencies-mingw-${{ matrix.name }}-
+      # Windows is built with clang (Ninja, lld) for the MinGW target (llvm-mingw), so that building and linking programs needs neither Visual Studio
+      # nor the Windows SDK. The C runtime is the Universal C Runtime that comes with Windows.
+      - name: Set up llvm-mingw
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (-not (Get-Command clang -ErrorAction SilentlyContinue)) { choco install llvm -y --no-progress; "C:\Program Files\LLVM\bin" | Out-File -Append -Encoding utf8 $env:GITHUB_PATH; $env:PATH += ";C:\Program Files\LLVM\bin" }
-          $arch = if ('${{ matrix.platform }}' -eq 'ARM64') { 'arm64' } else { 'x64' }
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          cmd /c "`"$vs\VC\Auxiliary\Build\vcvarsall.bat`" $arch >nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { "$($Matches[1])=$($Matches[2])" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV } }
-          clang --version
-          ninja --version
+        uses: ./.github/actions/setup-mingw
       - name: Configure
         shell: bash
         env:
@@ -188,8 +182,8 @@ jobs:
           GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            TRIPLE=x86_64-pc-windows-msvc; [ "${{ matrix.platform }}" != ARM64 ] || TRIPLE=aarch64-pc-windows-msvc
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_TARGET=$TRIPLE -DCMAKE_CXX_COMPILER_TARGET=$TRIPLE -DCMAKE_LINKER_TYPE=LLD -DCMAKE_RC_COMPILER=llvm-rc -DCMAKE_MT=llvm-mt -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
+            TRIPLE=x86_64-w64-mingw32; [ "${{ matrix.platform }}" != ARM64 ] || TRIPLE=aarch64-w64-mingw32
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$TRIPLE-clang -DCMAKE_CXX_COMPILER=$TRIPLE-clang++ -DCMAKE_LINKER_TYPE=LLD -DCMAKE_RC_COMPILER=$TRIPLE-windres -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           else
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           fi

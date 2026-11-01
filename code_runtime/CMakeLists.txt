@@ -159,7 +159,7 @@ if(NOT MSVC AND NOT APPLE)
 	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
 	target_compile_options(blitzrt PRIVATE -ffunction-sections -fdata-sections)
 endif()
-if(WIN32 AND NOT MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(WIN32 AND NOT MSVC AND NOT MINGW AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# clang uses the STL of Visual Studio on Windows, see dependencies.cmake.
 	target_compile_definitions(blitzrt PRIVATE _USE_STD_VECTOR_ALGORITHMS=0 _USE_STD_VECTOR_FLOATING_ALGORITHMS=0)
 endif()

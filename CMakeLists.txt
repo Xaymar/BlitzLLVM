@@ -46,7 +46,7 @@ message(STATUS "Version ${PROJECT_VERSION}")
 
 # CMake links clang for Windows with -nostdlib and names the C runtime itself, so the compiler's own builtins (__cpu_model, __udivti3, ...)
 # have to be added: they come with LLVM as compiler-rt.
-if(WIN32 AND NOT MSVC AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
+if(WIN32 AND NOT MSVC AND NOT MINGW AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	set(_TARGET_FLAG "")
 	if(CMAKE_C_COMPILER_TARGET)
 		set(_TARGET_FLAG "--target=${CMAKE_C_COMPILER_TARGET}")
@@ -102,7 +102,7 @@ function(init_project TARGET)
 		)
 	endif()
 
-	if(WIN32 AND NOT MSVC) # clang (GNU-style driver) targeting the MSVC ABI
+	if(WIN32 AND NOT MSVC AND NOT MINGW) # clang (GNU-style driver) targeting the MSVC ABI
 		target_compile_definitions(${TARGET} PRIVATE
 			_CRT_SECURE_NO_WARNINGS
 			_ENABLE_EXTENDED_ALIGNED_STORAGE
