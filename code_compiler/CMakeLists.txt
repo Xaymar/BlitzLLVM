@@ -567,7 +567,7 @@ if(NODE_EXECUTABLE)
 	endforeach()
 endif()
 if(Python3_FOUND)
-	add_test(NAME vscode-grammar COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/generate_vscode_grammar.py" --check)
+	add_test(NAME vscode-grammar COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/generate_vscode_grammar.py" --output "${CMAKE_CURRENT_BINARY_DIR}/vscode/blitzbasic.tmLanguage.json")
 	set_tests_properties(vscode-grammar PROPERTIES LABELS "tools")
 endif()
 

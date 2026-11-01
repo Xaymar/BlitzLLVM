@@ -389,7 +389,7 @@ jobs:
         # blitz.installPath. The version of a .vsix has three numbers, the first three of the version of the build.
         working-directory: tools/vscode
         run: |
-          python3 ../generate_vscode_grammar.py --check
+          python3 ../generate_vscode_grammar.py
           npm install --no-audit --no-fund
           npx vsce package "$(echo "$VERSION" | cut -d. -f1-3)" --no-git-tag-version --no-update-package-json --out "../../${ARTIFACT}.vsix"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

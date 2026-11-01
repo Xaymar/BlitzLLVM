@@ -5,8 +5,8 @@
 """Writes the TextMate grammar of the Visual Studio Code extension (tools/vscode/syntaxes/blitzbasic.tmLanguage.json).
 
 The names of the commands come from tests/suite/functions.txt, the list that the wiki and the language server use as well, so
-that a new command is highlighted by running this script again:  python3 tools/generate_vscode_grammar.py [--check]
---check fails if the file in the repository is not what the script writes.
+that a new command is highlighted by running this script again:  python3 tools/generate_vscode_grammar.py [--output file]
+The file is not kept in the repository, the build of the extension writes it.
 """
 import json
 import os
@@ -106,14 +106,14 @@ def grammar():
 
 
 def main():
+    # The grammar is generated from the commands of the runtime, so it is not kept in the repository: the build of the extension and
+    # whoever runs the extension from the sources generate it. --output writes it somewhere else (the test does that).
+    out = OUT
+    if "--output" in sys.argv:
+        out = sys.argv[sys.argv.index("--output") + 1]
     text = json.dumps(grammar(), indent="\t", ensure_ascii=False) + "\n"
-    if "--check" in sys.argv:
-        if not os.path.exists(OUT) or open(OUT, encoding="utf-8").read() != text:
-            print("%s is out of date, run tools/generate_vscode_grammar.py" % OUT)
-            return 1
-        return 0
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
     return 0
 

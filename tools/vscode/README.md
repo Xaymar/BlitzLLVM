@@ -7,7 +7,7 @@ Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs (`.bb
 
 | Feature | Where it comes from |
 | --- | --- |
-| Syntax highlighting (not case sensitive) | `syntaxes/blitzbasic.tmLanguage.json`, generated from `tests/suite/functions.txt` by `tools/generate_vscode_grammar.py` |
+| Syntax highlighting (not case sensitive) | `syntaxes/blitzbasic.tmLanguage.json`, generated from `tests/suite/functions.txt` by `tools/generate_vscode_grammar.py` (not in the repository: run the script once before running the extension from the sources) |
 | Errors, warnings and notices while typing | `blitz-lsp` runs the parser and the code generator of `blitzcc` on the text of the editor (also what is not saved, and the files it includes). Notices are the hints of the compiler (`-W` level in `blitz.warningLevel`). |
 | Quick fixes | The fix the compiler suggests for a warning (the lightbulb). |
 | Formatting | `blitz-format`, with the `.blitz-format` file next to the program or above it. Without one the tabs/spaces of the editor are used. |
