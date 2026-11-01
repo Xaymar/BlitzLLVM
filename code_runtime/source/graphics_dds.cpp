@@ -25,6 +25,15 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 using namespace bb::gfx;
 
@@ -704,6 +713,25 @@ namespace bb::gfx {
 		return false;
 	}
 
+	// Opens a library by its full path in the folder of the program. On Windows the library is loaded with a restricted search, so that neither the
+	// library nor what it depends on is looked for in the current directory or in PATH: only the folder of the library, the system folder and the folders
+	// that the program has added itself. Elsewhere a path with a directory is not searched for at all (the dependencies are found by the RUNPATH of the
+	// library). Libraries that are opened here stay loaded, so the codecs that SDL_image and SDL_mixer open by name afterwards get these.
+	SDL_SharedObject* open_codec_file(const std::string& path)
+	{
+#ifdef _WIN32
+		int length = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, nullptr, 0);
+		if (length <= 0) {
+			return nullptr;
+		}
+		std::wstring wide(size_t(length), L'\0');
+		MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, wide.data(), length);
+		return reinterpret_cast<SDL_SharedObject*>(LoadLibraryExW(wide.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR));
+#else
+		return SDL_LoadObject(path.c_str());
+#endif
+	}
+
 	void open_codec_libraries()
 	{
 		static bool opened = false;
@@ -719,7 +747,7 @@ namespace bb::gfx {
 			if (!is_codec_library_name(name)) {
 				continue;
 			}
-			SDL_SharedObject* object = SDL_LoadObject((std::string(base) + name).c_str());
+			SDL_SharedObject* object = open_codec_file(std::string(base) + name);
 			if (object) {
 				codec_objects.push_back(object);
 			}
@@ -730,6 +758,8 @@ namespace bb::gfx {
 		}
 		SDL_free(names);
 		// With the system's codecs (BLITZ_SYSTEM_IMAGE_CODECS) nothing is next to the program, so the encoders are looked up in the libraries of the system.
+		// Not on Windows: a name without a folder is also searched for in the current directory and in PATH there, and no system provides these.
+#ifndef _WIN32
 		static const char* const system_names[] = { "libwebp.so.7", "libwebp.so.6", "libwebp.so", "libwebp.7.dylib", "libwebp.dylib", "libwebp.dll", "libwebp-7.dll",
 													"libjxl.so.0.11", "libjxl.so.0.10", "libjxl.so.0.9", "libjxl.so.0.8", "libjxl.so.0.7", "libjxl.so", "libjxl.dylib", "libjxl.0.11.dylib", "jxl.dll", "libjxl.dll",
 													"libtiff.so.6", "libtiff.so.5", "libtiff.so", "libtiff.6.dylib", "libtiff.dylib", "libtiff.dll", "tiff.dll" };
@@ -738,6 +768,7 @@ namespace bb::gfx {
 				codec_objects.push_back(object);
 			}
 		}
+#endif
 	}
 
 	void* codec_symbol(const char* name)
