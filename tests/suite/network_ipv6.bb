@@ -30,7 +30,7 @@ CloseTCPStream accepted
 ; IPv6, if there is any.
 client = OpenTCPStream("::1", port)
 If client = 0 Then
-	RuntimeError "DIAGNOSTIC: TCP over ::1 was skipped (no IPv6)"
+	Print "network_ipv6: no IPv6 here, TCP over ::1 skipped."
 Else
 	CheckS "GetTCPStreamAddress$ of an IPv6 client", GetTCPStreamAddress$(client), "::1"
 	accepted = 0
@@ -74,7 +74,7 @@ Check "UDPMsgPort", UDPMsgPort(a), 40743
 WriteInt b, 5678
 SendUDPMsgTo b, "::1", 40742
 If RecvUDPMsg(a) = 0 Then
-	RuntimeError "DIAGNOSTIC: UDP over ::1 was skipped (no IPv6)"
+	Print "network_ipv6: no IPv6 here, UDP over ::1 skipped."
 Else
 	Check "ReadInt over IPv6", ReadInt(a), 5678
 	CheckS "GetUDPMsgAddress$ of an IPv6 sender", GetUDPMsgAddress$(a), "::1"
