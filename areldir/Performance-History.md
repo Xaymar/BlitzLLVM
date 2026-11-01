@@ -47,3 +47,14 @@ The baseline, the original Blitz3D 1.118, does no optimization at all and relies
 | [0.10.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.10.0)<br>2026-10-29<br>[`510736e3`](https://github.com/Xaymar/BlitzLLVM/commit/510736e32a41884c402511aeea36145316738bbb) | **0.21 ms** ±0.01<br>-72.5% 📈 | **0.53 ms** ±0.01<br>-67.1% 📈 | **0.26 ms** ±0.00<br>-56.8% 📈 |
 | [0.11.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.11.0)<br>2026-10-30<br>[`502251a8`](https://github.com/Xaymar/BlitzLLVM/commit/502251a851cc32a76291262825f44cf693031367) | **0.21 ms** ±0.01<br>-73.4% 📈 | **0.53 ms** ±0.00<br>-67.1% 📈 | **0.26 ms** ±0.00<br>-57.6% 📈 |
 | [0.12.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.12.0)<br>2026-10-31<br>[`c84b148a`](https://github.com/Xaymar/BlitzLLVM/commit/c84b148a28b95ff9ae36b214ea7a3f5d8cccd64a) | **0.22 ms** ±0.00<br>-71.5% 📈 | **0.53 ms** ±0.01<br>-67.5% 📈 | **0.26 ms** ±0.00<br>-57.6% 📈 |
+
+## Benchmarks: Forest (`forest.bb`, 640x360, 200 frames, per frame)
+
+| Version | Per frame (ms) |
+| --- | ---: |
+| Baseline: original Blitz3D 1.118 | **98.18 ms** ±0.12 |
+| [0.5.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.5.0)<br>2026-10-26<br>[`d05823a6`](https://github.com/Xaymar/BlitzLLVM/commit/d05823a64b116829ce98b2b367538851fe4bca6a) | **173.2 ms** ±2.84<br>+76.4% 📉 |
+| [0.6.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.6.0)<br>2026-10-27<br>[`55619842`](https://github.com/Xaymar/BlitzLLVM/commit/55619842614b8fc17b4c12f629c3bad0116ef788) | **78.70 ms** ±6.05<br>-19.8% 📈 |
+| [0.10.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.10.0)<br>2026-10-29<br>[`510736e3`](https://github.com/Xaymar/BlitzLLVM/commit/510736e32a41884c402511aeea36145316738bbb) | **44.74 ms** ±2.52<br>-54.4% 📈 |
+| [0.11.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.11.0)<br>2026-10-30<br>[`502251a8`](https://github.com/Xaymar/BlitzLLVM/commit/502251a851cc32a76291262825f44cf693031367) | **43.59 ms** ±2.08<br>-55.6% 📈 |
+| [0.12.0](https://github.com/Xaymar/BlitzLLVM/releases/tag/0.12.0)<br>2026-10-31<br>[`c84b148a`](https://github.com/Xaymar/BlitzLLVM/commit/c84b148a28b95ff9ae36b214ea7a3f5d8cccd64a) | **24.97 ms** ±0.76<br>-74.6% 📈 |
