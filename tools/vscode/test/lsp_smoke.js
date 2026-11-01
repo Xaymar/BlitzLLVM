@@ -265,6 +265,15 @@ function stage(name) {
   diagnostics = await diagnosticsFor(uri);
   assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), []);
 
+  // The -W options of the compiler arguments change which warnings are shown
+  notify('textDocument/didChange', { textDocument: { uri, version: 20 }, contentChanges: [{ text: 'Local unused\nPrint 1\n' }] });
+  diagnostics = await diagnosticsFor(uri);
+  assert(diagnostics.some((d) => d.code === 'unused-variable'), JSON.stringify(diagnostics));
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { warningLevel: 3, compilerArguments: ['-Wno-unused-variable', '-q'] } } });
+  diagnostics = await diagnosticsFor(uri);
+  assert(!diagnostics.some((d) => d.code === 'unused-variable'), JSON.stringify(diagnostics));
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { warningLevel: 3, compilerArguments: [] } } });
+
   stage('errors');
 
   // Tidy

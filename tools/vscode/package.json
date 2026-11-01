@@ -76,21 +76,25 @@
 			"title": "BlitzLLVM",
 			"properties": {
 				"blitz.installPath": {
+					"order": 0,
 					"type": "string",
 					"default": "",
 					"markdownDescription": "The folder BlitzLLVM is installed in (the one that has `bin/blitzcc` and `bin/blitz-lsp`). Empty: the programs are looked for in `PATH`."
 				},
 				"blitz.server.path": {
+					"order": 1,
 					"type": "string",
 					"default": "",
 					"markdownDescription": "Path of `blitz-lsp`. Empty: `bin/blitz-lsp` of `blitz.installPath`, or `PATH`."
 				},
 				"blitz.compiler.path": {
+					"order": 2,
 					"type": "string",
 					"default": "",
 					"markdownDescription": "Path of `blitzcc`. Empty: `bin/blitzcc` of `blitz.installPath`, or `PATH`."
 				},
 				"blitz.compiler.arguments": {
+					"order": 3,
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -99,11 +103,13 @@
 					"markdownDescription": "More arguments for `blitzcc`, such as `-Wall` or `--userlibs-dir`. They come before the file."
 				},
 				"blitz.userlibsDirectory": {
+					"order": 4,
 					"type": "string",
 					"default": "",
 					"markdownDescription": "Where the userlibs (`.decls` files) are, relative to the workspace folder like the build output (`${workspaceFolder}` works too). Empty: the ones of the installation."
 				},
 				"blitz.warningLevel": {
+					"order": 5,
 					"type": "number",
 					"enum": [
 						1,
@@ -115,6 +121,7 @@
 					"markdownDescription": "How many of the warnings of the compiler are shown (`-W1` to `-W4`)."
 				},
 				"blitz.debug.adapter": {
+					"order": 6,
 					"type": "string",
 					"enum": [
 						"auto",
@@ -126,11 +133,13 @@
 					"markdownDescription": "The debugger that runs a program built with debug information: `cppvsdbg` (C/C++ extension, Windows), `cppdbg` (C/C++ extension, GDB or LLDB) or `lldb` (CodeLLDB). `auto` picks one for the system."
 				},
 				"blitz.build.outputDirectory": {
+					"order": 7,
 					"type": "string",
 					"default": "build/blitz",
 					"markdownDescription": "Where `Build` puts the programs, relative to the workspace folder, with a folder `debug` or `release` in it."
 				},
 				"blitz.trace.server": {
+					"order": 8,
 					"type": "string",
 					"enum": [
 						"off",

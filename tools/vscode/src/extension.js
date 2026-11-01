@@ -31,6 +31,11 @@ function findProgram(setting, name) {
   return name; // PATH
 }
 
+/** What the language server needs of the settings: the warning level and the arguments of blitzcc (-Wno-unused-result ...). */
+function serverSettings() {
+  return { warningLevel: settings().get('warningLevel', 2), compilerArguments: settings().get('compiler.arguments', []) };
+}
+
 function startServer(context) {
   const command = findProgram('server.path', 'blitz-lsp');
   const env = Object.assign({}, process.env);
@@ -39,7 +44,7 @@ function startServer(context) {
   if (userlibs) env.BLITZLLVM_USERLIBS = settingPath(userlibs, active && active.document.uri.scheme === 'file' ? active.document.uri.fsPath : undefined);
   client = new LanguageClient('blitz', 'BlitzLLVM', { command, args: ['--stdio'], transport: TransportKind.stdio, options: { env } }, {
     documentSelector: [{ scheme: 'file', language: 'blitzbasic' }],
-    initializationOptions: { warningLevel: settings().get('warningLevel', 2) },
+    initializationOptions: serverSettings(),
     outputChannel: output
   });
   client.start().catch((error) => {
@@ -223,7 +228,7 @@ function activate(context) {
           pendingRestart = false;
           restartServer(context);
         } else if (client) {
-          client.sendNotification('workspace/didChangeConfiguration', { settings: { blitz: { warningLevel: settings().get('warningLevel', 2) } } });
+          client.sendNotification('workspace/didChangeConfiguration', { settings: { blitz: serverSettings() } });
         }
       }, SETTINGS_DELAY);
     })

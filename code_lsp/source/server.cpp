@@ -293,6 +293,17 @@ namespace blitz::lsp {
 			_warning_level = int(std::clamp<int64_t>(o["warningLevel"].as_int(), 1, 4));
 			for (auto const& [uri, s] : _states) _dirty.insert(uri);
 		}
+		// The arguments of blitzcc: the -W options (-Wno-unused-result, -Werror=..., -W3) change which warnings are reported.
+		if (o["compilerArguments"].is_array()) {
+			std::vector<std::string> options;
+			for (auto const& a : o["compilerArguments"].items()) {
+				if (a.is_string()) options.push_back(a.as_string());
+			}
+			if (options != _warning_options) {
+				_warning_options = std::move(options);
+				for (auto const& [uri, s] : _states) _dirty.insert(uri);
+			}
+		}
 	}
 
 	server::state* server::find(std::string const& uri)
@@ -434,6 +445,13 @@ namespace blitz::lsp {
 			compiler.quiet  = true;
 			compiler.silent = true;
 			compiler.warning_options.parse("-w" + std::to_string(_warning_level));
+			for (auto const& option : _warning_options) {
+				try {
+					compiler.warning_options.parse(lower(option));
+				} catch (std::exception const&) {
+					// A warning that this version does not know, or an option that is not for the warnings
+				}
+			}
 			compiler.userlibs     = _userlibs;
 			compiler.userlibs_dir = _userlibs_dir.empty() ? std::string() : std::filesystem::absolute(_userlibs_dir).generic_string();
 			compiler.source_dir   = std::filesystem::absolute(s.path).parent_path().generic_string();
