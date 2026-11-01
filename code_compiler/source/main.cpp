@@ -963,8 +963,8 @@ static int compiler_main(int argc, char** argv)
 				copy_shared(family::ffmpeg, "opens movies (needs the libraries of FFmpeg)");
 				copy_shared(family::audio, "opens movies (needs libopus to play Opus sound)");
 			}
-			// Jolt, behind a C interface, finds what picks hit and which triangles collisions look at (see pick_physics.cpp and collision_physics.cpp). The runtime picks by itself without it, and when BLITZLLVM_PICK_BACKEND is legacy.
-			for (auto pick : { "@bb_line_pick", "@bb_entity_pick", "@bb_camera_pick", "@bb_entity_visible", "@bb_update_world" }) {
+			// Jolt, behind a C interface, finds what picks hit and which triangles collisions look at (see pick_physics.cpp and collision_physics.cpp). The runtime picks by itself without it, and when BLITZLLVM_PICK_BACKEND is legacy. The Physics commands (physics_sim.cpp) need it always.
+			for (auto pick : { "@bb_line_pick", "@bb_entity_pick", "@bb_camera_pick", "@bb_entity_visible", "@bb_update_world", "@bb_physics_", "@bb_get_physics_", "@bb_create_physics_", "@bb_free_physics_" }) {
 				if (ir.find(pick) != std::string::npos) {
 					copy_shared(family::physics, "picks or collides (the physics library finds what is near unless BLITZLLVM_PICK_BACKEND and BLITZLLVM_COLLISION_BACKEND are legacy)");
 					break;

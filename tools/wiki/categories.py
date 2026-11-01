@@ -58,6 +58,7 @@ CATEGORY_TEXT = {
     (B3D, "Textures"): "Creating, loading, transforming and filtering textures.",
     (B3D, "Collisions"): "Collision types, responses and results.",
     (B3D, "Picking"): "Finding what lies under a point, line or camera position.",
+    (B3D, "Physics"): "Rigid bodies in physics worlds: shapes, forces, velocities and the solver.",
     (B3D, "Animation"): "Bone, vertex and MD2 animation.",
     (B3D, "Sprites"): "Camera-facing sprites.",
     (B3D, "Terrain"): "Height-map terrains.",
@@ -145,6 +146,7 @@ _RULES = {
         (r"^(collisions|clearcollisions|collision|countcollisions|entitycollided|entitytype|entityradius|"
          r"entitybox|resetentity|getentitytype)", B3D, "Collisions"),
         (r"^(entitypick|linepick|camerapick|picked|entitypickmode|entityvisible)", B3D, "Picking"),
+        (r"^(createphysics|freephysics|getphysics|physics)", B3D, "Physics"),
         (r"^entity", B3D, "Entities"),
         (r"^(tform|projected|vectoryaw|vectorpitch|deltayaw|deltapitch)", B3D, "Transforms"),
         (r"^(createlistener|emitsound)", B3D, "3D Sound"),
