@@ -15,6 +15,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GetMouse](GetMouse)
 * [HWRawInput](HWRawInput)
 * [LastMouseDevice](LastMouseDevice)
+* [LockMouse](LockMouse)
 * [MouseChanged](MouseChanged)
 * [MouseDeviceConnected](MouseDeviceConnected)
 * [MouseDeviceCount](MouseDeviceCount)
@@ -31,4 +32,5 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [MoveMouse](MoveMouse)
 * [RawInput](RawInput)
 * [RawInputEnabled](RawInputEnabled)
+* [UnlockMouse](UnlockMouse)
 * [WaitMouse](WaitMouse)

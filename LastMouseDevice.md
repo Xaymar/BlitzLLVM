@@ -40,7 +40,7 @@ Wend
 
 ## Related Commands
 
-[FlushMouse](FlushMouse), [GetMouse](GetMouse), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit)
+[FlushMouse](FlushMouse), [GetMouse](GetMouse), [LockMouse](LockMouse), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown)
 
 <div align="center">
 

@@ -63,7 +63,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (305)</summary>
+<li><details><summary>Commands (307)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -229,6 +229,7 @@
 <li><a href="LockedFormat#differences">LockedFormat</a></li>
 <li><a href="LockedPitch#differences">LockedPitch</a></li>
 <li><a href="LockedPixels#differences">LockedPixels</a></li>
+<li><a href="LockMouse#differences">LockMouse</a></li>
 <li><a href="LockTextArea#differences">LockTextArea</a></li>
 <li><a href="Long#differences">Long</a> 〔BlitzLLVM〕</li>
 <li><a href="LoopMovie#differences">LoopMovie</a> 〔BlitzLLVM〕</li>
@@ -354,6 +355,7 @@
 <li><a href="UDPStreamIP#differences">UDPStreamIP</a></li>
 <li><a href="UInt#differences">UInt</a> 〔BlitzLLVM〕</li>
 <li><a href="ULong#differences">ULong</a> 〔BlitzLLVM〕</li>
+<li><a href="UnlockMouse#differences">UnlockMouse</a></li>
 <li><a href="UpdateGamma#differences">UpdateGamma</a></li>
 <li><a href="UpdateWindowMenu#differences">UpdateWindowMenu</a></li>
 <li><a href="UShort#differences">UShort</a> 〔BlitzLLVM〕</li>
@@ -816,7 +818,7 @@
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>
-<li><details><summary>Mouse (23)</summary>
+<li><details><summary>Mouse (25)</summary>
 <ul>
 <li><a href="BlitzBasic-Mouse">Overview</a></li>
 <li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
@@ -825,6 +827,7 @@
 <li><a href="GetMouse">GetMouse</a></li>
 <li><a href="HWRawInput">HWRawInput</a></li>
 <li><a href="LastMouseDevice">LastMouseDevice</a></li>
+<li><a href="LockMouse">LockMouse</a></li>
 <li><a href="MouseChanged">MouseChanged</a></li>
 <li><a href="MouseDeviceConnected">MouseDeviceConnected</a></li>
 <li><a href="MouseDeviceCount">MouseDeviceCount</a></li>
@@ -841,6 +844,7 @@
 <li><a href="MoveMouse">MoveMouse</a></li>
 <li><a href="RawInput">RawInput</a></li>
 <li><a href="RawInputEnabled">RawInputEnabled</a></li>
+<li><a href="UnlockMouse">UnlockMouse</a></li>
 <li><a href="WaitMouse">WaitMouse</a></li>
 </ul>
 </details></li>

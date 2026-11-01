@@ -32,7 +32,7 @@ Puts the pointer at a position of the graphics buffer, in buffer pixels. After t
 
 ## Related Commands
 
-[FlushMouse](FlushMouse), [GetMouse](GetMouse), [LastMouseDevice](LastMouseDevice), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [WaitMouse](WaitMouse)
+[FlushMouse](FlushMouse), [GetMouse](GetMouse), [LastMouseDevice](LastMouseDevice), [LockMouse](LockMouse), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [UnlockMouse](UnlockMouse), [WaitMouse](WaitMouse)
 
 <div align="center">
 

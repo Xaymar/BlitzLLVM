@@ -529,6 +529,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [LockedFormat](LockedFormat)
 * [LockedPitch](LockedPitch)
 * [LockedPixels](LockedPixels)
+* [LockMouse](LockMouse)
 * [LockTextArea](LockTextArea)
 * [Log](Log)
 * [Log10](Log10)
@@ -877,6 +878,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ULong](ULong) 〔BlitzLLVM〕
 * [UncheckMenu](UncheckMenu)
 * [UnlockBuffer](UnlockBuffer)
+* [UnlockMouse](UnlockMouse)
 * [UnlockTextArea](UnlockTextArea)
 * [Until](Until)
 * [UpdateGamma](UpdateGamma)

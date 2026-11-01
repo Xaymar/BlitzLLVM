@@ -219,6 +219,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [LockedFormat](LockedFormat#differences): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
 * [LockedPitch](LockedPitch#differences): A buffer that [Graphics3D](Graphics3D) made with the depth 64 has 8 bytes for each pixel, so a row takes `width * 8` bytes.
 * [LockedPixels](LockedPixels#differences): The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card.
+* [LockMouse](LockMouse#differences): This is a BlitzLLVM extension: the original has no such command.
 * [LockTextArea](LockTextArea#differences): While a text area is locked it sends no events for the changes you make.
 * [Long](Long#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [LoopMovie](LoopMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
@@ -344,6 +345,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [UDPStreamIP](UDPStreamIP#differences): It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
 * [UInt](UInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ULong](ULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [UnlockMouse](UnlockMouse#differences): This is a BlitzLLVM extension: the original has no such command.
 * [UpdateGamma](UpdateGamma#differences): The original gave the tables to the display.
 * [UpdateWindowMenu](UpdateWindowMenu#differences): Menus here change the screen right away, so this command only asks for a redraw.
 * [UShort](UShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
