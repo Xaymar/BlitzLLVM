@@ -530,7 +530,7 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 		node->kind = ast::literal::variant::INTEGER; // 0xFFFFFFFF is the same bit pattern as $FFFFFFFF.
 		node->i    = int32_t(uint32_t(ui));
 	} else if (ui > uintmax_t(INT32_MAX)) {
-		throw error(token, blitz::format("Integer '%s' exceeds the storage of an Int, did you mean to make this an Int64? Write 'i64' or 'ui64' (or 'ui32' where 32 bits are enough) behind it.", token.text.c_str()));
+		throw error(token, blitz::format("Integer '%s' does not fit into an Int. Write 'i64' or 'ui64' (or 'ui32' where 32 bits are enough) behind it.", token.text.c_str()));
 	} else {
 		node->kind = ast::literal::variant::INTEGER;
 		node->i    = intmax_t(ui);
