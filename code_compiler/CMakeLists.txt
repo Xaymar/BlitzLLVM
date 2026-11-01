@@ -453,10 +453,15 @@ foreach(_SETTING IN ITEMS "baseline" "v2" "v3" "native")
 	add_test(NAME "kernels-${_SETTING}" COMMAND kernels_test)
 	set_tests_properties("kernels-${_SETTING}" PROPERTIES ENVIRONMENT "BLITZLLVM_CPU=${_SETTING}" LABELS "cpu")
 endforeach()
-add_executable(half_test "${TEST_DIRECTORY}/cpu/half_test.c")
-target_include_directories(half_test PRIVATE "${PROJECT_SOURCE_DIR}/../code_runtime/source")
-add_test(NAME half-conversions COMMAND half_test)
-set_tests_properties(half-conversions PROPERTIES LABELS "cpu")
+# The test compares with the conversion of the compiler, which needs _Float16 (MSVC has none).
+include(CheckCSourceCompiles)
+check_c_source_compiles("int main(void) { _Float16 h = (_Float16)1.5f; return (int)h - 1; }" BLITZ_HAS_FLOAT16)
+if(BLITZ_HAS_FLOAT16)
+	add_executable(half_test "${TEST_DIRECTORY}/cpu/half_test.c")
+	target_include_directories(half_test PRIVATE "${PROJECT_SOURCE_DIR}/../code_runtime/source")
+	add_test(NAME half-conversions COMMAND half_test)
+	set_tests_properties(half-conversions PROPERTIES LABELS "cpu")
+endif()
 
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
 # configuration files, edits and diffs.
