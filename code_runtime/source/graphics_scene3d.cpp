@@ -553,6 +553,13 @@ namespace bb::gfx {
 			uint32_t   mesh, surface, texture, lights, light_count;
 			bool       wireframe;
 			VkPipeline opaque, solid, wire;
+
+			// Member by member: the padding after 'wireframe' is not set by every compiler, so memcmp would see changes that are none.
+			bool operator==(const built_from& o) const
+			{
+				return mesh == o.mesh && surface == o.surface && texture == o.texture && lights == o.lights && light_count == o.light_count
+					   && wireframe == o.wireframe && opaque == o.opaque && solid == o.solid && wire == o.wire;
+			}
 		};
 
 		bool                     enabled = false;
@@ -3820,7 +3827,7 @@ namespace bb::gfx {
 			return;
 		}
 		built_from now = { bb::mesh_epoch, bb::surface_epoch, bb::texture_epoch, current_light_hash, current_light_count, g.wireframe, g.opaque3d, g.solid3d, g.wire3d[0] };
-		if (memcmp(&now, &built, sizeof(now)) != 0) {
+		if (!(now == built)) {
 			static uint32_t last_change = 0, backoff = 0;
 			if (!table.empty() || !made.empty()) {
 				static_invalidate();
