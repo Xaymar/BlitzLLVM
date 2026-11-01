@@ -167,6 +167,12 @@ def load():
                         c.syntax = re.findall(r"^@syntax[ \t]+(.+)$", body, re.M)
                         body = re.sub(r"^@syntax.*\n?", "", body, flags=re.M).strip()
                         commands.append(c)
+                    elif re.search(r"^@syntax", body, re.M):
+                        # A command whose signature in functions.txt cannot say what it takes (a number or a text of any
+                        # type), so the page names its own and drops the table of parameters.
+                        c.syntax = re.findall(r"^@syntax[ \t]+(.+)$", body, re.M)
+                        c.params = []
+                        body = re.sub(r"^@syntax.*\n?", "", body, flags=re.M).strip()
                     if c is None:
                         raise SystemExit("%s: '%s' is not a command of %s > %s" % (path, name, dialect,
                                                                                   category.replace("-", " ")))
