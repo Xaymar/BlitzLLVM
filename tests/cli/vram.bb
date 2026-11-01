@@ -5,8 +5,8 @@
 ; without 256 the texture goes to system memory and the program ends normally, with it the program stops with "out of video memory".
 Graphics 64, 64, 0, 2
 If AvailVidMem() <= 0 Then RuntimeError "AvailVidMem is empty"
-flags = 1
+Local flags = 1
 If CommandLine$() = "vram" Then flags = 1 + 256
-tex = CreateTexture(4096, 4096, flags)
+Local tex = CreateTexture(4096, 4096, flags)
 DebugLog "texture made"
 End

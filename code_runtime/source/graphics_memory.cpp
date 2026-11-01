@@ -24,6 +24,8 @@
 #include "graphics_internal.hpp"
 #include "environment.h"
 #include <atomic>
+#include <mutex>
+#include <unordered_map>
 
 namespace bb::gfx {
 	// The loader threads make the buffers of the surfaces of models (surface_prebuild), and the graphics state belongs to the thread of the
@@ -81,9 +83,37 @@ namespace bb::gfx {
 
 
 	static thread_local bool spill_allowed = false;
+	static thread_local bool evict_allowed = false;
+	static thread_local bool force_system  = false;
+	static thread_local bool evicting      = false;
 
-	image_spill_scope::image_spill_scope(bool allow) : previous(spill_allowed) { spill_allowed = allow; }
-	image_spill_scope::~image_spill_scope() { spill_allowed = previous; }
+	image_spill_scope::image_spill_scope(bool allow, bool evict) : previous(spill_allowed), previous_evict(evict_allowed) { spill_allowed = allow; evict_allowed = evict; }
+	image_spill_scope::~image_spill_scope() { spill_allowed = previous; evict_allowed = previous_evict; }
+	image_system_scope::image_system_scope() : previous(force_system) { force_system = true; }
+	image_system_scope::~image_system_scope() { force_system = previous; }
+
+	// With a limit pretended, the images in system memory are only known by this list, as the memory of the GPU is one heap.
+	static std::mutex                                 system_mutex;
+	static std::unordered_map<VmaAllocation, uint64_t> system_allocations;
+	static void note_system_allocation(VmaAllocation allocation, uint64_t size)
+	{
+		std::lock_guard<std::mutex> guard(system_mutex);
+		system_allocations[allocation] = size;
+	}
+	void forget_system_allocation(VmaAllocation allocation)
+	{
+		std::lock_guard<std::mutex> guard(system_mutex);
+		system_allocations.erase(allocation);
+	}
+	static uint64_t system_bytes()
+	{
+		std::lock_guard<std::mutex> guard(system_mutex);
+		uint64_t total = 0;
+		for (auto const& entry : system_allocations) {
+			total += entry.second;
+		}
+		return total;
+	}
 	bool image_spill_allowed() { return spill_allowed; }
 
 	bool is_out_of_memory(VkResult result)
@@ -115,8 +145,12 @@ namespace bb::gfx {
 				total += budgets[i].budget;
 			}
 		}
-		if (vram_limit() && (total > vram_limit())) {
-			total = vram_limit();
+		if (vram_limit()) {
+			if (total > vram_limit()) {
+				total = vram_limit();
+			}
+			uint64_t moved = system_bytes();
+			used           = used > moved ? used - moved : 0;
 		}
 	}
 
@@ -158,8 +192,31 @@ namespace bb::gfx {
 	{
 		VmaAllocationCreateInfo alloc = {};
 		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
-		alloc.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		VkResult created              = over_vram_limit(image_size_estimate(info)) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+		VkDeviceSize size             = image_size_estimate(info);
+		VkResult     created;
+		if (force_system) {
+			// Moved out of video memory to make room: it is read from system memory from now on.
+			alloc.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+			created     = vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			if (created == VK_SUCCESS) {
+				note_system_allocation(allocation, size);
+			}
+			return created;
+		}
+		alloc.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		for (;;) {
+			created = over_vram_limit(size) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			if ((created != VK_ERROR_OUT_OF_DEVICE_MEMORY) || spill_allowed || !evict_allowed || evicting) {
+				break;
+			}
+			// It has to be in video memory (flag 256): textures that may use system memory make room.
+			evicting   = true;
+			bool moved = textures_evict(size);
+			evicting   = false;
+			if (!moved) {
+				break;
+			}
+		}
 		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && spill_allowed) {
 			// Only what the program allowed (no flag 256): system memory does it, slower.
 			alloc.requiredFlags  = 0;
@@ -167,10 +224,13 @@ namespace bb::gfx {
 			created              = vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
 			if (created == VK_SUCCESS) {
 				note_spill();
+				if (vram_limit()) {
+					note_system_allocation(allocation, size);
+				}
 			}
 		}
 		if (is_out_of_memory(created)) {
-			video_memory_exhausted("an image", image_size_estimate(info));
+			video_memory_exhausted("an image", size);
 		}
 		return created;
 	}

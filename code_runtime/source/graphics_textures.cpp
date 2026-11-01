@@ -407,7 +407,7 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 			pixels[i * 4 + 3] = 255;
 		}
 		entry.image.array_sets = true;
-		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
+		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
 		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, false, false, uint32_t(frames));
 		bb_free(pixels);
 	}
@@ -433,7 +433,7 @@ int32_t bb_texture_from_rgba(int32_t width, int32_t height, int32_t flags, int32
 	entry.height = height;
 	if (active()) {
 		entry.image.array_sets = true;
-		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
+		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
 		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -661,7 +661,7 @@ namespace bb::gfx {
 				entry.hull   = p.hull;
 				p.hull       = sprite_hull();
 				entry.image.array_sets = true;
-				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
+				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
 				upload_compressed(entry.image, entry.set, p.source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0);
 				free_picture(p.source);
 			} else {
@@ -671,7 +671,7 @@ namespace bb::gfx {
 				p.hull       = sprite_hull();
 				bool ten = p.ten != nullptr;
 				entry.image.array_sets = true;
-				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
+				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET)), true); // Flag 256 keeps the texture in video memory (other textures make room for it); without it, it may use system memory when that is full.
 				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;
@@ -1471,6 +1471,51 @@ namespace bb::gfx {
 				release_image(t.image);
 			}
 		}
+	}
+
+	// Moves textures that may use system memory to it: their images are made again there from their recipes, and the set that samples them is written again.
+	bool textures_evict(VkDeviceSize needed)
+	{
+		auto size_of = [](texture_entry const& t) { return VkDeviceSize(t.image.width) * t.image.height * 4 * t.image.layers; };
+		auto movable = [](texture_entry const& t) {
+			return t.used && !t.atlas && !t.cube && !t.pending && t.set && t.image.image && t.image.recipe && t.image.recipe->may_spill && !t.image.recipe->in_system
+				&& ((t.image.recipe->kind == image_recipe::content::pixels) || (t.image.recipe->kind == image_recipe::content::blocks)) && recovery_enabled();
+		};
+		bool moved_any = false;
+		bool synced    = false;
+		VkDeviceSize freed = 0;
+		while (freed < needed) {
+			texture_entry* best = nullptr;
+			for (uint32_t i = 0; i < texture_table.size; i++) {
+				texture_entry& t = texture_table[i];
+				if (movable(t) && (!best || (size_of(t) > size_of(*best)))) {
+					best = &t;
+				}
+			}
+			if (!best) {
+				break;
+			}
+			if (!synced) {
+				// Nothing that was asked for may still use the images that go.
+				flush();
+				wait_gpu();
+				synced = true;
+			}
+			VkSampler chosen = best->sampler ? sampler_vk(sampler_table[uint32_t(best->sampler) - 1]) : texture_sampler(best->flags);
+			freed += size_of(*best);
+			release_image(best->image);
+			{
+				image_system_scope system;
+				rebuild_image(best->image);
+			}
+			best->image.recipe->in_system = true;
+			if (best->image.view) {
+				describe_image(best->set, best->image, chosen);
+			}
+			best->image.sampler = chosen;
+			moved_any           = true;
+		}
+		return moved_any;
 	}
 
 	// Makes the images again from their recipes, and the sets that sample them.

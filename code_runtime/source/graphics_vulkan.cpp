@@ -242,6 +242,7 @@ namespace bb::gfx {
 			vkDestroyImageView(g.device, img.target_view, nullptr);
 		}
 		if (img.image) {
+			forget_system_allocation(img.allocation);
 			vmaDestroyImage(g.allocator, img.image, img.allocation);
 		}
 		img.view        = VK_NULL_HANDLE;

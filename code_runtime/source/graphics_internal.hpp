@@ -192,6 +192,7 @@ namespace bb::gfx {
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkComponentMapping mapping = {};
 		bool               has_mapping = false;
+		bool               in_system = false;          // The image was moved to system memory to make room for one that has to be in video memory.
 		bool               may_spill = false;          // The image may live in system memory when video memory is full (see image_spill_scope).
 		content            kind = content::blank;
 		bool               mipmaps = false, srgb = false, ten = false, opaque = false;
@@ -938,10 +939,21 @@ namespace bb::gfx {
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	/** Images made while one of these lives (and allows it) may fall back to system memory when video memory is full. Without one they must fit in video memory. */
 	struct image_spill_scope {
-		bool previous;
-		explicit image_spill_scope(bool allow);
+		bool previous, previous_evict;
+		/** With evict, a texture that has to be in video memory may push other textures out of it, see textures_evict. Only where nothing half done uses a texture: texture creation. */
+		explicit image_spill_scope(bool allow, bool evict = false);
 		~image_spill_scope();
 	};
+	/** Images made while one of these lives are made in system memory. */
+	struct image_system_scope {
+		bool previous;
+		image_system_scope();
+		~image_system_scope();
+	};
+	/** Moves textures that may use system memory (no flag 256) out of video memory, biggest first, until 'needed' bytes are free or none is left. False if nothing was moved. */
+	bool textures_evict(VkDeviceSize needed);
+	/** For BLITZLLVM_VRAM_LIMIT_MB: an allocation that is in system memory on a GPU where all memory looks like one heap. */
+	void forget_system_allocation(VmaAllocation allocation);
 	bool image_spill_allowed();
 	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
 	void video_memory_budget(uint64_t& used, uint64_t& total);
