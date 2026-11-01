@@ -184,6 +184,39 @@ static void test_aligned_and_new()
 	}
 }
 
+// Threads that start and end, with more and more work in them, to see where a program of Windows stops.
+static void test_thread_smoke()
+{
+	for (int work : { 0, 1, 1000, 200000 }) {
+		for (int keep : { 0, 1 }) {
+			std::vector<std::thread> threads;
+			for (int t = 0; t < 4; t++) {
+				threads.emplace_back([=] {
+					std::vector<void*> blocks;
+					if (keep) {
+						blocks.reserve(size_t(work));
+					}
+					for (int n = 0; n < work; n++) {
+						void* p = bb_malloc(16 + size_t(n % 3000));
+						if (keep) {
+							blocks.push_back(p);
+						} else {
+							bb_free(p);
+						}
+					}
+					for (void* p : blocks) {
+						bb_free(p);
+					}
+				});
+			}
+			for (auto& th : threads) {
+				th.join();
+			}
+			fprintf(stderr, " smoke work %d keep %d joined\n", work, keep);
+		}
+	}
+}
+
 // Threads that only allocate and threads that only free what the first ones made, in both directions.
 static void test_threads()
 {
@@ -428,6 +461,8 @@ int main()
 	test_foreign();
 	fprintf(stderr, "test_aligned_and_new\n");
 	test_aligned_and_new();
+	fprintf(stderr, "test_thread_smoke\n");
+	test_thread_smoke();
 	fprintf(stderr, "test_threads\n");
 	test_threads();
 	fprintf(stderr, "test_release\n");
