@@ -184,6 +184,7 @@ suite-debug-compile-input_device_state_pixels
 suite-debug-compile-input_device_changed_pixels
 suite-debug-compile-input_devices_pixels
 suite-debug-compile-input_pixels
+suite-debug-compile-input_scancodes_pixels
 suite-debug-compile-language
 suite-debug-compile-language_arithmetic
 suite-debug-compile-language_arrays
@@ -370,6 +371,7 @@ suite-debug-run-input_device_state_pixels
 suite-debug-run-input_device_changed_pixels
 suite-debug-run-input_devices_pixels
 suite-debug-run-input_pixels
+suite-debug-run-input_scancodes_pixels
 suite-debug-run-language
 suite-debug-run-language_arithmetic
 suite-debug-run-language_arrays

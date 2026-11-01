@@ -543,6 +543,8 @@ movemouse	input	done	MoveMouse%x%y
 rawinput	input	done	RawInput%enable
 rawinputenabled	input	done	%RawInputEnabled
 unlockmouse	input	done	UnlockMouse
+vkeydown	input	done	%VKeyDown%scancode
+vkeyhit	input	done	%VKeyHit%scancode
 waitjoy	input	done	%WaitJoy%port=0
 waitkey	input	done	%WaitKey
 waitmouse	input	done	%WaitMouse
