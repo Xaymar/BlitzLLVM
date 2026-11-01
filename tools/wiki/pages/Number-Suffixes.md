@@ -34,8 +34,8 @@ Print exact
 
 ## Rules
 
-* The whole number suffixes (`i8` to `ui64`, `u`) go on whole numbers: decimal, `0x` and `0b`. The real suffixes (`h`, `f`, `d`, `fp16` to `fp64`) go on decimal numbers, with or without a decimal point (`3d`, `2.5h`). `$FF` and `%101` take no suffix.
-* `f` and `d` are digits in a `0x` number, so `0xFFf` is just the number 4095. That is why the real suffixes are not allowed behind `0x` and `0b`.
+* The whole number suffixes (`i8` to `ui64`, `u`) go on whole numbers: decimal, `0x` and `0b`. The real suffixes (`h`, `f`, `d`, `fp16` to `fp64`) go on decimal numbers, with or without a decimal point (`3d`, `2.5h`), and on `0b` numbers (`0b101f` is 5.0), but not on `0x` numbers. `$FF` and `%101` take no suffix.
+* `f` and `d` are digits in a `0x` number, so `0xFFf` is just the number 4095. That is why the real suffixes are not allowed behind `0x`. A `0b` number only has the digits 0 and 1, so `h`, `f` and `d` are no problem there.
 * The suffix has to end the number: `1foo` is still the number 1 followed by a name, as before.
 * A whole number without a suffix has to fit into an `Int`. A number that is larger (`5000000000`) is an error that asks for `i64` or `ui64`. A `0x` or `0b` number of up to 32 bits is an `Int` with the same bits as `$FFFFFFFF`, so `0xFFFFFFFF` is -1.
 * A number with a suffix has to fit into its type, or it is an error: `300i8` and `70000h` do not compile. A `0x` or `0b` number is a bit pattern of the type and may use all of its bits, so `0xFFi8` is -1, `0xFFui8` is 255, and `0b11111111i8` is -1.

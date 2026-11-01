@@ -201,3 +201,7 @@ Check "h rounds", Double(0.1h), 0.0999755859375, 0.0000000001
 Check "h max", Double(65504h), 65504.0
 Check "neg real", -2.5d, -2.5
 Check "d keeps precision", Double(0.1d), 0.1, 0.0000000000000001
+Check "binary f", 0b101f, 5.0
+Check "binary d", Double(0b11d), 3.0
+Check "binary h", Double(0b100h), 4.0
+Check "binary fp64", Double(0b1000fp64), 8.0

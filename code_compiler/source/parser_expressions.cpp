@@ -422,7 +422,7 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	if ((found != typed.end()) && blitz::types::is_real(found->second.first)) {
 		type   as = found->second.first;
 		errno     = 0;
-		double v  = strtod(text.c_str(), nullptr);
+		double v  = ((text.length() > 2) && (text[0] == '0') && ((text[1] == 'b') || (text[1] == 'B'))) ? double(strtoull(text.c_str() + 2, nullptr, 2)) : strtod(text.c_str(), nullptr); // 0b101f is 5.0.
 		if (negate) {
 			v = -v;
 		}

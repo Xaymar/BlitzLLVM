@@ -185,7 +185,7 @@ blitz::token blitz::lexer::scan()
 		// Integer or Real
 		token.type   = blitz::token::variant::INTEGER;
 		size_t start = _offset;
-		bool   prefixed = (chr == '0') && ((at(1) == 'x') || (at(1) == 'X') || (at(1) == 'b') || (at(1) == 'B'));
+		bool   prefixed = (chr == '0') && ((at(1) == 'x') || (at(1) == 'X')); // Only hex has f and d as digits.
 		if ((chr == '0') && ((at(1) == 'x') || (at(1) == 'X'))) {
 			advance(2);
 			while (is_hex(at())) {
@@ -210,7 +210,7 @@ blitz::token blitz::lexer::scan()
 			}
 		}
 		// A suffix that says the exact type: u, i8..i64 and ui8..ui64 for whole numbers, h, f, d and fp16..fp64 for decimal numbers. It has to end
-		// the number (`1foo` stays a number and a name), and the float ones are not for 0x and 0b numbers, as `f` and `d` are digits there.
+		// the number (`1foo` stays a number and a name), and the float ones are not for 0x numbers, as `f` and `d` are digits there.
 		bool whole = (token.type == blitz::token::variant::INTEGER);
 		static const struct {
 			const char* text;
