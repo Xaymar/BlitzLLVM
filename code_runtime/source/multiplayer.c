@@ -83,6 +83,8 @@ typedef struct bb_connection {
 	uint8_t* buffer;
 	size_t   size, capacity;
 	int      greeted;
+	size_t   pending;  // What this connection delivered that RecvNetMsg has not taken yet, in bytes.
+	int      overflow; // It delivered more than MAX_FRAME while the program did not take it.
 } bb_connection;
 
 typedef struct bb_message {
@@ -90,6 +92,7 @@ typedef struct bb_message {
 	int32_t from, to;
 	char*   data;
 	size_t  length;
+	int     connection; // Which connection delivered it, -1 if none did.
 } bb_message;
 
 #define MAX_CONNECTIONS 32
@@ -174,8 +177,18 @@ static void bb_net_remove_player(int32_t id)
 	}
 }
 
-static void bb_net_push(int type, int32_t from, int32_t to, const char* data, size_t length)
+// Puts a message in front of the program. A connection that delivers more than MAX_FRAME bytes while the program has not called RecvNetMsg to
+// take them is closed: it is either not one of us, or a program that the other side can not keep up with.
+static void bb_net_push_from(int connection, int type, int32_t from, int32_t to, const char* data, size_t length)
 {
+	if (connection >= 0) {
+		bb_connection* c = &bb_net_connections[connection];
+		if (c->overflow || (c->pending + length + 1 > MAX_FRAME)) {
+			c->overflow = 1;
+			return;
+		}
+		c->pending += length + 1;
+	}
 	bb_net_inbox = (bb_message*)bb_realloc(bb_net_inbox, (size_t)(bb_net_inbox_count + 1) * sizeof(bb_message));
 	bb_message* m = &bb_net_inbox[bb_net_inbox_count++];
 	m->type       = type;
@@ -183,6 +196,12 @@ static void bb_net_push(int type, int32_t from, int32_t to, const char* data, si
 	m->to         = to;
 	m->data       = bb_net_copy(data ? data : "", length);
 	m->length     = length;
+	m->connection = connection;
+}
+
+static void bb_net_push(int type, int32_t from, int32_t to, const char* data, size_t length)
+{
+	bb_net_push_from(-1, type, from, to, data, length);
 }
 
 static void put32(uint8_t* at, int32_t value)
@@ -219,6 +238,12 @@ static void bb_net_close_connection(int connection)
 	bb_connection* c = &bb_net_connections[connection];
 	if (c->stream) {
 		bb_close_tcp_stream(c->stream);
+	}
+	// What it delivered stays, but is not counted against whatever uses this slot next.
+	for (int i = 0; i < bb_net_inbox_count; i++) {
+		if (bb_net_inbox[i].connection == connection) {
+			bb_net_inbox[i].connection = -1;
+		}
 	}
 	bb_free(c->buffer);
 	memset(c, 0, sizeof(*c));
@@ -265,7 +290,7 @@ static void bb_net_route(int from_connection, const uint8_t* payload, size_t len
 		return;
 	}
 	if (to == 0) {
-		bb_net_push(payload[8], from, to, (const char*)payload + 9, length - 9);
+		bb_net_push_from(from_connection, payload[8], from, to, (const char*)payload + 9, length - 9);
 		for (int i = 0; i < MAX_CONNECTIONS; i++) {
 			if ((i != from_connection) && bb_net_connections[i].stream && bb_net_connections[i].greeted) {
 				bb_net_send(i, FRAME_FORWARD, payload, length);
@@ -278,7 +303,7 @@ static void bb_net_route(int from_connection, const uint8_t* payload, size_t len
 		return;
 	}
 	if (target->connection < 0) {
-		bb_net_push(payload[8], from, to, (const char*)payload + 9, length - 9);
+		bb_net_push_from(from_connection, payload[8], from, to, (const char*)payload + 9, length - 9);
 	} else if (target->connection != from_connection) {
 		bb_net_send(target->connection, FRAME_FORWARD, payload, length);
 	}
@@ -371,7 +396,7 @@ static void bb_net_client_frame(uint8_t kind, const uint8_t* payload, size_t len
 		break;
 	case FRAME_FORWARD:
 		if (length >= 9) {
-			bb_net_push(payload[8], get32(payload), get32(payload + 4), (const char*)payload + 9, length - 9);
+			bb_net_push_from(0, payload[8], get32(payload), get32(payload + 4), (const char*)payload + 9, length - 9);
 		}
 		break;
 	default:
@@ -440,6 +465,10 @@ static int bb_net_read(int connection)
 		bb_free(payload);
 		if (!c->stream) {
 			return 1; // Closed while it was handled.
+		}
+		if (c->overflow) {
+			alive = 0; // Too much that the program has not taken.
+			break;
 		}
 	}
 	if (used) {
@@ -730,6 +759,9 @@ int32_t bb_recv_net_msg(void)
 	}
 	if (bb_net_inbox_count) {
 		bb_message m = bb_net_inbox[0];
+		if ((m.connection >= 0) && bb_net_connections[m.connection].pending >= m.length + 1) {
+			bb_net_connections[m.connection].pending -= m.length + 1;
+		}
 		memmove(bb_net_inbox, bb_net_inbox + 1, (size_t)(--bb_net_inbox_count) * sizeof(bb_message));
 		bb_msg_type = m.type;
 		bb_msg_from = m.from;
