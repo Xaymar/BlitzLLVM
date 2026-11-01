@@ -43,6 +43,26 @@ project(
 	VERSION "${BlitzLLVM_VERSION_DETECTED}"
 )
 message(STATUS "Version ${PROJECT_VERSION}")
+
+# CMake links clang for Windows with -nostdlib and names the C runtime itself, so the compiler's own builtins (__cpu_model, __udivti3, ...)
+# have to be added: they come with LLVM as compiler-rt.
+if(WIN32 AND NOT MSVC AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	set(_TARGET_FLAG "")
+	if(CMAKE_C_COMPILER_TARGET)
+		set(_TARGET_FLAG "--target=${CMAKE_C_COMPILER_TARGET}")
+	endif()
+	execute_process(
+		COMMAND "${CMAKE_C_COMPILER}" ${_TARGET_FLAG} --print-libgcc-file-name --rtlib=compiler-rt
+		OUTPUT_VARIABLE _BUILTINS OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE _RESULT
+	)
+	if(_RESULT EQUAL 0 AND EXISTS "${_BUILTINS}")
+		message(STATUS "Compiler builtins: ${_BUILTINS}")
+		string(APPEND CMAKE_C_STANDARD_LIBRARIES " \"${_BUILTINS}\"")
+		string(APPEND CMAKE_CXX_STANDARD_LIBRARIES " \"${_BUILTINS}\"")
+	else()
+		message(WARNING "The builtins library of clang was not found, programs may fail to link ('${_BUILTINS}').")
+	endif()
+endif()
 set(PROJECT_IDENTIFER "com.xaymar.blitzllvm")
 set(PROJECT_TITLE "BlitzLLVM")
 set(PROJECT_AUTHORS "Xaymar <info@xaymar.com>") # ToDo: Generate from AUTHORS
