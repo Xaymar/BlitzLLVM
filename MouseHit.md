@@ -19,7 +19,7 @@ MouseHit:Int32 button:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `button` | In | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
+| `button` | In | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button, 4 for the back (X1) and 5 for the forward (X2) button. |
 
 **Returns:** How many times the button was pressed since the last call.
 
@@ -29,6 +29,7 @@ Counts presses of a mouse button since the last time MouseHit asked about that b
 
 ## Differences
 
+* Buttons 4 and 5 (the back and forward buttons) are a BlitzLLVM extension. A button number outside 1 to 5 always gives 0.
 * The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 
 ## Examples

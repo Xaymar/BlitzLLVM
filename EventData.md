@@ -28,8 +28,8 @@ Gives the extra number of the event that [WaitEvent](WaitEvent) took last. What 
 | KeyDown | $101 | Scan code | - | - |
 | KeyUp | $102 | Scan code | - | - |
 | KeyStroke | $103 | ASCII code | - | - |
-| MouseDown | $201 | Mouse button | Gadget | - |
-| MouseUp | $202 | Mouse button | Gadget | - |
+| MouseDown | $201 | Mouse button (1 to 5) | Gadget | - |
+| MouseUp | $202 | Mouse button (1 to 5) | Gadget | - |
 | MouseMove | $203 | - | Canvas | Mouse position |
 | MouseWheel | $204 | Turns | - | - |
 | MouseEnter | $205 | - | Canvas | Mouse position |

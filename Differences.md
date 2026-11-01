@@ -162,7 +162,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GetHostAddress](GetHostAddress#differences): Without a call of [CountHostAddresses](CountHostAddresses) the addresses of this computer are used.
 * [GetJoy](GetJoy#differences): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
 * [GetKey](GetKey#differences): The queue holds 64 characters, and the oldest ones are dropped when it is full.
-* [GetMouse](GetMouse#differences): The queue holds 15 presses and forgets the oldest ones when it is full.
+* [GetMouse](GetMouse#differences): Buttons 4 and 5 (the back and forward buttons) are a BlitzLLVM extension.
 * [GetMovieTexture](GetMovieTexture#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [GetSurfaceBrush](GetSurfaceBrush#differences): A surface that was never painted gives a plain white brush.
 * [GetTCPStreamAddress](GetTCPStreamAddress#differences): Not in the original, which only knows IPv4.
@@ -242,8 +242,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [MouseDeviceConnected](MouseDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceCount](MouseDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceName](MouseDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
-* [MouseDown](MouseDown#differences): A button number outside 1 to 3 always gives 0.
-* [MouseHit](MouseHit#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+* [MouseDown](MouseDown#differences): Buttons 4 and 5 (the back and forward buttons) are a BlitzLLVM extension.
+* [MouseHit](MouseHit#differences): Buttons 4 and 5 (the back and forward buttons) are a BlitzLLVM extension.
 * [MouseX](MouseX#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 * [MouseXSpeed](MouseXSpeed#differences): Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original.
 * [MouseY](MouseY#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
