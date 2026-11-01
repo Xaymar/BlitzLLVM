@@ -81,6 +81,33 @@ char* bb_copy(const char* data, size_t length)
 	return mem;
 }
 
+void* bb_malloc_or_fail(size_t size)
+{
+	void* mem = bb_malloc(size);
+	if (!mem) {
+		bb_runtime_error("Out of memory.");
+	}
+	return mem;
+}
+
+void* bb_calloc_or_fail(size_t count, size_t size)
+{
+	void* mem = bb_calloc(count, size);
+	if (!mem) {
+		bb_runtime_error("Out of memory.");
+	}
+	return mem;
+}
+
+void* bb_realloc_or_fail(void* ptr, size_t size)
+{
+	void* mem = bb_realloc(ptr, size);
+	if (!mem) {
+		bb_runtime_error("Out of memory.");
+	}
+	return mem;
+}
+
 // The zeroed memory of an array of a function that is too big for the stack. The function frees it with bb_free when it ends.
 void* bb_array_alloc(int64_t count, int64_t size)
 {
