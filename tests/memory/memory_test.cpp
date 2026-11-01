@@ -1,3 +1,6 @@
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 //
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
@@ -187,6 +190,36 @@ static void test_aligned_and_new()
 // Threads that start and end, with more and more work in them, to see where a program of Windows stops.
 static void test_thread_smoke()
 {
+#if defined(_WIN32)
+	{
+		static thread_local char tl[512];
+		bool                     zero = true;
+		for (char c : tl) {
+			zero = zero && c == 0;
+		}
+		fprintf(stderr, " main tls zero %d\n", int(zero));
+		HANDLE h = CreateThread(
+			nullptr, 0,
+			[](LPVOID) -> DWORD {
+				bool z = true;
+				for (char c : tl) {
+					z = z && c == 0;
+				}
+				tl[5] = 1;
+				fprintf(stderr, " raw thread tls zero %d\n", int(z));
+				return 0;
+			},
+			nullptr, 0, nullptr);
+		WaitForSingleObject(h, INFINITE);
+		CloseHandle(h);
+		fprintf(stderr, " raw thread joined\n");
+		h = CreateThread(
+			nullptr, 0, [](LPVOID) -> DWORD { void* p = bb_malloc(32); bb_free(p); return 0; }, nullptr, 0, nullptr);
+		WaitForSingleObject(h, INFINITE);
+		CloseHandle(h);
+		fprintf(stderr, " raw alloc thread joined\n");
+	}
+#endif
 	fprintf(stderr, " empty thread\n");
 	{
 		std::thread e([] {});
