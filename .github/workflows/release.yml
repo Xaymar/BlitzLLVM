@@ -1,7 +1,9 @@
 name: Release
 
-# Publishes a release for a version tag (1.2.3, 1.2.3-rc1) with the binaries that the Nightly workflow built for the tagged
-# commit. The moving tags (nightly, daily, weekly, monthly, yearly) do not match these patterns. See docs/wiki/Releasing.md.
+# Builds a version tag (1.2.3, 1.2.3-rc1) from scratch and publishes a GitHub release with the resulting binaries. Nothing is
+# restored from or saved to a cache, so the binaries are clean. The moving tags (nightly, daily, weekly, monthly, yearly) do not
+# match these patterns. A release can also be made, or its binaries replaced, by hand for a tag that exists already.
+# See docs/wiki/Releasing.md.
 on:
   push:
     tags:
@@ -9,29 +11,83 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+-*'
       - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and release, such as 0.2.0 or 0.2.0-rc1'
+        type: string
+        required: true
 
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
-# contents: write creates the release, actions: read finds and downloads the artifacts of the Nightly run.
 permissions:
-  contents: write
-  actions: read
+  contents: read
 
 jobs:
-  release:
+  tag:
+    name: Check the tag
     runs-on: ubuntu-latest
-    # The script waits for a Nightly run that is still building, which takes a while.
-    timeout-minutes: 150
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Check the tag
+        id: tag
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          # The same patterns as the push trigger: a manual run must not release nightly, daily, a branch name and so on.
+          if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+(\.[0-9]+){2,3}(-[0-9A-Za-z][0-9A-Za-z.-]*)?$'; then
+            echo "::error::'$TAG' is not a release tag. Release tags look like 1.2.3 or 1.2.3-rc1."
+            exit 1
+          fi
+          if [ -z "$(git ls-remote --tags "https://github.com/${GITHUB_REPOSITORY}.git" "refs/tags/${TAG}")" ]; then
+            echo "::error::The tag '$TAG' does not exist. Push it first; this workflow never creates tags."
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build
+    needs: tag
+    # The platforms, packages and their checks are in build.yml, which the Nightly and Test workflows use as well.
+    uses: ./.github/workflows/build.yml
+    with:
+      clean: true
+      ref: refs/tags/${{ needs.tag.outputs.tag }}
+
+  release:
+    needs: [tag, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # contents: write creates the release and uploads the assets.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: refs/tags/${{ needs.tag.outputs.tag }}
           # The release notes list the commits since the previous release tag.
           fetch-depth: 0
           fetch-tags: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: artifacts
+      - name: Collect the files
+        run: |
+          mkdir release
+          for d in artifacts/*; do
+            case "$d" in
+              # Packages are already named after their version and platform.
+              *-packages) mv "$d"/* release/ ;;
+              *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
+            esac
+          done
+          ls -l release
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: python3 .github/scripts/release.py "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --timeout 120
+          TAG: ${{ needs.tag.outputs.tag }}
+        run: python3 .github/scripts/release.py "$TAG" --repo "$GITHUB_REPOSITORY" --files release
