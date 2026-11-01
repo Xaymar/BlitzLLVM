@@ -252,6 +252,56 @@ namespace bb::gfx {
 		return created;
 	}
 
+
+	bool make_room(VkDeviceSize needed)
+	{
+		if (evicting) {
+			return false;
+		}
+		auto free_bytes = []() {
+			uint64_t used, total;
+			video_memory_budget(used, total);
+			return total > used ? total - used : uint64_t(0);
+		};
+		if (free_bytes() >= needed) {
+			return true;
+		}
+		evicting = true;
+		bool moved = defragment_images();
+		if (free_bytes() < needed) {
+			moved |= textures_evict(needed - free_bytes());
+		}
+		evicting = false;
+		return free_bytes() >= needed;
+	}
+
+	void reserve_internal_buffers()
+	{
+		static uint64_t last_size = 0;
+		static int      last_oit = -1, last_aa = -1;
+		if (!g.allocator || evicting || g.headless || !g.width || !g.height) {
+			return;
+		}
+		uint64_t pixels = uint64_t(g.width) * g.height;
+		int      oit    = oit_mode();
+		int      aa     = antialias_mode();
+		if ((pixels == last_size) && (oit == last_oit) && (aa == last_aa)) {
+			return;
+		}
+		last_size = pixels;
+		last_oit  = oit;
+		last_aa   = aa;
+		// Bytes per pixel of what each of them makes: depth and the picture to draw to, OIT (five images, the slots of samples, the layers of the reference), SMAA (and its two pictures for T2x).
+		uint64_t per_pixel = 8;
+		if (oit > 0) {
+			per_pixel += 48 + (oit_slots() * 20ull) + ((oit == 5) ? 16 : 0);
+		}
+		if (aa > 0) {
+			per_pixel += 10 + ((aa == 2) ? 8 : 0);
+		}
+		make_room(pixels * per_pixel);
+	}
+
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
 	{
 		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };

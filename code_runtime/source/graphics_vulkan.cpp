@@ -1069,6 +1069,7 @@ namespace bb::gfx {
 	{
 		g.width  = width;
 		g.height = height;
+		image_spill_scope strict(false, true); // The buffers of the window come before textures: those without flag 256 make room if they have to.
 		for (int i = 0; i < 2; i++) {
 			g.buffers[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, g.buffer_format); // Sampled for the gamma pass.
 		}

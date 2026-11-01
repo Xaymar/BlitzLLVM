@@ -47,6 +47,14 @@ def main():
     if result.returncode != 0 or "defrag ok" not in result.stderr or not moved:
         print("vram: textures that were moved together should keep their pictures (and some should have moved).\n%s" % result.stderr)
         return 1
+
+    # The buffers of the window and of order independent transparency come before textures without flag 256.
+    priority = os.path.join(work, "vram_priority")
+    procutil.run([blitzcc, os.path.join(os.path.dirname(source), "vram_priority.bb"), "-o", priority], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([priority], env=dict(os.environ, BLITZLLVM_VRAM_LIMIT_MB="175"), capture_output=True, text=True, timeout=120)
+    if result.returncode != 0 or "priority ok" not in result.stderr:
+        print("vram: textures without flag 256 should make room for the buffers of order independent transparency.\n%s" % result.stderr)
+        return 1
     return 0
 
 
