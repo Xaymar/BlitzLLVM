@@ -522,6 +522,7 @@ void bb_flip(int32_t vwait)
 		bb::profile_frame = bb::profile_frame + 1;
 	}
 	bb_mem_tick(); // Gives back the allocator's spans that stayed empty for a second.
+	bb_sound_update(); // Sounds of entities follow them in programs that never call RenderWorld.
 	if (!active()) {
 		return;
 	}
