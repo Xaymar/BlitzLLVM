@@ -1,7 +1,7 @@
 {
  "label": "r00-original",
  "rev": "",
- "date": "2026-10-28T10:33:24+00:00",
+ "date": "2026-11-01T08:32:21+00:00",
  "compiler": "Compiler version:11.18:SoLoud Runtime version:11.18:SoLoud Debugger version:0.0: Linker version:11.18:SoLoud",
  "runs": 3,
  "machine": {
@@ -312,6 +312,21 @@
     ],
     "min": 0.0,
     "max": 0.0,
+    "n": 3
+   },
+   "_timer": "milliseconds"
+  },
+  "forest": {
+   "ms_avg": {
+    "value": 98.17666666666666,
+    "stdev": 0.11718930554164725,
+    "runs": [
+     98.31,
+     98.13,
+     98.09
+    ],
+    "min": 98.09,
+    "max": 98.31,
     "n": 3
    },
    "_timer": "milliseconds"

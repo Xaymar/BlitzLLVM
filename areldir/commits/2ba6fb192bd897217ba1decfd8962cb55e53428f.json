@@ -38,6 +38,9 @@
   },
   "dungeon": {
    "error": "build failed: original: error: Unknown option -q, see --help."
+  },
+  "forest": {
+   "error": "build failed: original: error: Unknown option -q, see --help."
   }
  }
 }
