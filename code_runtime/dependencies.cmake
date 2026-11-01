@@ -472,6 +472,17 @@ if(NOT _SYSTEM_FFMPEG)
 	blitz_start_ffmpeg()
 endif()
 
+# The build tools of the dependencies get their share of the jobs from the environment, not from the arguments of the build, as the arguments
+# are remembered by ExternalContent and a different number would build everything again. Visual Studio builds a project with all of its files
+# at once (/MP) instead of the files one after the other, one project after the other (a build of SDL3 is a single project).
+set(_ENV_BUILD_PARALLEL_LEVEL "$ENV{CMAKE_BUILD_PARALLEL_LEVEL}")
+set(_ENV_CL "$ENV{CL}")
+if(MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
+	set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} 1)
+	set(ENV{CL} "${_ENV_CL} /MP${_DEPENDENCY_JOBS}")
+else()
+	set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} ${_DEPENDENCY_JOBS})
+endif()
 
 # Vulkan headers. The Vulkan loader itself is never linked: SDL loads it at runtime.
 blitz_dependency(VulkanHeaders Vulkan-Headers
@@ -502,7 +513,7 @@ if(_SYSTEM_SDL3)
 else()
 	blitz_dependency(SDL3 SDL
 		CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_ARGS}
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 
@@ -724,7 +735,7 @@ else()
 			-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
 			-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=ON -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
 			${_SDL3_IMAGE_ASM_ARGS}
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 	blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
@@ -800,7 +811,7 @@ else()
 			-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
 			-DSDLMIXER_OPUS=ON -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF -DSDLMIXER_MP3_MPG123=OFF
 			-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 	blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
@@ -832,6 +843,16 @@ elseif(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
 	endif()
 	file(GLOB _OPUS_HEADER_FILES "${_OPUS_SOURCE}/include/*.h")
 	file(COPY ${_OPUS_HEADER_FILES} DESTINATION "${_OPUS_HEADERS}")
+endif()
+
+# The dependencies that CMake builds are done, the environment is the one of the rest of the configuration again.
+set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} "${_ENV_BUILD_PARALLEL_LEVEL}")
+set(ENV{CL} "${_ENV_CL}")
+if(NOT _ENV_BUILD_PARALLEL_LEVEL)
+	unset(ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+endif()
+if(NOT _ENV_CL)
+	unset(ENV{CL})
 endif()
 
 if(_SYSTEM_FFMPEG)
