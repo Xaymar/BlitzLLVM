@@ -1,32 +1,30 @@
 name: Test
 
-# Runs the whole test suite on Linux, Windows and macOS (the jobs "Test (Linux)", "Test (Windows)" and "Test (macOS)"), including the tests that need a window and a GPU (the ones ending in _pixels, the
-# GUI and the close prompt tests). There is no GPU on the runners, so Mesa's llvmpipe renders Vulkan on the CPU, inside a
-# virtual X server (xvfb).
+# Builds the pull request and runs the whole test suite on Linux, Windows and macOS (the jobs "Test (Linux)", "Test (Windows)" and "Test (macOS)"),
+# including the tests that need a window and a GPU (the ones ending in _pixels, the GUI and the close prompt tests). There is no GPU on the
+# runners, so Linux renders Vulkan on the CPU with Mesa's llvmpipe inside a virtual X server (xvfb), Windows with lavapipe and macOS with MoltenVK.
 #
-# The checks that show up on a pull request are named after the jobs. Make them required in the branch protection rule or
-# ruleset of root to block merging while the tests fail (see Building in the wiki). Windows and macOS use a software Vulkan
-# driver (lavapipe, MoltenVK), see the job 'desktop' for what each platform runs. This workflow has
-# no 'paths' filter on purpose: a required check that is skipped for a pull request stays "pending" and blocks it forever.
-# Instead the 'changes' job always runs and decides which tests the commit can affect, and "Test (Linux)" always runs:
+# The check to require in the branch protection rule or ruleset of root is "Build and test result", which always runs and fails if the build or
+# a test failed (see Building in the wiki). The jobs of the builds and tests only exist when something is built or tested, and a required check
+# that never reports stays "pending" and blocks the pull request forever. For the same reason this workflow has no 'paths' filter.
+# Instead the 'changes' job always runs and decides which tests the commit can affect:
 #   - a push to root, a manual run, a pull request with the label "run-all-tests" and a change to anything that is shared (the
 #     compiler, the runtime core, the build files, the dependencies, this workflow, the selection rules) build and run everything.
 #   - a change that only touches one part (the audio code, the 3D code, one test program, the formatter, ...) builds the same way
 #     (from the cache if it can), but only runs the tests of that part, and the ones that always run. The others are listed as
 #     skipped in the test comment. Skipped tests count as passed.
-#   - a change that no test depends on (documentation, the wiki, the other workflows) succeeds without doing anything.
+#   - a change that no test depends on (documentation, the wiki, the other workflows) succeeds without building anything.
 # What belongs to which part is in tests/test_selection.json, and how it works is in docs/wiki/Building.md, Which tests run. A file without a rule
 # runs everything. A push to root runs everything, so a rule that skips too much is found there.
 #
-# The builds: this workflow is the build of a pull request (it replaces the Pull Request workflow). The jobs Build (...) call build.yml
-# for one test platform each, which uploads the build tree next to the packages (when the pull request changes the binaries), and the
-# test jobs run ctest on it (.github/actions/prepare-tests). Each platform builds once and tests as soon as its own build is done. The
-# other platforms are built by 'Build (other platforms)', which the tests do not wait for. pull-request-comment.yml lists the packages.
+# The builds: this workflow is the build of a pull request (it replaces the Pull Request workflow). The job Build calls build.yml, which
+# builds the three test platforms once, and all platforms with packages when the pull request changes the binaries (pull-request-comment.yml lists
+# them). The test jobs run ctest on the build tree of their platform (.github/actions/prepare-tests), at most 3 at a time.
 #
 # The test comment: for pull requests of this repository, a single comment (found by the hidden marker on its first line) lists
 # every test with its result in the Debug and in the Release version, a column for each platform (.github/scripts/test-report.py
 # renders it, .github/scripts/test-comment.sh posts it). It is reset to pending as soon as the run starts, and written by the job
-# 'Test comment' once the three platforms are done, also when the tests failed or the run was cancelled. It is separate from the
+# 'Test comment' once the build and the tests of the three platforms are done, also when the tests failed or the run was cancelled. It is separate from the
 # comment about the build of pull-request-comment.yml.
 
 on:
@@ -134,254 +132,108 @@ jobs:
           python3 .github/scripts/test-report.py --state "$STATE" --sha "$SHA" --run-url "$RUN_URL" > "$RUNNER_TEMP/comment.md"
           .github/scripts/test-comment.sh post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
 
-  # The tests run on the build of build.yml, which builds each platform once: the jobs build-* call it (without packages, with the
-  # build tree uploaded as test-build-<platform>), and the test jobs unpack that and run ctest (.github/actions/prepare-tests). Every
-  # platform builds and tests on its own, so a slow platform does not hold back the others.
-  build-linux:
-    name: Build (Linux)
+  # The build: build.yml builds the platforms that are tested (and all of them, packaged, when the pull request changes the binaries) and
+  # uploads the build tree of each test platform as test-build-<platform>, which the job 'test' unpacks (.github/actions/prepare-tests).
+  build:
+    name: Build
     needs: changes
     if: needs.changes.outputs.mode != 'none'
     uses: ./.github/workflows/build.yml
     with:
-      platforms: ubuntu24.04-x64
       packages: ${{ needs.changes.outputs.packages == 'true' }}
       loose: true
       tests: true
+      all-tests: ${{ needs.changes.outputs.mode == 'all' }}
 
-  build-windows:
-    name: Build (Windows)
-    needs: changes
-    if: needs.changes.outputs.mode != 'none'
-    uses: ./.github/workflows/build.yml
-    with:
-      platforms: windows-x64
-      packages: ${{ needs.changes.outputs.packages == 'true' }}
-      loose: true
-      tests: true
-
-  build-macos:
-    name: Build (macOS)
-    needs: changes
-    if: needs.changes.outputs.mode != 'none'
-    uses: ./.github/workflows/build.yml
-    with:
-      platforms: macos-universal
-      packages: ${{ needs.changes.outputs.packages == 'true' }}
-      loose: true
-      tests: true
-
-  # The other platforms and the packages: only for a pull request that changes the binaries. They do not hold back the tests.
-  build-other:
-    name: Build (other platforms)
-    needs: changes
-    if: needs.changes.outputs.packages == 'true'
-    uses: ./.github/workflows/build.yml
-    with:
-      exclude: ubuntu24.04-x64 windows-x64 macos-universal
-      loose: true
-
-  linux:
-    name: Test (Linux)
-    needs: [changes, build-linux]
-    # Also when the build was skipped (nothing to test) or failed (the job fails then), but not when the run was cancelled.
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-24.04
+  # The tests, one job for each test platform. Windows and macOS only run when all of the tests run (a change to one part is tested on Linux
+  # alone). At most 3 jobs at the same time: the repository has 20 runners for every run, 5 of them macOS. The checks are named
+  # "Test (Linux)" and so on, but Windows and macOS do not exist for a partial selection, so "Build and test result" (below) is the one to require.
+  test:
+    name: Test (${{ matrix.label }})
+    needs: [changes, build]
+    # Also when the build was skipped (nothing to test), but not when it failed or the run was cancelled.
+    if: ${{ !cancelled() && needs.build.result != 'failure' }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        # Only Linux for a partial selection: the entries to leave out are named in an expression, as 'exclude' needs the matrix values.
+        include: ${{ fromJSON(needs.changes.outputs.mode == 'all' && '[{"label":"Linux","os":"ubuntu-24.04","platform":"ubuntu24.04-x64","python":"python3"},{"label":"Windows","os":"windows-latest","platform":"windows-x64","python":"python"},{"label":"macOS","os":"macos-latest","platform":"macos-universal","python":"python3"}]' || '[{"label":"Linux","os":"ubuntu-24.04","platform":"ubuntu24.04-x64","python":"python3"}]') }}
+    defaults:
+      run:
+        shell: bash
     env:
       # Whether anything the tests depend on changed. If not, every step below is skipped and the job succeeds.
       RUN: ${{ needs.changes.outputs.mode != 'none' }}
       # all or partial: whether only some of the tests run (see .github/scripts/test-select.py).
       MODE: ${{ needs.changes.outputs.mode }}
       SELECTION: ${{ needs.changes.outputs.selection }}
-      # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
-      XDG_RUNTIME_DIR: /tmp/xdg
     steps:
-      - name: The build has to have worked
-        if: needs.build-linux.result != 'success' && needs.build-linux.result != 'skipped'
-        run: echo "The build failed." && exit 1
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the submodules
         if: env.RUN == 'true'
         # Only the two with the original samples and games, which the tests compile.
         run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
       - name: Date the package cache
-        if: env.RUN == 'true'
+        if: env.RUN == 'true' && matrix.label == 'Linux'
         id: month
         # Ubuntu publishes updates to these packages, so the cache is replaced every month and never serves old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
-      - name: Install dependencies
-        if: env.RUN == 'true'
+      - name: Install dependencies (Linux)
+        if: env.RUN == 'true' && matrix.label == 'Linux'
         uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # What the build links to at run time, and the software Vulkan driver, the virtual X server and the tools the GUI tests use.
           packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
           version: 2-${{ steps.month.outputs.month }}
-      - name: Create the runtime directory
-        if: env.RUN == 'true'
-        run: mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
-      - name: Prepare the tests
-        if: env.RUN == 'true'
-        uses: ./.github/actions/prepare-tests
-        with:
-          platform: ubuntu24.04-x64
-      - name: Run the tests
-        if: env.RUN == 'true'
-        working-directory: build/code_compiler
-        # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL, the ones that move the mouse take turns
-        # (RESOURCE_LOCK mouse). A test that skips itself (77) is reported as skipped and does not fail the run. A partial selection
-        # runs the tests that the 'Select the tests' step listed (with the fixtures they need).
-        run: |
-          SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
-          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
-      - name: Keep the results for the test comment
-        if: always() && env.RUN == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: test-results-Linux
-          path: |
-            ${{ runner.temp }}/tests.json
-            ${{ runner.temp }}/junit.xml
-            ${{ runner.temp }}/skipped.json
-          retention-days: 1
-          if-no-files-found: ignore
-      - name: List the skipped tests
-        if: always() && env.RUN == 'true'
-        continue-on-error: true
-        run: |
-          [ -f "$RUNNER_TEMP/junit.xml" ] && python3 .github/scripts/test-skipped.py --platform Linux --gpu ON --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
-        env:
-          SKIPPED: ${{ runner.temp }}/skipped.json
-      - name: Keep what the tests wrote
-        if: failure()
-        shell: bash
-        run: |
-          # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
-          existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli build/code_compiler/audio; do [ -e "$p" ] && existing+=("$p"); done
-          [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
-      - name: Upload what the tests wrote
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: test-output-Linux
-          path: ${{ runner.temp }}/test-output.tar.gz
-          if-no-files-found: ignore
-      - name: Nothing to test
-        if: env.RUN != 'true'
-        run: echo "Nothing that the tests depend on changed (documentation, the wiki, other workflows), so there is nothing to test."
-
-  windows:
-    name: Test (Windows)
-    needs: [changes, build-windows]
-    if: ${{ !cancelled() }}
-    runs-on: windows-latest
-    timeout-minutes: 90
-    defaults:
-      run:
-        shell: bash
-    env:
-      RUN: ${{ needs.changes.outputs.mode != 'none' }}
-      MODE: ${{ needs.changes.outputs.mode }}
-      SELECTION: ${{ needs.changes.outputs.selection }}
-    steps:
-      - name: The build has to have worked
-        if: needs.build-windows.result != 'success' && needs.build-windows.result != 'skipped'
-        run: echo "The build failed." && exit 1
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Check out the submodules
-        if: env.RUN == 'true'
-        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
-      - name: Install a software Vulkan driver
+      - name: Install a software Vulkan driver (Windows)
         # The Vulkan loader (vulkan-1.dll) and Mesa's lavapipe (Vulkan on the CPU, like llvmpipe on Linux), which the action registers as a driver.
-        if: env.RUN == 'true'
+        if: env.RUN == 'true' && matrix.label == 'Windows'
         uses: jakoch/install-vulkan-sdk-action@d17de7e2f5e50efb5d2123efed18497d3c58c533 # v1.7.0
         with:
           install_runtime_only: true
           install_runtime: true
           install_lavapipe: true
-      - name: Pin Python (same version as the build, see build.yml)
-        if: env.RUN == 'true'
+      - name: Pin Python (Windows, same version as the build, see build.yml)
+        if: env.RUN == 'true' && matrix.label == 'Windows'
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.12.10'
+      - name: Install MoltenVK (macOS)
+        # The Vulkan driver, loaded directly (SDL_VULKAN_LIBRARY below), so no Vulkan loader is needed. It needs Metal.
+        if: env.RUN == 'true' && matrix.label == 'macOS'
+        run: brew install molten-vk
       - name: Prepare the tests
         if: env.RUN == 'true'
         uses: ./.github/actions/prepare-tests
         with:
-          platform: windows-x64
-          python: python
-      - name: Run the tests
-        if: env.RUN == 'true'
+          platform: ${{ matrix.platform }}
+          python: ${{ matrix.python }}
+      - name: Run the tests (Linux)
+        if: env.RUN == 'true' && matrix.label == 'Linux'
+        working-directory: build/code_compiler
+        env:
+          # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
+          XDG_RUNTIME_DIR: /tmp/xdg
+        # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL, the ones that move the mouse take turns
+        # (RESOURCE_LOCK mouse). A test that skips itself (77) is reported as skipped and does not fail the run. A partial selection
+        # runs the tests that the 'Select the tests' step listed (with the fixtures they need).
+        run: |
+          mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+          SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
+          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
+      - name: Run the tests (Windows)
+        if: env.RUN == 'true' && matrix.label == 'Windows'
         working-directory: build/code_compiler
         env:
           VK_DRIVER_FILES: C:\lavapipe\share\vulkan\icd.d\lvp_icd.x86_64.json
         run: |
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
           ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
-      - name: Keep the results for the test comment
-        if: always() && env.RUN == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: test-results-Windows
-          path: |
-            ${{ runner.temp }}/tests.json
-            ${{ runner.temp }}/junit.xml
-            ${{ runner.temp }}/skipped.json
-          retention-days: 1
-          if-no-files-found: ignore
-      - name: List the skipped tests
-        if: always() && env.RUN == 'true'
-        continue-on-error: true
-        env:
-          SKIPPED: ${{ runner.temp }}/skipped.json
-        run: |
-          [ -f "$RUNNER_TEMP/junit.xml" ] && python .github/scripts/test-skipped.py --platform Windows --gpu ON --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
-      - name: Keep what the tests wrote
-        if: failure()
-        shell: bash
-        run: |
-          # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
-          existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli; do [ -e "$p" ] && existing+=("$p"); done
-          [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
-      - name: Upload what the tests wrote
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: test-output-Windows
-          path: ${{ runner.temp }}/test-output.tar.gz
-          if-no-files-found: ignore
-      - name: Nothing to test
-        if: env.RUN != 'true'
-        run: echo "Nothing that the tests depend on changed (documentation, the wiki, other workflows), so there is nothing to test."
-
-  macos:
-    name: Test (macOS)
-    needs: [changes, build-macos]
-    if: ${{ !cancelled() }}
-    runs-on: macos-latest
-    timeout-minutes: 90
-    env:
-      RUN: ${{ needs.changes.outputs.mode != 'none' }}
-      MODE: ${{ needs.changes.outputs.mode }}
-      SELECTION: ${{ needs.changes.outputs.selection }}
-    steps:
-      - name: The build has to have worked
-        if: needs.build-macos.result != 'success' && needs.build-macos.result != 'skipped'
-        run: echo "The build failed." && exit 1
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Check out the submodules
-        if: env.RUN == 'true'
-        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
-      - name: Install MoltenVK
-        # The Vulkan driver, loaded directly (SDL_VULKAN_LIBRARY below), so no Vulkan loader is needed. It needs Metal.
-        if: env.RUN == 'true'
-        run: brew install molten-vk
-      - name: Prepare the tests
-        if: env.RUN == 'true'
-        uses: ./.github/actions/prepare-tests
-        with:
-          platform: macos-universal
-      - name: Run the tests
-        if: env.RUN == 'true'
+      - name: Run the tests (macOS)
+        if: env.RUN == 'true' && matrix.label == 'macOS'
         working-directory: build/code_compiler
         run: |
           PREFIX="$(brew --prefix molten-vk)"
@@ -411,7 +263,7 @@ jobs:
         if: always() && env.RUN == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: test-results-macOS
+          name: test-results-${{ matrix.label }}
           path: |
             ${{ runner.temp }}/tests.json
             ${{ runner.temp }}/junit.xml
@@ -423,20 +275,21 @@ jobs:
         continue-on-error: true
         env:
           SKIPPED: ${{ runner.temp }}/skipped.json
+          PLATFORM: ${{ matrix.label }}
+          PY: ${{ matrix.python }}
         run: |
-          [ -f "$RUNNER_TEMP/junit.xml" ] && python3 .github/scripts/test-skipped.py --platform macOS --gpu "${GPUSTATE:-ON}" --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
+          [ -f "$RUNNER_TEMP/junit.xml" ] && $PY .github/scripts/test-skipped.py --platform "$PLATFORM" --gpu "${GPUSTATE:-ON}" --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
       - name: Keep what the tests wrote
-        if: failure()
-        shell: bash
+        if: failure() && env.RUN == 'true'
         run: |
           # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
           existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli build/code_compiler/audio; do [ -e "$p" ] && existing+=("$p"); done
           [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
       - name: Upload what the tests wrote
-        if: failure()
+        if: failure() && env.RUN == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: test-output-macOS
+          name: test-output-${{ matrix.label }}
           path: ${{ runner.temp }}/test-output.tar.gz
           if-no-files-found: ignore
       - name: Nothing to test
@@ -448,7 +301,7 @@ jobs:
   # not the head of the pull request anymore, so test-comment.sh leaves the comment to the new run.
   report:
     name: Test comment
-    needs: [changes, linux, windows, macos]
+    needs: [changes, build, test]
     if: always() && needs.changes.outputs.mode != 'none' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -468,16 +321,37 @@ jobs:
           SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           RESULTS: ${{ join(needs.*.result, ' ') }}
+          MODE: ${{ needs.changes.outputs.mode }}
         run: |
+          # Windows and macOS only run the tests when all of them run (see the matrix of the job 'test').
+          PLATFORMS=(Linux); [ "$MODE" = all ] && PLATFORMS=(Linux Windows macOS)
           STATE=done
           case " $RESULTS " in *" cancelled "*) STATE=cancelled ;; esac
           ARGS=()
-          for P in Linux Windows macOS; do
+          for P in "${PLATFORMS[@]}"; do
             ARGS+=(--platform "$P=results/test-results-$P/tests.json,results/test-results-$P/junit.xml,results/test-results-$P/skipped.json")
           done
           # A platform that did not write its results failed before (or while) running the tests.
           if [ "$STATE" = done ]; then
-            for P in Linux Windows macOS; do [ -f "results/test-results-$P/junit.xml" ] || STATE=failed; done
+            for P in "${PLATFORMS[@]}"; do [ -f "results/test-results-$P/junit.xml" ] || STATE=failed; done
           fi
           python3 .github/scripts/test-report.py --state "$STATE" --sha "$SHA" --run-url "$RUN_URL" "${ARGS[@]}" > comment.md
           .github/scripts/test-comment.sh post "$NUMBER" "$SHA" comment.md
+
+  # The one check to require: the jobs of the build only exist when something is built (a pull request that only changes documentation
+  # skips the call of build.yml, and then its checks are never reported, which would leave a required check pending forever). This
+  # job always runs, and fails when the build or any test failed.
+  result:
+    name: Build and test result
+    needs: [changes, build, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: The build and the tests have to have worked
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          case " $RESULTS " in
+            *" failure "*|*" cancelled "*) echo "The build or a test failed."; exit 1 ;;
+          esac
