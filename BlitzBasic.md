@@ -21,5 +21,5 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Mouse](BlitzBasic-Mouse) (25): Mouse position, speed and buttons.
 * [Movies](BlitzBasic-Movies) (15): Playing back movie files.
 * [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.
-* [Network](BlitzBasic-Network) (20): TCP and UDP streams, servers and host lookup.
+* [Network](BlitzBasic-Network) (26): TCP and UDP streams, servers and host lookup.
 * [Streams](BlitzBasic-Streams) (15): Reading and writing bytes, numbers and text on files, TCP and UDP streams.
