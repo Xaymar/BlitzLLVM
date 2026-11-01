@@ -45,11 +45,8 @@ TABLES = [
     ("Benchmarks", "Movies (`movies.bb`)", "movies", [("cpu_ms", "CPU time of a 5 s 320x240 H.264 movie", "ms")]),
     ("Benchmarks", "Audio (`audio.bb`)", "audio", [("load_ms", "Load 64 sounds", "ms"), ("cpu_ms", "CPU time, 32 channels, 3 s", "ms")]),
     ("Benchmarks", "GPU time of the waterfall passes (per frame)", "gpu", [("gpu_scene_ms", "Scene pass", "ms"), ("gpu_frame_ms", "Whole frame", "ms")]),
-    ("Compile time", "Compiling and size of the program", "compile",
-     [("hello_compile_ms", "Hello world", "ms"), ("flythrough_compile_ms", "3D program", "ms"), ("stranded2_compile_ms", "Stranded II (about 40,000 lines)", "ms"),
-      ("hello_size_kb", "Hello world size", "KB"), ("flythrough_size_kb", "3D program size", "KB"), ("stranded2_size_kb", "Stranded II size", "KB")]),
 ]
-CATEGORIES = ["Real World Applications", "Benchmarks", "Compile time"]
+CATEGORIES = ["Real World Applications", "Benchmarks"]
 
 
 def git_date(rev):
