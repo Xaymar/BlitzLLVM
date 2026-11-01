@@ -83,8 +83,21 @@ namespace bb::gfx {
 
 	static int button_index(Uint8 button)
 	{
-		// Blitz: 1 = left, 2 = right, 3 = middle. SDL: 1 = left, 2 = middle, 3 = right.
-		return (button == SDL_BUTTON_LEFT) ? 1 : ((button == SDL_BUTTON_RIGHT) ? 2 : ((button == SDL_BUTTON_MIDDLE) ? 3 : 0));
+		// Blitz: 1 = left, 2 = right, 3 = middle, 4 = back (X1), 5 = forward (X2). SDL: 1 = left, 2 = middle, 3 = right, 4 = X1, 5 = X2.
+		switch (button) {
+		case SDL_BUTTON_LEFT:
+			return 1;
+		case SDL_BUTTON_RIGHT:
+			return 2;
+		case SDL_BUTTON_MIDDLE:
+			return 3;
+		case SDL_BUTTON_X1:
+			return 4;
+		case SDL_BUTTON_X2:
+			return 5;
+		default:
+			return 0;
+		}
 	}
 
 	// Which of shift (1), control (2) and alt (4) are held, as events say.
@@ -145,7 +158,7 @@ namespace bb::gfx {
 				}
 				break;
 			case 'm':
-				event.button.button   = (n == 1) ? SDL_BUTTON_LEFT : ((n == 2) ? SDL_BUTTON_RIGHT : SDL_BUTTON_MIDDLE);
+				event.button.button   = (n == 1) ? SDL_BUTTON_LEFT : ((n == 2) ? SDL_BUTTON_RIGHT : ((n == 4) ? SDL_BUTTON_X1 : ((n == 5) ? SDL_BUTTON_X2 : SDL_BUTTON_MIDDLE)));
 				event.button.windowID = window;
 				event.button.which   = which;
 				event.button.x        = float(g.mouse_x);
@@ -1129,7 +1142,7 @@ int32_t bb_mouse_down(int32_t button, int32_t device)
 	if (device >= 0) {
 		return device_mouse_down(device, button);
 	}
-	return ((button > 0) && (button < 4) && g.mouse[button]) ? 1 : 0;
+	return ((button > 0) && (button <= 5) && g.mouse[button]) ? 1 : 0;
 }
 
 int32_t bb_mouse_hit(int32_t button, int32_t device)
@@ -1141,7 +1154,7 @@ int32_t bb_mouse_hit(int32_t button, int32_t device)
 	if (device >= 0) {
 		return device_mouse_hit(device, button);
 	}
-	if ((button > 0) && (button < 4)) {
+	if ((button > 0) && (button <= 5)) {
 		int hits             = g.mouse_hits[button];
 		g.mouse_hits[button] = 0;
 		return hits;
