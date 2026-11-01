@@ -64,7 +64,7 @@ End Function
 
 ; The surface itself, lit per pixel, to compare the flat map with.
 EntityLighting mesh, 1
-RotateEntity light, 0, -45, 0
+RotateEntity light, 0, 45, 0
 RenderWorld
 plain = Grey()
 
@@ -81,9 +81,9 @@ up7   = Lit(128, 230, 200, 7)
 down7 = Lit(128, 26, 200, 7)
 
 values$ = "plain " + plain + ", flat " + flat + ", right " + right + ", left " + left + ", plainTop " + plainTop + ", up " + up + ", down " + down + ", up7 " + up7 + ", down7 " + down7
-CheckTrue "The surface is lit by the light from the right (" + values$ + ")", plain > 100
+CheckTrue "The surface is lit by the light (" + values$ + ")", plain > 100
 Check "A flat normal map lights like the surface (" + values$ + ")", flat, plain, 4
-; Light that comes from the right (it shines to the left and into the screen).
+; The light comes from the right: a positive yaw shines it towards -X in the picture.
 CheckTrue "A map that leans to the right is brighter than a flat one (" + values$ + ")", right > flat + 20
 CheckTrue "A map that leans to the left is darker than a flat one (" + values$ + ")", left < flat - 20
 CheckTrue "With green up, a map that leans up is brighter in light from above (" + values$ + ")", up > plainTop + 20
@@ -93,7 +93,7 @@ Check "Mode 7 mirrors the green channel (up) (" + values$ + ")", up7, down, 3
 Check "Mode 7 mirrors the green channel (down) (" + values$ + ")", down7, up, 3
 
 ; The map is no color of its own: a color texture on the next layer multiplies the lit result, here red.
-RotateEntity light, 0, -45, 0
+RotateEntity light, 0, 45, 0
 map = MapTexture(230, 128, 200)
 TextureBlend map, 6
 red = MapTexture(255, 0, 0)
