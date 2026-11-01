@@ -56,6 +56,8 @@ void    bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b);
 int32_t bb_gui_window_surface(int32_t gadget);
 void    bb_gui_windows_reopen(void);
 float   bb_gui_desktop_scale(void);
+float   bb_gui_window_display_scale(int32_t handle);
+void    bb_gui_scaling(int32_t on);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
 int32_t bb_gui_translate(int32_t kind, int32_t* x, int32_t* y, int32_t* source);
 void bb_gui_idle(void);
@@ -295,7 +297,8 @@ namespace bb::gfx {
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
 		bool           gui = false;       // A window of the BlitzPlus GUI: its events go to the gadgets (bb_gui_event, bb_gui_window_event).
-		float          scale = 1.0f;      // Of a window of the GUI: how many pixels a unit of the program is (the scale of the display, or BLITZLLVM_GUI_SCALE).
+		float          display = 1.0f;    // Of a window of the GUI: the scale of the display it is on (SDL_GetWindowDisplayScale, or BLITZLLVM_GUI_SCALE), what WindowScale tells.
+		float          scale = 1.0f;      // How many pixels a unit of the program is: the scale of the display, BLITZLLVM_GUI_SCALE, or 1 where the program scales by itself (WindowScaling 0).
 		float          units = 1.0f;      // How many units of SDL (positions, sizes and the mouse of the window) a unit of the program is: scale over the pixel density.
 	};
 
@@ -1043,8 +1046,9 @@ namespace bb::gfx {
 	int            extra_surface_handle(surface_state const* s);
 	bool           extra_surface_focused(); // Whether one of them has the keyboard focus.
 	int            create_extra_surface(const char* title, int width, int height, int resizable, int borderless, int high_density = 0);
-	/** The scale of a window of the GUI, from the display it is on unless BLITZLLVM_GUI_SCALE says: sets scale and units of the surface. */
-	void           update_gui_scale(surface_state& s);
+	/** The scale of a window of the GUI, from the display it is on unless BLITZLLVM_GUI_SCALE or WindowScaling 0 say: sets display, scale and
+	 *  units of the surface, and tells whether any of them changed. */
+	bool           update_gui_scale(surface_state& s);
 	/** How many units of SDL a unit of the desktop of the GUI is, which is where its windows are placed. */
 	float          gui_desktop_units();
 	void           destroy_extra_surface(int handle);
