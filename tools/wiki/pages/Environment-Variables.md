@@ -42,7 +42,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for `AutoHDRWhite`, 0 follows the system. |
 | `BLITZLLVM_AUTOHDR_PEAK` | display | Peak brightness in nits for `AutoHDRPeak`, 0 uses the display's. |
 | `BLITZLLVM_AUTOHDR_EXPAND` | `1` | How far mode 2 lifts highlights (`AutoHDRExpand`), 0 to 1. |
-| `BLITZLLVM_AUTOHDR_DEBUG` | `0` | Prints to the console what `AutoHDR` knew about the display each time the window's swapchain is made, for finding out why a display is not shown in HDR. |
+| `BLITZLLVM_AUTOHDR_DEBUG` | `0` | Prints to the console, and adds to `autohdr_debug.txt` in the working folder, what `AutoHDR` knew about the display each time the window's swapchain is made, for finding out why a display is not shown in HDR. |
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |

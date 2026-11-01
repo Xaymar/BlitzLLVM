@@ -207,10 +207,16 @@ namespace bb::gfx {
 			SDL_PropertiesID wp = window ? SDL_GetWindowProperties(window) : 0;
 			SDL_DisplayID shown = window ? SDL_GetDisplayForWindow(window) : 0;
 			SDL_DisplayID first = SDL_GetPrimaryDisplay();
-			fprintf(stderr, "AutoHDR: mode %d, window HDR %d (SDR white %.2f, headroom %.2f), display of the window %u HDR %d, primary display %u HDR %d, driver offers scRGB %d, in HDR %d\n", mode,
+			char line[512];
+			snprintf(line, sizeof(line), "AutoHDR: mode %d, window HDR %d (SDR white %.2f, headroom %.2f), display of the window %u HDR %d, primary display %u HDR %d, driver offers scRGB %d, in HDR %d\n", mode,
 					wp ? int(SDL_GetBooleanProperty(wp, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false)) : -1, wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) : 0.0f,
 					wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 0.0f) : 0.0f, unsigned(shown), shown ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(shown), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1,
 					unsigned(first), first ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(first), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1, int(s.hdr_offered), int(s.hdr));
+			fputs(line, stderr); // A program without a console shows nothing there, so the line is also appended to autohdr_debug.txt in the working folder.
+			if (FILE* file = fopen("autohdr_debug.txt", "ab")) {
+				fputs(line, file);
+				fclose(file);
+			}
 		}
 		if (s.hdr) {
 			meta_dirty = true;
