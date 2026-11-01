@@ -180,7 +180,7 @@ const char* bb_current_date(void)
 	time_t             now      = time(NULL);
 	struct tm*         local    = localtime(&now);
 	char               buffer[32];
-	int                n = snprintf(buffer, sizeof(buffer), "%d %s %d", local->tm_mday, months[local->tm_mon], local->tm_year + 1900);
+	int                n = snprintf(buffer, sizeof(buffer), "%02d %s %d", local->tm_mday, months[local->tm_mon], local->tm_year + 1900);
 	return bb_copy(buffer, (size_t)n);
 }
 
