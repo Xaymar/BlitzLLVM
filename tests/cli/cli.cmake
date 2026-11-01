@@ -1236,9 +1236,9 @@ elseif(CASE STREQUAL "warnings")
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
 		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "loop-type-mismatch:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
-		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
+		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2"
 		"implicit-number-to-string:3" "inout-parameter-unwritten:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
-		"typeless-declaration:4" "unused-function:4" "loop-unroll-requires-constant:4")
+		"typeless-declaration:4" "unused-result:4" "unused-function:4" "loop-unroll-requires-constant:4")
 	foreach(_LEVEL RANGE 0 4)
 		blitzcc(-c -W${_LEVEL} "${WORK}/w.bb")
 		expect_ok()
@@ -1481,7 +1481,7 @@ elseif(CASE STREQUAL "warnings")
 		"\t\tEnd Select\n"
 		"\tWend\n"
 		"End Function\n")
-	blitzcc(-c "${WORK}/calls.bb")
+	blitzcc(-c -W4 "${WORK}/calls.bb")
 	expect_ok()
 	expect_err("calls.bb:13:1: warning: The result of 'Nested' is not used. [-Wunused-result]")
 	expect_err("calls.bb:14:1: warning: The result of 'Value' is not used. [-Wunused-result]")
