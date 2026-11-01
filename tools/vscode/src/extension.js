@@ -35,7 +35,8 @@ function startServer(context) {
   const command = findProgram('server.path', 'blitz-lsp');
   const env = Object.assign({}, process.env);
   const userlibs = settings().get('userlibsDirectory', '');
-  if (userlibs) env.BLITZLLVM_USERLIBS = userlibs;
+  const active = vscode.window.activeTextEditor;
+  if (userlibs) env.BLITZLLVM_USERLIBS = settingPath(userlibs, active && active.document.uri.scheme === 'file' ? active.document.uri.fsPath : undefined);
   client = new LanguageClient('blitz', 'BlitzLLVM', { command, args: ['--stdio'], transport: TransportKind.stdio, options: { env } }, {
     documentSelector: [{ scheme: 'file', language: 'blitzbasic' }],
     initializationOptions: { warningLevel: settings().get('warningLevel', 2) },
@@ -68,16 +69,28 @@ function activeProgram(file) {
   return editor.document.uri.fsPath;
 }
 
+/** The folder that relative paths of the settings are relative to: the workspace folder of the file, else the first one, else the folder of the file. */
+function baseFolder(file) {
+  const folder = (file && vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))) || (vscode.workspace.workspaceFolders || [])[0];
+  return folder ? folder.uri.fsPath : (file ? path.dirname(file) : process.cwd());
+}
+
+/** A path of a setting: ${workspaceFolder} is replaced, a relative path is relative to the workspace folder (like the output directory). */
+function settingPath(value, file) {
+  const base = baseFolder(file);
+  return path.resolve(base, String(value).replace(/\$\{workspaceFolder\}/g, base));
+}
+
 function outputPath(file, mode) {
-  const folder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file));
-  const base = folder ? folder.uri.fsPath : path.dirname(file);
   const name = path.basename(file, path.extname(file));
-  return path.join(base, settings().get('build.outputDirectory', 'build/blitz'), mode, process.platform === 'win32' ? name + '.exe' : name);
+  return path.join(settingPath(settings().get('build.outputDirectory', 'build/blitz'), file), mode, process.platform === 'win32' ? name + '.exe' : name);
 }
 
 /** The arguments of blitzcc for an action. Debug is -d (no optimisation, exact math) with debug information (-g). */
 function compilerArguments(action, mode, file, extra) {
   const args = settings().get('compiler.arguments', []).slice();
+  const userlibs = settings().get('userlibsDirectory', '');
+  if (userlibs) args.push('--userlibs-dir', settingPath(userlibs, file));
   if (mode === 'debug') args.push('-d', '-g');
   if (action === 'check') args.push('-c');
   if (action === 'build') args.push('-o', outputPath(file, mode));

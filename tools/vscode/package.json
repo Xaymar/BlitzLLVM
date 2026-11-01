@@ -101,7 +101,7 @@
 				"blitz.userlibsDirectory": {
 					"type": "string",
 					"default": "",
-					"markdownDescription": "Where the userlibs (`.decls` files) are. Empty: the ones of the installation."
+					"markdownDescription": "Where the userlibs (`.decls` files) are, relative to the workspace folder like the build output (`${workspaceFolder}` works too). Empty: the ones of the installation."
 				},
 				"blitz.warningLevel": {
 					"type": "number",
