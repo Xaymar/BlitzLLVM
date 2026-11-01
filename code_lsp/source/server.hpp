@@ -22,7 +22,7 @@ namespace blitz::lsp {
 		public:
 		using sender = std::function<void(json const&)>;
 
-		server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir);
+		server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir, std::filesystem::path help_file = std::filesystem::path());
 		~server();
 
 		/** Handles one message. Returns false after `exit`. */
@@ -87,6 +87,15 @@ namespace blitz::lsp {
 		json           definition(json const& params);
 		json           hover(json const& params);
 		json           semantic_tokens(json const& params);
+		json           signature_help(json const& params);
+		/** The short help of a command or keyword (help.json), formatted for the editor; empty if there is none. */
+		std::string    help_text(std::string const& lower_name, bool with_parameters) const;
+		struct help_entry {
+			std::string                        summary;
+			std::map<std::string, std::string> params;
+			std::string                        returns;
+		};
+		std::map<std::string, help_entry> _help;
 		json           completion(json const& params);
 		json           format(json const& params);
 		json           rename(json const& params);

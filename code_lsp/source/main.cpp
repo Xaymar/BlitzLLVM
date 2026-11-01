@@ -159,7 +159,7 @@ namespace {
 					done += size_t(put);
 				}
 			},
-			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true));
+			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true), find_data("BLITZLLVM_HELP", "help.json", false));
 
 		trace("server ready");
 		input in;

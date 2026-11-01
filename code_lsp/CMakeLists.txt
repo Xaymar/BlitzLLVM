@@ -41,6 +41,15 @@ set(_COMMANDS "${PROJECT_SOURCE_DIR}/../tests/suite/functions.txt")
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_COMMANDS}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/commands.txt")
 
+# The short help of the commands (hover and signature help), made from the texts of the wiki. Without Python there is no help, which is fine.
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_FOUND)
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/generate_lsp_help.py" --output "$<TARGET_FILE_DIR:${PROJECT_NAME}>/help.json")
+	install(FILES "$<TARGET_FILE_DIR:${PROJECT_NAME}>/help.json" DESTINATION bin OPTIONAL)
+	install(FILES "$<TARGET_FILE_DIR:${PROJECT_NAME}>/help.json" DESTINATION share/blitzllvm COMPONENT system EXCLUDE_FROM_ALL OPTIONAL)
+endif()
+
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "${_COMMANDS}" DESTINATION bin RENAME commands.txt)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)

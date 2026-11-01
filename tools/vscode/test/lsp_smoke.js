@@ -164,6 +164,27 @@ function stage(name) {
 
   stage('semantic');
 
+  // Signature help while typing: a user function and a command with parentheses, a command without
+  const typing = 'Function Add(a, b)\n\tReturn a + b\nEnd Function\nx = Add(1, \nPlot 5, \nPlot(5, 6)\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 30 }, contentChanges: [{ text: typing }] });
+  const atEnd = (needle) => { const p = position(typing, needle); return { line: p.line, character: p.character + needle.length }; };
+  result = await request('textDocument/signatureHelp', { textDocument: { uri }, position: atEnd('x = Add(1, ') });
+  assert.strictEqual(result.result.signatures[0].label, 'Function Add(a, b)', JSON.stringify(result));
+  assert.strictEqual(result.result.signatures[0].activeParameter, 1);
+  assert.deepStrictEqual(result.result.signatures[0].parameters.map((p) => p.label), [[13, 14], [16, 17]]);
+  result = await request('textDocument/signatureHelp', { textDocument: { uri }, position: atEnd('Plot 5, ') });
+  assert(/^Plot\(x:/.test(result.result.signatures[0].label), JSON.stringify(result));
+  assert.strictEqual(result.result.activeParameter, 1);
+  result = await request('textDocument/signatureHelp', { textDocument: { uri }, position: atEnd('Plot(5') });
+  assert.strictEqual(result.result.activeParameter, 0);
+  notify('textDocument/didChange', { textDocument: { uri, version: 31 }, contentChanges: [{ text: source }] });
+  if (fs.existsSync(path.join(path.dirname(exe), 'help.json'))) {
+    result = await request('textDocument/hover', { textDocument: { uri }, position: position(source, 'Print', 0, 1) });
+    assert(/Prints|Writes|Outputs|text/i.test(result.result.contents.value) && result.result.contents.value.split('\n').length > 4, JSON.stringify(result));
+  }
+
+  stage('help');
+
   // Hover: a command and a function of the program
   result = await request('textDocument/hover', { textDocument: { uri }, position: position(source, 'Print', 0, 1) });
   assert(/Print\(/.test(result.result.contents.value), JSON.stringify(result));

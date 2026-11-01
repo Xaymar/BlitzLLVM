@@ -4,6 +4,7 @@
 #include "server.hpp"
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 #include <regex>
 #include <cstdio>
 #include <cstdlib>
@@ -133,10 +134,26 @@ namespace blitz::lsp {
 	////////////////////////////////////////////////////////////////////////////
 	// Life cycle
 	////////////////////////////////////////////////////////////////////////////
-	server::server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir)
+	server::server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir, std::filesystem::path help_file)
 		: _send(std::move(send)), _userlibs_dir(std::move(userlibs_dir))
 	{
 		_commands.load(commands_file);
+		try {
+			if (!help_file.empty()) {
+				std::ifstream in(help_file, std::ios::binary);
+				std::string   text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+				json          all = json::parse(text);
+				for (auto const& [name, entry] : all.members()) {
+					help_entry h;
+					h.summary = entry["summary"].as_string();
+					h.returns = entry["returns"].as_string();
+					for (auto const& [pname, ptext] : entry["params"].members()) h.params[pname] = ptext.as_string();
+					_help[name] = std::move(h);
+				}
+			}
+		} catch (std::exception const&) {
+			// No help is not an error
+		}
 		try {
 			if (!_userlibs_dir.empty()) _userlibs = keywords::load_userlibs(_userlibs_dir);
 		} catch (std::exception const&) {
@@ -222,6 +239,8 @@ namespace blitz::lsp {
 				reply(id, prepare_rename(params));
 			} else if (method == "textDocument/rename") {
 				reply(id, rename(params));
+			} else if (method == "textDocument/signatureHelp") {
+				reply(id, signature_help(params));
 			} else if (method == "textDocument/semanticTokens/full") {
 				reply(id, semantic_tokens(params));
 			} else if (method == "textDocument/references") {
@@ -264,6 +283,11 @@ namespace blitz::lsp {
 		json rename = json::object();
 		rename.set("prepareProvider", true);
 		caps.set("renameProvider", rename);
+		json signature = json::object();
+		json triggers  = json::array();
+		triggers.push("(").push(",").push(" ");
+		signature.set("triggerCharacters", triggers);
+		caps.set("signatureHelpProvider", signature);
 		json legend = json::object();
 		json types  = json::array();
 		types.push("variable").push("parameter").push("property").push("function").push("type").push("label");
@@ -815,12 +839,16 @@ namespace blitz::lsp {
 		}
 		if (!field) {
 			if (auto* c = _commands.find(w.name)) {
-				return "```blitzbasic\n" + c->signature() + "\n```\n" + "Command of the runtime (" + c->module + ")";
+				std::string help = help_text(w.name, true);
+				return "```blitzbasic\n" + c->signature() + "\n```\n" + (help.empty() ? std::string() : help + "\n\n") + "Command of the runtime (" + c->module + ")";
 			}
 			for (auto const& f : _userlibs) {
 				if (lower(f.name) == w.name) return "```blitzbasic\n" + f.name + "\n```\nFunction of a userlib";
 			}
-			if (bridge::is_keyword(w.name)) return "`" + w.text.substr(0, w.core_end - w.begin) + "` keyword";
+			if (bridge::is_keyword(w.name)) {
+				std::string help = help_text(w.name, false);
+				return "`" + w.text.substr(0, w.core_end - w.begin) + "` keyword" + (help.empty() ? std::string() : "\n\n" + help);
+			}
 		}
 		return std::string();
 	}
@@ -979,6 +1007,207 @@ namespace blitz::lsp {
 			}
 		}
 		return actions;
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Help
+	////////////////////////////////////////////////////////////////////////////
+	std::string server::help_text(std::string const& name, bool with_parameters) const
+	{
+		auto it = _help.find(name);
+		if (it == _help.end()) return std::string();
+		auto const& h   = it->second;
+		std::string out = h.summary;
+		if (with_parameters && !h.params.empty()) {
+			out += "\n";
+			if (auto* c = _commands.find(name)) {
+				for (auto const& p : c->parameters) {
+					auto text = h.params.find(lower(p.name));
+					if (text != h.params.end()) out += "\n- `" + p.name + "`: " + text->second;
+				}
+			}
+		}
+		if (with_parameters && !h.returns.empty()) out += "\n\nReturns: " + h.returns;
+		return out;
+	}
+
+	namespace {
+		struct signature_data {
+			std::string                           label;
+			std::vector<std::pair<int, int>>      parameters; // Ranges in the label
+			std::vector<std::string>              names;      // Lower case, for the help of the parameters
+			std::string                           lower_name;
+		};
+
+		// The ranges of the parameters in `Name(a, b%, c.Foo)`, found from the parentheses.
+		void split_parameters(signature_data& out)
+		{
+			size_t open = out.label.find('(');
+			if (open == std::string::npos) return;
+			int    depth = 0;
+			size_t start = open + 1;
+			auto   push  = [&](size_t from, size_t to) {
+                while (from < to && std::isspace(static_cast<unsigned char>(out.label[from]))) from++;
+                while (to > from && std::isspace(static_cast<unsigned char>(out.label[to - 1]))) to--;
+                if (to > from) {
+                    out.parameters.emplace_back(int(from), int(to));
+                    std::string name = lower(out.label.substr(from, to - from));
+                    if (name.compare(0, 4, "out ") == 0) name.erase(0, 4);
+                    size_t end = 0;
+                    while (end < name.size() && (std::isalnum(static_cast<unsigned char>(name[end])) || name[end] == '_')) end++;
+                    out.names.push_back(name.substr(0, end));
+                }
+			};
+			for (size_t i = open + 1; i < out.label.size(); i++) {
+				char c = out.label[i];
+				if (c == '(') depth++;
+				if (c == ')') {
+					if (depth == 0) {
+						push(start, i);
+						return;
+					}
+					depth--;
+				}
+				if (c == ',' && depth == 0) {
+					push(start, i);
+					start = i + 1;
+				}
+			}
+		}
+	} // namespace
+
+	json server::signature_help(json const& params)
+	{
+		auto* s = find(params["textDocument"]["uri"].as_string());
+		if (!s) return json();
+		size_t   offset = s->doc->to_offset(position_from(params["position"]));
+		std::string const& text = s->doc->text;
+		size_t   line_start = s->doc->starts()[s->doc->to_position(offset).line];
+
+		// Walk the line up to the cursor: open parentheses with the name before them, and the commas of each.
+		struct frame {
+			std::string name;
+			int         commas = 0;
+		};
+		std::vector<frame> stack;
+		int         statement_commas = 0;
+		size_t      statement_start  = line_start;
+		bool        in_string        = false;
+		for (size_t i = line_start; i < offset && i < text.size(); i++) {
+			char c = text[i];
+			if (c == '"') in_string = !in_string;
+			if (in_string) continue;
+			if (c == ';') return json(); // In a comment
+			if (c == '(') {
+				size_t end = i;
+				while (end > line_start && std::isspace(static_cast<unsigned char>(text[end - 1]))) end--;
+				size_t begin = end;
+				while (begin > line_start && (std::isalnum(static_cast<unsigned char>(text[begin - 1])) || text[begin - 1] == '_' || text[begin - 1] == '%' || text[begin - 1] == '#' || text[begin - 1] == '$')) begin--;
+				frame f;
+				if (begin > line_start && text[begin - 1] == '\\') f.name = std::string(); // A field
+				else f.name = lower(text.substr(begin, end - begin));
+				while (!f.name.empty() && (f.name.back() == '%' || f.name.back() == '#' || f.name.back() == '$')) f.name.pop_back();
+				stack.push_back(std::move(f));
+			} else if (c == ')') {
+				if (!stack.empty()) stack.pop_back();
+			} else if (c == ',') {
+				if (!stack.empty()) stack.back().commas++;
+				else statement_commas++;
+			} else if (c == ':' && stack.empty()) {
+				statement_start  = i + 1;
+				statement_commas = 0;
+			}
+		}
+		if (in_string) return json();
+
+		auto make = [&](std::string const& name, int active) -> json {
+			signature_data sig;
+			sig.lower_name = name;
+			if (auto* c = _commands.find(name)) {
+				sig.label = c->signature();
+			} else {
+				// Functions of the program (from the last analysis, which includes the other files), then of this file as it is now
+				std::vector<std::pair<document*, size_t>> places;
+				for (auto const& sym : s->symbols) {
+					if (sym.lower != name || sym.what != symbol::kind::function) continue;
+					if (document* doc = document_for(sym.file)) places.emplace_back(doc, doc->offset_of(sym.line, sym.column));
+				}
+				for (auto const& d : s->doc->declarations_of(name)) {
+					if (d.what == document::declaration::kind::function) places.emplace_back(s->doc.get(), d.begin);
+				}
+				for (auto const& [doc, at] : places) {
+					std::string line = line_of(*doc, at);
+					size_t      open = line.find('(');
+					if (open == std::string::npos) continue;
+					int depth = 0;
+					size_t close = std::string::npos;
+					for (size_t i = open; i < line.size(); i++) {
+						if (line[i] == '(') depth++;
+						if (line[i] == ')' && --depth == 0) {
+							close = i;
+							break;
+						}
+					}
+					if (close == std::string::npos) continue;
+					sig.label = line.substr(0, close + 1);
+					break;
+				}
+			}
+			if (sig.label.empty()) return json();
+			split_parameters(sig);
+			json info = json::object();
+			info.set("label", sig.label);
+			std::string help = help_text(name, false);
+			auto        entry = _help.find(name);
+			if (!help.empty()) {
+				json doc = json::object();
+				doc.set("kind", "markdown").set("value", help);
+				info.set("documentation", doc);
+			}
+			json plist = json::array();
+			for (size_t i = 0; i < sig.parameters.size(); i++) {
+				json p = json::object();
+				json range = json::array();
+				range.push(int64_t(sig.parameters[i].first)).push(int64_t(sig.parameters[i].second));
+				p.set("label", range);
+				if (entry != _help.end()) {
+					auto text = entry->second.params.find(sig.names[i]);
+					if (text != entry->second.params.end()) {
+						json doc = json::object();
+						doc.set("kind", "markdown").set("value", text->second);
+						p.set("documentation", doc);
+					}
+				}
+				plist.push(std::move(p));
+			}
+			info.set("parameters", plist);
+			info.set("activeParameter", int64_t(std::min<int>(active, std::max<int>(0, int(sig.parameters.size()) - 1))));
+			json signatures = json::array();
+			signatures.push(std::move(info));
+			json r = json::object();
+			r.set("signatures", signatures).set("activeSignature", 0).set("activeParameter", int64_t(active));
+			return r;
+		};
+
+		// Inside parentheses: the innermost call that is a command or function (a Dim array is none)
+		for (size_t i = stack.size(); i-- > 0;) {
+			if (stack[i].name.empty()) continue;
+			json r = make(stack[i].name, stack[i].commas);
+			if (!r.is_null()) return r;
+		}
+		if (!stack.empty()) return json();
+		// A call without parentheses: `Plot 10, |`: the first word of the statement is the command
+		size_t b = statement_start;
+		while (b < offset && std::isspace(static_cast<unsigned char>(text[b]))) b++;
+		size_t e = b;
+		while (e < offset && (std::isalnum(static_cast<unsigned char>(text[e])) || text[e] == '_')) e++;
+		if (e == b || e >= offset || !std::isspace(static_cast<unsigned char>(text[e]))) return json(); // The cursor is still in the word
+		std::string name = lower(text.substr(b, e - b));
+		if (bridge::is_keyword(name)) return json();
+		size_t next = e;
+		while (next < offset && std::isspace(static_cast<unsigned char>(text[next]))) next++;
+		if (next < offset && (text[next] == '=' || text[next] == '\\' || text[next] == '(')) return json();
+		return make(name, statement_commas);
 	}
 
 	////////////////////////////////////////////////////////////////////////////
