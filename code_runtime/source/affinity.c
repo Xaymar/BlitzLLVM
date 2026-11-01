@@ -96,11 +96,14 @@ void bb_affinity_helper(unsigned index)
 }
 
 #elif defined(__linux__)
+#include <dlfcn.h>
+#include <pthread.h>
 #include <sched.h>
 
 static int      pin_ready = 0;
 static cpu_set_t others;
 static int       other_count = 0;
+static cpu_set_t full; // What the process was allowed to use before the main thread was bound.
 
 void bb_affinity_main(void)
 {
@@ -112,6 +115,7 @@ void bb_affinity_main(void)
 	if (sched_getaffinity(0, sizeof(set), &set) != 0) {
 		return; // Containers with a restricted cpuset report only the CPUs they have.
 	}
+	full      = set;
 	int first = -1;
 	for (int i = 0; i < CPU_SETSIZE; i++) {
 		if (CPU_ISSET(i, &set)) {
@@ -134,6 +138,40 @@ void bb_affinity_main(void)
 		pin_ready = 1;
 	}
 }
+
+#if defined(__GLIBC__)
+// A thread starts with the mask of the thread that made it, so every thread made by the bound main thread, including those made inside
+// libraries (SDL, ffmpeg, Jolt, the Vulkan driver), would be stuck on the one CPU. pthread_create is defined here and so replaces the one of
+// libc for the whole program: threads that were not given a mask of their own start on every CPU the process may use. Threads of ours
+// narrow themselves again in bb_affinity_helper.
+int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start)(void*), void* argument)
+{
+	static int (*real)(pthread_t*, const pthread_attr_t*, void* (*)(void*), void*) = NULL;
+	if (!real) {
+		real = (int (*)(pthread_t*, const pthread_attr_t*, void* (*)(void*), void*))dlsym(RTLD_NEXT, "pthread_create");
+	}
+	if (!pin_ready) {
+		return real(thread, attr, start, argument);
+	}
+	pthread_attr_t local;
+	if (!attr) {
+		pthread_attr_init(&local);
+		pthread_attr_setaffinity_np(&local, sizeof(full), &full);
+		int result = real(thread, &local, start, argument);
+		pthread_attr_destroy(&local);
+		return result;
+	}
+	// An attribute without a mask of its own reads back as the mask of the calling thread, empty or every CPU there could be, so only a different mask was asked for.
+	cpu_set_t given, mine;
+	CPU_ZERO(&given);
+	CPU_ZERO(&mine);
+	sched_getaffinity(0, sizeof(mine), &mine);
+	if (pthread_attr_getaffinity_np(attr, sizeof(given), &given) != 0 || CPU_COUNT(&given) == 0 || CPU_EQUAL(&given, &mine) || CPU_COUNT(&given) > CPU_COUNT(&full)) {
+		pthread_attr_setaffinity_np((pthread_attr_t*)attr, sizeof(full), &full); // Nobody asked for a mask: the pin must not be inherited.
+	}
+	return real(thread, attr, start, argument);
+}
+#endif
 
 void bb_affinity_helper(unsigned index)
 {
