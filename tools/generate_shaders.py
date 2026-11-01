@@ -1578,20 +1578,22 @@ def fragment_shader_hdr():
     Shows an RGBA8 picture in a window that has an HDR swapchain (scRGB: linear, 1.0 is 80 nits, in 16 bit floating point). The
     picture is made linear (the sRGB curve), scaled so that SDR white lands on the brightness it has on the display, and with
     AutoHDR 2 the bright parts of it are stretched toward the peak of the display. push.white is the SDR white in scRGB (nits / 80),
-    push.boost is how much more than white the brightest parts get (0 for AutoHDR 1: the same picture, in HDR):
+    push.boost is how much more than white the brightest parts get (0 for AutoHDR 1 and 3: the same picture, in HDR):
     the gain grows with the square of the luminance, so mid tones stay where they were and only highlights are lifted. The
-    brightest color (white) ends up at white * (1 + boost), which the host sets to the peak of the display at most.
+    brightest color (white) ends up at white * (1 + boost), which the host sets to the peak of the display at most. The picture may
+    be a buffer of more than 8 bits that holds values above 1 (AutoHDR 3): they are brighter than SDR white and are cut at
+    push.limit, the peak of the display in scRGB.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
-    layout(push_constant) uniform Hdr { float white; float boost; } pc;
+    layout(push_constant) uniform Hdr { float white; float boost; float limit; } pc;
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
-        vec3 s = texture(tex, inUV).rgb;
+        vec3 s = max(texture(tex, inUV).rgb, vec3(0.0));
         vec3 lin = mix(s / 12.92, pow((s + 0.055) / 1.055, vec3(2.4)), step(0.04045, s));
         float y = dot(lin, vec3(0.2126, 0.7152, 0.0722));
-        outColor = vec4(lin * pc.white * (1.0 + pc.boost * y * y), 1.0);
+        outColor = vec4(min(lin * pc.white * (1.0 + pc.boost * y * y), vec3(pc.limit)), 1.0);
     }
     """
     b = Builder()
@@ -1600,8 +1602,8 @@ def fragment_shader_hdr():
     void, fn = b.void(), b.fn()
     image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
     sampled = b.new_type("sampled", "TypeSampledImage", image)
-    push_block = b.struct("hdr", f, f)
-    b.m.annotations += [Module.inst("MemberDecorate", push_block, member, DECORATION["Offset"], member * 4) for member in range(2)]
+    push_block = b.struct("hdr", f, f, f)
+    b.m.annotations += [Module.inst("MemberDecorate", push_block, member, DECORATION["Offset"], member * 4) for member in range(3)]
     b.m.annotations.append(Module.inst("Decorate", push_block, DECORATION["Block"]))
     push = b.variable("PushConstant", push_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
@@ -1613,7 +1615,7 @@ def fragment_shader_hdr():
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
-    s = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
+    s = b.ext(v3, GLSL_FMAX, b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3), b.const_vec(3, 0.0))
     low = b.scale(3, s, b.const_float(1.0 / 12.92))
     curve = b.scale(3, b.fadd(v3, s, b.const_vec(3, 0.055)), b.const_float(1.0 / 1.055))
     high = b.ext(v3, GLSL_POW, curve, b.const_vec(3, 2.4))
@@ -1623,7 +1625,8 @@ def fragment_shader_hdr():
     white = b.load(f, b.access("PushConstant", f, push, b.const_int(0)))
     boost = b.load(f, b.access("PushConstant", f, push, b.const_int(1)))
     gain = b.fmul(f, b.fadd(f, c1, b.fmul(f, boost, b.fmul(f, luma, luma))), white)
-    color = b.scale(3, linear, gain)
+    limit = b.load(f, b.access("PushConstant", f, push, b.const_int(2)))
+    color = b.ext(v3, GLSL_FMIN, b.scale(3, linear, gain), b.construct(3, limit, limit, limit))
     b.store(out_color, b.construct(4, b.extract(color, 0), b.extract(color, 1), b.extract(color, 2), c1))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()

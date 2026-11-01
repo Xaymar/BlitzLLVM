@@ -969,7 +969,11 @@ namespace bb::gfx {
 	void allocate_descriptor(VkDescriptorSet& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
-	/** AutoHDR (graphics_hdr.cpp): what was asked for, 0 off, 1 the picture in HDR, 2 with its highlights stretched. */
+	/** Whether the gamma tables and the palette leave the picture as it is. */
+	bool gamma_plain();
+	/** AutoHDR 3 (graphics_hdr.cpp): whether this buffer goes to the HDR pass as it is, without the 8 bit picture of the gamma pass. */
+	bool hdr_reads_directly(const gpu_image& front);
+	/** AutoHDR (graphics_hdr.cpp): what was asked for, 0 off, 1 the picture in HDR, 2 with its highlights stretched, 3 for buffers of more than 8 bits, as they are. */
 	int auto_hdr_mode();
 	/** Whether the main window should get an HDR swapchain if the surface offers one. */
 	bool hdr_wanted(const surface_state& s);

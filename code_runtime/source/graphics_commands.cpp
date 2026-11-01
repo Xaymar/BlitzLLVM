@@ -868,7 +868,7 @@ namespace bb::gfx {
 		}
 
 		// The gamma tables change what the window shows, not the buffer.
-		gpu_image* picture = apply_gamma(front);
+		gpu_image* picture = hdr_reads_directly(front) ? &front : apply_gamma(front);
 		if (surface().hdr || hdr_test()) {
 			picture = apply_hdr(*picture); // Linear scRGB for the HDR swapchain, see graphics_hdr.cpp.
 		}
