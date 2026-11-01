@@ -57,6 +57,8 @@
 	X(vkAcquireNextImageKHR) \
 	X(vkCreateImage) \
 	X(vkDestroyImage) \
+	X(vkCreateBuffer) \
+	X(vkDestroyBuffer) \
 	X(vkCreateImageView) \
 	X(vkDestroyImageView) \
 	X(vkCreateCommandPool) \

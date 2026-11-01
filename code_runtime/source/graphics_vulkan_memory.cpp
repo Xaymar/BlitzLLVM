@@ -355,6 +355,7 @@ namespace bb::rhi::vulkan {
 		flags |= (usage & indirect_data) ? VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT : 0;
 		buffer.mapped = nullptr;
 		buffer.size   = size;
+		buffer.usage  = flags;
 		if (where == memory::mesh) {
 			bb::gfx::create_vk_mesh_buffer(size, flags, bb::gfx::vk_out<VkBuffer>{ buffer.vk }, bb::gfx::vk_out<VmaAllocation>{ buffer.allocation }, &buffer.mapped);
 		} else {
@@ -393,7 +394,9 @@ namespace bb::rhi::vulkan {
 					move.operation = VMA_DEFRAGMENTATION_MOVE_OPERATION_IGNORE;
 				}
 			}
-			if (vmaEndDefragmentationPass(allocator, context, &pass) != VK_INCOMPLETE) {
+			VkResult more = vmaEndDefragmentationPass(allocator, context, &pass);
+			bb::gfx::mesh_defrag_pass_done(); // The buffers that moved have their new memory now.
+			if (more != VK_INCOMPLETE) {
 				break;
 			}
 		}
@@ -428,7 +431,41 @@ namespace bb::rhi::vulkan {
 		}
 		buffer.mapped = result.pMappedData;
 		buffer.size   = size;
+		buffer.usage  = info.usage;
 		return true;
+	}
+
+	bool move_buffer(gpu_buffer& buffer, uint64_t destination_handle)
+	{
+		VmaAllocation destination = VmaAllocation(destination_handle);
+		if (!buffer.vk || !buffer.mapped || !buffer.size) {
+			return false;
+		}
+		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		info.size               = buffer.size;
+		info.usage              = buffer.usage;
+		info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+		VkBuffer fresh          = VK_NULL_HANDLE;
+		void*    to             = nullptr;
+		if ((vkCreateBuffer(bb::gfx::vkd.device, &info, nullptr, &fresh) != VK_SUCCESS) || (vmaBindBufferMemory(bb::gfx::vkd.allocator, destination, fresh) != VK_SUCCESS)
+			|| (vmaMapMemory(bb::gfx::vkd.allocator, destination, &to) != VK_SUCCESS)) {
+			if (fresh) {
+				vkDestroyBuffer(bb::gfx::vkd.device, fresh, nullptr);
+			}
+			return false;
+		}
+		memcpy(to, buffer.mapped, size_t(buffer.size));
+		vmaUnmapMemory(bb::gfx::vkd.allocator, destination);
+		vkDestroyBuffer(bb::gfx::vkd.device, VkBuffer(buffer.vk), nullptr); // The allocation stays: the allocator hands it the memory that it was moved to.
+		buffer.vk = uint64_t(fresh);
+		return true;
+	}
+
+	void buffer_moved(gpu_buffer& buffer)
+	{
+		VmaAllocationInfo now;
+		vmaGetAllocationInfo(bb::gfx::vkd.allocator, VmaAllocation(buffer.allocation), &now);
+		buffer.mapped = now.pMappedData;
 	}
 
 	void destroy_buffer_any_thread(gpu_buffer& buffer)

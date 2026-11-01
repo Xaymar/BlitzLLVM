@@ -833,6 +833,13 @@ namespace bb::gfx {
 	bool image_can_move(const gpu_image& img);
 	/** Lets the allocator move the allocations of textures and images together, so that a gap that is big enough is made. True if anything moved. */
 	bool defragment_images();
+	/** Defragmentation of the vertex and index buffers of surfaces, as part of defragment_images: the GPU is idle and nothing waits to be recorded.
+	 *  begin collects the buffers, move takes over a move of the allocator (false: it is not ours, or it failed, and is left where it is), pass_done
+	 *  follows every vmaEndDefragmentationPass, and end returns how many buffers moved over all passes. */
+	void     mesh_defrag_begin();
+	bool     mesh_defrag_move(uint64_t source, uint64_t destination);
+	void     mesh_defrag_pass_done();
+	uint32_t mesh_defrag_end();
 	/** Makes 'needed' bytes of video memory free if it can: the allocator moves allocations together, then textures that may use system memory go there. Only where the GPU may be waited for. */
 	bool make_room(uint64_t needed);
 	/** The internal buffers (depth, OIT, SMAA) come before the textures of the program that have no flag 256: when what they need changes (size, OIT, AntiAlias), room is made for them before the frame is recorded. */

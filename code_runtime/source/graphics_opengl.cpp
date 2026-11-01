@@ -2278,6 +2278,13 @@ namespace bb::rhi::opengl {
 		buffer = gpu_buffer();
 	}
 
+	bool move_buffer(gpu_buffer&, uint64_t)
+	{
+		return false;
+	}
+
+	void buffer_moved(gpu_buffer&) {}
+
 	bool can_defragment()
 	{
 		return false;
