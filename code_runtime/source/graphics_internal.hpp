@@ -168,6 +168,9 @@ BB_VK_INSTANCE(BB_VK_DECLARE)
 BB_VK_DEVICE(BB_VK_DECLARE)
 
 namespace bb::gfx {
+	// Keys without a DirectInput code have the code key_extended plus their SDL scancode, up to key_count.
+	constexpr int key_extended = 256;
+	constexpr int key_count    = key_extended + SDL_SCANCODE_COUNT;
 	struct vertex {
 		float   x, y;
 		float   u, v;
@@ -432,8 +435,8 @@ namespace bb::gfx {
 		int font = 0;                                          // What text is drawn with, 0 is the built-in font.
 
 		// Input
-		bool    keys[256]   = {};
-		int     key_hits[256] = {}; // How often a key went down since KeyHit asked.
+		bool    keys[key_count]     = {};
+		int     key_hits[key_count] = {}; // How often a key went down since KeyHit asked.
 		int     mouse_x = 0, mouse_y = 0;
 		bool    mouse[4]      = {};
 		int     mouse_hits[4] = {}; // The same for the mouse buttons.
@@ -1317,8 +1320,8 @@ namespace bb::gfx {
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
 // What one keyboard or mouse did, kept next to the combined state of all of them in g.
 struct device_input {
-	bool  keys[256]      = {};
-	int   key_hits[256]  = {};
+	bool  keys[bb::gfx::key_count]     = {};
+	int   key_hits[bb::gfx::key_count] = {};
 	bool  mouse[4]       = {};
 	int   mouse_hits[4]  = {};
 	bool  placed         = false; // The made up pointer of this mouse is put in the middle when it is first needed.
