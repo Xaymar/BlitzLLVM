@@ -194,6 +194,13 @@ def main():
     (folder / "x_nonormals.x").write_bytes(to_text(bare, template))
     broken = to_text(model()[:2])
     (folder / "x_bad.x").write_bytes(broken + b"Frame Lost {\n  FrameTransformMatrix {\n    1.0;0.0;0.0")
+    # Templates without members, in arrays of arrays: no token is read, but the product of the sizes is about 30^8 and the nesting is deeper.
+    levels = ["template Hollow { <11111111-2222-3333-4444-555555555555> }\n"]
+    previous = "Hollow"
+    for i in range(10):
+        levels.append("template Level%d { <11111111-2222-3333-4444-5555555555%02d> array %s inner[30]; }\n" % (i, i, previous))
+        previous = "Level%d" % i
+    (folder / "x_nested.x").write_bytes(to_text(model()[:2]) + "".join(levels).encode() + ("%s Deep {\n}\n" % previous).encode())
 
 
 main()
