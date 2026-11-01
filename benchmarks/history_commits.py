@@ -22,17 +22,20 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import procutil  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.environ.get("PERF_HISTORY", os.path.join(os.path.dirname(os.path.dirname(HERE)), "performance-history"))
 OUT = os.path.join(RESULTS, "commits")
 
 
 def git(repo, *args, check=True):
-    return subprocess.run(["git", "-C", repo] + list(args), capture_output=True, text=True, check=check).stdout.strip()
+    return procutil.run(["git", "-C", repo] + list(args), capture_output=True, text=True, check=check).stdout.strip()
 
 
 def code_key(repo, commit):
-    r = subprocess.run(["git", "-C", repo, "rev-parse", commit + ":code_compiler", commit + ":code_runtime", commit + ":third_party",
+    r = procutil.run(["git", "-C", repo, "rev-parse", commit + ":code_compiler", commit + ":code_runtime", commit + ":third_party",
                         commit + ":cmake", commit + ":CMakeLists.txt"], capture_output=True, text=True)
     return tuple(r.stdout.split()) if r.returncode == 0 else (commit,)
 
@@ -41,14 +44,14 @@ def fetch_binary(repo_slug, commit, dest):
     """Downloads the artifacts of the CI runs of a commit with `gh` and gives the folder that has blitzcc (or None). For a machine that can not build."""
     shutil.rmtree(dest, ignore_errors=True)
     os.makedirs(dest)
-    runs = subprocess.run(["gh", "run", "list", "-R", repo_slug, "--commit", commit, "--json", "databaseId,conclusion,workflowName", "--limit", "20"],
+    runs = procutil.run(["gh", "run", "list", "-R", repo_slug, "--commit", commit, "--json", "databaseId,conclusion,workflowName", "--limit", "20"],
                           capture_output=True, text=True)
     try:
         ids = [r["databaseId"] for r in json.loads(runs.stdout) if r["conclusion"] == "success"]
     except ValueError:
         ids = []
     for i in ids:
-        subprocess.run(["gh", "run", "download", str(i), "-R", repo_slug, "-D", os.path.join(dest, str(i)), "--pattern", "*windows*x64*"], capture_output=True, text=True)
+        procutil.run(["gh", "run", "download", str(i), "-R", repo_slug, "-D", os.path.join(dest, str(i)), "--pattern", "*windows*x64*"], capture_output=True, text=True)
         for root, _, files in os.walk(dest):
             for f in files:
                 if f in ("blitzcc", "blitzcc.exe"):
@@ -68,6 +71,7 @@ def main():
     parser.add_argument("--build-dir", default=os.path.join(os.path.expanduser("~"), "commit-build-tree"), help="build folder that is kept between commits")
     parser.add_argument("--tags", nargs="?", const=r"^\d+\.\d+\.\d+$", metavar="REGEX",
                         help="only the code states of the commits that have a version tag (X.Y.Z, or the regex given); also writes tags/<tag>.json")
+    parser.add_argument("--only", metavar="LIST", help="only these benchmarks (history.py --only): states that already have a result get the missing ones added")
     parser.add_argument("--download", metavar="OWNER/REPO", help="do not build: download the CI binaries of every commit with gh (Windows)")
     args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
@@ -95,7 +99,8 @@ def main():
     for n, (key, group) in enumerate(states):
         first = group[0]
         path = os.path.join(OUT, first + ".json")
-        if os.path.isfile(path):
+        old = json.load(open(path)) if os.path.isfile(path) else None
+        if old and not (args.only and "benchmarks" in old and any(b not in old["benchmarks"] for b in args.only.split(","))):
             continue
         if args.max_minutes and time.time() - started > args.max_minutes * 60:
             print("time is over, %d states done" % done, flush=True)
@@ -112,7 +117,7 @@ def main():
             build = subprocess.CompletedProcess([], 0 if built else 1, "", "no CI binary for this commit")
         elif args.build_script:
             built = os.path.join(scratch, "install")
-            build = subprocess.run(["powershell", "-NoProfile", "-File", args.build_script, "-Repo", args.repo, "-Commit", first, "-Out", built,
+            build = procutil.run(["powershell", "-NoProfile", "-File", args.build_script, "-Repo", args.repo, "-Commit", first, "-Out", built,
                                     "-Build", args.build_dir], capture_output=True, text=True)
             for root, _, files in os.walk(built):
                 if "blitzcc.exe" in files:
@@ -120,7 +125,7 @@ def main():
                     break
             exe = os.path.join(built, "blitzcc.exe")
         else:
-            build = subprocess.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
+            build = procutil.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
             built = os.path.join("/home/user/revs", label)
             exe = os.path.join(built, "blitzcc")
         if build.returncode != 0 or not os.path.isfile(exe):
@@ -132,8 +137,10 @@ def main():
             print("%s %s build failed" % (label, first[:8]), flush=True)
         else:
             out = os.path.join(scratch, "result.json")
-            run = subprocess.run([sys.executable, os.path.join(HERE, "history.py"), "--quick", "--blitzcc", exe,
-                                  "--label", label, "--rev", first, "--out", out], capture_output=True, text=True, stdin=subprocess.DEVNULL)
+            if old and args.only:
+                json.dump(old, open(out, "w"))  # history.py adds the benchmarks to the ones that are in the file
+            run = procutil.run([sys.executable, os.path.join(HERE, "history.py"), "--quick", "--blitzcc", exe, "--label", label, "--rev", first,
+                                "--out", out] + (["--only", args.only] if args.only else []), capture_output=True, text=True, stdin=subprocess.DEVNULL)
             if os.path.isfile(out):
                 record.update(json.load(open(out)))
                 record["commit"], record["commits"], record["date"] = first, group, git(args.repo, "log", "-1", "--format=%as", first)

@@ -18,8 +18,11 @@ import json
 import math
 import statistics
 import os
+import sys
 import re
-import subprocess
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import procutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -37,6 +40,7 @@ TABLES = [
     ("Benchmarks", "Scene: fly-through, waterfall, dungeon (320x180, per frame)", "flythrough",
      [("flythrough/ms_avg", "Fly-through 5000 objects", "ms"), ("waterfall/ms_avg", "Waterfall 2000 sprites", "ms"),
       ("dungeon/ms_avg", "Dungeon 16 rooms", "ms")]),
+    ("Benchmarks", "Forest (`forest.bb`, 640x360, 200 frames, per frame)", "forest", [("ms_avg", "Per frame", "ms")]),
     ("Benchmarks", "Many lights (`many_lights.bb`, 5000 cubes, 640x360, per frame)", "lights",
      [("8_lights_ms", "8 lights", "ms"), ("32_lights_ms", "32 lights", "ms"), ("127_lights_ms", "127 lights", "ms"),
       ("127_lights_one_moving_ms", "127 lights, one moving", "ms")]),
@@ -52,7 +56,7 @@ CATEGORIES = ["Real World Applications", "Benchmarks"]
 def git_date(rev):
     if not rev:
         return ""
-    r = subprocess.run(["git", "log", "-1", "--format=%as", rev], cwd=ROOT, capture_output=True, text=True)
+    r = procutil.run(["git", "log", "-1", "--format=%as", rev], cwd=ROOT, capture_output=True, text=True)
     return r.stdout.strip()
 
 

@@ -47,6 +47,9 @@ import tempfile
 import time
 import zlib
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import procutil  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RESULTS = os.environ.get("PERF_HISTORY", os.path.join(os.path.dirname(ROOT), "performance-history"))  # a checkout of the performance-history branch
@@ -61,6 +64,7 @@ SCENES = {
                   "keys": ["ms_avg", "update_ms", "draws"]},
     "dungeon": {"env": {"BENCH_FRAMES": "100", "BENCH_W": "320", "BENCH_H": "180"},
                 "keys": ["ms_avg", "update_ms", "draws"]},
+    "forest": {"env": {"BENCH_FRAMES": "200", "BENCH_W": "640", "BENCH_H": "360"}, "keys": ["ms_avg"]},
 }
 
 
@@ -99,7 +103,7 @@ class Compiler:
         else:
             self.env = dict(os.environ, XDG_RUNTIME_DIR=os.environ.get("XDG_RUNTIME_DIR", "/tmp/xdg-runtime"))
             os.makedirs(self.env["XDG_RUNTIME_DIR"], mode=0o700, exist_ok=True)
-            self.version = " ".join(subprocess.run([path, "-v"], capture_output=True, text=True).stdout.split())
+            self.version = " ".join(procutil.run([path, "-v"], capture_output=True, text=True).stdout.split())
             self.llvm = bool(re.search(r"Compiler version:20\d\d\.", self.version))
 
     def compile_cmd(self, source, output, extra=()):
@@ -127,7 +131,7 @@ def build(compiler, directory, name, counters=None, extra=(), source=None):
     for variant in (["llvm", "original"] if compiler.llvm else ["original"]):
         if counters:
             shutil.copy(os.path.join(HERE, "%s_%s.bi" % (counters, variant)), os.path.join(directory, counters + "_counters.bi"))
-        r = subprocess.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
+        r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
         if r.returncode == 0 and os.path.isfile(program):
             return program, variant
         tried.append(variant + ": " + (r.stdout + r.stderr).strip()[-300:])
@@ -147,7 +151,7 @@ def run_program(compiler, program, env, cwd, timeout=900, args=()):
     full = dict(compiler.env, **env)
     before = resource.getrusage(resource.RUSAGE_CHILDREN) if resource else None
     t0 = time.time()
-    r = subprocess.run(compiler.run_cmd(program) + list(args), cwd=cwd, env=full, capture_output=True, text=True, timeout=timeout)
+    r = procutil.run(compiler.run_cmd(program) + list(args), cwd=cwd, env=full, capture_output=True, text=True, timeout=timeout)
     wall = time.time() - t0
     if resource:
         after = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -265,7 +269,7 @@ def bench_compile(compiler, runs):
                 if os.path.exists(program):
                     os.remove(program)
                 t0 = time.time()
-                r = subprocess.run(compiler.compile_cmd(src, program), cwd=cwd, capture_output=True, text=True, env=compiler.env)
+                r = procutil.run(compiler.compile_cmd(src, program), cwd=cwd, capture_output=True, text=True, env=compiler.env)
                 elapsed = (time.time() - t0) * 1000
                 if r.returncode != 0 or not os.path.isfile(program):
                     out[name] = {"error": (r.stdout + r.stderr).strip()[-300:]}
@@ -284,7 +288,7 @@ def bench_movies(compiler, runs):
         raise RuntimeError("ffmpeg is needed to make the test movie")
     with tempfile.TemporaryDirectory() as d:
         movie = os.path.join(d, "bench.mp4")
-        subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "testsrc2=size=320x240:rate=30:duration=5", "-f", "lavfi", "-i",
+        procutil.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "testsrc2=size=320x240:rate=30:duration=5", "-f", "lavfi", "-i",
                         "sine=frequency=440:duration=5", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", movie], check=True)
         program, _ = build(compiler, d, "movies")
         results = []
@@ -387,7 +391,7 @@ def bench_stranded2(compiler, runs):
     with tempfile.TemporaryDirectory() as d:
         game = benchmark_stranded2.prepare(ROOT, d, original=not compiler.llvm)
         program = compiler.program_path(game, "stranded2_bench")
-        r = subprocess.run(compiler.compile_cmd(os.path.join(game, "StrandedII.bb"), program), cwd=game, capture_output=True, text=True, env=compiler.env)
+        r = procutil.run(compiler.compile_cmd(os.path.join(game, "StrandedII.bb"), program), cwd=game, capture_output=True, text=True, env=compiler.env)
         if r.returncode != 0 or not os.path.isfile(program):
             raise RuntimeError("build failed: " + (r.stdout + r.stderr).strip()[-300:])
         results = []
@@ -442,6 +446,7 @@ BENCHMARKS = {
     "flythrough": lambda c, n: bench_scene(c, "flythrough", n),
     "waterfall": lambda c, n: bench_scene(c, "waterfall", n),
     "dungeon": lambda c, n: bench_scene(c, "dungeon", n),
+    "forest": lambda c, n: bench_scene(c, "forest", n),
     "loading": bench_loading,
     "lights": bench_lights,
     "gpu": bench_gpu,
@@ -464,7 +469,7 @@ def main():
         global QUICK
         QUICK = True
         if args.only == ",".join(BENCHMARKS):
-            args.only = "compile,emitted,flythrough,waterfall,dungeon"
+            args.only = "compile,emitted,flythrough,waterfall,dungeon,forest"
     if not args.blitzcc and not args.wine:
         sys.exit("Give --blitzcc or --wine.")
     compiler = Compiler(os.path.abspath(args.blitzcc) if args.blitzcc else None, args.wine)
