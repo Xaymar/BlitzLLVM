@@ -77,6 +77,7 @@ namespace bb::models {
 		char* name  = nullptr;
 		int   flags = 0;
 		int   handle = -1; // Loaded when it is first needed, 0 if that failed.
+		int   blend = 0;   // TextureBlend to give it once loaded, 0 to leave the default.
 	};
 
 	struct brush_info {
@@ -84,6 +85,7 @@ namespace bb::models {
 		float shininess = 0;
 		int   blend = 1, fx = 0;
 		int   texture = -1;
+		int   normal  = -1; // A normal map (TextureBlend 6) that goes on the first layer, with the texture above on the second.
 	};
 
 	struct vertex_info {
