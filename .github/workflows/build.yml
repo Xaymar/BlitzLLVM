@@ -166,9 +166,9 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ExternalContentFiles
-          key: submodule-dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
+          key: submodule-dependencies-clang-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
           restore-keys: |
-            submodule-dependencies-${{ matrix.name }}-
+            submodule-dependencies-clang-${{ matrix.name }}-
       # Windows is built with clang (Ninja, lld) against the Windows SDK and C runtime of Visual Studio, whose environment is imported here.
       - name: Set up clang for Windows
         if: runner.os == 'Windows'
