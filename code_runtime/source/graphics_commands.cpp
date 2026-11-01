@@ -13,6 +13,7 @@
 
 // Command buffers and the list of operations that 2D drawing and 3D scenes are recorded into.
 
+#include "affinity.h"
 #include "graphics_internal.hpp"
 #include "memory.h"
 
@@ -130,6 +131,7 @@ namespace bb::gfx {
 
 	static int SDLCALL gpu_main(void* argument)
 	{
+		bb_affinity_helper(2);
 		VkQueue queue = static_cast<gpu_context*>(argument)->queue;
 		for (;;) {
 			SDL_LockMutex(gpu_mutex);
