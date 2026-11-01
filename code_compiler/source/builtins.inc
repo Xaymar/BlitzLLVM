@@ -581,6 +581,12 @@
 		{ "udpstreamport", "bb_udp_stream_port", 'i', "i", 1, {}, false },
 		{ "udpstreamip", "bb_udp_stream_ip", 'i', "i", 1, {}, false },
 		{ "udptimeouts", "bb_udp_timeouts", 'v', "i", 1, {}, false },
+		{ "gettcpstreamaddress", "bb_get_tcp_stream_address", 's', "i", 1, {}, false },
+		{ "counthostaddresses", "bb_count_host_addresses", 'i', "s", 1, {}, false },
+		{ "gethostaddress", "bb_get_host_address", 's', "i", 1, {}, false },
+		{ "getudpstreamaddress", "bb_get_udp_stream_address", 's', "i", 1, {}, false },
+		{ "getudpmsgaddress", "bb_get_udp_msg_address", 's', "i", 1, {}, false },
+		{ "sendudpmsgto", "bb_send_udp_msg_to", 'v', "isi", 2, { 0, 0, 0 }, false },
 		// Input
 		{ "getkey", "bb_get_key", 'i', "", 0, {}, false },
 		{ "flushkeys", "bb_flush_keys", 'v', "i", 0, { -1 }, false },
