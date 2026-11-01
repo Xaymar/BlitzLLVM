@@ -25,6 +25,15 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 using namespace bb::gfx;
 
@@ -660,6 +669,73 @@ namespace bb::gfx {
 									 { "webp", " webp ", false }, { "opusfile", " opus ogg ", false } };
 	std::vector<SDL_SharedObject*> codec_objects; // Every library that was opened, for the functions that the encoders look up.
 
+	// Only the libraries that the build ships for the codecs are opened, never whatever else is next to the program (a library that was put there
+	// would run its initializer inside the program). A name is the name of the library, which may start with 'lib', followed only by a version
+	// and the ending of a shared library: libavif-16.dll, libavif.so.16.1.0, libavif.16.dylib, jxl.dll.
+	bool is_codec_library_name(std::string name)
+	{
+		static const char* const stems[] = { "avif",   "dav1d",       "jxl",     "jxl_cms",  "jxl_threads", "brotlicommon", "brotlidec", "brotlienc", "hwy",
+											 "lcms2",  "tiff",        "webp",    "webpdemux", "webpmux",     "sharpyuv",     "opus",      "opusfile",  "ogg" };
+		if (name.find('/') != std::string::npos || name.find('\\') != std::string::npos) {
+			return false; // Not directly next to the program.
+		}
+		for (auto& c : name) {
+			c = char(tolower(static_cast<unsigned char>(c)));
+		}
+		if (name.compare(0, 3, "lib") == 0) {
+			name.erase(0, 3);
+		}
+		for (const char* stem : stems) {
+			size_t length = strlen(stem);
+			if (name.compare(0, length, stem) != 0) {
+				continue;
+			}
+			// What follows is split at '.', '-' and '_': numbers (the version) and the ending of a shared library, which must be there.
+			bool   ending = false, valid = true;
+			size_t i = length;
+			while (valid && i < name.size()) {
+				if (name[i] == '.' || name[i] == '-' || name[i] == '_') {
+					i++;
+					continue;
+				}
+				size_t end = i;
+				while (end < name.size() && name[end] != '.' && name[end] != '-' && name[end] != '_') {
+					end++;
+				}
+				std::string token = name.substr(i, end - i);
+				if (token == "dll" || token == "so" || token == "dylib") {
+					ending = true;
+				} else if (token.find_first_not_of("0123456789") != std::string::npos) {
+					valid = false;
+				}
+				i = end;
+			}
+			if (valid && ending) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Opens a library by its full path in the folder of the program. On Windows the library is loaded with a restricted search, so that neither the
+	// library nor what it depends on is looked for in the current directory or in PATH: only the folder of the library, the system folder and the folders
+	// that the program has added itself. Elsewhere a path with a directory is not searched for at all (the dependencies are found by the RUNPATH of the
+	// library). Libraries that are opened here stay loaded, so the codecs that SDL_image and SDL_mixer open by name afterwards get these.
+	SDL_SharedObject* open_codec_file(const std::string& path)
+	{
+#ifdef _WIN32
+		int length = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, nullptr, 0);
+		if (length <= 0) {
+			return nullptr;
+		}
+		std::wstring wide(size_t(length), L'\0');
+		MultiByteToWideChar(CP_UTF8, 0, path.c_str(), -1, wide.data(), length);
+		return reinterpret_cast<SDL_SharedObject*>(LoadLibraryExW(wide.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR));
+#else
+		return SDL_LoadObject(path.c_str());
+#endif
+	}
+
 	void open_codec_libraries()
 	{
 		static bool opened = false;
@@ -672,14 +748,10 @@ namespace bb::gfx {
 		char**      names = base ? SDL_GlobDirectory(base, nullptr, 0, &count) : nullptr;
 		for (int i = 0; i < count; i++) {
 			std::string name = names[i];
-			bool        shared = (name.find(".dll") != std::string::npos) || (name.find(".dylib") != std::string::npos) || (name.find(".so.") != std::string::npos);
-			for (auto family : { "avcodec", "avformat", "avutil", "swscale", "swresample" }) {
-				shared = shared && (name.find(family) == std::string::npos);
-			}
-			if (!shared) {
+			if (!is_codec_library_name(name)) {
 				continue;
 			}
-			SDL_SharedObject* object = SDL_LoadObject((std::string(base) + name).c_str());
+			SDL_SharedObject* object = open_codec_file(std::string(base) + name);
 			if (object) {
 				codec_objects.push_back(object);
 			}
@@ -690,6 +762,8 @@ namespace bb::gfx {
 		}
 		SDL_free(names);
 		// With the system's codecs (BLITZ_SYSTEM_IMAGE_CODECS) nothing is next to the program, so the encoders are looked up in the libraries of the system.
+		// Not on Windows: a name without a folder is also searched for in the current directory and in PATH there, and no system provides these.
+#ifndef _WIN32
 		static const char* const system_names[] = { "libwebp.so.7", "libwebp.so.6", "libwebp.so", "libwebp.7.dylib", "libwebp.dylib", "libwebp.dll", "libwebp-7.dll",
 													"libjxl.so.0.11", "libjxl.so.0.10", "libjxl.so.0.9", "libjxl.so.0.8", "libjxl.so.0.7", "libjxl.so", "libjxl.dylib", "libjxl.0.11.dylib", "jxl.dll", "libjxl.dll",
 													"libtiff.so.6", "libtiff.so.5", "libtiff.so", "libtiff.6.dylib", "libtiff.dylib", "libtiff.dll", "tiff.dll" };
@@ -698,6 +772,7 @@ namespace bb::gfx {
 				codec_objects.push_back(object);
 			}
 		}
+#endif
 	}
 
 	void* codec_symbol(const char* name)
