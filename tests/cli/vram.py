@@ -55,6 +55,18 @@ def main():
     if result.returncode != 0 or "priority ok" not in result.stderr:
         print("vram: textures without flag 256 should make room for the buffers of order independent transparency.\n%s" % result.stderr)
         return 1
+
+    # Textures with mip maps lose their biggest levels before they go to system memory, and get them back when they are drawn.
+    mips = os.path.join(work, "vram_mips")
+    procutil.run([blitzcc, os.path.join(os.path.dirname(source), "vram_mips.bb"), "-o", mips], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([mips], env=dict(os.environ, BLITZLLVM_VRAM_LIMIT_MB="160", BLITZLLVM_STREAMING_REPORT="1"), cwd=work, capture_output=True, text=True, timeout=300)
+    if result.returncode != 0 or "streaming ok" not in result.stderr or "streaming: dropped" not in result.stderr or "gave a texture a level back" not in result.stderr or "Video memory is full" in result.stderr:
+        print("vram: textures with mip maps should drop levels (not go to system memory) and get them back.\n%s" % result.stderr)
+        return 1
+    result = procutil.run([mips], env=dict(os.environ, BLITZLLVM_VRAM_LIMIT_MB="160", BLITZLLVM_TEXTURE_STREAMING="0", BLITZLLVM_STREAMING_REPORT="1"), cwd=work, capture_output=True, text=True, timeout=300)
+    if result.returncode != 0 or "streaming ok" not in result.stderr or "streaming: dropped" in result.stderr:
+        print("vram: with BLITZLLVM_TEXTURE_STREAMING=0 no levels should be dropped.\n%s" % result.stderr)
+        return 1
     return 0
 
 

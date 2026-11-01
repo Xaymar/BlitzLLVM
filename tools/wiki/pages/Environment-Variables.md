@@ -64,6 +64,8 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. |
+| `BLITZLLVM_TEXTURE_STREAMING` | `=0` turns off texture streaming. Textures with mip maps (flag 8) that are loaded from a file and do not have flag 256 lose their biggest mip levels when video memory is short, before any texture is moved to system memory; they look blurrier up close until a level is given back (one level every 8 frames while a drawn texture is not whole and video memory has room to spare). Reading or drawing to a texture makes it whole first. |
+| `BLITZLLVM_STREAMING_REPORT` | `1` prints a line to the console whenever texture streaming drops or gives back a level. For tests. |
 | `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
 | `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
 | `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[Memory]]. |
