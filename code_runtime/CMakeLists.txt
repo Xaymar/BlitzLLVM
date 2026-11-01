@@ -117,6 +117,8 @@ target_sources(blitzrt PRIVATE
 	"source/collision_geometry.cpp"
 	"source/collision_internal.hpp"
 	"source/picking.cpp"
+	"source/collision_physics.cpp"
+	"source/physics_mesh.cpp"
 	"source/pick_physics.cpp"
 	"source/physics_library.cpp"
 	"source/physics_library.hpp"

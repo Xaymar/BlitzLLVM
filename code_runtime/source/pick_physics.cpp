@@ -64,62 +64,16 @@ namespace {
 		r.first_triangle.clear();
 	}
 
-	uint64_t geometry_of(entity const& e)
-	{
-		uint64_t h = 1469598103934665603ull;
-		auto     mix = [&](uint64_t v) { h = (h ^ v) * 1099511628211ull; };
-		mix(e.surfaces.size);
-		for (uint32_t s = 0; s < e.surfaces.size; s++) {
-			surface const& surf = *e.surfaces[s];
-			mix(reinterpret_cast<uintptr_t>(&surf));
-			mix(surf.geometry_version);
-			mix(surf.vertices.size);
-			mix(surf.indices.size);
-		}
-		return h;
-	}
+	uint64_t geometry_of(entity const& e) { return physics_mesh_geometry(e); }
 
-	bool can_take(entity const& e)
-	{
-		if (e.terrain || !e.surfaces.size) {
-			return false;
-		}
-		uint32_t triangles = 0;
-		for (uint32_t s = 0; s < e.surfaces.size; s++) {
-			if (e.surfaces[s]->skin) {
-				return false; // The bones move its vertices.
-			}
-			triangles += e.surfaces[s]->indices.size / 3;
-		}
-		return triangles >= min_triangles;
-	}
+	bool can_take(entity const& e) { return physics_mesh_usable(e, min_triangles); }
 
 	bool make_mesh(entity const& e, record& r)
 	{
-		std::vector<float>    positions;
-		std::vector<uint32_t> indices;
-		r.first_triangle.clear();
-		uint32_t base = 0;
-		for (uint32_t s = 0; s < e.surfaces.size; s++) {
-			surface const& surf = *e.surfaces[s];
-			r.first_triangle.push(int(indices.size() / 3));
-			for (uint32_t v = 0; v < surf.vertices.size; v++) {
-				positions.push_back(surf.vertices[v].x);
-				positions.push_back(surf.vertices[v].y);
-				positions.push_back(surf.vertices[v].z);
-			}
-			for (uint32_t i = 0; i + 2 < surf.indices.size; i += 3) {
-				for (uint32_t k = 0; k < 3; k++) {
-					indices.push_back(surf.indices[i + k] + base);
-				}
-			}
-			base += surf.vertices.size;
+		r.mesh = physics_mesh_build(*lib, e, r.first_triangle);
+		if (r.mesh) {
+			stat_meshes++;
 		}
-		if (indices.empty()) {
-			return false;
-		}
-		stat_meshes++;
-		r.mesh = lib->mesh_create(positions.data(), uint32_t(positions.size() / 3), indices.data(), uint32_t(indices.size() / 3));
 		return r.mesh != nullptr;
 	}
 

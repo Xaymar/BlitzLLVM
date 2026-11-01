@@ -161,7 +161,7 @@ namespace bb::collision {
 	}
 
 	// Tests one entity that is collided with.
-	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method)
+	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method, int handle)
 	{
 		switch (method) {
 		case 1:
@@ -193,14 +193,30 @@ namespace bb::collision {
 				}
 			}
 			bool hit = false;
-			each_triangle_matrix(e, tform, area, [&](triangle const& t) {
+			auto test = [&](triangle const& t) {
 				triangles_tested++;
 				if (hit_triangle(c, line, radius, t.a, t.b, t.c)) {
 					c.surface  = t.surface;
 					c.triangle = t.index;
 					hit        = true;
 				}
-			});
+			};
+			// The physics library can tell which triangles are near the path: those are the ones that the box would let through as well.
+			static buffer<candidate_triangle> near_triangles;
+			if (handle && !e.terrain && collision_triangles(handle, e, tform, area, near_triangles)) {
+				for (uint32_t k = 0; k < near_triangles.size; k++) {
+					triangle t = world_triangle(e, near_triangles[k].surface, near_triangles[k].index, tform);
+					box3     tb;
+					tb.add(t.a);
+					tb.add(t.b);
+					tb.add(t.c);
+					if (tb.overlaps(area)) {
+						test(t);
+					}
+				}
+				return hit;
+			}
+			each_triangle_matrix(e, tform, area, test);
 			return hit;
 		}
 		default: {
@@ -1008,7 +1024,7 @@ namespace bb::collision {
 					entity* dst = get_entity(other);
 					float   m[16];
 					destination_matrix(*dst, other, y_scale, false, m); // Where it was, as the original does.
-					if (hit_entity(coll, coll_line, radius, *dst, m, rules[r].method)) {
+					if (hit_entity(coll, coll_line, radius, *dst, m, rules[r].method, other)) {
 						coll_object   = other;
 						coll_response = rules[r].response;
 					}

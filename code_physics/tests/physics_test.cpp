@@ -125,6 +125,43 @@ static void test_moving_mesh()
 	bp_world_destroy(world);
 }
 
+static void test_mesh_query()
+{
+	// A flat grid of 20 by 20 cells at y = 0, two triangles each, from -10 to 10.
+	std::vector<float>    positions;
+	std::vector<uint32_t> indices;
+	for (int z = 0; z <= 20; z++) {
+		for (int x = 0; x <= 20; x++) {
+			positions.push_back(float(x) - 10);
+			positions.push_back(0);
+			positions.push_back(float(z) - 10);
+		}
+	}
+	for (int z = 0; z < 20; z++) {
+		for (int x = 0; x < 20; x++) {
+			uint32_t i = uint32_t(z * 21 + x);
+			indices.insert(indices.end(), { i, i + 21, i + 1, i + 1, i + 21, i + 22 });
+		}
+	}
+	bp_mesh* grid = bp_mesh_create(positions.data(), uint32_t(positions.size() / 3), indices.data(), uint32_t(indices.size() / 3));
+	CHECK(grid != nullptr);
+	uint32_t found[1024];
+	float    lo[3] = { 1.2f, -0.1f, 2.2f }, hi[3] = { 2.8f, 0.1f, 3.8f };
+	uint32_t count = bp_mesh_query_box(grid, lo, hi, found, 1024);
+	// The cells x 11 to 12 and z 12 to 13 are touched: at most 3 by 3 cells.
+	CHECK(count >= 8);
+	CHECK(count <= 18);
+	for (uint32_t i = 1; i < count; i++) {
+		CHECK(found[i - 1] < found[i]);
+	}
+	float above_lo[3] = { 1.2f, 5.0f, 2.2f }, above_hi[3] = { 2.8f, 6.0f, 3.8f };
+	CHECK(bp_mesh_query_box(grid, above_lo, above_hi, found, 1024) == 0);
+	// A buffer that is too small still says how many there are.
+	uint32_t one[1];
+	CHECK(bp_mesh_query_box(grid, lo, hi, one, 1) == count);
+	bp_mesh_destroy(grid);
+}
+
 static void test_ellipsoid()
 {
 	bp_world* world = bp_world_create(1);
@@ -258,6 +295,7 @@ int main()
 	CHECK(bp_version() == BP_VERSION);
 	test_line();
 	test_moving_mesh();
+	test_mesh_query();
 	test_ellipsoid();
 	test_bodies();
 	test_batch();
