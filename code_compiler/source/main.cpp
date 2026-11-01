@@ -741,6 +741,14 @@ static int compiler_main(int argc, char** argv)
 			for (auto lib : { "user32", "gdi32", "winmm", "imm32", "ole32", "oleaut32", "version", "uuid", "advapi32", "setupapi", "shell32", "cfgmgr32", "ws2_32" }) {
 				command.push_back(std::string("-l") + lib);
 			}
+			if (!windows_msvc) {
+				// The runtime is partly C++, which the C driver does not link the library of. It and the unwinder are linked statically,
+				// so that the programs need no DLLs of the toolchain next to them.
+				command.push_back("-Wl,-Bstatic");
+				command.push_back("-lc++");
+				command.push_back("-lunwind");
+				command.push_back("-Wl,-Bdynamic");
+			}
 			// Programs are GUI programs, so that no console window opens next to the window of the program. The runtime
 			// attaches to the console of the parent process when there is one. The entry point stays main().
 			if (windows_msvc) {
