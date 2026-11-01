@@ -117,6 +117,48 @@ namespace bb::gfx {
 		}
 	}
 
+	// The views of an image: all levels for sampling, as an array for textures, and the first level (and each layer) for drawing.
+	static void create_views(gpu_image& img, const VkImageCreateInfo& info, VkImageAspectFlags aspect, const VkComponentMapping* components)
+	{
+		uint32_t mips = info.mipLevels, layers = info.arrayLayers;
+		bool     srgb_rgba = (info.format == VK_FORMAT_R8G8B8A8_SRGB);
+		VkImageViewCreateInfo view         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+		view.image                         = img.image;
+		view.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
+		view.format                        = info.format;
+		if (components) {
+			view.components = *components;
+		}
+		view.subresourceRange.aspectMask   = aspect;
+		view.subresourceRange.levelCount   = mips;
+		view.subresourceRange.layerCount   = 1;
+		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
+		// Textures are sampled as arrays, with a layer for each frame of an animated one.
+		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (info.usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (info.samples == VK_SAMPLE_COUNT_1_BIT)) {
+			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+			view.subresourceRange.layerCount = layers;
+			check(vkCreateImageView(g.device, &view, nullptr, &img.array_view), "vkCreateImageView");
+			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
+			view.subresourceRange.layerCount = 1;
+		}
+		if ((mips > 1) || srgb_rgba || (layers > 1)) {
+			// An attachment has one level, so drawing to the texture goes through a view of the first.
+			view.subresourceRange.levelCount = 1;
+			if (srgb_rgba) {
+				view.format = VK_FORMAT_R8G8B8A8_UNORM;
+			}
+			check(vkCreateImageView(g.device, &view, nullptr, &img.target_view), "vkCreateImageView");
+			if (layers > 1) {
+				img.layer_targets    = static_cast<VkImageView*>(bb_calloc(layers, sizeof(VkImageView)));
+				img.layer_targets[0] = img.target_view;
+				for (uint32_t layer = 1; layer < layers; layer++) {
+					view.subresourceRange.baseArrayLayer = layer;
+					check(vkCreateImageView(g.device, &view, nullptr, &img.layer_targets[layer]), "vkCreateImageView");
+				}
+			}
+		}
+	}
+
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
 		gpu_image img;
@@ -173,41 +215,8 @@ namespace bb::gfx {
 			return img;
 		}
 
-		VkImageViewCreateInfo view         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-		view.image                         = img.image;
-		view.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
-		view.format                        = info.format;
-		if (components) {
-			view.components = *components;
-		}
-		view.subresourceRange.aspectMask   = aspect;
-		view.subresourceRange.levelCount   = mips;
-		view.subresourceRange.layerCount   = 1;
-		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
-		// Textures are sampled as arrays, with a layer for each frame of an animated one.
-		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (samples == 1)) {
-			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-			view.subresourceRange.layerCount = layers;
-			check(vkCreateImageView(g.device, &view, nullptr, &img.array_view), "vkCreateImageView");
-			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
-			view.subresourceRange.layerCount = 1;
-		}
-		if ((mips > 1) || srgb_rgba || (layers > 1)) {
-			// An attachment has one level, so drawing to the texture goes through a view of the first.
-			view.subresourceRange.levelCount = 1;
-			if (srgb_rgba) {
-				view.format = VK_FORMAT_R8G8B8A8_UNORM;
-			}
-			check(vkCreateImageView(g.device, &view, nullptr, &img.target_view), "vkCreateImageView");
-			if (layers > 1) {
-				img.layer_targets    = static_cast<VkImageView*>(bb_calloc(layers, sizeof(VkImageView)));
-				img.layer_targets[0] = img.target_view;
-				for (uint32_t layer = 1; layer < layers; layer++) {
-					view.subresourceRange.baseArrayLayer = layer;
-					check(vkCreateImageView(g.device, &view, nullptr, &img.layer_targets[layer]), "vkCreateImageView");
-				}
-			}
-		}
+		img.recipe->create_info = info;
+		create_views(img, info, aspect, components);
 		return img;
 	}
 
@@ -224,7 +233,8 @@ namespace bb::gfx {
 		return img.target_view ? img.target_view : img.view;
 	}
 
-	void release_image(gpu_image& img)
+	// Destroys the views of an image, and nothing else.
+	static void destroy_views(gpu_image& img)
 	{
 		for (uint32_t layer = 1; img.layer_targets && (layer < img.layers); layer++) {
 			vkDestroyImageView(g.device, img.layer_targets[layer], nullptr);
@@ -241,14 +251,54 @@ namespace bb::gfx {
 		if (img.target_view) {
 			vkDestroyImageView(g.device, img.target_view, nullptr);
 		}
+		img.view        = VK_NULL_HANDLE;
+		img.target_view = VK_NULL_HANDLE;
+	}
+
+	void release_image(gpu_image& img)
+	{
+		destroy_views(img);
 		if (img.image) {
 			forget_system_allocation(img.allocation);
 			vmaDestroyImage(g.allocator, img.image, img.allocation);
 		}
-		img.view        = VK_NULL_HANDLE;
-		img.target_view = VK_NULL_HANDLE;
 		img.image       = VK_NULL_HANDLE;
 		img.allocation  = VK_NULL_HANDLE;
+	}
+
+	bool move_image(gpu_image& img, VmaAllocation destination)
+	{
+		if (!img.image || !img.recipe) {
+			return false;
+		}
+		VkImageCreateInfo info = img.recipe->create_info;
+		VkImage           fresh = VK_NULL_HANDLE;
+		if ((vkCreateImage(g.device, &info, nullptr, &fresh) != VK_SUCCESS) || (vmaBindImageMemory(g.allocator, destination, fresh) != VK_SUCCESS)) {
+			if (fresh) {
+				vkDestroyImage(g.device, fresh, nullptr);
+			}
+			return false;
+		}
+		if (img.layout != VK_IMAGE_LAYOUT_UNDEFINED) {
+			// What the image holds goes over on the GPU: every level and layer.
+			begin_commands();
+			barrier(img.image, img.layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img.recipe->aspect);
+			barrier(fresh, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, img.recipe->aspect);
+			std::vector<VkImageCopy> regions(info.mipLevels);
+			for (uint32_t level = 0; level < info.mipLevels; level++) {
+				regions[level].srcSubresource = { img.recipe->aspect, level, 0, info.arrayLayers };
+				regions[level].dstSubresource = regions[level].srcSubresource;
+				regions[level].extent         = { (info.extent.width >> level) ? (info.extent.width >> level) : 1, (info.extent.height >> level) ? (info.extent.height >> level) : 1, 1 };
+			}
+			vkCmdCopyImage(g.cmd, img.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, fresh, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, info.mipLevels, regions.data());
+			barrier(fresh, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, img.layout, img.recipe->aspect);
+			submit_commands();
+		}
+		destroy_views(img);
+		vkDestroyImage(g.device, img.image, nullptr); // The allocation stays: the allocator hands the image's handle over to the memory it was moved to.
+		img.image = fresh;
+		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &img.recipe->mapping : nullptr);
+		return true;
 	}
 
 	void destroy_image(gpu_image& img)

@@ -102,6 +102,8 @@ void bb_gui_idle(void);
 	X(vkDestroySwapchainKHR) \
 	X(vkGetSwapchainImagesKHR) \
 	X(vkAcquireNextImageKHR) \
+	X(vkCreateImage) \
+	X(vkDestroyImage) \
 	X(vkCreateImageView) \
 	X(vkDestroyImageView) \
 	X(vkCreateCommandPool) \
@@ -192,6 +194,7 @@ namespace bb::gfx {
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkComponentMapping mapping = {};
 		bool               has_mapping = false;
+		VkImageCreateInfo  create_info = {};            // As the image was made (with the usage bits added), for moving it to other memory.
 		bool               in_system = false;          // The image was moved to system memory to make room for one that has to be in video memory.
 		bool               may_spill = false;          // The image may live in system memory when video memory is full (see image_spill_scope).
 		content            kind = content::blank;
@@ -967,6 +970,10 @@ namespace bb::gfx {
 	void destroy_image(gpu_image& img);
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
 	void release_image(gpu_image& img);
+	/** Moves an image to the memory the allocator found for it (defragmentation): copies it over on the GPU and makes its views again. */
+	bool move_image(gpu_image& img, VmaAllocation destination);
+	/** Lets the allocator move the allocations of textures and images together, so that a gap that is big enough is made. True if anything moved. */
+	bool defragment_images();
 	/** The view that is drawn to for a layer of an image; layer 0, and any layer of an image with just one, is the first. */
 	VkImageView target_view_of(gpu_image const& img, uint32_t layer);
 	/** Points a descriptor set at the view that the image is sampled through, with the sampler. */
