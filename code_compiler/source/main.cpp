@@ -885,10 +885,10 @@ static int compiler_main(int argc, char** argv)
 				copy_shared(family::ffmpeg, "opens movies (needs the libraries of FFmpeg)");
 				copy_shared(family::audio, "opens movies (needs libopus to play Opus sound)");
 			}
-			// Jolt, behind a C interface, finds what picks hit (see pick_physics.cpp). The runtime picks by itself without it.
+			// Jolt, behind a C interface, finds what picks hit (see pick_physics.cpp). The runtime picks by itself without it, and when BLITZLLVM_PICK_BACKEND is legacy.
 			for (auto pick : { "@bb_line_pick", "@bb_entity_pick", "@bb_camera_pick", "@bb_entity_visible" }) {
 				if (ir.find(pick) != std::string::npos) {
-					copy_shared(family::physics, "picks (the physics library is used to find what is hit when BLITZLLVM_PICK_BACKEND is jolt)");
+					copy_shared(family::physics, "picks (the physics library finds what is hit unless BLITZLLVM_PICK_BACKEND is legacy)");
 					break;
 				}
 			}

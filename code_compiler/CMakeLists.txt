@@ -265,9 +265,9 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			set_tests_properties("${_PREFIX}-run-${_NAME}-interlock" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite;gpu" ENVIRONMENT "BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_DITHER_LOCAL_READ=0;BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
 		endif()
 		if(_NAME STREQUAL "blitz3d_pick_large_meshes")
-			# Again with the physics library finding what is hit, which has to give the same answers.
-			add_test(NAME "${_PREFIX}-run-${_NAME}-jolt" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
-			set_tests_properties("${_PREFIX}-run-${_NAME}-jolt" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite" ENVIRONMENT "BLITZLLVM_HEADLESS=1;BLITZLLVM_PICK_BACKEND=jolt;BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
+			# Again with the runtime finding what is hit itself (the physics library is the default), which has to give the same answers.
+			add_test(NAME "${_PREFIX}-run-${_NAME}-legacy" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
+			set_tests_properties("${_PREFIX}-run-${_NAME}-legacy" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite" ENVIRONMENT "BLITZLLVM_HEADLESS=1;BLITZLLVM_PICK_BACKEND=legacy;BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
 		endif()
 		file(STRINGS "${_FILE}" _MOVES_MOUSE REGEX "[Mm]ove[Mm]ouse" LIMIT_COUNT 1)
 		if(_MOVES_MOUSE)

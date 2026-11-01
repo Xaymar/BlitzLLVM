@@ -279,7 +279,7 @@ suite-debug-run-blitz3d_negative_light_pixels
 suite-debug-run-blitz3d_oit_pixels
 suite-debug-run-blitz3d_pick_changes
 suite-debug-run-blitz3d_pick_large_meshes
-disabled: suite-debug-run-blitz3d_pick_large_meshes-jolt
+disabled: suite-debug-run-blitz3d_pick_large_meshes-legacy
 suite-debug-run-blitz3d_entity_lighting_pixels
 suite-debug-run-blitz3d_pixels
 suite-debug-run-blitz3d_samplers
