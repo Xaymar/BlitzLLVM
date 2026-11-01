@@ -49,10 +49,9 @@ The tables of the page:
 
 | Real World Applications | Stranded II (`tools/benchmark_stranded2.py`): milliseconds per frame
 | Benchmarks | `emitted.bb` (loops, math, arrays, types, strings, calls, banks, `Select`), `flythrough.bb`, `waterfall.bb` and `dungeon.bb` at 320x180, and more
-| Compile time | time and size of compiling a hello world and `flythrough.bb`
 |===
 
-The old versions of the compiler (the first few tags) have no runtime, so only the compile time has numbers for them.
+The old versions of the compiler (the first few tags) have no runtime, so they have no numbers and are not listed. The compile time is not part of the page: the original does no optimization at all.
 
 == flythrough: a camera through a field of many entities
 
