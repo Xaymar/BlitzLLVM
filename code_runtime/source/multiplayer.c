@@ -76,6 +76,7 @@ typedef struct bb_player {
 	char*   name;
 	int     remote;
 	int     connection; // Which connection a remote player is behind, -1 for the players of this program.
+	size_t  pending;    // What this player sent that RecvNetMsg has not taken yet, in bytes.
 } bb_player;
 
 typedef struct bb_connection {
@@ -83,7 +84,6 @@ typedef struct bb_connection {
 	uint8_t* buffer;
 	size_t   size, capacity;
 	int      greeted;
-	size_t   pending;  // What this connection delivered that RecvNetMsg has not taken yet, in bytes.
 	int      overflow; // It delivered more than MAX_FRAME while the program did not take it.
 } bb_connection;
 
@@ -92,7 +92,6 @@ typedef struct bb_message {
 	int32_t from, to;
 	char*   data;
 	size_t  length;
-	int     connection; // Which connection delivered it, -1 if none did.
 } bb_message;
 
 #define MAX_CONNECTIONS 32
@@ -152,6 +151,7 @@ static bb_player* bb_net_add_player(int32_t id, const char* name, size_t length,
 	p->name        = bb_net_copy(name, length);
 	p->remote      = remote;
 	p->connection  = connection;
+	p->pending     = 0;
 	if (remote) {
 		bb_net_new = (int32_t*)bb_realloc(bb_net_new, (size_t)(bb_net_new_count + 1) * sizeof(int32_t));
 		bb_net_new[bb_net_new_count++] = id;
@@ -177,17 +177,20 @@ static void bb_net_remove_player(int32_t id)
 	}
 }
 
-// Puts a message in front of the program. A connection that delivers more than MAX_FRAME bytes while the program has not called RecvNetMsg to
-// take them is closed: it is either not one of us, or a program that the other side can not keep up with.
+// Puts a message in front of the program. A player can have at most MAX_FRAME bytes waiting while the program has not called RecvNetMsg to
+// take them. When it sends more, the connection it is behind is closed: it is either not one of us, or a program that this one can not keep up with.
 static void bb_net_push_from(int connection, int type, int32_t from, int32_t to, const char* data, size_t length)
 {
 	if (connection >= 0) {
-		bb_connection* c = &bb_net_connections[connection];
-		if (c->overflow || (c->pending + length + 1 > MAX_FRAME)) {
+		bb_connection* c      = &bb_net_connections[connection];
+		bb_player*     sender = bb_net_find(from);
+		if (c->overflow || (sender && (sender->pending + length + 1 > MAX_FRAME))) {
 			c->overflow = 1;
 			return;
 		}
-		c->pending += length + 1;
+		if (sender) {
+			sender->pending += length + 1;
+		}
 	}
 	bb_net_inbox = (bb_message*)bb_realloc(bb_net_inbox, (size_t)(bb_net_inbox_count + 1) * sizeof(bb_message));
 	bb_message* m = &bb_net_inbox[bb_net_inbox_count++];
@@ -196,7 +199,6 @@ static void bb_net_push_from(int connection, int type, int32_t from, int32_t to,
 	m->to         = to;
 	m->data       = bb_net_copy(data ? data : "", length);
 	m->length     = length;
-	m->connection = connection;
 }
 
 static void bb_net_push(int type, int32_t from, int32_t to, const char* data, size_t length)
@@ -238,12 +240,6 @@ static void bb_net_close_connection(int connection)
 	bb_connection* c = &bb_net_connections[connection];
 	if (c->stream) {
 		bb_close_tcp_stream(c->stream);
-	}
-	// What it delivered stays, but is not counted against whatever uses this slot next.
-	for (int i = 0; i < bb_net_inbox_count; i++) {
-		if (bb_net_inbox[i].connection == connection) {
-			bb_net_inbox[i].connection = -1;
-		}
 	}
 	bb_free(c->buffer);
 	memset(c, 0, sizeof(*c));
@@ -759,8 +755,9 @@ int32_t bb_recv_net_msg(void)
 	}
 	if (bb_net_inbox_count) {
 		bb_message m = bb_net_inbox[0];
-		if ((m.connection >= 0) && bb_net_connections[m.connection].pending >= m.length + 1) {
-			bb_net_connections[m.connection].pending -= m.length + 1;
+		bb_player* sender = bb_net_find(m.from);
+		if (sender && (sender->pending >= m.length + 1)) {
+			sender->pending -= m.length + 1;
 		}
 		memmove(bb_net_inbox, bb_net_inbox + 1, (size_t)(--bb_net_inbox_count) * sizeof(bb_message));
 		bb_msg_type = m.type;
