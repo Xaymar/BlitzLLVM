@@ -4,7 +4,7 @@
 ; Texture streaming: textures with mip maps that were loaded from a file lose their biggest levels (instead of going to system memory) when a
 ; texture with flag 256 needs the room, get them back when they are drawn and video memory has room to spare, and still read back as the file.
 Graphics 320, 240, 0, 2
-Local i, f, source, big, r
+Local i, f, source, big, big2, r
 Dim t(4)
 Dim c(4)
 
@@ -39,6 +39,7 @@ Next
 ; Needs room that only the biggest levels of the textures above can give.
 ; (The upload buffer of the texture counts against BLITZLLVM_VRAM_LIMIT_MB too, so this one is not bigger than the room that is left.)
 big = CreateTexture(2048, 2048, 1 + 256)
+big2 = CreateTexture(2048, 2048, 1 + 256)
 For f = 1 To 20
 	RenderWorld
 	Flip
@@ -46,6 +47,7 @@ Next
 
 ; With room to spare the drawn textures get levels back, one at a time.
 FreeTexture big
+FreeTexture big2
 For f = 1 To 80
 	RenderWorld
 	Flip
