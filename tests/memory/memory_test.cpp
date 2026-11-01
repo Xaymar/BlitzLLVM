@@ -204,6 +204,7 @@ static void test_threads()
 					fill(p, size < 64 ? size : 64, seed);
 					made[t].emplace_back(p, seed);
 				}
+				fprintf(stderr, " producer %d done\n", t);
 			});
 		}
 		for (auto& th : threads) {
