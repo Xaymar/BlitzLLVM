@@ -192,6 +192,7 @@ static void test_threads()
 	bb_mem_get_stats(&before);
 	std::atomic<int>         bad{ 0 };
 	for (int round = 0; round < rounds; round++) {
+		fprintf(stderr, " round %d\n", round);
 		std::vector<std::vector<std::pair<void*, uint32_t>>> made(producers);
 		std::vector<std::thread>                             threads;
 		for (int t = 0; t < producers; t++) {
@@ -208,7 +209,9 @@ static void test_threads()
 		for (auto& th : threads) {
 			th.join();
 		}
+		fprintf(stderr, " produced\n");
 		threads.clear();
+		fprintf(stderr, " freeing\n");
 		// Other threads free them (the producers already ended: their caches went back to the pool).
 		for (int t = 0; t < producers; t++) {
 			threads.emplace_back([&, t] {
@@ -224,6 +227,7 @@ static void test_threads()
 		for (auto& th : threads) {
 			th.join();
 		}
+		fprintf(stderr, " freed\n");
 	}
 	CHECK(bad == 0);
 	// Memory must have been reused: 5 rounds of 800000 blocks (about 1.2 GB) may not take 5 times the spans of one.
