@@ -1392,6 +1392,8 @@ int32_t bb_get_joy(int32_t port);
 void bb_flush_joy(void);
 int32_t bb_key_down(int32_t key, int32_t device);
 int32_t bb_key_hit(int32_t key, int32_t device);
+int32_t bb_vkey_down(int32_t sdl, int32_t device);
+int32_t bb_vkey_hit(int32_t sdl, int32_t device);
 int32_t bb_mouse_x(int32_t canvas, int32_t device);
 int32_t bb_mouse_y(int32_t canvas, int32_t device);
 int32_t bb_mouse_down(int32_t button, int32_t device);

@@ -457,7 +457,7 @@ namespace bb::gfx {
 					bool modifier = (event.key.scancode == SDL_SCANCODE_LSHIFT) || (event.key.scancode == SDL_SCANCODE_RSHIFT)
 					             || (event.key.scancode == SDL_SCANCODE_LCTRL) || (event.key.scancode == SDL_SCANCODE_RCTRL)
 					             || (event.key.scancode == SDL_SCANCODE_LALT) || (event.key.scancode == SDL_SCANCODE_RALT);
-					if (!event.key.repeat && !(modifier || bb_event_hotkey(key, event_modifiers()))) {
+					if (key < key_extended && !event.key.repeat && !(modifier || bb_event_hotkey(key, event_modifiers()))) {
 						bb_event_post(0x101, key, 0, 0, 0, 0);
 					}
 				}
@@ -571,7 +571,9 @@ namespace bb::gfx {
 						d->keys[key] = false;
 					}
 					g.keys[key] = false;
-					bb_event_post(0x102, key, 0, 0, 0, 0);
+					if (key < key_extended) {
+						bb_event_post(0x102, key, 0, 0, 0, 0);
+					}
 				}
 				break;
 			}
@@ -1029,7 +1031,9 @@ int32_t bb_input_active(void)
 	return active() ? 1 : 0;
 }
 
-int32_t bb_key_down(int32_t key, int32_t device)
+// KeyDown and KeyHit take the codes of the original (1 to 255). VKeyDown and VKeyHit take an SDL scancode instead, which
+// every key has, and ask the same state by the index that blitz_key gives the key.
+static int32_t key_down_at(int32_t key, int32_t device)
 {
 	if (!active()) {
 		return 0;
@@ -1041,7 +1045,7 @@ int32_t bb_key_down(int32_t key, int32_t device)
 	return ((key > 0) && (key < key_count) && g.keys[key]) ? 1 : 0;
 }
 
-int32_t bb_key_hit(int32_t key, int32_t device)
+static int32_t key_hit_at(int32_t key, int32_t device)
 {
 	if (!active()) {
 		return 0;
@@ -1056,6 +1060,31 @@ int32_t bb_key_hit(int32_t key, int32_t device)
 		return hits;
 	}
 	return 0;
+}
+
+static int sdl_key_index(int32_t sdl)
+{
+	return ((sdl > 0) && (sdl < SDL_SCANCODE_COUNT)) ? blitz_key(SDL_Scancode(sdl)) : 0;
+}
+
+int32_t bb_key_down(int32_t key, int32_t device)
+{
+	return ((key > 0) && (key < key_extended)) ? key_down_at(key, device) : 0;
+}
+
+int32_t bb_key_hit(int32_t key, int32_t device)
+{
+	return ((key > 0) && (key < key_extended)) ? key_hit_at(key, device) : 0;
+}
+
+int32_t bb_vkey_down(int32_t sdl, int32_t device)
+{
+	return key_down_at(sdl_key_index(sdl), device);
+}
+
+int32_t bb_vkey_hit(int32_t sdl, int32_t device)
+{
+	return key_hit_at(sdl_key_index(sdl), device);
 }
 
 // MouseX [canvas]: in the window, or in a canvas if one is given.

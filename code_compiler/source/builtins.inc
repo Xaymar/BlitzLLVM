@@ -486,6 +486,8 @@
 		{ "waitkey", "bb_wait_key", 'i', "", 0, {}, false },
 		{ "keydown", "bb_key_down", 'i', "ii", 1, { 0, -1 }, false },
 		{ "keyhit", "bb_key_hit", 'i', "ii", 1, { 0, -1 }, false },
+		{ "vkeydown", "bb_vkey_down", 'i', "ii", 1, { 0, -1 }, false },
+		{ "vkeyhit", "bb_vkey_hit", 'i', "ii", 1, { 0, -1 }, false },
 		{ "mousex", "bb_mouse_x", 'i', "ii", 0, { 0, -1 }, false },
 		{ "mousey", "bb_mouse_y", 'i', "ii", 0, { 0, -1 }, false },
 		{ "mousedown", "bb_mouse_down", 'i', "ii", 1, { 0, -1 }, false },
