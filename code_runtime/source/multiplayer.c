@@ -67,6 +67,8 @@ enum {
 // What a program that has not said hello yet may send: the hello is only the name of the game. Anything bigger is not one of us, and the host
 // would otherwise hold on to up to MAX_FRAME for each of the connections that are not even in the game.
 #define MAX_FRAME_BEFORE_HELLO 4096
+// The receive ring of a connection: the length of a frame and one whole frame, which is the most that is ever waiting in it.
+#define RING_SIZE ((size_t)MAX_FRAME + 4)
 // What one program that joined may have in the game, and how long the name of a player is.
 #define MAX_PLAYERS_PER_CONNECTION 64
 #define MAX_PLAYER_NAME            255
@@ -81,8 +83,8 @@ typedef struct bb_player {
 
 typedef struct bb_connection {
 	int32_t  stream; // 0 if not used
-	uint8_t* buffer;
-	size_t   size, capacity;
+	uint8_t* buffer;     // A ring of RING_SIZE bytes, allocated when the first bytes arrive and never resized.
+	size_t   head, size; // Where the oldest byte is, and how many bytes are in the ring.
 	int      greeted;
 	int      overflow; // It delivered more than MAX_FRAME while the program did not take it.
 } bb_connection;
@@ -400,6 +402,20 @@ static void bb_net_client_frame(uint8_t kind, const uint8_t* payload, size_t len
 	}
 }
 
+// Copies length bytes that are offset bytes behind the oldest byte of the ring.
+static void ring_peek(const bb_connection* c, size_t offset, uint8_t* to, size_t length)
+{
+	size_t at    = (c->head + offset) % RING_SIZE;
+	size_t first = RING_SIZE - at;
+	if (first > length) {
+		first = length;
+	}
+	memcpy(to, c->buffer + at, first);
+	if (first < length) {
+		memcpy(to + first, c->buffer, length - first);
+	}
+}
+
 // Takes in what arrived, and does something about it. Gives 0 if the connection was closed.
 static int bb_net_read(int connection)
 {
@@ -418,41 +434,56 @@ static int bb_net_read(int connection)
 			alive = 0; // That is not a hello.
 			break;
 		}
-		// Never take in more than one frame (and its length) at once: the rest stays in the stream until this one is handled.
-		if (c->size >= (size_t)MAX_FRAME + 4) {
+		// Never take in more than the ring has room for (one frame and its length): the rest stays in the stream until this one is handled.
+		if (c->size >= RING_SIZE) {
 			break;
 		}
-		if ((size_t)available > (size_t)MAX_FRAME + 4 - c->size) {
-			available = (int32_t)((size_t)MAX_FRAME + 4 - c->size);
+		if ((size_t)available > RING_SIZE - c->size) {
+			available = (int32_t)(RING_SIZE - c->size);
 		}
-		if (c->size + (size_t)available > c->capacity) {
-			c->capacity = (c->size + (size_t)available) * 2;
-			c->buffer   = (uint8_t*)bb_realloc_or_fail(c->buffer, c->capacity);
+		if (!c->buffer) {
+			c->buffer = (uint8_t*)bb_malloc_or_fail(RING_SIZE);
 		}
-		size_t got = bb_stream_read(stream, c->buffer + c->size, (size_t)available);
+		// The free room can wrap around the end of the ring, which takes two reads.
+		size_t tail  = (c->head + c->size) % RING_SIZE;
+		size_t first = RING_SIZE - tail;
+		if ((size_t)available < first) {
+			first = (size_t)available;
+		}
+		size_t got = bb_stream_read(stream, c->buffer + tail, first);
 		if (got == 0) {
 			alive = 0;
 			break;
 		}
 		c->size += got;
+		if ((got == first) && ((size_t)available > first)) {
+			got = bb_stream_read(stream, c->buffer, (size_t)available - first);
+			if (got == 0) {
+				alive = 0;
+				break;
+			}
+			c->size += got;
+		}
 	}
 	// Whole frames only.
-	size_t used = 0;
-	while (c->size - used >= 5) {
-		int32_t length = get32(c->buffer + used);
+	while (c->size >= 5) {
+		uint8_t header[5];
+		ring_peek(c, 0, header, 5);
+		int32_t length = get32(header);
 		if ((length < 1) || (length > MAX_FRAME) || (bb_net_host && !c->greeted && (length > MAX_FRAME_BEFORE_HELLO))) {
 			alive = 0; // That is not one of us.
 			break;
 		}
-		if (c->size - used < (size_t)length + 4) {
+		if (c->size < (size_t)length + 4) {
 			break;
 		}
-		uint8_t kind = c->buffer[used + 4];
-		// The frame is copied: handling it can close the connection and its buffer.
+		uint8_t kind = header[4];
+		// The frame is copied out of the ring: handling it can close the connection and its buffer.
 		size_t   payload_length = (size_t)length - 1;
 		uint8_t* payload        = (uint8_t*)bb_malloc_or_fail(payload_length + 1);
-		memcpy(payload, c->buffer + used + 5, payload_length);
-		used += (size_t)length + 4;
+		ring_peek(c, 5, payload, payload_length);
+		c->head = (c->head + (size_t)length + 4) % RING_SIZE;
+		c->size -= (size_t)length + 4;
 		if (bb_net_host) {
 			bb_net_host_frame(connection, kind, payload, payload_length);
 		} else {
@@ -466,10 +497,6 @@ static int bb_net_read(int connection)
 			alive = 0; // Too much that the program has not taken.
 			break;
 		}
-	}
-	if (used) {
-		memmove(c->buffer, c->buffer + used, c->size - used);
-		c->size -= used;
 	}
 	return alive;
 }
