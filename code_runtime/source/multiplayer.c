@@ -61,6 +61,8 @@ enum {
 // The most that one frame may hold, whatever it carries and whichever connection it comes over. This is also the most a connection can have
 // waiting in its buffer, so a program that joined can not make the host (or another program) hold on to more than that for it.
 #define MAX_FRAME (64 * 1024)
+// What a message from SendNetMsg may carry: a frame is the kind byte, the sender, the receiver and the type, then the data.
+#define MAX_MESSAGE_DATA (MAX_FRAME - 1 - 9)
 
 // What a program that has not said hello yet may send: the hello is only the name of the game. Anything bigger is not one of us, and the host
 // would otherwise hold on to up to MAX_FRAME for each of the connections that are not even in the game.
@@ -685,6 +687,9 @@ int32_t bb_send_net_msg(int32_t type, const char* data, int32_t from, int32_t to
 		return 0;
 	}
 	size_t   length = bb_slen(data);
+	if (length > MAX_MESSAGE_DATA) {
+		return 0; // Too big for one frame, and the other side would drop the connection for it.
+	}
 	uint8_t* frame  = (uint8_t*)bb_malloc(length + 9);
 	put32(frame, from);
 	put32(frame + 4, to);
