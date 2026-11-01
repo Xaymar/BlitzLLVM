@@ -191,17 +191,20 @@ CheckS "stored Byte", Str(sized_b), "100"
 CheckS "stored UByte", Str(sized_ub), "200"
 CheckS "stored Short", Str(sized_s), "-300"
 CheckS "stored Long", Str(sized_l), "1099511627776"
-Check "1f is a Float", 1f / 3, 0.3333333, 0.000001
-Check "fp32", 1.5fp32, 1.5
-Check "1d is a Double", Double(1d) / 3d, 0.3333333333333333, 0.0000000000001
-Check "fp64", 0.1fp64 * 3, 0.3
-Check "h", 1.5h * 2, 3.0
-Check "fp16", 2fp16 + 1, 3.0
-Check "h rounds", Double(0.1h), 0.0999755859375, 0.0000000001
-Check "h max", Double(65504h), 65504.0
-Check "neg real", -2.5d, -2.5
-Check "d keeps precision", Double(0.1d), 0.1, 0.0000000000000001
-Check "binary f", 0b101f, 5.0
-Check "binary d", Double(0b11d), 3.0
-Check "binary h", Double(0b100h), 4.0
-Check "binary fp64", Double(0b1000fp64), 8.0
+Check "1f is a Float", 1.f / 3, 0.3333333, 0.000001
+Check "fp32", 1.5.fp32, 1.5
+Check "1d is a Double", Double(1.d) / 3.d, 0.3333333333333333, 0.0000000000001
+Check "fp64", 0.1.fp64 * 3, 0.3
+Check "h", 1.5.h * 2, 3.0
+Check "fp16", 2.fp16 + 1, 3.0
+Check "h rounds", Double(0.1.h), 0.0999755859375, 0.0000000001
+Check "h max", Double(65504.h), 65504.0
+Check "neg real", -2.5.d, -2.5
+Check "d keeps precision", Double(0.1.d), 0.1, 0.0000000000000001
+Check "binary f", 0b101.f, 5.0
+Check "binary d", Double(0b11.d), 3.0
+Check "binary h", Double(0b100.h), 4.0
+Check "binary fp64", Double(0b1000.fp64), 8.0
+Check "hex f", 0xFF.f, 255.0
+Check "hex h", Double(0x10.h), 16.0
+Check "hex d is still a digit", Double(0x1D.d), 29.0

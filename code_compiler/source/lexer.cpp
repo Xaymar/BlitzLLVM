@@ -185,7 +185,6 @@ blitz::token blitz::lexer::scan()
 		// Integer or Real
 		token.type   = blitz::token::variant::INTEGER;
 		size_t start = _offset;
-		bool   prefixed = (chr == '0') && ((at(1) == 'x') || (at(1) == 'X')); // Only hex has f and d as digits.
 		if ((chr == '0') && ((at(1) == 'x') || (at(1) == 'X'))) {
 			advance(2);
 			while (is_hex(at())) {
@@ -209,22 +208,18 @@ blitz::token blitz::lexer::scan()
 				}
 			}
 		}
-		// A suffix that says the exact type: u, i8..i64 and ui8..ui64 for whole numbers, h, f, d and fp16..fp64 for decimal numbers. It has to end
-		// the number (`1foo` stays a number and a name), and the float ones are not for 0x numbers, as `f` and `d` are digits there.
+		// A suffix that says the exact type: u, i8..i64 and ui8..ui64 for whole numbers, and .h, .f, .d, .fp16, .fp32 and .fp64 for reals (with a
+		// dot, as f and d are digits in a 0x number). It has to end the number (`1foo` stays a number and a name), and `1.h` is a Half with the value 1.
 		bool whole = (token.type == blitz::token::variant::INTEGER);
-		static const struct {
-			const char* text;
-			bool        whole;
-		} suffixes[] = { { "ui64", true }, { "ui32", true }, { "ui16", true }, { "ui8", true }, { "i64", true }, { "i32", true }, { "i16", true }, { "i8", true },
-		                 { "u", true },    { "fp64", false }, { "fp32", false }, { "fp16", false }, { "h", false },   { "f", false },   { "d", false } };
-		for (auto const& suffix : suffixes) {
-			if ((suffix.whole && !whole) || (!suffix.whole && prefixed)) {
+		static const char* const suffixes[] = { "ui64", "ui32", "ui16", "ui8", "i64", "i32", "i16", "i8", "u", ".fp64", ".fp32", ".fp16", ".h", ".f", ".d" };
+		for (auto const* suffix : suffixes) {
+			if ((suffix[0] != '.') && !whole) {
 				continue;
 			}
-			size_t length = strlen(suffix.text);
+			size_t length = strlen(suffix);
 			bool   match  = true;
 			for (size_t idx = 0; idx < length; idx++) {
-				match = match && (tolower(at(idx)) == suffix.text[idx]);
+				match = match && (tolower(at(idx)) == suffix[idx]);
 			}
 			if (match && !is_ident(at(length))) {
 				advance(length);

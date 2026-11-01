@@ -34,12 +34,19 @@ namespace {
 		} else if ((text.length() >= 1) && ((text[0] == '$') || (text[0] == '%'))) {
 			end = text.length();
 		} else {
-			for (; (end < text.length()) && (isdigit((unsigned char)text[end]) || (text[end] == '.')); end++) {}
+			// Digits, then `.5` or a lone `.`, but not the dot of `.h`, `.f` and `.d`.
+			for (; (end < text.length()) && isdigit((unsigned char)text[end]); end++) {}
+			if ((end < text.length()) && (text[end] == '.') && ((end + 1 == text.length()) || isdigit((unsigned char)text[end + 1]))) {
+				for (end++; (end < text.length()) && isdigit((unsigned char)text[end]); end++) {}
+			}
 		}
 		body   = text.substr(0, end);
 		suffix = text.substr(end);
 		for (auto& c : suffix) {
 			c = char(tolower((unsigned char)c));
+		}
+		if (!suffix.empty() && (suffix[0] == '.')) {
+			suffix.erase(0, 1); // The dot of a real suffix.
 		}
 	}
 
@@ -422,7 +429,7 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	if ((found != typed.end()) && blitz::types::is_real(found->second.first)) {
 		type   as = found->second.first;
 		errno     = 0;
-		double v  = ((text.length() > 2) && (text[0] == '0') && ((text[1] == 'b') || (text[1] == 'B'))) ? double(strtoull(text.c_str() + 2, nullptr, 2)) : strtod(text.c_str(), nullptr); // 0b101f is 5.0.
+		double v  = ((text.length() > 2) && (text[0] == '0') && ((text[1] == 'b') || (text[1] == 'B'))) ? double(strtoull(text.c_str() + 2, nullptr, 2)) : (((text.length() > 2) && (text[0] == '0') && ((text[1] == 'x') || (text[1] == 'X'))) ? double(strtoull(text.c_str() + 2, nullptr, 16)) : strtod(text.c_str(), nullptr)); // 0b101.f is 5.0.
 		if (negate) {
 			v = -v;
 		}
