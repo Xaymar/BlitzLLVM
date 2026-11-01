@@ -235,6 +235,255 @@ if(NOT CMAKE_GENERATOR MATCHES "Visual Studio")
 	list(APPEND _DEPENDENCY_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}" "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 endif()
 
+# FFmpeg plays the movies (OpenMovie and the other movie commands). It is built as shared libraries and with the LGPL parts only
+# (no --enable-gpl and no --enable-nonfree), so the library that programs load can be replaced by the user, which is what the LGPL asks
+# of programs that use it. The runtime does not link to them: it loads them when a movie is opened (see movie.cpp), so programs
+# that don't play movies don't need them, and a program whose libraries are missing just gets 0 from OpenMovie. Only the demuxers and
+# decoders listed here are built, and for size (--enable-small), which keeps the libraries at about 6 MiB.
+#
+# FFmpeg does not build with CMake: it has a configure script and Makefiles that need a Unix shell, and a compiler that is GCC or Clang.
+# On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the UCRT64 environment with gcc, make, nasm and
+# diffutils), found through the environment variable BLITZLLVM_MSYS2 or in C:/msys64. The libraries are built there, once, at configure
+# time, and what programs load from them is only the C interface of the DLLs, which any compiler's programs can use.
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/FFmpeg/configure")
+	message(FATAL_ERROR "The submodule 'third_party/FFmpeg' is missing, run 'git submodule update --init' first.")
+endif()
+set(_FFMPEG_SOURCE "${PROJECT_SOURCE_DIR}/third_party/FFmpeg")
+set(_FFMPEG_ROOT "${CMAKE_BINARY_DIR}/ExternalContentFiles")
+set(FFMPEG_INSTALL_PATH "${_FFMPEG_ROOT}/FFmpeg.dst")
+set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
+set(_FFMPEG_ARGS
+	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
+	--disable-avdevice --disable-avfilter --disable-network --enable-small --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
+	--enable-swscale --disable-swresample --enable-pic
+	--enable-protocol=file
+	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
+	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,flac,mjpeg
+	--enable-decoder=mpeg1video,mpeg2video,mpeg4,msmpeg4v1,msmpeg4v2,msmpeg4v3,h264,hevc,vp8,vp9,theora,wmv1,wmv2,wmv3,mjpeg
+	--enable-decoder=aac,mp3,mp3float,mp2,mp2float,ac3,vorbis,wmav1,wmav2,flac,pcm_s16le,pcm_u8,pcm_s16be,adpcm_ms,adpcm_ima_wav
+)
+if(APPLE)
+	# The libraries find each other next to themselves, wherever the program that loads them is.
+	list(APPEND _FFMPEG_ARGS --install-name-dir=@loader_path)
+endif()
+if(WIN32)
+	# Windows on ARM64 has no gcc in MSYS2: its CLANGARM64 environment has clang, which needs no libgcc.
+	if(CMAKE_GENERATOR_PLATFORM)
+		set(_WINDOWS_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
+	else()
+		set(_WINDOWS_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+	endif()
+	if(_WINDOWS_ARCHITECTURE MATCHES "^([aA][rR][mM]64|[aA][aA][rR][cC][hH]64)$")
+		set(_MSYS2_ENVIRONMENT CLANGARM64)
+		set(_MSYS2_COMPILER_ARGS --arch=aarch64 --cc=clang)
+		set(_FFMPEG_LIBGCC "")
+	else()
+		set(_MSYS2_ENVIRONMENT UCRT64)
+		set(_MSYS2_COMPILER_ARGS --cc=gcc)
+		set(_FFMPEG_LIBGCC --extra-ldflags=-static-libgcc)
+	endif()
+	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
+	# clock_gettime comes from MSYS2's libwinpthread-1.dll (clock_gettime64 is missing from older copies on PATH), so link it statically.
+	list(APPEND _FFMPEG_ARGS --enable-w32threads ${_FFMPEG_LIBGCC} --extra-libs=-l:libwinpthread.a)
+endif()
+
+# The system's FFmpeg is only used when it is LGPL (the builds of Debian and Ubuntu have GPL parts, which makes every program that loads them
+# GPL) and has the demuxers and decoders above, which is checked by building and running ffmpeg_check.c against it.
+blitz_system_library(_SYSTEM_FFMPEG FFMPEG libavutil libswscale libavcodec libavformat)
+if(_SYSTEM_FFMPEG)
+	set(_DEMUXERS "")
+	set(_DECODERS "")
+	foreach(_ARGUMENT IN LISTS _FFMPEG_ARGS)
+		if(_ARGUMENT MATCHES "^--enable-demuxer=(.*)$")
+			set(_DEMUXERS "${CMAKE_MATCH_1}")
+		elseif(_ARGUMENT MATCHES "^--enable-decoder=(.*)$")
+			list(APPEND _DECODERS "${CMAKE_MATCH_1}")
+		endif()
+	endforeach()
+	string(REPLACE ";" "," _DECODERS "${_DECODERS}")
+	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --cflags --libs libavutil libavcodec libavformat OUTPUT_VARIABLE _FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	separate_arguments(_FLAGS)
+	set(_FLAGS_COMPILE ${_FLAGS})
+	list(FILTER _FLAGS_COMPILE INCLUDE REGEX "^-I")
+	set(_FLAGS_LINK ${_FLAGS})
+	list(FILTER _FLAGS_LINK EXCLUDE REGEX "^-I")
+	try_run(_FFMPEG_RUN _FFMPEG_COMPILE
+		SOURCES "${CMAKE_CURRENT_LIST_DIR}/ffmpeg_check.c"
+		COMPILE_DEFINITIONS ${_FLAGS_COMPILE} "-DDEMUXERS=\"${_DEMUXERS}\"" "-DDECODERS=\"${_DECODERS}\""
+		LINK_LIBRARIES ${_FLAGS_LINK}
+		COMPILE_OUTPUT_VARIABLE _FFMPEG_COMPILE_OUTPUT RUN_OUTPUT_VARIABLE _FFMPEG_OUTPUT
+	)
+	string(STRIP "${_FFMPEG_OUTPUT}" _FFMPEG_OUTPUT)
+	string(REPLACE "\n" ", " _FFMPEG_OUTPUT "${_FFMPEG_OUTPUT}")
+	if(NOT _FFMPEG_COMPILE)
+		set(_FFMPEG_PROBLEM "its headers and libraries do not build a program")
+	elseif(NOT _FFMPEG_RUN EQUAL 0)
+		set(_FFMPEG_PROBLEM "it is ${_FFMPEG_OUTPUT}")
+	endif()
+	if(_FFMPEG_PROBLEM)
+		if(BLITZ_SYSTEM_FFMPEG STREQUAL "ON")
+			message(FATAL_ERROR "BLITZ_SYSTEM_FFMPEG is ON, but the system's FFmpeg can not be used: ${_FFMPEG_PROBLEM}.")
+		endif()
+		message(STATUS "The system's FFmpeg can not be used (${_FFMPEG_PROBLEM}), building the bundled copy")
+		set(_SYSTEM_FFMPEG OFF)
+	endif()
+endif()
+
+# How many compiler processes the dependencies may use at once in total: the build of FFmpeg and the build of the other dependencies run at the
+# same time (see blitz_start_ffmpeg), and share them. Every build tool is limited to its share, so the machine is not given more than it has.
+cmake_host_system_information(RESULT _CORES QUERY NUMBER_OF_LOGICAL_CORES)
+set(BLITZLLVM_DEPENDENCY_JOBS "${_CORES}" CACHE STRING "How many compiler processes the build of the dependencies (SDL3, SDL_image, SDL_mixer, FFmpeg) uses at once, in total")
+if(NOT BLITZLLVM_DEPENDENCY_JOBS MATCHES "^[1-9][0-9]*$")
+	message(FATAL_ERROR "BLITZLLVM_DEPENDENCY_JOBS has to be a number of at least 1, not '${BLITZLLVM_DEPENDENCY_JOBS}'.")
+endif()
+set(_DEPENDENCY_JOBS ${BLITZLLVM_DEPENDENCY_JOBS}) # What the CMake dependencies get: all of them, or what is left when FFmpeg is built.
+set(_FFMPEG_LOG "${_FFMPEG_ROOT}/FFmpeg.log")
+set(_FFMPEG_RESULT "${_FFMPEG_ROOT}/FFmpeg.result")
+set(_FFMPEG_PENDING OFF)
+
+# Starts building FFmpeg, if it needs to be built, and does not wait for it: the build of FFmpeg does not depend on any other dependency, so it
+# runs as a process of its own (build_ffmpeg.cmake) while the other dependencies are built, and blitz_wait_ffmpeg waits for it where its
+# libraries are needed. The two share the jobs: FFmpeg gets half (make), the rest is what the other builds use (_DEPENDENCY_JOBS).
+function(blitz_start_ffmpeg)
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" -C "${_FFMPEG_SOURCE}" rev-parse HEAD
+		OUTPUT_VARIABLE _REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	string(SHA256 _STAMP_TEXT "${_REVISION} ${_FFMPEG_ARGS} ${CMAKE_C_COMPILER} ${CMAKE_OSX_ARCHITECTURES}")
+	set(_STAMP "${_FFMPEG_ROOT}/FFmpeg.stamp")
+	if(EXISTS "${_STAMP}" AND EXISTS "${FFMPEG_INSTALL_PATH}/include/libavformat/avformat.h")
+		file(READ "${_STAMP}" _STAMPED)
+		if(_STAMPED STREQUAL _STAMP_TEXT)
+			return()
+		endif()
+	endif()
+
+	if(WIN32)
+		set(_MSYS2 "$ENV{BLITZLLVM_MSYS2}")
+		if(NOT _MSYS2)
+			set(_MSYS2 "C:/msys64")
+		endif()
+		file(TO_CMAKE_PATH "${_MSYS2}" _MSYS2)
+		if(NOT EXISTS "${_MSYS2}/usr/bin/bash.exe")
+			message(FATAL_ERROR "FFmpeg is built with MSYS2, which was not found in '${_MSYS2}'. Install it from https://www.msys2.org (and gcc, make, nasm and diffutils in its UCRT64 environment, or clang for ARM64 in CLANGARM64), or set the environment variable BLITZLLVM_MSYS2 to where it is.")
+		endif()
+		set(_WINDOWS ON)
+	else()
+		set(_WINDOWS OFF)
+		set(_MSYS2 "")
+	endif()
+
+	math(EXPR _FFMPEG_JOBS "${BLITZLLVM_DEPENDENCY_JOBS} / 2")
+	if(_FFMPEG_JOBS LESS 1)
+		set(_FFMPEG_JOBS 1)
+	endif()
+	math(EXPR _OTHER_JOBS "${BLITZLLVM_DEPENDENCY_JOBS} - ${_FFMPEG_JOBS}")
+	if(_OTHER_JOBS LESS 1)
+		set(_OTHER_JOBS 1)
+	endif()
+	set(_DEPENDENCY_JOBS ${_OTHER_JOBS} PARENT_SCOPE)
+
+	message(STATUS "Building FFmpeg (shared, LGPL) in ${_FFMPEG_BUILD} with ${_FFMPEG_JOBS} jobs, next to the other dependencies (output in ${_FFMPEG_LOG})")
+	file(REMOVE_RECURSE "${_FFMPEG_BUILD}" "${FFMPEG_INSTALL_PATH}")
+	file(MAKE_DIRECTORY "${_FFMPEG_BUILD}")
+	file(REMOVE "${_FFMPEG_RESULT}" "${_STAMP}" "${_FFMPEG_LOG}")
+
+	# Everything the build needs, as a file, as the process that does it has none of the variables of this one.
+	set(_SETTINGS "${_FFMPEG_ROOT}/FFmpeg.settings.cmake")
+	file(WRITE "${_SETTINGS}"
+		"set(FFMPEG_SOURCE [==[${_FFMPEG_SOURCE}]==])\n"
+		"set(FFMPEG_BUILD [==[${_FFMPEG_BUILD}]==])\n"
+		"set(FFMPEG_INSTALL [==[${FFMPEG_INSTALL_PATH}]==])\n"
+		"set(FFMPEG_ROOT [==[${_FFMPEG_ROOT}]==])\n"
+		"set(FFMPEG_ARGS [==[${_FFMPEG_ARGS}]==])\n"
+		"set(FFMPEG_JOBS ${_FFMPEG_JOBS})\n"
+		"set(FFMPEG_RESULT [==[${_FFMPEG_RESULT}]==])\n"
+		"set(FFMPEG_STAMP [==[${_STAMP}]==])\n"
+		"set(FFMPEG_STAMP_TEXT [==[${_STAMP_TEXT}]==])\n"
+		"set(FFMPEG_C_COMPILER [==[${CMAKE_C_COMPILER}]==])\n"
+		"set(FFMPEG_OSX_ARCHITECTURES [==[${CMAKE_OSX_ARCHITECTURES}]==])\n"
+		"set(FFMPEG_HOST_PROCESSOR [==[${CMAKE_HOST_SYSTEM_PROCESSOR}]==])\n"
+		"set(FFMPEG_UNIVERSAL ${_UNIVERSAL})\n"
+		"set(FFMPEG_WINDOWS ${_WINDOWS})\n"
+		"set(FFMPEG_MSYS2 [==[${_MSYS2}]==])\n"
+		"set(FFMPEG_MSYS2_ENVIRONMENT [==[${_MSYS2_ENVIRONMENT}]==])\n"
+		"set(FFMPEG_MSYS2_COMPILER_ARGS [==[${_MSYS2_COMPILER_ARGS}]==])\n"
+	)
+
+	# Start the process and leave it running. Its output goes to a file, so that nothing connects it to this process, which would wait for it.
+	if(WIN32)
+		set(_LAUNCHER "${_FFMPEG_ROOT}/FFmpeg.start.cmd")
+		file(TO_NATIVE_PATH "${CMAKE_COMMAND}" _CMAKE_NATIVE)
+		file(TO_NATIVE_PATH "${CMAKE_CURRENT_LIST_DIR}/build_ffmpeg.cmake" _SCRIPT_NATIVE)
+		file(TO_NATIVE_PATH "${_SETTINGS}" _SETTINGS_NATIVE)
+		file(TO_NATIVE_PATH "${_FFMPEG_LOG}" _LOG_NATIVE)
+		file(WRITE "${_LAUNCHER}" "@echo off\r\nstart \"\" /b \"${_CMAKE_NATIVE}\" \"-DFFMPEG_SETTINGS=${_SETTINGS_NATIVE}\" -P \"${_SCRIPT_NATIVE}\" > \"${_LOG_NATIVE}\" 2>&1\r\n")
+		file(TO_NATIVE_PATH "${_LAUNCHER}" _LAUNCHER_NATIVE)
+		execute_process(COMMAND cmd /c "${_LAUNCHER_NATIVE}" OUTPUT_FILE "${_FFMPEG_LOG}.start" ERROR_FILE "${_FFMPEG_LOG}.start" RESULT_VARIABLE _RESULT)
+	else()
+		execute_process(
+			COMMAND sh -c "\"$@\" > \"$0\" 2>&1 < /dev/null &" "${_FFMPEG_LOG}"
+				"${CMAKE_COMMAND}" "-DFFMPEG_SETTINGS=${_SETTINGS}" -P "${CMAKE_CURRENT_LIST_DIR}/build_ffmpeg.cmake"
+			OUTPUT_FILE "${_FFMPEG_LOG}.start" ERROR_FILE "${_FFMPEG_LOG}.start" RESULT_VARIABLE _RESULT
+		)
+	endif()
+	if(NOT _RESULT EQUAL 0)
+		message(FATAL_ERROR "Starting the build of FFmpeg failed (${_RESULT}).")
+	endif()
+	set(_FFMPEG_PENDING ON PARENT_SCOPE)
+endfunction()
+
+# Waits until the build that blitz_start_ffmpeg started is done. Nothing to wait for when FFmpeg did not need to be built.
+function(blitz_wait_ffmpeg)
+	if(NOT _FFMPEG_PENDING)
+		return()
+	endif()
+	set(_WAITED 0)
+	while(NOT EXISTS "${_FFMPEG_RESULT}")
+		if(_WAITED GREATER 10800)
+			message(FATAL_ERROR "Building FFmpeg took more than 3 hours, or its process died without a result. Its output is in ${_FFMPEG_LOG}")
+		endif()
+		execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 2)
+		math(EXPR _WAITED "${_WAITED} + 2")
+		math(EXPR _REPORT "${_WAITED} % 120")
+		if(_REPORT EQUAL 0)
+			message(STATUS "Still waiting for FFmpeg to be built (${_WAITED} s)")
+		endif()
+	endwhile()
+	file(READ "${_FFMPEG_RESULT}" _RESULT)
+	string(STRIP "${_RESULT}" _RESULT)
+	if(NOT _RESULT STREQUAL "0")
+		file(STRINGS "${_FFMPEG_LOG}" _LINES)
+		list(LENGTH _LINES _COUNT)
+		if(_COUNT GREATER 80)
+			math(EXPR _FIRST "${_COUNT} - 80")
+			list(SUBLIST _LINES ${_FIRST} 80 _LINES)
+		endif()
+		list(JOIN _LINES "\n" _TEXT)
+		message(STATUS "The end of the output of FFmpeg's build (all of it is in ${_FFMPEG_LOG}):\n${_TEXT}")
+		message(FATAL_ERROR "Building FFmpeg failed (see above). It needs make, a C compiler and, on x86, NASM; on Windows it is built in MSYS2.")
+	endif()
+	message(STATUS "FFmpeg was built (output in ${_FFMPEG_LOG})")
+endfunction()
+
+# The libraries of FFmpeg are not needed until a program is linked, so its build starts first and runs while SDL3, SDL_image and SDL_mixer
+# are built, which is what the rest of the file does.
+if(NOT _SYSTEM_FFMPEG)
+	blitz_start_ffmpeg()
+endif()
+
+# The build tools of the dependencies get their share of the jobs from the environment, not from the arguments of the build, as the arguments
+# are remembered by ExternalContent and a different number would build everything again. Visual Studio builds a project with all of its files
+# at once (/MP) instead of the files one after the other, one project after the other (a build of SDL3 is a single project).
+set(_ENV_BUILD_PARALLEL_LEVEL "$ENV{CMAKE_BUILD_PARALLEL_LEVEL}")
+set(_ENV_CL "$ENV{CL}")
+if(MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio")
+	set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} 1)
+	set(ENV{CL} "${_ENV_CL} /MP${_DEPENDENCY_JOBS}")
+else()
+	set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} ${_DEPENDENCY_JOBS})
+endif()
+
 # Vulkan headers. The Vulkan loader itself is never linked: SDL loads it at runtime.
 blitz_dependency(VulkanHeaders Vulkan-Headers
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} -DBUILD_TESTS=OFF
@@ -264,7 +513,7 @@ if(_SYSTEM_SDL3)
 else()
 	blitz_dependency(SDL3 SDL
 		CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_ARGS}
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 
@@ -469,7 +718,10 @@ else()
 	else()
 		# An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
 		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
-		if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
+		# The dav1d.lib of Windows is also the import library of dav1d.dll, which a build with shared codecs installs, so it only means a static
+		# build when there is no dav1d.dll (otherwise every configure built SDL_image again).
+		set(_IMAGE_DST "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst")
+		if(EXISTS "${_IMAGE_DST}/lib/libdav1d.a" OR (EXISTS "${_IMAGE_DST}/lib/dav1d.lib" AND NOT EXISTS "${_IMAGE_DST}/bin/dav1d.dll"))
 			message(STATUS "SDL3_image was installed with static codecs, building it again.")
 			file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
 			file(REMOVE ${_STAMPS})
@@ -486,7 +738,7 @@ else()
 			-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
 			-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=ON -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
 			${_SDL3_IMAGE_ASM_ARGS}
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 	blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
@@ -540,7 +792,10 @@ if(_SYSTEM_SDL3_MIXER)
 	blitz_register_system_library(LINKED sdl3-mixer SDL3_mixer _SONAME)
 	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
 else()
-	if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/libopus.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/opus.lib")
+	# As with dav1d.lib above, opus.lib is also the import library of the opus.dll of a shared build.
+	set(_MIXER_DST "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst")
+	file(GLOB _MIXER_OPUS_DLL "${_MIXER_DST}/bin/*opus*.dll")
+	if(EXISTS "${_MIXER_DST}/lib/libopus.a" OR (EXISTS "${_MIXER_DST}/lib/opus.lib" AND NOT _MIXER_OPUS_DLL))
 		# An install of SDL_mixer from before Opus was a shared library has it as a static library, which would be linked into programs (also
 		# with the system's Opus, as the copy that was built then links the vendored one).
 		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
@@ -562,7 +817,7 @@ else()
 			-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
 			-DSDLMIXER_OPUS=ON -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF -DSDLMIXER_MP3_MPG123=OFF
 			-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
-		BUILD_ARGS --config Release --parallel
+		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
 	blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
@@ -596,204 +851,16 @@ elseif(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
 	file(COPY ${_OPUS_HEADER_FILES} DESTINATION "${_OPUS_HEADERS}")
 endif()
 
-# FFmpeg plays the movies (OpenMovie and the other movie commands). It is built as shared libraries and with the LGPL parts only
-# (no --enable-gpl and no --enable-nonfree), so the library that programs load can be replaced by the user, which is what the LGPL asks
-# of programs that use it. The runtime does not link to them: it loads them when a movie is opened (see movie.cpp), so programs
-# that don't play movies don't need them, and a program whose libraries are missing just gets 0 from OpenMovie. Only the demuxers and
-# decoders listed here are built, and for size (--enable-small), which keeps the libraries at about 6 MiB.
-#
-# FFmpeg does not build with CMake: it has a configure script and Makefiles that need a Unix shell, and a compiler that is GCC or Clang.
-# On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the UCRT64 environment with gcc, make, nasm and
-# diffutils), found through the environment variable BLITZLLVM_MSYS2 or in C:/msys64. The libraries are built there, once, at configure
-# time, and what programs load from them is only the C interface of the DLLs, which any compiler's programs can use.
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/FFmpeg/configure")
-	message(FATAL_ERROR "The submodule 'third_party/FFmpeg' is missing, run 'git submodule update --init' first.")
+# The dependencies that CMake builds are done, the environment is the one of the rest of the configuration again.
+set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} "${_ENV_BUILD_PARALLEL_LEVEL}")
+set(ENV{CL} "${_ENV_CL}")
+if(NOT _ENV_BUILD_PARALLEL_LEVEL)
+	unset(ENV{CMAKE_BUILD_PARALLEL_LEVEL})
 endif()
-set(_FFMPEG_SOURCE "${PROJECT_SOURCE_DIR}/third_party/FFmpeg")
-set(_FFMPEG_ROOT "${CMAKE_BINARY_DIR}/ExternalContentFiles")
-set(FFMPEG_INSTALL_PATH "${_FFMPEG_ROOT}/FFmpeg.dst")
-set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
-set(_FFMPEG_ARGS
-	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
-	--disable-avdevice --disable-avfilter --disable-network --enable-small --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
-	--enable-swscale --disable-swresample --enable-pic
-	--enable-protocol=file
-	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
-	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,flac,mjpeg
-	--enable-decoder=mpeg1video,mpeg2video,mpeg4,msmpeg4v1,msmpeg4v2,msmpeg4v3,h264,hevc,vp8,vp9,theora,wmv1,wmv2,wmv3,mjpeg
-	--enable-decoder=aac,mp3,mp3float,mp2,mp2float,ac3,vorbis,wmav1,wmav2,flac,pcm_s16le,pcm_u8,pcm_s16be,adpcm_ms,adpcm_ima_wav
-)
-if(APPLE)
-	# The libraries find each other next to themselves, wherever the program that loads them is.
-	list(APPEND _FFMPEG_ARGS --install-name-dir=@loader_path)
-endif()
-if(WIN32)
-	# Windows on ARM64 has no gcc in MSYS2: its CLANGARM64 environment has clang, which needs no libgcc.
-	if(CMAKE_GENERATOR_PLATFORM)
-		set(_WINDOWS_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
-	else()
-		set(_WINDOWS_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
-	endif()
-	if(_WINDOWS_ARCHITECTURE MATCHES "^([aA][rR][mM]64|[aA][aA][rR][cC][hH]64)$")
-		set(_MSYS2_ENVIRONMENT CLANGARM64)
-		set(_MSYS2_COMPILER_ARGS --arch=aarch64 --cc=clang)
-		set(_FFMPEG_LIBGCC "")
-	else()
-		set(_MSYS2_ENVIRONMENT UCRT64)
-		set(_MSYS2_COMPILER_ARGS --cc=gcc)
-		set(_FFMPEG_LIBGCC --extra-ldflags=-static-libgcc)
-	endif()
-	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
-	# clock_gettime comes from MSYS2's libwinpthread-1.dll (clock_gettime64 is missing from older copies on PATH), so link it statically.
-	list(APPEND _FFMPEG_ARGS --enable-w32threads ${_FFMPEG_LIBGCC} --extra-libs=-l:libwinpthread.a)
+if(NOT _ENV_CL)
+	unset(ENV{CL})
 endif()
 
-# The system's FFmpeg is only used when it is LGPL (the builds of Debian and Ubuntu have GPL parts, which makes every program that loads them
-# GPL) and has the demuxers and decoders above, which is checked by building and running ffmpeg_check.c against it.
-blitz_system_library(_SYSTEM_FFMPEG FFMPEG libavutil libswscale libavcodec libavformat)
-if(_SYSTEM_FFMPEG)
-	set(_DEMUXERS "")
-	set(_DECODERS "")
-	foreach(_ARGUMENT IN LISTS _FFMPEG_ARGS)
-		if(_ARGUMENT MATCHES "^--enable-demuxer=(.*)$")
-			set(_DEMUXERS "${CMAKE_MATCH_1}")
-		elseif(_ARGUMENT MATCHES "^--enable-decoder=(.*)$")
-			list(APPEND _DECODERS "${CMAKE_MATCH_1}")
-		endif()
-	endforeach()
-	string(REPLACE ";" "," _DECODERS "${_DECODERS}")
-	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --cflags --libs libavutil libavcodec libavformat OUTPUT_VARIABLE _FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	separate_arguments(_FLAGS)
-	set(_FLAGS_COMPILE ${_FLAGS})
-	list(FILTER _FLAGS_COMPILE INCLUDE REGEX "^-I")
-	set(_FLAGS_LINK ${_FLAGS})
-	list(FILTER _FLAGS_LINK EXCLUDE REGEX "^-I")
-	try_run(_FFMPEG_RUN _FFMPEG_COMPILE
-		SOURCES "${CMAKE_CURRENT_LIST_DIR}/ffmpeg_check.c"
-		COMPILE_DEFINITIONS ${_FLAGS_COMPILE} "-DDEMUXERS=\"${_DEMUXERS}\"" "-DDECODERS=\"${_DECODERS}\""
-		LINK_LIBRARIES ${_FLAGS_LINK}
-		COMPILE_OUTPUT_VARIABLE _FFMPEG_COMPILE_OUTPUT RUN_OUTPUT_VARIABLE _FFMPEG_OUTPUT
-	)
-	string(STRIP "${_FFMPEG_OUTPUT}" _FFMPEG_OUTPUT)
-	string(REPLACE "\n" ", " _FFMPEG_OUTPUT "${_FFMPEG_OUTPUT}")
-	if(NOT _FFMPEG_COMPILE)
-		set(_FFMPEG_PROBLEM "its headers and libraries do not build a program")
-	elseif(NOT _FFMPEG_RUN EQUAL 0)
-		set(_FFMPEG_PROBLEM "it is ${_FFMPEG_OUTPUT}")
-	endif()
-	if(_FFMPEG_PROBLEM)
-		if(BLITZ_SYSTEM_FFMPEG STREQUAL "ON")
-			message(FATAL_ERROR "BLITZ_SYSTEM_FFMPEG is ON, but the system's FFmpeg can not be used: ${_FFMPEG_PROBLEM}.")
-		endif()
-		message(STATUS "The system's FFmpeg can not be used (${_FFMPEG_PROBLEM}), building the bundled copy")
-		set(_SYSTEM_FFMPEG OFF)
-	endif()
-endif()
-
-function(blitz_build_ffmpeg)
-	execute_process(
-		COMMAND "${GIT_EXECUTABLE}" -C "${_FFMPEG_SOURCE}" rev-parse HEAD
-		OUTPUT_VARIABLE _REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	string(SHA256 _STAMP_TEXT "${_REVISION} ${_FFMPEG_ARGS} ${CMAKE_C_COMPILER} ${CMAKE_OSX_ARCHITECTURES}")
-	set(_STAMP "${_FFMPEG_ROOT}/FFmpeg.stamp")
-	if(EXISTS "${_STAMP}" AND EXISTS "${FFMPEG_INSTALL_PATH}/include/libavformat/avformat.h")
-		file(READ "${_STAMP}" _STAMPED)
-		if(_STAMPED STREQUAL _STAMP_TEXT)
-			return()
-		endif()
-	endif()
-
-	message(STATUS "Building FFmpeg (shared, LGPL) in ${_FFMPEG_BUILD}, which takes a few minutes")
-	file(REMOVE_RECURSE "${_FFMPEG_BUILD}" "${FFMPEG_INSTALL_PATH}")
-	file(MAKE_DIRECTORY "${_FFMPEG_BUILD}")
-	cmake_host_system_information(RESULT _CORES QUERY NUMBER_OF_LOGICAL_CORES)
-
-	if(WIN32)
-		set(_MSYS2 "$ENV{BLITZLLVM_MSYS2}")
-		if(NOT _MSYS2)
-			set(_MSYS2 "C:/msys64")
-		endif()
-		file(TO_CMAKE_PATH "${_MSYS2}" _MSYS2)
-		if(NOT EXISTS "${_MSYS2}/usr/bin/bash.exe")
-			message(FATAL_ERROR "FFmpeg is built with MSYS2, which was not found in '${_MSYS2}'. Install it from https://www.msys2.org (and gcc, make, nasm and diffutils in its UCRT64 environment, or clang for ARM64 in CLANGARM64), or set the environment variable BLITZLLVM_MSYS2 to where it is.")
-		endif()
-		# Paths of Windows (C:/a/b) are /c/a/b in MSYS2.
-		foreach(_VARIABLE IN ITEMS _FFMPEG_SOURCE _FFMPEG_BUILD FFMPEG_INSTALL_PATH)
-			string(REGEX REPLACE "^([A-Za-z]):" "/\\1" ${_VARIABLE}_UNIX "${${_VARIABLE}}")
-		endforeach()
-		string(REPLACE ";" " " _CONFIGURE_ARGS "${_FFMPEG_ARGS}")
-		string(REPLACE ";" " " _MSYS2_COMPILER_ARGS "${_MSYS2_COMPILER_ARGS}")
-		set(_SCRIPT "${_FFMPEG_ROOT}/FFmpeg.sh")
-		file(WRITE "${_SCRIPT}" "set -e\ncd '${_FFMPEG_BUILD_UNIX}'\n'${_FFMPEG_SOURCE_UNIX}/configure' --prefix='${FFMPEG_INSTALL_PATH_UNIX}' --target-os=mingw32 ${_MSYS2_COMPILER_ARGS} ${_CONFIGURE_ARGS}\nmake -j${_CORES}\nmake install\n")
-		string(REGEX REPLACE "^([A-Za-z]):" "/\\1" _SCRIPT_UNIX "${_SCRIPT}")
-		set(_COMMANDS COMMAND "${CMAKE_COMMAND}" -E env MSYSTEM=${_MSYS2_ENVIRONMENT} CHERE_INVOKING=1 "${_MSYS2}/usr/bin/bash.exe" -lc "bash '${_SCRIPT_UNIX}'")
-		execute_process(${_COMMANDS} RESULT_VARIABLE _RESULT)
-	elseif(_UNIVERSAL)
-		# configure builds for one architecture, so each gets its own build and prefix, and lipo joins the libraries. The headers are the
-		# same for all of them. An architecture other than this computer's is cross-compiled, with clang -arch.
-		set(_RESULT 0)
-		set(_FIRST "")
-		foreach(_ARCH IN LISTS CMAKE_OSX_ARCHITECTURES)
-			set(_ARCH_BUILD "${_FFMPEG_BUILD}.${_ARCH}")
-			set(_ARCH_PREFIX "${FFMPEG_INSTALL_PATH}.${_ARCH}")
-			file(REMOVE_RECURSE "${_ARCH_BUILD}" "${_ARCH_PREFIX}")
-			file(MAKE_DIRECTORY "${_ARCH_BUILD}")
-			set(_ARCH_ARGS "--arch=${_ARCH}" "--cc=${CMAKE_C_COMPILER} -arch ${_ARCH}")
-			if(NOT _ARCH STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
-				list(APPEND _ARCH_ARGS --enable-cross-compile --target-os=darwin)
-			endif()
-			execute_process(
-				COMMAND "${_FFMPEG_SOURCE}/configure" "--prefix=${_ARCH_PREFIX}" ${_ARCH_ARGS} ${_FFMPEG_ARGS}
-				WORKING_DIRECTORY "${_ARCH_BUILD}" RESULT_VARIABLE _RESULT
-			)
-			if(_RESULT EQUAL 0)
-				execute_process(COMMAND make "-j${_CORES}" WORKING_DIRECTORY "${_ARCH_BUILD}" RESULT_VARIABLE _RESULT)
-			endif()
-			if(_RESULT EQUAL 0)
-				execute_process(COMMAND make install WORKING_DIRECTORY "${_ARCH_BUILD}" RESULT_VARIABLE _RESULT)
-			endif()
-			if(NOT _RESULT EQUAL 0)
-				break()
-			endif()
-			if(NOT _FIRST)
-				set(_FIRST "${_ARCH_PREFIX}")
-			endif()
-		endforeach()
-		if(_RESULT EQUAL 0)
-			file(COPY "${_FIRST}/" DESTINATION "${FFMPEG_INSTALL_PATH}")
-			file(GLOB _DYLIBS RELATIVE "${_FIRST}/lib" "${_FIRST}/lib/lib*.dylib")
-			foreach(_DYLIB IN LISTS _DYLIBS)
-				if(IS_SYMLINK "${_FIRST}/lib/${_DYLIB}")
-					continue()
-				endif()
-				set(_SLICES "")
-				foreach(_ARCH IN LISTS CMAKE_OSX_ARCHITECTURES)
-					list(APPEND _SLICES "${FFMPEG_INSTALL_PATH}.${_ARCH}/lib/${_DYLIB}")
-				endforeach()
-				execute_process(COMMAND lipo -create ${_SLICES} -output "${FFMPEG_INSTALL_PATH}/lib/${_DYLIB}" RESULT_VARIABLE _RESULT)
-				if(NOT _RESULT EQUAL 0)
-					break()
-				endif()
-			endforeach()
-		endif()
-	else()
-		execute_process(
-			COMMAND "${_FFMPEG_SOURCE}/configure" "--prefix=${FFMPEG_INSTALL_PATH}" "--cc=${CMAKE_C_COMPILER}" ${_FFMPEG_ARGS}
-			WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT
-		)
-		if(_RESULT EQUAL 0)
-			execute_process(COMMAND make "-j${_CORES}" WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT)
-		endif()
-		if(_RESULT EQUAL 0)
-			execute_process(COMMAND make install WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT)
-		endif()
-	endif()
-	if(NOT _RESULT EQUAL 0)
-		message(FATAL_ERROR "Building FFmpeg failed (see above). It needs make, a C compiler and, on x86, NASM; on Windows it is built in MSYS2.")
-	endif()
-	file(WRITE "${_STAMP}" "${_STAMP_TEXT}")
-endfunction()
 if(_SYSTEM_FFMPEG)
 	message(STATUS "Using the system's FFmpeg")
 	foreach(_LIBRARY IN ITEMS avutil:avutil swscale:swscale avcodec:avcodec avformat:avformat)
@@ -805,7 +872,7 @@ if(_SYSTEM_FFMPEG)
 	set(_FFMPEG_LIBRARIES "")
 	set(FFMPEG_INSTALL_PATH "")
 else()
-	blitz_build_ffmpeg()
+	blitz_wait_ffmpeg()
 
 	# The shared libraries by the name that programs open them with: libavcodec.so.61, libavcodec.61.dylib and avcodec-61.dll.
 	if(WIN32)

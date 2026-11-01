@@ -14,6 +14,7 @@ BlitzLLVM builds with CMake. The compiler is `blitzcc`, and it carries the runti
 * Ninja on Linux and macOS.
 * NASM on x86 and x64, optional. It builds the assembly of dav1d (AVIF images). Without it the build still works, with a warning, and AVIF images decode more slowly. Pass `-DBLITZLLVM_REQUIRE_NASM=ON` to make a missing NASM an error, as the nightly builds do. Install it with `winget install nasm` on Windows, `sudo apt-get install nasm` on Debian and Ubuntu or `brew install nasm` on macOS. It is found on `PATH`, in `%LOCALAPPDATA%\bin\NASM` or in `C:\Program Files\NASM`; set `BLITZLLVM_NASM` to its path if it is elsewhere.
 * Python 3, optional. It enables the `suite-coverage` test.
+* The dependencies (SDL3, SDL_image, SDL_mixer and FFmpeg) are built while CMake configures, FFmpeg at the same time as the others, and together they use as many compiler processes as the computer has logical cores. Pass `-DBLITZLLVM_DEPENDENCY_JOBS=<n>` to use fewer (or more). With the Visual Studio generator every project is built with all of its files at once (`/MP`).
 
 ### Windows
 
