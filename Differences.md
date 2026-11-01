@@ -70,7 +70,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [BackBuffer](BackBuffer#differences): [FrontBuffer](FrontBuffer) returns this same handle, because a program cannot draw to the picture on the screen.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences): The original also lights the vertices of a level with point and spot lights, which have no effect on a level here.
-* [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below once, as the original does.
+* [BSPLighting](BSPLighting#differences): A level that has `light` entities is lit by them as point lights when lightmaps are off, instead of only by its vertex colors.
 * [BufferDirty](BufferDirty#differences): Has no effect.
 * [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.

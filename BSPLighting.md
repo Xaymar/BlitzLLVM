@@ -30,7 +30,7 @@ The example builds a level with one floor and a lightmap that has a bright spot 
 
 ## Differences
 
-* The lightmaps are drawn as a second layer that multiplies what is below once, as the original does. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
+* A level that has `light` entities is lit by them as point lights when lightmaps are off, instead of only by its vertex colors. The lightmaps are drawn as a second layer that multiplies what is below once, as the original does. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
 
 ## Examples
 

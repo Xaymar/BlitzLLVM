@@ -36,7 +36,7 @@ The example below builds a minimal level file itself, so it runs without any lev
 ## Differences
 
 * Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. Visibility data is not used, so all of the level is always drawn.
-* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its lightmaps or vertex colors say, plus BSPAmbientLight, and multiplied by BSPLightmapColor.
+* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here the `light` entities of the map's entity lump become point lights (CreateLight 2) that are children of the level, at the position of the map, in its `_color`, with the map's `light` value as their range; they light other entities, and the level itself while its lightmaps are not used (BSPLighting). A map light with a `target` becomes a spot light (CreateLight 3) that points at the entity with that `targetname`, with a cone wide enough to reach the light's `radius` around it; a level without light entities has no lights. While lightmaps are used no light affects the level, so the light of the map is not counted twice; it is drawn as its lightmaps or vertex colors say, plus BSPAmbientLight, and multiplied by BSPLightmapColor.
 * Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
 
 ## Examples
