@@ -3,13 +3,6 @@
 # label "pending": it stays visible in the results, and the run only fails when one of them passes, which means it has to be removed
 # from the list. A line "disabled: <name>" does not run the test at all (for a crash, which WILL_FAIL does not turn around). A program that does not compile has its run test in the list as well, as that has no program to run.
 cli-console_subsystem
-cli-debug_info
-cli-userlib_env
-cli-userlib_evaluation_order
-cli-userlib_layout
-cli-userlib_missing_function
-cli-userlib_output_dir
-cli-userlib_shared
 cli-verbose_long_only
 format-align
 format-blank_lines

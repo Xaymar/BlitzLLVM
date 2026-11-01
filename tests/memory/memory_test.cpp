@@ -135,14 +135,19 @@ static void test_realloc()
 static void test_foreign()
 {
 	// Blocks of the system allocator (or of another library) must pass through free, realloc and size queries.
+	fprintf(stderr, " foreign malloc\n");
 	char* p = static_cast<char*>(FOREIGN_MALLOC(64));
 	memset(p, 7, 64);
 	CHECK(bb_malloc_size(p) == 0);
+	fprintf(stderr, " foreign realloc\n");
 	p = static_cast<char*>(bb_realloc(p, 4096)); // Stays with the system.
 	CHECK(p && p[63] == 7);
+	fprintf(stderr, " free of the foreign block\n");
 	bb_free(p);
+	fprintf(stderr, " second foreign block\n");
 	char* q = static_cast<char*>(FOREIGN_MALLOC(32));
 	bb_free(q);
+	fprintf(stderr, " free of the second\n");
 	bb_free(nullptr);
 }
 
