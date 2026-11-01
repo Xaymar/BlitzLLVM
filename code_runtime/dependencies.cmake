@@ -718,7 +718,10 @@ else()
 	else()
 		# An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
 		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
-		if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
+		# The dav1d.lib of Windows is also the import library of dav1d.dll, which a build with shared codecs installs, so it only means a static
+		# build when there is no dav1d.dll (otherwise every configure built SDL_image again).
+		set(_IMAGE_DST "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst")
+		if(EXISTS "${_IMAGE_DST}/lib/libdav1d.a" OR (EXISTS "${_IMAGE_DST}/lib/dav1d.lib" AND NOT EXISTS "${_IMAGE_DST}/bin/dav1d.dll"))
 			message(STATUS "SDL3_image was installed with static codecs, building it again.")
 			file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
 			file(REMOVE ${_STAMPS})
@@ -789,7 +792,10 @@ if(_SYSTEM_SDL3_MIXER)
 	blitz_register_system_library(LINKED sdl3-mixer SDL3_mixer _SONAME)
 	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
 else()
-	if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/libopus.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/opus.lib")
+	# As with dav1d.lib above, opus.lib is also the import library of the opus.dll of a shared build.
+	set(_MIXER_DST "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst")
+	file(GLOB _MIXER_OPUS_DLL "${_MIXER_DST}/bin/*opus*.dll")
+	if(EXISTS "${_MIXER_DST}/lib/libopus.a" OR (EXISTS "${_MIXER_DST}/lib/opus.lib" AND NOT _MIXER_OPUS_DLL))
 		# An install of SDL_mixer from before Opus was a shared library has it as a static library, which would be linked into programs (also
 		# with the system's Opus, as the copy that was built then links the vendored one).
 		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
