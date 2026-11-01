@@ -15,6 +15,11 @@
 // What the parts of the collision code share: the maths of lines, planes and triangles, and how entities give their
 // triangles. Nothing in here is for programs, those only see the functions of the Blitz API.
 #pragma once
+
+struct bp_mesh;
+namespace bb::physics {
+	struct api;
+}
 #include <stdio.h>
 #include <math.h>
 #include <stdint.h>
@@ -93,6 +98,15 @@ namespace bb::collision {
 	// Box that is around the entity in the world.
 	box3 world_bounds(entity const& e, const float* m);
 
+	// The triangle of a surface in world coordinates, with the number of the surface (from 1) and the number of the triangle in it.
+	inline triangle world_triangle(entity const& e, uint32_t s, uint32_t number, const float* m)
+	{
+		surface const& surf = *e.surfaces[s];
+		uint32_t       i    = number * 3;
+		vertex3d const &a = surf.vertices[surf.indices[i]], &b = surf.vertices[surf.indices[i + 1]], &c = surf.vertices[surf.indices[i + 2]];
+		return { transform(m, { a.x, a.y, a.z }), transform(m, { b.x, b.y, b.z }), transform(m, { c.x, c.y, c.z }), int(s) + 1, int(i / 3) };
+	}
+
 	// Calls the function for the triangles of the entity that are in the world box, in world coordinates.
 	template<typename F>
 	void each_triangle_matrix(entity& e, const float* m, box3 const& area, F&& visit)
@@ -132,8 +146,7 @@ namespace bb::collision {
 		for (uint32_t s = 0; s < e.surfaces.size; s++) {
 			surface& surf = *e.surfaces[s];
 			for (uint32_t i = 0; i + 2 < surf.indices.size; i += 3) {
-				vertex3d const &a = surf.vertices[surf.indices[i]], &b = surf.vertices[surf.indices[i + 1]], &c = surf.vertices[surf.indices[i + 2]];
-				triangle t = { transform(m, { a.x, a.y, a.z }), transform(m, { b.x, b.y, b.z }), transform(m, { c.x, c.y, c.z }), int(s) + 1, int(i / 3) };
+				triangle t = world_triangle(e, s, i / 3, m);
 				box3 tb;
 				tb.add(t.a);
 				tb.add(t.b);
@@ -224,7 +237,22 @@ namespace bb::collision {
 	// Tests one entity that is collided with or picked, with the method of it (1 sphere, 2 polygons, 3 box). The matrix is the one of the entity.
 	// The entities (by number, in their order) that a pick along the line could hit. False if every entity is to be looked at.
 	bool pick_candidates(vec3 origin, vec3 direction, float radius, buffer<int> const*& out);
-	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method);
+	// handle: the entity, if it may be given to the physics library (collision_physics.cpp) to tell which of its triangles are near the line; 0 if not.
+	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method, int handle = 0);
+
+	// What the physics library takes of the meshes (physics_mesh.cpp, shared by picks and collisions): whether an entity is a mesh of enough
+	// triangles that are not moved by bones, a number that changes when its triangles do, and the mesh of the library made from it, with the
+	// number of the first triangle of each surface in it.
+	bool     physics_mesh_usable(entity const& e, uint32_t min_triangles);
+	uint64_t physics_mesh_geometry(entity const& e);
+	bp_mesh* physics_mesh_build(physics::api const& lib, entity const& e, buffer<int>& first_triangle);
+
+	// Which triangles of the entity can be hit by something in the world box (the entity is at the matrix): false if the runtime is to look at
+	// all of them. The triangles are the surface (from 0) and the number of the triangle in it, in the order of the entity.
+	struct candidate_triangle {
+		uint32_t surface, index;
+	};
+	bool collision_triangles(int handle, entity& e, const float* m, box3 const& area, buffer<candidate_triangle>& out);
 
 	// Everything that the place and the shape of a pickable entity are made from, to tell that it changed without making its matrix.
 	struct pick_signature {
