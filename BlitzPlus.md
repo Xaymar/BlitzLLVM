@@ -17,4 +17,4 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Text Areas](BlitzPlus-Text-Areas) (18): Multi-line text editing and formatting.
 * [Toolbars](BlitzPlus-Toolbars) (7): Toolbars and icon strips.
 * [Tree Views](BlitzPlus-Tree-Views) (12): Hierarchical lists.
-* [Windows](BlitzPlus-Windows) (15): Creating and controlling windows.
+* [Windows](BlitzPlus-Windows) (17): Creating and controlling windows.

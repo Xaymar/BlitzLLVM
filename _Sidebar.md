@@ -63,7 +63,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (303)</summary>
+<li><details><summary>Commands (305)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -362,6 +362,8 @@
 <li><a href="VWait#differences">VWait</a></li>
 <li><a href="WaitJoy#differences">WaitJoy</a></li>
 <li><a href="WBuffer#differences">WBuffer</a></li>
+<li><a href="WindowScale#differences">WindowScale</a> 〔BlitzLLVM〕</li>
+<li><a href="WindowScaling#differences">WindowScaling</a> 〔BlitzLLVM〕</li>
 <li><a href="WireFrame#differences">WireFrame</a></li>
 <li><a href="Write#differences">Write</a></li>
 <li><a href="WritePixel#differences">WritePixel</a></li>
@@ -1497,7 +1499,7 @@
 <li><a href="TreeViewRoot">TreeViewRoot</a></li>
 </ul>
 </details></li>
-<li><details><summary>Windows (15)</summary>
+<li><details><summary>Windows (17)</summary>
 <ul>
 <li><a href="BlitzPlus-Windows">Overview</a></li>
 <li><a href="ActivateWindow">ActivateWindow</a></li>
@@ -1515,6 +1517,8 @@
 <li><a href="WindowMaximized">WindowMaximized</a></li>
 <li><a href="WindowMenu">WindowMenu</a></li>
 <li><a href="WindowMinimized">WindowMinimized</a></li>
+<li><a href="WindowScale">WindowScale</a> 〔BlitzLLVM〕</li>
+<li><a href="WindowScaling">WindowScaling</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
 </ul>

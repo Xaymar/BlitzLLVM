@@ -352,6 +352,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [VWait](VWait#differences): There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second).
 * [WaitJoy](WaitJoy#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.
 * [WBuffer](WBuffer#differences): Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
+* [WindowScale](WindowScale#differences) 〔BlitzLLVM〕: Not in the original, whose windows are scaled by Windows without the program knowing.
+* [WindowScaling](WindowScaling#differences) 〔BlitzLLVM〕: Not in the original.
 * [WireFrame](WireFrame#differences): On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
 * [Write](Write#differences): Without a graphics window the text goes to the console instead.
 * [WritePixel](WritePixel#differences): A position outside of the buffer is ignored.

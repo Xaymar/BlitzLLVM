@@ -48,7 +48,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized), [WindowMinimized](WindowMinimized)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized), [WindowMinimized](WindowMinimized), [WindowScale](WindowScale) 〔BlitzLLVM〕, [WindowScaling](WindowScaling) 〔BlitzLLVM〕
 
 <div align="center">
 

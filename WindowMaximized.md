@@ -29,7 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [RestoreWindow](RestoreWindow), [WindowMenu](WindowMenu), [WindowMinimized](WindowMinimized)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [WindowMenu](WindowMenu), [WindowMinimized](WindowMinimized), [WindowScale](WindowScale) 〔BlitzLLVM〕, [WindowScaling](WindowScaling) 〔BlitzLLVM〕
 
 <div align="center">
 

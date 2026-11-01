@@ -39,6 +39,7 @@ Gives the extra number of the event that [WaitEvent](WaitEvent) took last. What 
 | WindowSize | $802 | - | Window | New size |
 | WindowClose | $803 | - | Window | - |
 | WindowActivate | $804 | - | Window | - |
+| WindowScale | $805 | Scale in percent | Window | - |
 | MenuEvent | $1001 | Menu number | - | - |
 | AppSuspend | $2001 | - | - | - |
 | AppResume | $2002 | - | - | - |

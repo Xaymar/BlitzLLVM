@@ -24,3 +24,5 @@ Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 * [WindowMaximized](WindowMaximized)
 * [WindowMenu](WindowMenu)
 * [WindowMinimized](WindowMinimized)
+* [WindowScale](WindowScale) 〔BlitzLLVM〕
+* [WindowScaling](WindowScaling) 〔BlitzLLVM〕

@@ -925,6 +925,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [WindowMaximized](WindowMaximized)
 * [WindowMenu](WindowMenu)
 * [WindowMinimized](WindowMinimized)
+* [WindowScale](WindowScale) 〔BlitzLLVM〕
+* [WindowScaling](WindowScaling) 〔BlitzLLVM〕
 * [WireFrame](WireFrame)
 * [Write](Write)
 * [WriteByte](WriteByte)
