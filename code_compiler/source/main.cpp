@@ -854,6 +854,15 @@ static int compiler_main(int argc, char** argv)
 			}
 			return 1;
 		}
+		// The MinGW driver adds .exe to an output name that has no extension (like GCC does), but the name that was asked for is the one to create.
+		if (windows_target && !windows_msvc && !opt.output.has_extension()) {
+			std::error_code ec;
+			auto            with_extension = opt.output;
+			with_extension += ".exe";
+			if (std::filesystem::exists(with_extension, ec)) {
+				std::filesystem::rename(with_extension, opt.output, ec);
+			}
+		}
 		// Shared libraries are not linked into the program but loaded by it when it needs them, from the directory of the program. So the
 		// ones that a program may need are copied from the runtime directory next to it: the libraries of FFmpeg when it opens movies (see
 		// movie.cpp), the image codecs (AVIF, JPEG XL, TIFF and WebP, loaded by SDL_image) when it has a window, which is what loads images, and the
