@@ -753,6 +753,10 @@ static int compiler_main(int argc, char** argv)
 				}
 				if (!own_runtime) {
 					command.push_back("-fms-runtime-lib=dll");
+					// Something else still asked for the static one first (LNK4098), so those are left out for the linker.
+					for (auto lib : { "libcmt", "libcmtd", "libucrt", "libucrtd", "libvcruntime", "libvcruntimed" }) {
+						command.push_back(std::string("-Wl,/nodefaultlib:") + lib);
+					}
 				}
 				command.push_back(opt.console ? "-Wl,/subsystem:console" : "-Wl,/subsystem:windows");
 				command.push_back("-Wl,/entry:mainCRTStartup");
