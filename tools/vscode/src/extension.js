@@ -9,6 +9,8 @@ const { execFile } = require('child_process');
 const { LanguageClient, TransportKind } = require('vscode-languageclient/node');
 
 let client;
+let projectItem; // Status bar item that shows the selected project
+let extensionContext;
 let settingsTimer;
 let pendingRestart = false;
 const SETTINGS_DELAY = 1500; // ms without a change before a setting is used
@@ -33,7 +35,45 @@ function findProgram(setting, name) {
 
 /** What the language server needs of the settings: the warning level and the arguments of blitzcc (-Wno-unused-result ...). */
 function serverSettings() {
-  return { warningLevel: settings().get('warningLevel', 2), compilerArguments: settings().get('compiler.arguments', []) };
+  return { warningLevel: settings().get('warningLevel', 2), compilerArguments: settings().get('compiler.arguments', []), projects: projectFiles(), activeProject: activeProjectFile() || '' };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Projects: VS Code has none, so the entry files of the programs are a setting (blitz.projects) and one of them is selected.
+////////////////////////////////////////////////////////////////////////////////
+function projectFiles() {
+  return (settings().get('projects', []) || []).filter((p) => typeof p === 'string' && p).map((p) => settingPath(p, undefined));
+}
+
+function activeProjectFile() {
+  const chosen = extensionContext && extensionContext.workspaceState.get('blitz.activeProject');
+  return chosen && projectFiles().includes(chosen) ? chosen : undefined;
+}
+
+function updateProjectItem() {
+  if (!projectItem) return;
+  const projects = projectFiles();
+  if (!projects.length) { projectItem.hide(); return; }
+  const active = activeProjectFile();
+  projectItem.text = '$(project) ' + (active ? path.basename(active) : 'Blitz: all');
+  projectItem.tooltip = active ? `The selected Blitz project: ${active}` : 'No Blitz project is selected: the program of a file is the one that includes it';
+  projectItem.show();
+}
+
+async function selectProject() {
+  const projects = projectFiles();
+  if (!projects.length) {
+    const choice = await vscode.window.showInformationMessage('There are no projects yet. Add the entry files (main programs) to the setting "blitz.projects".', 'Open the setting');
+    if (choice) vscode.commands.executeCommand('workbench.action.openSettings', 'blitz.projects');
+    return;
+  }
+  const items = [{ label: '$(circle-slash) None', description: 'The program of a file is the one that includes it', file: '' }]
+    .concat(projects.map((file) => ({ label: path.basename(file), description: file, file })));
+  const picked = await vscode.window.showQuickPick(items, { placeHolder: 'The Blitz project that Run, Build and the problems use' });
+  if (!picked) return;
+  await extensionContext.workspaceState.update('blitz.activeProject', picked.file || undefined);
+  updateProjectItem();
+  if (client) client.sendNotification('workspace/didChangeConfiguration', { settings: { blitz: serverSettings() } });
 }
 
 function startServer(context) {
@@ -66,6 +106,8 @@ async function restartServer(context) {
 ////////////////////////////////////////////////////////////////////////////////
 function activeProgram(file) {
   if (file) return file;
+  const project = activeProjectFile();
+  if (project) return project; // The selected project is what is run, wherever the cursor is
   const editor = vscode.window.activeTextEditor;
   if (!editor || editor.document.languageId !== 'blitzbasic' || editor.document.uri.scheme !== 'file') {
     vscode.window.showErrorMessage('Open a Blitz program (.bb) first.');
@@ -204,8 +246,13 @@ class BlitzDebugConfigurationProvider {
 
 ////////////////////////////////////////////////////////////////////////////////
 function activate(context) {
+  extensionContext = context;
   output = vscode.window.createOutputChannel('BlitzLLVM');
   context.subscriptions.push(output);
+  projectItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50);
+  projectItem.command = 'blitz.selectProject';
+  context.subscriptions.push(projectItem);
+  updateProjectItem();
   startServer(context);
 
   context.subscriptions.push(
@@ -216,10 +263,12 @@ function activate(context) {
     vscode.commands.registerCommand('blitz.check', runTask('check', 'debug')),
     vscode.commands.registerCommand('blitz.tidy', () => vscode.commands.executeCommand('editor.action.codeAction', { kind: 'source.fixAll.blitz', apply: 'first' })),
     vscode.commands.registerCommand('blitz.restartServer', () => restartServer(context)),
+    vscode.commands.registerCommand('blitz.selectProject', selectProject),
     vscode.tasks.registerTaskProvider('blitz', new BlitzTaskProvider()),
     vscode.debug.registerDebugConfigurationProvider('blitz', new BlitzDebugConfigurationProvider()),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (!event.affectsConfiguration('blitz')) return;
+      if (event.affectsConfiguration('blitz.projects')) updateProjectItem();
       // The settings editor reports every key that is typed into a field: wait until the user is done before using the value.
       if (event.affectsConfiguration('blitz.installPath') || event.affectsConfiguration('blitz.server.path') || event.affectsConfiguration('blitz.userlibsDirectory')) pendingRestart = true;
       clearTimeout(settingsTimer);

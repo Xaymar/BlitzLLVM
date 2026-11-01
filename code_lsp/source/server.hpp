@@ -4,6 +4,7 @@
 // The language server: handles the messages of the protocol and answers them. It does not know where the messages come
 // from, so that the tests can talk to it without a process.
 #pragma once
+#include <chrono>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -77,7 +78,7 @@ namespace blitz::lsp {
 		void configuration(json const& settings);
 
 		void analyze(state& s);
-		void publish(state& s);
+		void publish(state& s, std::vector<state*> const& members);
 
 		document*      document_for(std::filesystem::path const& file);
 		state*         find(std::string const& uri);
@@ -91,6 +92,10 @@ namespace blitz::lsp {
 		json           rename(json const& params);
 		json           prepare_rename(json const& params);
 		std::vector<std::filesystem::path> program_files(state& s);
+		/** The file whose program is analysed for this one: the file that includes it (directly or not) and is not included itself. The
+		 * same for every file of a program, so that the problems of a file do not depend on which file is open at the moment. */
+		std::filesystem::path analysis_root(state& s);
+		void                  ensure_graph(bool force);
 		json           references(json const& params);
 		json           code_actions(json const& params);
 		json           edit_to(state& s, std::string const& result);
@@ -105,9 +110,19 @@ namespace blitz::lsp {
 		std::vector<keywords::user_function> _userlibs;
 		std::map<std::string, std::unique_ptr<state>> _states; // By uri
 		std::set<std::string>           _dirty;
+		struct include_graph {
+			std::map<std::string, std::filesystem::path>   known;     // By key
+			std::map<std::string, std::set<std::string>>   edges;     // Included or including
+			std::map<std::string, std::set<std::string>>   includers; // Who includes the key
+			std::map<std::string, std::set<std::string>>   included;  // What the key includes
+			std::chrono::steady_clock::time_point          built;
+			bool                                           valid = false;
+		} _graph;
 		std::map<std::string, std::unique_ptr<document>> _files; // Files read for symbols, by path
 		std::vector<std::filesystem::path> _workspace; // The folders that are open, empty if the editor has only files
 		int                             _warning_level = 2;
+		std::vector<std::filesystem::path> _projects;    // The entry files of the projects (blitz.projects)
+		std::filesystem::path           _active_project; // The one that is selected, empty if none
 		std::vector<std::string>        _warning_options; // -W... of blitz.compiler.arguments
 		bool                            _refresh_semantic = false; // The editor can be told to ask for the colours again
 		int                             _requests      = 0;

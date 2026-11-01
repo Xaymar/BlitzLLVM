@@ -246,6 +246,30 @@ function stage(name) {
 
   stage('workspace');
 
+  // Projects: plib.bb is included by two programs. Which one is checked depends on the selected project, not on the files that are open.
+  const projA = path.join(dir, 'proj_a.bb');
+  const projB = path.join(dir, 'proj_b.bb');
+  const projLib = path.join(dir, 'plib.bb');
+  fs.writeFileSync(projA, 'Function Needed()\n\tReturn 1\nEnd Function\nInclude "plib.bb"\n');
+  fs.writeFileSync(projB, 'Include "plib.bb"\n');
+  fs.writeFileSync(projLib, 'Print Needed()\n');
+  const libUri = pathToFileURL(projLib).href;
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { projects: [projB, projA], activeProject: projA } } });
+  notify('textDocument/didOpen', { textDocument: { uri: libUri, languageId: 'blitzbasic', version: 1, text: 'Print Needed()\n' } });
+  const errorsOf = async (target) => {
+    for (let i = 0; i < 200; i++) {
+      const found = notifications.filter((n) => n.method === 'textDocument/publishDiagnostics' && n.params.uri === target);
+      if (found.length) { const last = found[found.length - 1]; notifications.length = 0; return last.params.diagnostics.filter((d) => d.severity === 1); }
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    throw new Error('no diagnostics for ' + target);
+  };
+  assert.deepStrictEqual(await errorsOf(libUri), [], 'project A has Needed');
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { activeProject: projB } } });
+  assert((await errorsOf(libUri)).length > 0, 'project B does not have Needed');
+
+  stage('projects');
+
   // Formatting
   const messy = 'If  1=1 Then\nPrint   "x"\n   EndIf\n';
   notify('textDocument/didChange', { textDocument: { uri, version: 2 }, contentChanges: [{ text: messy }] });

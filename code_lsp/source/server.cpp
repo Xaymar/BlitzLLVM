@@ -293,6 +293,22 @@ namespace blitz::lsp {
 			_warning_level = int(std::clamp<int64_t>(o["warningLevel"].as_int(), 1, 4));
 			for (auto const& [uri, s] : _states) _dirty.insert(uri);
 		}
+		// The projects: the entry files that programs are analysed from. The selected one wins for the files it includes.
+		if (o["projects"].is_array()) {
+			_projects.clear();
+			for (auto const& p : o["projects"].items()) {
+				if (p.is_string() && !p.as_string().empty()) _projects.emplace_back(p.as_string());
+			}
+			_graph.valid = false;
+			for (auto const& [uri, s] : _states) _dirty.insert(uri);
+		}
+		if (o["activeProject"].is_string()) {
+			std::filesystem::path active = o["activeProject"].as_string();
+			if (active != _active_project) {
+				_active_project = active;
+				for (auto const& [uri, s] : _states) _dirty.insert(uri);
+			}
+		}
 		// The arguments of blitzcc: the -W options (-Wno-unused-result, -Werror=..., -W3) change which warnings are reported.
 		if (o["compilerArguments"].is_array()) {
 			std::vector<std::string> options;
@@ -360,11 +376,26 @@ namespace blitz::lsp {
 	{
 		auto dirty = std::move(_dirty);
 		_dirty.clear();
+		if (!dirty.empty()) _files.clear(); // The files that are not open may have changed
+		// One analysis for each program: the files that are open and belong to the same program share its problems and symbols.
+		std::set<std::string> done;
 		for (auto const& uri : dirty) {
-			if (auto* s = find(uri)) {
-				analyze(*s);
-				publish(*s);
+			auto* s = find(uri);
+			if (!s) continue;
+			std::string root_key = path_key(analysis_root(*s));
+			if (!done.insert(root_key).second) continue;
+			analyze(*s);
+			std::vector<state*> members{ s };
+			for (auto const& [other_uri, other] : _states) {
+				if (other.get() != s && path_key(analysis_root(*other)) == root_key) members.push_back(other.get());
 			}
+			for (auto* t : members) {
+				if (t == s) continue;
+				t->diagnostics = s->diagnostics;
+				t->symbols     = s->symbols;
+			}
+			publish(*s, members);
+			for (auto* t : members) t->published = s->published;
 		}
 		// The colours depend on what the analysis found in the other files (functions of included files, for one).
 		if (!dirty.empty() && _refresh_semantic) {
@@ -438,10 +469,13 @@ namespace blitz::lsp {
 			s.diagnostics.push_back(std::move(d));
 		};
 		try {
+			// The program of the file is the one of the file that includes it, so that the problems of a file are the same whichever
+			// file of the program is open.
+			const std::filesystem::path root = analysis_root(s);
 			blitz::parser parser;
-			program = parser.parse(s.path);
+			program = parser.parse(root);
 			blitz::compiler compiler;
-			compiler.source = s.path;
+			compiler.source = root;
 			compiler.quiet  = true;
 			compiler.silent = true;
 			compiler.warning_options.parse("-w" + std::to_string(_warning_level));
@@ -454,7 +488,7 @@ namespace blitz::lsp {
 			}
 			compiler.userlibs     = _userlibs;
 			compiler.userlibs_dir = _userlibs_dir.empty() ? std::string() : std::filesystem::absolute(_userlibs_dir).generic_string();
-			compiler.source_dir   = std::filesystem::absolute(s.path).parent_path().generic_string();
+			compiler.source_dir   = std::filesystem::absolute(root).parent_path().generic_string();
 			try {
 				compiler.generate(*program);
 			} catch (...) {
@@ -557,7 +591,7 @@ namespace blitz::lsp {
 		}
 	}
 
-	void server::publish(state& s)
+	void server::publish(state& s, std::vector<state*> const& members)
 	{
 		std::map<std::string, json> by_uri;
 		auto uri_of = [&](std::filesystem::path const& file) {
@@ -584,7 +618,10 @@ namespace blitz::lsp {
 			if (it == by_uri.end()) it = by_uri.emplace(uri, json::array()).first;
 			it->second.push(std::move(j));
 		}
-		by_uri.emplace(s.uri, json::array()); // The file itself is always published, to clear what was fixed
+		for (auto* t : members) by_uri.emplace(t->uri, json::array()); // The open files of the program are always published, to clear what was fixed
+		for (auto* t : members) {
+			for (auto const& old : t->published) by_uri.emplace(old, json::array());
+		}
 		for (auto const& old : s.published) by_uri.emplace(old, json::array());
 		s.published.clear();
 		for (auto& [uri, list] : by_uri) {
@@ -1011,41 +1048,103 @@ namespace blitz::lsp {
 		return r;
 	}
 
+	// The files of the folders and the open files, and who includes whom. Kept for a few seconds: reading all the files of the folders
+	// is too much for each pause in typing.
+	void server::ensure_graph(bool force)
+	{
+		auto now = std::chrono::steady_clock::now();
+		if (!force && _graph.valid && now - _graph.built < std::chrono::seconds(5)) return;
+		_graph = include_graph();
+		for (auto const& folder : _workspace) {
+			for (auto const& file : bridge::find_sources(folder)) _graph.known.emplace(path_key(file), file);
+		}
+		for (auto const& [uri, other] : _states) _graph.known.emplace(other->key, other->path);
+		for (auto const& entry : _projects) _graph.known.emplace(path_key(entry), entry);
+		for (auto const& [key, file] : _graph.known) {
+			document* doc = document_for(file);
+			if (!doc) continue;
+			for (auto const& include : doc->includes()) {
+				std::string target = path_key(file.parent_path() / include);
+				if (!_graph.known.count(target) || target == key) continue;
+				_graph.edges[key].insert(target);
+				_graph.edges[target].insert(key);
+				_graph.includers[target].insert(key);
+				_graph.included[key].insert(target);
+			}
+		}
+		_graph.built = now;
+		_graph.valid = true;
+	}
+
 	// The files that make up the program the file belongs to: the ones that include it or are included by it, and so on. Only the
 	// files in the open folders and the open files take part; without folders it is the file alone.
 	std::vector<std::filesystem::path> server::program_files(state& s)
 	{
 		std::vector<std::filesystem::path> result{ s.path };
 		if (_workspace.empty()) return result;
-		std::map<std::string, std::filesystem::path> known; // by key
-		for (auto const& folder : _workspace) {
-			for (auto const& file : bridge::find_sources(folder)) known.emplace(path_key(file), file);
-		}
-		for (auto const& [uri, other] : _states) known.emplace(other->key, other->path);
-		std::map<std::string, std::set<std::string>> edges;
-		for (auto const& [key, file] : known) {
-			document* doc = document_for(file);
-			if (!doc) continue;
-			for (auto const& include : doc->includes()) {
-				std::string target = path_key(file.parent_path() / include);
-				if (!known.count(target)) continue;
-				edges[key].insert(target);
-				edges[target].insert(key);
-			}
-		}
-		std::set<std::string> seen{ s.key };
+		ensure_graph(false);
+		std::set<std::string>    seen{ s.key };
 		std::vector<std::string> queue{ s.key };
 		while (!queue.empty()) {
 			std::string at = queue.back();
 			queue.pop_back();
-			for (auto const& next : edges[at]) {
+			for (auto const& next : _graph.edges[at]) {
 				if (seen.insert(next).second) {
 					queue.push_back(next);
-					result.push_back(known[next]);
+					result.push_back(_graph.known[next]);
 				}
 			}
 		}
 		return result;
+	}
+
+	std::filesystem::path server::analysis_root(state& s)
+	{
+		if (_workspace.empty() && _projects.empty()) return s.path;
+		ensure_graph(false);
+		// A project that includes the file (directly or not): the selected one if it does, else the first one that does.
+		if (!_projects.empty()) {
+			auto reaches = [&](std::filesystem::path const& entry) {
+				std::string              start = path_key(entry);
+				std::set<std::string>    seen{ start };
+				std::vector<std::string> queue{ start };
+				while (!queue.empty()) {
+					std::string at = queue.back();
+					queue.pop_back();
+					if (at == s.key) return true;
+					auto it = _graph.included.find(at);
+					if (it == _graph.included.end()) continue;
+					for (auto const& next : it->second) {
+						if (seen.insert(next).second) queue.push_back(next);
+					}
+				}
+				return false;
+			};
+			if (!_active_project.empty() && reaches(_active_project)) return _active_project;
+			for (auto const& entry : _projects) {
+				if (reaches(entry)) return entry;
+			}
+		}
+		if (_workspace.empty()) return s.path;
+		// Walk up to the files that include this one; the roots are the ones that nothing includes.
+		std::set<std::string>    seen{ s.key };
+		std::vector<std::string> queue{ s.key };
+		std::string              best;
+		while (!queue.empty()) {
+			std::string at = queue.back();
+			queue.pop_back();
+			auto above = _graph.includers.find(at);
+			if (above == _graph.includers.end() || above->second.empty()) {
+				if (best.empty() || at < best) best = at;
+				continue;
+			}
+			for (auto const& next : above->second) {
+				if (seen.insert(next).second) queue.push_back(next);
+			}
+		}
+		if (best.empty() || best == s.key) return s.path; // Alone, or in a circle of includes
+		auto it = _graph.known.find(best);
+		return (it == _graph.known.end()) ? s.path : it->second;
 	}
 
 	json server::rename(json const& params)
@@ -1057,6 +1156,7 @@ namespace blitz::lsp {
 		if (bridge::is_keyword(name)) throw std::runtime_error("'" + name + "' is a keyword.");
 		prepare_rename(params); // Refuses what can't be renamed
 		_files.clear(); // The files on disk may have changed
+		ensure_graph(true);
 		size_t offset = s->doc->to_offset(position_from(params["position"]));
 		bool global_known   = false;
 		bool function_known = false;

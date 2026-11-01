@@ -108,8 +108,17 @@
 					"default": "",
 					"markdownDescription": "Where the userlibs (`.decls` files) are, relative to the workspace folder like the build output (`${workspaceFolder}` works too). Empty: the ones of the installation."
 				},
-				"blitz.warningLevel": {
+				"blitz.projects": {
 					"order": 5,
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"markdownDescription": "The entry files (main programs) of the projects of the workspace, relative to the workspace folder. A file is checked as part of the project that includes it, and Run, Build and Debug use the project that is selected in the status bar."
+				},
+				"blitz.warningLevel": {
+					"order": 6,
 					"type": "number",
 					"enum": [
 						1,
@@ -121,7 +130,7 @@
 					"markdownDescription": "How many of the warnings of the compiler are shown (`-W1` to `-W4`)."
 				},
 				"blitz.debug.adapter": {
-					"order": 6,
+					"order": 7,
 					"type": "string",
 					"enum": [
 						"auto",
@@ -133,13 +142,13 @@
 					"markdownDescription": "The debugger that runs a program built with debug information: `cppvsdbg` (C/C++ extension, Windows), `cppdbg` (C/C++ extension, GDB or LLDB) or `lldb` (CodeLLDB). `auto` picks one for the system."
 				},
 				"blitz.build.outputDirectory": {
-					"order": 7,
+					"order": 8,
 					"type": "string",
 					"default": "build/blitz",
 					"markdownDescription": "Where `Build` puts the programs, relative to the workspace folder, with a folder `debug` or `release` in it."
 				},
 				"blitz.trace.server": {
-					"order": 8,
+					"order": 9,
 					"type": "string",
 					"enum": [
 						"off",
@@ -160,6 +169,11 @@
 			{
 				"command": "blitz.run.release",
 				"title": "Run the Program (Release)",
+				"category": "Blitz"
+			},
+			{
+				"command": "blitz.selectProject",
+				"title": "Select the Project",
 				"category": "Blitz"
 			},
 			{
