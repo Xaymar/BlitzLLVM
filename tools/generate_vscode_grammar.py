@@ -82,7 +82,7 @@ def grammar():
                 {"name": "keyword.declaration.blitzbasic", "match": "(?i)" + words(DECLARATION)},
                 {"name": "keyword.control.blitzbasic", "match": "(?i)" + words(CONTROL)},
                 {"name": "keyword.other.object.blitzbasic", "match": "(?i)" + words(OBJECT)},
-                {"name": "keyword.operator.word.blitzbasic", "match": "(?i)" + words(OPERATOR)},
+                {"name": "keyword.operator.expression.blitzbasic keyword.operator.wordlike.blitzbasic", "match": "(?i)" + words(OPERATOR)},
                 {"name": "constant.language.blitzbasic", "match": "(?i)" + words(CONSTANT)},
             ]},
             # `x.Type` and `New Type`, `Each Type`, `First Type`, `Last Type`
