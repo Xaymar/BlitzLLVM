@@ -18,15 +18,20 @@ Rect 0, 0, 1024, 1024, 1
 SaveBuffer TextureBuffer(source), "vram_mips.bmp"
 SetBuffer BackBuffer()
 FreeTexture source
+For f = 1 To 3
+	Flip
+Next
+DebugLog "avail after source " + (AvailVidMem() / 1048576)
 
 Local cam = CreateCamera()
-MoveEntity cam, 0, 0, -12
+MoveEntity cam, 0.0, 0.0, -12.0
 For i = 0 To 4
 	t(i) = LoadTexture("vram_mips.bmp", 1 + 8)
 	c(i) = CreateCube()
 	ScaleEntity c(i), 0.8, 0.8, 0.8
 	PositionEntity c(i), i * 2.2 - 4.4, 0, 0
 	EntityTexture c(i), t(i)
+	DebugLog "avail after texture " + i + ": " + (AvailVidMem() / 1048576)
 Next
 For f = 1 To 10
 	RenderWorld
@@ -34,7 +39,9 @@ For f = 1 To 10
 Next
 
 ; Needs room that only the biggest levels of the textures above can give.
+DebugLog "avail before big " + (AvailVidMem() / 1048576)
 big = CreateTexture(4096, 4096, 1 + 256)
+DebugLog "avail after big " + (AvailVidMem() / 1048576)
 For f = 1 To 20
 	RenderWorld
 	Flip
@@ -42,6 +49,7 @@ Next
 
 ; With room to spare the drawn textures get levels back, one at a time.
 FreeTexture big
+DebugLog "big freed"
 For f = 1 To 80
 	RenderWorld
 	Flip
