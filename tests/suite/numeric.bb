@@ -208,3 +208,11 @@ Check "binary fp64", Double(0b1000.fp64), 8.0
 Check "hex f", 0xFF.f, 255.0
 Check "hex h", Double(0x10.h), 16.0
 Check "hex d is still a digit", Double(0x1D.d), 29.0
+Check "dot left out h", Double(1.5h) * 2, 3.0
+Check "dot left out f", 1.5f * 2, 3.0
+Check "dot left out d", Double(0.1d), 0.1, 0.0000000000000001
+Check "dot left out fp16", Double(2.5fp16), 2.5
+Check "dot left out fp32", 0.25fp32 * 2, 0.5
+Check "dot left out fp64", 0.1fp64 * 3, 0.3
+Check "dotted on a real", 2.5.h * 2, 5.0
+Check "negative real", -1.5d, -1.5

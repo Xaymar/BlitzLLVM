@@ -34,7 +34,7 @@ Print exact
 
 ## Rules
 
-* The whole number suffixes (`i8` to `ui64`, `u`) go on whole numbers: decimal, `0x` and `0b`. The real suffixes (`.h`, `.f`, `.d`, `.fp16`, `.fp32`, `.fp64`) start with a dot and go on every number: `3.d`, `2.5.h`, `0b101.f` (5.0) and `0xFF.f` (255.0). The dot is what keeps them apart from the digits of a `0x` number: `0xFFf` is just the number 4095. `$FF` and `%101` take no suffix.
+* The whole number suffixes (`i8` to `ui64`, `u`) go on whole numbers: decimal, `0x` and `0b`. The real suffixes (`.h`, `.f`, `.d`, `.fp16`, `.fp32`, `.fp64`) go on every number when they start with a dot: `3.d`, `2.5.h`, `0b101.f` (5.0) and `0xFF.f` (255.0). The dot is what keeps them apart from the digits of a `0x` number: `0xFFf` is just the number 4095. A number that already has a decimal point may leave the dot out: `2.5h`, `0.1d` and `1.5fp16` are the same as `2.5.h`, `0.1.d` and `1.5.fp16`, while `5h` is an error. `$FF` and `%101` take no suffix.
 * The suffix has to end the number: `1foo` is still the number 1 followed by a name, as before.
 * A whole number without a suffix has to fit into an `Int`. A number that is larger (`5000000000`) is an error that asks for `i64` or `ui64`. A `0x` or `0b` number of up to 32 bits is an `Int` with the same bits as `$FFFFFFFF`, so `0xFFFFFFFF` is -1.
 * A number with a suffix has to fit into its type, or it is an error: `300i8` and `70000.h` do not compile. A `0x` or `0b` number is a bit pattern of the type and may use all of its bits, so `0xFFi8` is -1, `0xFFui8` is 255, and `0b11111111i8` is -1.
