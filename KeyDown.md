@@ -19,17 +19,17 @@ KeyDown:Int32 key:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `key` | In | Int32 | required | The scancode of the key, 1 to 255. |
+| `key` | In | Int32 | required | The scancode of the key, 1 to 237 (the DirectInput scancodes of the original, see Scan Codes). Any other value is 0. |
 
 **Returns:** 1 while the key is held down, otherwise 0.
 
 ## Description
 
-Tells whether a key is held down right now. Keys are named by their scancode, which is the position of the key on the keyboard and does not change with the keyboard layout. Some of them: Escape 1, the digit row 2 to 11, Backspace 14, Tab 15, Enter 28, left Ctrl 29, left Shift 42, right Shift 54, left Alt 56, Space 57, F1 to F10 59 to 68, F11 87, F12 88, Up 200, Left 203, Right 205, Down 208, Insert 210 and Delete 211. The letter keys follow the top left to bottom right order of a US keyboard, so Q is 16, A is 30 and Z is 44.
+Tells whether a key is held down right now. Keys are named by their scancode, which is the position of the key on the keyboard and does not change with the keyboard layout. Some of them: Escape 1, the digit row 2 to 11, Backspace 14, Tab 15, Enter 28, left Ctrl 29, left Shift 42, right Shift 54, left Alt 56, Space 57, F1 to F10 59 to 68, F11 87, F12 88, Up 200, Left 203, Right 205, Down 208, Insert 210 and Delete 211. The letter keys follow the top left to bottom right order of a US keyboard, so Q is 16, A is 30 and Z is 44. Pause is 197, Print Screen 183, the Windows keys 219 and 220 and F13 to F15 100 to 102. See [Scan Codes](Scan-Codes) for the table of all of them, and VKeyDown for keys that have no code here.
 
 ## Differences
 
-* Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
+* Keys that DirectInput has no code for, such as F16 to F24 and Help, are only reachable with VKeyDown.
 * Without an open graphics window nothing can be pressed, and the function returns 0.
 * The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 
@@ -53,7 +53,7 @@ Wend
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyHit](KeyHit), [KeyWait](KeyWait), [WaitKey](WaitKey)
+[GetKey](GetKey), [KeyHit](KeyHit), [KeyWait](KeyWait), [VKeyDown](VKeyDown), [VKeyHit](VKeyHit), [WaitKey](WaitKey)
 
 <div align="center">
 

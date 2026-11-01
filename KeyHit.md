@@ -19,7 +19,7 @@ KeyHit:Int32 key:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `key` | In | Int32 | required | The scancode of the key, 1 to 255. |
+| `key` | In | Int32 | required | The scancode of the key, 1 to 237 (the DirectInput scancodes of the original, see Scan Codes). Any other value is 0. |
 
 **Returns:** How many times the key was pressed since the last call.
 
@@ -29,6 +29,7 @@ Counts how often a key was pressed since the last time KeyHit asked about that s
 
 ## Differences
 
+* Keys that DirectInput has no code for, such as F16 to F24 and Help, are only reachable with VKeyHit.
 * The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 
 ## Examples
@@ -48,7 +49,7 @@ Wend
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyDown](KeyDown), [KeyWait](KeyWait), [WaitKey](WaitKey)
+[GetKey](GetKey), [KeyDown](KeyDown), [KeyWait](KeyWait), [VKeyDown](VKeyDown), [VKeyHit](VKeyHit), [WaitKey](WaitKey)
 
 <div align="center">
 

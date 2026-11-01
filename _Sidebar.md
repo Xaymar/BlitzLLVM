@@ -21,7 +21,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (39)</summary>
+<li><details><summary>Features (40)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -54,6 +54,7 @@
 <li><a href="Presentation-Sync">Presentation sync</a></li>
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Saving-Pictures">Saving pictures</a></li>
+<li><a href="Scan-Codes">Scan Codes</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
 <li><a href="Spherical-Fog">Spherical fog</a></li>
 <li><a href="Sprite-Depth-Fade">Sprite depth fade (soft edges)</a></li>
@@ -64,7 +65,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (320)</summary>
+<li><details><summary>Commands (322)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -375,6 +376,8 @@
 <li><a href="UShort#differences">UShort</a> 〔BlitzLLVM〕</li>
 <li><a href="VertexTexCoords#differences">VertexTexCoords</a></li>
 <li><a href="VertexW#differences">VertexW</a></li>
+<li><a href="VKeyDown#differences">VKeyDown</a></li>
+<li><a href="VKeyHit#differences">VKeyHit</a></li>
 <li><a href="VWait#differences">VWait</a></li>
 <li><a href="WaitJoy#differences">WaitJoy</a></li>
 <li><a href="WBuffer#differences">WBuffer</a></li>
@@ -817,7 +820,7 @@
 <li><a href="WaitJoy">WaitJoy</a></li>
 </ul>
 </details></li>
-<li><details><summary>Keyboard (11)</summary>
+<li><details><summary>Keyboard (13)</summary>
 <ul>
 <li><a href="BlitzBasic-Keyboard">Overview</a></li>
 <li><a href="FlushKeys">FlushKeys</a></li>
@@ -830,6 +833,8 @@
 <li><a href="KeyHit">KeyHit</a></li>
 <li><a href="KeyWait">KeyWait</a></li>
 <li><a href="LastKeyboardDevice">LastKeyboardDevice</a></li>
+<li><a href="VKeyDown">VKeyDown</a></li>
+<li><a href="VKeyHit">VKeyHit</a></li>
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>

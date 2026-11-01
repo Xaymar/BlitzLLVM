@@ -35,7 +35,7 @@ KeyWait()
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyDown](KeyDown), [KeyHit](KeyHit), [WaitKey](WaitKey)
+[GetKey](GetKey), [KeyDown](KeyDown), [KeyHit](KeyHit), [VKeyDown](VKeyDown), [VKeyHit](VKeyHit), [WaitKey](WaitKey)
 
 <div align="center">
 

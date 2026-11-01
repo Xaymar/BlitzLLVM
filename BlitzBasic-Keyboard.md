@@ -19,4 +19,6 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [KeyHit](KeyHit)
 * [KeyWait](KeyWait)
 * [LastKeyboardDevice](LastKeyboardDevice)
+* [VKeyDown](VKeyDown)
+* [VKeyHit](VKeyHit)
 * [WaitKey](WaitKey)

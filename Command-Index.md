@@ -918,6 +918,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [VertexY](VertexY)
 * [VertexZ](VertexZ)
 * [Viewport](Viewport)
+* [VKeyDown](VKeyDown)
+* [VKeyHit](VKeyHit)
 * [VWait](VWait)
 
 ## W

@@ -17,7 +17,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Fonts and Text](BlitzBasic-Fonts-and-Text) (12): Loading fonts and measuring or printing text.
 * [Images](BlitzBasic-Images) (39): Loading, drawing, transforming and colliding images.
 * [Joystick](BlitzBasic-Joystick) (26): Joystick and gamepad axes, buttons and hats.
-* [Keyboard](BlitzBasic-Keyboard) (11): Key state, key hits and waiting for keys.
+* [Keyboard](BlitzBasic-Keyboard) (13): Key state, key hits and waiting for keys.
 * [Mouse](BlitzBasic-Mouse) (25): Mouse position, speed and buttons.
 * [Movies](BlitzBasic-Movies) (15): Playing back movie files.
 * [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.

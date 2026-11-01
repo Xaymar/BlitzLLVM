@@ -43,6 +43,7 @@ Differences that are not caused by one command.
 * [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
 * [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA, DDS and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
+* [Scan Codes](Scan-Codes): Extension: `VKeyDown` and `VKeyHit` ask for a key by its SDL scancode, which every key has.
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` restores the FMOD sound.
 * [Spherical fog](Spherical-Fog): Extension: `CameraFogMode camera, 2` fogs by the distance to the camera instead of the depth along its view direction; the original only has linear fog by depth.
 * [Sprite depth fade (soft edges)](Sprite-Depth-Fade): Extension: `SpriteDepthFade` and `EntityDepthFade` fade see-through sprites and entities out where they get close to solid geometry (soft particles); the original has no such command.
@@ -204,8 +205,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [KeyboardDeviceConnected](KeyboardDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceCount](KeyboardDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceName](KeyboardDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
-* [KeyDown](KeyDown#differences): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
-* [KeyHit](KeyHit#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
+* [KeyDown](KeyDown#differences): Keys that DirectInput has no code for, such as F16 to F24 and Help, are only reachable with VKeyDown.
+* [KeyHit](KeyHit#differences): Keys that DirectInput has no code for, such as F16 to F24 and Help, are only reachable with VKeyHit.
 * [LastJoyDevice](LastJoyDevice#differences): This is a BlitzLLVM extension: the original has no such command.
 * [LastKeyboardDevice](LastKeyboardDevice#differences): This is a BlitzLLVM extension: the original has no such command.
 * [LastMouseDevice](LastMouseDevice#differences): This is a BlitzLLVM extension: the original has no such command.
@@ -365,6 +366,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [UShort](UShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [VertexTexCoords](VertexTexCoords#differences): `w` is ignored.
 * [VertexW](VertexW#differences): The value is not stored: this always returns 1.
+* [VKeyDown](VKeyDown#differences): This is a BlitzLLVM extension: the original has no such command.
+* [VKeyHit](VKeyHit#differences): This is a BlitzLLVM extension: the original has no such command.
 * [VWait](VWait#differences): There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second).
 * [WaitJoy](WaitJoy#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.
 * [WBuffer](WBuffer#differences): Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
