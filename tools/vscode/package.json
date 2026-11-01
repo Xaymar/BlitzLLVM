@@ -257,12 +257,28 @@
 					"${workspaceFolder}"
 				],
 				"pattern": {
-					"regexp": "^(.+?):(\\d+):(\\d+): (error|warning|notice): (.*)$",
+					"regexp": "^(.+?):(\\d+):(\\d+): (error|warning): (.*)$",
 					"file": 1,
 					"line": 2,
 					"column": 3,
 					"severity": 4,
 					"message": 5
+				}
+			},
+			{
+				"name": "blitzcc-notice",
+				"owner": "blitz",
+				"severity": "info",
+				"fileLocation": [
+					"autoDetect",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.+?):(\\d+):(\\d+): notice: (.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"message": 4
 				}
 			}
 		],
