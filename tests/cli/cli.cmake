@@ -113,7 +113,7 @@ if(CASE STREQUAL "default")
 	expect_contains("Generating...")
 	expect_contains("Creating executable \"")
 	if(NOT EXISTS "${EXE}")
-		message(FATAL_ERROR "The executable was not created.")
+		message(FATAL_ERROR "The executable was not created.\nstdout: ${OUT}\nstderr: ${ERR}")
 	endif()
 
 elseif(CASE STREQUAL "quiet")
