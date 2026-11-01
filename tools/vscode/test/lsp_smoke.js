@@ -232,6 +232,18 @@ function stage(name) {
   const changed = Object.fromEntries(Object.entries(result.result.changes).map(([u, e]) => [path.basename(u), e.length]));
   assert.deepStrictEqual(changed, { 'lib.bb': 1, 'main.bb': 2 }, JSON.stringify(result));
 
+  // Semantic tokens: a function of the included file is coloured as a function, with and without parentheses
+  result = await request('textDocument/semanticTokens/full', { textDocument: { uri } });
+  const decoded = [];
+  for (let i = 0, line = 0, column = 0; i < result.result.data.length; i += 5) {
+    const [dl, dc, length, type] = result.result.data.slice(i, i + 5);
+    line += dl;
+    column = dl ? dc : column + dc;
+    decoded.push({ line, column, length, type });
+  }
+  const drawAt = position(calls, 'Draw 1');
+  assert.strictEqual(decoded.find((t) => t.line === drawAt.line && t.column === drawAt.character).type, 3, 'function: ' + JSON.stringify(decoded));
+
   stage('workspace');
 
   // Formatting

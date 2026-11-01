@@ -108,6 +108,8 @@ namespace blitz::lsp {
 		std::map<std::string, std::unique_ptr<document>> _files; // Files read for symbols, by path
 		std::vector<std::filesystem::path> _workspace; // The folders that are open, empty if the editor has only files
 		int                             _warning_level = 2;
+		bool                            _refresh_semantic = false; // The editor can be told to ask for the colours again
+		int                             _requests      = 0;
 		bool                            _shutdown      = false;
 		bool                            _exit          = false;
 	};

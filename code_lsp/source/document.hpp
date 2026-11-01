@@ -109,8 +109,12 @@ namespace blitz::lsp {
 			semantic_type type  = semantic_type::variable;
 			int           modifiers = 0;
 		};
-		/** is_command: tells if a lower case name is a command of the runtime. */
-		std::vector<semantic_word> semantic_words(std::function<bool(std::string const&)> const& is_command) const;
+		/** What the other files of the program declare globally: flags for a lower case name. */
+		static constexpr int external_function = 1;
+		static constexpr int external_variable = 2;
+		static constexpr int external_constant = 4;
+		/** is_command: tells if a lower case name is a command of the runtime. external: what other files of the program declare. */
+		std::vector<semantic_word> semantic_words(std::function<bool(std::string const&)> const& is_command, std::function<int(std::string const&)> const& external = nullptr) const;
 
 		/** The files named by `Include "..."`, as written. */
 		std::vector<std::string> includes() const;

@@ -464,7 +464,7 @@ namespace blitz::lsp {
 		return out;
 	}
 
-	std::vector<document::semantic_word> document::semantic_words(std::function<bool(std::string const&)> const& is_command) const
+	std::vector<document::semantic_word> document::semantic_words(std::function<bool(std::string const&)> const& is_command, std::function<int(std::string const&)> const& external) const
 	{
 		std::map<std::string, std::vector<declaration>> by_name;
 		for (auto const& d : collect(nullptr)) by_name[d.name].push_back(d);
@@ -489,6 +489,9 @@ namespace blitz::lsp {
                 return std::any_of(keywords.begin(), keywords.end(), [&](const char* k) { return l == k; });
 			};
 
+			const int outside = external ? external(w.name) : 0;
+			const bool outside_function = (outside & external_function) != 0;
+			const bool outside_global   = (outside & (external_variable | external_constant)) != 0;
 			semantic_word r;
 			r.begin = w.begin;
 			r.end   = w.core_end;
@@ -502,11 +505,11 @@ namespace blitz::lsp {
 				bool   label = after_dot && (pp == size_t(-1) || _tokens[pp].is(tools::kind::newline) || _tokens[pp].is(tools::kind::separator));
 				r.type       = label ? semantic_type::label : semantic_type::type;
 				// `.Type` after a name and `Local x.Type`: the dot is part of the declaration
-			} else if (previous_is({ "function" }) || (called && has(declaration::kind::function))) {
+			} else if (previous_is({ "function" }) || (called && (has(declaration::kind::function) || (outside_function && !has(declaration::kind::dim))))) {
 				r.type = semantic_type::function;
 			} else if (previous_is({ "goto", "gosub", "restore" })) {
 				r.type = semantic_type::label;
-			} else if (has(declaration::kind::function) && !has(declaration::kind::variable) && !has(declaration::kind::parameter) && !has(declaration::kind::dim)) {
+			} else if ((has(declaration::kind::function) || (outside_function && !outside_global)) && !has(declaration::kind::variable) && !has(declaration::kind::parameter) && !has(declaration::kind::dim) && !has(declaration::kind::constant)) {
 				r.type = semantic_type::function;
 			} else if (decls.empty() && is_command && is_command(w.name)) {
 				r.type      = semantic_type::function;
@@ -516,7 +519,7 @@ namespace blitz::lsp {
 				bool   in_function = function_at(w.begin, b, e);
 				bool   parameter   = in_function && std::any_of(decls.begin(), decls.end(), [&](declaration const& d) { return d.what == declaration::kind::parameter && d.scope_begin == b; });
 				r.type             = parameter ? semantic_type::parameter : semantic_type::variable;
-				if (has(declaration::kind::constant)) r.modifiers |= semantic_readonly;
+				if (has(declaration::kind::constant) || (outside & external_constant)) r.modifiers |= semantic_readonly;
 			}
 			out.push_back(r);
 		}

@@ -247,6 +247,7 @@ namespace blitz::lsp {
 			if (folder["uri"].is_string()) _workspace.emplace_back(path_from_uri(folder["uri"].as_string()));
 		}
 		if (_workspace.empty() && params["rootUri"].is_string()) _workspace.emplace_back(path_from_uri(params["rootUri"].as_string()));
+		_refresh_semantic = params["capabilities"]["workspace"]["semanticTokens"]["refreshSupport"].as_bool();
 		trace("initialize: capabilities");
 		json caps = json::object();
 		json sync = json::object();
@@ -353,6 +354,12 @@ namespace blitz::lsp {
 				analyze(*s);
 				publish(*s);
 			}
+		}
+		// The colours depend on what the analysis found in the other files (functions of included files, for one).
+		if (!dirty.empty() && _refresh_semantic) {
+			json m = json::object();
+			m.set("jsonrpc", "2.0").set("id", "refresh-" + std::to_string(++_requests)).set("method", "workspace/semanticTokens/refresh");
+			_send(m);
 		}
 	}
 
@@ -928,7 +935,21 @@ namespace blitz::lsp {
 		json data = json::array();
 		auto* s   = find(params["textDocument"]["uri"].as_string());
 		if (s) {
-			auto words = s->doc->semantic_words([this](std::string const& name) { return _commands.find(name) != nullptr; });
+			std::map<std::string, int> outside; // What the program declares in other files
+			for (auto const& sym : s->symbols) {
+				if (sym.file == s->path) continue;
+				switch (sym.what) {
+				case symbol::kind::function: outside[sym.lower] |= document::external_function; break;
+				case symbol::kind::variable: outside[sym.lower] |= document::external_variable; break;
+				case symbol::kind::constant: outside[sym.lower] |= document::external_constant; break;
+				default: break;
+				}
+			}
+			auto words = s->doc->semantic_words([this](std::string const& name) { return _commands.find(name) != nullptr; },
+												[&](std::string const& name) {
+													auto it = outside.find(name);
+													return (it == outside.end()) ? 0 : it->second;
+												});
 			uint32_t previous_line = 0, previous_column = 0;
 			for (auto const& w : words) {
 				auto from = s->doc->to_position(w.begin);
