@@ -187,6 +187,22 @@ static void test_aligned_and_new()
 // Threads that start and end, with more and more work in them, to see where a program of Windows stops.
 static void test_thread_smoke()
 {
+	fprintf(stderr, " empty thread\n");
+	{
+		std::thread e([] {});
+		e.join();
+	}
+	fprintf(stderr, " empty thread joined\n");
+	{
+		std::thread e([] { void* p = bb_malloc(32); fprintf(stderr, " in thread %p\n", p); bb_free(p); });
+		e.join();
+	}
+	fprintf(stderr, " one alloc thread joined\n");
+	{
+		std::thread e([] { void* p = bb_malloc(32); bb_free(p); });
+		e.join();
+	}
+	fprintf(stderr, " quiet alloc thread joined\n");
 	for (int work : { 0, 1, 1000, 200000 }) {
 		for (int keep : { 0, 1 }) {
 			std::vector<std::thread> threads;
