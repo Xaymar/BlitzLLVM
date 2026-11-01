@@ -59,7 +59,7 @@ endmacro()
 macro(expect_out WANT)
 	string(HEX "${WANT}" _WANT_HEX)
 	if(NOT OUT_HEX STREQUAL _WANT_HEX)
-		message(FATAL_ERROR "Expected the output:\n${WANT}\n---- got:\n${OUT}\n---- stderr:\n${ERR}")
+		message(FATAL_ERROR "Expected the output:\n${WANT}\n---- got:\n${OUT}\n---- hex of want:\n${_WANT_HEX}\n---- hex of got:\n${OUT_HEX}\n---- stderr:\n${ERR}")
 	endif()
 endmacro()
 
@@ -580,6 +580,13 @@ elseif(CASE STREQUAL "repository")
 	if(_N LESS 50)
 		message(FATAL_ERROR "Only ${_N} programs were found.")
 	endif()
+
+elseif(CASE STREQUAL "return_types")
+	# The type of a function is written without spaces, Void as well, and the formatter never adds one.
+	expect_format("Function Show:Void(a%)\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Show:Void( a% )\nEnd Function\n" "Function Show:Void(a%)\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Count:Int32()\n\tReturn 3\nEnd Function\n" "Function Count:Int32()\n\tReturn 3\nEnd Function\n" --line-ending=lf)
+	expect_format("Function Show(a%)\nEnd Function\n" "Function Show(a%)\nEnd Function\n" --line-ending=lf)
 
 else()
 	message(FATAL_ERROR "Unknown case '${CASE}'.")

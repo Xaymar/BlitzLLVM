@@ -454,7 +454,7 @@ set_tests_properties(tools-library PROPERTIES LABELS "tools")
 
 # blitz-format: The style it applies, its options and configuration files, --check/--diff/-i, and that the formatted program
 # compiles to the same LLVM IR. Each case is in tests/format/format.cmake.
-foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent keywords spacing comments blank_lines align wrap line_endings config recursive symlinks in_place_atomic errors help help_version_first language_keywords repository)
+foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent keywords spacing comments blank_lines align wrap line_endings config recursive symlinks in_place_atomic errors help help_version_first language_keywords repository return_types)
 	add_test(
 		NAME "format-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
