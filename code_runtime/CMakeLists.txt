@@ -50,6 +50,7 @@ target_sources(blitzrt PRIVATE
 	"source/cpu.h"
 	"source/kernels.c"
 	"source/kernels.h"
+	"source/half.c"
 	"source/userlib.c"
 	"source/process.c"
 	"source/files_internal.h"
