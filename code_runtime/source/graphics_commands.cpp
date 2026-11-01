@@ -921,7 +921,11 @@ namespace bb::gfx {
 	// Records and sends everything that has been asked for.
 	void flush()
 	{
-		if (g.headless || !g.created || ((g.op_count == 0) && !g.front_touched)) {
+		if (g.headless || !g.created) {
+			return;
+		}
+		reserve_internal_buffers(); // Before anything is recorded: it may flush and wait for the GPU itself.
+		if ((g.op_count == 0) && !g.front_touched) {
 			return;
 		}
 		prepare_palette();
