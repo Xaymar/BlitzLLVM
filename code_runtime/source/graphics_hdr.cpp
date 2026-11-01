@@ -94,7 +94,7 @@ namespace {
 	void read_environment()
 	{
 		if (mode < 0) {
-			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 2), 0, 2);
+			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 2), 0, 3);
 		}
 		if (white_nits < 0.0f) {
 			white_nits = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_WHITE", 0.0)), 0.0f, 10000.0f);
@@ -288,7 +288,7 @@ namespace {
 	void create_resources()
 	{
 		VkDescriptorSetLayout layouts[1] = { g.set_layout };
-		VkPushConstantRange   range      = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, 2 * sizeof(float) }; // The SDR white, and how far the highlights go beyond it.
+		VkPushConstantRange   range      = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, 3 * sizeof(float) }; // The SDR white, how far the highlights go beyond it, and the peak.
 		VkPipelineLayoutCreateInfo info  = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 		info.setLayoutCount              = 1;
 		info.pSetLayouts                 = layouts;
@@ -373,6 +373,14 @@ namespace bb::gfx {
 		}
 	}
 
+	bool hdr_reads_directly(const gpu_image& front)
+	{
+		// AutoHDR 3: a buffer of more than 8 bits goes to the HDR pass as it is, instead of through the 8 bit picture of the gamma pass, so that
+		// its precision, and values above 1, are kept. The gamma tables and a palette need that 8 bit picture.
+		bool deep = (front.format == VK_FORMAT_R16G16B16A16_SFLOAT) || (front.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+		return (mode == 3) && deep && (surface().hdr || hdr_test()) && gamma_plain();
+	}
+
 	gpu_image* apply_hdr(gpu_image& picture)
 	{
 		if (!surface().hdr && !hdr_test()) {
@@ -401,7 +409,7 @@ namespace bb::gfx {
 		float         white  = effective_white(levels);
 		float         peak   = effective_peak(levels, white);
 		// The brightest color, white, ends at white * (1 + boost): never beyond the peak.
-		float push[2] = { white / scrgb_white_nits, (mode == 2) ? expand * (peak / white - 1.0f) : 0.0f };
+		float push[3] = { white / scrgb_white_nits, (mode == 2) ? expand * (peak / white - 1.0f) : 0.0f, peak / scrgb_white_nits };
 
 		barrier(picture.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		barrier(scrgb.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -501,7 +509,7 @@ extern "C" {
 void bb_auto_hdr(int32_t value)
 {
 	read_environment();
-	int level = (value <= 0) ? 0 : ((value >= 2) ? 2 : 1);
+	int level = std::clamp(value, 0, 3);
 	if (level != mode) {
 		bool was = mode > 0;
 		mode     = level;

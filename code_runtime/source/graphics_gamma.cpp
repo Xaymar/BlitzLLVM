@@ -373,6 +373,12 @@ namespace bb::gfx {
 		return ((dither > 1) && ((!g.can_blend_dither && !blend_interlock()) || (antialias_mode() != 0))) ? 1 : dither;
 	}
 
+	bool gamma_plain()
+	{
+		need_gamma();
+		return is_identity() && !palette_mode(); // Dither is no matter: its noise is for the rounding to 8 bits, which the HDR picture does not have.
+	}
+
 	gpu_image* apply_gamma(gpu_image& front)
 	{
 		need_gamma();

@@ -38,7 +38,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_ENTITY_LIGHTING` | `0` | The `EntityLighting` mode of entities that were not given one: `1` lights every pixel instead of every vertex. |
 | `BLITZLLVM_NET_IPV6` | `1` | `0` makes the network commands use IPv4 only, see [[IPv6]]. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |
-| `BLITZLLVM_AUTOHDR` | `2` | The mode `AutoHDR` starts with: 0 off, 1 HDR output, 2 with lifted highlights. It does nothing without an HDR display. |
+| `BLITZLLVM_AUTOHDR` | `2` | The mode `AutoHDR` starts with: 0 off, 1 HDR output, 2 with lifted highlights, 3 buffers of more than 8 bits as they are. It does nothing without an HDR display. |
 | `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for `AutoHDRWhite`, 0 follows the system. |
 | `BLITZLLVM_AUTOHDR_PEAK` | display | Peak brightness in nits for `AutoHDRPeak`, 0 uses the display's. |
 | `BLITZLLVM_AUTOHDR_EXPAND` | `1` | How far mode 2 lifts highlights (`AutoHDRExpand`), 0 to 1. |
