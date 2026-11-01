@@ -21,7 +21,6 @@ FreeTexture source
 For f = 1 To 3
 	Flip
 Next
-DebugLog "avail after source " + (AvailVidMem() / 1048576)
 
 Local cam = CreateCamera()
 MoveEntity cam, 0.0, 0.0, -12.0
@@ -31,7 +30,6 @@ For i = 0 To 4
 	ScaleEntity c(i), 0.8, 0.8, 0.8
 	PositionEntity c(i), i * 2.2 - 4.4, 0, 0
 	EntityTexture c(i), t(i)
-	DebugLog "avail after texture " + i + ": " + (AvailVidMem() / 1048576)
 Next
 For f = 1 To 10
 	RenderWorld
@@ -39,9 +37,8 @@ For f = 1 To 10
 Next
 
 ; Needs room that only the biggest levels of the textures above can give.
-DebugLog "avail before big " + (AvailVidMem() / 1048576)
-big = CreateTexture(4096, 4096, 1 + 256)
-DebugLog "avail after big " + (AvailVidMem() / 1048576)
+; (The upload buffer of the texture counts against BLITZLLVM_VRAM_LIMIT_MB too, so this one is not bigger than the room that is left.)
+big = CreateTexture(2048, 2048, 1 + 256)
 For f = 1 To 20
 	RenderWorld
 	Flip
@@ -49,7 +46,6 @@ Next
 
 ; With room to spare the drawn textures get levels back, one at a time.
 FreeTexture big
-DebugLog "big freed"
 For f = 1 To 80
 	RenderWorld
 	Flip
