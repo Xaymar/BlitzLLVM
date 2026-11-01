@@ -30,8 +30,8 @@ name: Test
 # comment about the build of pull-request-comment.yml.
 
 on:
+  # Every pull request, whatever branch it targets, so that stacked pull requests (a pull request onto the branch of another one) are built and tested too.
   pull_request:
-    branches: [root]
   push:
     branches: [root]
   workflow_dispatch:
