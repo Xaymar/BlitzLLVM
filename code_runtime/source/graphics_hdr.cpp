@@ -17,9 +17,20 @@
 // eye: its algorithm is not public). Where there is no HDR the swapchain is the one it was, and nothing here runs.
 
 #include <algorithm>
+#include <vector>
 #include "graphics_internal.hpp"
 #include "shaders.inc"
 #include "environment.h"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#if __has_include(<dxgi1_6.h>)
+#include <dxgi1_6.h>
+#define BB_HAVE_DXGI16 1
+#endif
+#endif
 
 using namespace bb::gfx;
 
@@ -103,6 +114,137 @@ namespace {
 		float headroom = 1.0f;
 	};
 
+#ifdef _WIN32
+	// SDL says a display has HDR only when its own query through DXGI finds the monitor, and on some machines (two GPUs, for one) it does not.
+	// Windows can be asked directly: the display configuration says if "advanced color" (HDR) is on for the monitor a window is on, the SDR white
+	// level of its slider, and DXGI the peak luminance. The answer is kept for half a second as the questions are not cheap.
+	struct advanced_color_info {
+		DISPLAYCONFIG_DEVICE_INFO_HEADER header;
+		UINT32                           value; // Bit 0 supported, bit 1 enabled.
+		UINT32                           color_encoding;
+		UINT32                           bits_per_channel;
+	};
+	struct sdr_white_info {
+		DISPLAYCONFIG_DEVICE_INFO_HEADER header;
+		ULONG                            level; // 1000 is 80 nits.
+	};
+
+	bool windows_hdr(HWND hwnd, bool& hdr, float& white_nits_out, float& peak_nits_out)
+	{
+		hdr             = false;
+		white_nits_out  = 0.0f;
+		peak_nits_out   = 0.0f;
+		HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFOEXW info = {};
+		info.cbSize         = sizeof(info);
+		if (!monitor || !GetMonitorInfoW(monitor, reinterpret_cast<MONITORINFO*>(&info))) {
+			return false;
+		}
+
+		UINT32                  path_count = 0, mode_count = 0;
+		std::vector<DISPLAYCONFIG_PATH_INFO> paths;
+		std::vector<DISPLAYCONFIG_MODE_INFO> modes;
+		LONG                    result;
+		do {
+			if (GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &path_count, &mode_count) != ERROR_SUCCESS) {
+				return false;
+			}
+			paths.resize(path_count);
+			modes.resize(mode_count);
+			result = QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &path_count, paths.data(), &mode_count, modes.data(), nullptr);
+		} while (result == ERROR_INSUFFICIENT_BUFFER);
+		if (result != ERROR_SUCCESS) {
+			return false;
+		}
+
+		for (UINT32 i = 0; i < path_count; i++) {
+			DISPLAYCONFIG_SOURCE_DEVICE_NAME name = {};
+			name.header.type                      = DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
+			name.header.size                      = sizeof(name);
+			name.header.adapterId                 = paths[i].sourceInfo.adapterId;
+			name.header.id                        = paths[i].sourceInfo.id;
+			if ((DisplayConfigGetDeviceInfo(&name.header) != ERROR_SUCCESS) || (wcscmp(name.viewGdiDeviceName, info.szDevice) != 0)) {
+				continue;
+			}
+			advanced_color_info color = {};
+			color.header.type         = static_cast<DISPLAYCONFIG_DEVICE_INFO_TYPE>(9); // DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO
+			color.header.size         = sizeof(color);
+			color.header.adapterId    = paths[i].targetInfo.adapterId;
+			color.header.id           = paths[i].targetInfo.id;
+			if (DisplayConfigGetDeviceInfo(&color.header) == ERROR_SUCCESS) {
+				hdr = (color.value & 2u) != 0;
+			}
+			sdr_white_info level = {};
+			level.header.type    = static_cast<DISPLAYCONFIG_DEVICE_INFO_TYPE>(11); // DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL
+			level.header.size    = sizeof(level);
+			level.header.adapterId = paths[i].targetInfo.adapterId;
+			level.header.id        = paths[i].targetInfo.id;
+			if (DisplayConfigGetDeviceInfo(&level.header) == ERROR_SUCCESS && level.level > 0) {
+				white_nits_out = float(level.level) / 1000.0f * scrgb_white_nits;
+			}
+			break;
+		}
+
+#ifdef BB_HAVE_DXGI16
+		if (hdr) {
+			using create_factory = HRESULT(WINAPI*)(REFIID, void**);
+			HMODULE dxgi = LoadLibraryW(L"dxgi.dll");
+			auto    make = dxgi ? reinterpret_cast<create_factory>(GetProcAddress(dxgi, "CreateDXGIFactory1")) : nullptr;
+			IDXGIFactory1* factory = nullptr;
+			if (make && SUCCEEDED(make(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory)))) {
+				IDXGIAdapter1* adapter = nullptr;
+				for (UINT a = 0; (peak_nits_out == 0.0f) && SUCCEEDED(factory->EnumAdapters1(a, &adapter)); a++) {
+					IDXGIOutput* output = nullptr;
+					for (UINT o = 0; (peak_nits_out == 0.0f) && SUCCEEDED(adapter->EnumOutputs(o, &output)); o++) {
+						IDXGIOutput6* output6 = nullptr;
+						if (SUCCEEDED(output->QueryInterface(__uuidof(IDXGIOutput6), reinterpret_cast<void**>(&output6)))) {
+							DXGI_OUTPUT_DESC1 desc = {};
+							if (SUCCEEDED(output6->GetDesc1(&desc)) && (desc.Monitor == monitor)) {
+								// The desktop of ordinary color management ("advanced color" without HDR) is not in the HDR colorspace.
+								hdr            = (desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020);
+								peak_nits_out = hdr ? desc.MaxLuminance : 0.0f;
+							}
+							output6->Release();
+						}
+						output->Release();
+					}
+					adapter->Release();
+				}
+				factory->Release();
+			}
+			if (dxgi) {
+				FreeLibrary(dxgi);
+			}
+		}
+#endif
+		return true;
+	}
+
+	// What windows_hdr said, kept for half a second.
+	bool windows_levels(SDL_Window* window, system_levels& levels)
+	{
+		static Uint64 asked = 0;
+		static bool   hdr   = false;
+		static float  white = 0.0f, peak = 0.0f;
+		Uint64        now   = SDL_GetTicks();
+		if (!asked || (now - asked > 500)) {
+			asked = now ? now : 1;
+			HWND hwnd = static_cast<HWND>(SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+			if (!hwnd || !windows_hdr(hwnd, hdr, white, peak)) {
+				hdr = false;
+			}
+		}
+		if (hdr) {
+			levels.hdr   = true;
+			levels.white = white; // 0 when Windows does not say, which is the usual 203 nits then.
+			if (peak > 0.0f && levels.white > 0.0f) {
+				levels.headroom = std::max(1.0f, peak / levels.white);
+			}
+		}
+		return hdr;
+	}
+#endif
+
 	system_levels ask_system()
 	{
 		system_levels levels;
@@ -116,6 +258,11 @@ namespace {
 				SDL_DisplayID display = SDL_GetDisplayForWindow(surface().window);
 				levels.hdr            = display && SDL_GetBooleanProperty(SDL_GetDisplayProperties(display), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false);
 			}
+#ifdef _WIN32
+			if (!levels.hdr) {
+				windows_levels(surface().window, levels); // SDL does not see the HDR of this display, ask Windows.
+			}
+#endif
 		} else if (!bb_env_bool("BLITZLLVM_HEADLESS", 0) && !g.headless && SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 			SDL_DisplayID display = SDL_GetPrimaryDisplay();
 			if (display) {
@@ -207,11 +354,12 @@ namespace bb::gfx {
 			SDL_PropertiesID wp = window ? SDL_GetWindowProperties(window) : 0;
 			SDL_DisplayID shown = window ? SDL_GetDisplayForWindow(window) : 0;
 			SDL_DisplayID first = SDL_GetPrimaryDisplay();
-			char line[512];
-			snprintf(line, sizeof(line), "AutoHDR: mode %d, window HDR %d (SDR white %.2f, headroom %.2f), display of the window %u HDR %d, primary display %u HDR %d, driver offers scRGB %d, in HDR %d\n", mode,
+			system_levels seen = ask_system();
+			char line[640];
+			snprintf(line, sizeof(line), "AutoHDR: mode %d, window HDR %d (SDR white %.2f, headroom %.2f), display of the window %u HDR %d, primary display %u HDR %d, driver offers scRGB %d, in HDR %d, seen by AutoHDR: HDR %d, SDR white %.0f nits, peak %.0f nits\n", mode,
 					wp ? int(SDL_GetBooleanProperty(wp, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false)) : -1, wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) : 0.0f,
 					wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 0.0f) : 0.0f, unsigned(shown), shown ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(shown), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1,
-					unsigned(first), first ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(first), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1, int(s.hdr_offered), int(s.hdr));
+					unsigned(first), first ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(first), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1, int(s.hdr_offered), int(s.hdr), int(seen.hdr), seen.white, (seen.hdr && seen.white > 0.0f) ? seen.white * seen.headroom : 0.0f);
 			fputs(line, stderr); // A program without a console shows nothing there, so the line is also appended to autohdr_debug.txt in the working folder.
 			if (FILE* file = fopen("autohdr_debug.txt", "ab")) {
 				fputs(line, file);
