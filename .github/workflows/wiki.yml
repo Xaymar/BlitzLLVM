@@ -52,9 +52,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           git fetch --quiet --depth 1 origin performance-history || { echo "No performance-history branch."; exit 0; }
-          for page in Performance-History Performance-History-by-Version; do
-            git show "FETCH_HEAD:$page.md" > "wiki-out/$page.md" || rm -f "wiki-out/$page.md"
-          done
+          # One folder per machine; the page of the machine that the history is measured on.
+          git show "FETCH_HEAD:areldir/Performance-History.md" > wiki-out/Performance-History.md || rm -f wiki-out/Performance-History.md
       - name: Check
         # Builds on its own into a temporary folder, so this also proves a clean build passes.
         run: python3 tools/wiki/wiki.py check
