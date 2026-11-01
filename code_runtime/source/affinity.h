@@ -19,9 +19,8 @@ extern "C" {
 // (the work pool, the loaders, the submission and window threads) prefer the other CPUs, and not the SMT sibling of that CPU.
 //
 // Windows: a soft hint (SetThreadIdealProcessorEx), the scheduler may still move a thread when its CPU is busy. Default on.
-// Linux: there is no soft hint, so the thread is bound with sched_setaffinity. A thread inherits the mask of its maker, so pthread_create is replaced (affinity.c)
-// to start threads made by libraries on every CPU; it defaults to off until that is proven on real hardware. macOS has no way to ask for a CPU: nothing is done.
-// BLITZLLVM_PIN_CORE0=0 turns it off, =1 turns it on. Read once at startup.
+// Other systems: nothing is done (the Linux scheduler already places threads well, and macOS has no way to ask for a CPU).
+// BLITZLLVM_PIN_CORE0=0 turns it off. Read once at startup.
 
 /** The thread that runs the program calls this once at startup. */
 void bb_affinity_main(void);
