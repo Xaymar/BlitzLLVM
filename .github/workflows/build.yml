@@ -135,14 +135,18 @@ jobs:
           cmake --version
       - name: Determine the version
         # From the commit date (see cmake/project_version.cmake), so every platform of a run gets the same version without a job of
-        # its own in front of the builds.
+        # its own in front of the builds. The names of the packages and artifacts also carry the short commit, so a file can be
+        # traced back to its source: <version>-<commit>. That is not '+<commit>' (semver build metadata) because GitHub rewrites
+        # '+' in the names of release assets, which would make the files of a release differ from the ones that were built. The
+        # version inside of the binaries and packages stays numeric (A.B.C.D), as VERSIONINFO, deb and rpm require.
         shell: bash
         run: |
           VERSION="$(cmake -P cmake/project_version.cmake)"
-          echo "Version: $VERSION"
+          FULL_VERSION="${VERSION}-${GITHUB_SHA::7}"
+          echo "Version: $VERSION, in names: $FULL_VERSION"
           {
             echo "VERSION=$VERSION"
-            echo "ARTIFACT=blitzllvm-${VERSION}-${{ matrix.name }}"
+            echo "ARTIFACT=blitzllvm-${FULL_VERSION}-${{ matrix.name }}"
           } >> "$GITHUB_ENV"
       - name: Date the package cache
         id: month
