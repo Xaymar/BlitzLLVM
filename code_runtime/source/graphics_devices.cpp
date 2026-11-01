@@ -236,13 +236,13 @@ namespace bb::gfx {
 	int32_t device_mouse_down(int32_t device, int32_t button)
 	{
 		device_input* m = mouse_at(device);
-		return (m && (button > 0) && (button < 4) && m->mouse[button]) ? 1 : 0;
+		return (m && (button > 0) && (button <= 5) && m->mouse[button]) ? 1 : 0;
 	}
 
 	int32_t device_mouse_hit(int32_t device, int32_t button)
 	{
 		device_input* m = mouse_at(device);
-		if (!m || (button <= 0) || (button >= 4)) {
+		if (!m || (button <= 0) || (button > 5)) {
 			return 0;
 		}
 		int hits           = m->mouse_hits[button];

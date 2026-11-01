@@ -438,8 +438,8 @@ namespace bb::gfx {
 		bool    keys[key_count]     = {};
 		int     key_hits[key_count] = {}; // How often a key went down since KeyHit asked.
 		int     mouse_x = 0, mouse_y = 0;
-		bool    mouse[4]      = {};
-		int     mouse_hits[4] = {}; // The same for the mouse buttons.
+		bool    mouse[6]      = {};
+		int     mouse_hits[6] = {}; // The same for the mouse buttons.
 		int     last_char     = 0;
 		int     key_queue[64] = {}; // Characters that were typed, for GetKey and WaitKey.
 		int     key_head = 0, key_tail = 0;
@@ -1322,8 +1322,8 @@ namespace bb::gfx {
 struct device_input {
 	bool  keys[bb::gfx::key_count]     = {};
 	int   key_hits[bb::gfx::key_count] = {};
-	bool  mouse[4]       = {};
-	int   mouse_hits[4]  = {};
+	bool  mouse[6]       = {};
+	int   mouse_hits[6]  = {};
 	bool  placed         = false; // The made up pointer of this mouse is put in the middle when it is first needed.
 	float px = 0, py = 0;         // Where the pointer of this mouse would be, moved only by this mouse.
 	float dx = 0, dy = 0, dz = 0; // Movement since it was asked for last.
