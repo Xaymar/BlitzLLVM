@@ -407,6 +407,7 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 			pixels[i * 4 + 3] = 255;
 		}
 		entry.image.array_sets = true;
+		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
 		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, false, false, uint32_t(frames));
 		bb_free(pixels);
 	}
@@ -432,6 +433,7 @@ int32_t bb_texture_from_rgba(int32_t width, int32_t height, int32_t flags, int32
 	entry.height = height;
 	if (active()) {
 		entry.image.array_sets = true;
+		image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
 		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -659,6 +661,7 @@ namespace bb::gfx {
 				entry.hull   = p.hull;
 				p.hull       = sprite_hull();
 				entry.image.array_sets = true;
+				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
 				upload_compressed(entry.image, entry.set, p.source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0);
 				free_picture(p.source);
 			} else {
@@ -668,6 +671,7 @@ namespace bb::gfx {
 				p.hull       = sprite_hull();
 				bool ten = p.ten != nullptr;
 				entry.image.array_sets = true;
+				image_spill_scope spill(!(flags & (TEXTURE_VRAM | TEXTURE_TARGET))); // Flag 256 keeps the texture in video memory; without it, it may use system memory when that is full.
 				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;

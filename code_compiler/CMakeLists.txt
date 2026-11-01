@@ -408,6 +408,15 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	endforeach()
 endif()
 
+# Full video memory (BLITZLLVM_VRAM_LIMIT_MB): system memory for a texture without flag 256, a clear error with it.
+if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
+	add_test(
+		NAME vram_pixels
+		COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/vram.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/vram.bb" "${PROJECT_BINARY_DIR}/cli/vram"
+	)
+	set_tests_properties(vram_pixels PROPERTIES LABELS "gpu")
+endif()
+
 # What actually comes out of the speakers: played through SDL's disk audio driver, and checked for pitch, looping and gaps.
 if(Python3_FOUND AND NOT WIN32)
 	add_test(NAME audio-output COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_output.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio")
