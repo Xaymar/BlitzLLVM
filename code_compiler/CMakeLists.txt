@@ -104,6 +104,22 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
+if(MINGW)
+	# The headers, libraries and runtime libraries of the compiler (llvm-mingw), that blitzcc gives to clang as its sysroot. With them a developer
+	# needs nothing but a clang with lld. They are those of the toolchain that built the runtime, so they match it.
+	get_filename_component(_MINGW_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
+	get_filename_component(_MINGW_ROOT "${_MINGW_BIN}" DIRECTORY)
+	file(GLOB _MINGW_TRIPLES LIST_DIRECTORIES true "${_MINGW_ROOT}/*-w64-mingw32")
+	file(GLOB _MINGW_CLANG_VERSIONS LIST_DIRECTORIES true "${_MINGW_ROOT}/lib/clang/*")
+	foreach(_DIR IN LISTS _MINGW_TRIPLES)
+		get_filename_component(_TRIPLE "${_DIR}" NAME)
+		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "bin" EXCLUDE)
+	endforeach()
+	foreach(_DIR IN LISTS _MINGW_CLANG_VERSIONS)
+		get_filename_component(_VERSION "${_DIR}" NAME)
+		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang)
+	endforeach()
+endif()
 # The licenses of BlitzLLVM and of every bundled dependency that ends up in the program (the ones of the system's libraries are
 # shipped by their packages): <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
 # Vulkan-Headers, stb_truetype, cgltf and VulkanMemoryAllocator. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,

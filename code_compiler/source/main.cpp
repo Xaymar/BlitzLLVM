@@ -675,6 +675,25 @@ static int compiler_main(int argc, char** argv)
 		if (!opt.target.empty()) {
 			command.push_back("--target=" + opt.target);
 		}
+		// The Windows package ships the headers, libraries and runtime libraries of the MinGW target (llvm-mingw, <lib>/blitzllvm/mingw/<arch>), so
+		// that a plain clang with lld is all a developer needs to install. A toolchain of llvm-mingw that has its own is left alone.
+		if (windows_target && !windows_msvc) {
+			std::error_code ec;
+			auto            architecture = architecture_of(opt.target);
+			auto            sysroot      = runtime_dir.parent_path() / "mingw" / architecture;
+			if (std::filesystem::is_directory(sysroot / "lib" / "clang", ec)) {
+				if (opt.target.empty()) {
+					command.push_back(std::string("--target=") + (architecture == "x86_64" ? "x86_64" : "aarch64") + "-w64-mingw32");
+				}
+				command.push_back("--sysroot=" + sysroot.generic_string());
+				for (auto const& entry : std::filesystem::directory_iterator(sysroot / "lib" / "clang", ec)) {
+					if (entry.is_directory()) {
+						command.push_back("-resource-dir=" + entry.path().generic_string());
+						break;
+					}
+				}
+			}
+		}
 		// Hardening of the program and the runtime that is built with it: stack protectors, checked copies, read-only relocations and
 		// control flow protection (x86). The Windows targets have their own (/GS is the default of their toolchains). Off with
 		// BLITZLLVM_HARDENING=0, for the case that a userlib or toolchain can't take them.
