@@ -135,19 +135,14 @@ static void test_realloc()
 static void test_foreign()
 {
 	// Blocks of the system allocator (or of another library) must pass through free, realloc and size queries.
-	fprintf(stderr, " foreign malloc\n");
 	char* p = static_cast<char*>(FOREIGN_MALLOC(64));
 	memset(p, 7, 64);
 	CHECK(bb_malloc_size(p) == 0);
-	fprintf(stderr, " foreign realloc\n");
 	p = static_cast<char*>(bb_realloc(p, 4096)); // Stays with the system.
 	CHECK(p && p[63] == 7);
-	fprintf(stderr, " free of the foreign block\n");
 	bb_free(p);
-	fprintf(stderr, " second foreign block\n");
 	char* q = static_cast<char*>(FOREIGN_MALLOC(32));
 	bb_free(q);
-	fprintf(stderr, " free of the second\n");
 	bb_free(nullptr);
 }
 
@@ -413,23 +408,14 @@ static void benchmark()
 
 int main()
 {
-	fprintf(stderr, "test_sizes\n");
 	test_sizes();
-	fprintf(stderr, "test_reuse_and_calloc\n");
 	test_reuse_and_calloc();
-	fprintf(stderr, "test_realloc\n");
 	test_realloc();
-	fprintf(stderr, "test_foreign\n");
 	test_foreign();
-	fprintf(stderr, "test_aligned_and_new\n");
 	test_aligned_and_new();
-	fprintf(stderr, "test_threads\n");
 	test_threads();
-	fprintf(stderr, "test_release\n");
 	test_release();
-	fprintf(stderr, "test_release_threads\n");
 	test_release_threads();
-	fprintf(stderr, "benchmark\n");
 	benchmark();
 	if (failures) {
 		fprintf(stderr, "%d checks failed.\n", failures);
