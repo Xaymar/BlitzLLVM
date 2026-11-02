@@ -447,6 +447,11 @@ if(BLITZ_REPLACE_MALLOC)
 endif()
 find_package(Threads REQUIRED)
 target_link_libraries(memory_test PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+if(MINGW)
+	# The libc++ DLL has its own operator new and delete, so objects made by the header code of the program and freed inside the DLL would
+	# mix two allocators. Programs of the runtime link libc++ statically, and so does this test.
+	target_link_options(memory_test PRIVATE -nostdlib++ -Wl,-Bstatic -lc++ -lunwind -Wl,-Bdynamic)
+endif()
 add_executable(thread_probe "${TEST_DIRECTORY}/memory/thread_probe.cpp")
 target_link_libraries(thread_probe PRIVATE Threads::Threads)
 add_test(NAME memory-thread-probe COMMAND thread_probe)
