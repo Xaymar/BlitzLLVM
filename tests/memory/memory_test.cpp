@@ -231,7 +231,12 @@ static void test_thread_smoke()
 		fprintf(stderr, " raw made-there free-here done\n");
 		{
 			int* n = new int(3);
-			std::thread e([n] { delete n; });
+			fprintf(stderr, " new int %p\n", (void*)n);
+			delete n;
+			fprintf(stderr, " delete same thread ok\n");
+			n = new int(4);
+			std::thread e([n] { fprintf(stderr, " in std thread\n"); delete n; fprintf(stderr, " deleted in std thread\n"); });
+			fprintf(stderr, " std thread made\n");
 			e.join();
 		}
 		fprintf(stderr, " std cross delete joined\n");
