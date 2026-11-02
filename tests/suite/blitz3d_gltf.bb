@@ -65,6 +65,15 @@ Check "Vertex color red", VertexRed(s, 0), 255, 1
 Check "Vertex color green", VertexGreen(s, 0), 128, 1
 Check "Vertex color blue", VertexBlue(s, 0), 0, 1
 
+; A normalTexture becomes a normal map (TextureBlend 6) on the first layer, with the picture on the second.
+nmesh = LoadMesh("models/gltf_normal.glb")
+CheckTrue "LoadMesh of a .glb with a normal map", nmesh <> 0
+nbrush = GetSurfaceBrush(GetSurface(nmesh, 1))
+CheckTrue "The normal map is the first texture", GetBrushTexture(nbrush, 0) <> 0
+Check "The normal map is 4 wide", TextureWidth(GetBrushTexture(nbrush, 0)), 4
+CheckTrue "The picture is the second texture", GetBrushTexture(nbrush, 1) <> 0
+Check "The picture is 2 wide", TextureWidth(GetBrushTexture(nbrush, 1)), 2
+
 ; The pictures of a glTF file are found by LoadTexture and LoadImage: the file is the first, "#1" the second.
 direct = LoadTexture("models/gltf_textured.glb")
 CheckTrue "LoadTexture of a .glb", direct <> 0

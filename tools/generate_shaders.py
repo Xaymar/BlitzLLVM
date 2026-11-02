@@ -24,7 +24,7 @@ OP = dict(
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
-    IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
+    DPdx=207, DPdy=208, IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
@@ -992,6 +992,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         column = b.fsub(f, face, b.fmul(f, b.const_float(3.0), row))
         sheet_uv = b.construct(2, b.fdiv(f, b.fadd(f, column, s_face), b.const_float(3.0)), b.fdiv(f, b.fadd(f, row, t_face), two))
         uv = b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
+    uv_plane = uv
     if fog:
         uv = b.construct(3, b.extract(uv, 0), b.extract(uv, 1), b.extract(b.load(v4, in_soft), 1))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
@@ -1013,9 +1014,38 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         pixel_lit = b.emit("LogicalAnd", bool_type, b.emit("FOrdGreaterThan", bool_type, b.load(f, in_pixel), b.const_float(0.5)), b.emit("FOrdLessThan", bool_type, flat, b.const_float(0.5)))
         scene_world = b.swizzle(b.emit("VectorShuffle", v4, b.load(v4, in_depth), b.load(v4, in_depth), 1, 2, 3, 3), 3)
 
+        # TextureBlend 6 and 7 (a normal map in tangent space; 6 has green pointing up in the picture, as in glTF, 7 down, as in Direct3D): the
+        # normal that the lights see is the one of the map, turned into the world with the directions in which U and V grow on the surface. Those
+        # come from how the world position and the texture coordinates change from one pixel to the next, so meshes need no tangents:
+        #   dp1 = dFdx(p), dp2 = dFdy(p), du1 = dFdx(uv), du2 = dFdy(uv), d = du1.x * du2.y - du2.x * du1.y
+        #   T = (dp1 * du2.y - dp2 * du1.y) / d,  B = (dp2 * du1.x - dp1 * du2.x) / d        (the exact solution, so no handedness is assumed)
+        #   n = normalize(T' * map.x + B' * (map.y * sign) + N * map.z)                       (T' and B' are made flat against N and of length 1)
+        # These are worked out outside of the branch of the lights, where all pixels of a quad take part.
+        nm_w = b.extract(mask, 3)
+        nm_w = b.fsub(f, nm_w, b.fmul(f, b.ext(f, GLSL_STEP, b.const_float(15.5), nm_w), b.const_float(16.0)))
+        nm_code = b.ext(f, GLSL_FLOOR, b.fmul(f, nm_w, b.const_float(0.5)))
+        is_normal_map = b.ext(f, GLSL_STEP, b.const_float(5.5), nm_code)
+        green_sign = b.fsub(f, b.fmul(f, b.ext(f, GLSL_STEP, b.const_float(6.5), nm_code), b.const_float(2.0)), c1)
+        dp1 = b.emit("DPdx", v3, scene_world)
+        dp2 = b.emit("DPdy", v3, scene_world)
+        du1 = b.emit("DPdx", v2, uv_plane)
+        du2 = b.emit("DPdy", v2, uv_plane)
+        d_det = b.fsub(f, b.fmul(f, b.extract(du1, 0), b.extract(du2, 1)), b.fmul(f, b.extract(du2, 0), b.extract(du1, 1)))
+        d_ok = b.ext(f, GLSL_STEP, b.const_float(1e-16), b.ext(f, GLSL_FABS, d_det))
+        d_inv = b.fdiv(f, c1, b.fadd(f, d_det, b.fsub(f, c1, d_ok)))
+        raw_t = b.scale(3, b.fsub(v3, b.scale(3, dp1, b.extract(du2, 1)), b.scale(3, dp2, b.extract(du1, 1))), d_inv)
+        raw_b = b.scale(3, b.fsub(v3, b.scale(3, dp2, b.extract(du1, 0)), b.scale(3, dp1, b.extract(du2, 0))), d_inv)
+
         def light_pixel():
             normal = b.load(v3, in_normal)
             unit = b.scale(3, normal, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, normal), b.const_float(1e-6))))
+            def flatten(axis):
+                flat_axis = b.fsub(v3, axis, b.scale(3, unit, b.dot(unit, axis)))
+                return b.scale(3, flat_axis, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, flat_axis), b.const_float(1e-8))))
+            map_xyz = b.fsub(v3, b.scale(3, b.swizzle(t, 3), b.const_float(2.0)), b.const_vec(3, 1.0))
+            bent = b.fadd(v3, b.fadd(v3, b.scale(3, flatten(raw_t), b.extract(map_xyz, 0)), b.scale(3, flatten(raw_b), b.fmul(f, b.extract(map_xyz, 1), green_sign))), b.scale(3, unit, b.extract(map_xyz, 2)))
+            bent = b.scale(3, bent, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, bent), b.const_float(1e-6))))
+            unit = b.fadd(v3, unit, b.scale(3, b.fsub(v3, bent, unit), is_normal_map))
             eye_pos = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(6))), 3)
             return light_code(b, scene, scene_world, unit, eye_pos, b.load(v4, in_params), b.load(v4, in_lights))
 
@@ -1031,7 +1061,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     mask_w = b.extract(mask, 3)
     if fog:
         # In 3D the fourth value also says what the first texture does with the color: it is the cut-out flag plus twice the
-        # blend, which is 0 for multiply (the usual), 1 for alpha, 2 add, 3 dot3, 4 twice multiply and 5 for no texture at all.
+        # blend, which is 0 for multiply (the usual), 1 for alpha, 2 add, 3 dot3, 4 twice multiply, 5 for no texture at all, and 6 and 7 for a normal map.
         # Textures that have no alpha channel have an alpha of 1, whatever a program drew into them: that is 16 more.
         no_alpha = b.ext(f, GLSL_STEP, b.const_float(15.5), mask_w)
         mask_w = b.fsub(f, mask_w, b.fmul(f, no_alpha, b.const_float(16.0)))
@@ -1060,10 +1090,10 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             return b.fsub(f, b.ext(f, GLSL_STEP, b.const_float(code - 0.5), blend_code), b.ext(f, GLSL_STEP, b.const_float(code + 0.5), blend_code))
 
         rgb3 = b.fmul(v3, multiplied, b.scale(3, ones3, weight(0)))
-        for code, value in ((1, by_alpha), (2, added), (3, dot3), (4, twice), (5, col)):
+        for code, value in ((1, by_alpha), (2, added), (3, dot3), (4, twice), (5, col), (6, col), (7, col)):
             rgb3 = b.fadd(v3, rgb3, b.scale(3, value, weight(code)))
-        # Without a texture the alpha of the color stays as it is, too.
-        no_texture = weight(5)
+        # Without a texture the alpha of the color stays as it is, too. A normal map (6, 7) is not a color either: it only bent the normal of the lights.
+        no_texture = b.fadd(f, b.fadd(f, weight(5), weight(6)), weight(7))
         alpha_out = b.fadd(f, b.extract(result, 3), b.fmul(f, b.fsub(f, b.extract(color, 3), b.extract(result, 3)), no_texture))
         # Dot3 is written to all four channels, the alpha as well.
         alpha_out = b.fadd(f, alpha_out, b.fmul(f, b.fsub(f, dotted, alpha_out), weight(3)))

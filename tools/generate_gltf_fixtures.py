@@ -5,6 +5,7 @@
 """Writes the glTF models that tests/suite/blitz3d_gltf.bb and tests/suite/blitz3d_gltf_pixels.bb load into tests/suite/models.
 
 gltf_triangle.gltf   One triangle (a node at x = 2) with a color, and the buffer inside the JSON as a data uri.
+gltf_normal.glb      A square with a 2 by 2 picture and a 4 by 4 normal map (normalTexture) on the same coordinates.
 gltf_textured.glb    A square with a 2 by 2 picture inside the file, a KHR_texture_transform, two sets of coordinates, colors for the vertices, a clamped
                      sampler and a material that is cut out.
 gltf_rig.gltf        A skinned strip with two joints, a node that turns, and two animations; the buffer is next to it in gltf_rig.bin.
@@ -136,6 +137,28 @@ def textured(out):
     (out / "gltf_textured.glb").write_bytes(glb(doc, b.data))
 
 
+def normal_map(out):
+    b = Buffer()
+    pos = b.floats("VEC3", [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)], 34962, True)
+    uv0 = b.floats("VEC2", [(0, 1), (1, 1), (1, 0), (0, 0)], 34962)
+    idx = b.indices([0, 1, 2, 0, 2, 3])
+    color = b.view(png(2, 2, [[(255, 255, 255, 255)] * 2] * 2))
+    flat = b.view(png(4, 4, [[(128, 128, 255, 255)] * 4] * 4))
+    doc = {
+        "asset": {"version": "2.0"},
+        "scenes": [{"nodes": [0]}],
+        "nodes": [{"name": "quad", "mesh": 0}],
+        "meshes": [{"primitives": [{"attributes": {"POSITION": pos, "TEXCOORD_0": uv0}, "indices": idx, "material": 0}]}],
+        "materials": [{"pbrMetallicRoughness": {"baseColorTexture": {"index": 0}}, "normalTexture": {"index": 1}}],
+        "textures": [{"source": 0}, {"source": 1}],
+        "images": [{"bufferView": color, "mimeType": "image/png"}, {"bufferView": flat, "mimeType": "image/png"}],
+        "buffers": [{"byteLength": len(b.data)}],
+        "bufferViews": b.views,
+        "accessors": b.accessors,
+    }
+    (out / "gltf_normal.glb").write_bytes(glb(doc, b.data))
+
+
 def rig(out):
     b = Buffer()
     pos = b.floats("VEC3", [(-1, 0, 0), (1, 0, 0), (-1, 2, 0), (1, 2, 0)], 34962, True)
@@ -258,6 +281,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     triangle(out)
     textured(out)
+    normal_map(out)
     rig(out)
     materials(out)
     lights(out)
