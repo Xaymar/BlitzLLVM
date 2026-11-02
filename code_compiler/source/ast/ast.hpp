@@ -87,6 +87,7 @@ namespace blitz {
 			double      f                                                       = 0;
 			std::string text;
 			blitz::types::type suffix = blitz::types::type::UNKNOWN; // The type a suffix like `i8` or `h` asks for.
+			bool               clamped = false; // A whole number without a suffix that did not fit an Int and was clamped to it, the number as written is in `text`.
 		};
 
 		/** A name, with optional type information: `Name`, `Name%`, `Name:Float`. Might also be a function called without parenthesis. */

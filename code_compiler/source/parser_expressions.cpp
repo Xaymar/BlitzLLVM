@@ -524,8 +524,10 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	}
 
 	if (negate && !is_unsigned && (ui == uintmax_t(INT32_MAX) + 1)) {
-		node->kind = ast::literal::variant::INTEGER; // The original clamps 2147483648 to the largest Int before it negates it, so -2147483648 is -2147483647 there.
-		node->i    = -intmax_t(INT32_MAX);
+		node->kind    = ast::literal::variant::INTEGER; // The original clamps 2147483648 to the largest Int before it negates it, so -2147483648 is -2147483647 there.
+		node->i       = -intmax_t(INT32_MAX);
+		node->clamped = true;
+		node->text    = "-" + token.text;
 	} else if (is_unsigned) {
 		node->kind = ast::literal::variant::UNSIGNED_INTEGER;
 		node->u    = ui;
@@ -533,7 +535,11 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 		node->kind = ast::literal::variant::INTEGER; // 0xFFFFFFFF is the same bit pattern as $FFFFFFFF.
 		node->i    = int32_t(uint32_t(ui));
 	} else if (ui > uintmax_t(INT32_MAX)) {
-		throw error(token, blitz::format("Integer '%s' does not fit into an Int. Write 'i64' or 'ui64' (or 'ui32' where 32 bits are enough) behind it.", token.text.c_str()));
+		// Like the original, a number that does not fit an Int is clamped to the largest one. The compiler warns about it (literal-out-of-range).
+		node->kind    = ast::literal::variant::INTEGER;
+		node->i       = INT32_MAX;
+		node->clamped = true;
+		node->text    = token.text;
 	} else {
 		node->kind = ast::literal::variant::INTEGER;
 		node->i    = intmax_t(ui);

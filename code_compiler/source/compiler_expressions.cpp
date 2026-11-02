@@ -66,6 +66,11 @@ blitz::compiler::value blitz::compiler::gen_node(ast::expression const* expr)
 
 blitz::compiler::value blitz::compiler::gen_literal(ast::literal const* node)
 {
+	if (node->clamped) {
+		bool negative = (node->text.size() > 0) && (node->text[0] == '-');
+		warn(node->where, "literal-out-of-range", "The number '" + node->text + "' does not fit into an Int, it is " + std::string(negative ? "-2147483647" : "2147483647") + " instead.",
+			 "Write 'i64' or 'ui64' (or 'ui32' where 32 bits are enough, 'i32' for the smallest Int) behind it to keep the number.", {}, std::string());
+	}
 	if (node->suffix != type::UNKNOWN) {
 		// A suffix like `i8` or `h` names the exact type, and the parser has checked that the number fits.
 		if (blitz::types::is_real(node->suffix)) {

@@ -220,3 +220,6 @@ Local hex_int:Int32 = 0xFFFFFFFF
 CheckS "0xFFFFFFFF fits an Int32", Str(hex_int), "-1"
 CheckS "-2147483648 clamps like the original", Str(-2147483648), "-2147483647"
 CheckS "-2147483648i32 is the smallest Int", Str(-2147483648i32), "-2147483648"
+CheckS "unsuffixed above Int is clamped", Str(5000000000), "2147483647"
+CheckS "unsuffixed 0x above 32 bits is clamped", Str(0xaFFFFFFFF), "2147483647"
+CheckS "unsuffixed negative above Int is clamped", Str(-5000000000), "-2147483647"

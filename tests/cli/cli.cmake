@@ -1320,6 +1320,16 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -d -W0 "${WORK}/looptype.bb")
 	expect_ok()
 
+	# A number that does not fit an Int is clamped like in the original, with a warning that says so. A suffix keeps the number.
+	file(WRITE "${WORK}/literal_range.bb" "Print 5000000000\nPrint -2147483648\nPrint 5000000000i64\n")
+	blitzcc(-c "${WORK}/literal_range.bb")
+	expect_ok()
+	expect_err("warning: The number '5000000000' does not fit into an Int, it is 2147483647 instead. [-Wliteral-out-of-range]")
+	expect_err("warning: The number '-2147483648' does not fit into an Int, it is -2147483647 instead. [-Wliteral-out-of-range]")
+	blitzcc(-c -Wno-literal-out-of-range "${WORK}/literal_range.bb")
+	expect_ok()
+	expect_no_err("[-Wliteral-out-of-range]")
+
 	# Conversions name both types and the function that converts on purpose.
 	file(WRITE "${WORK}/conv.bb" "Local i% = Long(5000000000i64)\nLocal f# = Long(5)\nLocal s$ = 5\nLocal n% = \"12\"\nLocal d# = Double(3)\nPrint i + f + d + n + s\n")
 	blitzcc(-c -W4 "${WORK}/conv.bb")
