@@ -6,7 +6,7 @@
 
 Integers, floats and strings, the short and long notation, and converting between them.
 
-Every variable, parameter, function result and field has a type. The originals have three: integers (`Int`), floats (`Float`) and strings (`String`), plus the custom types you declare with `Type`. BlitzLLVM adds more sizes, see [Numbers-of-Other-Sizes](Numbers-of-Other-Sizes) and [Types](Types).
+Every variable, parameter, function result and field has a type. The originals have three: integers (`Int`), floats (`Float`) and strings (`String`), plus the custom types you declare with `Type`. BlitzLLVM adds more sizes, see [Numbers-of-Other-Sizes](Numbers-of-Other-Sizes), [Number-Suffixes](Number-Suffixes) and [Types](Types).
 
 A type is written in one of two ways. The **short notation** puts a character right behind the name: `count%` is an Int, `speed#` a Float, `name$` a String, `big%%` a Long, `exact##` a Double and `p.Point` an object of the custom type `Point`. The **long notation** puts the type behind a colon: `count:Int`, `speed:Float`, `name:String`, `big:Long`, `exact:Double`. Both work for variables (`Local`, `Global`, `Const`), parameters, function results (`Function Area:Float()`) and `Field`s. A name without a type is an Int. The long notation is preferred, and the `short-type-notation` warning (level 3) can point out the short one; the long notation and the types beyond Int, Float and String are not in the originals.
 

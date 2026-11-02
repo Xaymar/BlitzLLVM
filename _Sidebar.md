@@ -21,7 +21,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (40)</summary>
+<li><details><summary>Features (41)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -49,6 +49,7 @@
 <li><a href="Mip-Maps">Mip maps</a></li>
 <li><a href="Movie-Controls">Movie controls</a></li>
 <li><a href="Multiplayer">Multiplayer</a></li>
+<li><a href="Number-Suffixes">Number suffixes</a></li>
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
 <li><a href="Presentation-Sync">Presentation sync</a></li>
