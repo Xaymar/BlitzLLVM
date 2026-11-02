@@ -524,8 +524,8 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	}
 
 	if (negate && !is_unsigned && (ui == uintmax_t(INT32_MAX) + 1)) {
-		node->kind = ast::literal::variant::INTEGER; // -2147483648 is the smallest Int, even though 2147483648 is not an Int.
-		node->i    = INT32_MIN;
+		node->kind = ast::literal::variant::INTEGER; // The original clamps 2147483648 to the largest Int before it negates it, so -2147483648 is -2147483647 there.
+		node->i    = -intmax_t(INT32_MAX);
 	} else if (is_unsigned) {
 		node->kind = ast::literal::variant::UNSIGNED_INTEGER;
 		node->u    = ui;

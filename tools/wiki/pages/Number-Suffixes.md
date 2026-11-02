@@ -40,3 +40,4 @@ Print exact
 * A number with a suffix has to fit into its type, or it is an error: `300i8` and `70000.h` do not compile. A `0x` or `0b` number is a bit pattern of the type and may use all of its bits, so `0xFFi8` is -1, `0xFFui8` is 255, and `0b11111111i8` is -1.
 * A minus in front of a decimal number with a suffix belongs to the number, so `-128i8` is fine. Unsigned types can not be negative.
 * The existing `u` suffix is unchanged: `5u` is a `UInt` and `5000000000u` a `ULong`.
+* `-2147483648` without a suffix is -2147483647, as in the original, which clamps 2147483648 to the largest `Int` before it negates it. Write `-2147483647 - 1` or `-2147483648i32` for the smallest `Int`.

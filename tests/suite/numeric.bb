@@ -218,3 +218,5 @@ Check "dotted on a real", 2.5.h * 2, 5.0
 Check "negative real", -1.5d, -1.5
 Local hex_int:Int32 = 0xFFFFFFFF
 CheckS "0xFFFFFFFF fits an Int32", Str(hex_int), "-1"
+CheckS "-2147483648 clamps like the original", Str(-2147483648), "-2147483647"
+CheckS "-2147483648i32 is the smallest Int", Str(-2147483648i32), "-2147483648"
