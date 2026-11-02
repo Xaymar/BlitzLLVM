@@ -1,6 +1,3 @@
-#if defined(_WIN32)
-#include <windows.h>
-#endif
 // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 //
 // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
@@ -187,107 +184,6 @@ static void test_aligned_and_new()
 	}
 }
 
-// Threads that start and end, with more and more work in them, to see where a program of Windows stops.
-static void test_thread_smoke()
-{
-#if defined(_WIN32)
-	{
-		static thread_local char tl[512];
-		bool                     zero = true;
-		for (char c : tl) {
-			zero = zero && c == 0;
-		}
-		fprintf(stderr, " main tls zero %d\n", int(zero));
-		HANDLE h = CreateThread(
-			nullptr, 0,
-			[](LPVOID) -> DWORD {
-				bool z = true;
-				for (char c : tl) {
-					z = z && c == 0;
-				}
-				tl[5] = 1;
-				fprintf(stderr, " raw thread tls zero %d\n", int(z));
-				return 0;
-			},
-			nullptr, 0, nullptr);
-		WaitForSingleObject(h, INFINITE);
-		CloseHandle(h);
-		fprintf(stderr, " raw thread joined\n");
-		h = CreateThread(
-			nullptr, 0, [](LPVOID) -> DWORD { void* p = bb_malloc(32); bb_free(p); return 0; }, nullptr, 0, nullptr);
-		WaitForSingleObject(h, INFINITE);
-		CloseHandle(h);
-		fprintf(stderr, " raw alloc thread joined\n");
-		static void* handed = bb_malloc(48);
-		h = CreateThread(nullptr, 0, [](LPVOID) -> DWORD { bb_free(handed); return 0; }, nullptr, 0, nullptr);
-		WaitForSingleObject(h, INFINITE);
-		CloseHandle(h);
-		fprintf(stderr, " raw cross free joined\n");
-		static void* made = nullptr;
-		h = CreateThread(nullptr, 0, [](LPVOID) -> DWORD { made = bb_malloc(48); return 0; }, nullptr, 0, nullptr);
-		WaitForSingleObject(h, INFINITE);
-		CloseHandle(h);
-		bb_free(made);
-		fprintf(stderr, " raw made-there free-here done\n");
-		{
-			int* n = new int(3);
-			fprintf(stderr, " new int %p\n", (void*)n);
-			delete n;
-			fprintf(stderr, " delete same thread ok\n");
-			n = new int(4);
-			std::thread e([n] { fprintf(stderr, " in std thread\n"); delete n; fprintf(stderr, " deleted in std thread\n"); });
-			fprintf(stderr, " std thread made\n");
-			e.join();
-		}
-		fprintf(stderr, " std cross delete joined\n");
-	}
-#endif
-	fprintf(stderr, " empty thread\n");
-	{
-		std::thread e([] {});
-		e.join();
-	}
-	fprintf(stderr, " empty thread joined\n");
-	{
-		std::thread e([] { void* p = bb_malloc(32); fprintf(stderr, " in thread %p\n", p); bb_free(p); });
-		e.join();
-	}
-	fprintf(stderr, " one alloc thread joined\n");
-	{
-		std::thread e([] { void* p = bb_malloc(32); bb_free(p); });
-		e.join();
-	}
-	fprintf(stderr, " quiet alloc thread joined\n");
-	for (int work : { 0, 1, 1000, 200000 }) {
-		for (int keep : { 0, 1 }) {
-			std::vector<std::thread> threads;
-			for (int t = 0; t < 4; t++) {
-				threads.emplace_back([=] {
-					std::vector<void*> blocks;
-					if (keep) {
-						blocks.reserve(size_t(work));
-					}
-					for (int n = 0; n < work; n++) {
-						void* p = bb_malloc(16 + size_t(n % 3000));
-						if (keep) {
-							blocks.push_back(p);
-						} else {
-							bb_free(p);
-						}
-					}
-					for (void* p : blocks) {
-						bb_free(p);
-					}
-				});
-			}
-			for (auto& th : threads) {
-				th.join();
-			}
-			fprintf(stderr, " smoke work %d keep %d joined\n", work, keep);
-		}
-	}
-}
-
 // Threads that only allocate and threads that only free what the first ones made, in both directions.
 static void test_threads()
 {
@@ -296,7 +192,6 @@ static void test_threads()
 	bb_mem_get_stats(&before);
 	std::atomic<int>         bad{ 0 };
 	for (int round = 0; round < rounds; round++) {
-		fprintf(stderr, " round %d\n", round);
 		std::vector<std::vector<std::pair<void*, uint32_t>>> made(producers);
 		std::vector<std::thread>                             threads;
 		for (int t = 0; t < producers; t++) {
@@ -308,15 +203,12 @@ static void test_threads()
 					fill(p, size < 64 ? size : 64, seed);
 					made[t].emplace_back(p, seed);
 				}
-				fprintf(stderr, " producer %d done\n", t);
 			});
 		}
 		for (auto& th : threads) {
 			th.join();
 		}
-		fprintf(stderr, " produced\n");
 		threads.clear();
-		fprintf(stderr, " freeing\n");
 		// Other threads free them (the producers already ended: their caches went back to the pool).
 		for (int t = 0; t < producers; t++) {
 			threads.emplace_back([&, t] {
@@ -332,7 +224,6 @@ static void test_threads()
 		for (auto& th : threads) {
 			th.join();
 		}
-		fprintf(stderr, " freed\n");
 	}
 	CHECK(bad == 0);
 	// Memory must have been reused: 5 rounds of 800000 blocks (about 1.2 GB) may not take 5 times the spans of one.
@@ -532,8 +423,6 @@ int main()
 	test_foreign();
 	fprintf(stderr, "test_aligned_and_new\n");
 	test_aligned_and_new();
-	fprintf(stderr, "test_thread_smoke\n");
-	test_thread_smoke();
 	fprintf(stderr, "test_threads\n");
 	test_threads();
 	fprintf(stderr, "test_release\n");
