@@ -113,11 +113,14 @@ if(MINGW)
 	file(GLOB _MINGW_CLANG_VERSIONS LIST_DIRECTORIES true "${_MINGW_ROOT}/lib/clang/*")
 	foreach(_DIR IN LISTS _MINGW_TRIPLES)
 		get_filename_component(_TRIPLE "${_DIR}" NAME)
-		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "bin" EXCLUDE)
+		# Programs of BlitzBasic need the C headers (the inline C of the runtime) and every library to link, but not the C++ headers, nor DLLs.
+		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "bin" EXCLUDE PATTERN "c++" EXCLUDE PATTERN "*.dll" EXCLUDE)
 	endforeach()
 	foreach(_DIR IN LISTS _MINGW_CLANG_VERSIONS)
 		get_filename_component(_VERSION "${_DIR}" NAME)
-		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang)
+		# Of the runtime libraries of the compiler only the builtins, not the sanitizers and profilers.
+		install(DIRECTORY "${_DIR}/include" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang/${_VERSION})
+		install(DIRECTORY "${_DIR}/lib" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang/${_VERSION} FILES_MATCHING PATTERN "libclang_rt.builtins*")
 	endforeach()
 endif()
 # The licenses of BlitzLLVM and of every bundled dependency that ends up in the program (the ones of the system's libraries are
