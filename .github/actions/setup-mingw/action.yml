@@ -6,6 +6,11 @@ description: >
   Installs llvm-mingw (clang, lld and a MinGW-w64 sysroot that uses the Universal C Runtime of Windows) for the architecture of the runner,
   and puts it on the PATH. Windows is built and linked for the MinGW target, which needs neither Visual Studio nor the Windows SDK.
 
+inputs:
+  version:
+    description: The release of llvm-mingw to install (its tag). Pinned, so that a new release can not change the builds on its own.
+    default: '20261020'
+
 runs:
   using: composite
   steps:
@@ -13,11 +18,12 @@ runs:
       shell: pwsh
       env:
         GH_TOKEN: ${{ github.token }}
+        LLVM_MINGW_VERSION: ${{ inputs.version }}
       run: |
         $arch = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'aarch64' } else { 'x86_64' }
         $dir = Join-Path $env:RUNNER_TEMP 'llvm-mingw-download'
         New-Item -ItemType Directory -Force $dir | Out-Null
-        gh release download --repo mstorsjo/llvm-mingw --pattern "llvm-mingw-*-ucrt-$arch.zip" --dir $dir
+        gh release download $env:LLVM_MINGW_VERSION --repo mstorsjo/llvm-mingw --pattern "llvm-mingw-*-ucrt-$arch.zip" --dir $dir
         Expand-Archive (Get-ChildItem $dir -Filter *.zip | Select-Object -First 1).FullName -DestinationPath (Join-Path $env:RUNNER_TEMP 'llvm-mingw')
         $bin = (Get-ChildItem (Join-Path $env:RUNNER_TEMP 'llvm-mingw') -Directory | Select-Object -First 1).FullName + '\bin'
         $bin | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
