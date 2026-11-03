@@ -20,6 +20,15 @@ On Windows the children live in a Job Object that is killed with the script; els
 the script and by a small watcher process if the script dies without cleaning up. `tests/cli/procutil.py` (the `procutil` test) proves
 this for exit, exception, kill, interrupt and timeout. New scripts that start programs must use `procutil`, not `subprocess` directly.
 
+== On a computer without tools: build_prebuilt.ps1 and run_prebuilt.ps1
+
+For a computer that has no compiler, no Python and no MSYS2 (a small laptop), the workflow `bench-build.yml` builds the compiler of a baseline commit
+(`benchmarks/bench-build.json`) and the compiler of the branch it runs on, compiles `emitted`, `flythrough`, `waterfall`, `dungeon` and `forest` with each
+(`build_prebuilt.ps1`) and uploads the finished programs as the artifacts `bench-baseline` and `bench-candidate`. Extract both into one folder
+and run `powershell -File run_prebuilt.ps1`: it needs only Windows PowerShell, runs every program 3 times in turns (baseline, candidate, baseline, ...)
+with the settings of `history.py`, and writes `results.txt` with the mean and standard deviation of each value. Numbers of one computer are
+compared with each other, never with the ones of another.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The
