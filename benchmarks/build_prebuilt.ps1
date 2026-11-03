@@ -8,6 +8,7 @@ param([Parameter(Mandatory)] $Blitzcc, [Parameter(Mandatory)] $Out)
 $ErrorActionPreference = "Stop"
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 New-Item -ItemType Directory -Force $Out | Out-Null
+$Out = (Resolve-Path $Out).Path
 $work = Join-Path ([IO.Path]::GetTempPath()) ("bench-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Force $work | Out-Null
 & $Blitzcc -v | Out-File (Join-Path $Out "compiler.txt")

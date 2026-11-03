@@ -116,6 +116,15 @@ jobs:
           cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" && set" | ForEach-Object {
             if ($_ -match '^(.*?)=(.*)$') { "$($Matches[1])=$($Matches[2])" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV }
           }
+      - name: List the sysroot (diagnostic)
+        if: matrix.mingw
+        shell: pwsh
+        run: |
+          Get-ChildItem dist/lib/blitzllvm/mingw/x86_64 | Format-Table Name, Attributes
+          $root = (Get-ChildItem "$env:RUNNER_TEMP/llvm-mingw" -Directory | Select-Object -First 1).FullName
+          Get-ChildItem $root | Format-Table Name, Attributes
+          Get-ChildItem "$root/x86_64-w64-mingw32" | Format-Table Name, Attributes
+          Get-ChildItem "$root/generic-w64-mingw32" -ErrorAction SilentlyContinue | Format-Table Name, Attributes
       - name: Build the benchmark programs
         shell: pwsh
         run: |
