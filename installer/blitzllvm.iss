@@ -334,8 +334,8 @@ begin
     LlvmInstallBox.Caption := 'Install LLVM ' + IntToStr(MinClangMajor) + ' with winget after installing BlitzLLVM (recommended)';
     LlvmInstallBox.Checked := True;
   end else
-    LlvmInfo.Caption := 'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) was not found on this computer' + OldNote + ', and winget is not available here, so it can not be installed for you.' +
-      #13#10#13#10 + 'BlitzLLVM can not build programs without it. Install it after this setup, in one of these ways:' + #13#10 +
+    LlvmInfo.Caption := 'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) was not found on this computer' + OldNote + ', and winget is not available here, so it can not be installed for you.' + #13#10#13#10 +
+      'BlitzLLVM can not build programs without it. Install it after this setup, in one of these ways:' + #13#10 +
       ' - Install "App Installer" from the Microsoft Store (it provides winget), then run in a terminal:' + #13#10 + '     ' + WingetInstallCommand + #13#10 +
       ' - Or download the Windows installer (LLVM-<version>-win64.exe) from ' + LlvmDownloadUrl + ' and run it.' + #13#10#13#10 +
       'Run this setup again afterwards if blitzcc does not find clang (LLVM is searched on PATH and in C:\Program Files\LLVM\bin).';
