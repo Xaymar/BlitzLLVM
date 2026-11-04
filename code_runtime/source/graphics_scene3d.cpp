@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <mutex>
 #include <tuple>
 #include <map>
