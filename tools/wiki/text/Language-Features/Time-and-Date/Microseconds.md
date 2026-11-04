@@ -5,12 +5,12 @@
 Like [MilliSecs](MilliSecs), but counts microseconds (millionths of a second) and returns a `UInt64`, because the count needs far more than 32 bits. This is a BlitzLLVM extension: the originals only have [MilliSecs](MilliSecs).
 * Keep the result in a variable declared with `:UInt64` (for example `start:UInt64 = Microseconds()`). A variable with no type or with `%` is an `Int`, which keeps only the lowest 32 bits and may come out negative; `#` is a `Float`, which rounds.
 * `Str` and `Print` write all digits, and an expression with a `UInt64` and an `Int` is calculated as a `UInt64`, so `Microseconds() - start` is the elapsed time. Comparisons are unsigned, and `Int()` and `Float()` convert the value (the `Int` loses the upper bits).
-* The start of the count is not fixed, like `MilliSecs`: only differences between two calls mean something. The clock is the system clock, so it can jump when the time is set.
+* The count starts at 0 when the program starts and only goes forward. It does not follow the system time, so setting the clock (or a change of summer time) while the program runs does not change it. This is different from [MilliSecs](MilliSecs), which is the system time. Only differences between two calls are meant for measuring.
 * A 32-bit `Int` would overflow after 35 minutes, and a `Float` (24 bits of precision) stops counting single microseconds after 16 seconds. See [Types everywhere](Types) for the other new types.
 
 * To time a whole program, a frame loop or parts of a frame, and to read the timers of the runtime, see [Profiling your own code](Profiling).
 
-@returns A number of microseconds that keeps growing while the program runs, as a `UInt64`. It does not wrap around like [MilliSecs](MilliSecs) does, and its start is not fixed, so use the difference between two calls to measure time.
+@returns A number of microseconds that keeps growing while the program runs, as a `UInt64`. It does not wrap around like [MilliSecs](MilliSecs) does. It counts from the start of the program, so use the difference between two calls to measure time.
 @gap The value is a `UInt64`, which no original command returns. Assign it to a variable declared with `:UInt64` to keep all of its digits, as an `Int` or a `Float` only holds part of them.
 
 ```blitzbasic

@@ -40,8 +40,8 @@ Print "took " + (Float(elapsed) / 1000.0) + " ms"
 ```
 
 * A variable without a type is an `Int` and keeps only 32 bits, and a `Float` rounds. `Float(Microseconds() - start)` is fine, because the difference is small.
-* `Microseconds()` reads the system clock. If somebody sets the time while the program runs, one measurement can come out wrong, which is why a benchmark should take many frames and not one.
-* The value has microsecond digits, but how finely the system clock ticks depends on the system, so do not expect the last digits to mean anything. Time many frames, or many repeats of the work, instead of trusting one tiny difference.
+* `Microseconds()` counts from the start of the program and does not follow the system time, so setting the clock while the program runs does not disturb a measurement.
+* The value has microsecond digits, but how finely the clock of the system ticks depends on the system, so do not expect the last digits to mean anything. Time many frames, or many repeats of the work, instead of trusting one tiny difference.
 
 ### ProfileBegin and ProfileEnd
 
@@ -67,7 +67,7 @@ How it behaves:
 * **Different keys can be nested.** A key is its own timer, and keys do not know about each other, so an outer part includes the time of the parts inside it. The runtime does not subtract anything: if `"frame logic"` contains `"ai"` and `"physics"`, then `"frame logic"` is at least as large as the two together.
 * **The same key can not be nested in itself.** `ProfileBegin "ai"` while `"ai"` is already running starts the timer again and forgets the first start, and the first `ProfileEnd` ends it. A function that calls itself can not be timed with one key on every level; time the outermost call instead.
 * **`ProfileEnd` without `ProfileBegin` does nothing**, and so does a second `ProfileEnd` for the same start.
-* **The time is wall time** (a clock that does not depend on the system time), so a part that waits, for example in `Delay`, shows that waiting.
+* **The time is wall time** (a clock that does not depend on the system time, like `Microseconds`), so a part that waits, for example in `Delay`, shows that waiting.
 * **Cost.** A pair of calls reads the clock twice and searches the list of keys. That is cheap next to a frame, but do not put them around a single addition in a loop that runs a million times; time the loop.
 * The timers can be stopped with [ProfileEnable](ProfileEnable) `0`, for example while the program loads, and started again with `1`.
 
