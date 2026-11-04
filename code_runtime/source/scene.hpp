@@ -192,6 +192,16 @@ namespace bb {
 		bool dirty = true;
 		void* gpu  = nullptr;
 		bool cull_cached = false; // A cull_record was made from the box of the vertices, so it is not valid any more when they change.
+
+		// Triangles with very long edges are cut to the view before they reach the GPU (see clip_surface in graphics_scene3d.cpp), as the
+		// software clipping of Direct3D 7 does. These are for that: whether the surface has such triangles (for the geometry_version
+		// below), the cut copy that is drawn instead, and what it was cut for.
+		bool     long_edges        = false;
+		uint32_t long_edges_version = 0xFFFFFFFFu;
+		surface* clip_draw         = nullptr;
+		bool     clip_key_valid    = false;
+		uint32_t clip_key_version  = 0;
+		float    clip_key[40]      = {};
 	};
 
 	// A texture that has frames is bound by a number that has the frame above the handle.
