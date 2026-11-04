@@ -22,6 +22,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_STATIC
 #define STBIW_ZLIB_COMPRESS(data, length, out_length, level) bb::gfx::zlib_compress(data, length, out_length, level)
+// zlib_compress returns memory of bb_malloc, and stb_image_write frees it with STBIW_FREE. Where malloc and free are not replaced (everything
+// but glibc) the default free() would be handed a block that it never allocated, which corrupts the heap.
+#include "memory.h"
+#define STBIW_MALLOC(size)          bb_malloc(size)
+#define STBIW_REALLOC(ptr, size)    bb_realloc(ptr, size)
+#define STBIW_FREE(ptr)             bb_free(ptr)
 #include <stb_image_write.h>
 
 #include "graphics_internal.hpp"
