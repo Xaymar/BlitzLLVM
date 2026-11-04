@@ -1222,12 +1222,13 @@ int32_t bb_live_textures(void)
 // Samplers (an extension): how a texture is read, set apart from the texture itself.
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
+	// The sampler of a handle, or nothing for a handle that is not one. Like other commands, a debug build stops and any other
+	// build lets the command do nothing (and a getter give 0).
 	sampler_entry* need_sampler(int32_t handle, const char* what)
 	{
 		if ((handle < 1) || (uint32_t(handle) > sampler_table.size) || !sampler_table[uint32_t(handle) - 1].used) {
-			char message[96];
-			snprintf(message, sizeof(message), "%s: the sampler does not exist.", what);
-			bb_runtime_error(message);
+			BB_DEBUG_HANDLE_MISSING(what, "sampler", handle);
+			return nullptr;
 		}
 		return &sampler_table[uint32_t(handle) - 1];
 	}
@@ -1301,7 +1302,9 @@ int32_t bb_create_sampler(void)
 // Textures that use the sampler go back to the one that their flags pick.
 void bb_free_sampler(int32_t handle)
 {
-	need_sampler(handle, "FreeSampler");
+	if (!need_sampler(handle, "FreeSampler")) {
+		return;
+	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
 		texture_entry& t = texture_table[i];
 		if (t.used && (t.sampler == handle)) {
@@ -1323,6 +1326,9 @@ void bb_free_sampler(int32_t handle)
 void bb_set_sampler_filter_min(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMin");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerFilterMin", mode, 2);
 	s->filter_min = mode;
 	apply_sampler(handle);
@@ -1331,6 +1337,9 @@ void bb_set_sampler_filter_min(int32_t handle, int32_t mode)
 void bb_set_sampler_filter_mag(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMag");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerFilterMag", mode, 2);
 	s->filter_mag = mode;
 	apply_sampler(handle);
@@ -1339,6 +1348,9 @@ void bb_set_sampler_filter_mag(int32_t handle, int32_t mode)
 void bb_set_sampler_filter_mip(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMip");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerFilterMip", mode, 2);
 	s->filter_mip = mode;
 	apply_sampler(handle);
@@ -1348,6 +1360,9 @@ void bb_set_sampler_filter_mip(int32_t handle, int32_t mode)
 void bb_set_sampler_anisotropy(int32_t handle, float anisotropy)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerAnisotropy");
+	if (!s) {
+		return;
+	}
 	s->anisotropy    = anisotropy < 1.0f ? 1.0f : anisotropy;
 	apply_sampler(handle);
 }
@@ -1355,6 +1370,9 @@ void bb_set_sampler_anisotropy(int32_t handle, float anisotropy)
 void bb_set_sampler_address_mode_u(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerAddressModeU");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerAddressModeU", mode, 4);
 	s->address[0] = mode;
 	apply_sampler(handle);
@@ -1363,6 +1381,9 @@ void bb_set_sampler_address_mode_u(int32_t handle, int32_t mode)
 void bb_set_sampler_address_mode_v(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerAddressModeV");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerAddressModeV", mode, 4);
 	s->address[1] = mode;
 	apply_sampler(handle);
@@ -1371,6 +1392,9 @@ void bb_set_sampler_address_mode_v(int32_t handle, int32_t mode)
 void bb_set_sampler_address_mode_w(int32_t handle, int32_t mode)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerAddressModeW");
+	if (!s) {
+		return;
+	}
 	check_mode("SetSamplerAddressModeW", mode, 4);
 	s->address[2] = mode;
 	apply_sampler(handle);
@@ -1378,28 +1402,45 @@ void bb_set_sampler_address_mode_w(int32_t handle, int32_t mode)
 
 void bb_set_sampler_lod_bias(int32_t handle, float bias)
 {
-	need_sampler(handle, "SetSamplerLodBias")->lod_bias = bias;
+	sampler_entry* s = need_sampler(handle, "SetSamplerLodBias");
+	if (!s) {
+		return;
+	}
+	s->lod_bias = bias;
 	apply_sampler(handle);
 }
 
 void bb_set_sampler_lod_min(int32_t handle, float lod)
 {
-	need_sampler(handle, "SetSamplerLodMin")->lod_min = lod < 0.0f ? 0.0f : lod;
+	sampler_entry* s = need_sampler(handle, "SetSamplerLodMin");
+	if (!s) {
+		return;
+	}
+	s->lod_min = lod < 0.0f ? 0.0f : lod;
 	apply_sampler(handle);
 }
 
 void bb_set_sampler_lod_max(int32_t handle, float lod)
 {
-	need_sampler(handle, "SetSamplerLodMax")->lod_max = lod < 0.0f ? 0.0f : lod;
+	sampler_entry* s = need_sampler(handle, "SetSamplerLodMax");
+	if (!s) {
+		return;
+	}
+	s->lod_max = lod < 0.0f ? 0.0f : lod;
 	apply_sampler(handle);
 }
 
 // A sampler of 0 takes the sampler away, and the flags of the texture pick it again.
 void bb_set_texture_sampler(int32_t texture, int32_t handle)
 {
-	texture_entry* t = need_texture(texture, "SetTextureSampler");
-	if (handle) {
-		need_sampler(handle, "SetTextureSampler");
+	texture_entry* t = live_texture_of(texture);
+	if (!t) {
+		BB_DEBUG_HANDLE_MISSING("SetTextureSampler", "texture", texture);
+		return;
+	}
+	bb::texture_epoch++;
+	if (handle && !need_sampler(handle, "SetTextureSampler")) {
+		return;
 	}
 	t->sampler = handle;
 	if (g.device && t->set) {
@@ -1411,6 +1452,9 @@ void bb_set_texture_sampler(int32_t texture, int32_t handle)
 void bb_set_sampler_border_color(int32_t handle, float r, float g, float b, float a)
 {
 	sampler_entry* s = need_sampler(handle, "SetSamplerBorderColor");
+	if (!s) {
+		return;
+	}
 	float          v[4] = { r, g, b, a };
 	for (int i = 0; i < 4; i++) {
 		s->border[i] = v[i] < 0.0f ? 0.0f : (v[i] > 1.0f ? 1.0f : v[i]);
@@ -1419,20 +1463,76 @@ void bb_set_sampler_border_color(int32_t handle, float r, float g, float b, floa
 }
 
 // What the setters above were given (after being kept inside what they accept).
-int32_t bb_get_sampler_filter_min(int32_t h) { return need_sampler(h, "GetSamplerFilterMin")->filter_min; }
-int32_t bb_get_sampler_filter_mag(int32_t h) { return need_sampler(h, "GetSamplerFilterMag")->filter_mag; }
-int32_t bb_get_sampler_filter_mip(int32_t h) { return need_sampler(h, "GetSamplerFilterMip")->filter_mip; }
-float bb_get_sampler_anisotropy(int32_t h) { return need_sampler(h, "GetSamplerAnisotropy")->anisotropy; }
-int32_t bb_get_sampler_address_mode_u(int32_t h) { return need_sampler(h, "GetSamplerAddressModeU")->address[0]; }
-int32_t bb_get_sampler_address_mode_v(int32_t h) { return need_sampler(h, "GetSamplerAddressModeV")->address[1]; }
-int32_t bb_get_sampler_address_mode_w(int32_t h) { return need_sampler(h, "GetSamplerAddressModeW")->address[2]; }
-float bb_get_sampler_lod_bias(int32_t h) { return need_sampler(h, "GetSamplerLodBias")->lod_bias; }
-float bb_get_sampler_lod_min(int32_t h) { return need_sampler(h, "GetSamplerLodMin")->lod_min; }
-float bb_get_sampler_lod_max(int32_t h) { return need_sampler(h, "GetSamplerLodMax")->lod_max; }
-float bb_get_sampler_border_color_r(int32_t h) { return need_sampler(h, "GetSamplerBorderColorR")->border[0]; }
-float bb_get_sampler_border_color_g(int32_t h) { return need_sampler(h, "GetSamplerBorderColorG")->border[1]; }
-float bb_get_sampler_border_color_b(int32_t h) { return need_sampler(h, "GetSamplerBorderColorB")->border[2]; }
-float bb_get_sampler_border_color_a(int32_t h) { return need_sampler(h, "GetSamplerBorderColorA")->border[3]; }
+int32_t bb_get_sampler_filter_min(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerFilterMin");
+	return s ? s->filter_min : 0;
+}
+int32_t bb_get_sampler_filter_mag(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerFilterMag");
+	return s ? s->filter_mag : 0;
+}
+int32_t bb_get_sampler_filter_mip(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerFilterMip");
+	return s ? s->filter_mip : 0;
+}
+float bb_get_sampler_anisotropy(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerAnisotropy");
+	return s ? s->anisotropy : 0;
+}
+int32_t bb_get_sampler_address_mode_u(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerAddressModeU");
+	return s ? s->address[0] : 0;
+}
+int32_t bb_get_sampler_address_mode_v(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerAddressModeV");
+	return s ? s->address[1] : 0;
+}
+int32_t bb_get_sampler_address_mode_w(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerAddressModeW");
+	return s ? s->address[2] : 0;
+}
+float bb_get_sampler_lod_bias(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerLodBias");
+	return s ? s->lod_bias : 0;
+}
+float bb_get_sampler_lod_min(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerLodMin");
+	return s ? s->lod_min : 0;
+}
+float bb_get_sampler_lod_max(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerLodMax");
+	return s ? s->lod_max : 0;
+}
+float bb_get_sampler_border_color_r(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerBorderColorR");
+	return s ? s->border[0] : 0;
+}
+float bb_get_sampler_border_color_g(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerBorderColorG");
+	return s ? s->border[1] : 0;
+}
+float bb_get_sampler_border_color_b(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerBorderColorB");
+	return s ? s->border[2] : 0;
+}
+float bb_get_sampler_border_color_a(int32_t h)
+{
+	sampler_entry* s = need_sampler(h, "GetSamplerBorderColorA");
+	return s ? s->border[3] : 0;
+}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
