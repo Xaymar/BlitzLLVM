@@ -686,6 +686,10 @@ static int compiler_main(int argc, char** argv)
 					command.push_back(std::string("--target=") + (architecture == "x86_64" ? "x86_64" : "aarch64") + "-w64-mingw32");
 				}
 				command.push_back("--sysroot=" + sysroot.generic_string());
+				// A clang that is not from llvm-mingw defaults to libgcc and libgcc_eh for the MinGW target, which are not shipped. The builtins
+				// come from compiler-rt (in the resource directory below) and the unwinder is linked with libc++ further down.
+				command.push_back("-rtlib=compiler-rt");
+				command.push_back("-unwindlib=none");
 				for (auto const& entry : std::filesystem::directory_iterator(sysroot / "lib" / "clang", ec)) {
 					if (entry.is_directory()) {
 						command.push_back("-resource-dir=" + entry.path().generic_string());

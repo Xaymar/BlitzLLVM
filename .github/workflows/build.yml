@@ -246,6 +246,11 @@ jobs:
             dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe" 2>&1 | tee "$RUNNER_TEMP/packaged.log"
             ! grep -qi "error" "$RUNNER_TEMP/packaged.log"
             "$RUNNER_TEMP/packaged.exe" | grep -q "packaged ok"
+            # And with the clang that comes with the runner's LLVM install, which does not default to compiler-rt and libc++ for the MinGW target
+            # the way llvm-mingw's does (it asked for libgcc and libgcc_eh, which the package does not ship).
+            dist/bin/blitzcc --cc "C:/Program Files/LLVM/bin/clang.exe" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged_plain.exe" 2>&1 | tee "$RUNNER_TEMP/packaged_plain.log"
+            ! grep -qi "error" "$RUNNER_TEMP/packaged_plain.log"
+            "$RUNNER_TEMP/packaged_plain.exe" | grep -q "packaged ok"
           fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
           if [ "$LOOSE" = true ]; then
