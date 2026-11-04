@@ -32,7 +32,7 @@
 		},
 		"3d": {
 			"description": "Blitz3D: entities, meshes, cameras, lights, textures, collisions, animation and models.",
-			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|draw3d2_|fail-createtexture_frames|fail-settexturebuffer_not_target|fail-(freetexture|texturewidth|entitytexture|brushtexture)_)"]
+			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|draw3d2_|fail-createtexture_frames|fail-sampler_freed|fail-settexturebuffer_not_target|fail-(freetexture|texturewidth|entitytexture|brushtexture)_)"]
 		},
 		"original": {
 			"description": "The samples and games of the original Blitz3D and BlitzPlus compile.",
