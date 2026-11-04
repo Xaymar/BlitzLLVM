@@ -125,6 +125,36 @@ jobs:
           Get-ChildItem $root | Format-Table Name, Attributes
           Get-ChildItem "$root/x86_64-w64-mingw32" | Format-Table Name, Attributes
           Get-ChildItem "$root/generic-w64-mingw32" -ErrorAction SilentlyContinue | Format-Table Name, Attributes
+      - name: Compare clang versions on emitted (diagnostic)
+        if: matrix.mingw
+        shell: pwsh
+        # int_loop_ms and select_ms of emitted are slower in the candidate on Shibela. The flags of blitzcc are the same for both builds, so this runs the same
+        # program, compiled by the clang of llvm-mingw and by the clang of the runner, on the same computer, one after the other.
+        run: |
+          $blitzcc = (Resolve-Path dist/bin/blitzcc.exe).Path
+          $work = Join-Path $env:RUNNER_TEMP "clangcmp"
+          New-Item -ItemType Directory -Force $work | Out-Null
+          Copy-Item bench-src/benchmarks/emitted.bb $work
+          $runner = "C:\Program Files\LLVM\bin\clang.exe"
+          & $runner --version
+          & clang --version
+          Push-Location $work
+          & $blitzcc -q -o (Join-Path $work "mingw_clang.exe") (Join-Path $work "emitted.bb")
+          $env:BLITZLLVM_CC = $runner
+          & $blitzcc -q -o (Join-Path $work "runner_clang.exe") (Join-Path $work "emitted.bb")
+          Remove-Item Env:BLITZLLVM_CC
+          & $blitzcc -q -S -o (Join-Path $work "emitted.ll") (Join-Path $work "emitted.bb")
+          Pop-Location
+          foreach ($run in 1..5) {
+            foreach ($name in "mingw_clang", "runner_clang") {
+              $env:BENCH_RESULT = Join-Path $work "r.txt"
+              Remove-Item $env:BENCH_RESULT -ErrorAction SilentlyContinue
+              Start-Process -FilePath (Join-Path $work "$name.exe") -WorkingDirectory $work -Wait | Out-Null
+              $line = Get-Content $env:BENCH_RESULT -ErrorAction SilentlyContinue | Where-Object { $_ -match "RESULT " } | Select-Object -First 1
+              "$name run ${run}: " + ([regex]::Matches($line, "(int_loop|select|strings|float_loop)_ms=\d+") | ForEach-Object { $_.Value }) -join " "
+            }
+          }
+          Select-String -Path (Join-Path $work "emitted.ll") -Pattern "srem|urem" | Select-Object -First 5
       - name: Build the benchmark programs
         shell: pwsh
         run: |
