@@ -231,6 +231,16 @@ jobs:
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
           # The package compiles and runs a program by itself, with the MinGW headers and libraries it ships.
           if [ "$RUNNER_OS" = Windows ]; then
+            # Programs and libraries carry libc++ and libunwind themselves. The runner has them next to its clang, so a missing DLL would
+            # not show when the program below runs, but it keeps the tools from starting on a computer that only has an LLVM install.
+            missing=0
+            while IFS= read -r -d '' file; do
+              if llvm-objdump -p "$file" | grep -qiE "DLL Name: (libc\+\+|libunwind)\.dll"; then
+                echo "$file imports libc++.dll or libunwind.dll, which the package does not ship"
+                missing=1
+              fi
+            done < <(find dist -type f \( -name '*.exe' -o -name '*.dll' \) -print0)
+            [ "$missing" = 0 ]
             printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
             # The inline C code of the runtime is compiled in the same step. When the headers are missing it fails and the program is slower, but it still builds.
             dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe" 2>&1 | tee "$RUNNER_TEMP/packaged.log"

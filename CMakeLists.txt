@@ -109,6 +109,15 @@ function(init_project TARGET)
 		)
 	endif()
 
+	if(MINGW)
+		# libc++ goes into every program and library itself: a package that does not ship libc++.dll and libunwind.dll (the tools would not
+		# start without a llvm-mingw next to them), and the DLL has its own operator new and delete next to the allocator of the runtime.
+		get_target_property(_TARGET_TYPE ${TARGET} TYPE)
+		if(_TARGET_TYPE MATCHES "EXECUTABLE|SHARED_LIBRARY|MODULE_LIBRARY")
+			target_link_options(${TARGET} PRIVATE $<$<LINK_LANGUAGE:CXX>:-nostdlib++ -Wl,-Bstatic -lc++ -lunwind -Wl,-Bdynamic>)
+		endif()
+	endif()
+
 	if(MSVC) # Microsoft Visual C/C++ (cl, or clang-cl)
 		target_compile_definitions(${TARGET} PRIVATE
 			# Disable useless/terrible behavior from MSVC
