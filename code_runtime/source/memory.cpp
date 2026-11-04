@@ -36,8 +36,6 @@ extern "C" {
 __declspec(dllimport) void*              __stdcall VirtualAlloc(void*, size_t, unsigned long, unsigned long);
 __declspec(dllimport) int                __stdcall VirtualFree(void*, size_t, unsigned long);
 __declspec(dllimport) unsigned long long __stdcall GetTickCount64(void);
-__declspec(dllimport) unsigned long             __stdcall FlsAlloc(void(__stdcall*)(void*));
-__declspec(dllimport) int                       __stdcall FlsSetValue(unsigned long, void*);
 }
 #else
 #include <sys/mman.h>
@@ -379,52 +377,16 @@ namespace {
 			t.count[c] = 0;
 		}
 	}
-#if defined(_WIN32)
-	// The destructor of a thread_local object does not run reliably for the threads of a program that is linked with MinGW, so the end of a
-	// thread is noticed through the fiber local storage of Windows, which calls back when the thread ends.
-	void __stdcall flush_cache_on_exit(void* touched)
-	{
-		if (touched) {
-			flush_cache();
-		}
-	}
-	std::atomic<unsigned long> g_fls{ 0xFFFFFFFFul };
-	thread_local char          t_registered;
-	void register_thread_exit()
-	{
-		unsigned long index = g_fls.load(std::memory_order_acquire);
-		if (index == 0xFFFFFFFFul) {
-			unsigned long made     = FlsAlloc(flush_cache_on_exit);
-			unsigned long expected = 0xFFFFFFFFul;
-			if (!g_fls.compare_exchange_strong(expected, made)) {
-				index = expected; // Another thread was first, a callback is left unused.
-			} else {
-				index = made;
-			}
-		}
-		if (index != 0xFFFFFFFFul) {
-			FlsSetValue(index, reinterpret_cast<void*>(1));
-		}
-		t_registered = 1;
-	}
-#else
 	struct cache_guard {
 		char touched = 0;
 		~cache_guard() { flush_cache(); }
 	};
 	thread_local cache_guard t_guard;
-#endif
 
 	void* refill(int c, bool* fresh)
 	{
 		cache& t = t_cache;
-#if defined(_WIN32)
-		if (!t_registered) {
-			register_thread_exit(); // Makes the cache go back to the pool when the thread ends.
-		}
-#else
 		t_guard.touched = 1; // Makes the destructor run when the thread ends.
-#endif
 
 		pool& p = g_pool[c];
 		if (p.count.load(std::memory_order_relaxed)) {
