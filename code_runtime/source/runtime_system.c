@@ -26,6 +26,8 @@
 #if defined(_WIN32)
 __declspec(dllimport) void __stdcall Sleep(unsigned long);
 __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned int);
+__declspec(dllimport) int __stdcall QueryPerformanceCounter(int64_t*);
+__declspec(dllimport) int __stdcall QueryPerformanceFrequency(int64_t*);
 #else
 #include <unistd.h>
 #endif
@@ -161,11 +163,41 @@ int32_t bb_millisecs(void)
 	return (int32_t)(((int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000) & 0x7FFFFFFF);
 }
 
+// A clock that only goes forward and does not follow the system time: the counter of the system that is started once (when
+// the program starts, or at the first call if nothing started it before), and Microseconds is what passed since.
+static uint64_t bb_clock_now(void)
+{
+#if defined(_WIN32)
+	static int64_t frequency = 0;
+	int64_t        counter   = 0;
+	if (frequency == 0) {
+		QueryPerformanceFrequency(&frequency);
+	}
+	QueryPerformanceCounter(&counter);
+	// Split in seconds and the rest, as counter * 1000000 can overflow after a few days of uptime at 10 MHz.
+	return (uint64_t)(counter / frequency) * 1000000u + (uint64_t)(((counter % frequency) * 1000000) / frequency);
+#else
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000000u + (uint64_t)(ts.tv_nsec / 1000);
+#endif
+}
+
+static uint64_t bb_clock_origin = 0;
+static int      bb_clock_started = 0;
+
+void bb_time_start(void)
+{
+	if (!bb_clock_started) {
+		bb_clock_origin  = bb_clock_now();
+		bb_clock_started = 1;
+	}
+}
+
 uint64_t bb_microseconds(void)
 {
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return (uint64_t)ts.tv_sec * 1000000u + (uint64_t)(ts.tv_nsec / 1000);
+	bb_time_start();
+	return bb_clock_now() - bb_clock_origin;
 }
 
 void bb_graphics_idle(void);
