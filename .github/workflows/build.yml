@@ -281,8 +281,9 @@ jobs:
         if: runner.os == 'Windows' && inputs.packages
         shell: pwsh
         run: |
-          choco install innosetup --version=6.4.3 --no-progress -y
+          # The runner images ship Inno Setup; it is installed only when an image does not.
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
           $arch = if ('${{ matrix.platform }}' -eq 'ARM64') { 'arm64' } else { 'x64' }
           New-Item -ItemType Directory -Force packages | Out-Null
           & $iscc /Qp "/DAppVersion=$env:VERSION" "/DArch=$arch" /DSourceDir=dist /DOutputDir=packages "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
