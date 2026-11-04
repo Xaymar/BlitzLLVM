@@ -622,7 +622,13 @@ static int compiler_main(int argc, char** argv)
 		if (std::filesystem::is_directory(lib_dir)) {
 			for (auto const& entry : std::filesystem::directory_iterator(lib_dir)) {
 				auto ext = entry.path().extension().string();
-				if ((ext == ".lib") || (ext == ".a")) {
+				// A runtime folder that an older install left .lib files in (made for the MSVC target) next to the .a files of the MinGW
+				// target would define every symbol twice, so each Windows target takes only the libraries of its own kind.
+				bool wanted = (ext == ".lib") || (ext == ".a");
+				if (windows_target) {
+					wanted = windows_msvc ? (ext == ".lib") : (ext == ".a");
+				}
+				if (wanted) {
 					libraries.push_back(entry.path().generic_string());
 				}
 			}
