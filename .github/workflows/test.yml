@@ -174,8 +174,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the submodules
         if: env.RUN == 'true'
-        # Only the two with the original samples and games, which the tests compile.
-        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
+        # All of them, shallow, like in build.yml. The tests compile the original samples and games of third_party/blitz3d and third_party/blitzplus_msvc2017.
+        run: git submodule update --init --depth 1 --jobs 8
       - name: Date the package cache
         if: env.RUN == 'true' && matrix.label == 'Linux'
         id: month
