@@ -39,7 +39,7 @@ AppPublisherURL=https://github.com/Xaymar/BlitzLLVM
 AppSupportURL=https://github.com/Xaymar/BlitzLLVM/issues
 AppUpdatesURL=https://github.com/Xaymar/BlitzLLVM/releases
 VersionInfoVersion={#AppVersion}
-DefaultDirName={autopf}\BlitzLLVM
+DefaultDirName={localappdata}\Programs\BlitzLLVM
 DefaultGroupName=BlitzLLVM
 DisableProgramGroupPage=yes
 LicenseFile={#SourceDir}\LICENSE.adoc
@@ -48,9 +48,8 @@ OutputBaseFilename={#OutputName}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-; All users by default (PATH and BLITZLLVM_CC for every account); the first page offers "only for me" without administrator rights.
-PrivilegesRequired=admin
-PrivilegesRequiredOverridesAllowed=dialog
+; A per-user app: installs to %LocalAppData%\Programs\BlitzLLVM, writes only to HKCU and never asks for administrator rights.
+PrivilegesRequired=lowest
 ChangesEnvironment=yes
 UninstallDisplayName=BlitzLLVM
 #if Arch == "arm64"
@@ -78,8 +77,7 @@ Name: "{group}\Uninstall BlitzLLVM"; Filename: "{uninstallexe}"
 [Registry]
 ; blitzcc starts the clang it finds on PATH, or the one in BLITZLLVM_CC. The LLVM installer does not add itself to PATH by default,
 ; so when clang is only found in its own folder, BLITZLLVM_CC points blitzcc there. Removed again by the uninstaller.
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "BLITZLLVM_CC"; ValueData: "{code:ClangToSet}"; Flags: uninsdeletevalue; Check: SetClangVariable and IsAdminInstallMode
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "BLITZLLVM_CC"; ValueData: "{code:ClangToSet}"; Flags: uninsdeletevalue; Check: SetClangVariable and (not IsAdminInstallMode)
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "BLITZLLVM_CC"; ValueData: "{code:ClangToSet}"; Flags: uninsdeletevalue; Check: SetClangVariable
 
 [Code]
 const
@@ -98,21 +96,8 @@ var
   LlvmInstallFailed: Boolean;
   OldClangPath: String;     // A clang with lld that was found but is older than MinClangMajor.
 
-function EnvironmentKey: String;
-begin
-  if IsAdminInstallMode then
-    Result := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-  else
-    Result := 'Environment';
-end;
-
-function EnvironmentRoot: Integer;
-begin
-  if IsAdminInstallMode then
-    Result := HKEY_LOCAL_MACHINE
-  else
-    Result := HKEY_CURRENT_USER;
-end;
+const
+  EnvironmentKey = 'Environment';   // The environment of the current user.
 
 // ---- Finding LLVM ----------------------------------------------------------------------------------------------------
 
@@ -263,14 +248,14 @@ procedure AddToPath(const Dir: String);
 var
   Path: String;
 begin
-  if not RegQueryStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Path) then
+  if not RegQueryStringValue(HKEY_CURRENT_USER, EnvironmentKey, 'Path', Path) then
     Path := '';
   if PathContains(Path, Dir) or PathContains(Path, Dir + '\') then
     Exit;
   if (Path <> '') and (Path[Length(Path)] <> ';') then
     Path := Path + ';';
   Path := Path + RemoveBackslash(Dir);
-  RegWriteExpandStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Path);
+  RegWriteExpandStringValue(HKEY_CURRENT_USER, EnvironmentKey, 'Path', Path);
 end;
 
 procedure RemoveFromPath(const Dir: String);
@@ -278,7 +263,7 @@ var
   Path, Wanted: String;
   P: Integer;
 begin
-  if not RegQueryStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Path) then
+  if not RegQueryStringValue(HKEY_CURRENT_USER, EnvironmentKey, 'Path', Path) then
     Exit;
   Wanted := RemoveBackslash(Dir);
   Path := ';' + Path + ';';
@@ -292,7 +277,7 @@ begin
     Delete(Path, 1, 1);
   if (Length(Path) > 0) and (Path[Length(Path)] = ';') then
     Delete(Path, Length(Path), 1);
-  RegWriteExpandStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Path);
+  RegWriteExpandStringValue(HKEY_CURRENT_USER, EnvironmentKey, 'Path', Path);
 end;
 
 // ---- Wizard ----------------------------------------------------------------------------------------------------------

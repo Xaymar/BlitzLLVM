@@ -289,14 +289,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
           Get-ChildItem packages | Format-Table Name, Length
       - name: Test the installer (Windows)
-        # Installs silently (which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
+        # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
         if: runner.os == 'Windows' && inputs.packages && matrix.platform != 'ARM64'
         shell: pwsh
         run: |
           $dir = Join-Path $env:RUNNER_TEMP 'blitzllvm-installed'
           $log = Join-Path $env:RUNNER_TEMP 'setup.log'
           $setup = (Get-Item "packages\$env:ARTIFACT-setup.exe").FullName
-          $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'Machine') }
+          $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
           $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
           if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
           foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'LICENSE.adoc', 'unins000.exe') {
