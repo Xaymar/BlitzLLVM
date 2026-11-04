@@ -2920,6 +2920,7 @@ namespace bb::gfx {
 	// band around the picture, like the guard band of Direct3D), the corners are near and every value of them is small again.
 	constexpr float clip_edge_limit = 64.0f; // Triangles with shorter edges than this are left to the GPU.
 	constexpr float clip_band       = 3.0f;  // How many times the size of the picture the cut view is.
+	constexpr float clip_reach      = 32.0f; // The longest a piece can be, in times its distance to the camera.
 
 	static bool surface_has_long_edges(bb::surface& s)
 	{
@@ -3016,28 +3017,32 @@ namespace bb::gfx {
 		}
 
 		const double sx = current_view[0], sy = current_view[0] / current_view[2];
-		const double side_x = double(clip_band) / sx, side_y = double(clip_band) / sy, near_z = double(current_near);
+		const double side_x = double(clip_band) / sx, side_y = double(clip_band) / sy, near_z = double(current_near), far_z = double(current_view[1]);
 		auto distance = [&](const double* c, int plane) {
 			switch (plane) {
 			case 0: return c[2] - near_z;
 			case 1: return side_x * c[2] - c[0];
 			case 2: return side_x * c[2] + c[0];
 			case 3: return side_y * c[2] - c[1];
-			default: return side_y * c[2] + c[1];
+			case 4: return side_y * c[2] + c[1];
+			default: return far_z - c[2];
 			}
 		};
-		const double limit = double(clip_edge_limit) * double(clip_edge_limit);
 		bool         cut   = false;
 		out.indices.reserve(src.indices.size);
+		struct clip_piece {
+			clip_point p[3];
+		};
 		std::vector<clip_point> polygon, next;
+		std::vector<clip_piece> pieces;
 		for (uint32_t i = 0; i + 2 < src.indices.size; i += 3) {
 			uint32_t ids[3] = { src.indices[i], src.indices[i + 1], src.indices[i + 2] };
 			if ((ids[0] >= count) || (ids[1] >= count) || (ids[2] >= count)) {
 				continue;
 			}
-			double d[3][5];
+			double d[3][6];
 			bool   inside = true, gone = false;
-			for (int plane = 0; plane < 5; plane++) {
+			for (int plane = 0; plane < 6; plane++) {
 				int outside = 0;
 				for (int k = 0; k < 3; k++) {
 					d[k][plane] = distance(points[ids[k]].c, plane);
@@ -3046,12 +3051,18 @@ namespace bb::gfx {
 				inside = inside && (outside == 0);
 				gone   = gone || (outside == 3);
 			}
-			bool long_edge = false;
-			for (int k = 0; k < 3 && !long_edge; k++) {
+			// The longest edge of the triangle and the nearest it gets to the camera.
+			double longest = 0, nearest = points[ids[0]].c[2];
+			for (int k = 0; k < 3; k++) {
 				double e0 = points[ids[k]].c[0] - points[ids[(k + 1) % 3]].c[0], e1 = points[ids[k]].c[1] - points[ids[(k + 1) % 3]].c[1], e2 = points[ids[k]].c[2] - points[ids[(k + 1) % 3]].c[2];
-				long_edge  = (e0 * e0 + e1 * e1 + e2 * e2) > limit;
+				longest   = std::max(longest, std::sqrt(e0 * e0 + e1 * e1 + e2 * e2));
+				nearest   = std::min(nearest, points[ids[k]].c[2]);
 			}
-			if (inside || (!long_edge && !gone)) {
+			const bool long_edge = longest > double(clip_edge_limit);
+			// What a pixel takes from a corner is only as exact as the corner is near the pixel: so a triangle is cut into pieces that are no
+			// longer than clip_reach times their distance to the camera.
+			const bool too_long  = longest > double(clip_reach) * std::max(nearest, near_z);
+			if (!gone && (!long_edge || (inside && !too_long))) {
 				out.indices.push(ids[0]);
 				out.indices.push(ids[1]);
 				out.indices.push(ids[2]);
@@ -3073,7 +3084,7 @@ namespace bb::gfx {
 				p.color[3] = bb::half_to_float(v.a);
 				polygon.push_back(p);
 			}
-			for (int plane = 0; plane < 5 && polygon.size() >= 3; plane++) {
+			for (int plane = 0; plane < 6 && polygon.size() >= 3; plane++) {
 				next.clear();
 				for (size_t k = 0; k < polygon.size(); k++) {
 					clip_point const &a = polygon[k], &b = polygon[(k + 1) % polygon.size()];
@@ -3090,22 +3101,47 @@ namespace bb::gfx {
 			if (polygon.size() < 3) {
 				continue;
 			}
-			uint32_t first = out.vertices.size;
-			for (clip_point const& p : polygon) {
-				bb::vertex3d v = {};
-				v.x = float(p.v[0]); v.y = float(p.v[1]); v.z = float(p.v[2]);
-				v.nx = float(p.v[3]); v.ny = float(p.v[4]); v.nz = float(p.v[5]);
-				v.u = float(p.v[6]); v.v = float(p.v[7]); v.u2 = float(p.v[8]); v.v2 = float(p.v[9]);
-				v.r = bb::float_to_half(float(p.color[0]));
-				v.g = bb::float_to_half(float(p.color[1]));
-				v.b = bb::float_to_half(float(p.color[2]));
-				v.a = bb::float_to_half(float(p.color[3]));
-				out.vertices.push(v);
+			pieces.clear();
+			for (size_t k = 1; k + 1 < polygon.size(); k++) {
+				pieces.push_back({ { polygon[0], polygon[k], polygon[k + 1] } });
 			}
-			for (uint32_t k = 1; k + 1 < uint32_t(polygon.size()); k++) {
-				out.indices.push(first);
-				out.indices.push(first + k);
-				out.indices.push(first + k + 1);
+			int budget = 4096; // Pieces that one triangle can be cut into at most.
+			while (!pieces.empty()) {
+				clip_piece piece = pieces.back();
+				pieces.pop_back();
+				double edge[3], farthest = 0, reach = piece.p[0].c[2];
+				int    longest_edge = 0;
+				for (int k = 0; k < 3; k++) {
+					double e0 = piece.p[k].c[0] - piece.p[(k + 1) % 3].c[0], e1 = piece.p[k].c[1] - piece.p[(k + 1) % 3].c[1], e2 = piece.p[k].c[2] - piece.p[(k + 1) % 3].c[2];
+					edge[k]   = std::sqrt(e0 * e0 + e1 * e1 + e2 * e2);
+					reach     = std::min(reach, piece.p[k].c[2]);
+					if (edge[k] > farthest) {
+						farthest     = edge[k];
+						longest_edge = k;
+					}
+				}
+				if ((budget > 0) && (farthest > double(clip_edge_limit)) && (farthest > double(clip_reach) * std::max(reach, near_z))) {
+					budget--;
+					clip_point const &p0 = piece.p[longest_edge], &p1 = piece.p[(longest_edge + 1) % 3], &p2 = piece.p[(longest_edge + 2) % 3];
+					clip_point        middle = clip_lerp(p0, p1, 0.5);
+					pieces.push_back({ { middle, p1, p2 } });
+					pieces.push_back({ { p0, middle, p2 } });
+					continue;
+				}
+				uint32_t first = out.vertices.size;
+				for (int k = 0; k < 3; k++) {
+					clip_point const& p = piece.p[k];
+					bb::vertex3d v = {};
+					v.x = float(p.v[0]); v.y = float(p.v[1]); v.z = float(p.v[2]);
+					v.nx = float(p.v[3]); v.ny = float(p.v[4]); v.nz = float(p.v[5]);
+					v.u = float(p.v[6]); v.v = float(p.v[7]); v.u2 = float(p.v[8]); v.v2 = float(p.v[9]);
+					v.r = bb::float_to_half(float(p.color[0]));
+					v.g = bb::float_to_half(float(p.color[1]));
+					v.b = bb::float_to_half(float(p.color[2]));
+					v.a = bb::float_to_half(float(p.color[3]));
+					out.vertices.push(v);
+					out.indices.push(first + uint32_t(k));
+				}
 			}
 		}
 		src.clip_key[39] = cut ? 1.0f : 0.0f;
