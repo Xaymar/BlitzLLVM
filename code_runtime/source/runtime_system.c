@@ -156,13 +156,6 @@ int32_t bb_rand(int32_t lo, int32_t hi)
 ////////////////////////////////////////////////////////////////////////////////
 // Time
 ////////////////////////////////////////////////////////////////////////////////
-int32_t bb_millisecs(void)
-{
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return (int32_t)(((int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000) & 0x7FFFFFFF);
-}
-
 // A clock that only goes forward and does not follow the system time: the counter of the system that is started once (when
 // the program starts, or at the first call if nothing started it before), and Microseconds is what passed since.
 static uint64_t bb_clock_now(void)
@@ -198,6 +191,13 @@ uint64_t bb_microseconds(void)
 {
 	bb_time_start();
 	return bb_clock_now() - bb_clock_origin;
+}
+
+// The same clock, but from its own start (the start of the system, like the original) and not from the start of the program,
+// so that SeedRnd MilliSecs() gives a different seed every run. Whole milliseconds, wrapping to 0 after 24.8 days.
+int32_t bb_millisecs(void)
+{
+	return (int32_t)((bb_clock_now() / 1000u) & 0x7FFFFFFFu);
 }
 
 void bb_graphics_idle(void);

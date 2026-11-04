@@ -16,7 +16,7 @@
 
 Measuring a long stretch with two calls (the start and the end of a run of 3000 frames) is still accurate to 1 ms in total. What breaks is everything that looks at one frame at a time.
 
-On top of that, `MilliSecs()` wraps around after about 24.8 days and its start is not fixed, so only the difference between two calls means something.
+On top of that, `MilliSecs()` wraps around after about 24.8 days, so only the difference between two calls means something. It counts on the same clock as `Microseconds()` (not following the system time), only in whole milliseconds and from the start of the system.
 
 ## What to use instead
 
