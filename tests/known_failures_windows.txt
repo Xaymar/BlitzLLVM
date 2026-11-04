@@ -410,11 +410,9 @@ suite-run-graphics_depth_pixels
 suite-run-graphics_dither_deep_present_pixels
 suite-run-graphics_dither_mode_pixels
 suite-run-graphics_gamma_pixels
-suite-run-graphics_pixels
 disabled: suite-run-graphics_save_async_pixels
 disabled: suite-run-graphics_save_pixels
 disabled: suite-run-graphics_save_nowindow_pixels
-suite-run-input_pixels
 suite-run-plusgui_pixels
 suite-run-runtime
 suite-debug-run-graphics_movies
