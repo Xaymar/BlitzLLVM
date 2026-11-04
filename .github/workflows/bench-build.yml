@@ -146,6 +146,35 @@ jobs:
             $line = Get-Content $env:BENCH_RESULT | Where-Object { $_ -match "RESULT " } | Select-Object -First 1
             "run ${run}: " + (([regex]::Matches($line, "(int_loop|select|strings|float_loop)_ms=\d+") | ForEach-Object { $_.Value }) -join " ")
           }
+      - name: Compare the code of clang 20 and clang 23 for emitted (diagnostic)
+        if: matrix.mingw
+        shell: pwsh
+        # The same LLVM IR of emitted.bb, compiled to assembly by the clang of the runner (20, MSVC target) and by the clang of llvm-mingw (23), both for the
+        # MinGW target, to see which loops they treat differently.
+        run: |
+          $blitzcc = (Resolve-Path dist/bin/blitzcc.exe).Path
+          $work = Join-Path $env:RUNNER_TEMP "asmcmp"
+          New-Item -ItemType Directory -Force $work | Out-Null
+          Copy-Item bench-src/benchmarks/emitted.bb $work
+          Push-Location $work
+          & $blitzcc -q -S -o (Join-Path $work "emitted.ll") (Join-Path $work "emitted.bb")
+          Pop-Location
+          $flags = "-O3", "-funroll-loops", "-ffp-contract=off", "--target=x86_64-w64-mingw32", "-w", "-S"
+          $remarks = "-Rpass=loop-vectorize", "-Rpass=loop-unroll", "-Rpass-missed=loop-vectorize", "-Rpass=slp-vectorizer"
+          foreach ($entry in @(@("clang20", "C:\Program Files\LLVM\bin\clang.exe"), @("clang23", "clang"))) {
+            $out = Join-Path $work ($entry[0] + ".s")
+            & $entry[1] @flags @remarks (Join-Path $work "emitted.ll") -o $out 2>&1 | Out-File (Join-Path $work ($entry[0] + ".remarks.txt"))
+            $asm = Get-Content $out
+            "{0}: {1} lines of assembly, idiv {2}, imul {3}, vector instructions {4}, remarks {5}" -f $entry[0], $asm.Count, ($asm | Select-String -Pattern "\bidiv" ).Count, ($asm | Select-String -Pattern "\bimul").Count, ($asm | Select-String -Pattern "\b(vp|p)(add|mul|sub|xor|srl|sll)").Count, (Get-Content (Join-Path $work ($entry[0] + ".remarks.txt"))).Count
+          }
+          foreach ($entry in "clang20", "clang23") {
+            "== remarks of $entry"
+            Get-Content (Join-Path $work ($entry + ".remarks.txt")) | Where-Object { $_ -match "remark" } | ForEach-Object { ($_ -replace "^.*?remark: ", "") } | Group-Object | Sort-Object Count -Descending | Select-Object -First 12 | ForEach-Object { "{0} x {1}" -f $_.Count, $_.Name }
+          }
+          "== clang20 main loops"
+          Select-String -Path (Join-Path $work "clang20.s") -Pattern "imul|idiv|\bdiv" | Select-Object -First 25 | ForEach-Object { $_.Line }
+          "== clang23 main loops"
+          Select-String -Path (Join-Path $work "clang23.s") -Pattern "imul|idiv|\bdiv" | Select-Object -First 25 | ForEach-Object { $_.Line }
       - name: Build the benchmark programs
         shell: pwsh
         run: |
