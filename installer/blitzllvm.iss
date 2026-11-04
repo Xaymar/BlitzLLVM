@@ -4,9 +4,9 @@
 ; Windows installer of BlitzLLVM, built with Inno Setup 6 (https://jrsoftware.org/isinfo.php) from the directory that
 ; "cmake --install build --prefix dist" produces:
 ;
-;   ISCC.exe /DAppVersion=2026.11.1.30475 /DArch=x64 /DSourceDir=dist /DOutputDir=packages /DOutputName=blitzllvm-setup installer\blitzllvm.iss
+;   ISCC.exe /DAppVersion=2026.11.1.30475 /DArch=x64 /DSourceDir=C:\path\to\dist /DOutputDir=C:\path\to\packages /DOutputName=blitzllvm-setup installer\blitzllvm.iss
 ;
-; Defines: AppVersion (numeric A.B.C.D), Arch (x64 or arm64), SourceDir, OutputDir, OutputName (without .exe).
+; Defines: AppVersion (numeric A.B.C.D), Arch (x64 or arm64), SourceDir, OutputDir (both absolute: relative paths are taken from this script), OutputName (without .exe).
 ;
 ; BlitzLLVM needs a clang with lld (LLVM 23 or newer) to build programs. The installer looks for one on PATH and in the places the LLVM installer
 ; uses (its registry key and C:\Program Files\LLVM\bin). If there is none it offers to run "winget install -e --id LLVM.LLVM".

@@ -286,7 +286,7 @@ jobs:
           if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
           $arch = if ('${{ matrix.platform }}' -eq 'ARM64') { 'arm64' } else { 'x64' }
           New-Item -ItemType Directory -Force packages | Out-Null
-          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DArch=$arch" /DSourceDir=dist /DOutputDir=packages "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
+          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DArch=$arch" "/DSourceDir=$PWD\dist" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
           Get-ChildItem packages | Format-Table Name, Length
       - name: Test the installer (Windows)
