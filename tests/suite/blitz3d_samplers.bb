@@ -60,40 +60,42 @@ FreeSampler b
 FreeSampler c
 
 ; A handle that is not a sampler does nothing, and a getter gives 0 (a debug build stops instead).
-Local gone = c
-SetSamplerFilterMin gone, 0
-SetSamplerFilterMag gone, 0
-SetSamplerFilterMip gone, 0
-SetSamplerAnisotropy gone, 4.0
-SetSamplerAddressModeU gone, 1
-SetSamplerAddressModeV gone, 1
-SetSamplerAddressModeW gone, 1
-SetSamplerLodBias gone, 1.0
-SetSamplerLodMin gone, 1.0
-SetSamplerLodMax gone, 1.0
-SetSamplerBorderColor gone, 1.0, 1.0, 1.0, 1.0
-SetTextureSampler 0, gone
-SetTextureSampler 12345, 0
-FreeSampler gone
-FreeSampler 0
-FreeSampler -1
-FreeSampler 99999
-Check "Freed sampler, GetSamplerFilterMin", GetSamplerFilterMin(gone), 0
-Check "Freed sampler, GetSamplerFilterMag", GetSamplerFilterMag(gone), 0
-Check "Freed sampler, GetSamplerFilterMip", GetSamplerFilterMip(gone), 0
-Check "Freed sampler, GetSamplerAnisotropy", GetSamplerAnisotropy(gone), 0
-Check "Freed sampler, GetSamplerAddressModeU", GetSamplerAddressModeU(gone), 0
-Check "Freed sampler, GetSamplerAddressModeV", GetSamplerAddressModeV(gone), 0
-Check "Freed sampler, GetSamplerAddressModeW", GetSamplerAddressModeW(gone), 0
-Check "Freed sampler, GetSamplerLodBias", GetSamplerLodBias(gone), 0
-Check "Freed sampler, GetSamplerLodMin", GetSamplerLodMin(gone), 0
-Check "Freed sampler, GetSamplerLodMax", GetSamplerLodMax(gone), 0
-Check "Freed sampler, GetSamplerBorderColorR", GetSamplerBorderColorR(gone), 0
-Check "Freed sampler, GetSamplerBorderColorG", GetSamplerBorderColorG(gone), 0
-Check "Freed sampler, GetSamplerBorderColorB", GetSamplerBorderColorB(gone), 0
-Check "Freed sampler, GetSamplerBorderColorA", GetSamplerBorderColorA(gone), 0
-Check "Sampler 0, GetSamplerFilterMin", GetSamplerFilterMin(0), 0
-Check "Sampler -1, GetSamplerAnisotropy", GetSamplerAnisotropy(-1), 0
-Check "Sampler 99999, GetSamplerLodMax", GetSamplerLodMax(99999), 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then
+	Local gone = c
+	SetSamplerFilterMin gone, 0
+	SetSamplerFilterMag gone, 0
+	SetSamplerFilterMip gone, 0
+	SetSamplerAnisotropy gone, 4.0
+	SetSamplerAddressModeU gone, 1
+	SetSamplerAddressModeV gone, 1
+	SetSamplerAddressModeW gone, 1
+	SetSamplerLodBias gone, 1.0
+	SetSamplerLodMin gone, 1.0
+	SetSamplerLodMax gone, 1.0
+	SetSamplerBorderColor gone, 1.0, 1.0, 1.0, 1.0
+	SetTextureSampler 0, gone
+	SetTextureSampler 12345, 0
+	FreeSampler gone
+	FreeSampler 0
+	FreeSampler -1
+	FreeSampler 99999
+	Check "Freed sampler, GetSamplerFilterMin", GetSamplerFilterMin(gone), 0
+	Check "Freed sampler, GetSamplerFilterMag", GetSamplerFilterMag(gone), 0
+	Check "Freed sampler, GetSamplerFilterMip", GetSamplerFilterMip(gone), 0
+	Check "Freed sampler, GetSamplerAnisotropy", GetSamplerAnisotropy(gone), 0
+	Check "Freed sampler, GetSamplerAddressModeU", GetSamplerAddressModeU(gone), 0
+	Check "Freed sampler, GetSamplerAddressModeV", GetSamplerAddressModeV(gone), 0
+	Check "Freed sampler, GetSamplerAddressModeW", GetSamplerAddressModeW(gone), 0
+	Check "Freed sampler, GetSamplerLodBias", GetSamplerLodBias(gone), 0
+	Check "Freed sampler, GetSamplerLodMin", GetSamplerLodMin(gone), 0
+	Check "Freed sampler, GetSamplerLodMax", GetSamplerLodMax(gone), 0
+	Check "Freed sampler, GetSamplerBorderColorR", GetSamplerBorderColorR(gone), 0
+	Check "Freed sampler, GetSamplerBorderColorG", GetSamplerBorderColorG(gone), 0
+	Check "Freed sampler, GetSamplerBorderColorB", GetSamplerBorderColorB(gone), 0
+	Check "Freed sampler, GetSamplerBorderColorA", GetSamplerBorderColorA(gone), 0
+	Check "Sampler 0, GetSamplerFilterMin", GetSamplerFilterMin(0), 0
+	Check "Sampler -1, GetSamplerAnisotropy", GetSamplerAnisotropy(-1), 0
+	Check "Sampler 99999, GetSamplerLodMax", GetSamplerLodMax(99999), 0
+EndIf
 
 Done "blitz3d_samplers"
