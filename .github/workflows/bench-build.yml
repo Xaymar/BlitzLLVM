@@ -175,6 +175,11 @@ jobs:
           Select-String -Path (Join-Path $work "clang20.s") -Pattern "imul|idiv|\bdiv" | Select-Object -First 25 | ForEach-Object { $_.Line }
           "== clang23 main loops"
           Select-String -Path (Join-Path $work "clang23.s") -Pattern "imul|idiv|\bdiv" | Select-Object -First 25 | ForEach-Object { $_.Line }
+          foreach ($entry in "clang20", "clang23") {
+            "== full assembly of $entry"
+            Get-Content (Join-Path $work ($entry + ".s")) | Where-Object { $_ -notmatch "^\s*\.(cfi|seh|p2align|file|def|scl|type|endef)" }
+            "== end of $entry"
+          }
       - name: Build the benchmark programs
         shell: pwsh
         run: |
