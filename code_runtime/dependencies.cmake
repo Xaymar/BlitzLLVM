@@ -187,6 +187,10 @@ endif()
 # Shipped shared libraries carry no symbol tables (the linker of Windows keeps them in .pdb files, which are not shipped).
 if(APPLE)
 	set(_SHARED_STRIP "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-x")
+elseif(MINGW)
+	# The C++ runtime goes into the library itself (libjxl.dll is C++): a libc++.dll would bring its own operator new and delete next to the allocator
+	# of the runtime, and a DLL that is not shipped would keep the library from loading.
+	set(_SHARED_STRIP "-DCMAKE_SHARED_LINKER_FLAGS=-nostdlib++ -Wl,-Bstatic -lc++ -lunwind -Wl,-Bdynamic")
 elseif(NOT MSVC AND NOT WIN32)
 	set(_SHARED_STRIP "-DCMAKE_SHARED_LINKER_FLAGS=-s")
 else()
