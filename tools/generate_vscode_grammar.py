@@ -76,7 +76,7 @@ def grammar():
                 {"name": "constant.numeric.float.blitzbasic", "match": r"(\b\d+\.\d*|\.\d+)([eE][+-]?\d+)?"},
                 {"name": "constant.numeric.integer.blitzbasic", "match": r"\b\d+\b"},
             ]},
-            "typename": {"match": r"(?i)(?<=[A-Za-z0-9_%#$\)])(:)(" + "|".join(TYPES) + r"|" + name + r")\b", "captures": {"1": {"name": "punctuation.separator.type.blitzbasic"}, "2": {"name": "storage.type.blitzbasic"}}},
+            "typename": {"match": r"(?i)(?<=[A-Za-z0-9_%#$\)])(:)(" + "|".join(TYPES) + r"|" + name + r")\b", "captures": {"1": {"name": "punctuation.separator.type.blitzbasic"}, "2": {"name": "storage.type.blitzbasic entity.name.type.blitzbasic"}}},
             "field": {"match": r"(\\)[ \t]*(" + name + ")", "captures": {"1": {"name": "punctuation.accessor.blitzbasic"}, "2": {"name": "variable.other.member.blitzbasic"}}},
             "keyword": {"patterns": [
                 {"name": "keyword.declaration.blitzbasic", "match": "(?i)" + words(DECLARATION)},
@@ -87,8 +87,8 @@ def grammar():
             ]},
             # `x.Type` and `New Type`, `Each Type`, `First Type`, `Last Type`
             "type_ref": {"patterns": [
-                {"match": r"(?<=[A-Za-z0-9_%#$\)])(\.)(" + name + ")", "captures": {"1": {"name": "punctuation.separator.type.blitzbasic"}, "2": {"name": "storage.type.blitzbasic"}}},
-                {"match": r"(?i)\b(New|Each|First|Last)[ \t]+(" + name + ")", "captures": {"1": {"name": "keyword.other.object.blitzbasic"}, "2": {"name": "storage.type.blitzbasic"}}},
+                {"match": r"(?<=[A-Za-z0-9_%#$\)])(\.)(" + name + ")", "captures": {"1": {"name": "punctuation.separator.type.blitzbasic"}, "2": {"name": "storage.type.blitzbasic entity.name.type.blitzbasic"}}},
+                {"match": r"(?i)\b(New|Each|First|Last)[ \t]+(" + name + ")", "captures": {"1": {"name": "keyword.other.object.blitzbasic"}, "2": {"name": "storage.type.blitzbasic entity.name.type.blitzbasic"}}},
             ]},
             # Everything in a Local, Global or Dim statement that is not a keyword, a command or a type is a variable.
             "variable_list": {"begin": r"(?i)\b(Local|Global|Dim)\b", "beginCaptures": {"1": {"name": "keyword.declaration.variable.blitzbasic"}}, "end": r"(?=;)|$", "patterns": [
@@ -100,7 +100,7 @@ def grammar():
             "sigil_variable": {"match": r"\b(" + name + r")(?=[%#$])", "name": "variable.other.readwrite.blitzbasic"},
             "builtin": {"name": "support.function.builtin.blitzbasic", "match": "(?i)" + words(commands())},
             "operator": {"name": "keyword.operator.blitzbasic", "match": r"<>|<=|>=|[-+*/^=<>~]"},
-            "suffix": {"name": "storage.type.suffix.blitzbasic", "match": r"(?<=[A-Za-z0-9_\)])(##|%%|[%#$])"},
+            "suffix": {"name": "storage.type.suffix.blitzbasic support.type.blitzbasic", "match": r"(?<=[A-Za-z0-9_\)])(##|%%|[%#$])"},
         },
     }
 
