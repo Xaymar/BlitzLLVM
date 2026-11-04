@@ -632,6 +632,16 @@ static int compiler_main(int argc, char** argv)
 					libraries.push_back(entry.path().generic_string());
 				}
 			}
+			if (libraries.empty() && windows_target) {
+				// A runtime folder that only has the other kind (cross-compiling for the other Windows flavour) still gets its libraries
+				// listed, so the link line is the same as for the matching kind and the link itself decides whether they fit.
+				for (auto const& entry : std::filesystem::directory_iterator(lib_dir)) {
+					auto ext = entry.path().extension().string();
+					if ((ext == ".lib") || (ext == ".a")) {
+						libraries.push_back(entry.path().generic_string());
+					}
+				}
+			}
 			std::sort(libraries.begin(), libraries.end());
 		}
 		if (libraries.empty()) {
