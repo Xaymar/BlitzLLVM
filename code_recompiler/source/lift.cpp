@@ -2154,8 +2154,8 @@ namespace blitz::recompiler {
 				o << d << "\n";
 			}
 			o << defs;
-			o << "define i32 @main(i32 %argc, ptr %argv) {\n"
-			  << "  call void @bb_init(i32 %argc, ptr %argv)\n"
+			// The runtime sets itself up and takes itself down around bb_program, like for the programs of blitzcc.
+			o << "define i32 @bb_program() {\n"
 			  << "  %mem = call ptr @bb32_arena(i32 " << image_size << ")\n"
 			  << init.str() << tags.str()
 			  << "  %sp = call i32 @bb32_stack_top()\n"
