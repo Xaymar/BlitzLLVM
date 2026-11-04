@@ -8,7 +8,7 @@
 ;
 ; Defines: AppVersion (numeric A.B.C.D), Arch (x64 or arm64), SourceDir, OutputDir, OutputName (without .exe).
 ;
-; BlitzLLVM needs a clang with lld to build programs. The installer looks for one on PATH and in the places the LLVM installer
+; BlitzLLVM needs a clang with lld (LLVM 23 or newer) to build programs. The installer looks for one on PATH and in the places the LLVM installer
 ; uses (its registry key and C:\Program Files\LLVM\bin). If there is none it offers to run "winget install -e --id LLVM.LLVM".
 ; Silent installs ask nothing and install nothing but BlitzLLVM, unless /INSTALLLLVM=yes is given.
 
@@ -84,6 +84,8 @@ Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "BLITZLLVM_CC";
 [Code]
 const
   WingetCommand = 'winget install -e --id LLVM.LLVM --accept-package-agreements --accept-source-agreements';
+  MinClangMajor = 23;
+  WingetUpgradeCommand = 'winget upgrade -e --id LLVM.LLVM --accept-package-agreements --accept-source-agreements';
   LlvmDownloadUrl = 'https://github.com/llvm/llvm-project/releases';
 
 var
@@ -94,6 +96,7 @@ var
   ClangOnPath: Boolean;     // That clang is found through PATH already.
   WingetAvailable: Boolean;
   LlvmInstallFailed: Boolean;
+  OldClangPath: String;     // A clang with lld that was found but is older than MinClangMajor.
 
 function EnvironmentKey: String;
 begin
@@ -120,6 +123,48 @@ begin
             (FileExists(AddBackslash(Dir) + 'ld.lld.exe') or FileExists(AddBackslash(Dir) + 'lld.exe'));
 end;
 
+function ClangMajor(const Dir: String): Integer;
+var
+  Tmp, Cmd: String;
+  Lines: TArrayOfString;
+  ResultCode, P, I: Integer;
+  Text: String;
+begin
+  // "clang --version" prints "clang version 23.1.4" (or "... clang version ..." with a vendor in front) on its first lines.
+  Result := 0;
+  Tmp := ExpandConstant('{tmp}\clang-version.txt');
+  DeleteFile(Tmp);
+  Cmd := '/C ""' + AddBackslash(Dir) + 'clang.exe" --version > "' + Tmp + '" 2>&1"';
+  if not Exec(ExpandConstant('{cmd}'), Cmd, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+    Exit;
+  if not LoadStringsFromFile(Tmp, Lines) then
+    Exit;
+  for I := 0 to GetArrayLength(Lines) - 1 do begin
+    Text := Lines[I];
+    P := Pos('clang version ', Text);
+    if P > 0 then begin
+      Delete(Text, 1, P + Length('clang version ') - 1);
+      P := 1;
+      while (P <= Length(Text)) and (Text[P] >= '0') and (Text[P] <= '9') do
+        P := P + 1;
+      Result := StrToIntDef(Copy(Text, 1, P - 1), 0);
+      Exit;
+    end;
+  end;
+end;
+
+function ClangUsable(const Dir: String): Boolean;
+begin
+  // Complete (clang and lld) and new enough. A complete one that is too old is remembered, to tell the user about it.
+  Result := False;
+  if not ClangComplete(Dir) then
+    Exit;
+  if ClangMajor(Dir) >= MinClangMajor then
+    Result := True
+  else if OldClangPath = '' then
+    OldClangPath := AddBackslash(Dir) + 'clang.exe';
+end;
+
 function FindOnPath(const Name: String): String;
 begin
   // FileSearch looks through the directories of the PATH that this process has, which is that of the account running the installer.
@@ -135,13 +180,13 @@ begin
 
   // 1. PATH. A BLITZLLVM_CC that is already set wins in blitzcc, so it is honoured here too.
   Dir := GetEnv('BLITZLLVM_CC');
-  if (Dir <> '') and FileExists(Dir) and ClangComplete(ExtractFileDir(Dir)) then begin
+  if (Dir <> '') and FileExists(Dir) and ClangUsable(ExtractFileDir(Dir)) then begin
     Result := ExtractFileDir(Dir);
     OnPath := True; // Nothing to set, it is set.
     Exit;
   end;
   Dir := FindOnPath('clang.exe');
-  if (Dir <> '') and ClangComplete(ExtractFileDir(Dir)) then begin
+  if (Dir <> '') and ClangUsable(ExtractFileDir(Dir)) then begin
     Result := ExtractFileDir(Dir);
     OnPath := True;
     Exit;
@@ -150,7 +195,7 @@ begin
   // 2. The registry key of the LLVM installer (64 bit view, then 32 bit view).
   if RegQueryStringValue(HKLM64, 'SOFTWARE\LLVM\LLVM', '', Dir) or RegQueryStringValue(HKLM32, 'SOFTWARE\LLVM\LLVM', '', Dir) then begin
     Dir := AddBackslash(Dir) + 'bin';
-    if ClangComplete(Dir) then begin
+    if ClangUsable(Dir) then begin
       Result := Dir;
       Exit;
     end;
@@ -158,17 +203,17 @@ begin
 
   // 3. The default folder, which is also where winget puts it.
   Dir := ExpandConstant('{commonpf64}\LLVM\bin');
-  if ClangComplete(Dir) then begin
+  if ClangUsable(Dir) then begin
     Result := Dir;
     Exit;
   end;
   Dir := ExpandConstant('{commonpf32}\LLVM\bin');
-  if ClangComplete(Dir) then begin
+  if ClangUsable(Dir) then begin
     Result := Dir;
     Exit;
   end;
   Dir := 'C:\Program Files\LLVM\bin';
-  if ClangComplete(Dir) then
+  if ClangUsable(Dir) then
     Result := Dir;
 end;
 
@@ -176,6 +221,7 @@ procedure DetectLlvm;
 var
   Dir: String;
 begin
+  OldClangPath := '';
   Dir := FindLlvmDirectory(ClangOnPath);
   if Dir = '' then
     ClangPath := ''
@@ -251,6 +297,15 @@ end;
 
 // ---- Wizard ----------------------------------------------------------------------------------------------------------
 
+function WingetInstallCommand: String;
+begin
+  // An older LLVM from winget is upgraded, as "install" would only report that it is installed.
+  if OldClangPath <> '' then
+    Result := WingetUpgradeCommand
+  else
+    Result := WingetCommand;
+end;
+
 function LlvmRequested: Boolean;
 begin
   // Silent installs never install anything else by themselves, unless asked with /INSTALLLLVM=yes.
@@ -261,8 +316,13 @@ begin
 end;
 
 procedure InitializeWizard;
+var
+  OldNote: String;
 begin
   DetectLlvm;
+  OldNote := '';
+  if OldClangPath <> '' then
+    OldNote := ' (only an older one, ' + OldClangPath + ')';
   WingetAvailable := DetectWinget;
 
   LlvmPage := CreateCustomPage(wpSelectTasks, 'LLVM', 'BlitzLLVM builds programs with clang and lld, which are part of LLVM.');
@@ -276,18 +336,22 @@ begin
   if ClangPath <> '' then
     LlvmInfo.Caption := 'LLVM was found:' + #13#10#13#10 + ClangPath + #13#10#13#10 + 'Nothing else has to be installed.'
   else if WingetAvailable then begin
-    LlvmInfo.Caption := 'LLVM (clang and lld) was not found on this computer. BlitzLLVM can not build programs without it, and nothing else is needed: ' +
-      'no Visual Studio, no Windows SDK.' + #13#10#13#10 + 'The installer can get it with winget from the LLVM project (' + WingetCommand + ').';
+    if OldClangPath <> '' then
+      LlvmInfo.Caption := 'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) is needed, but only an older one was found:' + #13#10 + OldClangPath + #13#10#13#10 +
+        'The installer can update it with winget (' + WingetInstallCommand + ').'
+    else
+      LlvmInfo.Caption := 'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) was not found on this computer. BlitzLLVM can not build programs without it, and nothing else is needed: ' +
+        'no Visual Studio, no Windows SDK.' + #13#10#13#10 + 'The installer can get it with winget from the LLVM project (' + WingetInstallCommand + ').';
     LlvmInstallBox := TNewCheckBox.Create(LlvmPage);
     LlvmInstallBox.Parent := LlvmPage.Surface;
     LlvmInstallBox.Top := LlvmInfo.Top + LlvmInfo.Height + ScaleY(8);
     LlvmInstallBox.Width := LlvmPage.SurfaceWidth;
-    LlvmInstallBox.Caption := 'Install LLVM with winget after installing BlitzLLVM (recommended)';
+    LlvmInstallBox.Caption := 'Install LLVM ' + IntToStr(MinClangMajor) + ' with winget after installing BlitzLLVM (recommended)';
     LlvmInstallBox.Checked := True;
   end else
-    LlvmInfo.Caption := 'LLVM (clang and lld) was not found on this computer, and winget is not available here, so it can not be installed for you.' +
+    LlvmInfo.Caption := 'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) was not found on this computer' + OldNote + ', and winget is not available here, so it can not be installed for you.' +
       #13#10#13#10 + 'BlitzLLVM can not build programs without it. Install it after this setup, in one of these ways:' + #13#10 +
-      ' - Install "App Installer" from the Microsoft Store (it provides winget), then run in a terminal:' + #13#10 + '     ' + WingetCommand + #13#10 +
+      ' - Install "App Installer" from the Microsoft Store (it provides winget), then run in a terminal:' + #13#10 + '     ' + WingetInstallCommand + #13#10 +
       ' - Or download the Windows installer (LLVM-<version>-win64.exe) from ' + LlvmDownloadUrl + ' and run it.' + #13#10#13#10 +
       'Run this setup again afterwards if blitzcc does not find clang (LLVM is searched on PATH and in C:\Program Files\LLVM\bin).';
 end;
@@ -300,7 +364,7 @@ begin
   WizardForm.ProgressGauge.Style := npbstMarquee;
   try
     // The window stays visible: winget shows its own progress and asks for administrator rights when it needs them.
-    if (not Exec(ExpandConstant('{cmd}'), '/C ' + WingetCommand, '', SW_SHOW, ewWaitUntilTerminated, ResultCode)) or (ResultCode <> 0) then begin
+    if (not Exec(ExpandConstant('{cmd}'), '/C ' + WingetInstallCommand, '', SW_SHOW, ewWaitUntilTerminated, ResultCode)) or (ResultCode <> 0) then begin
       LlvmInstallFailed := True;
       Log(Format('winget failed (result %d).', [ResultCode]));
     end;
@@ -331,10 +395,10 @@ begin
   if CurPageID = wpFinished then begin
     if LlvmInstallFailed then
       WizardForm.FinishedLabel.Caption := WizardForm.FinishedLabel.Caption + #13#10#13#10 +
-        'LLVM could not be installed. Install it yourself with:' + #13#10 + WingetCommand + #13#10 + 'or from ' + LlvmDownloadUrl + '.'
+        'LLVM could not be installed. Install it yourself with:' + #13#10 + WingetInstallCommand + #13#10 + 'or from ' + LlvmDownloadUrl + '.'
     else if (ClangPath = '') then
       WizardForm.FinishedLabel.Caption := WizardForm.FinishedLabel.Caption + #13#10#13#10 +
-        'LLVM (clang and lld) is not installed yet, and blitzcc needs it to build programs.';
+        'LLVM ' + IntToStr(MinClangMajor) + ' or newer (clang and lld) is not installed yet, and blitzcc needs it to build programs.';
     if WizardIsTaskSelected('addtopath') then
       WizardForm.FinishedLabel.Caption := WizardForm.FinishedLabel.Caption + #13#10#13#10 +
         'Open a new terminal for the PATH change to apply.';
