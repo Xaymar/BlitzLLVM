@@ -126,11 +126,11 @@ jobs:
           Get-ChildItem "$root/x86_64-w64-mingw32" | Format-Table Name, Attributes
           Get-ChildItem "$root/generic-w64-mingw32" -ErrorAction SilentlyContinue | Format-Table Name, Attributes
       - name: Time emitted with the packaged compiler (diagnostic)
-        if: matrix.mingw
         shell: pwsh
         # int_loop_ms and select_ms of emitted were slower in the candidate on Shibela. The inline C code of the runtime did not compile there, because the
         # package had no C headers, so this prints the output of the compiler and the times.
         run: |
+          clang --version
           $blitzcc = (Resolve-Path dist/bin/blitzcc.exe).Path
           $work = Join-Path $env:RUNNER_TEMP "emittedcmp"
           New-Item -ItemType Directory -Force $work | Out-Null
