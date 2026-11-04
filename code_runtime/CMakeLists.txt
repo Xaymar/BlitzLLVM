@@ -185,5 +185,10 @@ if(MSVC)
 	target_compile_options(blitzrt PRIVATE /MD)
 endif()
 
+if(MINGW)
+	# Same as the clang-cl build above: no exceptions and no RTTI in the runtime, which the programs link and which has no use for either.
+	target_compile_options(blitzrt PRIVATE -fno-exceptions -fno-rtti)
+endif()
+
 get_target_property(_SOURCES blitzrt SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
