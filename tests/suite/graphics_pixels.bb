@@ -250,6 +250,35 @@ SetBuffer BackBuffer()
 Flip 2
 Flip 2
 
+; The two buffers are separate: every 2D command draws to the one SetBuffer selected, and leaves the other alone.
+ClsColor 0, 0, 0
+Color 0, 255, 0
+SetBuffer BackBuffer()
+Cls
+Rect 10, 10, 6, 6, 1
+Line 20, 10, 25, 15
+SetBuffer FrontBuffer()
+Cls
+Color 255, 255, 0
+Rect 40, 10, 6, 6, 1
+Line 50, 10, 55, 15
+SetBuffer BackBuffer()
+Check "BackBuffer keeps its rect", Px(12, 12), $00FF00
+Check "BackBuffer has no front rect", Px(42, 12), BLACK
+SetBuffer FrontBuffer()
+Check "FrontBuffer keeps its rect", Px(42, 12), $FFFF00
+Check "FrontBuffer has no back rect", Px(12, 12), BLACK
+Check "FrontBuffer has no back line", Px(22, 12), BLACK
+SetBuffer BackBuffer()
+Check "BackBuffer has no front line", Px(52, 12), BLACK
+Color 255, 0, 255
+WritePixel 60, 60, $FF00FF, BackBuffer()
+WritePixel 61, 60, $FFFF00, FrontBuffer()
+Check "WritePixel BackBuffer", ReadPixel(60, 60, BackBuffer()) And $FFFFFF, $FF00FF
+Check "WritePixel BackBuffer not in front", ReadPixel(60, 60, FrontBuffer()) And $FFFFFF, 0
+Check "WritePixel FrontBuffer", ReadPixel(61, 60, FrontBuffer()) And $FFFFFF, $FFFF00
+Check "WritePixel FrontBuffer not in back", ReadPixel(61, 60, BackBuffer()) And $FFFFFF, 0
+
 FreeImage image
 FreeImage tile
 FreeImage grabbed
