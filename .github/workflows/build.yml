@@ -232,7 +232,9 @@ jobs:
           # The package compiles and runs a program by itself, with the MinGW headers and libraries it ships.
           if [ "$RUNNER_OS" = Windows ]; then
             printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
-            dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe"
+            # The inline C code of the runtime is compiled in the same step. When the headers are missing it fails and the program is slower, but it still builds.
+            dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe" 2>&1 | tee "$RUNNER_TEMP/packaged.log"
+            ! grep -qi "error" "$RUNNER_TEMP/packaged.log"
             "$RUNNER_TEMP/packaged.exe" | grep -q "packaged ok"
           fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r

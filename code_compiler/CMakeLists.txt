@@ -109,6 +109,8 @@ if(MINGW)
 	# needs nothing but a clang with lld. They are those of the toolchain that built the runtime, so they match it.
 	get_filename_component(_MINGW_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
 	get_filename_component(_MINGW_ROOT "${_MINGW_BIN}" DIRECTORY)
+	# The C headers are not in the directory of a target but in <root>/include, which clang finds as <sysroot>/include.
+	install(DIRECTORY "${_MINGW_ROOT}/include" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "c++" EXCLUDE)
 	file(GLOB _MINGW_TRIPLES LIST_DIRECTORIES true "${_MINGW_ROOT}/*-w64-mingw32")
 	file(GLOB _MINGW_CLANG_VERSIONS LIST_DIRECTORIES true "${_MINGW_ROOT}/lib/clang/*")
 	foreach(_DIR IN LISTS _MINGW_TRIPLES)
