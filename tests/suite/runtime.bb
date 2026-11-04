@@ -42,6 +42,19 @@ If Len(program) > 0
 	Next
 	CheckS "appdir is the folder of the program", Lower$(appdir), Lower$(Left$(program, slash))
 EndIf
+
+; cpu, os and ram describe the machine. ram is the total physical memory in bytes, as digits.
+CheckTrue "SystemProperty$ cpu", Len(SystemProperty$("cpu")) > 0
+CheckTrue "SystemProperty$ os", Len(SystemProperty$("os")) > 0
+ram$ = SystemProperty$("ram")
+digits = 1
+For i = 1 To Len(ram)
+	c = Asc(Mid$(ram, i, 1))
+	If c < 48 Or c > 57 Then digits = 0
+Next
+CheckTrue "SystemProperty$ ram is digits", digits = 1 And Len(ram) > 0
+CheckTrue "SystemProperty$ ram is at least 64 MiB", Len(ram) >= 9
+CheckS "SystemProperty$ names are not case sensitive", SystemProperty$("RAM"), ram
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 
 ; Environment variables
