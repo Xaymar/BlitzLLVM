@@ -524,6 +524,9 @@ void bb_dither(int32_t enable)
 	if (level != dither) {
 		dither  = level;
 		changed = true;
+		if (g.created && !g.headless) {
+			rebuild_pipelines_3d(); // Whether the shader dithers is a constant of the pipelines.
+		}
 	}
 }
 
