@@ -490,6 +490,16 @@ endif()
 add_test(NAME physics-library COMMAND physics_test)
 set_tests_properties(physics-library PROPERTIES LABELS "physics")
 
+# The simulations of the physics library: bodies, forces, contacts, and the same result for any number of threads.
+add_executable(physics_sim_test "${PROJECT_SOURCE_DIR}/../code_physics/tests/sim_test.cpp")
+target_link_libraries(physics_sim_test PRIVATE blitzphysics)
+if(WIN32)
+	add_custom_command(TARGET physics_sim_test POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzphysics>" "$<TARGET_FILE_DIR:physics_sim_test>")
+endif()
+add_test(NAME physics-simulation COMMAND physics_sim_test)
+add_test(NAME physics-simulation-threads COMMAND ${CMAKE_COMMAND} "-DTEST=$<TARGET_FILE:physics_sim_test>" -P "${PROJECT_SOURCE_DIR}/../code_physics/tests/compare_hash.cmake")
+set_tests_properties(physics-simulation physics-simulation-threads PROPERTIES LABELS "physics")
+
 # The detection of CPU features of the runtime (code_runtime/source/cpu.c): the rules of BLITZLLVM_CPU on made up CPUs, and this CPU through
 # every setting, which must never report more than the CPU has. Built on its own, it needs nothing but the C library.
 add_executable(cpu_test "${TEST_DIRECTORY}/cpu/cpu_test.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/cpu.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/environment.c")

@@ -36,6 +36,9 @@ init_project(blitzphysics)
 target_sources(blitzphysics PRIVATE
 	"include/blitzphysics.h"
 	"source/blitzphysics.cpp"
+	"source/common.cpp"
+	"source/common.hpp"
+	"source/simulation.cpp"
 )
 target_include_directories(blitzphysics PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_definitions(blitzphysics PRIVATE BLITZPHYSICS_BUILD)
