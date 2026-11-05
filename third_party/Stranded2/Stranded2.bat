@@ -1,0 +1,2 @@
+SET BLITZLLVM_VOLUME_FALLOFF=legacy
+Stranded2.exe
