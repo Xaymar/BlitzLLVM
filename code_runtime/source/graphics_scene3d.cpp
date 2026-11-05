@@ -253,8 +253,7 @@ namespace bb::gfx {
 		return value;
 	}
 
-	// With shader_blend the fragment shader is the one that blends itself (Dither 2) and the pipeline does not blend.
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend, int oit = 0)
+	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -352,7 +351,7 @@ namespace bb::gfx {
 		depth.depthCompareOp                        = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
 		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = ((mode != 0) && !shader_blend) ? VK_TRUE : VK_FALSE;
+		blend.blendEnable                         = (mode != 0) ? VK_TRUE : VK_FALSE;
 		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
 		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
@@ -363,13 +362,9 @@ namespace bb::gfx {
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 		blending.attachmentCount                     = 1;
 		blending.pAttachments                        = &blend;
-		if (shader_blend) {
-			// The shader reads what is there, and the draws that touch a pixel keep their order while it does.
-			blending.flags = VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
-		}
 
 		// Modes: 0 = no blending, 1 = by alpha, 2 = multiply with what is there, 3 = add to what is there, 4 = multiply by two, 5 = dot product with what is there.
-		// The dot product needs the shader that blends itself, so where that is not used (the twin for other buffers) it multiplies.
+		// The dot product has no fixed-function blend, so it multiplies.
 		if (mode == 2 || mode == 5) {
 			blend.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
 			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -391,14 +386,6 @@ namespace bb::gfx {
 		rendering.colorAttachmentCount          = 1;
 		rendering.pColorAttachmentFormats       = &format;
 		rendering.depthAttachmentFormat         = depth_format;
-		// The color attachment is also input attachment 0.
-		uint32_t                               input_index = 0;
-		VkRenderingInputAttachmentIndexInfoKHR inputs      = { VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO_KHR };
-		inputs.colorAttachmentCount                         = 1;
-		inputs.pColorAttachmentInputIndices                 = &input_index;
-		if (shader_blend) {
-			rendering.pNext = &inputs;
-		}
 		// Order-independent transparency draws to four images (see graphics_oit.cpp), of which the blend mode writes the ones it has sums in:
 		// alpha writes 0 (color * alpha * weight and alpha * weight, added) and 1 (the product of 1 - alpha), multiply writes 2 (the product
 		// of the colors), add writes 3 (color * alpha, added).
@@ -499,12 +486,12 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	// The twin for a buffer that is not RGBA8 blends by the fixed function: fs_plain is the shader for that (fs when it is not given).
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false, bool shader_blend = false, VkShaderModule fs_plain = VK_NULL_HANDLE)
+	// The twin is the pipeline for a buffer that is not RGBA8.
+	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
 	{
-		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, shader_blend);
+		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(pipeline, build_pipeline_3d(vs, (shader_blend && fs_plain) ? fs_plain : fs, mode, wire, g.buffer_format, false));
+			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format));
 		}
 		return pipeline;
 	}
@@ -959,15 +946,10 @@ namespace bb::gfx {
 		}
 		select_frame_slot(0);
 
-		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade. Set 4, if the GPU can blend in the shader, is the target.
-		if (g.can_blend_dither) {
-			VkDescriptorSetLayoutBinding input_binding = { 0, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
-			set_info.pBindings                         = &input_binding;
-			check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.input_layout), "vkCreateDescriptorSetLayout");
-		}
-		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, g.can_blend_dither ? g.input_layout : g.set_layout };
+		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
+		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = g.can_blend_dither ? 5 : 4;
+		layout_info.setLayoutCount         = 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
@@ -1004,54 +986,31 @@ namespace bb::gfx {
 		build_pipelines_3d();
 	}
 
-	// Dot3 on a texture after the first one reads what is there, so it always blends in the shader, where the GPU can. Programs without such a
-	// layer never pay for the pipeline: it is made by the first draw that has one. Null where the GPU cannot read the target.
-	static VkPipeline dot3_pipeline()
-	{
-		if (!g.dot33d && !g.dot33d_tried) {
-			g.dot33d_tried = true;
-			if (g.can_blend_dither) {
-				VkShaderModule vs      = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
-				VkShaderModule fs      = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
-				VkShaderModule fs_dot3 = create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend));
-				g.dot33d               = create_pipeline_3d(vs, fs_dot3, 5, false, true, fs);
-				vkDestroyShaderModule(g.device, fs_dot3, nullptr);
-				vkDestroyShaderModule(g.device, fs, nullptr);
-				vkDestroyShaderModule(g.device, vs, nullptr);
-			}
-		}
-		return g.dot33d;
-	}
-
 	void build_pipelines_3d()
 	{
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
-		// With Dither 2 the blended things are drawn by the shader that blends itself.
-		// (Order-independent transparency does not blend in the shader; what it leaves to the fixed function is blended as with Dither 1.)
-		bool           shader_blend = (dither_level() == 2) && !oit_active();
-		VkShaderModule fs_blend     = shader_blend ? create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend)) : fs;
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
-		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend, fs);
-		g.mul3d           = create_pipeline_3d(vs, fs_blend, 2, false, shader_blend, fs);
-		g.add3d           = create_pipeline_3d(vs, fs_blend, 3, false, shader_blend, fs);
-		g.mul2x3d         = create_pipeline_3d(vs, fs_blend, 4, false, shader_blend, fs);
+		g.blend3d         = create_pipeline_3d(vs, fs, 1);
+		g.mul3d           = create_pipeline_3d(vs, fs, 2);
+		g.add3d           = create_pipeline_3d(vs, fs, 3);
+		g.mul2x3d         = create_pipeline_3d(vs, fs, 4);
 		if (oit_active()) {
 			VkShaderModule fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
 			if (oit_moments()) {
 				VkShaderModule fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
 				VkShaderModule fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
-				g.oit_moments3d = build_pipeline_3d(vs, fs_moments, 1, false, VK_FORMAT_R8G8B8A8_UNORM, false, 2);
+				g.oit_moments3d = build_pipeline_3d(vs, fs_moments, 1, false, VK_FORMAT_R8G8B8A8_UNORM, 2);
 				for (int mode = 1; mode <= 4; mode++) {
-					g.oit3dm[mode - 1] = build_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, false, 3);
+					g.oit3dm[mode - 1] = build_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 3);
 				}
 				vkDestroyShaderModule(g.device, fs_moments, nullptr);
 				vkDestroyShaderModule(g.device, fs_color, nullptr);
 			} else {
 				for (int mode = 1; mode <= 4; mode++) {
-					g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, false, 1);
+					g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 1);
 				}
 			}
 			vkDestroyShaderModule(g.device, fs_oit, nullptr);
@@ -1059,28 +1018,22 @@ namespace bb::gfx {
 		if (oit_slots()) {
 			// The alpha-blended things go to the slots, the multiplied and added ones to the sums as before.
 			VkShaderModule fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
-			g.oit_slots3d = build_pipeline_3d(vs, fs_slots, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, false, 4);
+			g.oit_slots3d = build_pipeline_3d(vs, fs_slots, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 4);
 			vkDestroyShaderModule(g.device, fs_slots, nullptr);
 		}
 		if (oit_peel()) {
 			VkShaderModule fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
-			g.oit_peel3d = build_pipeline_3d(vs, fs_peel, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, false, 5);
+			g.oit_peel3d = build_pipeline_3d(vs, fs_peel, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 5);
 			vkDestroyShaderModule(g.device, fs_peel, nullptr);
 		}
-		// The pipeline of Dot3 on a later layer is made when a draw needs it, see dot3_pipeline.
-		g.dot33d       = VK_NULL_HANDLE;
-		g.dot33d_tried = false;
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
-				g.wire3d[mode] = create_pipeline_3d(vs, (mode != 0) ? fs_blend : fs, mode, true, shader_blend && (mode != 0), fs);
+				g.wire3d[mode] = create_pipeline_3d(vs, fs, mode, true);
 			}
 		}
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 		vkDestroyShaderModule(g.device, fs_solid, nullptr);
-		if (shader_blend) {
-			vkDestroyShaderModule(g.device, fs_blend, nullptr);
-		}
 	}
 
 	void destroy_pipelines_3d()
@@ -1091,11 +1044,6 @@ namespace bb::gfx {
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
 		vkDestroyPipeline(g.device, g.add3d, nullptr);
-		if (g.dot33d) {
-			vkDestroyPipeline(g.device, g.dot33d, nullptr);
-			g.dot33d = VK_NULL_HANDLE;
-		}
-		g.dot33d_tried = false;
 		for (VkPipeline& pipeline : g.wire3d) {
 			if (pipeline) {
 				vkDestroyPipeline(g.device, pipeline, nullptr);
@@ -1420,23 +1368,7 @@ namespace bb::gfx {
 			}
 			record_static_pass(scene);
 		}
-		// With Dither 2, blended things are blended by their shader, which reads the target while it is drawn to. So is the Dot3 of a texture
-		// after the first one, whatever Dither is: it is the dot product with what is there.
-		const bool dither_blends = dither_level() == 2;
-		auto       blends_itself = [&](VkPipeline pipeline) {
-			return dither_blends ? ((pipeline != g.opaque3d) && (pipeline != g.solid3d) && (pipeline != g.wire3d[0])) : (g.dot33d && (pipeline == g.dot33d));
-		};
-		bool shader_blends = false;
-		if (!oit_active() && blends_in_shader(target.image->format)) {
-			for (uint32_t i = 0; i < scene.draw_count; i++) {
-				if (blends_itself(draws[scene.first_draw + i].pipeline)) {
-					shader_blends = true;
-					break;
-				}
-			}
-		}
-		VkImageLayout target_layout = shader_blends ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		transition(*target.image, target_layout);
+		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
 		if (fresh_depth) {
@@ -1446,7 +1378,7 @@ namespace bb::gfx {
 
 		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 		color.imageView                 = target_view_of(*target.image, target.layer);
-		color.imageLayout               = target_layout;
+		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
 		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
 		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
@@ -1495,10 +1427,6 @@ namespace bb::gfx {
 
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
-		if (shader_blends) {
-			VkDescriptorSet target_set = input_set_for(*target.image, target.layer);
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 4, 1, &target_set, 0, nullptr);
-		}
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -1563,10 +1491,6 @@ namespace bb::gfx {
 			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
 			VkDescriptorSet depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
 			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_bound, 0, nullptr);
-			if (shader_blends) {
-				VkDescriptorSet target_set = input_set_for(*target.image, target.layer);
-				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 4, 1, &target_set, 0, nullptr);
-			}
 			bound_pipeline = VK_NULL_HANDLE;
 			bound_set      = VK_NULL_HANDLE;
 			bound_cull = bound_test = bound_write = -1;
@@ -1906,9 +1830,6 @@ namespace bb::gfx {
 		vkCmdEndRendering(g.cmd);
 		if (read_only) {
 			barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		}
-		if (shader_blends) {
-			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL); // The rest draws to it the usual way.
 		}
 	}
 
@@ -3556,12 +3477,9 @@ namespace bb::gfx {
 				case 5:
 					more.pipeline = g.mul2x3d;
 					break;
-				case 4: {
-					// Only where the target can be read while it is drawn to (Dither 2 is then not needed), not with AntiAlias, which Dither 2 does not work with either.
-					VkPipeline dot3 = (antialias_mode() == 0) ? dot3_pipeline() : VK_NULL_HANDLE;
-					more.pipeline   = dot3 ? dot3 : g.mul3d;
+				case 4:
+					more.pipeline = g.mul3d; // Dot3 has no fixed-function blend.
 					break;
-				}
 				case 1:
 					more.pipeline = g.blend3d;
 					break;

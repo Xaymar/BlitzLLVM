@@ -31,7 +31,7 @@ namespace {
 	uint32_t presented = 0;  // Presented pictures, which move the noise.
 	int   dither_moves = -1; // Whether the noise moves from frame to frame (DitherTemporal): -1 until BLITZLLVM_DITHER_TEMPORAL was read.
 	int   bayer   = 0;     // DitherMode: 0 for Interleaved Gradient Noise, else the levels of the Bayer pattern.
-	int   dither  = 0;     // What Dither was asked for: 0 off, 1 the shown picture gets noise before it is rounded to 8 bits and 3D drawing gets it before the buffer, 2 also blends in the shader.
+	int   dither  = 0;     // What Dither was asked for: 0 off, 1 the shown picture gets noise before it is rounded to 8 bits and 3D drawing gets it before the buffer.
 
 	// The palette of a Graphics with a depth of 8: the colors that can be shown, and the nearest of them for every color of 6 bits per channel (the lookup texture).
 	uint8_t         palette[256][3];
@@ -291,12 +291,6 @@ namespace bb::gfx {
 		out[2]          = float(frame % colors);
 	}
 
-	bool blends_in_shader(VkFormat target)
-	{
-		// Only targets of 8 bits per color blend in the shader (alpha is not counted); the buffers of 10 and 16 bits keep the fixed function, as Dither 1.
-		return (target == VK_FORMAT_R8G8B8A8_UNORM) || (target != g.buffer_format);
-	}
-
 	// The 3D pipelines read the lookup texture, so a Graphics of depth 8 has it before the first one is made.
 	void ensure_palette_lookup()
 	{
@@ -360,11 +354,6 @@ namespace bb::gfx {
 			rgba[i * 4 + 1] = uint8_t(last_out >> 8);
 			rgba[i * 4 + 2] = uint8_t(last_out >> 16);
 		}
-	}
-
-	int dither_level()
-	{
-		return ((dither > 1) && (!g.can_blend_dither || (antialias_mode() != 0))) ? 1 : dither;
 	}
 
 	gpu_image* apply_gamma(gpu_image& front)
@@ -528,18 +517,13 @@ void bb_set_gamma(int32_t source_red, int32_t source_green, int32_t source_blue,
 
 // Dither: the picture of the window gets temporal Interleaved Gradient Noise of half a step of 8 bits when it is shown, so that
 // what the gamma tables and rounding do to a gradient is not seen as bands. 3D drawing gets it before its colors are rounded
-// to the buffer, and with 2 also after blending, if the GPU can blend in the shader (HWDither). Without that 2 is 1. Takes
-// effect with the next picture that is shown.
+// to the buffer. Any value above 1 is 1. Takes effect with the next picture that is shown.
 void bb_dither(int32_t enable)
 {
-	int level = (enable == 0) ? 0 : ((enable >= 2) ? 2 : 1); // Every other value is on, as it was.
+	int level = (enable == 0) ? 0 : 1; // Every other value is on, as it was.
 	if (level != dither) {
-		int before = dither_level();
-		dither     = level;
-		changed    = true;
-		if (g.created && !g.headless && (dither_level() != before)) {
-			rebuild_pipelines_3d();
-		}
+		dither  = level;
+		changed = true;
 	}
 }
 

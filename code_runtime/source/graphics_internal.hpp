@@ -381,7 +381,6 @@ namespace bb::gfx {
 		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
-		VkDescriptorSetLayout input_layout    = VK_NULL_HANDLE; // Set 4 of the 3D pipelines, only there if can_blend_dither: the target, which the shader reads to blend.
 		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
 		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
 		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
@@ -407,15 +406,12 @@ namespace bb::gfx {
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
 		VkPipeline            add3d          = VK_NULL_HANDLE;
-		VkPipeline            dot33d         = VK_NULL_HANDLE; // Dot product with what is there, for Dot3 on a texture after the first one.
-		bool                  dot33d_tried   = false;          // Whether dot3_pipeline has tried to make it since the pipelines were made.
 		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
-		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
 		VmaAllocation         scene_allocation = VK_NULL_HANDLE;
@@ -596,8 +592,6 @@ namespace bb::gfx {
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
 		cull_buffers    cull;
 		static_buffers  statics;
-		std::vector<VkDescriptorPool> input_pools; // Sets that read a target as an input attachment (Dither 2), given out by input_set_for until the frame is done.
-		uint32_t        input_used        = 0;     // Sets taken from the last of the pools.
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
 		int64_t         flush_id = -1; // The last flush that is in it.
 		submit_job      job;
@@ -1012,8 +1006,6 @@ namespace bb::gfx {
 	int bayer_levels();
 	/** The three steps of the pattern of the picture that is made now: how far it is moved in x and in y, and how far the ranks of its thresholds are rotated. Needs the levels. */
 	void dither_steps(float out[3]);
-	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader, or AntiAlias is on (smoothing needs the picture that was blended). */
-	int dither_level();
 	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
 	bool palette_mode();
 	void ensure_palette_lookup();
@@ -1024,8 +1016,6 @@ namespace bb::gfx {
 	int palette_nearest(uint8_t red, uint8_t green, uint8_t blue);
 	/** Makes the colors of RGBA pixels into the nearest ones of the palette, and leaves the alpha. */
 	void palette_snap(uint8_t* rgba, size_t count);
-	/** Whether Dither 2 blends in the shader when drawing to a target of that format: only for 8 bits per color. */
-	bool blends_in_shader(VkFormat target);
 	/** The EntityLighting of entities that were not given one (1 if BLITZLLVM_ENTITY_LIGHTING is set). */
 	int entity_lighting_default();
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
@@ -1137,7 +1127,6 @@ namespace bb::gfx {
 		int      rank;     // 4 discrete, 3 integrated, 2 virtual, 1 software or other, 0 cannot be used.
 		bool     usable;   // Does Vulkan 1.3 and can draw.
 		bool     fallback; // Not a real GPU: there is no window system or Vulkan driver to ask.
-		bool     blend_dither; // Can blend in the fragment shader, which is what makes Dither 2 possible (see can_blend_in_shader).
 	};
 	extern gpu_entry gpus[max_gpus];
 	extern uint32_t  gpu_total;
@@ -1145,8 +1134,6 @@ namespace bb::gfx {
 	void list_gpus();
 	void empty_graveyard();
 	void acquire_frame();
-	/** A set that lets a shader read the target as an input attachment, which is good until the frame that is recorded now is done. */
-	VkDescriptorSet input_set_for(gpu_image& target, uint32_t layer = 0);
 	bool flush_is_done(uint32_t flush);
 	void poll_resized();
 	void create_frame_slots();

@@ -145,7 +145,7 @@ namespace {
 		g.scene_layout = VK_NULL_HANDLE;
 		g.scene_set    = VK_NULL_HANDLE;
 		g.layout3d     = VK_NULL_HANDLE;
-		g.entity_layout = g.input_layout = VK_NULL_HANDLE;
+		g.entity_layout = VK_NULL_HANDLE;
 		g.entity_set    = VK_NULL_HANDLE;
 		g.entity_buffer = VK_NULL_HANDLE;
 		g.entity_allocation = VK_NULL_HANDLE;
@@ -159,8 +159,7 @@ namespace {
 		g.statics       = static_buffers();
 		g.static_pipeline_layout = VK_NULL_HANDLE;
 		g.static_pipeline        = VK_NULL_HANDLE;
-		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = g.dot33d = VK_NULL_HANDLE;
-		g.dot33d_tried = false;
+		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = VK_NULL_HANDLE;
 		for (VkPipeline& pipeline : g.wire3d) {
 			pipeline = VK_NULL_HANDLE;
 		}
@@ -173,7 +172,7 @@ namespace {
 		g.oit_moments3d = VK_NULL_HANDLE;
 		g.oit_slots3d   = VK_NULL_HANDLE;
 		g.oit_peel3d    = VK_NULL_HANDLE;
-		g.can_wireframe = g.can_anisotropy = g.can_custom_border = g.can_blend_dither = false;
+		g.can_wireframe = g.can_anisotropy = g.can_custom_border = false;
 		g.scene_buffer     = VK_NULL_HANDLE;
 		g.scene_allocation = VK_NULL_HANDLE;
 		g.scene_mapped     = nullptr;

@@ -49,8 +49,6 @@ suite-debug-compile-blitz3d_culling_pixels
 suite-debug-compile-blitz3d_depth_pixels
 suite-debug-compile-blitz3d_directx_models
 suite-debug-compile-blitz3d_directx_pixels
-suite-debug-compile-blitz3d_dither_blend_deep_pixels
-suite-debug-compile-blitz3d_dither_blend_pixels
 suite-debug-compile-blitz3d_dither_deep_pixels
 suite-debug-compile-blitz3d_dither_mode_pixels
 suite-debug-compile-blitz3d_dither_pixels
@@ -241,8 +239,6 @@ suite-debug-run-blitz3d_culling_pixels
 suite-debug-run-blitz3d_depth_pixels
 suite-debug-run-blitz3d_directx_models
 suite-debug-run-blitz3d_directx_pixels
-suite-debug-run-blitz3d_dither_blend_deep_pixels
-suite-debug-run-blitz3d_dither_blend_pixels
 suite-debug-run-blitz3d_dither_deep_pixels
 suite-debug-run-blitz3d_dither_mode_pixels
 suite-debug-run-blitz3d_dither_pixels
