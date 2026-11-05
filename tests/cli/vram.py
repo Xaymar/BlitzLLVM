@@ -39,6 +39,14 @@ def main():
         print("vram: textures without flag 256 should make room for one with it.\n%s" % result.stderr)
         return 1
 
+    # Many textures of different sizes make room at once.
+    many = os.path.join(work, "vram_evict_many")
+    procutil.run([blitzcc, os.path.join(os.path.dirname(source), "vram_evict_many.bb"), "-o", many], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([many], env=dict(os.environ, BLITZLLVM_VRAM_LIMIT_MB="160"), capture_output=True, text=True, timeout=120)
+    if result.returncode != 0 or "evicted many ok" not in result.stderr:
+        print("vram: many textures without flag 256 should make room for one with it.\n%s" % result.stderr)
+        return 1
+
     # What is drawn on textures that the allocator moved is still there.
     defrag = os.path.join(work, "vram_defrag")
     procutil.run([blitzcc, "-d", os.path.join(os.path.dirname(source), "vram_defrag.bb"), "-o", defrag], check=True, stdout=subprocess.DEVNULL)
