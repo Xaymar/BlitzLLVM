@@ -362,7 +362,7 @@ jobs:
           "$HOME/flatpak-smoke/hello" | tee smoke.txt
           grep -q "Hello from the Flatpak" smoke.txt
           # The loader finds the libraries of the extension.
-          flatpak run --command=sh io.github.xaymar.BlitzLLVM -c 'ldconfig -p | grep -q libavcodec || ls /app/lib/blitzllvm/lib*avcodec*'
+          flatpak run --command=sh io.github.xaymar.BlitzLLVM -c 'ldconfig -p | grep -q libavcodec || ls /app/lib/blitzllvm-shared/lib*avcodec*'
           ls -l packages
       - name: Build packages (macOS)
         if: inputs.packages && runner.os == 'macOS'

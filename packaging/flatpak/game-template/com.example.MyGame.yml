@@ -13,7 +13,7 @@ add-extensions:
   io.github.xaymar.BlitzLLVM.Runtime:
     # FFmpeg, the image codecs and Opus, shared by every game made with BlitzLLVM: Flatpak installs them once, so the game itself is only its
     # executable and its media. Installed together with the game (autodownload), and found through add-ld-path.
-    directory: lib/blitzllvm
+    directory: lib/blitzllvm-shared
     version: '25.08'
     add-ld-path: .
 
@@ -34,7 +34,7 @@ modules:
     build-commands:
       # game/ holds the executable (and libblitzphysics.so, which blitzcc copies next to it when the game uses collisions or picking), plus the
       # media files the game opens. The other libraries (movies, images, sound) are not copied: the Flatpak compiler knows that the extension has them.
-      - mkdir -p /app/game /app/lib/blitzllvm
+      - mkdir -p /app/game /app/lib/blitzllvm-shared
       - cp -a game/. /app/game/
       - install -Dm755 launcher.sh /app/bin/mygame
       - install -Dm644 com.example.MyGame.desktop -t /app/share/applications

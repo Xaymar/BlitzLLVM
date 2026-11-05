@@ -22,7 +22,7 @@ add-extensions:
 
   io.github.xaymar.BlitzLLVM.Runtime:
     # The shared libraries of the programs, which are installed once for the compiler and all games. Found by the loader through add-ld-path.
-    directory: lib/blitzllvm
+    directory: lib/blitzllvm-shared
     version: '25.08'
     add-ld-path: .
 
@@ -44,7 +44,7 @@ modules:
     buildsystem: simple
     build-commands:
       # The staged tree has the prefix /app inside it (DESTDIR).
-      - mkdir -p /app/sdk/llvm21 /app/lib/blitzllvm
+      - mkdir -p /app/sdk/llvm21 /app/lib/blitzllvm-shared
       - cp -a app/. /app/
       - install -Dm644 io.github.xaymar.BlitzLLVM.metainfo.xml -t /app/share/metainfo
     sources:
