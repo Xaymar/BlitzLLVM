@@ -284,6 +284,7 @@ int32_t bb_is_debug(void)
 
 void bb_init(int32_t argc, char** argv)
 {
+	bb_time_start(); // The count of Microseconds starts here.
 	bb_env_snapshot();
 	bb_affinity_main();
 	bb_set_arguments(argc, argv);
