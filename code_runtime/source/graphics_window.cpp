@@ -780,6 +780,7 @@ void bb_flip(int32_t vwait)
 	g.front_touched = false;
 	present_front(true);
 	recovery_flip_end();
+	textures_stream_frame();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -228,7 +228,11 @@ namespace bb::gfx {
 			}
 			// It has to be in video memory (flag 256): textures that may use system memory make room.
 			evicting   = true;
-			bool moved = textures_evict(size);
+			VkDeviceSize dropped = textures_drop_mips(size); // Smaller pictures first, then whole textures.
+			bool         moved   = dropped > 0;
+			if (dropped < size) {
+				moved |= textures_evict(size - dropped);
+			}
 			evicting   = false;
 			if (!moved) {
 				break;
@@ -268,6 +272,9 @@ namespace bb::gfx {
 		}
 		evicting = true;
 		bool moved = defragment_images();
+		if (free_bytes() < needed) {
+			textures_drop_mips(needed - free_bytes());
+		}
 		if (free_bytes() < needed) {
 			moved |= textures_evict(needed - free_bytes());
 		}

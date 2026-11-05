@@ -1399,6 +1399,9 @@ namespace bb::gfx {
 		scene_stamp++;
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			texture_entry* tex = texture_of(draws[scene.first_draw + i].texture);
+			if (tex) {
+				tex->last_used = streaming_frame();
+			}
 			if (tex && tex->cube) {
 				if (tex->cube->stamp != scene_stamp) {
 					tex->cube->stamp = scene_stamp;
@@ -1413,6 +1416,9 @@ namespace bb::gfx {
 		if (scene.static_count) {
 			for (gpu_static::run const& r : gpu_static::runs) {
 				texture_entry* tex = r.live ? texture_of(r.key.texture) : nullptr;
+				if (tex) {
+					tex->last_used = streaming_frame();
+				}
 				if (tex && tex->cube) {
 					if (tex->cube->stamp != scene_stamp) {
 						tex->cube->stamp = scene_stamp;
