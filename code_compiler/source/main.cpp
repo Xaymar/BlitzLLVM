@@ -573,6 +573,15 @@ static int compiler_main(int argc, char** argv)
 			}
 		}
 
+		// Hybrid graphics laptops start a program on the integrated GPU unless the drivers are told otherwise. NVIDIA (Optimus) and AMD
+		// (PowerXpress/Enduro) drivers look for these two exported variables in the executable, and then pick the dedicated GPU. Intel has
+		// no such symbol, and a DLL is not asked, so they are exported from every program. Windows picks the GPU with Settings > Graphics for
+		// the rest, which overrides these.
+		if (windows_target) {
+			ir += "\n@NvOptimusEnablement = dllexport global i32 1\n"
+				  "@AmdPowerXpressRequestHighPerformance = dllexport global i32 1\n";
+		}
+
 		if (opt.emit_ir) {
 			if (!opt.very_quiet) {
 				std::cout << "Creating LLVM IR \"" << opt.output.generic_string() << "\"..." << std::endl;
