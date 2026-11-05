@@ -340,9 +340,9 @@ jobs:
           packaging/flatpak/split.sh flatpak-stage flatpak-runtime
           sed -i "s/@VERSION@/$VERSION/;s/@DATE@/$(date -u +%Y-%m-%d)/" packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
           appstreamcli validate --no-net --pedantic packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
-          # The extension first: the compiler asks for it.
+          # The compiler first, and installed: it declares the extension point that the extension is built against.
+          flatpak-builder --user --install --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-build packaging/flatpak/io.github.xaymar.BlitzLLVM.yml
           flatpak-builder --user --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-runtime-build packaging/flatpak/io.github.xaymar.BlitzLLVM.Runtime.yml
-          flatpak-builder --user --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-build packaging/flatpak/io.github.xaymar.BlitzLLVM.yml
           flatpak build-bundle --runtime --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}-runtime.flatpak" io.github.xaymar.BlitzLLVM.Runtime 25.08
           flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}.flatpak" io.github.xaymar.BlitzLLVM
           # Licenses and help are in the two together; the shared libraries are in the extension alone.
@@ -351,6 +351,7 @@ jobs:
           # The compiler must not carry the libraries that the extension has.
           ! (cd flatpak-build/files && find . -name 'libavcodec*' -o -name 'libjxl*' -o -name 'libopus*' | grep .)
           # Install them like a user does, compile a program in the sandbox and run it.
+          flatpak uninstall --user --noninteractive io.github.xaymar.BlitzLLVM
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}-runtime.flatpak"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}.flatpak"
           mkdir -p "$HOME/flatpak-smoke"
