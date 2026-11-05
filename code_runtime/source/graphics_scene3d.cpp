@@ -20,6 +20,7 @@
 #include "shaders.inc"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <cmath>
 #include <mutex>
@@ -277,7 +278,6 @@ namespace bb::gfx {
 			VkBool32 palette;
 			float    bayer_levels; // DitherMode: 0 for noise, else the levels of the Bayer pattern.
 			float    multiply;     // Order-independent transparency: what the multiplied color is scaled by (2 for multiply twice).
-			float    dot3;         // 1 for the shader that blends itself to make the dot product of the texture and what is there (mode 5).
 		} constants;
 		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
 		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
@@ -286,7 +286,6 @@ namespace bb::gfx {
 		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
 		constants.bayer_levels = float(bayer_levels());
 		constants.multiply     = (mode == 4) ? 2.0f : 1.0f;
-		constants.dot3         = (mode == 5) ? 1.0f : 0.0f;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
 		memcpy(constants.limit, limits, sizeof(limits));
 		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
@@ -294,7 +293,7 @@ namespace bb::gfx {
 		for (int c = 0; c < 3; c++) {
 			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
 		}
-		VkSpecializationMapEntry entries[15] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		VkSpecializationMapEntry entries[14] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
@@ -306,8 +305,7 @@ namespace bb::gfx {
 		entries[11] = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
 		entries[12] = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
 		entries[13] = { 20, uint32_t(offsetof(decltype(constants), multiply)), sizeof(float) };
-		entries[14] = { 13, uint32_t(offsetof(decltype(constants), dot3)), sizeof(float) };
-		VkSpecializationInfo specialization              = { 15u, entries, sizeof(constants), &constants };
+		VkSpecializationInfo specialization              = { 14u, entries, sizeof(constants), &constants };
 		stages[1].pSpecializationInfo                    = &specialization;
 		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
 		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
@@ -614,6 +612,33 @@ namespace bb::gfx {
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 	}
 
+	// Makes room in the buffer of what the texture layers need, like ensure_entities does for the draws. Written when the draws are recorded.
+	static void ensure_layers(uint32_t count)
+	{
+		acquire_frame();
+		if (count <= g.layer_capacity) {
+			return;
+		}
+		uint32_t capacity = g.layer_capacity ? g.layer_capacity : 64;
+		while (capacity < count) {
+			capacity *= 2;
+		}
+		if (g.layer_buffer) {
+			graveyard.push({ g.layer_buffer, g.layer_allocation });
+		}
+		create_buffer(VkDeviceSize(capacity) * sizeof(layer_data), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, g.layer_buffer, g.layer_allocation, &g.layer_mapped);
+		g.layer_capacity = capacity;
+
+		VkDescriptorBufferInfo buffer_info = { g.layer_buffer, 0, VK_WHOLE_SIZE };
+		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                       = g.entity_set;
+		write.dstBinding                   = 1;
+		write.descriptorCount              = 1;
+		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		write.pBufferInfo                  = &buffer_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	}
+
 	// How much of the buffers for culling on the GPU the draws that wait use: what is filled in when the draws are collected, and what is
 	// given to the draws when they are recorded.
 	static uint32_t cull_filled_clusters = 0, cull_filled_groups = 0, cull_filled_commands = 1; // Command 0 is for the lanes that have no cluster.
@@ -892,9 +917,13 @@ namespace bb::gfx {
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
 
 		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
-		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr };
-		set_info.bindingCount                       = 1;
-		set_info.pBindings                          = &entity_binding;
+		// Binding 1 holds what the texture layers after the first of the draws need (layer_data), which only the fragment shader reads.
+		VkDescriptorSetLayoutBinding entity_binding[2] = {
+			{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+			{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+		};
+		set_info.bindingCount                       = 2;
+		set_info.pBindings                          = entity_binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
 
 		if (g.can_gpu_cull) {
@@ -938,6 +967,7 @@ namespace bb::gfx {
 			alloc.pSetLayouts = &g.entity_layout;
 			check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
 			ensure_entities(1024);
+			ensure_layers(64);
 			if (g.can_gpu_cull) {
 				alloc.pSetLayouts = &g.cull_layout;
 				check(vkAllocateDescriptorSets(g.device, &alloc, &g.cull.set), "vkAllocateDescriptorSets");
@@ -1131,6 +1161,11 @@ namespace bb::gfx {
 
 	bb::buffer<draw_record>  draws;
 	static bb::buffer<entity_push> pushes; // The data of the draws, in the order they were made: the draws point to it, so that they are small to move.
+	// What the layers after the first need of the draws that wait (the buffer of them is filled when the draws are recorded), and the groups of textures
+	// that those draws have: draws with the same group are one state, and the group is made into a set when it is drawn.
+	static bb::buffer<layer_data> layer_pushes;
+	static std::vector<std::array<int, max_texture_layers>> layer_groups;
+	static std::map<std::array<int, max_texture_layers>, uint32_t> layer_group_ids;
 	bb::buffer<scene_record> scenes;
 	bb::buffer<copy_record>  copies;
 	bb::buffer<antialias_record> antialiases;
@@ -1144,9 +1179,36 @@ namespace bb::gfx {
 		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
 		draws.clear();
 		pushes.clear();
+		layer_pushes.clear();
+		layer_groups.clear();
+		layer_group_ids.clear();
 		scenes.clear();
 		antialiases.clear();
 		copies.clear();
+	}
+
+	// What TextureBlend asks of a texture, as the shaders say it: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none.
+	static int texture_blend_code(int texture_blend)
+	{
+		static const int blend_codes[6] = { 5, 1, 0, 2, 3, 4 };
+		return blend_codes[(texture_blend < 0 || texture_blend > 5) ? 2 : texture_blend];
+	}
+
+	// What the layers after the first need of the draws that wait (the buffer of them is filled when the draws are recorded), and the groups of textures
+	// that those draws have: draws with the same group are one state, and the group is made into a set when it is drawn.
+
+	static uint32_t layer_group_of(int const* handles, uint32_t count)
+	{
+		std::array<int, max_texture_layers> key = {};
+		for (uint32_t i = 0; i < count; i++) {
+			key[i] = handles[i];
+		}
+		auto found = layer_group_ids.find(key);
+		if (found != layer_group_ids.end()) {
+			return found->second;
+		}
+		layer_groups.push_back(key);
+		return layer_group_ids[key] = uint32_t(layer_groups.size());
 	}
 
 	// What a texture handle is bound as: handles of frames, aliases and views into one image share a descriptor set, so draws with
@@ -1161,7 +1223,7 @@ namespace bb::gfx {
 	static bool same_draw_state(draw_record const& a, draw_record const& b)
 	{
 		return !a.cluster_count && !b.cluster_count && (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
-			&& (a.texture_set == b.texture_set) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write) && (a.oit == b.oit);
+			&& (a.texture_set == b.texture_set) && (a.layer_group == b.layer_group) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write) && (a.oit == b.oit);
 	}
 
 	// Copies the faces of a cube map into its sheet, where 3D samples them from.
@@ -1434,6 +1496,33 @@ namespace bb::gfx {
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
+		if (layer_pushes.size) {
+			memcpy(g.layer_mapped, layer_pushes.data, size_t(layer_pushes.size) * sizeof(layer_data));
+		}
+		// The textures of draws with layers are in sets of their own (the first texture and the layers after it), made when the first draw needs one.
+		std::map<std::pair<uint32_t, VkDescriptorSet>, VkDescriptorSet> layered_sets;
+		auto set_for_draw = [&](int texture_handle, uint32_t group) -> VkDescriptorSet {
+			auto usable = [&](texture_entry* tex) { return tex && tex->set && (tex->cube || (tex->image.image != target.image->image)); };
+			texture_entry*  tex = texture_of(texture_handle);
+			VkDescriptorSet set = usable(tex) ? tex->set : g.sets[TEXTURE_WHITE_3D];
+			if (!group) {
+				return set;
+			}
+			VkDescriptorSet& made = layered_sets[{ group, set }];
+			if (!made) {
+				VkDescriptorSet layer_sets[max_texture_layers];
+				uint32_t        count = 0;
+				for (int handle : layer_groups[group - 1]) {
+					if (!handle) {
+						break;
+					}
+					texture_entry* layer = texture_of(handle);
+					layer_sets[count++]  = usable(layer) ? layer->set : g.sets[TEXTURE_WHITE_3D];
+				}
+				made = layered_texture_set(set, layer_sets, count);
+			}
+			return made;
+		};
 
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
 		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
@@ -1798,8 +1887,7 @@ namespace bb::gfx {
 				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
 				bound_write = write;
 			}
-			texture_entry*  tex = texture_of(d.texture);
-			VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
+			VkDescriptorSet set = set_for_draw(d.texture, d.layer_group);
 			if (set != bound_set) {
 				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 				bound_set = set;
@@ -2200,11 +2288,12 @@ namespace bb::gfx {
 			uintptr_t pipeline, vertex_buffer, index_buffer;
 			uint32_t  index_count;
 			uintptr_t texture_set;
+			uint32_t  layer_group;
 			bool      cull, depth_write;
 			bool operator==(state_key const& o) const
 			{
 				return (pipeline == o.pipeline) && (vertex_buffer == o.vertex_buffer) && (index_buffer == o.index_buffer) && (index_count == o.index_count)
-					&& (texture_set == o.texture_set) && (cull == o.cull) && (depth_write == o.depth_write);
+					&& (texture_set == o.texture_set) && (layer_group == o.layer_group) && (cull == o.cull) && (depth_write == o.depth_write);
 			}
 		};
 		struct state_hash {
@@ -2225,6 +2314,7 @@ namespace bb::gfx {
 				h        = mix(h, k.index_buffer);
 				h        = mix(h, k.index_count);
 				h        = mix(h, k.texture_set);
+				h        = mix(h, k.layer_group);
 				return mix(h, (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0));
 			}
 		};
@@ -2238,7 +2328,7 @@ namespace bb::gfx {
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.cull, d.depth_write };
+			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
 			// The same few states come again and again, so the last ones are looked at before the table is.
 			int found = -1;
 			for (int r = 0; r < recent_count; r++) {
@@ -2327,7 +2417,7 @@ namespace bb::gfx {
 		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
 		// be depth tested before they are shaded.
 		auto key = [&](draw_record const& d) {
-			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture_set, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
 		};
 		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
 		std::vector<draw_record> sorted;
@@ -3310,9 +3400,7 @@ namespace bb::gfx {
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 			if (texture && texture->set) {
 				// What TextureBlend asks of the first texture, written twice into the same value: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none.
-				static const int blend_codes[6] = { 5, 1, 0, 2, 3, 4 };
-				int              texture_blend  = texture->blend;
-				push.mask[3] += 2.0f * float(blend_codes[(texture_blend < 0 || texture_blend > 5) ? 2 : texture_blend]);
+				push.mask[3] += 2.0f * float(texture_blend_code(texture->blend));
 				if (!(texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED))) {
 					push.mask[3] += 16.0f; // No alpha channel: the alpha is 1.
 				}
@@ -3371,10 +3459,35 @@ namespace bb::gfx {
 				}
 			}
 
+			// The textures on the layers after the first are blended by the fragment shader, in the stages of Direct3D 7 that come after the first: each
+			// gets what it needs (its coordinates and blend) in the buffer of layers, where the draw points to them, and the draw has the textures.
+			ensure_layers(layer_pushes.size + max_texture_layers);
+			uint32_t              layer_count  = 0;
+			int                   layer_handles[max_texture_layers] = {};
+			const uint32_t        layer_first  = layer_pushes.size;
+			for (int stage = 1; stage < stage_count; stage++) {
+				int            extra_handle = stages[stage];
+				texture_entry* extra        = texture_of(extra_handle);
+				layer_data     data         = {};
+				texture_uv(extra, extra_handle, data.uv);
+				data.extra[0] = (extra->flags & 0x10000) ? 1.0f : 0.0f;
+				texture_rotation(extra, data.extra);
+				texture_texgen(extra, data.texgen);
+				data.blend[0] = float(texture_blend_code(extra->blend));
+				data.blend[1] = texture_layer(extra, extra_handle);
+				data.blend[2] = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
+				data.blend[3] = (extra->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)) ? 1.0f : 0.0f;
+				layer_pushes.push(data);
+				layer_handles[layer_count++] = extra_handle;
+			}
+			push.layers[0] = float(layer_first);
+			push.layers[1] = float(layer_count);
+
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push_index   = pushes.size;
 			pushes.push(push);
+			record.layer_group  = layer_count ? layer_group_of(layer_handles, layer_count) : 0;
 			record.vertex_buffer = shape->vertex_buffer;
 			record.index_buffer = shape->index_buffer;
 			record.index_count  = shape->index_count;
@@ -3438,61 +3551,6 @@ namespace bb::gfx {
 			draws.push(record);
 			g.triangles_drawn += shape->index_count / 3;
 
-			// Textures on the layers after the first are drawn over the same triangles, and change what is there: the
-			// color map of a terrain gets its fine detail this way.
-			for (int stage = 1; stage < stage_count; stage++) {
-				int            extra_handle = stages[stage];
-				texture_entry* extra        = texture_of(extra_handle);
-				if (surface_blended) {
-					break;
-				}
-				draw_record more     = record;
-				entity_push more_push = pushes[record.push_index];
-				more_push.material[0] = more_push.material[1] = more_push.material[2] = more_push.material[3] = 1;
-				more_push.params[0]  = 1; // Not lit again.
-				// The stages of Direct3D 7 hand the result of the stage before to the next one, and the colors of the vertices are not looked at again
-				// (under a Dot3 first texture they are the direction of the light, not a color).
-				more_push.params[1]  = 0;
-				more_push.params[3]  = 0;
-				more_push.mask[2]    = 0;
-				more_push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
-				more_push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
-				texture_rotation(extra, more_push.extra);
-				texture_texgen(extra, more_push.texgen);
-				texture_uv(extra, extra_handle, more_push.uv);
-				more_push.soft[1] = texture_layer(extra, extra_handle);
-				more_push.mask[0]    = 0;
-				more_push.mask[1]    = 1; // No fog again either, the first layer has it.
-				more.texture         = extra_handle;
-				more.texture_set     = texture_set_of(extra_handle);
-				more.depth_write     = false;
-				more.unit_start      = false;
-				if (more.cluster_count) {
-					cull_account(more.cluster_count);
-				}
-				switch (extra->blend) {
-				case 3:
-					more.pipeline = g.add3d;
-					break;
-				case 5:
-					more.pipeline = g.mul2x3d;
-					break;
-				case 4:
-					more.pipeline = g.mul3d; // Dot3 has no fixed-function blend.
-					break;
-				case 1:
-					more.pipeline = g.blend3d;
-					break;
-				default:
-					more.pipeline = g.mul3d;
-					break;
-				}
-				more.push_index = pushes.size;
-				pushes.push(more_push);
-				ensure_entities(draws.size + 1);
-				draws.push(more);
-			}
-
 			// The color of a level, BSPLightmapColor, multiplies what has been drawn so far, whether that came from a
 			// lightmap, a texture or the colors of the vertices.
 			if (e->cls && !surface_blended && (e->bsp_tint[0] < 1 || e->bsp_tint[1] < 1 || e->bsp_tint[2] < 1) && !strcmp(e->cls, "BSP")) {
@@ -3509,6 +3567,8 @@ namespace bb::gfx {
 				tint_push.mask[1]     = 1;
 				tint_push.mask[2]     = 0;
 				tint_push.mask[3]     = 0;
+				tint_push.layers[1]   = 0; // Layers are not blended again.
+				tint.layer_group      = 0;
 				tint.texture          = 0;
 				tint.texture_set      = 0;
 				tint.pipeline         = g.mul3d;
@@ -3537,6 +3597,8 @@ namespace bb::gfx {
 				ambient_push.params[3]   = 0;
 				ambient_push.mask[1]     = 1; // No fog again either, the first layer has it.
 				ambient_push.mask[2]     = 0;
+				ambient_push.layers[1]   = 0; // Layers are not blended again.
+				ambient.layer_group      = 0;
 				ambient.pipeline         = g.add3d;
 				ambient.depth_write      = false;
 				ambient.unit_start       = false;
@@ -3797,7 +3859,7 @@ namespace bb::gfx {
 		}
 		float m[16];
 		bb::world_matrix(handle, m);
-		uint32_t   draws_before = draws.size, pushes_before = pushes.size;
+		uint32_t   draws_before = draws.size, pushes_before = pushes.size, layers_before = layer_pushes.size;
 		uint32_t   triangles    = g.triangles_drawn;
 		draw_item  item         = { handle, e->alpha, 0.0f, 0 };
 		draw_entity(item, 0, true);
@@ -3806,7 +3868,7 @@ namespace bb::gfx {
 		uint32_t first = uint32_t(made.size());
 		for (uint32_t i = draws_before; ok && (i < draws.size); i++) {
 			draw_record const& rec = draws[i];
-			if (!rec.unit_start || rec.cluster_count || ((rec.pipeline != g.opaque3d) && (rec.pipeline != g.solid3d) && !(g.wireframe && (rec.pipeline == g.wire3d[0])))) {
+			if (!rec.unit_start || rec.cluster_count || rec.layer_group || ((rec.pipeline != g.opaque3d) && (rec.pipeline != g.solid3d) && !(g.wireframe && (rec.pipeline == g.wire3d[0])))) {
 				ok = false;
 				break;
 			}
@@ -3845,6 +3907,7 @@ namespace bb::gfx {
 		}
 		draws.size  = draws_before;
 		pushes.size = pushes_before;
+		layer_pushes.size = layers_before;
 		if (!ok) {
 			made.resize(first);
 			return 0;

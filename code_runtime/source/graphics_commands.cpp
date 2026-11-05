@@ -350,6 +350,10 @@ namespace bb::gfx {
 		check(vkResetFences(g.device, 1, &slot.fence), "vkResetFences");
 		profile_wait += BB_PROFILE_NOW() - wait_start;
 		slot.state = 0;
+		for (VkDescriptorPool pool : slot.layer_pools) {
+			vkResetDescriptorPool(g.device, pool, 0);
+		}
+		slot.layer_sets_used = 0;
 		if (slot.flush_id > completed_flush) {
 			completed_flush = slot.flush_id;
 		}
@@ -371,6 +375,45 @@ namespace bb::gfx {
 		slot_acquired = true;
 	}
 
+
+	// The sets of draws that have texture layers: binding 0 is the first texture and 1 to 7 are the layers, all copied from the sets of the textures.
+	// They come from pools that are emptied once the frame that used them is done, like the sets that read targets.
+	VkDescriptorSet layered_texture_set(VkDescriptorSet first, VkDescriptorSet const* layers, uint32_t count)
+	{
+		constexpr uint32_t sets_per_pool = 64;
+		constexpr uint32_t bindings      = 8;
+		frame_slot&        slot          = frames[current_slot];
+		if (slot.layer_pools.empty() || (slot.layer_sets_used == sets_per_pool)) {
+			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, sets_per_pool * bindings };
+			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+			info.maxSets                    = sets_per_pool;
+			info.poolSizeCount              = 1;
+			info.pPoolSizes                 = &size;
+			VkDescriptorPool pool;
+			check(vkCreateDescriptorPool(g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
+			slot.layer_pools.push_back(pool);
+			slot.layer_sets_used = 0;
+		}
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = slot.layer_pools.back();
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &g.set_layout;
+		VkDescriptorSet set;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		slot.layer_sets_used++;
+
+		VkCopyDescriptorSet copies[bindings];
+		for (uint32_t k = 0; k < bindings; k++) {
+			copies[k]                 = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+			copies[k].srcSet          = (k == 0) ? first : ((k - 1 < count && layers[k - 1]) ? layers[k - 1] : g.sets[TEXTURE_WHITE_3D]);
+			copies[k].srcBinding      = 0;
+			copies[k].dstSet          = set;
+			copies[k].dstBinding      = k;
+			copies[k].descriptorCount = 1;
+		}
+		vkUpdateDescriptorSets(g.device, 0, nullptr, bindings, copies);
+		return set;
+	}
 
 	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
 	void wait_gpu()
@@ -433,6 +476,10 @@ namespace bb::gfx {
 		s.entity_mapped = g.entity_mapped;
 		s.entity_capacity = g.entity_capacity;
 		s.entity_set = g.entity_set;
+		s.layer_buffer = g.layer_buffer;
+		s.layer_allocation = g.layer_allocation;
+		s.layer_mapped = g.layer_mapped;
+		s.layer_capacity = g.layer_capacity;
 		s.scene_buffer = g.scene_buffer;
 		s.scene_allocation = g.scene_allocation;
 		s.scene_mapped = g.scene_mapped;
@@ -451,6 +498,10 @@ namespace bb::gfx {
 		g.entity_mapped = s.entity_mapped;
 		g.entity_capacity = s.entity_capacity;
 		g.entity_set = s.entity_set;
+		g.layer_buffer = s.layer_buffer;
+		g.layer_allocation = s.layer_allocation;
+		g.layer_mapped = s.layer_mapped;
+		g.layer_capacity = s.layer_capacity;
 		g.scene_buffer = s.scene_buffer;
 		g.scene_allocation = s.scene_allocation;
 		g.scene_mapped = s.scene_mapped;
@@ -494,6 +545,7 @@ namespace bb::gfx {
 			select_frame_slot(i);
 			destroy_buffer(g.scene_buffer, g.scene_allocation);
 			destroy_buffer(g.entity_buffer, g.entity_allocation);
+			destroy_buffer(g.layer_buffer, g.layer_allocation);
 			destroy_buffer(g.cull.clusters, g.cull.clusters_allocation);
 			destroy_buffer(g.cull.groups, g.cull.groups_allocation);
 			destroy_buffer(g.cull.commands, g.cull.commands_allocation);
@@ -508,6 +560,9 @@ namespace bb::gfx {
 	void destroy_frame_slots()
 	{
 		for (frame_slot& slot : frames) {
+			for (VkDescriptorPool pool : slot.layer_pools) {
+				vkDestroyDescriptorPool(g.device, pool, nullptr);
+			}
 			vkDestroySemaphore(g.device, slot.acquired, nullptr);
 			vkDestroyFence(g.device, slot.fence, nullptr);
 			slot = frame_slot();

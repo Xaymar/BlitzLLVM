@@ -383,6 +383,10 @@ namespace bb::gfx {
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
 		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
 		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
+		VkBuffer              layer_buffer    = VK_NULL_HANDLE; // The layer_data of the draws that wait, see frame_slot.
+		VmaAllocation         layer_allocation = VK_NULL_HANDLE;
+		void*                 layer_mapped    = nullptr;
+		uint32_t              layer_capacity  = 0;
 		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
 		void*                 entity_mapped   = nullptr;
 		uint32_t              entity_capacity = 0;
@@ -586,12 +590,18 @@ namespace bb::gfx {
 		void*           entity_mapped     = nullptr;
 		uint32_t        entity_capacity   = 0;
 		VkDescriptorSet entity_set        = VK_NULL_HANDLE;
+		VkBuffer        layer_buffer      = VK_NULL_HANDLE; // The layer_data of the draws that have texture layers, bound with the draw data (set 2, binding 1).
+		VmaAllocation   layer_allocation  = VK_NULL_HANDLE;
+		void*           layer_mapped      = nullptr;
+		uint32_t        layer_capacity    = 0;
 		VkBuffer        scene_buffer      = VK_NULL_HANDLE;
 		VmaAllocation   scene_allocation  = VK_NULL_HANDLE;
 		void*           scene_mapped      = nullptr;
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
 		cull_buffers    cull;
 		static_buffers  statics;
+		std::vector<VkDescriptorPool> layer_pools; // Sets of draws with texture layers (see layered_texture_set), given out until the frame is done.
+		uint32_t        layer_sets_used   = 0;     // Sets taken from the last of the pools.
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
 		int64_t         flush_id = -1; // The last flush that is in it.
 		submit_job      job;
@@ -667,6 +677,15 @@ namespace bb::gfx {
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
 		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off. y: the layer of the texture (its frame, if it has them). z: the place among the see-through entities, 0 (far) to 1 (near). w: the places per unit of distance across them, for fragments that are nearer or farther than the origin.
+		float layers[4]; // x: where the texture layers after the first are in the buffer of layers (layer_data), y: how many there are.
+	};
+
+	// What a texture layer after the first needs of its own, read by the fragment shader (see declare_layers in generate_shaders.py): the draws that have layers point into a buffer of these.
+	struct layer_data {
+		float uv[4];     // Scale and offset of the texture coordinates.
+		float extra[4];  // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
+		float texgen[4]; // As in entity_push.
+		float blend[4];  // x: what TextureBlend asks (0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply), y: the layer of the texture (its frame), z: 1 if black is not there, w: 1 if the texture has an alpha channel.
 	};
 
 
@@ -739,6 +758,7 @@ namespace bb::gfx {
 		uint32_t    index_count;
 		int         texture; // Handle, 0 for none.
 		uintptr_t   texture_set; // What the handle is bound as (its descriptor set), which is what draws are grouped by: handles that share one are the same state.
+		uint32_t    layer_group; // The textures of the layers after the first as a group (the number plus 1 of an entry of the groups of layers), 0 if there are none. Draws with another group are another state.
 		VkPipeline  pipeline;
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
@@ -1134,6 +1154,12 @@ namespace bb::gfx {
 	void list_gpus();
 	void empty_graveyard();
 	void acquire_frame();
+	/** Bindings of a set of a texture: the texture, and the seven layers after it that 3D can read (see MAX_LAYERS in generate_shaders.py). */
+	constexpr uint32_t texture_layer_bindings = 8;
+	/** The layers after the first texture that a draw can have. */
+	constexpr uint32_t max_texture_layers = texture_layer_bindings - 1;
+	/** A set that has the first texture at binding 0 and the layers after it at 1 and up: all sets are taken from the descriptors at binding 0 of the given sets, unused layers are white. Lives until the frame of the slot is done. */
+	VkDescriptorSet layered_texture_set(VkDescriptorSet first, VkDescriptorSet const* layers, uint32_t count);
 	bool flush_is_done(uint32_t flush);
 	void poll_resized();
 	void create_frame_slots();
