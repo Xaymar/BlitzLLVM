@@ -4630,6 +4630,7 @@ void bb_render_world(float tween)
 	data.ambient[3] = 1;
 	// Things captured by CaptureWorld are drawn between where they were and where they are.
 	bb::render_tween = tween < 0 ? 0 : (tween > 1 ? 1 : tween);
+	bb::rendering_world = true;
 	bb::grid_begin_frame();
 	light_collector lights = { &data, 0 };
 	camera_collector cameras;
@@ -4675,6 +4676,7 @@ void bb_render_world(float tween)
 	mirrors.handles.release();
 	bb::grid_end_frame();
 	bb::render_tween = 1.0f;
+	bb::rendering_world = false;
 }
 
 // The scene lets go of a surface: its GPU buffers go with it.

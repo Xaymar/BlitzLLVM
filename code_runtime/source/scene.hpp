@@ -270,6 +270,7 @@ namespace bb {
 		float cull_box[6]  = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
 		// Where it was at CaptureWorld, to draw it between there and where it is now.
 		bool  captured = false;
+		float tween_alpha = -1; // How far between capt_* and where it is the entity is drawn, if it is not RenderWorld's tween (a body of the physics simulation), else -1.
 		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
 		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
 		float capt_color[3] = { 1, 1, 1 }, capt_alpha = 1;
@@ -403,6 +404,7 @@ namespace bb {
 	extern float ambient_light[3];
 	/** How far between CaptureWorld and now entities are drawn, 1 for where they are. Set by RenderWorld. */
 	extern float render_tween;
+	extern bool  rendering_world; // RenderWorld is drawing, which is the only time that the bodies of the physics simulation are shown between their steps (tween_alpha).
 	/** The alpha and color of an entity as RenderWorld draws them: between where they were at CaptureWorld and now. */
 	float        tweened_alpha(entity const& e);
 	void         tweened_color(entity const& e, float* out);

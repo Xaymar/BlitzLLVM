@@ -122,6 +122,7 @@ target_sources(blitzrt PRIVATE
 	"source/physics_mesh.cpp"
 	"source/pick_physics.cpp"
 	"source/physics_library.cpp"
+	"source/physics_sim.cpp"
 	"source/physics_library.hpp"
 	"source/gui_core.cpp"
 	"source/gui_windows.cpp"

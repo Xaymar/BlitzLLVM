@@ -453,7 +453,7 @@ BP_API bp_body bp_sim_body_create(bp_sim* sim, const bp_body_desc* d)
 	settings.mIsSensor = d->sensor != 0;
 	settings.mAllowSleeping = d->allow_sleeping != 0;
 	settings.mAllowedDOFs = dofs;
-	settings.mAllowDynamicOrKinematic = !is_mesh; // So that the motion can be changed later.
+	settings.mAllowDynamicOrKinematic = true; // So that the motion can be changed later (a mesh may become kinematic, never dynamic).
 	bool continuous = (d->continuous == 1) || ((d->continuous == 0) && sim->settings.continuous_default);
 	settings.mMotionQuality = (continuous && d->motion == BP_DYNAMIC) ? EMotionQuality::LinearCast : EMotionQuality::Discrete;
 	if (is_mesh) {
