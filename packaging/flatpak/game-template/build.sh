@@ -5,7 +5,7 @@
 # Compiles <game>.bb with the BlitzLLVM Flatpak and packs the result as <app-id>.flatpak.
 #   ./build.sh mygame.bb [media-folder]
 # Needs flatpak and flatpak-builder, and: flatpak install flathub org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
-# and the BlitzLLVM Flatpak (blitzllvm-<version>-flatpak-<arch>.flatpak). The folder must hold the game's media next to the .bb file's relative paths.
+# and the BlitzLLVM Flatpaks (blitzllvm-<version>-flatpak-<arch>.flatpak and ...-runtime.flatpak, the runtime extension that games share). The folder must hold the game's media next to the .bb file's relative paths.
 set -eu
 src="$1"; media="${2:-}"
 here="$(cd "$(dirname "$0")" && pwd)"

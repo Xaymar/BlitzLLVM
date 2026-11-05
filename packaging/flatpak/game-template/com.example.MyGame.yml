@@ -9,6 +9,14 @@ runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 command: mygame
 
+add-extensions:
+  io.github.xaymar.BlitzLLVM.Runtime:
+    # FFmpeg, the image codecs and Opus, shared by every game made with BlitzLLVM: Flatpak installs them once, so the game itself is only its
+    # executable and its media. Installed together with the game (autodownload), and found through add-ld-path.
+    directory: lib/blitzllvm
+    version: '25.08'
+    add-ld-path: .
+
 finish-args:
   - --share=ipc
   - --socket=wayland
@@ -24,16 +32,15 @@ modules:
   - name: game
     buildsystem: simple
     build-commands:
-      # game/ holds the executable and everything blitzcc copied next to it (the libraries for movies, images and sound: libav*.so.*,
-      # libjxl*, libwebp*, libopus*, ...), plus the media files the game opens. Keep them together.
-      - mkdir -p /app/game
+      # game/ holds the executable (and libblitzphysics.so, which blitzcc copies next to it when the game uses collisions or picking), plus the
+      # media files the game opens. The other libraries (movies, images, sound) are not copied: the Flatpak compiler knows that the extension has them.
+      - mkdir -p /app/game /app/lib/blitzllvm
       - cp -a game/. /app/game/
       - install -Dm755 launcher.sh /app/bin/mygame
       - install -Dm644 com.example.MyGame.desktop -t /app/share/applications
       - install -Dm644 com.example.MyGame.metainfo.xml -t /app/share/metainfo
       - install -Dm644 icon.png /app/share/icons/hicolor/256x256/apps/com.example.MyGame.png
-      # The licenses of the libraries that blitzcc copied (the LGPL ones need to ship with the game).
-      - '[ ! -d licenses ] || cp -a licenses /app/share/licenses-blitzllvm'
+      # The licenses of the libraries are shipped by the extension; add the ones of your own media and libraries to /app/share/licenses.
     sources:
       - type: dir
         path: .

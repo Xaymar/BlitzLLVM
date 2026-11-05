@@ -10,6 +10,7 @@ Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) 
 
 * Linux: there is no zip, because the libraries a program needs differ between systems. Install the package for your system: `blitzllvm-<version>-<commit>-ubuntu24.04-x64.deb` or `-ubuntu26.04-x64.deb` (Ubuntu: `sudo apt install ./blitzllvm-*.deb`; use the one for your release), `blitzllvm-<version>-<commit>-fedora-x64.rpm` (Fedora) or `blitzllvm-<version>-<commit>-arch-x64.pkg.tar.zst` (Arch). It installs to `/usr` and pulls in `clang`.
 * Linux with snap: `sudo snap install --classic --dangerous blitzllvm-<version>-<commit>-ubuntu24.04-x64.snap`. Classic confinement is needed because the compiler reads your files wherever they are and runs programs outside of the snap.
+* Linux with Flatpak: install `blitzllvm-<version>-<commit>-flatpak-x64-runtime.flatpak` and then `blitzllvm-<version>-<commit>-flatpak-x64.flatpak` with `flatpak install --user --bundle`, see [[Flatpak]].
 * macOS: install `blitzllvm-<version>-<commit>-macos-universal.pkg`.
 * Windows: download `blitzllvm-<version>-<commit>-windows-x64.zip` (or `-windows-arm64.zip`).
 
