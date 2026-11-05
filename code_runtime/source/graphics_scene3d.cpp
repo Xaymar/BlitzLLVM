@@ -2930,6 +2930,8 @@ namespace bb::gfx {
 	constexpr float clip_band       = 3.0f;  // How many times the size of the picture the cut view is.
 	constexpr float clip_reach      = 32.0f; // The longest a piece can be, in times its distance to the camera.
 
+	// Whether a surface has triangles with long edges, and which they are. Only they can need cutting, so the work per frame is
+	// only for them and not for every triangle of the surface. Kept until the geometry changes.
 	static bool surface_has_long_edges(bb::surface& s)
 	{
 		if (s.long_edges_version == s.geometry_version) {
@@ -2937,20 +2939,26 @@ namespace bb::gfx {
 		}
 		s.long_edges_version = s.geometry_version;
 		s.long_edges         = false;
-		const float limit    = clip_edge_limit * clip_edge_limit;
-		for (uint32_t i = 0; i + 2 < s.indices.size && !s.long_edges; i += 3) {
+		s.long_triangles.clear();
+		const float limit = clip_edge_limit * clip_edge_limit;
+		for (uint32_t i = 0; i + 2 < s.indices.size; i += 3) {
 			uint32_t ids[3] = { s.indices[i], s.indices[i + 1], s.indices[i + 2] };
 			if ((ids[0] >= s.vertices.size) || (ids[1] >= s.vertices.size) || (ids[2] >= s.vertices.size)) {
 				continue;
 			}
+			float longest = 0;
 			for (int k = 0; k < 3; k++) {
 				bb::vertex3d const &a = s.vertices[ids[k]], &b = s.vertices[ids[(k + 1) % 3]];
 				float dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-				if (dx * dx + dy * dy + dz * dz > limit) {
-					s.long_edges = true;
-				}
+				longest  = std::max(longest, dx * dx + dy * dy + dz * dz);
+			}
+			if (longest > limit) {
+				bb::vertex3d const &a = s.vertices[ids[0]], &b = s.vertices[ids[1]], &c = s.vertices[ids[2]];
+				bb::long_triangle   entry = { i, { (a.x + b.x + c.x) / 3.0f, (a.y + b.y + c.y) / 3.0f, (a.z + b.z + c.z) / 3.0f }, sqrtf(longest) };
+				s.long_triangles.push(entry);
 			}
 		}
+		s.long_edges = s.long_triangles.size > 0;
 		return s.long_edges;
 	}
 
@@ -2985,44 +2993,31 @@ namespace bb::gfx {
 		memcpy(key + 32, current_view, sizeof(float) * 3);
 		key[35] = current_near;
 		// The last value of the key is not compared: it says whether anything was cut.
-		if (src.clip_draw && src.clip_key_valid && (src.clip_key_version == src.geometry_version) && !memcmp(src.clip_key, key, sizeof(key) - sizeof(float))) {
+		if (src.clip_key_valid && (src.clip_key_version == src.geometry_version) && !memcmp(src.clip_key, key, sizeof(key) - sizeof(float))) {
 			return (src.clip_key[39] > 0.5f) ? src.clip_draw : nullptr;
 		}
-		if (!src.clip_draw) {
-			src.clip_draw = new bb::surface();
-		}
-		bb::surface& out = *src.clip_draw;
-		out.vertices.clear();
-		out.indices.clear();
-		out.dirty       = true;
-		out.bound_valid = false;
-		out.painted     = src.painted;
-		out.paint       = src.paint;
 		memcpy(src.clip_key, key, sizeof(key));
 		src.clip_key_valid   = true;
 		src.clip_key_version = src.geometry_version;
+		src.clip_key[39]     = 0.0f;
 
 		const uint32_t count = src.vertices.size;
-		out.vertices.reserve(count);
-		memcpy(out.vertices.data, src.vertices.data, size_t(count) * sizeof(bb::vertex3d));
-		out.vertices.size = count;
 
-		// Every vertex as the camera sees it, relative to the camera in double precision.
+		// Every vertex as the camera sees it, relative to the camera in double precision. Only the vertices of the triangles with long edges.
 		double t[3];
 		for (int r = 0; r < 3; r++) {
 			t[r] = double(m[12 + r]) - double(current_origin[r]);
 		}
-		std::vector<clip_point> points(count);
-		for (uint32_t i = 0; i < count; i++) {
-			bb::vertex3d const& v = src.vertices[i];
+		auto to_camera = [&](uint32_t id, clip_point& point) {
+			bb::vertex3d const& v = src.vertices[id];
 			double rel[3];
 			for (int r = 0; r < 3; r++) {
 				rel[r] = double(m[r]) * v.x + double(m[4 + r]) * v.y + double(m[8 + r]) * v.z + t[r];
 			}
 			for (int r = 0; r < 3; r++) {
-				points[i].c[r] = double(current_view_rotation[r]) * rel[0] + double(current_view_rotation[4 + r]) * rel[1] + double(current_view_rotation[8 + r]) * rel[2];
+				point.c[r] = double(current_view_rotation[r]) * rel[0] + double(current_view_rotation[4 + r]) * rel[1] + double(current_view_rotation[8 + r]) * rel[2];
 			}
-		}
+		};
 
 		const double sx = current_view[0], sy = current_view[0] / current_view[2];
 		const double side_x = double(clip_band) / sx, side_y = double(clip_band) / sy, near_z = double(current_near), far_z = double(current_view[1]);
@@ -3036,54 +3031,110 @@ namespace bb::gfx {
 			default: return far_z - c[2];
 			}
 		};
-		bool         cut   = false;
+		// How big the entity can make a length at most.
+		double scale = 0;
+		for (int c = 0; c < 3; c++) {
+			scale = std::max(scale, std::sqrt(double(m[c * 4]) * m[c * 4] + double(m[c * 4 + 1]) * m[c * 4 + 1] + double(m[c * 4 + 2]) * m[c * 4 + 2]));
+		}
+		// What a pixel takes from a corner is only as exact as the corner is near the pixel: so a triangle is cut into pieces that are no
+		// longer than clip_reach times their distance to the camera. Others are left to the GPU, however long their edges are and wherever
+		// they are, which is what almost all of the triangles of a landscape are.
+		// 0 if the triangle is drawn as it is, 2 if it has to be cut. 'points' get where its corners are.
+		auto classify = [&](bb::long_triangle const& triangle, clip_point* points) {
+			// Where the triangle is at least that near, and at most that long: if even that is no reason, there is no need to look further.
+			double rel[3];
+			for (int r = 0; r < 3; r++) {
+				rel[r] = double(m[r]) * triangle.center[0] + double(m[4 + r]) * triangle.center[1] + double(m[8 + r]) * triangle.center[2] + t[r];
+			}
+			const double z     = double(current_view_rotation[2]) * rel[0] + double(current_view_rotation[6]) * rel[1] + double(current_view_rotation[10]) * rel[2];
+			const double reach = scale * double(triangle.length) * 1.001;
+			if (reach <= double(clip_reach) * std::max(z - reach, near_z)) {
+				return 0;
+			}
+			const uint32_t first_index = triangle.first;
+			uint32_t ids[3] = { src.indices[first_index], src.indices[first_index + 1], src.indices[first_index + 2] };
+			for (int k = 0; k < 3; k++) {
+				to_camera(ids[k], points[k]);
+			}
+			double longest = 0, nearest = points[0].c[2];
+			for (int k = 0; k < 3; k++) {
+				double e0 = points[k].c[0] - points[(k + 1) % 3].c[0], e1 = points[k].c[1] - points[(k + 1) % 3].c[1], e2 = points[k].c[2] - points[(k + 1) % 3].c[2];
+				longest   = std::max(longest, std::sqrt(e0 * e0 + e1 * e1 + e2 * e2));
+				nearest   = std::min(nearest, points[k].c[2]);
+			}
+			if (!(longest > double(clip_reach) * std::max(nearest, near_z))) {
+				return 0;
+			}
+			// One that is out of view altogether is left to the GPU as well, which is faster than cutting it away.
+			for (int plane = 0; plane < 6; plane++) {
+				int outside = 0;
+				for (int k = 0; k < 3; k++) {
+					outside += (distance(points[k].c, plane) < 0) ? 1 : 0;
+				}
+				if (outside == 3) {
+					return 0;
+				}
+			}
+			return 2;
+		};
+
+		// Most of the time nothing needs to be cut, which costs a look at the triangles with long edges and nothing else.
+		clip_point corners[3];
+		bool       needed = false;
+		for (uint32_t n = 0; n < src.long_triangles.size && !needed; n++) {
+			needed = classify(src.long_triangles[n], corners) != 0;
+		}
+		if (!needed) {
+			return nullptr;
+		}
+
+		if (!src.clip_draw) {
+			src.clip_draw = new bb::surface();
+		}
+		bb::surface& out = *src.clip_draw;
+		out.vertices.clear();
+		out.indices.clear();
+		out.dirty       = true;
+		out.bound_valid = false;
+		out.painted     = src.painted;
+		out.paint       = src.paint;
+		out.vertices.reserve(count);
+		memcpy(out.vertices.data, src.vertices.data, size_t(count) * sizeof(bb::vertex3d));
+		out.vertices.size = count;
 		out.indices.reserve(src.indices.size);
+		src.clip_key[39] = 1.0f;
+
 		struct clip_piece {
 			clip_point p[3];
 		};
 		std::vector<clip_point> polygon, next;
 		std::vector<clip_piece> pieces;
-		for (uint32_t i = 0; i + 2 < src.indices.size; i += 3) {
-			uint32_t ids[3] = { src.indices[i], src.indices[i + 1], src.indices[i + 2] };
-			if ((ids[0] >= count) || (ids[1] >= count) || (ids[2] >= count)) {
-				continue;
-			}
-			double d[3][6];
-			bool   inside = true, gone = false;
-			for (int plane = 0; plane < 6; plane++) {
-				int outside = 0;
-				for (int k = 0; k < 3; k++) {
-					d[k][plane] = distance(points[ids[k]].c, plane);
-					outside += (d[k][plane] < 0) ? 1 : 0;
+		uint32_t                copied = 0; // The indices before this one are in the copy.
+		for (uint32_t n = 0; n <= src.long_triangles.size; n++) {
+			const bool     last    = n == src.long_triangles.size;
+			const uint32_t i       = last ? (src.indices.size - src.indices.size % 3) : src.long_triangles[n].first;
+			int            verdict = 0;
+			if (!last) {
+				verdict = classify(src.long_triangles[n], corners);
+				if (verdict == 0) {
+					continue; // Stays in the run of triangles that are drawn as they are.
 				}
-				inside = inside && (outside == 0);
-				gone   = gone || (outside == 3);
 			}
-			// The longest edge of the triangle and the nearest it gets to the camera.
-			double longest = 0, nearest = points[ids[0]].c[2];
-			for (int k = 0; k < 3; k++) {
-				double e0 = points[ids[k]].c[0] - points[ids[(k + 1) % 3]].c[0], e1 = points[ids[k]].c[1] - points[ids[(k + 1) % 3]].c[1], e2 = points[ids[k]].c[2] - points[ids[(k + 1) % 3]].c[2];
-				longest   = std::max(longest, std::sqrt(e0 * e0 + e1 * e1 + e2 * e2));
-				nearest   = std::min(nearest, points[ids[k]].c[2]);
+			// The triangles before this one that are drawn as they are.
+			if (i > copied) {
+				out.indices.reserve(out.indices.size + (i - copied));
+				memcpy(out.indices.data + out.indices.size, src.indices.data + copied, size_t(i - copied) * sizeof(uint32_t));
+				out.indices.size += i - copied;
 			}
-			const bool long_edge = longest > double(clip_edge_limit);
-			// What a pixel takes from a corner is only as exact as the corner is near the pixel: so a triangle is cut into pieces that are no
-			// longer than clip_reach times their distance to the camera.
-			const bool too_long  = longest > double(clip_reach) * std::max(nearest, near_z);
-			if (!gone && (!long_edge || (inside && !too_long))) {
-				out.indices.push(ids[0]);
-				out.indices.push(ids[1]);
-				out.indices.push(ids[2]);
-				continue;
+			if (last) {
+				break;
 			}
-			cut = true;
-			if (gone) {
-				continue;
-			}
+			copied = i + 3;
+			const uint32_t ids[3] = { src.indices[i], src.indices[i + 1], src.indices[i + 2] };
 			polygon.clear();
 			for (int k = 0; k < 3; k++) {
 				bb::vertex3d const& v = src.vertices[ids[k]];
-				clip_point p = points[ids[k]];
+				clip_point p = corners[k];
 				const double values[10] = { v.x, v.y, v.z, v.nx, v.ny, v.nz, v.u, v.v, v.u2, v.v2 };
 				memcpy(p.v, values, sizeof(values));
 				p.color[0] = bb::half_to_float(v.r);
@@ -3152,8 +3203,7 @@ namespace bb::gfx {
 				}
 			}
 		}
-		src.clip_key[39] = cut ? 1.0f : 0.0f;
-		return cut ? &out : nullptr;
+		return &out;
 	}
 
 	static void draw_entity(draw_item const& item, int pass, bool depth_test)
