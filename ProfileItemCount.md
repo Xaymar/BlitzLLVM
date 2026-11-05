@@ -16,13 +16,24 @@
 ProfileItemCount:Int32
 ```
 
+**Returns:** The number of items. In a program that was not compiled with `--profile` (or `-d`) it still counts the items of the runtime, whose numbers stay 0.
+
 ## Description
 
-T
+Tells how many items [ProfileValue](ProfileValue) knows: the items of the runtime (`frame`, `UpdateWorld`, `RenderWorld`, the GPU passes and so on), followed by one for every key the program has started with [ProfileBegin](ProfileBegin) so far. Count from 0 to `ProfileItemCount() - 1` and ask [ProfileItemName](ProfileItemName) for the names. The count grows when a new key is used for the first time, so ask again after the parts of the program have run once.
 
 ## Differences
 
 * This is a BlitzLLVM extension: the original has no such command.
+
+## Examples
+
+```blitzbasic
+Graphics 64, 64, 0, 2
+For i = 0 To ProfileItemCount() - 1
+	Print i + ": " + ProfileItemName(i)
+Next
+```
 
 ## Related Commands
 

@@ -18,15 +18,27 @@ ProfileItemName:String item:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `item` | In | Int32 | required |  |
+| `item` | In | Int32 | required | The number of the item, from 0 to ProfileItemCount() - 1. |
+
+**Returns:** The name, which can be given to ProfileValue as it is, or an empty string for a number that is not an item.
 
 ## Description
 
-T
+Gives the name of an item that [ProfileValue](ProfileValue) knows, by its number. The numbers 0 to 20 are the items of the runtime in a fixed order, starting with `frame`; the keys of the program's own parts ([ProfileBegin](ProfileBegin)) follow in the order they were first used. Together with [ProfileItemCount](ProfileItemCount) this lists everything that can be read, which a program can use to print all numbers of a frame without knowing the keys in advance.
 
 ## Differences
 
 * This is a BlitzLLVM extension: the original has no such command.
+
+## Examples
+
+```blitzbasic
+Graphics 64, 64, 0, 2
+Flip
+For i = 0 To ProfileItemCount() - 1
+	Print ProfileItemName(i) + ": " + ProfileValue(ProfileItemName(i)) + " ms"
+Next
+```
 
 ## Related Commands
 

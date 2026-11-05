@@ -21,7 +21,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (41)</summary>
+<li><details><summary>Features (42)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -53,6 +53,7 @@
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
 <li><a href="Presentation-Sync">Presentation sync</a></li>
+<li><a href="Profiling">Profiling your own code</a></li>
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Saving-Pictures">Saving pictures</a></li>
 <li><a href="Scan-Codes">Scan Codes</a></li>

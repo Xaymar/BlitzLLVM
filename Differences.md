@@ -42,6 +42,7 @@ Differences that are not caused by one command.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Parameter modes (In, Out, InOut)](Parameter-Modes): Extension: function parameters can be written as `In`, `Out` or `InOut`, which decides if a value goes into the function, comes back out of it, or both.
 * [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
+* [Profiling your own code](Profiling): Extension: [Microseconds](Microseconds) times in millionths of a second, and `--profile` with the `Profile*` commands measures the parts of a program and of the runtime.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
 * [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA, DDS and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
 * [Scan Codes](Scan-Codes): Extension: `VKeyDown` and `VKeyHit` ask for a key by its SDL scancode, which every key has.

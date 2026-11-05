@@ -18,15 +18,27 @@ ProfileSlow:Void milliseconds:Float32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `milliseconds` | In | Float32 | required |  |
+| `milliseconds` | In | Float32 | required | The length of a frame from which on it is listed. 0 (or less) stops the list. |
 
 ## Description
 
-L
+Lists every frame that takes longer than a number of milliseconds, with the frame number, the time of the frame and where the time went: the timers of the runtime that took at least half a millisecond, the time spent waiting for the GPU and the keys of the program's own parts ([ProfileBegin](ProfileBegin)) that took at least half a millisecond. The slow frame and the three after it are followed by a line with what the GPU finished in the meantime, as those times come back a frame or two late. It does the same as the environment variable `BLITZLLVM_PROFILE_SLOW`. The lines go to the standard error output, or to the file of [ProfileOutput](ProfileOutput). This is the way to find a single stutter in a long run, which the average of [ProfileFPS](ProfileFPS) hides. Without `--profile` (or `-d`), or with the timers off ([ProfileEnable](ProfileEnable)), this command does nothing.
 
 ## Differences
 
 * This is a BlitzLLVM extension: the original has no such command.
+
+## Examples
+
+```blitzbasic
+Graphics 64, 64, 0, 2
+ProfileSlow 8.0 ; list the frames that take longer than 8 ms
+For i = 1 To 100
+	Cls
+	Flip
+Next
+ProfileSlow 0
+```
 
 ## Related Commands
 

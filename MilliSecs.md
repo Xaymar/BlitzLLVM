@@ -17,11 +17,11 @@
 MilliSecs:Int32
 ```
 
-**Returns:** A number of milliseconds that keeps growing while the program runs. Its start is not fixed, so use the difference between two calls to measure time.
+**Returns:** A number of milliseconds that keeps growing while the program runs. It counts from the start of the system, like the original, on a clock that does not follow the system time (so `SeedRnd MilliSecs()` gives a new seed every run), and it wraps around to 0 after about 24.8 days. [Microseconds](Microseconds) uses the same clock, but counts from the start of the program. Its start is not fixed, so use the difference between two calls to measure time.
 
 ## Description
 
-_Not documented yet._
+MilliSecs only counts whole milliseconds, so a single frame time taken from it is off by up to 1 ms, which is a large part of a frame at several hundred frames per second. Use [Microseconds](Microseconds) for that, see [Profiling your own code](Profiling).
 
 ## Examples
 
