@@ -173,6 +173,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CreateMirror](CreateMirror)
 * [CreateNetPlayer](CreateNetPlayer)
 * [CreatePanel](CreatePanel)
+* [CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕
+* [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕
+* [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕
 * [CreatePivot](CreatePivot)
 * [CreatePlane](CreatePlane)
 * [CreateProcess](CreateProcess)
@@ -330,6 +333,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [FreeGadget](FreeGadget)
 * [FreeIconStrip](FreeIconStrip)
 * [FreeImage](FreeImage)
+* [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕
 * [FreeSampler](FreeSampler) 〔BlitzLLVM〕
 * [FreeSound](FreeSound)
 * [FreeTexture](FreeTexture)
@@ -364,6 +368,46 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetMouse](GetMouse)
 * [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [GetParent](GetParent)
+* [GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕
+* [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕
+* [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕
+* [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕
+* [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕
+* [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕
+* [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕
+* [GetPhysicsBodyShape](GetPhysicsBodyShape) 〔BlitzLLVM〕
+* [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕
+* [GetPhysicsContactSlop](GetPhysicsContactSlop) 〔BlitzLLVM〕
+* [GetPhysicsContinuous](GetPhysicsContinuous) 〔BlitzLLVM〕
+* [GetPhysicsContinuousDefault](GetPhysicsContinuousDefault) 〔BlitzLLVM〕
+* [GetPhysicsDeterministic](GetPhysicsDeterministic) 〔BlitzLLVM〕
+* [GetPhysicsFriction](GetPhysicsFriction) 〔BlitzLLVM〕
+* [GetPhysicsGravityScale](GetPhysicsGravityScale) 〔BlitzLLVM〕
+* [GetPhysicsGravityX](GetPhysicsGravityX) 〔BlitzLLVM〕
+* [GetPhysicsGravityY](GetPhysicsGravityY) 〔BlitzLLVM〕
+* [GetPhysicsGravityZ](GetPhysicsGravityZ) 〔BlitzLLVM〕
+* [GetPhysicsLayer](GetPhysicsLayer) 〔BlitzLLVM〕
+* [GetPhysicsLinearDamping](GetPhysicsLinearDamping) 〔BlitzLLVM〕
+* [GetPhysicsLinearVelocityX](GetPhysicsLinearVelocityX) 〔BlitzLLVM〕
+* [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY) 〔BlitzLLVM〕
+* [GetPhysicsLinearVelocityZ](GetPhysicsLinearVelocityZ) 〔BlitzLLVM〕
+* [GetPhysicsMaskHigh](GetPhysicsMaskHigh) 〔BlitzLLVM〕
+* [GetPhysicsMaskLow](GetPhysicsMaskLow) 〔BlitzLLVM〕
+* [GetPhysicsMass](GetPhysicsMass) 〔BlitzLLVM〕
+* [GetPhysicsMaxDelta](GetPhysicsMaxDelta) 〔BlitzLLVM〕
+* [GetPhysicsMaxSteps](GetPhysicsMaxSteps) 〔BlitzLLVM〕
+* [GetPhysicsMode](GetPhysicsMode) 〔BlitzLLVM〕
+* [GetPhysicsPositionIterations](GetPhysicsPositionIterations) 〔BlitzLLVM〕
+* [GetPhysicsRate](GetPhysicsRate) 〔BlitzLLVM〕
+* [GetPhysicsRestitution](GetPhysicsRestitution) 〔BlitzLLVM〕
+* [GetPhysicsSensor](GetPhysicsSensor) 〔BlitzLLVM〕
+* [GetPhysicsSleepThreshold](GetPhysicsSleepThreshold) 〔BlitzLLVM〕
+* [GetPhysicsSolver](GetPhysicsSolver) 〔BlitzLLVM〕
+* [GetPhysicsSpeculativeDistance](GetPhysicsSpeculativeDistance) 〔BlitzLLVM〕
+* [GetPhysicsSubsteps](GetPhysicsSubsteps) 〔BlitzLLVM〕
+* [GetPhysicsThreads](GetPhysicsThreads) 〔BlitzLLVM〕
+* [GetPhysicsVelocityIterations](GetPhysicsVelocityIterations) 〔BlitzLLVM〕
+* [GetPhysicsWorldSleeping](GetPhysicsWorldSleeping) 〔BlitzLLVM〕
 * [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
 * [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
@@ -626,6 +670,45 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PeekFloat](PeekFloat)
 * [PeekInt](PeekInt)
 * [PeekShort](PeekShort)
+* [PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕
+* [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕
+* [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕
+* [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕
+* [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕
+* [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕
+* [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕
+* [PhysicsApplyTorque](PhysicsApplyTorque) 〔BlitzLLVM〕
+* [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
+* [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕
+* [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+* [PhysicsContactSlop](PhysicsContactSlop) 〔BlitzLLVM〕
+* [PhysicsContinuous](PhysicsContinuous) 〔BlitzLLVM〕
+* [PhysicsContinuousDefault](PhysicsContinuousDefault) 〔BlitzLLVM〕
+* [PhysicsDeterministic](PhysicsDeterministic) 〔BlitzLLVM〕
+* [PhysicsFriction](PhysicsFriction) 〔BlitzLLVM〕
+* [PhysicsGravity](PhysicsGravity) 〔BlitzLLVM〕
+* [PhysicsGravityScale](PhysicsGravityScale) 〔BlitzLLVM〕
+* [PhysicsLayer](PhysicsLayer) 〔BlitzLLVM〕
+* [PhysicsLinearDamping](PhysicsLinearDamping) 〔BlitzLLVM〕
+* [PhysicsLinearVelocity](PhysicsLinearVelocity) 〔BlitzLLVM〕
+* [PhysicsMass](PhysicsMass) 〔BlitzLLVM〕
+* [PhysicsMaxDelta](PhysicsMaxDelta) 〔BlitzLLVM〕
+* [PhysicsMaxSteps](PhysicsMaxSteps) 〔BlitzLLVM〕
+* [PhysicsMode](PhysicsMode) 〔BlitzLLVM〕
+* [PhysicsPositionIterations](PhysicsPositionIterations) 〔BlitzLLVM〕
+* [PhysicsRate](PhysicsRate) 〔BlitzLLVM〕
+* [PhysicsRestitution](PhysicsRestitution) 〔BlitzLLVM〕
+* [PhysicsSensor](PhysicsSensor) 〔BlitzLLVM〕
+* [PhysicsSleeping](PhysicsSleeping) 〔BlitzLLVM〕
+* [PhysicsSleepThreshold](PhysicsSleepThreshold) 〔BlitzLLVM〕
+* [PhysicsSolver](PhysicsSolver) 〔BlitzLLVM〕
+* [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance) 〔BlitzLLVM〕
+* [PhysicsSubsteps](PhysicsSubsteps) 〔BlitzLLVM〕
+* [PhysicsThreads](PhysicsThreads) 〔BlitzLLVM〕
+* [PhysicsUpdate](PhysicsUpdate) 〔BlitzLLVM〕
+* [PhysicsVelocityIterations](PhysicsVelocityIterations) 〔BlitzLLVM〕
+* [PhysicsWake](PhysicsWake) 〔BlitzLLVM〕
+* [PhysicsWorldSleeping](PhysicsWorldSleeping) 〔BlitzLLVM〕
 * [Pi](Pi)
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)

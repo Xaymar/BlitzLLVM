@@ -41,6 +41,7 @@ Differences that are not caused by one command.
 * [Number suffixes](Number-Suffixes): Extension: a suffix behind a number (`255ui8`, `5000000000i64`, `1.5.h`, `0.1.d`) picks its exact type, and a whole number that does not fit 32 bits has to carry one.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Parameter modes (In, Out, InOut)](Parameter-Modes): Extension: function parameters can be written as `In`, `Out` or `InOut`, which decides if a value goes into the function, comes back out of it, or both.
+* [Physics](Physics): Extension: the original has no rigid body physics. `CreatePhysicsBody` and the commands that start with `Physics` add bodies that fall, collide, slide and rest, simulated by Jolt. Nothing in a program that does not use them changes.
 * [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
 * [Profiling your own code](Profiling): Extension: [Microseconds](Microseconds) times in millionths of a second, and `--profile` with the `Profile*` commands measures the parts of a program and of the runtime.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
@@ -106,6 +107,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateListBox](CreateListBox#differences): Only one entry can be selected at a time.
 * [CreateListener](CreateListener#differences): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is gentler than the curve of the original: the original (FMOD 3) is at full volume up to one meter and then falls off as meters ^ -rolloff, so at 20 meters with rolloff 1 it is at 5% where this runtime is at 50%.
 * [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
+* [CreatePhysicsBody](CreatePhysicsBody#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsWorld](CreatePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTCPServer](CreateTCPServer#differences): The server accepts IPv4 and IPv6 connections on the same port (where the system has IPv6), see [IPv6](IPv6).
@@ -153,6 +157,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [FormatTextAreaText](FormatTextAreaText#differences): Underline and strike-through are not supported, as in the original.
 * [FreeFont](FreeFont#differences): A font that does not exist stops the program with an error message.
 * [FreeImage](FreeImage#differences): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
+* [FreePhysicsWorld](FreePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
 * [FreeSound](FreeSound#differences): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
 * [FreeTexture](FreeTexture#differences): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 * [FrontBuffer](FrontBuffer#differences): The front buffer holds what the last Flip showed.
@@ -165,6 +170,46 @@ Commands that differ from the original or are not finished, with the first of th
 * [GetKey](GetKey#differences): The queue holds 64 characters, and the oldest ones are dropped when it is full.
 * [GetMouse](GetMouse#differences): Buttons 4 and 5 (the back and forward buttons) are a BlitzLLVM extension.
 * [GetMovieTexture](GetMovieTexture#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [GetPhysicsAngularDamping](GetPhysicsAngularDamping#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsAwake](GetPhysicsAwake#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsBaumgarte](GetPhysicsBaumgarte#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsBodyMotion](GetPhysicsBodyMotion#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsBodyShape](GetPhysicsBodyShape#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsBodyWorld](GetPhysicsBodyWorld#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsContactSlop](GetPhysicsContactSlop#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsContinuous](GetPhysicsContinuous#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsContinuousDefault](GetPhysicsContinuousDefault#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsDeterministic](GetPhysicsDeterministic#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsFriction](GetPhysicsFriction#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsGravityScale](GetPhysicsGravityScale#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsGravityX](GetPhysicsGravityX#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsGravityY](GetPhysicsGravityY#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsGravityZ](GetPhysicsGravityZ#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsLayer](GetPhysicsLayer#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsLinearDamping](GetPhysicsLinearDamping#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsLinearVelocityX](GetPhysicsLinearVelocityX#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsLinearVelocityZ](GetPhysicsLinearVelocityZ#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMaskHigh](GetPhysicsMaskHigh#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMaskLow](GetPhysicsMaskLow#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMass](GetPhysicsMass#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMaxDelta](GetPhysicsMaxDelta#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMaxSteps](GetPhysicsMaxSteps#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsMode](GetPhysicsMode#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsPositionIterations](GetPhysicsPositionIterations#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsRate](GetPhysicsRate#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsRestitution](GetPhysicsRestitution#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsSensor](GetPhysicsSensor#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsSleepThreshold](GetPhysicsSleepThreshold#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsSolver](GetPhysicsSolver#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsSpeculativeDistance](GetPhysicsSpeculativeDistance#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsSubsteps](GetPhysicsSubsteps#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsThreads](GetPhysicsThreads#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsVelocityIterations](GetPhysicsVelocityIterations#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsWorldSleeping](GetPhysicsWorldSleeping#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetSurfaceBrush](GetSurfaceBrush#differences): A surface that was never painted gives a plain white brush.
 * [GetTCPStreamAddress](GetTCPStreamAddress#differences): Not in the original, which only knows IPv4.
 * [GetUDPMsgAddress](GetUDPMsgAddress#differences): Not in the original, which only knows IPv4.
@@ -263,6 +308,45 @@ Commands that differ from the original or are not finished, with the first of th
 * [OpenTCPStream](OpenTCPStream#differences): IPv6 addresses and names that have them work.
 * [PauseChannel](PauseChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
 * [PauseMovie](PauseMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [PhysicsAngularDamping](PhysicsAngularDamping#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsAngularVelocity](PhysicsAngularVelocity#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyForce](PhysicsApplyForce#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyForceAt](PhysicsApplyForceAt#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyImpulse](PhysicsApplyImpulse#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsApplyTorque](PhysicsApplyTorque#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsBaumgarte](PhysicsBaumgarte#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsBodyMotion](PhysicsBodyMotion#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsBodyWorld](PhysicsBodyWorld#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsContactSlop](PhysicsContactSlop#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsContinuous](PhysicsContinuous#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsContinuousDefault](PhysicsContinuousDefault#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsDeterministic](PhysicsDeterministic#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsFriction](PhysicsFriction#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsGravity](PhysicsGravity#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsGravityScale](PhysicsGravityScale#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsLayer](PhysicsLayer#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsLinearDamping](PhysicsLinearDamping#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsLinearVelocity](PhysicsLinearVelocity#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsMass](PhysicsMass#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsMaxDelta](PhysicsMaxDelta#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsMaxSteps](PhysicsMaxSteps#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsMode](PhysicsMode#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsPositionIterations](PhysicsPositionIterations#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsRate](PhysicsRate#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsRestitution](PhysicsRestitution#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSensor](PhysicsSensor#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSleeping](PhysicsSleeping#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSleepThreshold](PhysicsSleepThreshold#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSolver](PhysicsSolver#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSubsteps](PhysicsSubsteps#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsThreads](PhysicsThreads#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsUpdate](PhysicsUpdate#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsVelocityIterations](PhysicsVelocityIterations#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsWake](PhysicsWake#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsWorldSleeping](PhysicsWorldSleeping#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PickedTime](PickedTime#differences): The official help describes this as the time taken to calculate the pick.
 * [PlayCDTrack](PlayCDTrack#differences): Always returns 0 and plays nothing.
 * [PlayMovie](PlayMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).

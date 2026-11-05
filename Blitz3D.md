@@ -18,6 +18,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Entities](Blitz3D-Entities) (44): Creating, moving, scaling and querying entities.
 * [Lights](Blitz3D-Lights) (5): Light types, color, range and cone angles.
 * [Meshes](Blitz3D-Meshes) (23): Creating, loading, transforming and querying meshes.
+* [Physics](Blitz3D-Physics) (83): Rigid bodies in physics worlds: shapes, forces, velocities and the solver.
 * [Picking](Blitz3D-Picking) (15): Finding what lies under a point, line or camera position.
 * [Sprites](Blitz3D-Sprites) (7): Camera-facing sprites.
 * [Surfaces](Blitz3D-Surfaces) (29): Vertices, triangles and surfaces of a mesh.
