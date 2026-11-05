@@ -367,10 +367,8 @@ jobs:
 
   vscode:
     name: build (vscode extension)
-    needs: matrix
-    # The Test workflow calls this workflow once per platform, and the extension is the same everywhere: only the call that
-    # builds Ubuntu 24.04 (x64) makes it, so that there is one .vsix.
-    if: inputs.packages && contains(needs.matrix.outputs.include, '"ubuntu24.04-x64"')
+    # The extension is the same on every platform, so it is built once, next to the matrix of the platforms, and only with the packages.
+    if: inputs.packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
