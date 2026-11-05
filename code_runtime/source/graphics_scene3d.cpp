@@ -60,13 +60,13 @@ namespace bb::gfx {
 		}
 		// Things that were asked to be drawn can still use it, so it is only destroyed once they have been drawn.
 		if (gpu->vertex_buffer) {
-			graveyard.push({ gpu->vertex_buffer, gpu->vertex_allocation });
+			graveyard.push({ gpu->vertex_buffer.vk, gpu->vertex_buffer.allocation });
 		}
 		if (gpu->index_buffer) {
-			graveyard.push({ gpu->index_buffer, gpu->index_allocation });
+			graveyard.push({ gpu->index_buffer.vk, gpu->index_buffer.allocation });
 		}
 		if (gpu->cluster_index_buffer) {
-			graveyard.push({ gpu->cluster_index_buffer, gpu->cluster_index_allocation });
+			graveyard.push({ gpu->cluster_index_buffer.vk, gpu->cluster_index_buffer.allocation });
 		}
 		gpu->clusters.release();
 		delete gpu;
@@ -77,17 +77,16 @@ namespace bb::gfx {
 		{
 			std::lock_guard<std::mutex> guard(prebuilt_lock);
 			for (surface_gpu* gpu = prebuilt_list; gpu; gpu = gpu->next) {
-				destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
-				destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+				rhi::destroy_buffer(gpu->vertex_buffer);
+				rhi::destroy_buffer(gpu->index_buffer);
 			}
 			prebuilt_list = nullptr; // The jobs that hold them only delete the records.
 		}
 		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
-			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
-			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
-			destroy_buffer(gpu->cluster_index_buffer, gpu->cluster_index_allocation);
+			rhi::destroy_buffer(gpu->vertex_buffer);
+			rhi::destroy_buffer(gpu->index_buffer);
+			rhi::destroy_buffer(gpu->cluster_index_buffer);
 			// A surface that goes on (the device was lost) makes new buffers from its vertices when it is drawn next.
-			gpu->vertex_mapped = gpu->index_mapped = nullptr;
 			gpu->vertex_capacity = gpu->index_capacity = gpu->index_count = 0;
 			gpu->clusters_valid = gpu->clusters_made = false;
 			gpu->used_by_flush  = 0xFFFFFFFFu;
@@ -97,41 +96,21 @@ namespace bb::gfx {
 	// Makes sure the GPU has the current geometry of the surface.
 	void* surface_prebuild(const bb::vertex3d* vertices, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count)
 	{
-		// Any thread: the allocator is the one that the program's thread handed over (see close_prebuild), held for as long as this runs.
-		std::shared_lock<std::shared_mutex> gate(prebuild_lock_gate());
-		VmaAllocator allocator = prebuild_allocator_unlocked();
-		if (!allocator || !vertex_count || !index_count) {
+		// Any thread: the buffers are made by the backend, which holds what it needs for as long as this runs (see close_prebuild).
+		if (!vertex_count || !index_count) {
 			return nullptr;
 		}
 		surface_gpu* gpu     = new surface_gpu();
 		gpu->vertex_capacity = vertex_count + vertex_count / 4 + 16;
 		gpu->index_capacity  = index_count + index_count / 4 + 48;
-
-		VmaAllocationCreateInfo alloc;
-		mesh_allocation_info(alloc);
-		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		info.sharingMode              = VK_SHARING_MODE_EXCLUSIVE;
-		VmaAllocationInfo result;
-
-		info.size  = VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d);
-		info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		bool ok    = vmaCreateBuffer(allocator, &info, &alloc, &gpu->vertex_buffer, &gpu->vertex_allocation, &result) == VK_SUCCESS;
-		if (ok) {
-			gpu->vertex_mapped = result.pMappedData;
-			info.size          = VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t);
-			info.usage         = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-			ok                 = vmaCreateBuffer(allocator, &info, &alloc, &gpu->index_buffer, &gpu->index_allocation, &result) == VK_SUCCESS;
-			gpu->index_mapped  = result.pMappedData;
-		}
-		if (!ok) {
-			if (gpu->vertex_buffer) {
-				vmaDestroyBuffer(allocator, gpu->vertex_buffer, gpu->vertex_allocation);
-			}
+		if (!rhi::create_buffer_any_thread(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh)
+			|| !rhi::create_buffer_any_thread(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh)) {
+			rhi::destroy_buffer_any_thread(gpu->vertex_buffer);
 			delete gpu;
 			return nullptr;
 		}
-		memcpy(gpu->vertex_mapped, vertices, size_t(vertex_count) * sizeof(bb::vertex3d));
-		memcpy(gpu->index_mapped, indices, size_t(index_count) * sizeof(uint32_t));
+		memcpy(gpu->vertex_buffer.mapped, vertices, size_t(vertex_count) * sizeof(bb::vertex3d));
+		memcpy(gpu->index_buffer.mapped, indices, size_t(index_count) * sizeof(uint32_t));
 		gpu->index_count = index_count;
 
 		std::lock_guard<std::mutex> guard(prebuilt_lock);
@@ -169,8 +148,8 @@ namespace bb::gfx {
 			return;
 		}
 		if (prebuilt_detach(gpu)) {
-			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
-			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+			rhi::destroy_buffer(gpu->vertex_buffer);
+			rhi::destroy_buffer(gpu->index_buffer);
 		}
 		delete gpu;
 	}
@@ -215,8 +194,8 @@ namespace bb::gfx {
 		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
 		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
 		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
-			memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
-			memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
+			memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
+			memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
 			gpu->index_count = s.indices.size;
 			gpu->clusters_valid = false;
 			return gpu;
@@ -233,11 +212,11 @@ namespace bb::gfx {
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
 		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
-		create_mesh_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, gpu->vertex_buffer, gpu->vertex_allocation, &gpu->vertex_mapped);
-		memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
+		rhi::create_buffer(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh);
+		memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
 
-		create_mesh_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, gpu->index_buffer, gpu->index_allocation, &gpu->index_mapped);
-		memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
+		rhi::create_buffer(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh);
+		memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
 
 		gpu->index_count = s.indices.size;
 		s.gpu            = gpu;
@@ -634,12 +613,12 @@ namespace bb::gfx {
 			capacity *= 2;
 		}
 		if (g.entity_buffer) {
-			graveyard.push({ g.entity_buffer, g.entity_allocation });
+			graveyard.push({ g.entity_buffer.vk, g.entity_buffer.allocation });
 		}
-		create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, g.entity_buffer, g.entity_allocation, &g.entity_mapped);
+		rhi::create_buffer(g.entity_buffer, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
 		g.entity_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.entity_buffer, 0, VK_WHOLE_SIZE };
+		VkDescriptorBufferInfo buffer_info = { g.entity_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = g.entity_set;
 		write.descriptorCount              = 1;
@@ -660,12 +639,12 @@ namespace bb::gfx {
 			capacity *= 2;
 		}
 		if (g.layer_buffer) {
-			graveyard.push({ g.layer_buffer, g.layer_allocation });
+			graveyard.push({ g.layer_buffer.vk, g.layer_buffer.allocation });
 		}
-		create_buffer(VkDeviceSize(capacity) * sizeof(layer_data), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, g.layer_buffer, g.layer_allocation, &g.layer_mapped);
+		rhi::create_buffer(g.layer_buffer, VkDeviceSize(capacity) * sizeof(layer_data), rhi::storage_data, rhi::memory::mapped);
 		g.layer_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.layer_buffer, 0, VK_WHOLE_SIZE };
+		VkDescriptorBufferInfo buffer_info = { g.layer_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = g.entity_set;
 		write.dstBinding                   = 1;
@@ -687,7 +666,7 @@ namespace bb::gfx {
 		acquire_frame();
 		cull_buffers& c       = g.cull;
 		bool          changed = false;
-		auto          grow    = [&](uint32_t& capacity, uint32_t needed, uint32_t stride, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped) {
+		auto          grow    = [&](uint32_t& capacity, uint32_t needed, uint32_t stride, rhi::buffer_usage usage, bool host, rhi::gpu_buffer& buffer) {
 			if (needed <= capacity) {
 				return;
 			}
@@ -695,21 +674,15 @@ namespace bb::gfx {
 			while (bigger < needed) {
 				bigger *= 2;
 			}
-			VkBuffer      new_buffer     = VK_NULL_HANDLE;
-			VmaAllocation new_allocation = VK_NULL_HANDLE;
-			void*         new_mapped     = nullptr;
-			create_buffer(VkDeviceSize(bigger) * stride, usage, host, new_buffer, new_allocation, host ? &new_mapped : nullptr);
+			rhi::gpu_buffer fresh;
+			rhi::create_buffer(fresh, uint64_t(bigger) * stride, usage, host ? rhi::memory::mapped : rhi::memory::device);
 			if (host && buffer) {
-				memcpy(new_mapped, *mapped, size_t(capacity) * stride);
+				memcpy(fresh.mapped, buffer.mapped, size_t(capacity) * stride);
 			}
 			if (buffer) {
-				graveyard.push({ buffer, allocation });
+				graveyard.push({ buffer.vk, buffer.allocation });
 			}
-			buffer     = new_buffer;
-			allocation = new_allocation;
-			if (host) {
-				*mapped = new_mapped;
-			}
+			buffer = fresh;
 			capacity = bigger;
 			changed  = true;
 		};
@@ -717,13 +690,13 @@ namespace bb::gfx {
 		clusters = std::max(clusters, 1u);
 		groups   = std::max(groups, 1u);
 		commands = std::max(commands, 1u);
-		grow(c.clusters_capacity, clusters, sizeof(gpu_cluster), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.clusters, c.clusters_allocation, &c.clusters_mapped);
-		grow(c.groups_capacity, groups, sizeof(gpu_cluster_group), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.groups, c.groups_allocation, &c.groups_mapped);
-		grow(c.commands_capacity, commands, sizeof(gpu_draw_command), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, c.commands, c.commands_allocation, nullptr);
+		grow(c.clusters_capacity, clusters, sizeof(gpu_cluster), rhi::storage_data, true, c.clusters);
+		grow(c.groups_capacity, groups, sizeof(gpu_cluster_group), rhi::storage_data, true, c.groups);
+		grow(c.commands_capacity, commands, sizeof(gpu_draw_command), rhi::storage_data | rhi::indirect_data, false, c.commands);
 		if (!changed) {
 			return;
 		}
-		VkDescriptorBufferInfo infos[3]  = { { c.clusters, 0, VK_WHOLE_SIZE }, { c.groups, 0, VK_WHOLE_SIZE }, { c.commands, 0, VK_WHOLE_SIZE } };
+		VkDescriptorBufferInfo infos[3]  = { { c.clusters.vk, 0, VK_WHOLE_SIZE }, { c.groups.vk, 0, VK_WHOLE_SIZE }, { c.commands.vk, 0, VK_WHOLE_SIZE } };
 		VkWriteDescriptorSet   writes[3] = {};
 		for (uint32_t i = 0; i < 3; i++) {
 			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -842,10 +815,9 @@ namespace bb::gfx {
 			});
 		}
 
-		VkBuffer      buffer     = VK_NULL_HANDLE;
-		VmaAllocation allocation = VK_NULL_HANDLE;
-		uint32_t*     mapped     = nullptr;
-		create_buffer(VkDeviceSize(triangles) * 3 * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, true, buffer, allocation, reinterpret_cast<void**>(&mapped));
+		rhi::gpu_buffer buffer;
+		rhi::create_buffer(buffer, VkDeviceSize(triangles) * 3 * sizeof(uint32_t), rhi::index_data, rhi::memory::mapped);
+		uint32_t* mapped = static_cast<uint32_t*>(buffer.mapped);
 		uint32_t count_clusters = (triangles + cluster_triangles - 1) / cluster_triangles;
 		gpu.clusters.clear();
 		gpu.clusters.reserve(count_clusters);
@@ -925,10 +897,9 @@ namespace bb::gfx {
 			}
 		});
 		if (gpu.cluster_index_buffer) {
-			graveyard.push({ gpu.cluster_index_buffer, gpu.cluster_index_allocation });
+			graveyard.push({ gpu.cluster_index_buffer.vk, gpu.cluster_index_buffer.allocation });
 		}
-		gpu.cluster_index_buffer     = buffer;
-		gpu.cluster_index_allocation = allocation;
+		gpu.cluster_index_buffer = buffer;
 		gpu.clusters_valid           = true;
 		gpu.clusters_made            = true;
 		gpu.clusters_flush           = flush_number;
@@ -984,9 +955,10 @@ namespace bb::gfx {
 			alloc.pSetLayouts                 = &g.scene_layout;
 			check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
 
-			create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true, g.scene_buffer, g.scene_allocation, &g.scene_mapped);
+			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
+			g.scene_buffer.mapped = g.scene_buffer.mapped;
 
-			VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
+			VkDescriptorBufferInfo buffer_info = { g.scene_buffer.vk, 0, sizeof(scene_data) };
 			VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 			write.dstSet                       = g.scene_set;
 			write.descriptorCount              = 1;
@@ -1304,7 +1276,7 @@ namespace bb::gfx {
 	// Has the GPU decide for the clusters of the draws of a scene which are in view, writing a command for each that draws it or not.
 	static void record_culling(scene_record const& scene)
 	{
-		gpu_cluster_group* groups = static_cast<gpu_cluster_group*>(g.cull.groups_mapped);
+		gpu_cluster_group* groups = static_cast<gpu_cluster_group*>(g.cull.groups.mapped);
 		uint32_t           first  = cull_recorded_groups;
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			draw_record& d = draws[scene.first_draw + i];
@@ -1359,28 +1331,30 @@ namespace bb::gfx {
 		bool            rewrite = false;
 		if (s.capacity < padded) {
 			if (s.table) {
-				graveyard.push({ s.table, s.table_allocation });
-				graveyard.push({ s.infos, s.infos_allocation });
+				graveyard.push({ s.table.vk, s.table.allocation });
+				graveyard.push({ s.infos.vk, s.infos.allocation });
 			}
 			uint32_t capacity = (padded + padded / 4 + lanes - 1) / lanes * lanes;
-			create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, s.table, s.table_allocation, &s.table_mapped);
-			create_buffer(VkDeviceSize(capacity) * sizeof(gpu_cluster), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, s.infos, s.infos_allocation, &s.infos_mapped);
+			rhi::create_buffer(s.table, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
+			s.table.mapped = s.table.mapped;
+			rhi::create_buffer(s.infos, VkDeviceSize(capacity) * sizeof(gpu_cluster), rhi::storage_data, rhi::memory::mapped);
+			s.infos.mapped = s.infos.mapped;
 			s.capacity = capacity;
 			s.version  = 0;
 			rewrite    = true;
 		}
 		if (s.version != version) {
-			memcpy(s.table_mapped, table.data(), size_t(padded) * sizeof(entity_push));
-			memcpy(s.infos_mapped, infos.data(), size_t(padded) * sizeof(gpu_cluster));
+			memcpy(s.table.mapped, table.data(), size_t(padded) * sizeof(entity_push));
+			memcpy(s.infos.mapped, infos.data(), size_t(padded) * sizeof(gpu_cluster));
 			s.version      = version;
 			s.log_position = uint32_t(log.size());
 		} else {
 			for (; s.log_position < log.size(); s.log_position++) {
-				static_cast<gpu_cluster*>(s.infos_mapped)[log[s.log_position]].index_count = 0;
+				static_cast<gpu_cluster*>(s.infos.mapped)[log[s.log_position]].index_count = 0;
 			}
 		}
-		if (rewrite || (s.commands_bound != g.cull.commands)) {
-			VkDescriptorBufferInfo infos_[3]  = { { s.table, 0, VK_WHOLE_SIZE }, { s.infos, 0, VK_WHOLE_SIZE }, { g.cull.commands, 0, VK_WHOLE_SIZE } };
+		if (rewrite || (s.commands_bound != g.cull.commands.vk)) {
+			VkDescriptorBufferInfo infos_[3]  = { { s.table.vk, 0, VK_WHOLE_SIZE }, { s.infos.vk, 0, VK_WHOLE_SIZE }, { g.cull.commands.vk, 0, VK_WHOLE_SIZE } };
 			VkWriteDescriptorSet   writes[3] = {};
 			for (uint32_t i = 0; i < 3; i++) {
 				writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1391,7 +1365,7 @@ namespace bb::gfx {
 				writes[i].pBufferInfo     = &infos_[i];
 			}
 			vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
-			s.commands_bound = g.cull.commands;
+			s.commands_bound = g.cull.commands.vk;
 		}
 	}
 
@@ -1546,12 +1520,12 @@ namespace bb::gfx {
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
-		entity_push* entities = static_cast<entity_push*>(g.entity_mapped);
+		entity_push* entities = static_cast<entity_push*>(g.entity_buffer.mapped);
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
 		if (layer_pushes.size) {
-			memcpy(g.layer_mapped, layer_pushes.data, size_t(layer_pushes.size) * sizeof(layer_data));
+			memcpy(g.layer_buffer.mapped, layer_pushes.data, size_t(layer_pushes.size) * sizeof(layer_data));
 		}
 		// The textures of draws with layers are in sets of their own (the first texture and the layers after it), made when the first draw needs one.
 		std::map<std::pair<uint32_t, VkDescriptorSet>, VkDescriptorSet> layered_sets;
@@ -1682,7 +1656,7 @@ namespace bb::gfx {
 				}
 				constexpr uint32_t most = 1u << 24;
 				for (uint32_t done = 0; done < r.count; done += most) {
-					vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands, VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
+					vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
 				}
 				stats3d.draws++;
 				if (k.gpu) {
@@ -1958,7 +1932,7 @@ namespace bb::gfx {
 				stats3d.buffers++;
 			}
 			if (d.cluster_count) {
-				vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands, VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
+				vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
 			} else {
 				vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
 			}
@@ -1994,7 +1968,7 @@ namespace bb::gfx {
 			part.imageOffset       = { from.x + c.sx, from.y + c.sy, 0 };
 			part.imageExtent       = { uint32_t(c.w), uint32_t(c.h), 1 };
 			transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch, 1, &part);
+			vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch.vk, 1, &part);
 			VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 			memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 			memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
@@ -2007,7 +1981,7 @@ namespace bb::gfx {
 			vkCmdPipelineBarrier2(g.cmd, &dep);
 			part.imageSubresource.baseArrayLayer = to.layer;
 			part.imageOffset = { to.x + c.dx, to.y + c.dy, 0 };
-			vkCmdCopyBufferToImage(g.cmd, scratch, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
+			vkCmdCopyBufferToImage(g.cmd, scratch.vk, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
 			transition(*to.image, previous_to);
 			return;
 		}
@@ -3509,7 +3483,7 @@ namespace bb::gfx {
 					cull_clusters = gpu->clusters.size;
 					cull_first    = cull_filled_clusters;
 					ensure_cull(cull_filled_clusters + cull_clusters, cull_filled_groups, cull_filled_commands);
-					memcpy(static_cast<gpu_cluster*>(g.cull.clusters_mapped) + cull_first, gpu->clusters.data, size_t(cull_clusters) * sizeof(gpu_cluster));
+					memcpy(static_cast<gpu_cluster*>(g.cull.clusters.mapped) + cull_first, gpu->clusters.data, size_t(cull_clusters) * sizeof(gpu_cluster));
 					cull_filled_clusters += cull_clusters;
 					gpu->used_by_flush = flush_number;
 				}
@@ -3544,8 +3518,8 @@ namespace bb::gfx {
 			record.push_index   = pushes.size;
 			pushes.push(push);
 			record.layer_group  = layer_count ? layer_group_of(layer_handles, layer_count) : 0;
-			record.vertex_buffer = shape->vertex_buffer;
-			record.index_buffer = shape->index_buffer;
+			record.vertex_buffer = shape->vertex_buffer.vk;
+			record.index_buffer = shape->index_buffer.vk;
 			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
 			record.texture_set  = texture_set_of(record.texture);
@@ -3600,7 +3574,7 @@ namespace bb::gfx {
 				}
 				record.cone = similar && record.cull && gpu_cones && current_pixels[1] == 0.0f;
 				cull_account(cull_clusters);
-				record.index_buffer = gpu->cluster_index_buffer;
+				record.index_buffer = gpu->cluster_index_buffer.vk;
 			}
 			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
@@ -3954,7 +3928,7 @@ namespace bb::gfx {
 			f.key.gpu           = nullptr;
 			for (uint32_t n = 0; n < e->surfaces.size; n++) {
 				surface_gpu* gpu = static_cast<surface_gpu*>(e->surfaces[n]->gpu);
-				if (gpu && (gpu->vertex_buffer == rec.vertex_buffer)) {
+				if (gpu && (gpu->vertex_buffer.vk == rec.vertex_buffer)) {
 					f.key.gpu = gpu;
 				}
 			}
@@ -4227,7 +4201,7 @@ namespace bb::gfx {
 		scene_record scene = {};
 		scene.slot         = scenes.size;
 		scene.reflected    = reflected;
-		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
+		memcpy(static_cast<char*>(g.scene_buffer.mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
 		current_lights = &data; // What the draws of this pass choose their lights from.
 		for (uint32_t i = 0; i < current_light_count; i++) {
 			const float* color = data.light_color[i];

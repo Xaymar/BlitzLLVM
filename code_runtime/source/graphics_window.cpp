@@ -259,7 +259,7 @@ void bb::gfx::destroy_device_objects()
 	}
 	destroy_depth_cache();
 	if (scratch) {
-		destroy_buffer(scratch, scratch_allocation);
+		rhi::destroy_buffer(scratch);
 		scratch_size = 0;
 	}
 	empty_graveyard();
@@ -285,9 +285,9 @@ void bb::gfx::destroy_device_objects()
 	}
 	destroy_swapchain();
 	stop_gpu_thread();
-	destroy_buffer(g.vertex_buffer, g.vertex_allocation);
-	destroy_buffer(g.vertex_buffer_alt, g.vertex_allocation_alt);
-	destroy_buffer(g.vertex_buffer_alt2, g.vertex_allocation_alt2);
+	rhi::destroy_buffer(g.vertex_buffer);
+	rhi::destroy_buffer(g.vertex_buffer_alt);
+	rhi::destroy_buffer(g.vertex_buffer_alt2);
 	destroy_pipeline_twins();
 	vkDestroyPipeline(g.device, g.triangles, nullptr);
 	vkDestroyPipeline(g.device, g.lines, nullptr);

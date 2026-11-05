@@ -133,8 +133,7 @@ namespace {
 			g.sets[i]     = VK_NULL_HANDLE;
 		}
 
-		g.vertex_buffer = g.vertex_buffer_alt = g.vertex_buffer_alt2 = VK_NULL_HANDLE;
-		g.vertex_allocation = g.vertex_allocation_alt = g.vertex_allocation_alt2 = VK_NULL_HANDLE;
+		g.vertex_buffer = g.vertex_buffer_alt = g.vertex_buffer_alt2 = bb::rhi::gpu_buffer();
 		g.vertices = g.vertices_alt = g.vertices_alt2 = nullptr;
 		g.vertex_count  = 0;
 		g.front_touched = false;
@@ -147,13 +146,9 @@ namespace {
 		g.layout3d     = VK_NULL_HANDLE;
 		g.entity_layout = VK_NULL_HANDLE;
 		g.entity_set    = VK_NULL_HANDLE;
-		g.entity_buffer = VK_NULL_HANDLE;
-		g.entity_allocation = VK_NULL_HANDLE;
-		g.entity_mapped   = nullptr;
+		g.entity_buffer = bb::rhi::gpu_buffer();
 		g.entity_capacity = 0;
-		g.layer_buffer = VK_NULL_HANDLE;
-		g.layer_allocation = VK_NULL_HANDLE;
-		g.layer_mapped   = nullptr;
+		g.layer_buffer   = bb::rhi::gpu_buffer();
 		g.layer_capacity = 0;
 		g.can_gpu_cull    = false;
 		g.cull_layout = VK_NULL_HANDLE;
@@ -178,9 +173,7 @@ namespace {
 		g.oit_slots3d   = VK_NULL_HANDLE;
 		g.oit_peel3d    = VK_NULL_HANDLE;
 		g.can_wireframe = g.can_anisotropy = g.can_custom_border = false;
-		g.scene_buffer     = VK_NULL_HANDLE;
-		g.scene_allocation = VK_NULL_HANDLE;
-		g.scene_mapped     = nullptr;
+		g.scene_buffer = bb::rhi::gpu_buffer();
 	}
 
 	void free_dummies()
