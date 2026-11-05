@@ -1,0 +1,39 @@
+# Template: release a game compiled with BlitzLLVM as a Flatpak. Copy this folder, rename com.example.MyGame everywhere (the file names,
+# app-id, the desktop file and the metainfo) to an id you own (reverse domain, io.github.<you>.<Game> works), then run build.sh.
+#
+# The game runs on org.freedesktop.Platform, the runtime that the BlitzLLVM Flatpak (io.github.xaymar.BlitzLLVM) is based on, so a game
+# compiled with it links against exactly the libraries that the Platform has. No compiler is shipped to the players.
+app-id: com.example.MyGame
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: mygame
+
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  # GPU (Vulkan) and controllers.
+  - --device=all
+  # Only for games with multiplayer (TCP/UDP, IPv6 included); remove it for single player games.
+  - --share=network
+  # The game does not get the player's files. Use $XDG_DATA_HOME (the launcher sets the working directory to it, see launcher.sh).
+
+modules:
+  - name: game
+    buildsystem: simple
+    build-commands:
+      # game/ holds the executable and everything blitzcc copied next to it (the libraries for movies, images and sound: libav*.so.*,
+      # libjxl*, libwebp*, libopus*, ...), plus the media files the game opens. Keep them together.
+      - mkdir -p /app/game
+      - cp -a game/. /app/game/
+      - install -Dm755 launcher.sh /app/bin/mygame
+      - install -Dm644 com.example.MyGame.desktop -t /app/share/applications
+      - install -Dm644 com.example.MyGame.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 icon.png /app/share/icons/hicolor/256x256/apps/com.example.MyGame.png
+      # The licenses of the libraries that blitzcc copied (the LGPL ones need to ship with the game).
+      - '[ ! -d licenses ] || cp -a licenses /app/share/licenses-blitzllvm'
+    sources:
+      - type: dir
+        path: .

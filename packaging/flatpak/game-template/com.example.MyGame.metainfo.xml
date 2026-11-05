@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.example.MyGame</id>
+  <name>My Game</name>
+  <summary>A game made with BlitzLLVM</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <description><p>Describe your game here.</p></description>
+  <launchable type="desktop-id">com.example.MyGame.desktop</launchable>
+  <releases><release version="1.0.0" date="2026-01-01"/></releases>
+  <content_rating type="oars-1.1"/>
+</component>

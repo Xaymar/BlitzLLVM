@@ -1,0 +1,20 @@
+# The shared libraries that programs made by BlitzLLVM load when they run (FFmpeg for movies, the image codecs, Opus). It is one extension that the
+# compiler Flatpak and every game Flatpak ask for (add-extensions), so Flatpak installs it once, however many games are installed, and a game
+# carries only its executable and its media. The files come from the same staged install as the compiler (packaging/flatpak/split.sh).
+id: io.github.xaymar.BlitzLLVM.Runtime
+branch: '25.08'
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+build-extension: true
+separate-locales: false
+modules:
+  - name: blitzllvm-runtime
+    buildsystem: simple
+    build-commands:
+      # FLATPAK_DEST is where the extension is built; Flatpak mounts it at lib/blitzllvm of every app that asks for it, and adds it to the library path.
+      - cp -a lib/. "$FLATPAK_DEST/"
+      - mkdir -p "$FLATPAK_DEST/share" && cp -a share/. "$FLATPAK_DEST/share/"
+    sources:
+      - type: dir
+        path: ../../flatpak-runtime
