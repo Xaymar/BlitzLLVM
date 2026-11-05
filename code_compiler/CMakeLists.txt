@@ -104,6 +104,27 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
+if(MINGW)
+	# The headers, libraries and runtime libraries of the compiler (llvm-mingw), that blitzcc gives to clang as its sysroot. With them a developer
+	# needs nothing but a clang with lld. They are those of the toolchain that built the runtime, so they match it.
+	get_filename_component(_MINGW_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
+	get_filename_component(_MINGW_ROOT "${_MINGW_BIN}" DIRECTORY)
+	# The C headers are not in the directory of a target but in <root>/include, which clang finds as <sysroot>/include.
+	install(DIRECTORY "${_MINGW_ROOT}/include" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "c++" EXCLUDE)
+	file(GLOB _MINGW_TRIPLES LIST_DIRECTORIES true "${_MINGW_ROOT}/*-w64-mingw32")
+	file(GLOB _MINGW_CLANG_VERSIONS LIST_DIRECTORIES true "${_MINGW_ROOT}/lib/clang/*")
+	foreach(_DIR IN LISTS _MINGW_TRIPLES)
+		get_filename_component(_TRIPLE "${_DIR}" NAME)
+		# Programs of BlitzBasic need the C headers (the inline C of the runtime) and every library to link, but not the C++ headers, nor DLLs.
+		install(DIRECTORY "${_DIR}" DESTINATION lib/blitzllvm/mingw/${_ARCH} PATTERN "bin" EXCLUDE PATTERN "c++" EXCLUDE PATTERN "*.dll" EXCLUDE)
+	endforeach()
+	foreach(_DIR IN LISTS _MINGW_CLANG_VERSIONS)
+		get_filename_component(_VERSION "${_DIR}" NAME)
+		# Of the runtime libraries of the compiler only the builtins, not the sanitizers and profilers.
+		install(DIRECTORY "${_DIR}/include" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang/${_VERSION})
+		install(DIRECTORY "${_DIR}/lib" DESTINATION lib/blitzllvm/mingw/${_ARCH}/lib/clang/${_VERSION} FILES_MATCHING PATTERN "libclang_rt.builtins*")
+	endforeach()
+endif()
 # The licenses of BlitzLLVM and of every bundled dependency that ends up in the program (the ones of the system's libraries are
 # shipped by their packages): <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
 # Vulkan-Headers, stb_truetype, cgltf and VulkanMemoryAllocator. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,
@@ -447,6 +468,11 @@ if(BLITZ_REPLACE_MALLOC)
 endif()
 find_package(Threads REQUIRED)
 target_link_libraries(memory_test PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+if(MINGW)
+	# The libc++ DLL has its own operator new and delete, so objects made by the header code of the program and freed inside the DLL would
+	# mix two allocators. Programs of the runtime link libc++ statically, and so does this test.
+	target_link_options(memory_test PRIVATE -nostdlib++ -Wl,-Bstatic -lc++ -lunwind -Wl,-Bdynamic)
+endif()
 add_test(NAME memory-allocator COMMAND memory_test)
 add_test(NAME memory-allocator-debug COMMAND memory_test)
 add_test(NAME memory-allocator-keep-spans COMMAND memory_test)

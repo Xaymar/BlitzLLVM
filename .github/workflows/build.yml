@@ -53,7 +53,7 @@ jobs:
         # This is the list of all of them; the entries with "test" are repeated in the shorter lists for builds without packages (all test
         # platforms, or Linux alone with 'all-tests' off),
         # because a matrix can only be cut down by an expression on the inputs (an 'exclude' does not apply to entries of 'include').
-        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"UCRT64","msys":"make nasm diffutils mingw-w64-ucrt-x86_64-gcc","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"ubuntu26.04-x64","os":"ubuntu-26.04","kind":"deb"},{"name":"fedora-x64","os":"ubuntu-latest","container":"fedora:latest","kind":"rpm"},{"name":"arch-x64","os":"ubuntu-latest","container":"archlinux:latest","kind":"pacman"},{"name":"ubuntu24.04-arm64","os":"ubuntu-24.04-arm","kind":"deb","snap":true},{"name":"ubuntu26.04-arm64","os":"ubuntu-26.04-arm","kind":"deb"},{"name":"fedora-arm64","os":"ubuntu-24.04-arm","container":"fedora:latest","kind":"rpm"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"UCRT64","msys":"make nasm diffutils mingw-w64-ucrt-x86_64-gcc","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"}]')) }}
+        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"ubuntu26.04-x64","os":"ubuntu-26.04","kind":"deb"},{"name":"fedora-x64","os":"ubuntu-latest","container":"fedora:latest","kind":"rpm"},{"name":"arch-x64","os":"ubuntu-latest","container":"archlinux:latest","kind":"pacman"},{"name":"ubuntu24.04-arm64","os":"ubuntu-24.04-arm","kind":"deb","snap":true},{"name":"ubuntu26.04-arm64","os":"ubuntu-26.04-arm","kind":"deb"},{"name":"fedora-arm64","os":"ubuntu-24.04-arm","container":"fedora:latest","kind":"rpm"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"}]')) }}
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -166,9 +166,14 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ExternalContentFiles
-          key: submodule-dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
+          key: submodule-dependencies-mingw-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
           restore-keys: |
-            submodule-dependencies-${{ matrix.name }}-
+            submodule-dependencies-mingw-${{ matrix.name }}-
+      # Windows is built with clang (Ninja, lld) for the MinGW target (llvm-mingw), so that building and linking programs needs neither Visual Studio
+      # nor the Windows SDK. The C runtime is the Universal C Runtime that comes with Windows.
+      - name: Set up llvm-mingw
+        if: runner.os == 'Windows'
+        uses: ./.github/actions/setup-mingw
       - name: Configure
         shell: bash
         env:
@@ -177,7 +182,8 @@ jobs:
           GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
+            TRIPLE=x86_64-w64-mingw32; [ "${{ matrix.platform }}" != ARM64 ] || TRIPLE=aarch64-w64-mingw32
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$TRIPLE-clang -DCMAKE_CXX_COMPILER=$TRIPLE-clang++ -DCMAKE_LINKER_TYPE=LLD -DCMAKE_RC_COMPILER=$TRIPLE-windres -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           else
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           fi
@@ -223,6 +229,29 @@ jobs:
           cp LICENSE.adoc README.adoc dist/
           # The libraries must not need the newer STL helpers (__std_rotate, ...), or programs fail to link with an older Visual Studio.
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
+          # The package compiles and runs a program by itself, with the MinGW headers and libraries it ships.
+          if [ "$RUNNER_OS" = Windows ]; then
+            # Programs and libraries carry libc++ and libunwind themselves. The runner has them next to its clang, so a missing DLL would
+            # not show when the program below runs, but it keeps the tools from starting on a computer that only has an LLVM install.
+            missing=0
+            while IFS= read -r -d '' file; do
+              if llvm-objdump -p "$file" | grep -qiE "DLL Name: (libc\+\+|libunwind)\.dll"; then
+                echo "$file imports libc++.dll or libunwind.dll, which the package does not ship"
+                missing=1
+              fi
+            done < <(find dist -type f \( -name '*.exe' -o -name '*.dll' \) -print0)
+            [ "$missing" = 0 ]
+            printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
+            # The inline C code of the runtime is compiled in the same step. When the headers are missing it fails and the program is slower, but it still builds.
+            dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe" 2>&1 | tee "$RUNNER_TEMP/packaged.log"
+            ! grep -qi "error" "$RUNNER_TEMP/packaged.log"
+            "$RUNNER_TEMP/packaged.exe" | grep -q "packaged ok"
+            # And with the clang that comes with the runner's LLVM install, which does not default to compiler-rt and libc++ for the MinGW target
+            # the way llvm-mingw's does (it asked for libgcc and libgcc_eh, which the package does not ship).
+            dist/bin/blitzcc --cc "C:/Program Files/LLVM/bin/clang.exe" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged_plain.exe" 2>&1 | tee "$RUNNER_TEMP/packaged_plain.log"
+            ! grep -qi "error" "$RUNNER_TEMP/packaged_plain.log"
+            "$RUNNER_TEMP/packaged_plain.exe" | grep -q "packaged ok"
+          fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
           if [ "$LOOSE" = true ]; then
             # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
