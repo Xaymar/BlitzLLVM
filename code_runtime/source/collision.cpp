@@ -1004,7 +1004,7 @@ namespace bb::collision {
 			int      coll_object   = 0;
 			int      coll_response = 0;
 			for (uint32_t r = 0; r < rules.size; r++) {
-				if (rules[r].source != src.coll_type) {
+				if ((rules[r].source != src.coll_type) || (rules[r].method < 1) || (rules[r].method > 3)) {
 					continue;
 				}
 				buffer<int> const& objects = by_type[rules[r].destination];
@@ -1264,14 +1264,14 @@ void bb_entity_box(int32_t handle, float x, float y, float z, float w, float h, 
 	e->box[4] = h;
 	e->box[5] = d;
 }
+// Method: 1 = sphere, 2 = polygons, 3 = box; any other value never hits anything, but still is the rule for the pair of types.
 // Response: 1 = stop, 2 = slide, 3 = slide, but not down slopes. Any other value slides like 2 without limiting how far, as in the original.
 void bb_collisions(int32_t source, int32_t destination, int32_t method, int32_t response)
 {
+	// The original takes any value here, without an error. Entity types are 0 to 999, so a rule for a type outside of that can
+	// never match an entity, and is not kept.
 	if ((source < 0) || (source > 999) || (destination < 0) || (destination > 999)) {
-		fail("Collisions: the types have to be between 0 and 999.");
-	}
-	if ((method < 1) || (method > 3)) {
-		fail("Collisions: the method has to be between 1 and 3.");
+		return;
 	}
 	for (uint32_t r = 0; r < rules.size; r++) {
 		if ((rules[r].source == source) && (rules[r].destination == destination)) {
