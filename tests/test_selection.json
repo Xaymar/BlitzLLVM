@@ -43,8 +43,8 @@
 			"tests": ["^cli-"]
 		},
 		"tools": {
-			"description": "blitz-format, blitz-tidy and the library they share.",
-			"tests": ["^(tools-library|format-|tidy-)"]
+			"description": "blitz-format, blitz-tidy, the language server and the library they share.",
+			"tests": ["^(tools-library|format-|tidy-|lsp-|vscode-)"]
 		}
 	},
 
@@ -83,7 +83,8 @@
 		{"match": "^tests/cli/profile\\.", "areas": "graphics"},
 		{"match": "^tests/cli/", "areas": "cli"},
 		{"match": "^tests/(format|tidy)/", "areas": "tools"},
-		{"match": "^code_(format|tidy|tools)/", "areas": "tools"},
+		{"match": "^code_(format|tidy|tools|lsp)/", "areas": "tools"},
+		{"match": "^tools/(vscode/|generate_vscode_grammar\\.py$)", "areas": "tools"},
 		{"match": "^code_compiler/userlibs/", "areas": "cli"},
 
 		{"match": "^code_runtime/source/sound\\.c$", "areas": "audio"},

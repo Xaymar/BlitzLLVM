@@ -71,14 +71,23 @@ bool blitz::token::operator==(std::string const& rhs) const
 
 blitz::lexer::~lexer() {}
 
+static std::function<bool(std::filesystem::path const&, std::string&)> source_override;
+
+void blitz::lexer::set_source_override(std::function<bool(std::filesystem::path const&, std::string&)> provider)
+{
+	source_override = std::move(provider);
+}
+
 blitz::lexer::lexer(std::filesystem::path file) : _file(file), _data(), _offset(0), _text_end(size_t(-1)), _location{ 1, 1 }
 {
 	// We read the entire file up front: Blitz source files are small, and it makes saving/restoring state trivial.
-	std::ifstream stream(_file, std::ios_base::binary);
-	if (!stream.good()) {
-		throw std::runtime_error(blitz::format("Reading file '%s' failed.", file.generic_string().c_str()));
+	if (!(source_override && source_override(_file, _data))) {
+		std::ifstream stream(_file, std::ios_base::binary);
+		if (!stream.good()) {
+			throw std::runtime_error(blitz::format("Reading file '%s' failed.", file.generic_string().c_str()));
+		}
+		_data.assign(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
 	}
-	_data.assign(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
 
 	// Skip a UTF-8 byte order mark if there is one.
 	if ((_data.size() >= 3) && (_data.compare(0, 3, "\xEF\xBB\xBF") == 0)) {
