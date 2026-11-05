@@ -8,18 +8,21 @@ A release is a version tag on a commit of the `root` branch. Pushing the tag mak
 
 ## Cutting a release
 
-1. Tag the commit and push the tag:
+1. Get the version of the commit and tag it with exactly that:
 
    ```sh
-   git tag 0.2.0 <commit>
-   git push origin 0.2.0
+   VERSION=$(.github/scripts/release_version.py <commit>)   # such as 2026.11.5.19421
+   git tag $VERSION <commit>
+   git push origin $VERSION
    ```
+
+   The version is the one that `blitzcc -v` prints for a build of the commit (`cmake -P cmake/project_version.cmake` in a checkout of it): the UTC commit date as `YEAR.MONTH.DAY`, and the time of day in units of 2 seconds. The Release workflow refuses a tag that is not the version of its commit.
 
 2. Watch the Release workflow. It creates the release with the tag as its title.
 
-Tag names are numbers only, with no `v`: `0.2.0`, or `0.2.0.1`. A suffix after a dash such as `0.2.0-rc1` makes it a pre-release. The `nightly`, `daily`, `weekly`, `monthly` and `yearly` tags never match, so they are unaffected. They stay on their own blank commits, and the release workflow never touches them.
+Tag names are the version only, with no `v`: `2026.11.5.19421`. A suffix after a dash such as `2026.11.5.19421-rc1` makes it a pre-release. The `nightly`, `daily`, `weekly`, `monthly` and `yearly` tags never match, so they are unaffected. They stay on their own blank commits, and the release workflow never touches them.
 
-To build and release a tag that exists already (a failed run, or to replace the binaries), start the workflow by hand: Actions > Release > Run workflow, with the tag in the `tag` field. The workflow never creates tags, and refuses names that are not release tags.
+To build and release a tag that exists already (a failed run, or to replace the binaries), start the workflow by hand: Actions > Release > Run workflow, with the tag in the `tag` field. Tags from before the version scheme (`0.1.0` to `0.12.0`) are not the version of their commit, so the workflow refuses them. The workflow never creates tags, and refuses names that are not release tags.
 
 ## What is published
 
@@ -37,7 +40,7 @@ To build and release a tag that exists already (a failed run, or to replace the 
 The script can be run locally in a clone with all tags and history. `--dry-run` prints the notes and the plan, and does not talk to GitHub. The tag does not have to exist yet, `HEAD` then stands in for it:
 
 ```sh
-.github/scripts/release.py 0.2.0 --dry-run
+.github/scripts/release.py 2026.11.5.19421 --dry-run
 ```
 
 ## Daily, weekly, monthly and yearly builds
