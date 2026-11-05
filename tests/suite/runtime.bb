@@ -54,6 +54,13 @@ For i = 1 To Len(ram)
 Next
 CheckTrue "SystemProperty$ ram is digits", digits = 1 And Len(ram) > 0
 CheckTrue "SystemProperty$ ram is at least 64 MiB", Len(ram) >= 9
+
+; runtime is the version (and the commit), timestamp the time the program was compiled in UTC as 2026-11-05T11:00:05Z.
+CheckTrue "SystemProperty$ runtime", Len(SystemProperty$("runtime")) > 0
+CheckTrue "SystemProperty$ runtime starts with a year", Int(Left$(SystemProperty$("runtime"), 4)) >= 2026
+stamp$ = SystemProperty$("timestamp")
+CheckTrue "SystemProperty$ timestamp format", Len(stamp) = 20 And Mid$(stamp, 5, 1) = "-" And Mid$(stamp, 11, 1) = "T" And Right$(stamp, 1) = "Z"
+CheckTrue "SystemProperty$ timestamp year", Int(Left$(stamp, 4)) >= 2026
 CheckS "SystemProperty$ names are not case sensitive", SystemProperty$("RAM"), ram
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 

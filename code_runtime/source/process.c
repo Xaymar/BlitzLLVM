@@ -142,6 +142,42 @@ static const char* bb_cpu_name(void)
 	return bb_copy(buffer, length);
 }
 
+// The version and commit of the runtime, such as 2026.11.4.27883-b49e213, as the build tells (see code_runtime/CMakeLists.txt).
+static const char* bb_runtime_version(void)
+{
+#if defined(BLITZLLVM_VERSION)
+	const char* version = BLITZLLVM_VERSION;
+#else
+	const char* version = "";
+#endif
+#if defined(BLITZLLVM_COMMIT)
+	const char* commit = BLITZLLVM_COMMIT;
+#else
+	const char* commit = "";
+#endif
+	char buffer[128];
+	int  n = snprintf(buffer, sizeof(buffer), commit[0] ? "%s-%s" : "%s", version, commit);
+	return bb_copy(buffer, (size_t)n);
+}
+
+// The time the program was compiled in UTC, as 2026-11-05T11:00:05Z. The compiler puts it into the start of every program.
+static char bb_build_time[32] = "";
+
+void bb_set_build_time(const char* stamp)
+{
+	size_t length = bb_slen(stamp);
+	if (length >= sizeof(bb_build_time)) {
+		length = sizeof(bb_build_time) - 1;
+	}
+	memcpy(bb_build_time, bb_s(stamp), length);
+	bb_build_time[length] = 0;
+}
+
+static const char* bb_build_timestamp(void)
+{
+	return bb_copy(bb_build_time, strlen(bb_build_time));
+}
+
 // The name and version of the operating system.
 static const char* bb_os_name(void)
 {
@@ -239,7 +275,7 @@ static const char* bb_ram_size(void)
 	return bb_copy(buffer, (size_t)n);
 }
 
-// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir, and cpu, os and ram for the machine. Off Windows there is no such thing as the Windows
+// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir, cpu, os and ram for the machine, and runtime and timestamp for the build. Off Windows there is no such thing as the Windows
 // folder, so windowsdir is where the system keeps its configuration (/etc/ or /System/ on macOS) and systemdir is
 // where it keeps its libraries (/usr/lib/ or /System/Library/ on macOS). Anything else is an empty string.
 const char* bb_system_property(const char* name)
@@ -262,6 +298,10 @@ const char* bb_system_property(const char* name)
 		return bb_os_name();
 	} else if (!strcmp(wanted, "ram") || !strcmp(wanted, "RAM")) {
 		return bb_ram_size();
+	} else if (!strcmp(wanted, "runtime") || !strcmp(wanted, "RUNTIME")) {
+		return bb_runtime_version();
+	} else if (!strcmp(wanted, "timestamp") || !strcmp(wanted, "TIMESTAMP")) {
+		return bb_build_timestamp();
 	} else if (!strcmp(wanted, "windowsdir") || !strcmp(wanted, "WINDOWSDIR")) {
 #if defined(_WIN32)
 		value = getenv("SystemRoot");
