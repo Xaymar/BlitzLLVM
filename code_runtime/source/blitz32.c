@@ -16,6 +16,7 @@ __declspec(dllimport) void* __stdcall VirtualAlloc(void*, size_t, unsigned long,
 #endif
 
 #include "blitz32.h"
+#include "memory.h"
 #include "runtime_internal.h"
 
 const char* bb_str_from_i64(int64_t v);
@@ -203,7 +204,7 @@ static uint32_t string_alloc(char* text, size_t length)
 
 static char* text_copy(const char* s, size_t n)
 {
-	char* t = (char*)malloc(n + 1);
+	char* t = (char*)bb_malloc(n + 1);
 	if (!t) {
 		fputs("Out of memory.\n", stderr);
 		exit(1);
@@ -226,7 +227,7 @@ uint32_t bb32_str_take_text(char* text)
 		return string_alloc(text_copy("", 0), 0);
 	}
 	size_t n = strlen(text);
-	return string_alloc(text, n); // Already allocated by the runtime with malloc.
+	return string_alloc(text, n); // Already allocated by the runtime with bb_malloc.
 }
 
 const char* bb32_str_text(uint32_t str)
@@ -242,7 +243,7 @@ void bb32_str_release(uint32_t str)
 	if (strings[str].cstr) {
 		bb32_free(strings[str].cstr);
 	}
-	free(strings[str].text);
+	bb_free(strings[str].text);
 	strings[str].text = NULL;
 	if (string_free_count == string_free_cap) {
 		string_free_cap = string_free_cap ? string_free_cap * 2 : 1024;
@@ -275,7 +276,7 @@ uint32_t bb32_str_concat(uint32_t s1, uint32_t s2)
 {
 	bb32_string* a = &strings[s1];
 	bb32_string* b = &strings[s2];
-	a->text = (char*)realloc(a->text, a->length + b->length + 1);
+	a->text = (char*)bb_realloc(a->text, a->length + b->length + 1);
 	if (!a->text) {
 		fputs("Out of memory.\n", stderr);
 		exit(1);
@@ -626,7 +627,7 @@ static void text_append(char** text, size_t* length, size_t* cap, const char* s,
 {
 	if (*length + n + 1 > *cap) {
 		*cap  = (*length + n + 1) * 2;
-		*text = (char*)realloc(*text, *cap);
+		*text = (char*)bb_realloc(*text, *cap);
 	}
 	memcpy(*text + *length, s, n);
 	*length += n;
@@ -666,7 +667,7 @@ static void obj_text(uint32_t obj, char** text, size_t* length, size_t* cap)
 		case T_INT: {
 			char* s = (char*)bb_str_from_i64(*I32(at));
 			text_append(text, length, cap, s, strlen(s));
-			free(s);
+			bb_free(s);
 			break;
 		}
 		case T_FLT: {
@@ -674,7 +675,7 @@ static void obj_text(uint32_t obj, char** text, size_t* length, size_t* cap)
 			memcpy(&f, arena + at, 4);
 			char* s = (char*)bb_str_from_f64((double)f);
 			text_append(text, length, cap, s, strlen(s));
-			free(s);
+			bb_free(s);
 			break;
 		}
 		case T_STR:
