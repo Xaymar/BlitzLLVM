@@ -69,8 +69,8 @@ def main():
     parser.add_argument("--scratch", default=os.path.join(os.path.expanduser("~"), "commit-builds"))
     parser.add_argument("--build-script", metavar="SCRIPT", help="build with this PowerShell script (Windows; benchmarks/build_windows.ps1) instead of build_rev.sh")
     parser.add_argument("--build-dir", default=os.path.join(os.path.expanduser("~"), "commit-build-tree"), help="build folder that is kept between commits")
-    parser.add_argument("--tags", nargs="?", const=r"^\d+\.\d+\.\d+$", metavar="REGEX",
-                        help="only the code states of the commits that have a version tag (X.Y.Z, or the regex given); also writes tags/<tag>.json")
+    parser.add_argument("--tags", nargs="?", const=r"^\d+\.\d+\.\d+(\.\d+)?$", metavar="REGEX",
+                        help="only the code states of the commits that have a version tag (X.Y.Z or X.Y.Z.W, or the regex given); also writes tags/<tag>.json")
     parser.add_argument("--only", metavar="LIST", help="only these benchmarks (history.py --only): states that already have a result get the missing ones added")
     parser.add_argument("--download", metavar="OWNER/REPO", help="do not build: download the CI binaries of every commit with gh (Windows)")
     args = parser.parse_args()

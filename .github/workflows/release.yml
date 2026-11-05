@@ -1,6 +1,6 @@
 name: Release
 
-# Builds a version tag (1.2.3, 1.2.3-rc1) from scratch and publishes a GitHub release with the resulting binaries. Nothing is
+# Builds a version tag (2026.11.5.19421, 2026.11.5.19421-rc1) from scratch and publishes a GitHub release with the resulting binaries. Nothing is
 # restored from or saved to a cache, so the binaries are clean. The moving tags (nightly, daily, weekly, monthly, yearly) do not
 # match these patterns. A release can also be made, or its binaries replaced, by hand for a tag that exists already.
 # See docs/wiki/Releasing.md.
@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build and release, such as 0.2.0 or 0.2.0-rc1'
+        description: 'Existing tag to build and release, such as 2026.11.5.19421 or 2026.11.5.19421-rc1'
         type: string
         required: true
 
@@ -39,7 +39,7 @@ jobs:
         run: |
           # The same patterns as the push trigger: a manual run must not release nightly, daily, a branch name and so on.
           if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+(\.[0-9]+){2,3}(-[0-9A-Za-z][0-9A-Za-z.-]*)?$'; then
-            echo "::error::'$TAG' is not a release tag. Release tags look like 1.2.3 or 1.2.3-rc1."
+            echo "::error::'$TAG' is not a release tag. Release tags look like 2026.11.5.19421 or 2026.11.5.19421-rc1."
             exit 1
           fi
           if [ -z "$(git ls-remote --tags "https://github.com/${GITHUB_REPOSITORY}.git" "refs/tags/${TAG}")" ]; then
@@ -47,6 +47,22 @@ jobs:
             exit 1
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Check that the tag is the version of its commit
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          # The compiler of the tagged commit reports the version in cmake/project_version.cmake, and the tag has to name it.
+          git init -q .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin "refs/tags/${TAG}:refs/tags/${TAG}"
+          git checkout -q "refs/tags/${TAG}"
+          git submodule update -q --init --depth 1 cmake/version
+          EXPECTED="$(cmake -P cmake/project_version.cmake)"
+          ACTUAL="${TAG%%-*}"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::The tag '$TAG' is not the version of its commit. The compiler built from it reports $EXPECTED, so the tag has to be $EXPECTED (or $EXPECTED-rc1 for a pre-release). Print it with: .github/scripts/release_version.py <commit>"
+            exit 1
+          fi
 
   build:
     name: Build
