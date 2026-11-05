@@ -8,7 +8,7 @@ binaries that the Nightly workflow built for the tagged commit are used.
 
 Needs git (with the full history and all tags) and, unless --dry-run is given, the GitHub CLI with GH_TOKEN set.
 --dry-run only prints the release notes and what would be done, and touches neither the network nor GitHub, so it can be
-tried against any local clone: .github/scripts/release.py 0.2.0 --dry-run  (the tag does not have to exist yet, then HEAD
+tried against any local clone: .github/scripts/release.py 2026.11.5.19421 --dry-run  (the tag does not have to exist yet, then HEAD
 is used as the tagged commit).
 """
 import argparse
@@ -22,7 +22,7 @@ import tempfile
 import time
 
 NIGHTLY_WORKFLOW = "nightly.yml"
-# Tags of releases: 1.2.3, 1.2.3.4 and 1.2.3-rc1. The moving tags (nightly, daily, weekly, monthly, yearly) do not match.
+# Tags of releases: the version of the commit (2026.11.5.19421, see release_version.py), optionally with -rc1. Older ones were 0.12.0. The moving tags (nightly, daily, weekly, monthly, yearly) do not match.
 VERSION_TAG = re.compile(r"^(\d+(?:\.\d+){1,3})(?:-([0-9A-Za-z][0-9A-Za-z.-]*))?$")
 # Commits that are noise in a changelog.
 IGNORED_SUBJECTS = re.compile(r"^(Update copyright headers|Merge\b|Revert \"Update copyright headers)", re.IGNORECASE)
