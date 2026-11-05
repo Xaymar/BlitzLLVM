@@ -266,6 +266,9 @@ int main(int argc, char** argv)
 		if (verbose) {
 			std::cout << command << std::endl;
 		}
+#if defined(_WIN32)
+		command = "\"" + command + "\""; // cmd.exe drops the first and last quote of a command that starts with one.
+#endif
 		int rc = std::system(command.c_str());
 		fs::remove_all(temp, ec);
 		if (rc != 0) {
