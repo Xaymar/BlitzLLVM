@@ -149,6 +149,7 @@ namespace bb::scene {
 		}
 		s->vertices.release();
 		s->indices.release();
+		s->long_triangles.release();
 		delete s;
 	}
 

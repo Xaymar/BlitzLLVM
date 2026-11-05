@@ -172,6 +172,13 @@ namespace bb {
 		int   fx        = 0;
 	};
 
+	// A triangle of a surface that has an edge that is long enough for the renderer to look at it (see clip_surface in graphics_scene3d.cpp).
+	struct long_triangle {
+		uint32_t first;     // The index of its first corner.
+		float    center[3]; // Where its corners are around, in the space of the surface.
+		float    length;    // The longest of its edges.
+	};
+
 	struct surface {
 		skin_data* skin = nullptr; // If the vertices are moved by bones, which makes them different for each copy.
 		bool     bound_valid = false; // The box around the vertices below, which the renderer lets go of when the vertices change.
@@ -198,6 +205,7 @@ namespace bb {
 		// below), the cut copy that is drawn instead, and what it was cut for.
 		bool     long_edges        = false;
 		uint32_t long_edges_version = 0xFFFFFFFFu;
+		buffer<long_triangle> long_triangles; // The triangles that have a long edge, so only those are looked at per frame.
 		surface* clip_draw         = nullptr;
 		bool     clip_key_valid    = false;
 		uint32_t clip_key_version  = 0;
