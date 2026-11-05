@@ -19,34 +19,18 @@ on:
   # By hand, for a commit that no push built (one that only changed documentation), so that it can be released. Only a run on
   # root replaces the nightly release.
   workflow_dispatch:
-  # The Periodic workflow builds the daily, weekly, monthly and yearly releases with this workflow, without caches.
-  workflow_call:
-    inputs:
-      clean:
-        description: 'Build without restoring or saving any cache, from a fresh checkout'
-        type: boolean
-        default: false
-      tags:
-        description: 'Moving releases to publish instead of nightly, separated by spaces (empty with clean: only build)'
-        type: string
-        default: ''
 
-# A clean build must not cancel a nightly build, nor be cancelled by one.
 concurrency:
-  group: ${{ inputs.clean && 'nightly-clean' || 'nightly' }}
-  cancel-in-progress: ${{ !inputs.clean }}
+  group: nightly
+  cancel-in-progress: true
 
 jobs:
   build:
     # The platforms, packages and their checks are in build.yml, which the Test workflow uses as well.
     uses: ./.github/workflows/build.yml
-    with:
-      clean: ${{ inputs.clean == true }}
 
   release:
     needs: build
-    # A clean build without tags only checks that it builds.
-    if: ${{ !inputs.clean || inputs.tags != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -62,7 +46,7 @@ jobs:
           path: artifacts
       - name: Publish nightly release
         # A manual run of another branch only proves that it builds.
-        if: ${{ !inputs.clean && github.ref == 'refs/heads/root' }}
+        if: ${{ github.ref == 'refs/heads/root' }}
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -100,20 +84,3 @@ jobs:
           else
             gh release create nightly release/* --prerelease --verify-tag --title "$TITLE" --notes "$NOTES"
           fi
-      - name: Publish the moving releases
-        if: ${{ inputs.clean }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          TAGS: ${{ inputs.tags }}
-        run: |
-          mkdir release
-          for d in artifacts/*; do
-            case "$d" in
-              *-packages) mv "$d"/* release/ ;;
-              *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
-            esac
-          done
-          ls -l release
-          # shellcheck disable=SC2086
-          python3 .github/scripts/periodic.py publish $TAGS --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --version "$VERSION" --files release

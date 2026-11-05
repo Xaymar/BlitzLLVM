@@ -1,7 +1,6 @@
 name: Build
 
-# The build and packaging of all platforms, for the Nightly workflow (which publishes the result), the Periodic workflow (through
-# Nightly, with 'clean') and the Test workflow (which builds pull requests and tests them). The caller decides what to do with the
+# The build and packaging of all platforms, for the Nightly workflow (which publishes the result), the Release workflow (with 'clean') and the Test workflow (which builds pull requests and tests them). The caller decides what to do with the
 # artifacts, which are named blitzllvm-<version>-<platform> and, for the Linux and macOS packages, blitzllvm-<version>-<platform>-packages.
 # A call builds every platform of the matrix below, except without 'packages': then only the ones with a "test" entry (Linux, Windows and
 # macOS) are built, as the others would only be built to be packaged. With 'tests' those also upload their build tree for the Test workflow.
