@@ -275,11 +275,6 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		endif()
 		# The Release and the Debug run of a program use the same files in tests/suite (suite_tmp_*) and ports, so they take turns.
 		set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-${_NAME}")
-		if((_NAME STREQUAL "blitz3d_dither_blend_pixels" OR _NAME STREQUAL "blitz3d_dither_blend_deep_pixels") AND BLITZ_TEST_GPU)
-			# Again without the local read extensions, which is how the pixel interlock gets used where it is there.
-			add_test(NAME "${_PREFIX}-run-${_NAME}-interlock" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
-			set_tests_properties("${_PREFIX}-run-${_NAME}-interlock" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite;gpu" ENVIRONMENT "BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_DITHER_LOCAL_READ=0;BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
-		endif()
 		if(_NAME STREQUAL "blitz3d_pick_large_meshes" OR _NAME STREQUAL "blitz3d_collision_large_meshes")
 			# Again with the runtime finding what is hit itself (the physics library is the default), which has to give the same answers.
 			if(_NAME STREQUAL "blitz3d_pick_large_meshes")
@@ -626,9 +621,5 @@ if(_KNOWN_FAILURES)
 			set(_LABELS)
 		endif()
 		set_tests_properties("${_TEST}" PROPERTIES ${_PROPERTY} TRUE LABELS "${_LABELS};pending")
-		if(_PROPERTY STREQUAL "DISABLED" AND TEST "${_TEST}-interlock")
-			# The second run of the dither programs (without the local read extensions) needs the same program.
-			set_tests_properties("${_TEST}-interlock" PROPERTIES DISABLED TRUE)
-		endif()
 	endforeach()
 endif()

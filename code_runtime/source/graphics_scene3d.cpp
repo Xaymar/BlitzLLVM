@@ -363,7 +363,7 @@ namespace bb::gfx {
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 		blending.attachmentCount                     = 1;
 		blending.pAttachments                        = &blend;
-		if (shader_blend && !blend_interlock()) {
+		if (shader_blend) {
 			// The shader reads what is there, and the draws that touch a pixel keep their order while it does.
 			blending.flags = VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
 		}
@@ -396,13 +396,8 @@ namespace bb::gfx {
 		VkRenderingInputAttachmentIndexInfoKHR inputs      = { VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO_KHR };
 		inputs.colorAttachmentCount                         = 1;
 		inputs.pColorAttachmentInputIndices                 = &input_index;
-		if (shader_blend && !blend_interlock()) {
+		if (shader_blend) {
 			rendering.pNext = &inputs;
-		}
-		if (shader_blend && blend_interlock()) {
-			// The shader writes the target itself, as a storage image: no color attachment.
-			rendering.colorAttachmentCount = 0;
-			blending.attachmentCount       = 0;
 		}
 		// Order-independent transparency draws to four images (see graphics_oit.cpp), of which the blend mode writes the ones it has sums in:
 		// alpha writes 0 (color * alpha * weight and alpha * weight, added) and 1 (the product of 1 - alpha), multiply writes 2 (the product
@@ -965,14 +960,14 @@ namespace bb::gfx {
 		select_frame_slot(0);
 
 		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade. Set 4, if the GPU can blend in the shader, is the target.
-		if (g.can_blend_dither || blend_interlock()) {
-			VkDescriptorSetLayoutBinding input_binding = { 0, blend_interlock() ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		if (g.can_blend_dither) {
+			VkDescriptorSetLayoutBinding input_binding = { 0, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 			set_info.pBindings                         = &input_binding;
 			check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.input_layout), "vkCreateDescriptorSetLayout");
 		}
-		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, (g.can_blend_dither || blend_interlock()) ? g.input_layout : g.set_layout };
+		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, g.can_blend_dither ? g.input_layout : g.set_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = (g.can_blend_dither || blend_interlock()) ? 5 : 4;
+		layout_info.setLayoutCount         = g.can_blend_dither ? 5 : 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
@@ -1015,10 +1010,10 @@ namespace bb::gfx {
 	{
 		if (!g.dot33d && !g.dot33d_tried) {
 			g.dot33d_tried = true;
-			if (g.can_blend_dither || blend_interlock()) {
+			if (g.can_blend_dither) {
 				VkShaderModule vs      = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 				VkShaderModule fs      = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
-				VkShaderModule fs_dot3 = blend_interlock() ? create_shader(bb_shader_fragment_3d_blend_interlock, sizeof(bb_shader_fragment_3d_blend_interlock)) : create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend));
+				VkShaderModule fs_dot3 = create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend));
 				g.dot33d               = create_pipeline_3d(vs, fs_dot3, 5, false, true, fs);
 				vkDestroyShaderModule(g.device, fs_dot3, nullptr);
 				vkDestroyShaderModule(g.device, fs, nullptr);
@@ -1036,7 +1031,7 @@ namespace bb::gfx {
 		// With Dither 2 the blended things are drawn by the shader that blends itself.
 		// (Order-independent transparency does not blend in the shader; what it leaves to the fixed function is blended as with Dither 1.)
 		bool           shader_blend = (dither_level() == 2) && !oit_active();
-		VkShaderModule fs_blend     = shader_blend ? (blend_interlock() ? create_shader(bb_shader_fragment_3d_blend_interlock, sizeof(bb_shader_fragment_3d_blend_interlock)) : create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend))) : fs;
+		VkShaderModule fs_blend     = shader_blend ? create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend)) : fs;
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
 		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend, fs);
@@ -1440,8 +1435,7 @@ namespace bb::gfx {
 				}
 			}
 		}
-		bool          interlock     = shader_blends && blend_interlock();
-		VkImageLayout target_layout = (shader_blends && !interlock) ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		VkImageLayout target_layout = shader_blends ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		transition(*target.image, target_layout);
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1513,11 +1507,6 @@ namespace bb::gfx {
 			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
 
-		// With the interlock the blended draws go to the target as a storage image, which is a pass of its own without a color attachment.
-		VkRenderingInfo info_storage = info;
-		info_storage.colorAttachmentCount = 0;
-		info_storage.pColorAttachments    = nullptr;
-		bool storage_mode = false;
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
 		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
@@ -1563,7 +1552,7 @@ namespace bb::gfx {
 			depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 			oit_mode     = false;
 			oit_phase    = 0;
-			vkCmdBeginRendering(g.cmd, storage_mode ? &info_storage : &info);
+			vkCmdBeginRendering(g.cmd, &info);
 			VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
 			vkCmdSetViewport(g.cmd, 0, 1, &whole);
 			vkCmdSetScissor(g.cmd, 0, 1, &scissor);
@@ -1721,7 +1710,7 @@ namespace bb::gfx {
 				i         = oit_begin;
 				continue;
 			}
-			if (!static_done && (i >= scene.static_after) && !read_only && !storage_mode && !oit_mode) {
+			if (!static_done && (i >= scene.static_after) && !read_only && !oit_mode) {
 				emit_static();
 			}
 			if ((i == soft_first) && !read_only) {
@@ -1729,7 +1718,7 @@ namespace bb::gfx {
 				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 				depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 				depth.loadOp      = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, oit_mode ? &oit_info : (storage_mode ? &info_storage : &info));
+				vkCmdBeginRendering(g.cmd, oit_mode ? &oit_info : &info);
 				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 				VkDescriptorSet depth_set = depth_set_for(depth_image);
@@ -1861,20 +1850,6 @@ namespace bb::gfx {
 					leave_oit();
 				}
 			}
-			if (interlock) {
-				bool blended = blends_itself(d.pipeline);
-				if (blended != storage_mode) {
-					vkCmdEndRendering(g.cmd);
-					transition(*target.image, blended ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-					storage_mode = blended;
-					depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-					vkCmdBeginRendering(g.cmd, storage_mode ? &info_storage : &info);
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-					bound_pipeline = VK_NULL_HANDLE;
-					bound_cull = bound_test = bound_write = -1;
-				}
-			}
 			if (d.oit) {
 				oit_modes |= 1u << oit_bit(d.pipeline);
 			}
@@ -1926,17 +1901,6 @@ namespace bb::gfx {
 			leave_oit();
 		}
 		if (!static_done) {
-			if (storage_mode) {
-				vkCmdEndRendering(g.cmd);
-				transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-				storage_mode = false;
-				depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, &info);
-				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-				bound_pipeline = VK_NULL_HANDLE;
-				bound_cull = bound_test = bound_write = -1;
-			}
 			emit_static();
 		}
 		vkCmdEndRendering(g.cmd);

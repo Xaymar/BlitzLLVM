@@ -23,7 +23,7 @@ OP = dict(
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalOr=166, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
-    Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
+    Extension=10,
     IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
@@ -811,7 +811,7 @@ def palette_nearest_code(b, lookup, color):
     return b.emit("Phi", v3, exact, then, approximate, other)
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False, oit=0, slots=4):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, oit=0, slots=4):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
@@ -838,12 +838,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     }
     """
     b = Builder()
-    if interlock:
-        # Prototype: the target is a storage image read and written inside a pixel interlock (VK_EXT_fragment_shader_interlock).
-        blend = True
-        b.m.header.insert(1, Module.inst("Extension", string_words("SPV_EXT_fragment_shader_interlock")))
-        b.m.header.insert(1, Module.inst("Capability", 5378))  # FragmentShaderPixelInterlockEXT
-    if blend and not interlock:
+    if blend:
         b.m.header.insert(1, Module.inst("Capability", 40))  # InputAttachment
     f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
     void, fn = b.void(), b.fn()
@@ -911,10 +906,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         if oit == 3:
             moment_depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 1)])
             moment_power_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 4)])
-        if interlock:
-            storage_image = b.new_type("storage_image", "TypeImage", f, 1, 0, 0, 0, 2, 4)  # 2D, no sampler, Rgba8
-            target = b.variable("UniformConstant", storage_image, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["Coherent"],)])
-        elif blend:
+        if blend:
             # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
@@ -957,8 +949,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
-    if interlock:
-        b.m.header.append(Module.inst("ExecutionMode", main, 5366))  # PixelInterlockOrderedEXT
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -1389,13 +1379,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
                 b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
                 factors.append(constant)
             fa, fb, fc, fd, fe = factors
-            if interlock:
-                at = b.load(v4, in_frag)
-                pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(at, 0)), b.emit("ConvertFToS", b.int(), b.extract(at, 1)))
-                b.m.code.append(Module.inst("BeginInvocationInterlockEXT"))
-                there = b.emit("ImageRead", v4, b.load(storage_image, target), pixel)
-            else:
-                there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
+            there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
             there_rgb = b.swizzle(there, 3)
             alpha = b.extract(result, 3)
             drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
@@ -1433,11 +1417,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
             rgb = palette_finish(rgb)
             result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
-    if interlock:
-        b.m.code.append(Module.inst("ImageWrite", b.load(storage_image, target), pixel, result))
-        b.m.code.append(Module.inst("EndInvocationInterlockEXT"))
-    else:
-        b.store(out_color, result)
+    b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -2093,7 +2073,6 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_fragment_3d_blend", fragment_shader_masked(96, fog=True, blend=True), out)
-    emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
     emit("bb_shader_fragment_3d_oit", fragment_shader_masked(96, fog=True, oit=1), out)
     emit("bb_shader_fragment_3d_oit_moments", fragment_shader_masked(96, fog=True, oit=2), out)
     emit("bb_shader_fragment_3d_oit_color", fragment_shader_masked(96, fog=True, oit=3), out)
