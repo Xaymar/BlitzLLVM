@@ -19,13 +19,13 @@ SystemProperty:String property:String
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `property` | In | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
+| `property` | In | String | required | One of `tempdir`, `appdir`, `windowsdir`, `systemdir`, `cpu`, `os`, `ram`, `runtime` or `timestamp`. |
 
-**Returns:** The path, or an empty string for a name that is not known.
+**Returns:** The path or the text, or an empty string for a name that is not known.
 
 ## Description
 
-Asks for the path of a system folder.
+Asks for the path of a system folder, or for a few facts about the machine and the build.
 
 ## Differences
 
@@ -35,6 +35,9 @@ Asks for the path of a system folder.
 
 ```blitzbasic
 Print "Temporary files go to " + SystemProperty$("tempdir")
+Print "Running on " + SystemProperty$("os") + " with " + SystemProperty$("cpu")
+Print "Installed memory: " + SystemProperty$("ram") + " bytes"
+Print "Runtime " + SystemProperty$("runtime") + ", program compiled " + SystemProperty$("timestamp")
 ```
 | Property | Windows | Elsewhere |
 | --- | --- | --- |
@@ -42,8 +45,15 @@ Print "Temporary files go to " + SystemProperty$("tempdir")
 | `tempdir` | `%TEMP%` | `$TEMP`, `$TMPDIR` or `/tmp`. |
 | `windowsdir` | `%SystemRoot%` | `/etc/` (`/System/` on macOS), where the system keeps its settings. |
 | `systemdir` | The System32 folder. | `/usr/lib/` (`/System/Library/` on macOS), where the system keeps its libraries. |
+| `cpu` | The name of the processor, such as `AMD Ryzen 7 9800X3D 8-Core Processor`. | The same, from `/proc/cpuinfo` or `sysctl` (macOS). |
+| `os` | The name and version, such as `Windows 11 (10.0.22631)`. | The name from `/etc/os-release` and the kernel, such as `Ubuntu 24.04.5 LTS (Linux 6.8.0)`; `macOS 14.4` on macOS. |
+| `ram` | The installed memory in bytes. | The installed memory in bytes. |
+| `runtime` | The version and commit of the runtime, such as `2026.11.4.27883-b49e213`. | The same. |
+| `timestamp` | When the program was compiled, in UTC, such as `2026-11-05T11:00:05Z`. | The same. |
 
 Folders end with a separator, except for the ones of Windows, which are as the system gives them.
+
+`ram` is a string of digits, because the amount does not fit into an `Int`. It is the physical memory of the machine, not what is free, and `0` if the system does not say. `runtime` has no commit (`2026.11.4.27883`) if the runtime was not built from a git checkout. `timestamp` is the time `blitzcc` compiled the program, not the time of the runtime build, and follows `SOURCE_DATE_EPOCH` if that is set, so builds can be reproduced. `cpu` and `os` are empty or only a short name if the system does not say more.
 
 ## Related Commands
 
