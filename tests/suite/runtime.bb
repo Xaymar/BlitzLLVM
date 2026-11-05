@@ -42,6 +42,26 @@ If Len(program) > 0
 	Next
 	CheckS "appdir is the folder of the program", Lower$(appdir), Lower$(Left$(program, slash))
 EndIf
+
+; cpu, os and ram describe the machine. ram is the total physical memory in bytes, as digits.
+CheckTrue "SystemProperty$ cpu", Len(SystemProperty$("cpu")) > 0
+CheckTrue "SystemProperty$ os", Len(SystemProperty$("os")) > 0
+ram$ = SystemProperty$("ram")
+digits = 1
+For i = 1 To Len(ram)
+	c = Asc(Mid$(ram, i, 1))
+	If c < 48 Or c > 57 Then digits = 0
+Next
+CheckTrue "SystemProperty$ ram is digits", digits = 1 And Len(ram) > 0
+CheckTrue "SystemProperty$ ram is at least 64 MiB", Len(ram) >= 9
+
+; runtime is the version (and the commit), timestamp the time the program was compiled in UTC as 2026-11-05T11:00:05Z.
+CheckTrue "SystemProperty$ runtime", Len(SystemProperty$("runtime")) > 0
+CheckTrue "SystemProperty$ runtime starts with a year", Int(Left$(SystemProperty$("runtime"), 4)) >= 2026
+stamp$ = SystemProperty$("timestamp")
+CheckTrue "SystemProperty$ timestamp format", Len(stamp) = 20 And Mid$(stamp, 5, 1) = "-" And Mid$(stamp, 11, 1) = "T" And Right$(stamp, 1) = "Z"
+CheckTrue "SystemProperty$ timestamp year", Int(Left$(stamp, 4)) >= 2026
+CheckS "SystemProperty$ names are not case sensitive", SystemProperty$("RAM"), ram
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 
 ; Environment variables

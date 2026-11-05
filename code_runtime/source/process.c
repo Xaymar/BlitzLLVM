@@ -15,6 +15,12 @@
 
 #include "files_internal.h"
 #include "memory.h"
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#include <sys/utsname.h>
+#elif !defined(_WIN32)
+#include <sys/utsname.h>
+#endif
 
 // System
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +86,196 @@ static const char* bb_app_dir(void)
 	return bb_copy(buffer, length);
 }
 
-// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir. Off Windows there is no such thing as the Windows
+// The name of the processor, as the processor or the system gives it. Empty if there is none.
+static const char* bb_cpu_name(void)
+{
+	char   buffer[256];
+	size_t length = 0;
+	buffer[0]     = 0;
+#if defined(_WIN32)
+	DWORD size = sizeof(buffer) - 1;
+	if (RegGetValueA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "ProcessorNameString", RRF_RT_REG_SZ, NULL, buffer, &size) == ERROR_SUCCESS) {
+		length = strlen(buffer);
+	}
+#elif defined(__APPLE__)
+	size_t size = sizeof(buffer) - 1;
+	if (sysctlbyname("machdep.cpu.brand_string", buffer, &size, NULL, 0) == 0) {
+		length = strnlen(buffer, size);
+	}
+#else
+	FILE* file = fopen("/proc/cpuinfo", "r");
+	if (file) {
+		// x86 says "model name", ARM says "Model" or "Hardware", PowerPC says "cpu".
+		static const char* keys[] = { "model name", "Model", "Hardware", "cpu" };
+		for (size_t k = 0; k < (sizeof(keys) / sizeof(keys[0])) && !length; k++) {
+			char line[512];
+			rewind(file);
+			while (fgets(line, sizeof(line), file)) {
+				size_t key = strlen(keys[k]);
+				if (strncmp(line, keys[k], key) != 0) {
+					continue;
+				}
+				const char* colon = line + key;
+				while (*colon == ' ' || *colon == '\t') {
+					colon++;
+				}
+				if (*colon != ':') {
+					continue;
+				}
+				colon++;
+				while (*colon == ' ' || *colon == '\t') {
+					colon++;
+				}
+				strncpy(buffer, colon, sizeof(buffer) - 1);
+				buffer[sizeof(buffer) - 1] = 0;
+				length                     = strlen(buffer);
+				break;
+			}
+		}
+		fclose(file);
+	}
+#endif
+	while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r' || buffer[length - 1] == ' ' || buffer[length - 1] == '\t')) {
+		length--;
+	}
+	buffer[length] = 0;
+	return bb_copy(buffer, length);
+}
+
+// The version and commit of the runtime, such as 2026.11.4.27883-b49e213, as the build tells (see code_runtime/CMakeLists.txt).
+static const char* bb_runtime_version(void)
+{
+#if defined(BLITZLLVM_VERSION)
+	const char* version = BLITZLLVM_VERSION;
+#else
+	const char* version = "";
+#endif
+#if defined(BLITZLLVM_COMMIT)
+	const char* commit = BLITZLLVM_COMMIT;
+#else
+	const char* commit = "";
+#endif
+	char buffer[128];
+	int  n = snprintf(buffer, sizeof(buffer), commit[0] ? "%s-%s" : "%s", version, commit);
+	return bb_copy(buffer, (size_t)n);
+}
+
+// The time the program was compiled in UTC, as 2026-11-05T11:00:05Z. The compiler puts it into the start of every program.
+static char bb_build_time[32] = "";
+
+void bb_set_build_time(const char* stamp)
+{
+	size_t length = bb_slen(stamp);
+	if (length >= sizeof(bb_build_time)) {
+		length = sizeof(bb_build_time) - 1;
+	}
+	memcpy(bb_build_time, bb_s(stamp), length);
+	bb_build_time[length] = 0;
+}
+
+static const char* bb_build_timestamp(void)
+{
+	return bb_copy(bb_build_time, strlen(bb_build_time));
+}
+
+// The name and version of the operating system.
+static const char* bb_os_name(void)
+{
+	char buffer[512];
+	buffer[0] = 0;
+#if defined(_WIN32)
+	// GetVersionEx lies to programs without a manifest, RtlGetVersion does not.
+	typedef LONG(WINAPI * rtl_get_version_t)(OSVERSIONINFOW*);
+	OSVERSIONINFOW version;
+	memset(&version, 0, sizeof(version));
+	version.dwOSVersionInfoSize = sizeof(version);
+	HMODULE           ntdll     = GetModuleHandleA("ntdll.dll");
+	rtl_get_version_t rtl       = ntdll ? (rtl_get_version_t)(void*)GetProcAddress(ntdll, "RtlGetVersion") : NULL;
+	if (rtl && (rtl(&version) == 0)) {
+		const char* name = "Windows";
+		if (version.dwMajorVersion == 10) {
+			name = (version.dwBuildNumber >= 22000) ? "Windows 11" : "Windows 10"; // Windows 11 still says 10.0.
+		}
+		snprintf(buffer, sizeof(buffer), "%s (%lu.%lu.%lu)", name, (unsigned long)version.dwMajorVersion, (unsigned long)version.dwMinorVersion, (unsigned long)version.dwBuildNumber);
+	} else {
+		snprintf(buffer, sizeof(buffer), "Windows");
+	}
+#elif defined(__APPLE__)
+	char   product[64] = { 0 };
+	size_t size        = sizeof(product) - 1;
+	if (sysctlbyname("kern.osproductversion", product, &size, NULL, 0) == 0) {
+		snprintf(buffer, sizeof(buffer), "macOS %s", product);
+	} else {
+		snprintf(buffer, sizeof(buffer), "macOS");
+	}
+#else
+	char  name[200] = { 0 };
+	FILE* file      = fopen("/etc/os-release", "r");
+	if (!file) {
+		file = fopen("/usr/lib/os-release", "r");
+	}
+	if (file) {
+		char line[400];
+		while (fgets(line, sizeof(line), file)) {
+			if (strncmp(line, "PRETTY_NAME=", 12) == 0) {
+				const char* value = line + 12;
+				size_t      n     = strlen(value);
+				while (n && (value[n - 1] == '\n' || value[n - 1] == '\r')) {
+					n--;
+				}
+				if (n >= 2 && (value[0] == '"' || value[0] == '\'') && value[n - 1] == value[0]) {
+					value++;
+					n -= 2;
+				}
+				if (n >= sizeof(name)) {
+					n = sizeof(name) - 1;
+				}
+				memcpy(name, value, n);
+				name[n] = 0;
+				break;
+			}
+		}
+		fclose(file);
+	}
+	struct utsname un;
+	if (uname(&un) == 0) {
+		snprintf(buffer, sizeof(buffer), "%s (%s %s)", name[0] ? name : "Linux", un.sysname, un.release);
+	} else {
+		snprintf(buffer, sizeof(buffer), "%s", name[0] ? name : "Linux");
+	}
+#endif
+	return bb_copy(buffer, strlen(buffer));
+}
+
+// The physical memory of the machine, in bytes, as decimal digits (it does not fit into an Int). "0" if the system does not say.
+static const char* bb_ram_size(void)
+{
+	unsigned long long total = 0;
+#if defined(_WIN32)
+	MEMORYSTATUSEX status;
+	status.dwLength = sizeof(status);
+	if (GlobalMemoryStatusEx(&status)) {
+		total = status.ullTotalPhys;
+	}
+#elif defined(__APPLE__)
+	uint64_t memory = 0;
+	size_t   size   = sizeof(memory);
+	if (sysctlbyname("hw.memsize", &memory, &size, NULL, 0) == 0) {
+		total = memory;
+	}
+#else
+	long pages = sysconf(_SC_PHYS_PAGES);
+	long page  = sysconf(_SC_PAGE_SIZE);
+	if (pages > 0 && page > 0) {
+		total = (unsigned long long)pages * (unsigned long long)page;
+	}
+#endif
+	char buffer[32];
+	int  n = snprintf(buffer, sizeof(buffer), "%llu", total);
+	return bb_copy(buffer, (size_t)n);
+}
+
+// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir, cpu, os and ram for the machine, and runtime and timestamp for the build. Off Windows there is no such thing as the Windows
 // folder, so windowsdir is where the system keeps its configuration (/etc/ or /System/ on macOS) and systemdir is
 // where it keeps its libraries (/usr/lib/ or /System/Library/ on macOS). Anything else is an empty string.
 const char* bb_system_property(const char* name)
@@ -97,6 +292,16 @@ const char* bb_system_property(const char* name)
 		}
 	} else if (!strcmp(wanted, "appdir") || !strcmp(wanted, "APPDIR")) {
 		return bb_app_dir();
+	} else if (!strcmp(wanted, "cpu") || !strcmp(wanted, "CPU")) {
+		return bb_cpu_name();
+	} else if (!strcmp(wanted, "os") || !strcmp(wanted, "OS")) {
+		return bb_os_name();
+	} else if (!strcmp(wanted, "ram") || !strcmp(wanted, "RAM")) {
+		return bb_ram_size();
+	} else if (!strcmp(wanted, "runtime") || !strcmp(wanted, "RUNTIME")) {
+		return bb_runtime_version();
+	} else if (!strcmp(wanted, "timestamp") || !strcmp(wanted, "TIMESTAMP")) {
+		return bb_build_timestamp();
 	} else if (!strcmp(wanted, "windowsdir") || !strcmp(wanted, "WINDOWSDIR")) {
 #if defined(_WIN32)
 		value = getenv("SystemRoot");
