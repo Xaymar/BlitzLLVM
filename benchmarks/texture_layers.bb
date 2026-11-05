@@ -6,6 +6,7 @@
 ;   BENCH_LAYERS  textures on every tile (1 to 8, default 3)
 ;   BENCH_TILES   tiles along each side of the field (default 12, so 144 tiles of 800 triangles)
 ;   BENCH_FRAMES  frames that are timed (default 300), BENCH_WARMUP frames before (default 5)
+;   BENCH_GPU     the graphics driver number for SetGfxDriver (optional, default is the one the program picks)
 ;   BENCH_W, BENCH_H size of the window (default 640 x 360)
 ;   BENCH_RESULT  file to write the RESULT line to
 Include "flythrough_counters.bi"
@@ -16,6 +17,7 @@ Function Env$(name$, fallback$)
 	Return value$
 End Function
 
+If GetEnv$("BENCH_GPU") <> "" Then SetGfxDriver Int(GetEnv$("BENCH_GPU"))
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
 layers = Int(Env$("BENCH_LAYERS", 3))
