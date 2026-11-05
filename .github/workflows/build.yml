@@ -276,6 +276,49 @@ jobs:
         with:
           path: ${{ env.ARTIFACT }}.zip
           archive: false
+      - name: Build the installer (Windows)
+        # Inno Setup (free, also for programs that are not) builds one setup.exe from the same directory as the zip, see installer/blitzllvm.iss.
+        if: runner.os == 'Windows' && inputs.packages
+        shell: pwsh
+        run: |
+          # The runner images ship Inno Setup; it is installed only when an image does not.
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
+          $arch = if ('${{ matrix.platform }}' -eq 'ARM64') { 'arm64' } else { 'x64' }
+          New-Item -ItemType Directory -Force packages | Out-Null
+          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DArch=$arch" "/DSourceDir=$PWD\dist" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+          Get-ChildItem packages | Format-Table Name, Length
+      - name: Test the installer (Windows)
+        # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
+        if: runner.os == 'Windows' && inputs.packages && matrix.platform != 'ARM64'
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'blitzllvm-installed'
+          $log = Join-Path $env:RUNNER_TEMP 'setup.log'
+          $setup = (Get-Item "packages\$env:ARTIFACT-setup.exe").FullName
+          $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
+          $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
+          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'LICENSE.adoc', 'unins000.exe') {
+            if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
+          }
+          if (-not ((& $machinePath) -split ';' -contains "$dir\bin")) { throw 'PATH was not changed' }
+          $p = Start-Process (Join-Path $dir 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Uninstall failed ($($p.ExitCode))" }
+          Start-Sleep -Seconds 3
+          if (Test-Path (Join-Path $dir 'bin')) { throw 'The uninstaller left bin behind' }
+          if ((& $machinePath) -split ';' -contains "$dir\bin") { throw 'The uninstaller left PATH changed' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: runner.os == 'Windows' && inputs.packages && !inputs.loose
+        with:
+          name: ${{ env.ARTIFACT }}-packages
+          path: packages
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: runner.os == 'Windows' && inputs.packages && inputs.loose
+        with:
+          path: packages/${{ env.ARTIFACT }}-setup.exe
+          archive: false
       - name: Build the deb (Linux)
         if: inputs.packages && matrix.kind == 'deb'
         run: |
