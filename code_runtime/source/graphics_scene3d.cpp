@@ -26,6 +26,7 @@
 #include <mutex>
 #include <tuple>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <vector>
 #include "environment.h"
@@ -254,7 +255,7 @@ namespace bb::gfx {
 		return value;
 	}
 
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0)
+	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0, bool layers = true)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -278,6 +279,7 @@ namespace bb::gfx {
 			VkBool32 palette;
 			float    bayer_levels; // DitherMode: 0 for noise, else the levels of the Bayer pattern.
 			float    multiply;     // Order-independent transparency: what the multiplied color is scaled by (2 for multiply twice).
+			VkBool32 layers;       // The pipeline is for draws that have texture layers (constant 21).
 		} constants;
 		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
 		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
@@ -286,6 +288,7 @@ namespace bb::gfx {
 		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
 		constants.bayer_levels = float(bayer_levels());
 		constants.multiply     = (mode == 4) ? 2.0f : 1.0f;
+		constants.layers       = layers ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
 		memcpy(constants.limit, limits, sizeof(limits));
 		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
@@ -293,7 +296,7 @@ namespace bb::gfx {
 		for (int c = 0; c < 3; c++) {
 			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
 		}
-		VkSpecializationMapEntry entries[14] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		VkSpecializationMapEntry entries[15] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
@@ -305,7 +308,8 @@ namespace bb::gfx {
 		entries[11] = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
 		entries[12] = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
 		entries[13] = { 20, uint32_t(offsetof(decltype(constants), multiply)), sizeof(float) };
-		VkSpecializationInfo specialization              = { 14u, entries, sizeof(constants), &constants };
+		entries[14] = { 21, uint32_t(offsetof(decltype(constants), layers)), sizeof(VkBool32) };
+		VkSpecializationInfo specialization              = { 15u, entries, sizeof(constants), &constants };
 		stages[1].pSpecializationInfo                    = &specialization;
 		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
 		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
@@ -484,14 +488,46 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	// The twin is the pipeline for a buffer that is not RGBA8.
+	// What a pipeline for draws without texture layers was made from, so that the one for draws with layers can be made the first time it is
+	// needed (the layers make the shader much larger, and most programs never have them).
+	struct layered_source {
+		VkShaderModule vs, fs;
+		int            mode;
+		bool           wire;
+	};
+	static std::unordered_map<VkPipeline, layered_source> layered_sources;
+	static std::unordered_map<VkPipeline, VkPipeline>     layered_pipelines;
+
+	// The twin is the pipeline for a buffer that is not RGBA8. The pipeline is the one for draws without layers (constant 21 of the shader is
+	// off), see layered_pipeline_of for the other.
 	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
 	{
-		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM);
+		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, 0, false);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format));
+			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format, 0, false));
 		}
+		layered_sources[pipeline] = { vs, fs, mode, wire };
 		return pipeline;
+	}
+
+	/** The pipeline to draw what has texture layers with the same state as the pipeline: its shader has the layers, made when this is first asked. */
+	static VkPipeline layered_pipeline_of(VkPipeline base)
+	{
+		auto made = layered_pipelines.find(base);
+		if (made != layered_pipelines.end()) {
+			return made->second;
+		}
+		auto source = layered_sources.find(base);
+		if (source == layered_sources.end()) {
+			return base; // The pipelines for order-independent transparency have the layers in them.
+		}
+		layered_source const& from = source->second;
+		VkPipeline            layered = build_pipeline_3d(from.vs, from.fs, from.mode, from.wire, VK_FORMAT_R8G8B8A8_UNORM, 0, true);
+		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+			add_pipeline_twin(layered, build_pipeline_3d(from.vs, from.fs, from.mode, from.wire, g.buffer_format, 0, true));
+		}
+		layered_pipelines[base] = layered;
+		return layered;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -1061,13 +1097,31 @@ namespace bb::gfx {
 				g.wire3d[mode] = create_pipeline_3d(vs, fs, mode, true);
 			}
 		}
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
-		vkDestroyShaderModule(g.device, fs_solid, nullptr);
+		// vs, fs and fs_solid stay until destroy_pipelines_3d: the pipelines for draws with texture layers are made from them when needed.
+	}
+
+	/** For a lost device: its pipelines and shader modules are gone with it, so only the lists are cleared. */
+	void forget_layered_pipelines()
+	{
+		layered_pipelines.clear();
+		layered_sources.clear();
 	}
 
 	void destroy_pipelines_3d()
 	{
+		for (auto& made : layered_pipelines) {
+			vkDestroyPipeline(g.device, made.second, nullptr);
+		}
+		layered_pipelines.clear();
+		std::set<VkShaderModule> modules;
+		for (auto& source : layered_sources) {
+			modules.insert(source.second.vs);
+			modules.insert(source.second.fs);
+		}
+		for (VkShaderModule module : modules) {
+			vkDestroyShaderModule(g.device, module, nullptr);
+		}
+		layered_sources.clear();
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
 		vkDestroyPipeline(g.device, g.solid3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
@@ -1866,9 +1920,11 @@ namespace bb::gfx {
 			if (d.oit) {
 				oit_modes |= 1u << oit_bit(d.pipeline);
 			}
-			if (d.pipeline != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(d.pipeline, target.image->format));
-				bound_pipeline = d.pipeline;
+			// Draws with texture layers have a pipeline of their own (the shader of the others does not have the layers).
+			VkPipeline wanted = (d.layer_group && !d.oit) ? layered_pipeline_of(d.pipeline) : d.pipeline;
+			if (wanted != bound_pipeline) {
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(wanted, target.image->format));
+				bound_pipeline = wanted;
 				stats3d.pipelines++;
 			}
 			int cull = d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;

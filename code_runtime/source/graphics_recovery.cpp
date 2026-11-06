@@ -163,6 +163,7 @@ namespace {
 		g.statics       = static_buffers();
 		g.static_pipeline_layout = VK_NULL_HANDLE;
 		g.static_pipeline        = VK_NULL_HANDLE;
+		forget_layered_pipelines();
 		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = VK_NULL_HANDLE;
 		for (VkPipeline& pipeline : g.wire3d) {
 			pipeline = VK_NULL_HANDLE;

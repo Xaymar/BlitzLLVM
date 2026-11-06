@@ -1005,6 +1005,12 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
         dither_on = b.m.id()
         b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
         b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+        # Specialization constant 21 says the pipeline is for draws that have texture layers: without it the branches of the layers are
+        # gone and the shader is the one of a draw with a single texture.
+        #   layout(constant_id = 21) const bool layers_on = true;
+        layers_on = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantTrue", boolean, layers_on))
+        b.m.annotations.append(Module.inst("Decorate", layers_on, DECORATION["SpecId"], 21))
 
         def if_flag(flag, make, before_value, value_type):
             """Runs make() only where the flag is true, and gives its value there and before_value elsewhere."""
@@ -1149,7 +1155,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
                     made = b.fadd(v3, made, b.scale(3, value, weight_k(code)))
                 return made
 
-            stage = if_flag(b.emit("FOrdGreaterThan", boolean, layer_count, b.const_float(k - 0.5)), one_layer, stage, v3)
+            stage = if_flag(b.emit("LogicalAnd", boolean, layers_on, b.emit("FOrdGreaterThan", boolean, layer_count, b.const_float(k - 0.5))), one_layer, stage, v3)
         result = b.construct(4, b.extract(stage, 0), b.extract(stage, 1), b.extract(stage, 2), b.extract(result, 3))
     if fog:
         # The highlight of lights is added to what the texture made of the color.

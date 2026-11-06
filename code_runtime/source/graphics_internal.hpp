@@ -1041,6 +1041,7 @@ namespace bb::gfx {
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
+	void forget_layered_pipelines();
 	// Order-independent transparency (graphics_oit.cpp).
 	bool oit_active();
 	bool oit_moments(); // Whether the moment based kind is on (BLITZLLVM_OIT=2).
