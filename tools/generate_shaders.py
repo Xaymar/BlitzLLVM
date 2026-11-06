@@ -23,13 +23,13 @@ OP = dict(
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalOr=166, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
-    Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
+    Extension=10,
     IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
 BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
-DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1, InputAttachmentIndex=43, Coherent=23)
+DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
 BUILTIN_SAMPLE_MASK = 20
@@ -811,17 +811,13 @@ def palette_nearest_code(b, lookup, color):
     return b.emit("Phi", v3, exact, then, approximate, other)
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False, oit=0, slots=4):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
     With cutout=False the 3D one never discards, which leaves the depth test before the shader.
     With oit=1 (3D only) the shader does not blend or dither: it writes the terms that order-independent transparency adds up
     (see GraphicsOrderIndependentTransparency) to four attachments and the pass that shows them does the rest.
-    With blend=True (3D only) the shader blends itself, for Dither 2: it reads what the color attachment holds (an input attachment,
-    which VK_KHR_dynamic_rendering_local_read and VK_EXT_rasterization_order_attachment_access make possible while the draws
-    that touch a pixel stay in order), mixes it with the color it makes as the fixed-function blend of the mode would (the
-    mode is the specialization constants 1 to 5, see below), adds the noise of Dither to the result, and writes that without blending.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -838,13 +834,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     }
     """
     b = Builder()
-    if interlock:
-        # Prototype: the target is a storage image read and written inside a pixel interlock (VK_EXT_fragment_shader_interlock).
-        blend = True
-        b.m.header.insert(1, Module.inst("Extension", string_words("SPV_EXT_fragment_shader_interlock")))
-        b.m.header.insert(1, Module.inst("Capability", 5378))  # FragmentShaderPixelInterlockEXT
-    if blend and not interlock:
-        b.m.header.insert(1, Module.inst("Capability", 40))  # InputAttachment
     f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
     void, fn = b.void(), b.fn()
     c1 = b.const_float(1.0)
@@ -911,13 +900,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         if oit == 3:
             moment_depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 1)])
             moment_power_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 4)])
-        if interlock:
-            storage_image = b.new_type("storage_image", "TypeImage", f, 1, 0, 0, 0, 2, 4)  # 2D, no sampler, Rgba8
-            target = b.variable("UniformConstant", storage_image, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["Coherent"],)])
-        elif blend:
-            # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
-            subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
-            target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
         interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights, in_pixel]
 
     # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
@@ -957,8 +939,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
-    if interlock:
-        b.m.header.append(Module.inst("ExecutionMode", main, 5366))  # PixelInterlockOrderedEXT
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -1300,7 +1280,6 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         #   layout(constant_id = 0) const bool dither = false;
         #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
         #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * (not exact); }
-        # The shader that blends itself dithers what it blends instead, always, as it is only used when Dither is 2.
         # The noise is one step of the target: 1 / 255 for an 8 bit target, and a larger one for the 16, 15 and 12 bit buffers (their
         # bits per channel are fewer). Specialization constants 8 to 10 are 255 / (largest value of the channel) for red, green and blue,
         # which is 1 unless the buffer of Graphics has fewer than 8 bits per channel (the pipelines are made again with the buffer).
@@ -1368,76 +1347,22 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             amount = b.fmul(f, b.fmul(f, noise_offset(0), b.const_float(255.0)), b.emit("Select", f, dither_on, c1, zero_f))
             return if_flag(palette, lambda: palette_pick(raw, amount), plain, v3)
 
-        if blend:
-            # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of
-            # the color that is drawn is a * source_alpha + b * destination, and the factor of what is there is c + d * source_alpha
-            # + e * drawn color. The alpha is always as with blending by alpha, as in the pipelines. The modes are
-            #   by alpha  a=1 b=0 c=1 d=-1 e=0      multiply        a=0 b=1 c=0 d=0 e=0
-            #   add       a=1 b=0 c=1 d=0  e=0      multiply by 2   a=0 b=1 c=0 d=0 e=1
-            #   layout(input_attachment_index = 0, set = 4, binding = 0) uniform subpassInput target;
-            #   vec4 there = subpassLoad(target);
-            #   rgb = rgb * (fa * a + fb * there.rgb) + there.rgb * (fc + fd * a + fe * rgb);  alpha = a + there.a * (1 - a);
-            #   rgb += noise;
-            ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
-            zero_i = b.const_int(0)
-            origin = b.m.id()
-            b.m.types.append(Module.inst("ConstantComposite", ivec2, origin, zero_i, zero_i))
-            factors = []
-            for number, default in enumerate((1.0, 0.0, 1.0, -1.0, 0.0), start=1):
-                constant = b.m.id()
-                b.m.types.append(Module.inst("SpecConstant", f, constant, float_bits(default)))
-                b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
-                factors.append(constant)
-            fa, fb, fc, fd, fe = factors
-            if interlock:
-                at = b.load(v4, in_frag)
-                pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(at, 0)), b.emit("ConvertFToS", b.int(), b.extract(at, 1)))
-                b.m.code.append(Module.inst("BeginInvocationInterlockEXT"))
-                there = b.emit("ImageRead", v4, b.load(storage_image, target), pixel)
-            else:
-                there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
-            there_rgb = b.swizzle(there, 3)
-            alpha = b.extract(result, 3)
-            drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
-            there_factor = b.fadd(v3, b.scale(3, rgb, fe), b.construct(3, *([b.fadd(f, fc, b.fmul(f, fd, alpha))] * 3)))
-            blended = b.fadd(v3, b.emit("FMul", v3, rgb, drawn_factor), b.emit("FMul", v3, there_rgb, there_factor))
-            # Dot3 (specialization constant 13 is 1 for it) is the stage of Direct3D 7 that is the dot product of the texture and what the
-            # stages before it made, which is what is there. All channels get it, the alpha too.
-            #   dotted = clamp(4 * dot(rgb - 0.5, there.rgb - 0.5), 0, 1);  rgb = mix(rgb, vec3(dotted), dot3);  alpha = mix(alpha, dotted, dot3);
-            dot3 = b.m.id()
-            b.m.types.append(Module.inst("SpecConstant", f, dot3, float_bits(0.0)))
-            b.m.annotations.append(Module.inst("Decorate", dot3, DECORATION["SpecId"], 13))
-            half3 = b.const_vec(3, 0.5)
-            dotted = b.ext(f, GLSL_FCLAMP, b.fmul(f, b.dot(b.fsub(v3, rgb, half3), b.fsub(v3, there_rgb, half3)), b.const_float(4.0)), b.const_float(0.0), c1)
-            dotted3 = b.construct(3, dotted, dotted, dotted)
-            blended = b.fadd(v3, blended, b.scale(3, b.fsub(v3, dotted3, blended), dot3))
-            alpha = b.fadd(f, alpha, b.fmul(f, b.fsub(f, dotted, alpha), dot3))
-            quiet = b.emit("Select", f, dither_on, b.emit("Select", f, palette, zero_f, c1), zero_f)  # the palette picks with its own noise; without Dither there is none
-            blended = palette_finish(b.fadd(v3, blended, b.scale(3, noise_for(blended), quiet)), blended)
-            # The alpha of Dot3 is the dot product itself.
-            blended_alpha = b.fadd(f, alpha, b.fmul(f, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)), b.fsub(f, c1, dot3)))
-            result = b.construct(4, b.extract(blended, 0), b.extract(blended, 1), b.extract(blended, 2), blended_alpha)
-        else:
-            not_palette = b.emit("LogicalNot", boolean, palette)
-            dither_plain = b.emit("LogicalAnd", boolean, dither_on, not_palette)
-            before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
-            b.m.code += [
-                Module.inst("Branch", before_dither),
-                Module.inst("Label", before_dither),
-                Module.inst("SelectionMerge", dither_merge, 0),
-                Module.inst("BranchConditional", dither_plain, dither_label, dither_merge),
-                Module.inst("Label", dither_label),
-            ]
-            dithered = b.fadd(v3, rgb, noise_for(rgb))
-            b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
-            rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
-            rgb = palette_finish(rgb)
-            result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
-    if interlock:
-        b.m.code.append(Module.inst("ImageWrite", b.load(storage_image, target), pixel, result))
-        b.m.code.append(Module.inst("EndInvocationInterlockEXT"))
-    else:
-        b.store(out_color, result)
+        not_palette = b.emit("LogicalNot", boolean, palette)
+        dither_plain = b.emit("LogicalAnd", boolean, dither_on, not_palette)
+        before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
+        b.m.code += [
+            Module.inst("Branch", before_dither),
+            Module.inst("Label", before_dither),
+            Module.inst("SelectionMerge", dither_merge, 0),
+            Module.inst("BranchConditional", dither_plain, dither_label, dither_merge),
+            Module.inst("Label", dither_label),
+        ]
+        dithered = b.fadd(v3, rgb, noise_for(rgb))
+        b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
+        rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
+        rgb = palette_finish(rgb)
+        result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+    b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -2092,8 +2017,6 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
-    emit("bb_shader_fragment_3d_blend", fragment_shader_masked(96, fog=True, blend=True), out)
-    emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
     emit("bb_shader_fragment_3d_oit", fragment_shader_masked(96, fog=True, oit=1), out)
     emit("bb_shader_fragment_3d_oit_moments", fragment_shader_masked(96, fog=True, oit=2), out)
     emit("bb_shader_fragment_3d_oit_color", fragment_shader_masked(96, fog=True, oit=3), out)

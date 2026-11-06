@@ -180,13 +180,6 @@ namespace bb::gfx {
 			img.recipe->mapping     = *components;
 			img.recipe->has_mapping = true;
 		}
-		// Dither 2 blends in the shader, which reads what it draws to.
-		if (g.can_blend_dither && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
-			usage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-		}
-		if (g.can_interlock && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) && (format == VK_FORMAT_R8G8B8A8_UNORM)) {
-			usage |= VK_IMAGE_USAGE_STORAGE_BIT;
-		}
 
 		VkImageCreateInfo info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		info.imageType         = VK_IMAGE_TYPE_2D;
@@ -1329,61 +1322,6 @@ namespace bb::gfx {
 		return false;
 	}
 
-	// Whether the GPU can blend in the fragment shader, which Dither 2 does to dither the result of blending: the shader reads what
-	// the color attachment holds (dynamic rendering local read) while the draws that touch a pixel stay in order
-	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZLLVM_BLEND_DITHER=0 says no, for comparing.
-	bool can_blend_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
-	{
-		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || !bb_env_bool("BLITZLLVM_DITHER_LOCAL_READ", true) || (props.limits.maxBoundDescriptorSets < 5)) {
-			return false;
-		}
-		uint32_t count = 0;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
-		std::vector<VkExtensionProperties> available(count);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, available.data());
-		bool local_read = false, access_order = false;
-		for (VkExtensionProperties const& e : available) {
-			local_read   = local_read || (strcmp(e.extensionName, VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME) == 0);
-			access_order = access_order || (strcmp(e.extensionName, VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME) == 0);
-		}
-		if (!local_read || !access_order) {
-			return false;
-		}
-		VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR          local_features  = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR };
-		VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT order_features  = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT };
-		local_features.pNext                                                           = &order_features;
-		VkPhysicalDeviceFeatures2 query                                                = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-		query.pNext                                                                    = &local_features;
-		vkGetPhysicalDeviceFeatures2(device, &query);
-		return local_features.dynamicRenderingLocalRead && order_features.rasterizationOrderColorAttachmentAccess;
-	}
-
-	// The other way to blend in the fragment shader, for the GPUs that lack the two extensions above: the shader reads and writes the
-	// target as a storage image inside a pixel interlock (VK_EXT_fragment_shader_interlock), which keeps the draws that touch a pixel in
-	// order. BLITZLLVM_DITHER_INTERLOCK=0 says no, and so does BLITZLLVM_BLEND_DITHER=0, for comparing.
-	bool can_interlock_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
-	{
-		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || !bb_env_bool("BLITZLLVM_DITHER_INTERLOCK", true) || (props.limits.maxBoundDescriptorSets < 5)) {
-			return false;
-		}
-		uint32_t count = 0;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
-		std::vector<VkExtensionProperties> available(count);
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, available.data());
-		bool has = false;
-		for (VkExtensionProperties const& e : available) {
-			has = has || (strcmp(e.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0);
-		}
-		if (!has) {
-			return false;
-		}
-		VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
-		VkPhysicalDeviceFeatures2                          query    = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-		query.pNext                                                 = &features;
-		vkGetPhysicalDeviceFeatures2(device, &query);
-		return features.fragmentShaderPixelInterlock == VK_TRUE;
-	}
-
 	// The same GPU twice has the same name: of those the n-th is the n-th.
 	uint32_t twin_of(VkPhysicalDevice* devices, uint32_t d)
 	{
@@ -1445,7 +1383,6 @@ namespace bb::gfx {
 			entry.device = props.deviceID;
 			entry.twin   = twin_of(devices, d);
 			entry.usable = can_draw(devices[d], props);
-			entry.blend_dither = entry.usable && (can_blend_in_shader(devices[d], props) || can_interlock_in_shader(devices[d], props));
 			switch (props.deviceType) {
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   entry.rank = 4; break;
 			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: entry.rank = 3; break;
@@ -1654,39 +1591,10 @@ namespace bb::gfx {
 			features13.pNext            = &present_id_features;
 		}
 
-		// Dither 2 blends in the shader, which needs two more extensions.
-		VkPhysicalDeviceProperties physical_props;
-		vkGetPhysicalDeviceProperties(g.physical, &physical_props);
-		g.can_blend_dither = can_blend_in_shader(g.physical, physical_props);
-		VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR          local_read   = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR };
-		VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT access_order = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT };
-		if (g.can_blend_dither) {
-			local_read.dynamicRenderingLocalRead                = VK_TRUE;
-			access_order.rasterizationOrderColorAttachmentAccess = VK_TRUE;
-			local_read.pNext                                     = &access_order;
-			access_order.pNext                                   = features13.pNext;
-			features13.pNext                                     = &local_read;
-		}
-
-		// Where the two extensions are missing, Dither 2 uses the pixel interlock if the GPU has it.
-		VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT interlock_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
-		g.can_interlock = !g.can_blend_dither && can_interlock_in_shader(g.physical, physical_props);
-		if (g.can_interlock) {
-			interlock_features.fragmentShaderPixelInterlock = VK_TRUE;
-			interlock_features.pNext                        = features13.pNext;
-			features13.pNext                                = &interlock_features;
-		}
 		const char* device_extensions[8] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
 		if (g.can_custom_border) {
 			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
-		}
-		if (g.can_blend_dither) {
-			device_extensions[device_extension_total++] = VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME;
-			device_extensions[device_extension_total++] = VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME;
-		}
-		if (g.can_interlock) {
-			device_extensions[device_extension_total++] = VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME;
 		}
 		if (g.can_memory_budget) {
 			device_extensions[device_extension_total++] = VK_EXT_MEMORY_BUDGET_EXTENSION_NAME;
