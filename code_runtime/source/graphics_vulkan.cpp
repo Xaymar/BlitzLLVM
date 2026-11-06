@@ -485,6 +485,17 @@ namespace bb::gfx {
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &g.set_layout;
 		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
+		// The bindings of the layers hold white (every shader that reads them needs something in them), until the white texture itself is made.
+		VkDescriptorSet white = g.sets[TEXTURE_WHITE_3D];
+		if (white && (white != set)) {
+			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+			copy.srcSet              = white;
+			copy.srcBinding          = 1;
+			copy.dstSet              = set;
+			copy.dstBinding          = 1;
+			copy.descriptorCount     = texture_layer_bindings - 1;
+			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);
+		}
 	}
 
 	uint32_t mip_count(uint32_t width, uint32_t height)
@@ -1663,13 +1674,18 @@ namespace bb::gfx {
 		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_repeat), "vkCreateSampler");
 
-		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		// Binding 0 is the texture. The 3D shader reads the texture layers after the first at 1 to 7 as well, so every set has them: they are white until
+		// a set is made for a draw that has layers (see layered_texture_set).
+		VkDescriptorSetLayoutBinding binding[texture_layer_bindings];
+		for (uint32_t k = 0; k < texture_layer_bindings; k++) {
+			binding[k] = { k, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		}
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 1;
-		set_info.pBindings                       = &binding;
+		set_info.bindingCount                    = texture_layer_bindings;
+		set_info.pBindings                       = binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 		dpool_info.maxSets                    = 8195 + 4 * frame_slots;
@@ -1698,6 +1714,16 @@ namespace bb::gfx {
 		const uint8_t white[4] = { 255, 255, 255, 255 };
 		create_texture(TEXTURE_WHITE, 1, 1, white);
 		create_texture(TEXTURE_WHITE_3D, 1, 1, white);
+		for (uint32_t k = 1; k < texture_layer_bindings; k++) {
+			// Every set made from now on takes the bindings of the layers from the white one (see allocate_descriptor), which has them from itself.
+			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+			copy.srcSet              = g.sets[TEXTURE_WHITE_3D];
+			copy.srcBinding          = 0;
+			copy.dstSet              = g.sets[TEXTURE_WHITE_3D];
+			copy.dstBinding          = k;
+			copy.descriptorCount     = 1;
+			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);
+		}
 
 		uint8_t* atlas = static_cast<uint8_t*>(bb_calloc(font_columns * 8 * font_rows * 8 * 4, 1));
 		for (uint32_t glyph = 0; glyph < BB_FONT_GLYPHS; glyph++) {

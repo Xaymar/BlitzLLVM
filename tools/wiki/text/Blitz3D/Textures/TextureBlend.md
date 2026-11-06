@@ -50,4 +50,4 @@ WaitKey
 ![TextureBlend](media/textures/textureblend.png)
 @param texture  The texture to change.
 @param blend    Blend mode from the table above.
-@gap Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does. Dot3 on a layer after the first one is a multiply, as there is no fixed-function blend for the dot product.
+@gap Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does. All the layers of a surface are blended by one draw of the fragment shader, in the order of the layers, each with what the layers before it made: Dot3 on a layer after the first one is the dot product of the texture and what the layers before it made on every GPU, with any Graphics. The highlight of lights and the fog come after the last layer, and a surface that is see-through gets its layers as well.

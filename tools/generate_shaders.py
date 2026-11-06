@@ -447,6 +447,35 @@ def declare_scene(b):
     return b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
 
 
+# The vectors of an entity_push (graphics_internal.hpp), which the shaders read from the buffer of draws.
+ENTITY_VECTORS = 12
+# The most texture layers after the first one a draw has (the stages of Direct3D 7 that Blitz3D can name: 8 textures in all).
+MAX_LAYERS = 7
+
+
+def declare_layers(b, set_index=2, binding=1):
+    """
+    The texture layers after the first one of the draws that have them: four vectors each, one after the other in a buffer that the draws
+    point into (member 11 of the entity: x is the place of the first layer, y how many there are). In the vectors are the layer_data of
+    graphics_internal.hpp: 0 scale and offset of the coordinates, 1 the second set of coordinates (x) and the rotation (y, z),
+    2 how the coordinates are made (texgen, as in the entity), 3 the blend (x), the layer of the texture (y), whether black is masked (z) and
+    whether the texture has an alpha channel (w).
+    """
+    v4 = b.vec(4)
+    layer = b.struct("layer", v4, v4, v4, v4)
+    for index in range(4):
+        b.m.annotations.append(Module.inst("MemberDecorate", layer, index, DECORATION["Offset"], index * 16))
+    layers = b.new_type("layers", "TypeRuntimeArray", layer)
+    b.m.annotations.append(Module.inst("Decorate", layers, DECORATION["ArrayStride"], 64))
+    block = b.struct("layer_block", layers)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]),
+        Module.inst("Decorate", block, DECORATION["BufferBlock"]),
+    ]
+    return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], binding)])
+
+
 def declare_entities(b, set_index=2):
     """
     What differs for each draw: the entity_push of graphics_internal.hpp, one for each instance in a buffer that is read
@@ -455,11 +484,11 @@ def declare_entities(b, set_index=2):
     Returns the variable of the buffer.
     """
     v4 = b.vec(4)
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4, v4, v4)
-    for index in range(11):
+    entity = b.struct("entity", *([v4] * ENTITY_VECTORS))
+    for index in range(ENTITY_VECTORS):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     entities = b.new_type("entities", "TypeRuntimeArray", entity)
-    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 176))
+    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], ENTITY_VECTORS * 16))
     block = b.struct("entity_block", entities)
     b.m.annotations += [
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
@@ -566,6 +595,85 @@ def light_code(b, ubo, world, n, eye, params, packed):
     return lit, specular
 
 
+def texture_coordinates(b, ubo, first_uv, second_uv, uvparams, extra, texgen, n, world, eye):
+    """
+    The coordinates one texture is read at: the vec2 (a plain set of coordinates, or the ones of a sphere map) and, for the cube
+    map, the vec4 of where to look and the inset of a face (0 if the texture is not a cube map). uvparams, extra and texgen are the
+    members of entity_push of the same names (see graphics_internal.hpp), n the normal in the world and world the place.
+    """
+    f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
+    c1 = b.const_float(1.0)
+    # Textures can be scaled and moved: the first two are factors, the last two offsets.
+    uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
+    chosen_uv = b.fadd(v2, first_uv, b.scale(2, b.fsub(v2, second_uv, first_uv), b.extract(extra, 0)))
+    # RotateTexture turns the coordinates first: extra.y is the sine and extra.z the cosine minus one, so that a texture that is not turned has zeros.
+    sine, cosine = b.extract(extra, 1), b.fadd(f, b.extract(extra, 2), b.const_float(1.0))
+    cu, cv = b.extract(chosen_uv, 0), b.extract(chosen_uv, 1)
+    turned_u = b.fadd(f, b.fmul(f, cosine, cu), b.fmul(f, sine, cv))
+    turned_v = b.fsub(f, b.fmul(f, cosine, cv), b.fmul(f, sine, cu))
+    chosen_uv = b.construct(2, turned_u, turned_v)
+    plain_uv = b.fadd(v2, b.fmul(v2, chosen_uv, uv_scale), uv_offset)
+    # Environment maps make their own coordinates, as the fixed function pipeline of the original does.
+    cam_right = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(8))), 3)
+    cam_up = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(9))), 3)
+    cam_forward = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(10))), 3)
+
+    def to_camera(vector):
+        return b.construct(3, b.dot(vector, cam_right), b.dot(vector, cam_up), b.dot(vector, cam_forward))
+
+    half = b.const_float(0.5)
+    normal_cam = to_camera(n)
+    sphere_uv = b.construct(2, b.fadd(f, b.fmul(f, half, b.extract(normal_cam, 0)), half), b.fsub(f, half, b.fmul(f, half, b.extract(normal_cam, 1))))
+    kind = b.extract(texgen, 0)
+    is_sphere = b.fmul(f, b.ext(f, GLSL_STEP, half, kind), b.fsub(f, c1, b.ext(f, GLSL_STEP, b.const_float(1.5), kind)))
+    is_cube = b.ext(f, GLSL_STEP, b.const_float(1.5), kind)
+    uv = b.fadd(v2, plain_uv, b.scale(2, b.fsub(v2, sphere_uv, plain_uv), is_sphere))
+    incident_raw = b.fsub(v3, world, eye)
+    incident = b.scale(3, incident_raw, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, incident_raw), b.const_float(1e-4))))
+    reflection = b.fsub(v3, incident, b.scale(3, n, b.fmul(f, b.const_float(2.0), b.dot(n, incident))))
+    cube_mode = b.extract(texgen, 1)
+    look = b.fadd(v3, reflection, b.scale(3, b.fsub(v3, n, reflection), b.ext(f, GLSL_STEP, b.const_float(1.5), cube_mode)))
+    look = b.fadd(v3, look, b.scale(3, b.fsub(v3, incident_raw, look), b.ext(f, GLSL_STEP, b.const_float(2.5), cube_mode)))
+    look = b.fadd(v3, look, b.scale(3, b.fsub(v3, to_camera(look), look), b.extract(texgen, 2)))
+    return uv, b.construct(4, b.extract(look, 0), b.extract(look, 1), b.extract(look, 2), b.fmul(f, b.extract(texgen, 3), is_cube))
+
+
+def cube_sheet_uv(b, uv, look):
+    """
+    A cube map is a sheet of three columns and two rows of faces, in the order of SetCubeFace: -X, +Z, +X, -Z, +Y, -Y. Where the vec4 look
+    (a direction and the inset of a face, 0 if the texture is no cube map) points to, the vec2 uv is the place on the sheet; without a cube map it is uv.
+    The face is the one the biggest axis of the direction points to, which gives the same pictures that a cube texture would.
+    """
+    f, v2 = b.float(), b.vec(2)
+    c1 = b.const_float(1.0)
+    inset = b.extract(look, 3)
+    is_cube = b.ext(f, GLSL_STEP, b.const_float(1e-6), inset)
+    lx, ly, lz = b.extract(look, 0), b.extract(look, 1), b.extract(look, 2)
+    ax, ay, az = (b.ext(f, GLSL_FABS, v) for v in (lx, ly, lz))
+    x_major = b.fmul(f, b.ext(f, GLSL_STEP, ay, ax), b.ext(f, GLSL_STEP, az, ax))
+    y_major = b.fmul(f, b.fsub(f, c1, x_major), b.ext(f, GLSL_STEP, az, ay))
+    z_major = b.fsub(f, b.fsub(f, c1, x_major), y_major)
+    zero = b.const_float(0.0)
+    px, py, pz = (b.ext(f, GLSL_STEP, zero, v) for v in (lx, ly, lz))  # 1 for the positive side.
+    two = b.const_float(2.0)
+    sign_x, sign_y, sign_z = (b.fsub(f, b.fmul(f, two, p), c1) for p in (px, py, pz))
+    face = b.fadd(f, b.fadd(f, b.fmul(f, x_major, b.fmul(f, two, px)), b.fmul(f, z_major, b.fsub(f, b.const_float(3.0), b.fmul(f, two, pz)))), b.fmul(f, y_major, b.fsub(f, b.const_float(5.0), py)))
+    neg_ly, neg_lz = b.fsub(f, zero, ly), b.fsub(f, zero, lz)
+    sc = b.fadd(f, b.fadd(f, b.fmul(f, x_major, b.fmul(f, neg_lz, sign_x)), b.fmul(f, y_major, lx)), b.fmul(f, z_major, b.fmul(f, lx, sign_z)))
+    tc = b.fadd(f, b.fadd(f, b.fmul(f, x_major, neg_ly), b.fmul(f, y_major, b.fmul(f, lz, sign_y))), b.fmul(f, z_major, neg_ly))
+    major = b.fadd(f, b.fadd(f, b.fmul(f, x_major, ax), b.fmul(f, y_major, ay)), b.fmul(f, z_major, az))
+    major = b.ext(f, GLSL_FMAX, major, b.const_float(1e-6))
+    half_ = b.const_float(0.5)
+    s_face = b.fmul(f, half_, b.fadd(f, b.fdiv(f, sc, major), c1))
+    t_face = b.fmul(f, half_, b.fadd(f, b.fdiv(f, tc, major), c1))
+    s_face = b.ext(f, GLSL_FCLAMP, s_face, inset, b.fsub(f, c1, inset))
+    t_face = b.ext(f, GLSL_FCLAMP, t_face, inset, b.fsub(f, c1, inset))
+    row = b.ext(f, GLSL_STEP, b.const_float(3.0), face)
+    column = b.fsub(f, face, b.fmul(f, b.const_float(3.0), row))
+    sheet_uv = b.construct(2, b.fdiv(f, b.fadd(f, column, s_face), b.const_float(3.0)), b.fdiv(f, b.fadd(f, row, t_face), two))
+    return b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
+
+
 def vertex_shader_3d():
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
@@ -651,6 +759,8 @@ def vertex_shader_3d():
     out_params = b.variable("Output", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
     out_lights = b.variable("Output", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
     out_pixel = b.variable("Output", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])  # EntityLighting: 1 if the fragment shader lights.
+    out_layers = b.variable("Output", v4, [(DECORATION["Location"], 13), (DECORATION["Flat"],)])  # Where the texture layers after the first are (x, y), see declare_layers.
+    out_uvs = b.variable("Output", v4, [(DECORATION["Location"], 14)])  # Both sets of coordinates as the mesh has them, for the layers.
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -660,7 +770,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, out_normal, out_params, out_lights, out_pixel))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, out_normal, out_params, out_lights, out_pixel, out_layers, out_uvs))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -730,40 +840,13 @@ def vertex_shader_3d():
     b.store(out_params, params)
     b.store(out_lights, packed)
     b.store(out_pixel, per_pixel_value)
-    # Textures can be scaled and moved: the first two are factors, the last two offsets.
-    uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
-    first_uv, second_uv = b.load(v2, in_uv), b.load(v2, in_uv2)
-    chosen_uv = b.fadd(v2, first_uv, b.scale(2, b.fsub(v2, second_uv, first_uv), b.extract(extra, 0)))
-    # RotateTexture turns the coordinates first: extra.y is the sine and extra.z the cosine minus one, so that a texture that is not turned has zeros.
-    sine, cosine = b.extract(extra, 1), b.fadd(f, b.extract(extra, 2), b.const_float(1.0))
-    cu, cv = b.extract(chosen_uv, 0), b.extract(chosen_uv, 1)
-    turned_u = b.fadd(f, b.fmul(f, cosine, cu), b.fmul(f, sine, cv))
-    turned_v = b.fsub(f, b.fmul(f, cosine, cv), b.fmul(f, sine, cu))
-    chosen_uv = b.construct(2, turned_u, turned_v)
-    plain_uv = b.fadd(v2, b.fmul(v2, chosen_uv, uv_scale), uv_offset)
-    # Environment maps make their own coordinates, as the fixed function pipeline of the original does.
-    cam_right = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(8))), 3)
-    cam_up = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(9))), 3)
-    cam_forward = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(10))), 3)
-
-    def to_camera(vector):
-        return b.construct(3, b.dot(vector, cam_right), b.dot(vector, cam_up), b.dot(vector, cam_forward))
-
-    half = b.const_float(0.5)
-    normal_cam = to_camera(n)
-    sphere_uv = b.construct(2, b.fadd(f, b.fmul(f, half, b.extract(normal_cam, 0)), half), b.fsub(f, half, b.fmul(f, half, b.extract(normal_cam, 1))))
-    kind = b.extract(texgen, 0)
-    is_sphere = b.fmul(f, b.ext(f, GLSL_STEP, half, kind), b.fsub(f, c1, b.ext(f, GLSL_STEP, b.const_float(1.5), kind)))
-    is_cube = b.ext(f, GLSL_STEP, b.const_float(1.5), kind)
-    b.store(out_uv, b.fadd(v2, plain_uv, b.scale(2, b.fsub(v2, sphere_uv, plain_uv), is_sphere)))
-    incident_raw = b.fsub(v3, world, eye)
-    incident = b.scale(3, incident_raw, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, incident_raw), b.const_float(1e-4))))
-    reflection = b.fsub(v3, incident, b.scale(3, n, b.fmul(f, b.const_float(2.0), b.dot(n, incident))))
-    cube_mode = b.extract(texgen, 1)
-    look = b.fadd(v3, reflection, b.scale(3, b.fsub(v3, n, reflection), b.ext(f, GLSL_STEP, b.const_float(1.5), cube_mode)))
-    look = b.fadd(v3, look, b.scale(3, b.fsub(v3, incident_raw, look), b.ext(f, GLSL_STEP, b.const_float(2.5), cube_mode)))
-    look = b.fadd(v3, look, b.scale(3, b.fsub(v3, to_camera(look), look), b.extract(texgen, 2)))
-    b.store(out_dir, b.construct(4, b.extract(look, 0), b.extract(look, 1), b.extract(look, 2), b.fmul(f, b.extract(texgen, 3), is_cube)))
+    # Textures can be scaled and moved, turned, and made from the normal or the view: see texture_coordinates.
+    plain_uv, look_out = texture_coordinates(b, ubo, b.load(v2, in_uv), b.load(v2, in_uv2), uvparams, extra, texgen, n, world, eye)
+    b.store(out_uv, plain_uv)
+    b.store(out_dir, look_out)
+    # The texture layers after the first make their coordinates in the fragment shader from these: both sets, and what the layers are (see layer_blend_code).
+    b.store(out_uvs, b.construct(4, b.extract(b.load(v2, in_uv), 0), b.extract(b.load(v2, in_uv), 1), b.extract(b.load(v2, in_uv2), 0), b.extract(b.load(v2, in_uv2), 1)))
+    b.store(out_layers, push_member(11))
     b.store(out_depth, b.construct(4, b.extract(clip, 3), b.extract(world, 0), b.extract(world, 1), b.extract(world, 2)))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
@@ -895,12 +978,17 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
         in_params = b.variable("Input", v4, [(DECORATION["Location"], 10), (DECORATION["Flat"],)])
         in_lights = b.variable("Input", v4, [(DECORATION["Location"], 11), (DECORATION["Flat"],)])
         in_pixel = b.variable("Input", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])
+        in_layers = b.variable("Input", v4, [(DECORATION["Location"], 13), (DECORATION["Flat"],)])
+        in_uvs = b.variable("Input", v4, [(DECORATION["Location"], 14)])
+        # The texture layers after the first (set 0, bindings 1 to 7) and what each is (set 2, binding 1).
+        layer_textures = [b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], k)]) for k in range(1, MAX_LAYERS + 1)]
+        layer_data = declare_layers(b)
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
         if oit == 3:
             moment_depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 1)])
             moment_power_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 4)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights, in_pixel]
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, in_normal, in_params, in_lights, in_pixel, in_layers, in_uvs]
 
     # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
     # fragment_shader_palette for how it is laid out: see palette_nearest_code).
@@ -917,6 +1005,12 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
         dither_on = b.m.id()
         b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
         b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+        # Specialization constant 21 says the pipeline is for draws that have texture layers: without it the branches of the layers are
+        # gone and the shader is the one of a draw with a single texture.
+        #   layout(constant_id = 21) const bool layers_on = true;
+        layers_on = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantTrue", boolean, layers_on))
+        b.m.annotations.append(Module.inst("Decorate", layers_on, DECORATION["SpecId"], 21))
 
         def if_flag(flag, make, before_value, value_type):
             """Runs make() only where the flag is true, and gives its value there and before_value elsewhere."""
@@ -944,34 +1038,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
 
     uv, color = b.load(v2, in_uv), b.load(v4, in_color)
     if fog:
-        # A cube map is a sheet of three columns and two rows of faces, in the order of SetCubeFace: -X, +Z, +X, -Z, +Y, -Y.
-        # The face is the one the biggest axis of the direction points to, which gives the same pictures that a cube texture would.
-        look = b.load(v4, in_dir)
-        inset = b.extract(look, 3)
-        is_cube = b.ext(f, GLSL_STEP, b.const_float(1e-6), inset)
-        lx, ly, lz = b.extract(look, 0), b.extract(look, 1), b.extract(look, 2)
-        ax, ay, az = (b.ext(f, GLSL_FABS, v) for v in (lx, ly, lz))
-        x_major = b.fmul(f, b.ext(f, GLSL_STEP, ay, ax), b.ext(f, GLSL_STEP, az, ax))
-        y_major = b.fmul(f, b.fsub(f, c1, x_major), b.ext(f, GLSL_STEP, az, ay))
-        z_major = b.fsub(f, b.fsub(f, c1, x_major), y_major)
-        zero = b.const_float(0.0)
-        px, py, pz = (b.ext(f, GLSL_STEP, zero, v) for v in (lx, ly, lz))  # 1 for the positive side.
-        two = b.const_float(2.0)
-        sign_x, sign_y, sign_z = (b.fsub(f, b.fmul(f, two, p), c1) for p in (px, py, pz))
-        face = b.fadd(f, b.fadd(f, b.fmul(f, x_major, b.fmul(f, two, px)), b.fmul(f, z_major, b.fsub(f, b.const_float(3.0), b.fmul(f, two, pz)))), b.fmul(f, y_major, b.fsub(f, b.const_float(5.0), py)))
-        neg_ly, neg_lz = b.fsub(f, zero, ly), b.fsub(f, zero, lz)
-        sc = b.fadd(f, b.fadd(f, b.fmul(f, x_major, b.fmul(f, neg_lz, sign_x)), b.fmul(f, y_major, lx)), b.fmul(f, z_major, b.fmul(f, lx, sign_z)))
-        tc = b.fadd(f, b.fadd(f, b.fmul(f, x_major, neg_ly), b.fmul(f, y_major, b.fmul(f, lz, sign_y))), b.fmul(f, z_major, neg_ly))
-        major = b.fadd(f, b.fadd(f, b.fmul(f, x_major, ax), b.fmul(f, y_major, ay)), b.fmul(f, z_major, az))
-        major = b.ext(f, GLSL_FMAX, major, b.const_float(1e-6))
-        s_face = b.fmul(f, half_ := b.const_float(0.5), b.fadd(f, b.fdiv(f, sc, major), c1))
-        t_face = b.fmul(f, half_, b.fadd(f, b.fdiv(f, tc, major), c1))
-        s_face = b.ext(f, GLSL_FCLAMP, s_face, inset, b.fsub(f, c1, inset))
-        t_face = b.ext(f, GLSL_FCLAMP, t_face, inset, b.fsub(f, c1, inset))
-        row = b.ext(f, GLSL_STEP, b.const_float(3.0), face)
-        column = b.fsub(f, face, b.fmul(f, b.const_float(3.0), row))
-        sheet_uv = b.construct(2, b.fdiv(f, b.fadd(f, column, s_face), b.const_float(3.0)), b.fdiv(f, b.fadd(f, row, t_face), two))
-        uv = b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
+        uv = cube_sheet_uv(b, uv, b.load(v4, in_dir))
     if fog:
         uv = b.construct(3, b.extract(uv, 0), b.extract(uv, 1), b.extract(b.load(v4, in_soft), 1))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
@@ -1048,6 +1115,48 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
         # Dot3 is written to all four channels, the alpha as well.
         alpha_out = b.fadd(f, alpha_out, b.fmul(f, b.fsub(f, dotted, alpha_out), weight(3)))
         result = b.construct(4, b.extract(rgb3, 0), b.extract(rgb3, 1), b.extract(rgb3, 2), alpha_out)
+        # The textures after the first are the next stages of Direct3D 7: each takes what the stages before it made as its second argument, is
+        # limited to what a color can be, and its blend is made here instead of by the blender (the highlight and the fog come after the last stage).
+        #   for (k = 1; k <= layers; k++) { texel = texture(layer[k], coordinates of layer k);  there = rgb;  rgb = blend(texel, there); }
+        eye_layers = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(6))), 3)
+        normal_layers = b.load(v3, in_normal)
+        unit_layers = b.scale(3, normal_layers, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, normal_layers), b.const_float(1e-6))))
+        world_layers = b.swizzle(b.emit("VectorShuffle", v4, b.load(v4, in_depth), b.load(v4, in_depth), 1, 2, 3, 3), 3)
+        uvs_layers = b.load(v4, in_uvs)
+        layer_info = b.load(v4, in_layers)
+        layer_first = b.emit("ConvertFToS", b.int(), b.extract(layer_info, 0))
+        layer_count = b.extract(layer_info, 1)
+        stage = b.swizzle(result, 3)
+        for k in range(1, MAX_LAYERS + 1):
+            def one_layer(k=k, there=stage):
+                at = b.emit("IAdd", b.int(), layer_first, b.const_int(k - 1))
+                scale_offset, second, texgen_k, kind = (b.load(v4, b.access("Uniform", v4, layer_data, b.const_int(0), at, b.const_int(m))) for m in range(4))
+                uv_k, look_k = texture_coordinates(b, scene, b.construct(2, b.extract(uvs_layers, 0), b.extract(uvs_layers, 1)), b.construct(2, b.extract(uvs_layers, 2), b.extract(uvs_layers, 3)), scale_offset, second, texgen_k, unit_layers, world_layers, eye_layers)
+                uv_k = cube_sheet_uv(b, uv_k, look_k)
+                texel_k = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, layer_textures[k - 1]), b.construct(3, b.extract(uv_k, 0), b.extract(uv_k, 1), b.extract(kind, 1)))
+                color_k = b.swizzle(texel_k, 3)
+                # A texture without an alpha channel has an alpha of 1, and black is not there where the texture is masked.
+                alpha_k = b.ext(f, GLSL_FMAX, b.extract(texel_k, 3), b.fsub(f, c1, b.extract(kind, 3)))
+                diff_k = b.ext(v3, GLSL_FABS, color_k)
+                biggest_k = b.ext(f, GLSL_FMAX, b.ext(f, GLSL_FMAX, b.extract(diff_k, 0), b.extract(diff_k, 1)), b.extract(diff_k, 2))
+                alpha_k = b.fmul(f, alpha_k, b.fsub(f, c1, b.fmul(f, b.ext(f, GLSL_STEP, biggest_k, epsilon), b.extract(kind, 2))))
+                code_k = b.extract(kind, 0)
+
+                def weight_k(code):
+                    return b.fsub(f, b.ext(f, GLSL_STEP, b.const_float(code - 0.5), code_k), b.ext(f, GLSL_STEP, b.const_float(code + 0.5), code_k))
+
+                multiplied_k = b.fmul(v3, color_k, there)
+                by_alpha_k = b.fadd(v3, there, b.scale(3, b.fsub(v3, color_k, there), alpha_k))
+                added_k = b.ext(v3, GLSL_FCLAMP, b.fadd(v3, there, b.scale(3, color_k, alpha_k)), lows, highs)
+                dotted_k = b.ext(f, GLSL_FCLAMP, b.fmul(f, b.dot(b.fsub(v3, color_k, half3), b.fsub(v3, there, half3)), b.const_float(4.0)), b.const_float(0.0), c1)
+                twice_k = b.ext(v3, GLSL_FCLAMP, b.scale(3, multiplied_k, b.const_float(2.0)), lows, highs)
+                made = b.scale(3, multiplied_k, weight_k(0))
+                for code, value in ((1, by_alpha_k), (2, added_k), (3, b.construct(3, dotted_k, dotted_k, dotted_k)), (4, twice_k)):
+                    made = b.fadd(v3, made, b.scale(3, value, weight_k(code)))
+                return made
+
+            stage = if_flag(b.emit("LogicalAnd", boolean, layers_on, b.emit("FOrdGreaterThan", boolean, layer_count, b.const_float(k - 0.5))), one_layer, stage, v3)
+        result = b.construct(4, b.extract(stage, 0), b.extract(stage, 1), b.extract(stage, 2), b.extract(result, 3))
     if fog:
         # The highlight of lights is added to what the texture made of the color.
         lit_rgb = b.fadd(v3, b.swizzle(result, 3), spec)
@@ -1705,7 +1814,7 @@ def compute_shader_static():
 
     #version 450
     layout(local_size_x = 64) in;
-    struct Entity { vec4 v[11]; };
+    struct Entity { vec4 v[12]; };
     struct Info { vec4 sphere; ivec4 range; vec4 extra; };   // Sphere in the space of the mesh. First index and number of indices. x: how much the matrix can lengthen a vector.
     struct Command { int indexCount, instanceCount, firstIndex, vertexOffset, firstInstance; };
     layout(set = 0, binding = 0) buffer Entities { Entity entities[]; };
@@ -1744,8 +1853,8 @@ def compute_shader_static():
             b.m.annotations.append(Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]))
         return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], binding)])
 
-    entity = b.struct("entity", *([v4] * 11))
-    for index in range(11):
+    entity = b.struct("entity", *([v4] * ENTITY_VECTORS))
+    for index in range(ENTITY_VECTORS):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     info = b.struct("info", v4, iv4, v4)
     command = b.struct("command", i32, i32, i32, i32, i32)
@@ -1754,8 +1863,8 @@ def compute_shader_static():
     ]
     for index in range(5):
         b.m.annotations.append(Module.inst("MemberDecorate", command, index, DECORATION["Offset"], index * 4))
-    entities = buffer("static_entities", 0, 0, entity, 176, True)
-    table = buffer("static_table", 1, 0, entity, 176, False)
+    entities = buffer("static_entities", 0, 0, entity, ENTITY_VECTORS * 16, True)
+    table = buffer("static_table", 1, 0, entity, ENTITY_VECTORS * 16, False)
     infos = buffer("static_infos", 1, 1, info, 48, False)
     commands = buffer("static_commands", 1, 2, command, 20, True)
 
@@ -1788,7 +1897,7 @@ def compute_shader_static():
     i = b.emit("IAdd", i32, b.emit("IMul", i32, group_id, b.const_int(64)), lane)
     out = b.emit("IAdd", i32, int_member(base, 0), i)
     rows = []
-    for k in range(11):
+    for k in range(ENTITY_VECTORS):
         value = b.load(v4, b.access("Uniform", v4, table, zero, i, b.const_int(k)))
         if k < 3:
             value = b.construct(4, b.extract(value, 0), b.extract(value, 1), b.extract(value, 2), b.fsub(f, b.extract(value, 3), b.extract(origin, k)))
