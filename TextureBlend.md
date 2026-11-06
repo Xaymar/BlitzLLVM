@@ -37,7 +37,7 @@ Chooses how this texture combines with what lies below it. A texture on layer 0 
 
 ## Differences
 
-* Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does. Dot3 on a layer after the first one is the dot product of the texture and what the layers before it made, which needs a GPU that can read the target while it draws to it (the ones that support Dither 2); other GPUs and a Graphics with AntiAlias multiply instead.
+* Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does. Dot3 on a layer after the first one is a multiply, as there is no fixed-function blend for the dot product.
 
 ## Examples
 
