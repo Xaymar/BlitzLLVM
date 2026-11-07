@@ -107,6 +107,20 @@ namespace bb::rhi {
 		channel r = channel::identity, g = channel::identity, b = channel::identity, a = channel::identity;
 	};
 
+	enum class topology : uint8_t { triangles, lines };
+
+	/** How the vertices of a pipeline are laid out in its buffer. none: no vertex buffer (the shader makes the vertices); flat: the 2D vertex of the program (position, texture coordinate, colour). */
+	enum class vertex_layout : uint8_t { none, flat };
+
+	/** What a pipeline is made of. The shaders stay backend handles until the shader ids of the next commit (vs and fs are a VkShaderModule on Vulkan). */
+	struct pipeline_desc {
+		uint64_t      vs = 0, fs = 0;
+		topology      primitives   = topology::triangles;
+		vertex_layout vertices     = vertex_layout::none;
+		bool          blend_alpha  = false; // Source alpha over the image; otherwise the pass replaces it.
+		format        color_format = format::rgba8;
+	};
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

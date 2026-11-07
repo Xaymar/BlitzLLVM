@@ -449,8 +449,15 @@ namespace bb::gfx {
 		pipeline_twins.clear();
 	}
 
-	static VkPipeline build_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, VkFormat color_format)
+	// The one translation of a neutral pipeline description to Vulkan state, for the pipelines of the 2D family.
+	static VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc, VkPipelineLayout layout)
 	{
+		VkShaderModule  vs           = VkShaderModule(desc.vs);
+		VkShaderModule  fs           = VkShaderModule(desc.fs);
+		VkPrimitiveTopology topology = (desc.primitives == bb::rhi::topology::lines) ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		bool            vertices     = (desc.vertices == bb::rhi::vertex_layout::flat);
+		VkFormat        color_format = vk_format(desc.color_format);
+
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
 		stages[0].module                          = vs;
@@ -488,7 +495,7 @@ namespace bb::gfx {
 		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
 
 		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = vertices ? VK_TRUE : VK_FALSE; // Passes over an image replace it.
+		blend.blendEnable                         = desc.blend_alpha ? VK_TRUE : VK_FALSE; // Passes over an image replace it.
 		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
 		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
@@ -528,18 +535,30 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
+	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	{
+		bb::rhi::pipeline_desc desc;
+		desc.vs           = uint64_t(vs);
+		desc.fs           = uint64_t(fs);
+		desc.primitives   = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
+		desc.vertices     = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
+		desc.blend_alpha  = vertices; // Passes over an image replace it.
+		desc.color_format = rhi_format(format);
+		return desc;
+	}
+
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
 	{
-		VkPipeline pipeline = build_pipeline(vs, fs, topology, layout, vertices, VK_FORMAT_R8G8B8A8_UNORM);
+		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM), layout);
 		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
-			add_pipeline_twin(pipeline, build_pipeline(vs, fs, topology, layout, vertices, g.buffer_format));
+			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, topology, vertices, g.buffer_format), layout));
 		}
 		return pipeline;
 	}
 
 	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format)
 	{
-		return build_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, format);
+		return build_pipeline(flat_desc(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format), layout);
 	}
 
 	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
