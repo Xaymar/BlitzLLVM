@@ -28,8 +28,7 @@ namespace bb::gfx {
 	// Commands
 	////////////////////////////////////////////////////////////////////////////
 	// Between rectangles of the same image, the pixels take a detour through this buffer.
-	VkBuffer       scratch        = VK_NULL_HANDLE;
-	VmaAllocation  scratch_allocation = VK_NULL_HANDLE;
+	rhi::gpu_buffer scratch;
 	VkDeviceSize   scratch_size   = 0;
 	bb::buffer<graveyard_entry> graveyard;
 	frame_slot                  frames[frame_slots];
@@ -472,17 +471,11 @@ namespace bb::gfx {
 		s.fence = g.fence;
 		s.acquired = surface().acquired;
 		s.entity_buffer = g.entity_buffer;
-		s.entity_allocation = g.entity_allocation;
-		s.entity_mapped = g.entity_mapped;
 		s.entity_capacity = g.entity_capacity;
 		s.entity_set = g.entity_set;
 		s.layer_buffer = g.layer_buffer;
-		s.layer_allocation = g.layer_allocation;
-		s.layer_mapped = g.layer_mapped;
 		s.layer_capacity = g.layer_capacity;
 		s.scene_buffer = g.scene_buffer;
-		s.scene_allocation = g.scene_allocation;
-		s.scene_mapped = g.scene_mapped;
 		s.scene_set = g.scene_set;
 		s.cull = g.cull;
 		s.statics = g.statics;
@@ -494,17 +487,11 @@ namespace bb::gfx {
 		g.fence = s.fence;
 		surface().acquired = s.acquired;
 		g.entity_buffer = s.entity_buffer;
-		g.entity_allocation = s.entity_allocation;
-		g.entity_mapped = s.entity_mapped;
 		g.entity_capacity = s.entity_capacity;
 		g.entity_set = s.entity_set;
 		g.layer_buffer = s.layer_buffer;
-		g.layer_allocation = s.layer_allocation;
-		g.layer_mapped = s.layer_mapped;
 		g.layer_capacity = s.layer_capacity;
 		g.scene_buffer = s.scene_buffer;
-		g.scene_allocation = s.scene_allocation;
-		g.scene_mapped = s.scene_mapped;
 		g.scene_set = s.scene_set;
 		g.cull = s.cull;
 		g.statics = s.statics;
@@ -543,15 +530,15 @@ namespace bb::gfx {
 	{
 		for (uint32_t i = 0; i < frame_slots; i++) {
 			select_frame_slot(i);
-			destroy_buffer(g.scene_buffer, g.scene_allocation);
-			destroy_buffer(g.entity_buffer, g.entity_allocation);
-			destroy_buffer(g.layer_buffer, g.layer_allocation);
-			destroy_buffer(g.cull.clusters, g.cull.clusters_allocation);
-			destroy_buffer(g.cull.groups, g.cull.groups_allocation);
-			destroy_buffer(g.cull.commands, g.cull.commands_allocation);
+			rhi::destroy_buffer(g.scene_buffer);
+			rhi::destroy_buffer(g.entity_buffer);
+			rhi::destroy_buffer(g.layer_buffer);
+			rhi::destroy_buffer(g.cull.clusters);
+			rhi::destroy_buffer(g.cull.groups);
+			rhi::destroy_buffer(g.cull.commands);
 			g.cull = cull_buffers();
-			destroy_buffer(g.statics.table, g.statics.table_allocation);
-			destroy_buffer(g.statics.infos, g.statics.infos_allocation);
+			rhi::destroy_buffer(g.statics.table);
+			rhi::destroy_buffer(g.statics.infos);
 			g.statics = static_buffers();
 		}
 		select_frame_slot(0);
@@ -732,7 +719,7 @@ namespace bb::gfx {
 		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
 		vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer, &offset);
+		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer.vk, &offset);
 
 		VkRect2D  current  = scissor;
 		for (uint32_t i = first; i < end; i++) {
@@ -818,8 +805,6 @@ namespace bb::gfx {
 		// What was recorded reads the vertices until it is done, and so may the frame before, so the next ones go to the third.
 		std::swap(g.vertex_buffer, g.vertex_buffer_alt);
 		std::swap(g.vertex_buffer_alt, g.vertex_buffer_alt2);
-		std::swap(g.vertex_allocation, g.vertex_allocation_alt);
-		std::swap(g.vertex_allocation_alt, g.vertex_allocation_alt2);
 		std::swap(g.vertices, g.vertices_alt);
 		std::swap(g.vertices_alt, g.vertices_alt2);
 		forget_recorded();

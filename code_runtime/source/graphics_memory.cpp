@@ -31,11 +31,8 @@ namespace bb::gfx {
 	// The loader threads make the buffers of the surfaces of models (surface_prebuild), and the graphics state belongs to the thread of the
 	// program, so they are handed the allocator here: it is there between create_allocator and close_prebuild, and close_prebuild
 	// waits for the threads that are making a buffer, so none is left when the allocator goes.
-	static std::shared_mutex prebuild_gate;
-	static VmaAllocator      prebuild_allocator = VK_NULL_HANDLE;
-
-	std::shared_mutex& prebuild_lock_gate() { return prebuild_gate; }
-	VmaAllocator       prebuild_allocator_unlocked() { return prebuild_allocator; }
+	std::shared_mutex prebuild_gate;                      // Not for use outside this file: the buffers made on any thread (rhi::create_buffer_any_thread) hold it.
+	VmaAllocator      prebuild_allocator = VK_NULL_HANDLE;
 
 	void close_prebuild()
 	{
@@ -302,7 +299,7 @@ namespace bb::gfx {
 		make_room(pixels * per_pixel);
 	}
 
-	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
+	static void create_vk_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
 	{
 		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		info.size               = size;
@@ -368,7 +365,7 @@ namespace bb::gfx {
 		}
 	}
 
-	void create_mesh_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
+	static void create_vk_mesh_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
 	{
 		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		info.size               = size;
@@ -399,7 +396,7 @@ namespace bb::gfx {
 		*mapped = result.pMappedData;
 	}
 
-	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation)
+	static void destroy_vk_buffer(VkBuffer& buffer, VmaAllocation& allocation)
 	{
 		if (buffer) {
 			vmaDestroyBuffer(g.allocator, buffer, allocation);
@@ -408,3 +405,65 @@ namespace bb::gfx {
 		allocation = VK_NULL_HANDLE;
 	}
 } // namespace bb::gfx
+
+namespace bb::rhi {
+	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where)
+	{
+		VkBufferUsageFlags flags = 0;
+		flags |= (usage & vertex_data) ? VK_BUFFER_USAGE_VERTEX_BUFFER_BIT : 0;
+		flags |= (usage & index_data) ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : 0;
+		flags |= (usage & uniform_data) ? VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT : 0;
+		flags |= (usage & storage_data) ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0;
+		flags |= (usage & transfer_source) ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0;
+		flags |= (usage & transfer_destination) ? VK_BUFFER_USAGE_TRANSFER_DST_BIT : 0;
+		flags |= (usage & indirect_data) ? VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT : 0;
+		buffer.mapped = nullptr;
+		buffer.size   = size;
+		if (where == memory::mesh) {
+			bb::gfx::create_vk_mesh_buffer(size, flags, buffer.vk, buffer.allocation, &buffer.mapped);
+		} else {
+			bb::gfx::create_vk_buffer(size, flags, where == memory::mapped, buffer.vk, buffer.allocation, (where == memory::mapped) ? &buffer.mapped : nullptr);
+		}
+	}
+
+	void destroy_buffer(gpu_buffer& buffer)
+	{
+		bb::gfx::destroy_vk_buffer(buffer.vk, buffer.allocation);
+		buffer.mapped = nullptr;
+		buffer.size   = 0;
+	}
+
+	bool create_buffer_any_thread(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where)
+	{
+		// The allocator is the one that the program's thread handed over (see close_prebuild), held for as long as this runs.
+		std::shared_lock<std::shared_mutex> gate(bb::gfx::prebuild_gate);
+		VmaAllocator allocator = bb::gfx::prebuild_allocator;
+		if (!allocator || (where != memory::mesh)) {
+			return false;
+		}
+		VmaAllocationCreateInfo alloc;
+		bb::gfx::mesh_allocation_info(alloc);
+		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+		info.size               = size;
+		info.usage              = ((usage & vertex_data) ? VK_BUFFER_USAGE_VERTEX_BUFFER_BIT : 0) | ((usage & index_data) ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : 0);
+		VmaAllocationInfo result;
+		if (vmaCreateBuffer(allocator, &info, &alloc, &buffer.vk, &buffer.allocation, &result) != VK_SUCCESS) {
+			buffer.vk         = VK_NULL_HANDLE;
+			buffer.allocation = VK_NULL_HANDLE;
+			return false;
+		}
+		buffer.mapped = result.pMappedData;
+		buffer.size   = size;
+		return true;
+	}
+
+	void destroy_buffer_any_thread(gpu_buffer& buffer)
+	{
+		std::shared_lock<std::shared_mutex> gate(bb::gfx::prebuild_gate);
+		if (buffer.vk && bb::gfx::prebuild_allocator) {
+			vmaDestroyBuffer(bb::gfx::prebuild_allocator, buffer.vk, buffer.allocation);
+		}
+		buffer = gpu_buffer();
+	}
+} // namespace bb::rhi

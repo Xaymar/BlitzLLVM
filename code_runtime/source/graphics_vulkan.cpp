@@ -573,10 +573,10 @@ namespace bb::gfx {
 			size += VkDeviceSize((width >> level) ? (width >> level) : 1) * ((height >> level) ? (height >> level) : 1) * 4;
 		}
 		size *= layers; // The layers one after the other.
-		VkBuffer       staging;
-		VmaAllocation staging_allocation;
-		void*          mapped;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
+		rhi::gpu_buffer staging;
+		void* mapped;
+		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
+		mapped = staging.mapped;
 		memcpy(mapped, pixels, size_t(size));
 
 		// Pixels of 10 bits per channel are never drawn to as they are, so they are not a color attachment.
@@ -595,7 +595,7 @@ namespace bb::gfx {
 			recipe.data.assign(pixels, pixels + size);
 		}
 		if (!image.image) {
-			destroy_buffer(staging, staging_allocation); // The device is lost, the recipe is all there is until it is back.
+			rhi::destroy_buffer(staging); // The device is lost, the recipe is all there is until it is back.
 			return;
 		}
 
@@ -604,7 +604,7 @@ namespace bb::gfx {
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layers };
 		copy.imageExtent       = { width, height, 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 		if (ten && (image.mips > 1)) {
 			std::vector<VkBufferImageCopy> copies(levels);
 			VkDeviceSize                   offset = 0;
@@ -617,7 +617,7 @@ namespace bb::gfx {
 				offset += VkDeviceSize(w) * h * 4;
 			}
 			// The first copy above only covered level 0; the others come from the rest of the buffer.
-			vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels - 1, copies.data() + 1);
+			vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels - 1, copies.data() + 1);
 			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		} else if (image.mips > 1) {
@@ -628,7 +628,7 @@ namespace bb::gfx {
 		}
 		submit_commands();
 
-		destroy_buffer(staging, staging_allocation);
+		rhi::destroy_buffer(staging);
 	}
 
 	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
@@ -767,10 +767,10 @@ namespace bb::gfx {
 		// The levels the file has are used as they are, when mip maps are wanted.
 		uint32_t       levels = mipmaps ? uint32_t(p.mips) : 1;
 		VkDeviceSize   size   = p.size;
-		VkBuffer       staging;
-		VmaAllocation staging_allocation;
-		void*          mapped;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
+		rhi::gpu_buffer staging;
+		void* mapped;
+		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
+		mapped = staging.mapped;
 		memcpy(mapped, p.blocks, p.size);
 
 		// One channel is shown as grey, and alpha is 1 where the file has none to use.
@@ -800,7 +800,7 @@ namespace bb::gfx {
 			recipe.data.assign(p.blocks, p.blocks + p.size);
 		}
 		if (!image.image) {
-			destroy_buffer(staging, staging_allocation);
+			rhi::destroy_buffer(staging);
 			return;
 		}
 
@@ -820,12 +820,12 @@ namespace bb::gfx {
 			copy.imageExtent        = { w, h, 1 };
 			offset += block_bytes(p.block, int(w), int(h));
 		}
-		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels, copies.data());
+		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels, copies.data());
 		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
 
-		destroy_buffer(staging, staging_allocation);
+		rhi::destroy_buffer(staging);
 	}
 
 	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb)
@@ -924,17 +924,17 @@ namespace bb::gfx {
 	{
 		flush();
 		VkDeviceSize  size = VkDeviceSize(image.width) * image.height * 4;
-		VkBuffer      staging;
-		VmaAllocation staging_allocation;
-		void*         mapped;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, staging, staging_allocation, &mapped);
+		rhi::gpu_buffer staging;
+		void* mapped;
+		rhi::create_buffer(staging, size, rhi::transfer_destination, rhi::memory::mapped);
+		mapped = staging.mapped;
 
 		begin_commands();
 		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { image.width, image.height, 1 };
-		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
+		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging.vk, 1, &copy);
 		submit_commands();
 
 		uint8_t*        pixels = static_cast<uint8_t*>(bb_malloc(size_t(size)));
@@ -946,7 +946,7 @@ namespace bb::gfx {
 			pixels[i * 4 + 2] = uint8_t((((v >> 20) & 1023) * 255 + 511) / 1023);
 			pixels[i * 4 + 3] = uint8_t((v >> 30) * 85);
 		}
-		destroy_buffer(staging, staging_allocation);
+		rhi::destroy_buffer(staging);
 
 		VkSampler sampler = image.sampler;
 		uint32_t  width = image.width, height = image.height;
@@ -974,10 +974,10 @@ namespace bb::gfx {
 		// What was recorded may use the image as it is.
 		flush();
 		VkDeviceSize   size = block_bytes(image.block, int(image.width), int(image.height));
-		VkBuffer       staging;
-		VmaAllocation staging_allocation;
-		void*          mapped;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, staging, staging_allocation, &mapped);
+		rhi::gpu_buffer staging;
+		void* mapped;
+		rhi::create_buffer(staging, size, rhi::transfer_destination, rhi::memory::mapped);
+		mapped = staging.mapped;
 
 		begin_commands();
 		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -985,12 +985,12 @@ namespace bb::gfx {
 		copy.bufferRowLength   = (image.width + 3) / 4 * 4;
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { image.width, image.height, 1 };
-		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
+		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging.vk, 1, &copy);
 		submit_commands();
 
 		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(image.width) * image.height * 4));
 		decode_blocks(image.block, int(image.width), int(image.height), static_cast<const uint8_t*>(mapped), pixels);
-		destroy_buffer(staging, staging_allocation);
+		rhi::destroy_buffer(staging);
 		if (image.opaque) {
 			for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
 				pixels[i * 4 + 3] = 255;
@@ -1740,11 +1740,14 @@ namespace bb::gfx {
 		bb_free(atlas);
 
 		void* mapped;
-		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer, g.vertex_allocation, &mapped);
+		rhi::create_buffer(g.vertex_buffer, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
+		mapped = g.vertex_buffer.mapped;
 		g.vertices = static_cast<vertex*>(mapped);
-		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer_alt, g.vertex_allocation_alt, &mapped);
+		rhi::create_buffer(g.vertex_buffer_alt, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
+		mapped = g.vertex_buffer_alt.mapped;
 		g.vertices_alt = static_cast<vertex*>(mapped);
-		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer_alt2, g.vertex_allocation_alt2, &mapped);
+		rhi::create_buffer(g.vertex_buffer_alt2, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
+		mapped = g.vertex_buffer_alt2.mapped;
 		g.vertices_alt2 = static_cast<vertex*>(mapped);
 
 		create_3d();

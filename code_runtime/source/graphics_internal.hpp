@@ -17,6 +17,7 @@
 #define VK_NO_PROTOTYPES
 #include "load_pool.hpp"
 #include "profile.hpp"
+#include "rhi.hpp"
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -269,20 +270,14 @@ namespace bb::gfx {
 	/** What the culling on the GPU reads and writes, once for each frame in flight. The first two are filled by the program, the commands by the GPU. */
 	struct cull_buffers {
 		VkDescriptorSet set = VK_NULL_HANDLE;
-		VkBuffer        clusters = VK_NULL_HANDLE, groups = VK_NULL_HANDLE, commands = VK_NULL_HANDLE;
-		VmaAllocation   clusters_allocation = VK_NULL_HANDLE, groups_allocation = VK_NULL_HANDLE, commands_allocation = VK_NULL_HANDLE;
-		void*           clusters_mapped = nullptr;
-		void*           groups_mapped   = nullptr;
+		rhi::gpu_buffer clusters, groups, commands;
 		uint32_t        clusters_capacity = 0, groups_capacity = 0, commands_capacity = 0;
 	};
 
 	/** The table of the draws that the GPU drives (BLITZLLVM_GPU_DRAWS), once for each frame in flight: a copy of what graphics_scene3d.cpp keeps, brought up to date when a frame records. */
 	struct static_buffers {
 		VkDescriptorSet set = VK_NULL_HANDLE;
-		VkBuffer        table = VK_NULL_HANDLE, infos = VK_NULL_HANDLE;
-		VmaAllocation   table_allocation = VK_NULL_HANDLE, infos_allocation = VK_NULL_HANDLE;
-		void*           table_mapped = nullptr;
-		void*           infos_mapped = nullptr;
+		rhi::gpu_buffer table, infos;
 		uint32_t        capacity = 0;     // Entries.
 		uint64_t        version = 0;      // Of the table that it holds a copy of, 0 for none.
 		uint32_t        log_position = 0; // How much of the list of entries that were switched off since is done in the copy.
@@ -360,14 +355,11 @@ namespace bb::gfx {
 		VkDescriptorSet       sets[TEXTURES];
 
 		// Vertices
-		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
-		VmaAllocation  vertex_allocation = VK_NULL_HANDLE;
+		rhi::gpu_buffer vertex_buffer;
 		vertex*        vertices      = nullptr;
-		VkBuffer       vertex_buffer_alt = VK_NULL_HANDLE; // The other of three, one is written while the others are read by the GPU.
-		VmaAllocation  vertex_allocation_alt = VK_NULL_HANDLE;
+		rhi::gpu_buffer vertex_buffer_alt; // The other of three, one is written while the others are read by the GPU.
 		vertex*        vertices_alt      = nullptr;
-		VkBuffer       vertex_buffer_alt2 = VK_NULL_HANDLE;
-		VmaAllocation  vertex_allocation_alt2 = VK_NULL_HANDLE;
+		rhi::gpu_buffer vertex_buffer_alt2;
 		vertex*        vertices_alt2     = nullptr;
 		uint32_t       vertex_count  = 0;
 		bool           front_touched = false; // Something was drawn to the front buffer, which has to be shown.
@@ -382,13 +374,9 @@ namespace bb::gfx {
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
 		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
-		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
-		VkBuffer              layer_buffer    = VK_NULL_HANDLE; // The layer_data of the draws that wait, see frame_slot.
-		VmaAllocation         layer_allocation = VK_NULL_HANDLE;
-		void*                 layer_mapped    = nullptr;
+		rhi::gpu_buffer       entity_buffer;
+		rhi::gpu_buffer       layer_buffer; // The layer_data of the draws that wait, see frame_slot.
 		uint32_t              layer_capacity  = 0;
-		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
-		void*                 entity_mapped   = nullptr;
 		uint32_t              entity_capacity = 0;
 		// Culling of clusters of big surfaces on the GPU, if it can draw the commands that come out of it.
 		bool                  can_gpu_cull   = false;
@@ -417,9 +405,7 @@ namespace bb::gfx {
 		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  wireframe      = false;
-		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
-		VmaAllocation         scene_allocation = VK_NULL_HANDLE;
-		void*                 scene_mapped   = nullptr;
+		rhi::gpu_buffer       scene_buffer; // One block of scene data for each scene that is waiting.
 		int   target = back_buffer;
 		uint32_t width = 0, height = 0;
 
@@ -585,18 +571,12 @@ namespace bb::gfx {
 		VkCommandBuffer cmd      = VK_NULL_HANDLE;
 		VkFence         fence    = VK_NULL_HANDLE;
 		VkSemaphore     acquired = VK_NULL_HANDLE;
-		VkBuffer        entity_buffer     = VK_NULL_HANDLE;
-		VmaAllocation   entity_allocation = VK_NULL_HANDLE;
-		void*           entity_mapped     = nullptr;
+		rhi::gpu_buffer entity_buffer;
 		uint32_t        entity_capacity   = 0;
 		VkDescriptorSet entity_set        = VK_NULL_HANDLE;
-		VkBuffer        layer_buffer      = VK_NULL_HANDLE; // The layer_data of the draws that have texture layers, bound with the draw data (set 2, binding 1).
-		VmaAllocation   layer_allocation  = VK_NULL_HANDLE;
-		void*           layer_mapped      = nullptr;
+		rhi::gpu_buffer layer_buffer; // The layer_data of the draws that have texture layers, bound with the draw data (set 2, binding 1).
 		uint32_t        layer_capacity    = 0;
-		VkBuffer        scene_buffer      = VK_NULL_HANDLE;
-		VmaAllocation   scene_allocation  = VK_NULL_HANDLE;
-		void*           scene_mapped      = nullptr;
+		rhi::gpu_buffer scene_buffer;
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
 		cull_buffers    cull;
 		static_buffers  statics;
@@ -724,14 +704,10 @@ namespace bb::gfx {
 	};
 
 	struct surface_gpu {
-		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
-		VmaAllocation  vertex_allocation = VK_NULL_HANDLE;
-		VkBuffer       index_buffer  = VK_NULL_HANDLE;
-		VmaAllocation  index_allocation  = VK_NULL_HANDLE;
-		uint32_t       index_count   = 0;
 		// The buffers stay mapped, and are filled again when the surface changes and nothing waits to use them.
-		void*          vertex_mapped = nullptr;
-		void*          index_mapped  = nullptr;
+		rhi::gpu_buffer vertex_buffer;
+		rhi::gpu_buffer index_buffer;
+		uint32_t       index_count   = 0;
 		uint32_t       vertex_capacity = 0, index_capacity = 0;
 		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
 		// Big surfaces are also kept as clusters for culling on the GPU: the triangles ordered by where they are, in an index buffer of their own.
@@ -739,8 +715,7 @@ namespace bb::gfx {
 		uint32_t       clusters_flush  = 0;           // The flush they were made in, to not make them again for a surface that changes all the time.
 		bool           clusters_made   = false;
 		bb::buffer<gpu_cluster> clusters;
-		VkBuffer       cluster_index_buffer = VK_NULL_HANDLE;
-		VmaAllocation  cluster_index_allocation = VK_NULL_HANDLE;
+		rhi::gpu_buffer cluster_index_buffer;
 		surface_gpu* previous = nullptr; // All that exist are in a list, so that they can be destroyed when the window closes.
 		surface_gpu* next     = nullptr;
 	};
@@ -894,8 +869,7 @@ namespace bb::gfx {
 	extern bb::buffer<texture_entry> texture_table;
 	extern bb::buffer<image_entry> image_table;
 	extern bb::buffer<sampler_entry> sampler_table;
-	extern VkBuffer       scratch;
-	extern VmaAllocation  scratch_allocation;
+	extern rhi::gpu_buffer scratch;
 	extern VkDeviceSize   scratch_size;
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
@@ -943,15 +917,9 @@ namespace bb::gfx {
 	void destroy_allocator();
 	/** Loader threads make buffers with the allocator while this is open: it is handed to them when it is made, and taken back (waiting for them) here. */
 	void close_prebuild();
-	std::shared_mutex& prebuild_lock_gate();
-	VmaAllocator       prebuild_allocator_unlocked();
-	/** A buffer with its memory. Host buffers can be read and written by the CPU through 'mapped' (coherent, so nothing has to be flushed), the others are on the GPU. */
-	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped = nullptr);
-	// Vertex and index buffers of surfaces: the CPU only writes them (see BLITZLLVM_MESH_WRITE_ONLY).
-	void create_mesh_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation, void** mapped);
+	// Vertex and index buffers of surfaces are made with rhi::memory::mesh: the CPU only writes them (see BLITZLLVM_MESH_WRITE_ONLY).
 	bool mesh_buffers_write_only();
 	void mesh_allocation_info(VmaAllocationCreateInfo& alloc);
-	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	/** Images made while one of these lives (and allows it) may fall back to system memory when video memory is full. Without one they must fit in video memory. */
 	struct image_spill_scope {
 		bool previous, previous_evict;

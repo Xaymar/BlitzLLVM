@@ -45,16 +45,14 @@ namespace {
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
-	VkBuffer         table_buffer = VK_NULL_HANDLE;
-	VmaAllocation    table_allocation = VK_NULL_HANDLE;
+	bb::rhi::gpu_buffer table_buffer;
 	float*           table_mapped = nullptr;
 	VkDescriptorSet  table_set    = VK_NULL_HANDLE;
 	VkDescriptorSet  front_set    = VK_NULL_HANDLE;
 	VkImageView      front_view   = VK_NULL_HANDLE; // What front_set samples.
 	gpu_image        shown;                         // The front buffer through the tables.
 
-	VkBuffer       dump_buffer = VK_NULL_HANDLE;
-	VmaAllocation  dump_allocation = VK_NULL_HANDLE;
+	bb::rhi::gpu_buffer dump_buffer;
 	uint8_t*       dump_mapped = nullptr;
 	uint32_t       dump_size   = 0;
 
@@ -231,7 +229,8 @@ namespace {
 		vkDestroyShaderModule(g.device, fs, nullptr);
 
 		void* mapped;
-		create_buffer(256 * 4 * sizeof(float), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true, table_buffer, table_allocation, &mapped);
+		bb::rhi::create_buffer(table_buffer, 256 * 4 * sizeof(float), bb::rhi::uniform_data, bb::rhi::memory::mapped);
+		mapped = table_buffer.mapped;
 		table_mapped = static_cast<float*>(mapped);
 
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
@@ -239,7 +238,7 @@ namespace {
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &g.scene_layout;
 		check(vkAllocateDescriptorSets(g.device, &alloc, &table_set), "vkAllocateDescriptorSets");
-		VkDescriptorBufferInfo buffer_info = { table_buffer, 0, VK_WHOLE_SIZE };
+		VkDescriptorBufferInfo buffer_info = { table_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = table_set;
 		write.descriptorCount              = 1;
@@ -437,16 +436,17 @@ namespace bb::gfx {
 			uint32_t size = shown.width * shown.height * 4;
 			if (size != dump_size) {
 				wait_gpu();
-				destroy_buffer(dump_buffer, dump_allocation);
+				bb::rhi::destroy_buffer(dump_buffer);
 				void* mapped;
-				create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, dump_buffer, dump_allocation, &mapped);
+				bb::rhi::create_buffer(dump_buffer, size, bb::rhi::transfer_destination, bb::rhi::memory::mapped);
+				mapped = dump_buffer.mapped;
 				dump_mapped = static_cast<uint8_t*>(mapped);
 				dump_size   = size;
 			}
 			VkBufferImageCopy copy = {};
 			copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 			copy.imageExtent       = { shown.width, shown.height, 1 };
-			vkCmdCopyImageToBuffer(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dump_buffer, 1, &copy);
+			vkCmdCopyImageToBuffer(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dump_buffer.vk, 1, &copy);
 		}
 		return &shown;
 	}
@@ -476,7 +476,7 @@ namespace bb::gfx {
 	{
 		destroy_image(shown);
 		if (dump_buffer) {
-			destroy_buffer(dump_buffer, dump_allocation);
+			bb::rhi::destroy_buffer(dump_buffer);
 			dump_size   = 0;
 		}
 		if (palette_lookup.image) {
@@ -495,7 +495,7 @@ namespace bb::gfx {
 		if (pipeline) {
 			vkDestroyPipeline(g.device, pipeline, nullptr);
 			vkDestroyPipelineLayout(g.device, layout, nullptr);
-			destroy_buffer(table_buffer, table_allocation);
+			bb::rhi::destroy_buffer(table_buffer);
 			pipeline   = VK_NULL_HANDLE;
 			front_view = VK_NULL_HANDLE;
 			changed    = true;
