@@ -14,6 +14,7 @@
 // Vulkan: the device, the swapchain, pipelines, and the images and buffers on the GPU.
 
 #include "graphics_internal.hpp"
+#include "scene.hpp"
 #include "memory.h"
 
 #include <unordered_map>
@@ -449,73 +450,151 @@ namespace bb::gfx {
 		pipeline_twins.clear();
 	}
 
-	// The one translation of a neutral pipeline description to Vulkan state, for the pipelines of the 2D family.
-	static VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc, VkPipelineLayout layout)
+	static VkBlendFactor vk_blend_factor(bb::rhi::blend_factor f)
 	{
-		VkShaderModule  vs           = VkShaderModule(desc.vs);
-		VkShaderModule  fs           = VkShaderModule(desc.fs);
-		VkPrimitiveTopology topology = (desc.primitives == bb::rhi::topology::lines) ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		bool            vertices     = (desc.vertices == bb::rhi::vertex_layout::flat);
-		VkFormat        color_format = vk_format(desc.color_format);
+		switch (f) {
+		case bb::rhi::blend_factor::zero: return VK_BLEND_FACTOR_ZERO;
+		case bb::rhi::blend_factor::one: return VK_BLEND_FACTOR_ONE;
+		case bb::rhi::blend_factor::src_alpha: return VK_BLEND_FACTOR_SRC_ALPHA;
+		case bb::rhi::blend_factor::one_minus_src_alpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		case bb::rhi::blend_factor::src_color: return VK_BLEND_FACTOR_SRC_COLOR;
+		case bb::rhi::blend_factor::dst_color: return VK_BLEND_FACTOR_DST_COLOR;
+		case bb::rhi::blend_factor::one_minus_src_color: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+		}
+		return VK_BLEND_FACTOR_ZERO;
+	}
 
+	// The one translation of a neutral pipeline description to Vulkan state, for every pipeline of the renderer.
+	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc)
+	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-		stages[0].module                          = vs;
+		stages[0].module                          = VkShaderModule(desc.vs);
 		stages[0].pName                           = "main";
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-		stages[1].module                          = fs;
+		stages[1].module                          = VkShaderModule(desc.fs);
 		stages[1].pName                           = "main";
 
-		VkVertexInputBindingDescription binding = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
-		VkVertexInputAttributeDescription attributes[3] = {
-			{ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, x) },
-			{ 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, u) },
-			{ 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) },
-		};
+		// The constants of the 3D shaders.
+		struct {
+			VkBool32 dither;
+			float    factor[5];
+			float    limit[2];
+			float    scale[3];
+			VkBool32 palette;
+			float    bayer_levels;
+			float    multiply;
+			VkBool32 layers;
+		} constants = {};
+		VkSpecializationMapEntry entries[15];
+		VkSpecializationInfo     specialization        = {};
+		VkSpecializationMapEntry vertex_entries[2];
+		VkSpecializationInfo     vertex_specialization = {};
+		if (desc.has_constants) {
+			const bb::rhi::shader_constants& k = desc.constants;
+			constants.dither                   = k.dither ? VK_TRUE : VK_FALSE;
+			memcpy(constants.factor, k.factor, sizeof(constants.factor));
+			memcpy(constants.limit, k.limit, sizeof(constants.limit));
+			memcpy(constants.scale, k.scale, sizeof(constants.scale));
+			constants.palette      = k.palette ? VK_TRUE : VK_FALSE;
+			constants.bayer_levels = k.bayer_levels;
+			constants.multiply     = k.multiply;
+			constants.layers       = k.layers ? VK_TRUE : VK_FALSE;
+			entries[0]             = { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) };
+			for (uint32_t i = 0; i < 5; i++) {
+				entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
+			}
+			entries[6] = { 6, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
+			entries[7] = { 7, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
+			for (uint32_t i = 0; i < 3; i++) {
+				entries[8 + i] = { 8 + i, uint32_t(offsetof(decltype(constants), scale) + i * sizeof(float)), sizeof(float) };
+			}
+			entries[11]                   = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
+			entries[12]                   = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
+			entries[13]                   = { 20, uint32_t(offsetof(decltype(constants), multiply)), sizeof(float) };
+			entries[14]                   = { 21, uint32_t(offsetof(decltype(constants), layers)), sizeof(VkBool32) };
+			specialization                = { 15u, entries, sizeof(constants), &constants };
+			stages[1].pSpecializationInfo = &specialization;
+			vertex_entries[0]             = { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
+			vertex_entries[1]             = { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
+			vertex_specialization         = { 2u, vertex_entries, sizeof(constants), &constants };
+			stages[0].pSpecializationInfo = &vertex_specialization;
+		}
+
+		VkVertexInputBindingDescription   binding       = {};
+		VkVertexInputAttributeDescription attributes[5] = {};
+		uint32_t                          attribute_count = 0;
+		if (desc.vertices == bb::rhi::vertex_layout::flat) {
+			binding             = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
+			attributes[0]       = { 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, x) };
+			attributes[1]       = { 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, u) };
+			attributes[2]       = { 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) };
+			attribute_count     = 3;
+		} else if (desc.vertices == bb::rhi::vertex_layout::scene3d) {
+			binding         = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
+			attributes[0]   = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) };
+			attributes[1]   = { 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) };
+			attributes[2]   = { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) };
+			attributes[3]   = { 3, 0, VK_FORMAT_R16G16B16A16_SFLOAT, offsetof(bb::vertex3d, r) };
+			attributes[4]   = { 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) };
+			attribute_count = 5;
+		}
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-		input.vertexBindingDescriptionCount        = vertices ? 1 : 0;
+		input.vertexBindingDescriptionCount        = attribute_count ? 1 : 0;
 		input.pVertexBindingDescriptions           = &binding;
-		input.vertexAttributeDescriptionCount      = vertices ? 3 : 0;
+		input.vertexAttributeDescriptionCount      = attribute_count;
 		input.pVertexAttributeDescriptions         = attributes;
 
 		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-		assembly.topology                               = topology;
+		assembly.topology                               = (desc.primitives == bb::rhi::topology::lines) ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 		VkPipelineViewportStateCreateInfo viewport = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
 		viewport.viewportCount                     = 1;
 		viewport.scissorCount                      = 1;
 
+		// Blitz3D's front faces are clockwise as seen from the front. The projection flips Y, which flips this once more.
 		VkPipelineRasterizationStateCreateInfo raster = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-		raster.polygonMode                            = VK_POLYGON_MODE_FILL;
-		raster.cullMode                               = VK_CULL_MODE_NONE;
+		raster.polygonMode                            = desc.wire ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
+		raster.cullMode                               = desc.depth ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE;
 		raster.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
 		raster.lineWidth                              = 1.0f;
 
 		VkPipelineMultisampleStateCreateInfo multisample = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
+		multisample.rasterizationSamples                 = VkSampleCountFlagBits(desc.samples);
 
-		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = desc.blend_alpha ? VK_TRUE : VK_FALSE; // Passes over an image replace it.
-		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
-		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
-		blend.srcAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE;
-		blend.dstAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
-		blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		VkPipelineDepthStencilStateCreateInfo depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+		depth.depthTestEnable                       = VK_TRUE;
+		depth.depthWriteEnable                      = VK_TRUE;
+		// The depth is reversed: 1 at the near plane and 0 at the far plane, so closer is greater.
+		depth.depthCompareOp                        = (desc.depth_compare == bb::rhi::compare::less) ? VK_COMPARE_OP_LESS : VK_COMPARE_OP_GREATER_OR_EQUAL;
+
+		VkPipelineColorBlendAttachmentState blend[4]   = {};
+		VkFormat                            formats[4] = {};
+		for (uint32_t i = 0; i < desc.attachment_count; i++) {
+			const bb::rhi::attachment_desc& a = desc.attachments[i];
+			formats[i]                        = vk_format(a.fmt);
+			blend[i].blendEnable              = a.blend.enable ? VK_TRUE : VK_FALSE;
+			blend[i].srcColorBlendFactor      = vk_blend_factor(a.blend.src_color);
+			blend[i].dstColorBlendFactor      = vk_blend_factor(a.blend.dst_color);
+			blend[i].colorBlendOp             = VK_BLEND_OP_ADD;
+			blend[i].srcAlphaBlendFactor      = vk_blend_factor(a.blend.src_alpha);
+			blend[i].dstAlphaBlendFactor      = vk_blend_factor(a.blend.dst_alpha);
+			blend[i].alphaBlendOp             = VK_BLEND_OP_ADD;
+			blend[i].colorWriteMask           = a.blend.write_mask;
+		}
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
-		blending.attachmentCount                     = 1;
-		blending.pAttachments                        = &blend;
+		blending.attachmentCount                     = desc.attachment_count;
+		blending.pAttachments                        = blend;
 
-		VkDynamicState dynamic_states[2]            = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-		VkPipelineDynamicStateCreateInfo dynamic    = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                   = 2;
-		dynamic.pDynamicStates                      = dynamic_states;
+		VkDynamicState dynamic_states[5]         = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
+		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
+		dynamic.dynamicStateCount                = desc.depth ? 5 : 2;
+		dynamic.pDynamicStates                   = dynamic_states;
 
-		VkFormat                         format    = color_format;
-		VkPipelineRenderingCreateInfo    rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
-		rendering.colorAttachmentCount             = 1;
-		rendering.pColorAttachmentFormats          = &format;
+		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
+		rendering.colorAttachmentCount          = desc.attachment_count;
+		rendering.pColorAttachmentFormats       = formats;
+		rendering.depthAttachmentFormat         = desc.depth ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -526,39 +605,41 @@ namespace bb::gfx {
 		info.pViewportState               = &viewport;
 		info.pRasterizationState          = &raster;
 		info.pMultisampleState            = &multisample;
+		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = layout;
+		info.layout                       = VkPipelineLayout(desc.layout);
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
-	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
 	{
 		bb::rhi::pipeline_desc desc;
-		desc.vs           = uint64_t(vs);
-		desc.fs           = uint64_t(fs);
-		desc.primitives   = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
-		desc.vertices     = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
-		desc.blend_alpha  = vertices; // Passes over an image replace it.
-		desc.color_format = rhi_format(format);
+		desc.vs                      = uint64_t(vs);
+		desc.fs                      = uint64_t(fs);
+		desc.layout                  = uint64_t(layout);
+		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
+		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
+		desc.attachments[0].fmt      = rhi_format(format);
+		desc.attachments[0].blend.enable = vertices; // Passes over an image replace it.
 		return desc;
 	}
 
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
 	{
-		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM), layout);
+		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
 		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
-			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, topology, vertices, g.buffer_format), layout));
+			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, layout, topology, vertices, g.buffer_format)));
 		}
 		return pipeline;
 	}
 
 	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format)
 	{
-		return build_pipeline(flat_desc(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format), layout);
+		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
 
 	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)

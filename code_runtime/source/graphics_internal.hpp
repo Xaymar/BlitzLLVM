@@ -977,6 +977,8 @@ namespace bb::gfx {
 	VkFormat pick_buffer_format(int depth, int& actual);
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
 	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
+	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
+	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
 	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format);
 	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
 	VkPipeline pipeline_for(VkPipeline base, VkFormat format);

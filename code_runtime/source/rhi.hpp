@@ -109,16 +109,55 @@ namespace bb::rhi {
 
 	enum class topology : uint8_t { triangles, lines };
 
-	/** How the vertices of a pipeline are laid out in its buffer. none: no vertex buffer (the shader makes the vertices); flat: the 2D vertex of the program (position, texture coordinate, colour). */
-	enum class vertex_layout : uint8_t { none, flat };
+	/** How the vertices of a pipeline are laid out in its buffer. none: no vertex buffer (the shader makes the vertices); flat: the 2D vertex of the program (position, texture coordinate, colour);
+	    scene3d: bb::vertex3d. */
+	enum class vertex_layout : uint8_t { none, flat, scene3d };
 
-	/** What a pipeline is made of. The shaders stay backend handles until the shader ids of the next commit (vs and fs are a VkShaderModule on Vulkan). */
+	enum class blend_factor : uint8_t { zero, one, src_alpha, one_minus_src_alpha, src_color, dst_color, one_minus_src_color };
+
+	/** Blending of one colour attachment; the operation is always addition. */
+	struct blend_state {
+		bool         enable       = false;
+		blend_factor src_color    = blend_factor::src_alpha;
+		blend_factor dst_color    = blend_factor::one_minus_src_alpha;
+		blend_factor src_alpha    = blend_factor::one;
+		blend_factor dst_alpha    = blend_factor::one_minus_src_alpha;
+		uint8_t      write_mask   = 15; // Bits 0 to 3: r, g, b, a.
+	};
+
+	struct attachment_desc {
+		format      fmt = format::rgba8;
+		blend_state blend;
+	};
+
+	enum class compare : uint8_t { less, greater_equal };
+
+	/** The constants of the 3D fragment shader (numbers 0 to 21 of tools/generate_shaders.py) and of the vertex shader (limit). */
+	struct shader_constants {
+		bool  dither = false;
+		float factor[5]{};
+		float limit[2]{};
+		float scale[3]{};
+		bool  palette = false;
+		float bayer_levels = 0;
+		float multiply     = 1;
+		bool  layers       = false;
+	};
+
+	/** What a pipeline is made of. The shaders and the layout stay backend handles until the shader ids of the next commit (a VkShaderModule and a VkPipelineLayout on Vulkan). */
 	struct pipeline_desc {
-		uint64_t      vs = 0, fs = 0;
-		topology      primitives   = topology::triangles;
-		vertex_layout vertices     = vertex_layout::none;
-		bool          blend_alpha  = false; // Source alpha over the image; otherwise the pass replaces it.
-		format        color_format = format::rgba8;
+		uint64_t         vs = 0, fs = 0, layout = 0;
+		topology         primitives = topology::triangles;
+		vertex_layout    vertices   = vertex_layout::none;
+		bool             wire       = false;
+		bool             depth      = false; // A 3D pipeline: depth tested, culling and depth state set on the command.
+		compare          depth_compare = compare::greater_equal;
+		uint32_t         samples    = 1;
+		uint32_t         attachment_count = 1;
+		attachment_desc  attachments[4];
+		format           depth_format = format::d32f;
+		bool             has_constants = false;
+		shader_constants constants;
 	};
 
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
