@@ -89,7 +89,6 @@ def vertex_shader():
     void main() {
         vec2 p = inPosition * pc.scale * 2.0 - 1.0;
         gl_Position = vec4(p.x, p.y, 0.0, 1.0);
-        gl_PointSize = 1.0;
         outUV = inUV;
         outColor = inColor;
     }
@@ -116,7 +115,6 @@ def vertex_shader():
         i("Decorate", out_uv, DECORATION["Location"], 0),
         i("Decorate", out_color, DECORATION["Location"], 1),
         i("MemberDecorate", pv_struct, 0, DECORATION["BuiltIn"], 0),   # Position
-        i("MemberDecorate", pv_struct, 1, DECORATION["BuiltIn"], 1),   # PointSize
         i("Decorate", pv_struct, DECORATION["Block"]),
         i("MemberDecorate", pc_struct, 0, DECORATION["Offset"], 0),
         i("Decorate", pc_struct, DECORATION["Block"]),
@@ -128,7 +126,7 @@ def vertex_shader():
         i("TypeVector", vec2, flt, 2),
         i("TypeVector", vec4, flt, 4),
         i("TypeInt", int_, 32, 1),
-        i("TypeStruct", pv_struct, vec4, flt),
+        i("TypeStruct", pv_struct, vec4),
         i("TypeStruct", pc_struct, vec2),
         i("TypePointer", p_in_v2, STORAGE["Input"], vec2),
         i("TypePointer", p_in_v4, STORAGE["Input"], vec4),
@@ -155,7 +153,7 @@ def vertex_shader():
     ]
 
     pos, scale_ptr, scale, scaled, doubled, shifted, x, y, position = (m.id() for _ in range(9))
-    pos_ptr, size_ptr, uv, color = m.id(), m.id(), m.id(), m.id()
+    pos_ptr, uv, color = m.id(), m.id(), m.id()
     m.code += [
         i("Function", void, main, 0, fn),
         i("Label", label),
@@ -170,8 +168,6 @@ def vertex_shader():
         i("CompositeConstruct", vec4, position, x, y, c_f0, c_f1),
         i("AccessChain", p_out_v4, pos_ptr, pv_var, c_int0),
         i("Store", pos_ptr, position),
-        i("AccessChain", p_out_f, size_ptr, pv_var, c_int1),
-        i("Store", size_ptr, c_f1),
         i("Load", vec2, uv, in_uv),
         i("Store", out_uv, uv),
         i("Load", vec4, color, in_color),
@@ -761,10 +757,9 @@ def vertex_shader_3d():
     out_pixel = b.variable("Output", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])  # EntityLighting: 1 if the fragment shader lights.
     out_layers = b.variable("Output", v4, [(DECORATION["Location"], 13), (DECORATION["Flat"],)])  # Where the texture layers after the first are (x, y), see declare_layers.
     out_uvs = b.variable("Output", v4, [(DECORATION["Location"], 14)])  # Both sets of coordinates as the mesh has them, for the layers.
-    per_vertex = b.struct("pervertex", v4, f)
+    per_vertex = b.struct("pervertex", v4)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
-        Module.inst("MemberDecorate", per_vertex, 1, DECORATION["BuiltIn"], 1),
         Module.inst("Decorate", per_vertex, DECORATION["Block"]),
     ]
     out_vertex = b.variable("Output", per_vertex)
@@ -797,7 +792,6 @@ def vertex_shader_3d():
     world4 = b.construct(4, b.extract(world, 0), b.extract(world, 1), b.extract(world, 2), c1)
     clip = b.emit("MatrixTimesVector", v4, vp, world4)
     b.store(b.access("Output", v4, out_vertex, b.const_int(0)), clip)
-    b.store(b.access("Output", f, out_vertex, b.const_int(1)), c1)
 
     # soft.z is the place of the entity among the see-through ones (0 far, 1 near) and soft.w the places per unit of distance there are
     # between the nearest and the farthest of them. The place of a fragment is soft.z - soft.w * depth: the entity's own place plus how much
