@@ -66,4 +66,8 @@ namespace bb::rhi {
 	    for each other and for close_prebuild, which the thread of the program calls before the device goes. */
 	bool create_buffer_any_thread(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 	void destroy_buffer_any_thread(gpu_buffer& buffer);
+
+	/** How much video memory is in use and how much there is for this program, in bytes (0 and 0 without a device). On Vulkan this is the memory budget of the driver, or the pretended size of BLITZLLVM_VRAM_LIMIT_MB; Direct3D 11 answers from DXGI,
+	    OpenGL can't and says 0 and 0. */
+	void memory_budget(uint64_t& used, uint64_t& total);
 } // namespace bb::rhi

@@ -812,7 +812,7 @@ int32_t bb_avail_vid_mem(void)
 		return 0;
 	}
 	uint64_t used, total;
-	bb::gfx::video_memory_budget(used, total);
+	bb::rhi::memory_budget(used, total);
 	uint64_t left = total > used ? total - used : 0;
 	return left > 0x7FFFFFFFull ? 0x7FFFFFFF : int32_t(left);
 }

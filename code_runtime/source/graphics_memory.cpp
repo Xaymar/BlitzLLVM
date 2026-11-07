@@ -466,4 +466,9 @@ namespace bb::rhi {
 		}
 		buffer = gpu_buffer();
 	}
+
+	void memory_budget(uint64_t& used, uint64_t& total)
+	{
+		gfx::video_memory_budget(used, total);
+	}
 } // namespace bb::rhi
