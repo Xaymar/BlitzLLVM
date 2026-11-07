@@ -86,7 +86,7 @@ namespace {
 			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
-				entry.images[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, ((i == 0) && (oit_slots() || (asked == 5))) ? VK_FORMAT_R32G32B32A32_SFLOAT : formats[i]);
+				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : rhi_format(formats[i]));
 				infos[i]        = { g.sampler_point_clamp, entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				writes[i].dstSet          = entry.set;
@@ -97,9 +97,9 @@ namespace {
 			}
 			vkUpdateDescriptorSets(g.device, 5, writes, 0, nullptr);
 			if (uint32_t slots = oit_slots()) {
-				entry.slot_color = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, 1, 1, slots);
-				entry.slot_depth = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT, nullptr, 1, 1, slots);
-				entry.slot_weight = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, 1, 1, slots);
+				entry.slot_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
+				entry.slot_depth = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f, nullptr, 1, 1, slots);
+				entry.slot_weight = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
 				VkDescriptorImageInfo slot_infos[3] = { { g.sampler_point_clamp, entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_weight.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL } };
 				VkWriteDescriptorSet  slot_writes[3];
 				for (uint32_t i = 0; i < 3; i++) {
@@ -113,7 +113,7 @@ namespace {
 				vkUpdateDescriptorSets(g.device, 3, slot_writes, 0, nullptr);
 			}
 			if (asked == 5) {
-				entry.peel_color = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT);
+				entry.peel_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f);
 				VkDescriptorImageInfo layer_info  = { g.sampler_point_clamp, entry.peel_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				VkWriteDescriptorSet  layer_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				layer_write.dstSet          = entry.set;
@@ -123,7 +123,7 @@ namespace {
 				layer_write.pImageInfo      = &layer_info;
 				vkUpdateDescriptorSets(g.device, 1, &layer_write, 0, nullptr);
 				for (int i = 0; i < 2; i++) {
-					entry.peel_depth[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+					entry.peel_depth[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
 					VkDescriptorSetAllocateInfo depth_alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 					depth_alloc.descriptorPool     = g.set_pool;
 					depth_alloc.descriptorSetCount = 1;

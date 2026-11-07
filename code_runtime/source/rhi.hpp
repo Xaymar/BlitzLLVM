@@ -56,6 +56,57 @@ namespace bb::rhi {
 		explicit operator bool() const { return vk != VK_NULL_HANDLE; }
 	};
 
+
+	/** The pixel formats the program uses for images. Formats that only a pipeline cares about (vertex formats) are not here. */
+	enum class format : uint8_t {
+		undefined,
+		rgba8,
+		rgba8_srgb,
+		a2bgr10,
+		rgba16f,
+		rgba32f,
+		rg8,
+		r8,
+		r32f,
+		d32f,
+		r5g6b5, // The packed formats of Graphics depths 16, 15 and 12.
+		a1r5g5b5,
+		r5g5b5a1,
+		r4g4b4a4,
+		b4g4r4a4,
+		bc1,
+		bc1_srgb,
+		bc2,
+		bc2_srgb,
+		bc3,
+		bc3_srgb,
+		bc4,
+		bc5,
+		bc7,
+		bc7_srgb,
+	};
+
+	/** What an image is used for, any of them together. */
+	enum image_usage : uint32_t {
+		image_sampled          = 1u << 0,
+		image_color_target     = 1u << 1,
+		image_depth_target     = 1u << 2,
+		image_copy_source      = 1u << 3,
+		image_copy_destination = 1u << 4,
+	};
+
+	constexpr image_usage operator|(image_usage a, image_usage b)
+	{
+		return image_usage(uint32_t(a) | uint32_t(b));
+	}
+
+	/** What a sampler reads for a channel of an image: itself, another channel, or a constant. */
+	enum class channel : uint8_t { identity, zero, one, r, g, b, a };
+
+	struct swizzle {
+		channel r = channel::identity, g = channel::identity, b = channel::identity, a = channel::identity;
+	};
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

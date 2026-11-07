@@ -820,7 +820,7 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 	if (active() && e->set) {
 		flush();
 		ensure_color_image(e->image, e->set);
-		gpu_image target = create_image(uint32_t(sheet_w), uint32_t(sheet_h), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		gpu_image target = create_image(uint32_t(sheet_w), uint32_t(sheet_h), bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source | bb::rhi::image_color_target);
 
 		begin_commands();
 		transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
