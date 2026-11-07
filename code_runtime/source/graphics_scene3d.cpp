@@ -1178,7 +1178,7 @@ namespace bb::gfx {
 		}
 		for (uint32_t i = 0; i < max_depths; i++) {
 			if (!depth_cache[i].image) {
-				depth_cache[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+				depth_cache[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
 				return depth_cache[i];
 			}
 		}
