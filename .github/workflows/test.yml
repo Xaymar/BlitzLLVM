@@ -185,8 +185,9 @@ jobs:
         if: env.RUN == 'true' && matrix.label == 'Linux'
         uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
-          # What the build links to at run time, and the software Vulkan driver, the virtual X server and the tools the GUI tests use.
-          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
+          # What the build links to at run time, and the software Vulkan driver, the virtual X server and the tools the GUI tests use,
+          # and the shader tools of tools/translate_shaders.py.
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils spirv-cross spirv-tools glslang-tools
           version: 2-${{ steps.month.outputs.month }}
       - name: Install a software Vulkan driver (Windows)
         # The Vulkan loader (vulkan-1.dll) and Mesa's lavapipe (Vulkan on the CPU, like llvmpipe on Linux), which the action registers as a driver.
@@ -215,6 +216,10 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           python: ${{ matrix.python }}
+      - name: Check that the shaders translate to GLSL and HLSL (Linux)
+        if: env.RUN == 'true' && matrix.label == 'Linux'
+        # The SPIR-V of the runtime has to keep feeding the Direct3D 11 and OpenGL backends: every module has to validate, translate and (GLSL) compile.
+        run: python3 tools/translate_shaders.py
       - name: Run the tests (Linux)
         if: env.RUN == 'true' && matrix.label == 'Linux'
         working-directory: build/code_compiler
