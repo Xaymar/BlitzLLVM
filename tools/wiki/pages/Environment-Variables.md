@@ -62,8 +62,8 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. |
-| `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
-| `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
+| `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures, images and the buffers of meshes together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
+| `BLITZLLVM_DEFRAG_REPORT` | Prints how many images and how many buffers of meshes a defragmentation moved. |
 | `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[Memory]]. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 

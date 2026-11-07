@@ -52,6 +52,7 @@ namespace bb::rhi {
 		VmaAllocation allocation = VK_NULL_HANDLE;
 		void*         mapped     = nullptr; // For memory::mapped and memory::mesh: where the CPU reads and writes.
 		uint64_t      size       = 0;
+		VkBufferUsageFlags usage = 0; // As Vulkan has it, to make the buffer again when the allocator moves it (move_buffer).
 
 		explicit operator bool() const { return vk != VK_NULL_HANDLE; }
 	};
@@ -66,4 +67,10 @@ namespace bb::rhi {
 	    for each other and for close_prebuild, which the thread of the program calls before the device goes. */
 	bool create_buffer_any_thread(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 	void destroy_buffer_any_thread(gpu_buffer& buffer);
+
+	/** Defragmentation by the allocator (Vulkan only, memory::mesh and memory::mapped buffers). move_buffer makes the buffer again in the memory that the allocator
+	    chose, copies what it holds there with the CPU, and destroys the old handle; false (and nothing changed) if it can not. The GPU must be idle, and not use the
+	    buffer afterwards without having been given the new handle. buffer_moved follows when the allocator has finished its pass: that is when mapped changes. */
+	bool move_buffer(gpu_buffer& buffer, VmaAllocation destination);
+	void buffer_moved(gpu_buffer& buffer);
 } // namespace bb::rhi
