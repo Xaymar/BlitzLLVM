@@ -10,7 +10,15 @@ Tells the renderer whether a mesh is static, which is a mesh that the program le
 
 Any other value counts by its sign. The setting is kept by `CopyEntity`, and it changes nothing about what is drawn: only the way the mesh is drawn changes, and only while `BLITZLLVM_GPU_DRAWS=1` is set. Without that the command does nothing.
 
-Always is no promise that the mesh stays where it is. When a command moves, turns, scales or re-parents an always static mesh (`PositionEntity`, `TranslateEntity`, `MoveEntity`, `RotateEntity`, `TurnEntity`, `ScaleEntity`, `PointEntity`, `AlignToVector`, `EntityParent`, or the collisions pushing it), the setting goes back to `0` (auto): the mesh was not static after all, and from then on the renderer decides again, with the wait of four untouched frames. Call `EntityStatic` with `1` again to make it always static. Other commands that only change how it looks (`EntityColor`, `HideEntity`, `EntityTexture`, ...) leave the setting alone. Nothing the program does shows up late or not at all: every command on the mesh takes it out of the kept data right away, and the next frame draws it as the program left it. A mesh that is moved every frame is therefore drawn the usual way; `-1` (never) avoids the small cost of looking at it for the table. An always static mesh that can not be drawn from the kept data at all, like a sprite, a see-through mesh, a parented or animated mesh, is drawn as always: the command can not make these static.
+Always is no promise that the mesh stays where it is. When a command moves, turns, scales or re-parents an always static mesh, the setting goes back to `0` (auto). These commands are `PositionEntity`, `TranslateEntity`, `MoveEntity`, `RotateEntity`, `TurnEntity`, `ScaleEntity`, `PointEntity`, `AlignToVector` and `EntityParent`, and collisions that push it. The mesh was not static after all, so the renderer decides again, with the wait of four untouched frames. Call `EntityStatic` with `1` again to make it always static.
+
+Commands that only change how it looks (`EntityColor`, `HideEntity`, `EntityTexture`, ...) leave the setting alone.
+
+Nothing the program does shows up late or not at all. Every command on the mesh takes it out of the kept data right away, and the next frame draws it as the program left it.
+
+A mesh that is moved every frame is drawn the usual way. `-1` (never) avoids the small cost of looking at it for the table.
+
+An always static mesh that can not be drawn from the kept data, such as a sprite, a see-through mesh, a parented mesh or an animated mesh, is drawn as always. The command can not make these static.
 
 ```blitzbasic
 Graphics3D 640, 480, 32, 2
