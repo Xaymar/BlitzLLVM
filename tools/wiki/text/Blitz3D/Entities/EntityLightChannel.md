@@ -8,7 +8,7 @@ Lights are entities too, so this sets the channels a light shines into. An entit
 
 [AmbientLight](AmbientLight) is not a light of any channel: it lights every entity, and an entity with [EntityFX](EntityFX) 1 ignores lights anyway.
 
-Which lights count is decided per entity: only the lights that share a channel with it are considered, and the 8 of them that matter the most to it light it (see [Many-Lights](Quality-Improvements#many-lights)). Lights of other channels never use up one of the 8.
+At most 8 lights affect an entity. They are chosen by importance: distance, remaining color and channel mask (see [Many lights](Quality-Improvements#many-lights)).
 
 ```blitzbasic
 ;media still blitz3d/entitylightchannel.png
