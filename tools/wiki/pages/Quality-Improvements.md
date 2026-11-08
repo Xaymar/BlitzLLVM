@@ -36,4 +36,4 @@ SetSamplerAnisotropy sampler, 8
 SetTextureSampler tex, sampler
 ```
 
-See [Samplers](Samplers) for the rest of the settings.
+See [CreateSampler](CreateSampler) for the rest of the settings.
