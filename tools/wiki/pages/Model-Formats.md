@@ -5,7 +5,12 @@
 
 @difference Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` and glTF 2.0 (`.gltf`, `.glb`) files, and `LoadTexture` and `LoadImage` read the pictures inside glTF files. A damaged DirectX `.x` file loads what is before the damage, with a warning.
 
-`LoadMesh`, `LoadAnimMesh` and `LoadAnimSeq` read Blitz3D's own `.b3d`, DirectX `.x`, 3D Studio `.3ds` and glTF 2.0 files. The format is told by what is in the file, not by its name. `LoadMesh` makes one mesh of the model as it looks without animation; `LoadAnimMesh` keeps the nodes as entities with the animation of the file, for [Animate](Animate), [SetAnimTime](SetAnimTime), [FindChild](FindChild) and [LoadAnimSeq](LoadAnimSeq). The picture of a material is looked for next to the model and then in the folder of the program.
+`LoadMesh`, `LoadAnimMesh` and `LoadAnimSeq` read Blitz3D's own `.b3d`, DirectX `.x`, 3D Studio `.3ds` and glTF 2.0 files. The format is told by what is in the file, not by its name.
+
+* `LoadMesh` makes one mesh of the model as it looks without animation.
+* `LoadAnimMesh` keeps the nodes as entities with the animation of the file, for [Animate](Animate), [SetAnimTime](SetAnimTime), [FindChild](FindChild) and [LoadAnimSeq](LoadAnimSeq).
+
+The picture of a material is looked for next to the model and then in the folder of the program.
 
 What the formats define themselves is not repeated here, only how it becomes a Blitz3D mesh and what is left out.
 
@@ -36,7 +41,10 @@ An extension, read with the cgltf library.
 
 * The conversion mirrors x to go from right-handed to Blitz3D's left-handed axes; a model that faces +z in glTF faces +z here. The unit is what the file says.
 * Every node is an entity below one entity that stands for the scene (the `scene` of the file, the first one, or everything if there is none). Lights (`KHR_lights_punctual`) and cameras become children of their node, named like the light or camera (or `<node> light` / `<node> camera`). A light keeps its color, range and spot cone (the intensity is not used). A camera is made with `CameraProjMode 0`, so it does not draw over the camera of the program until you switch it on.
-* A mesh with several primitives has a surface for each material. Triangles, strips and fans are read; points and lines are not. Normals, two sets of coordinates (`TEXCOORD_0`, `TEXCOORD_1`), vertex colors and `KHR_mesh_quantization` are read; a primitive without normals gets smooth ones. Tangents and morph targets are not used.
+* A mesh with several primitives has a surface for each material.
+* Triangles, strips and fans are read. Points and lines are not.
+* Normals, two sets of coordinates (`TEXCOORD_0`, `TEXCOORD_1`), vertex colors and `KHR_mesh_quantization` are read. A primitive without normals gets smooth ones.
+* Tangents and morph targets are not used.
 * A material becomes a brush: `baseColorFactor` is color and alpha, `baseColorTexture` the picture, `1 - roughnessFactor` the shininess, `doubleSided` is `EntityFX` 16 and `KHR_materials_unlit` is `EntityFX` 1. `BLEND` gives the picture an alpha channel (flag 2) and `MASK` cuts it out (flag 4, always at an alpha of one half, whatever `alphaCutoff` says). `KHR_texture_transform` is put into the vertex coordinates, `CLAMP_TO_EDGE` becomes the clamp flags 16 and 32 and mirrored wrapping is a repeat. `EXT_texture_webp`, `EXT_texture_avif` and `KHR_texture_basisu` are tried when a texture has no `source`, and the formats of [Image formats](Image-Formats) work.
 * A brush has one picture, so the metallic-roughness, normal, occlusion and emissive textures and the emissive color (`KHR_materials_emissive_strength` too) are not used. A normal map would need a tangent space, which the lighting of Blitz3D does not have.
 * A node with a `skin` is skinned, with up to eight joints per vertex (`JOINTS_0`, `JOINTS_1`, weights made to add up to 1). The joints are entities that [Animate](Animate) moves. A joint that several skins use has the inverse bind matrix of the first skin that names it.
