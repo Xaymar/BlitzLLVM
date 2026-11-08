@@ -46,6 +46,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [AutoMidHandle](AutoMidHandle)
 * [AutoSuspend](AutoSuspend)
 * [AvailVidMem](AvailVidMem)
+* [AvailVidMem64](AvailVidMem64)
 
 ## B
 
@@ -957,6 +958,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TimerTicks](TimerTicks)
 * [To](To)
 * [TotalVidMem](TotalVidMem)
+* [TotalVidMem64](TotalVidMem64)
 * [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 * [TranslateEntity](TranslateEntity)
 * [TransparencyDistanceSortMode](TransparencyDistanceSortMode)

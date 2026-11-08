@@ -10,6 +10,7 @@ Opening a graphics mode, listing drivers, displays and modes, gamma and video me
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [AvailVidMem](AvailVidMem)
+* [AvailVidMem64](AvailVidMem64)
 * [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGfxDrivers](CountGfxDrivers)
@@ -53,5 +54,6 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [SetGfxDriver](SetGfxDriver)
 * [ShowPointer](ShowPointer)
 * [TotalVidMem](TotalVidMem)
+* [TotalVidMem64](TotalVidMem64)
 * [UpdateGamma](UpdateGamma)
 * [VWait](VWait)

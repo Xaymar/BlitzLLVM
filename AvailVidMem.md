@@ -25,11 +25,11 @@ The amount of video memory that is free, in bytes. Every image and texture uses 
 
 ## Differences
 
-* The graphics card cannot be asked how much of its memory is still free. This returns the same number as [TotalVidMem](TotalVidMem), and 0 when no graphics window is open.
+* The number is the memory budget the graphics driver reports for this program. It is cut off at 2 GB because it has to fit into an integer; [AvailVidMem64](AvailVidMem64) is not. It is 0 when no graphics window is open.
 
 ## Related Commands
 
-[CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕, [CountDisplays](CountDisplays) 〔BlitzLLVM〕, [TotalVidMem](TotalVidMem)
+[AvailVidMem64](AvailVidMem64), [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕, [TotalVidMem](TotalVidMem), [TotalVidMem64](TotalVidMem64)
 
 <div align="center">
 

@@ -69,7 +69,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
 * [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
 * [AsyncSaving](AsyncSaving#differences) 〔BlitzLLVM〕: With asynchronous saving on, a file that can't be written (a folder that does not exist, a full disk) is not a 0 from the save command, but is counted by SavesFailed.
-* [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
+* [AvailVidMem](AvailVidMem#differences): The number is the memory budget the graphics driver reports for this program.
+* [AvailVidMem64](AvailVidMem64#differences): The number is the memory budget the graphics driver reports for this program, so it also counts what other programs use.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences): The original also lights the vertices of a level with point and spot lights, which have no effect on a level here.
 * [BSPLighting](BSPLighting#differences): A level that has `light` entities is lit by them as point lights when lightmaps are off, instead of only by its vertex colors.
@@ -449,7 +450,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TextureName](TextureName#differences): The original turns the path into lower case.
 * [TextureWidth](TextureWidth#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
 * [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
-* [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer.
+* [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer; [TotalVidMem64](TotalVidMem64) is not.
 * [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [UByte](UByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [UDPMsgIP](UDPMsgIP#differences): A sender that uses IPv6 has no address as a number, so this returns 0 for it; use [GetUDPMsgAddress](GetUDPMsgAddress).

@@ -25,7 +25,7 @@ The total amount of video memory in bytes.
 
 ## Differences
 
-* The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer. It is 0 when no graphics window is open.
+* The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer; [TotalVidMem64](TotalVidMem64) is not. It is 0 when no graphics window is open.
 
 ## Examples
 
@@ -37,7 +37,7 @@ WaitKey
 
 ## Related Commands
 
-[AvailVidMem](AvailVidMem), [SetGfxDriver](SetGfxDriver), [ShowPointer](ShowPointer), [UpdateGamma](UpdateGamma)
+[AvailVidMem](AvailVidMem), [AvailVidMem64](AvailVidMem64), [SetGfxDriver](SetGfxDriver), [TotalVidMem64](TotalVidMem64)
 
 <div align="center">
 

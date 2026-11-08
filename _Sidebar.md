@@ -68,7 +68,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (415)</summary>
+<li><details><summary>Commands (416)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -80,6 +80,7 @@
 <li><a href="AsyncLoading#differences">AsyncLoading</a> 〔BlitzLLVM〕</li>
 <li><a href="AsyncSaving#differences">AsyncSaving</a> 〔BlitzLLVM〕</li>
 <li><a href="AvailVidMem#differences">AvailVidMem</a></li>
+<li><a href="AvailVidMem64#differences">AvailVidMem64</a></li>
 <li><a href="BrushTexture#differences">BrushTexture</a></li>
 <li><a href="BSPAmbientLight#differences">BSPAmbientLight</a></li>
 <li><a href="BSPLighting#differences">BSPLighting</a></li>
@@ -742,10 +743,11 @@
 <li><a href="WritePixelFast64">WritePixelFast64</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary>Display (46)</summary>
+<li><details><summary>Display (48)</summary>
 <ul>
 <li><a href="BlitzBasic-Display">Overview</a></li>
 <li><a href="AvailVidMem">AvailVidMem</a></li>
+<li><a href="AvailVidMem64">AvailVidMem64</a></li>
 <li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
 <li><a href="CountDisplays">CountDisplays</a> 〔BlitzLLVM〕</li>
 <li><a href="CountGfxDrivers">CountGfxDrivers</a></li>
@@ -789,6 +791,7 @@
 <li><a href="SetGfxDriver">SetGfxDriver</a></li>
 <li><a href="ShowPointer">ShowPointer</a></li>
 <li><a href="TotalVidMem">TotalVidMem</a></li>
+<li><a href="TotalVidMem64">TotalVidMem64</a></li>
 <li><a href="UpdateGamma">UpdateGamma</a></li>
 <li><a href="VWait">VWait</a></li>
 </ul>
