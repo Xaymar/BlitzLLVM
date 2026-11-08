@@ -356,7 +356,7 @@ def generic_pages(cats):
 def differences_menu(cats):
     """Differences as a submenu like a dialect: the Differences page is the title, and below it Features (the pages
     with an @difference line) and Commands (the commands with a @gap line) fold open with their entries."""
-    features = sorted(feature_pages(), key=lambda f: f[1].lower())
+    features = sorted(((link, t, summary) for _, link, t, summary in feature_entries()), key=lambda f: f[1].lower())
     gapped = sorted((c for dialect in cats for cmds in cats[dialect].values() for c in cmds
                      if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
     out = ["<details><summary><b>Differences</b></summary>", "<ul>", '<li><a href="Differences">Overview</a></li>']
@@ -421,17 +421,34 @@ DIFFERENCES_TEXT = (
     "gets a page in `tools/wiki/pages/` with a line `@difference` and a one sentence summary.\n")
 
 
-def feature_pages():
-    """The pages in tools/wiki/pages/ that have an @difference line, as (page, title, summary)."""
+def feature_entries():
+    """Every @difference line of the pages in tools/wiki/pages/ as (page, link, title, summary). A page can have
+    several: each one sits under a heading, and the entry links to that heading and carries it in its title. One at
+    the top of the page (above every heading) links to the page."""
     result = []
     for fn in sorted(os.listdir(PAGES)):
         with open(os.path.join(PAGES, fn), encoding="utf-8") as f:
             body = f.read()
-        m = DIFFERENCE.search(body)
-        if m:
-            title = re.search(r"^# (.+)$", body, re.M)
-            result.append((fn[:-3], title.group(1) if title else fn[:-3], m.group(1).strip()))
+        title = re.search(r"^# (.+)$", body, re.M)
+        title = title.group(1) if title else fn[:-3]
+        for m in DIFFERENCE.finditer(body):
+            heading = None
+            for h in re.finditer(r"^#{2,4} (.+)$", body[:m.start()], re.M):
+                heading = h.group(1).strip()
+            if heading is None:
+                result.append((fn[:-3], fn[:-3], title, m.group(1).strip()))
+            else:
+                anchor = re.sub(r"[^a-z0-9 -]", "", heading.lower()).replace(" ", "-")
+                result.append((fn[:-3], "%s#%s" % (fn[:-3], anchor), "%s: %s" % (title, heading), m.group(1).strip()))
     return result
+
+
+def feature_pages():
+    """The pages that have an @difference line, as (page, title, summary), once per page."""
+    result = {}
+    for page, link, title, summary in feature_entries():
+        result.setdefault(page, (page, title.split(": ")[0], summary))
+    return list(result.values())
 
 
 def first_sentence(text):
@@ -441,8 +458,8 @@ def first_sentence(text):
 
 def differences_page(commands):
     out = [DIFFERENCES_TEXT, "## Features\n", "Differences that are not caused by one command.\n"]
-    out.extend("* [%s](%s): %s" % (title, page, summary) for page, title, summary in
-               sorted(feature_pages(), key=lambda f: f[1].lower()))
+    out.extend("* [%s](%s): %s" % (title, link, summary) for _, link, title, summary in
+               sorted(feature_entries(), key=lambda f: f[2].lower()))
     out += ["", "## Commands\n", "Commands that differ from the original or are not finished, with the first of the "
             "differences from the \"Differences\" part of their page.\n"]
     gapped = sorted((c for c in commands if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
