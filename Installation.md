@@ -28,7 +28,7 @@ For the zip:
 
 2. Optionally add the `bin` directory to your `PATH`.
 
-Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files, see [[Releasing]].
+Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files.
 
 If you built it yourself, `cmake --install` produces the same layout, see [[Building]].
 
@@ -43,6 +43,8 @@ BlitzLLVM writes LLVM IR and hands it to `clang`, which has to be installed and 
 ## Graphics
 
 Programs draw through Vulkan 1.3 into an SDL3 window, so a Vulkan 1.3 capable driver has to be installed. The Vulkan loader is loaded when the program starts, and the result is a single executable. AVIF, JPEG XL, TIFF and WebP images are decoded by shared libraries (`avif`, `dav1d`, `jxl`, `tiff`, `webp` and the libraries they use), which `blitzcc` copies next to programs that open a window; keep them next to the program when you ship it, or those four formats don't load (the program says so on the console). Set `BLITZLLVM_HEADLESS=1` to run a program without a window or GPU.
+
+On Windows computers with more than one graphics card (a laptop with an integrated and a dedicated one), programs ask the driver for the high performance card, as `blitzcc` exports `NvOptimusEnablement` and `AmdPowerXpressRequestHighPerformance` for them. The setting of Windows for the program (Settings, Display, Graphics) still wins over this.
 
 ## Your first program
 
@@ -84,12 +86,40 @@ blitzcc -v                     # print the version of the compiler and runtime, 
 blitzcc --version              # print "blitzcc <version>" and exit
 ```
 
-`-v` prints the version like the original does (and still compiles a file that is given with it), `--version` prints `blitzcc <version>` like `blitz-format --version` and `blitz-tidy --version`, and `--version` and `--help` stop right away, whatever else is given;  the verbose output of the commands that are run is `--verbose`. `+k` turns every integer type into a `%` and every float type into a `#`, so tools that expect the list of Blitz3D can read it; `--dump-keywords` does not convert anything, and uses the notation of this wiki: the types are written out (`Int8`, `Int32`, `Int64`, `Float32`, `Float64`, `String`, `Pointer`, ...), a parameter with a default value has it behind an `=`, and a function that returns nothing has no type behind its name. The userlibs for `-k`, `+k` and `--dump-keywords` are the `.decls` files in `userlibs` next to `bin` (or in `share/blitzllvm/userlibs`), or in the directory given with `--userlibs-dir`.
+* `-v` prints the version like the original does, and still compiles a file that is given with it.
+* `--version` prints `blitzcc <version>`, like `blitz-format --version` and `blitz-tidy --version`. `--version` and `--help` stop right away, whatever else is given.
+* `--verbose` prints the verbose output of the commands that are run.
+* `+k` turns every integer type into a `%` and every float type into a `#`, so tools that expect the list of Blitz3D can read it.
+* `--dump-keywords` does not convert anything. It uses the notation of this wiki: the types are written out (`Int8`, `Int32`, `Int64`, `Float32`, `Float64`, `String`, `Pointer`, ...), a parameter with a default value has it behind an `=`, and a function that returns nothing has no type behind its name.
 
-Userlibs work like they do in Blitz3D: a program that calls a function from a `.decls` file loads the library it names when it runs, with `LoadLibrary` (Windows) or `dlopen` (Linux, macOS), and looks the function up with `GetProcAddress` or `dlsym`. The library is loaded on the first call of one of its functions, so it does not have to exist when the program is built. It is looked for in the userlibs directory, next to the program, next to the source file, and then by the system, so `user32.dll` or `libm.so.6` work without being copied anywhere. The name in the `.lib` line is tried as written, and with the extension of the platform (`mylib.dll` finds `libmylib.so` or `libmylib.dylib`), so one `.decls` file works everywhere. If the library or the function can not be found, the program stops with a runtime error when the function is called. The directory is `--userlibs-dir`, then the environment variable `BLITZLLVM_USERLIBS`, then the one of the installation. Functions use the C calling convention; strings are C strings, banks and objects are passed as the address of their memory, and a decorated name (`_Name@8`) falls back to `Name` if the library does not export it as written. Static libraries (`.a`, `.lib`) can not be loaded this way.
+The userlibs for `-k`, `+k` and `--dump-keywords` are the `.decls` files in `userlibs` next to `bin` (or in `share/blitzllvm/userlibs`), or in the directory given with `--userlibs-dir`.
+
+Userlibs work like they do in Blitz3D. A program that calls a function from a `.decls` file loads the library it names when it runs, with `LoadLibrary` (Windows) or `dlopen` (Linux, macOS), and looks the function up with `GetProcAddress` or `dlsym`. The library is loaded on the first call of one of its functions, so it does not have to exist when the program is built.
+
+* The library is looked for in the userlibs directory, next to the program, next to the source file, and then by the system. `user32.dll` or `libm.so.6` work without being copied anywhere.
+* The userlibs directory is `--userlibs-dir`, then the environment variable `BLITZLLVM_USERLIBS`, then the one of the installation.
+* The name in the `.lib` line is tried as written, and with the extension of the platform (`mylib.dll` finds `libmylib.so` or `libmylib.dylib`), so one `.decls` file works everywhere.
+* If the library or the function can not be found, the program stops with a runtime error when the function is called.
+* Functions use the C calling convention. Strings are C strings, and banks and objects are passed as the address of their memory.
+* A decorated name (`_Name@8`) falls back to `Name` if the library does not export it as written.
+* Static libraries (`.a`, `.lib`) can not be loaded this way.
 
 `blitzcc --help` lists all of them.
 
 ### Optimization
 
-Programs are built with `-O3` and loop unrolling by default; `-d` builds without optimization. Float math is precise by default (`--fast-math precise`, also called `off`): exact IEEE behavior, with no reordering and no fused multiply-add, so the result is the same on every CPU. `--fast-math safe` compiles with the LLVM fast-math flags `reassoc nsz arcp contract afn`, which allows reordering, fused multiply-add and reciprocal math; results may then differ from the original and between CPUs in the last digits. `--fast-math full` also assumes that NaN and Infinity never occur, which makes checks like `x <> x` (is this NaN?) always false, so it is opt-in. Arguments and operands are evaluated in the order of the original Blitz3D, which is not left to right (see [Language Quirks](Language-Quirks)); `--sane-evaluation-order` evaluates them from left to right. The default targets a generic CPU of the architecture; add `--llvm-flag -march=native` for a program that only runs on the machine that built it.
+Programs are built with `-O3` and loop unrolling by default. `-d` builds without optimization.
+
+Float math is controlled with `--fast-math`:
+
+* `precise` (the default, also called `off`) is exact IEEE behavior, with no reordering and no fused multiply-add. The result is the same on every CPU.
+* `safe` compiles with the LLVM fast-math flags `reassoc nsz arcp contract afn`. They allow reordering, fused multiply-add and reciprocal math, so results may differ from the original and between CPUs in the last digits.
+* `full` also assumes that NaN and Infinity never occur. Checks like `x <> x` (is this NaN?) are then always false, so it is opt-in.
+
+Arguments and operands are evaluated in the order of the original Blitz3D, which is not left to right (see [Language Quirks](Language-Quirks)). `--sane-evaluation-order` evaluates them from left to right.
+
+The default targets a generic CPU of the architecture. Add `--llvm-flag -march=native` for a program that only runs on the machine that built it.
+
+## Console window on Windows
+
+Programs on Windows are GUI programs, so starting one does not open a console window. Started from a terminal, a program uses it: `Print`, `Write`, `Input`, `DebugLog` and runtime errors follow the redirection of the terminal (`program.exe > out.txt`, `2> log.txt`), and the prompt may come back before the output ends (use `start /wait program.exe`). Started without a terminal there is nothing to print to: `Print` and `DebugLog` show nothing (`DebugLog` still goes to an attached debugger) and a runtime error is shown in a message box. For a program that never opens a window, build it with `blitzcc --console`, which opens a console window when started without a terminal.

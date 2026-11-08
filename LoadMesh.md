@@ -26,13 +26,20 @@ LoadMesh:Int32 file:String, parent:Int32=0
 
 ## Description
 
-Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`, and so does this; the file type is told by what is in the file, not by its name. Parts of the model that are painted the same (the same colors, picture and so on) share a surface, the parts below a part are put in before it, and a normal of a scaled part is scaled by the square of that, as in the original. The mesh is made at the origin even with a `parent`. If the file cannot be found the result is 0, so check it.
+Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`, and so does this. The file type is told by what is in the file, not by its name.
+
+* Parts of the model that are painted the same (the same colors, picture and so on) share a surface.
+* The parts below a part are put in before it.
+* A normal of a scaled part is scaled by the square of that, as in the original.
+* The mesh is made at the origin even with a `parent`.
+
+If the file cannot be found the result is 0, so check it.
 
 Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to move on their own.
 
 ## Differences
 
-* Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [DirectX models](DirectX-Models) and the 3D Studio loader in [3D Studio models](3D-Studio-Models). glTF 2.0 files (`.gltf` and `.glb`) can be loaded as well, see [glTF models](glTF-Models).
+* Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [Model formats](Model-Formats#directx-x) and the 3D Studio loader in [Model formats](Model-Formats#3d-studio-3ds). glTF 2.0 files (`.gltf` and `.glb`) can be loaded as well, see [Model formats](Model-Formats#gltf-gltf-glb).
 
 ## Related Commands
 

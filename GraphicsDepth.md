@@ -25,7 +25,7 @@ The color depth of the graphics mode in bits.
 
 ## Differences
 
-* It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 8, 12, 15, 16, 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these. See [Color depth](Color-Depth).
+* It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 8, 12, 15, 16, 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these. See [Color depth](Graphics#color-depth).
 
 ## Related Commands
 

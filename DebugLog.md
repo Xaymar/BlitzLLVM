@@ -23,7 +23,7 @@ DebugLog:Void text:String
 
 ## Description
 
-Writes a line to the debug log. A program started from a terminal shows it on the standard error output, so it does not mix with what `Print` writes. On Windows programs have no console window of their own, they print into the terminal they were started from and the line is also sent to an attached debugger. See [[Console-Window]] for how to get a console.
+Writes a line to the debug log. A program started from a terminal shows it on the standard error output, so it does not mix with what `Print` writes. On Windows programs have no console window of their own, they print into the terminal they were started from and the line is also sent to an attached debugger. See [Console window on Windows](Installation#console-window-on-windows) for how to get a console.
 
 ## Examples
 

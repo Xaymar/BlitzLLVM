@@ -38,7 +38,13 @@ How transparency is taken from the file depends on the flags. Without flag 2 the
 
 Flag 256 keeps the texture in video memory only: when video memory is full, a texture without the flag is placed in system memory (slower, with a one-time note on the console), and a texture with it stops the program with an "out of video memory" error. See [CreateTexture](CreateTexture).
 
-Flag 2048 says that the file is sRGB, which almost every picture is, and makes the texture hold linear values: the graphics card converts each texel from sRGB to linear when it samples the texture, and the mip maps are averaged in linear values (with flag 8). The bytes of the texture stay the ones of the file, so `ReadPixel`, `ReadPixelFast` and drawing on the [TextureBuffer](TextureBuffer) (with flag 4096) read and write sRGB bytes, and the texture is converted only when a scene or an image samples it. Alpha is not converted. Block compressed DDS files (BC1, BC2, BC3 and BC7) are stored in the sRGB variant of their format; BC4, BC5 and cube maps (flag 128) are not converted. Programs draw into a picture that is not converted, so the result of lighting is only correct on screen if the program accounts for it; the flag is meant for programs that use linear values on purpose.
+Flag 2048 says that the file is sRGB, which almost every picture is, and makes the texture hold linear values. The graphics card converts each texel from sRGB to linear when it samples the texture. With flag 8, the mip maps are averaged in linear values.
+
+The bytes of the texture stay the ones of the file. `ReadPixel`, `ReadPixelFast` and drawing on the [TextureBuffer](TextureBuffer) (with flag 4096) read and write sRGB bytes, and the texture is converted only when a scene or an image samples it. Alpha is not converted.
+
+Block compressed DDS files (BC1, BC2, BC3 and BC7) are stored in the sRGB variant of their format. BC4, BC5 and cube maps (flag 128) are not converted.
+
+Programs draw into a picture that is not converted, so the result of lighting is only correct on screen if the program accounts for it. The flag is meant for programs that use linear values on purpose.
 
 The picture shows a gradient file loaded without the flag (top) and with it (bottom), each drawn without lighting: the converted texture holds the linear values, so the middle grey of 128 is 55.
 
@@ -50,7 +56,7 @@ Textures that [TextureFilter](TextureFilter) matches by file name get extra flag
 ## Differences
 
 * Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
-* A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [glTF models](glTF-Models).
+* A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [Model formats](Model-Formats#gltf-gltf-glb).
 * JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 * The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
 

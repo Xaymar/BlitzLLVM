@@ -33,7 +33,7 @@ Copies one pixel from a buffer to another, or inside the same buffer. Each call 
 ## Differences
 
 * A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
-* Pixels are copied with all the bits that the buffers have: a buffer made by [Graphics3D](Graphics3D) with the depth 64 does not lose anything on the way. See [Color depth](Color-Depth).
+* Pixels are copied with all the bits that the buffers have: a buffer made by [Graphics3D](Graphics3D) with the depth 64 does not lose anything on the way. See [Color depth](Graphics#color-depth).
 
 ## Examples
 

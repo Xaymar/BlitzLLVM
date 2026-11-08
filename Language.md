@@ -8,7 +8,7 @@ The syntax and keywords of the language, which is the same in BlitzBasic, Blitz3
 
 ## Variables and types
 
-A variable has one of three types, which a suffix on its name says: `%` is an integer (also the default), `#` a float, `$` a string. Variables you assign to are created on first use. `Local` makes a variable that only exists in its function, `Global` makes one that every function can see, and `Const` makes a name for a value that cannot change.
+A variable has a type. A suffix on its name picks it: `%` is an integer (also the default), `#` a float, `$` a string. These are only the three types of the originals. BlitzLLVM has many more, such as `Byte`, `Long` and `Double`, and a long notation (`count:Int`). All types are on the page [Types and numbers](Types). Variables you assign to are created on first use. `Local` makes a variable that only exists in its function, `Global` makes one that every function can see, and `Const` makes a name for a value that cannot change.
 
 ```blitzbasic
 Const LIMIT = 3

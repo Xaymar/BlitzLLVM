@@ -20,7 +20,7 @@ AvailVidMem64:UInt64
 
 ## Description
 
-The amount of video memory that is free for this program, in bytes, as a `UInt64`, so a graphics card with more than 2 GB is not cut off. This is a BlitzLLVM extension; [AvailVidMem](AvailVidMem) gives the same number as an `Int`.
+The amount of video memory that is free for this program, in bytes, as a `UInt64`, so a graphics card with more than 2 GB is not cut off. [AvailVidMem](AvailVidMem) gives the same number as an `Int`. This is a BlitzLLVM extension.
 
 ## Differences
 

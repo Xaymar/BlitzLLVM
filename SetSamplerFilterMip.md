@@ -26,7 +26,7 @@ SetSamplerFilterMip:Void sampler:Int32, mode:Int32
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Chooses how the mip levels of a texture are read. With 0 the level that is closest to the size on the screen is used, with 1 two levels are blended (trilinear filtering), which hides the jump from one level to the next. It only has an effect on a texture that has mip levels: use flag 8 or a DDS file that stores them, see [Mip maps](Mip-Maps). This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
+Chooses how the mip levels of a texture are read. With 0 the level that is closest to the size on the screen is used, with 1 two levels are blended (trilinear filtering), which hides the jump from one level to the next. It only has an effect on a texture that has mip levels: use flag 8 or a DDS file that stores them, see [Mip maps](Quality-Improvements#mip-maps). This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
 | Mode | Result |
 |---|---|
 | 0 | Nearest: the texel that is closest, which shows blocks. |

@@ -33,12 +33,12 @@ ReadPixel64:Int64 x:Int32, y:Int32, buffer:Int32=0, Out red:Float16=0, Out green
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Returns the color of a pixel of a buffer as a `Long`. The color has 16 bits for each of alpha, red, green and blue from the top (`$AAAARRRRGGGGBBBB`), whatever the buffer is made of, so nothing is lost in a buffer that [Graphics3D](Graphics3D) made with the depth 64, see [Color depth](Color-Depth). A buffer with 8 bits per channel gives each of them times 257 (`$FF` is `$FFFF`), and one with 10 bits fills the lower bits from the upper ones. This is a BlitzLLVM extension: the originals have no buffers with more than 8 bits per channel.
+Returns the color of a pixel of a buffer as a `Long`. The color has 16 bits for each of alpha, red, green and blue from the top (`$AAAARRRRGGGGBBBB`), whatever the buffer is made of, so nothing is lost in a buffer that [Graphics3D](Graphics3D) made with the depth 64, see [Color depth](Graphics#color-depth). A buffer with 8 bits per channel gives each of them times 257 (`$FF` is `$FFFF`), and one with 10 bits fills the lower bits from the upper ones. This is a BlitzLLVM extension: the originals have no buffers with more than 8 bits per channel.
 Reads the color of a pixel as half precision floats (Float16) into the variables that are given, and returns the pixel as the buffer stores it. A buffer made with the depth 64 stores half floats, so the channels are exactly what is stored, even above 1; for the other depths they are the value from 0 to 1 that the stored bits mean. This is a BlitzLLVM extension.
 
 ## Differences
 
-* The color is not turned into an integer: the channels are Float16, and the returned number is the memory of the pixel (8 bytes for the depth 64, the 4 bytes of the stored word for the others). See [Color depth](Color-Depth).
+* The color is not turned into an integer: the channels are Float16, and the returned number is the memory of the pixel (8 bytes for the depth 64, the 4 bytes of the stored word for the others). See [Color depth](Graphics#color-depth).
 
 ## Examples
 

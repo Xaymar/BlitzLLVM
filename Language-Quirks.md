@@ -8,7 +8,11 @@ Things the original Blitz3D does that are not obvious, and that BlitzLLVM does t
 
 ## Order of evaluation
 
-The parts of an expression are not evaluated from left to right. The original labels every part with the number of registers it needs (a number or a variable needs 1, a call or an operation needs more), and evaluates the part that needs more first. Parts that need the same go left to right. This only shows when two parts have side effects, such as `Rnd`, `Rand`, `Read`, a file read or a function that counts, and a lot of old programs depend on it. BlitzLLVM measured and copied it from the original compiler (release build; the original's debug build has extra checks in between and can differ, BlitzLLVM uses the release order in both).
+The parts of an expression are not evaluated from left to right. The original labels every part with the number of registers it needs (a number or a variable needs 1, a call or an operation needs more) and evaluates the part that needs more first. Parts that need the same go left to right.
+
+This only shows when two parts have side effects, such as `Rnd`, `Rand`, `Read`, a file read or a function that counts. A lot of old programs depend on it.
+
+BlitzLLVM measured this and copied it from the release build of the original compiler. The debug build of the original has extra checks in between and can differ. BlitzLLVM uses the release order in both.
 
 ```blitzbasic
 Global count = 0
@@ -72,3 +76,14 @@ Print Instr(a, "cd")  ; 4
 ```
 
 A NUL always follows the last character, so a string given to the operating system, a library or a userlib is read as a C string and ends at the first NUL. That includes file names, window titles, `Text` and the arguments of userlib functions. Strings that a userlib returns end at their first NUL.
+
+## Deleting objects
+
+`Delete` of an object sets the variable (or field, or array element) it was given to `Null`. `Delete t` followed by `t\x` stops with `Object does not exist.` instead of reading freed memory. Other variables that still point at the deleted object are not changed, and using one stops with `Object does not exist.` in every build.
+
+Variables, fields and array elements count the objects they hold. A deleted object gives its memory back as soon as the last of them lets go. That is at once when only the variable of the `Delete` held it.
+
+* A `For Each` loop over the type that is running also holds the memory back, because it finds its next object through the one it stands on. `Delete t` in the loop and deleting other objects of the type work as before. `Return`, `Exit` and the end of the loop let go of it.
+* A program compiled with `-d` keeps the last 65536 deleted objects of each type as well.
+* A function that returns an object that was deleted gives back `Null`.
+* Objects that the program never deletes are never freed, as the program or a userlib may still use them.

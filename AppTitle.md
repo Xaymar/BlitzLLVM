@@ -28,7 +28,7 @@ Sets the title of the program window.
 
 ## Differences
 
-* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
+* It works before or after [Graphics](Graphics) alike: a title set before the window exists names the window when it is made, and one set later renames it. Until a program sets a title, the window is called `BlitzLLVM`. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
 
 ## Examples
 

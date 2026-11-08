@@ -20,7 +20,7 @@ TotalVidMem64:UInt64
 
 ## Description
 
-The total amount of video memory in bytes as a `UInt64`, so a graphics card with more than 2 GB is not cut off. This is a BlitzLLVM extension; [TotalVidMem](TotalVidMem) gives the same number as an `Int`.
+The total amount of video memory in bytes as a `UInt64`, so a graphics card with more than 2 GB is not cut off. [TotalVidMem](TotalVidMem) gives the same number as an `Int`. This is a BlitzLLVM extension.
 
 ## Examples
 

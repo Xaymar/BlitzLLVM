@@ -12,49 +12,37 @@ This page is made from the pages it links to (see `tools/wiki/wiki.py`), so it i
 
 Differences that are not caused by one command.
 
-* [3D Studio models](3D-Studio-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` files.
 * [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
-* [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
-* [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
-* [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the buffers are made of (8, 12, 15, 16, 24, 30, 32 or 64), and the window always shows RGBA8. The 8-bit palette mode has a palette that `GraphicsPalette` sets, and `WBuffer` does nothing. `Dither` adds noise of one step of the buffer.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
-* [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
-* [CPU features](CPU-Features): Extension: the runtime finds out which optional CPU instruction sets exist, and the environment variable `BLITZLLVM_CPU` lowers what it may use.
-* [Culling](Culling): Extension: `CameraCulling` and `CameraCullingSource` choose what is left out of the picture before it is drawn. The picture is the same.
+* [CPU optimizations](CPU-Optimizations): Extension: the runtime uses optional CPU instruction sets, several threads and its own memory allocator to be faster.
 * [Debug handle checks](Debug-Handle-Checks): Extension: a program compiled with `-d` stops with an error when a command is given a handle that names nothing, and always loads and saves on the spot.
-* [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
-* [DirectX models](DirectX-Models): Damaged files: a `.x` file that ends or breaks in the middle of an object loads what is before the damage (with a warning on the console) instead of failing.
-* [Displays](Displays): Extension: commands for every connected display and its modes.
-* [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
-* [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
-* [glTF models](glTF-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read glTF 2.0 files, and `LoadTexture` and `LoadImage` read the pictures inside them.
+* [Debug handle checks: Runtime errors as breakpoints](Debug-Handle-Checks#runtime-errors-as-breakpoints): Extension: in a program compiled with `-d`, a runtime error stops in an attached debugger like a breakpoint.
+* [GPU optimizations](GPU-Optimizations): Extension: `CameraCulling` chooses what is left out of the picture before it is drawn, and `CameraCullingSource` shows what a camera leaves out. The picture is the same.
+* [GPU optimizations: Sprite shapes](GPU-Optimizations#sprite-shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [IPv6](IPv6): The network commands also work over IPv6, and have text versions of the commands that use an address as a whole number.
-* [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
-* [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
+* [Language: Data](Language#data): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
-* [Many lights](Many-Lights): Extension: up to 127 lights can exist in a scene, and each draw is lit by the eight that affect it the most; the original lights everything with the first eight.
-* [Memory](Memory): Extension: programs allocate from the runtime's own allocator, which cuts small blocks out of large spans instead of asking the system for each one; the original uses the Windows heap.
-* [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains, and anisotropic filtering can be turned on with a sampler, which the originals could not.
+* [Model formats](Model-Formats): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` and glTF 2.0 (`.gltf`, `.glb`) files, and `LoadTexture` and `LoadImage` read the pictures inside glTF files. A damaged DirectX `.x` file loads what is before the damage, with a warning.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
-* [Number suffixes](Number-Suffixes): Extension: a suffix behind a number (`255ui8`, `5000000000i64`, `1.5.h`, `0.1.d`) picks its exact type, and a whole number that does not fit 32 bits has to carry one.
-* [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Parameter modes (In, Out, InOut)](Parameter-Modes): Extension: function parameters can be written as `In`, `Out` or `InOut`, which decides if a value goes into the function, comes back out of it, or both.
 * [Physics](Physics): Extension: the original has no rigid body physics. `CreatePhysicsBody` and the commands that start with `Physics` add bodies that fall, collide, slide and rest, simulated by Jolt. Nothing in a program that does not use them changes.
-* [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
 * [Profiling your own code](Profiling): Extension: [Microseconds](Microseconds) times in millionths of a second, and `--profile` with the `Profile*` commands measures the parts of a program and of the runtime.
-* [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
+* [Quality improvements: Depth buffer](Quality-Improvements#depth-buffer): The depth buffer is a reversed 32-bit float, so distant surfaces z-fight much less.
+* [Quality improvements: Large meshes](Quality-Improvements#large-meshes): A surface can hold more than 65535 vertices.
+* [Quality improvements: Many lights](Quality-Improvements#many-lights): Up to 127 lights are visible per camera, and every draw is lit by its best eight.
+* [Quality improvements: Mip maps](Quality-Improvements#mip-maps): Textures with flag 8 get a mip map chain and trilinear filtering, and can be given anisotropic filtering with a sampler.
 * [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA, DDS and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
 * [Scan Codes](Scan-Codes): Extension: `VKeyDown` and `VKeyHit` ask for a key by its SDL scancode, which every key has.
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` restores the FMOD sound.
 * [Spherical fog](Spherical-Fog): Extension: `CameraFogMode camera, 2` fogs by the distance to the camera instead of the depth along its view direction; the original only has linear fog by depth.
 * [Sprite depth fade (soft edges)](Sprite-Depth-Fade): Extension: `SpriteDepthFade` and `EntityDepthFade` fade see-through sprites and entities out where they get close to solid geometry (soft particles); the original has no such command.
-* [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [The windows of BlitzPlus](Windows-of-BlitzPlus): Every window that `CreateWindow` makes on the desktop is a window of the operating system with a frame, a title bar and a thread of its own that shows it, `Graphics` keeps a window of its own, and a program needs no `Graphics` for its windows.
-* [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
+* [Types and numbers](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
+* [Types and numbers: Number suffixes](Types#number-suffixes): Extension: number literals take a suffix that picks their type, such as `255ui8` or `0.1.d`.
+* [Types and numbers: Void](Types#void): Extension: `Void` can be the return type of a function.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
-* [Warnings](Warnings): Extension: `blitzcc` has warnings with levels (`-W0` to `-W4`), `-W<name>` and `-Wno-<name>` options and `-Werror`; the original has none.
 
 ## Commands
 
@@ -66,7 +54,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AddVertex](AddVertex#differences): `w` is ignored.
 * [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
 * [AntiAlias](AntiAlias#differences): The original handed the setting to the graphics driver, where it did nothing on most hardware of the time.
-* [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
+* [AppTitle](AppTitle#differences): It works before or after [Graphics](Graphics) alike: a title set before the window exists names the window when it is made, and one set later renames it.
 * [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
 * [AsyncSaving](AsyncSaving#differences) 〔BlitzLLVM〕: With asynchronous saving on, a file that can't be written (a folder that does not exist, a full disk) is not a 0 from the save command, but is counted by SavesFailed.
 * [AvailVidMem](AvailVidMem#differences): The number is the memory budget the graphics driver reports for this program.
@@ -112,6 +100,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePhysicsWorld](CreatePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
+* [CreateSampler](CreateSampler#differences) 〔BlitzLLVM〕: Not in the originals, which read every texture with the settings of its flags.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTCPServer](CreateTCPServer#differences): The server accepts IPv4 and IPv6 connections on the same port (where the system has IPv6), see [IPv6](IPv6).
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
@@ -265,7 +254,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well, but not JPEG 2000 or TIFF with Deflate or JPEG compression, see [Image formats](Image-Formats).
 * [LoaderMatrix](LoaderMatrix#differences): Only the matrix for `x` is used.
 * [LoadFont](LoadFont#differences): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
-* [LoadImage](LoadImage#differences): A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [glTF models](glTF-Models).
+* [LoadImage](LoadImage#differences): A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [Model formats](Model-Formats#gltf-gltf-glb).
 * [LoadMesh](LoadMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist.
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.
@@ -450,7 +439,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TextureName](TextureName#differences): The original turns the path into lower case.
 * [TextureWidth](TextureWidth#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
 * [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
-* [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer; [TotalVidMem64](TotalVidMem64) is not.
+* [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB, because it has to fit into an integer.
 * [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [UByte](UByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [UDPMsgIP](UDPMsgIP#differences): A sender that uses IPv6 has no address as a number, so this returns 0 for it; use [GetUDPMsgAddress](GetUDPMsgAddress).

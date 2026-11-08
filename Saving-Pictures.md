@@ -18,7 +18,7 @@ The original [SaveBuffer](SaveBuffer) and [SaveImage](SaveImage) only wrote BMP 
 | `.dds` | DDS, uncompressed or block compressed (BC1 to BC5, BC7), with or without mip maps | `format`, `mipmaps`, `levels`, `srgb` | none |
 | `.avif` | not written, the result is 0 | | |
 
-AVIF can be read but not written: the AV1 encoder is the biggest part of an AVIF library and would about double the size of every program, which is why it is left out of the build. Convert to WebP or JPEG XL instead.
+AVIF can be read but not written (the AV1 encoder would about double the size of every program). Convert to WebP or JPEG XL instead.
 
 The same 640x360 screenshot (921,738 bytes as BMP), cut to the area that shows the differences and saved with different settings, then loaded again. Lossless files are the same as the original, the lossy ones lose detail where it is sharp (JPEG at quality 40 shows blocks and smeared colors):
 
@@ -72,7 +72,7 @@ Files carry Exif metadata with the description and the software set to `Generate
 
 ## On another thread
 
-Encoding takes time that a game may not have in a frame. On a test machine a 1920x1080 screenshot took about 60 ms as JPEG, 80 ms to 2 seconds as PNG (`compression=1` to `9`), 165 ms as lossy WebP and 80 ms to 3 seconds as JPEG XL (`effort=3` to a lossless `effort=7`). [AsyncSaving](AsyncSaving) `True` (or `BLITZLLVM_ASYNC_SAVE=1` in the environment) makes the save commands only read the pixels, and a worker thread encodes and writes the file. [SavesPending](SavesPending) and [SavesFailed](SavesFailed) tell how it is going, and a program that ends waits for its saves. It is off by default, so a save has written its file when the command returns.
+Encoding can take longer than a game frame has (PNG at `compression=9` and JPEG XL at a high `effort` take seconds for a screenshot). [AsyncSaving](AsyncSaving) `True` (or `BLITZLLVM_ASYNC_SAVE=1` in the environment) makes the save commands only read the pixels, and a worker thread encodes and writes the file. [SavesPending](SavesPending) and [SavesFailed](SavesFailed) tell how it is going, and a program that ends waits for its saves. It is off by default, so a save has written its file when the command returns.
 
 ## Libraries
 

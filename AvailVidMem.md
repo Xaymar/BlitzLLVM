@@ -25,7 +25,7 @@ The amount of video memory that is free, in bytes. Every image and texture uses 
 
 ## Differences
 
-* The number is the memory budget the graphics driver reports for this program. It is cut off at 2 GB because it has to fit into an integer; [AvailVidMem64](AvailVidMem64) is not. It is 0 when no graphics window is open.
+* The number is the memory budget the graphics driver reports for this program. It is cut off at 2 GB, because it has to fit into an integer. [AvailVidMem64](AvailVidMem64) is not cut off. It is 0 when no graphics window is open.
 
 ## Related Commands
 

@@ -23,9 +23,13 @@ CameraCullingSource:Void camera_a:Int32, camera_b:Int32=0
 
 ## Description
 
-Lets `camera_a` draw what `camera_b` would draw: `camera_a` does not decide by itself what is outside of its view, it uses the view and the [CameraCulling](CameraCulling) setting of `camera_b`, and does not cull on top of that. Giving 0 as `camera_b` (the default) makes `camera_a` cull for itself again. This is a BlitzLLVM extension.
+Lets `camera_a` draw what `camera_b` would draw. `camera_a` then does not cull by itself: it uses the view and the [CameraCulling](CameraCulling) setting of `camera_b`. Giving 0 as `camera_b` (the default) makes `camera_a` cull for itself again. This is a BlitzLLVM extension.
 
-It is for cameras that look at the same world from a place that is close to another camera: a mirror or a security monitor can show what the main camera sees, and a camera that does not draw (`CameraProjMode camera, 0`) can be the one that decides. The culling follows `camera_b` from frame to frame as it is moved. A camera that has a source of its own is followed one step further, a loop of cameras or a camera that was freed ends the chain at the camera where it stops. The pictures that mirrors (pivots of the class Mirror) make are seen from somewhere else, and keep culling by themselves.
+It is meant for debugging culling. Make a second camera take its culling from the main camera and move the second camera away: it shows what the main camera leaves out, and what it draws that is not in view.
+
+It also works for cameras that look at the same world from a place close to another camera. A mirror or a security monitor can show what the main camera sees, and a camera that does not draw (`CameraProjMode camera, 0`) can be the one that decides.
+
+The culling follows `camera_b` as it moves. A camera that has a source of its own is followed one step further. A loop of cameras, or a camera that was freed, ends the chain at the camera where it stops. The pictures that mirrors (pivots of the class Mirror) make are seen from somewhere else, so they keep culling by themselves.
 
 ## Examples
 

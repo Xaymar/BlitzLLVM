@@ -37,6 +37,11 @@ For d = 1 To CountDisplays()
 Next
 WaitKey
 ```
+Displays and modes are numbered from 1. A number that does not exist gives 0 (or an empty text for `DisplayName`) instead of stopping the program, because a display can be unplugged while the program runs.
+
+The mode lists have every combination of size and refresh rate once, from the smallest width to the largest. They always include the mode the display is in now. Refresh rates are rounded to whole Hz, and a display that does not tell its rate is taken to have 60 Hz.
+
+`Graphics` can not be told which display to open on yet. It opens on the main display.
 
 ## Related Commands
 

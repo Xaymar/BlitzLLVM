@@ -29,7 +29,7 @@ A BlitzLLVM extension: whether the runtime scales the windows of the program by 
 
 ## Differences
 
-* Not in the original. The environment variable `BLITZLLVM_GUI_SCALE` sets the scale for every window or turns the scaling off from outside the program, see [[DPI-Scaling]].
+* Not in the original. The environment variable `BLITZLLVM_GUI_SCALE` sets the scale for every window or turns the scaling off from outside the program, see [[Windows-of-BlitzPlus]].
 
 ## Examples
 
