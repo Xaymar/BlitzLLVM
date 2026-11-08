@@ -554,8 +554,8 @@ rectsoverlap	graphics	done	%RectsOverlap%x1%y1%width1%height1%x2%y2%width2%heigh
 refreshrateat	graphics	done	%RefreshRateAt%display%width%height%index
 resizeimage	graphics	done	ResizeImage%image#width#height
 rotateimage	graphics	done	RotateImage%image#angle
-savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile
-saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0
+savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile$settings=\
+saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0$settings=\
 scaleimage	graphics	done	ScaleImage%image#xscale#yscale
 scanline	graphics	done	%ScanLine
 seekmovie	graphics	done	SeekMovie%movie#seconds
