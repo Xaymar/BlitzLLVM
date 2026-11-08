@@ -54,7 +54,11 @@ Mode 1 does not change the video mode of the display. It opens a borderless wind
 
 ## Windows and DPI
 
-Programs on Windows are DPI aware: Windows does not scale their window, so one pixel of the program is one pixel of the screen at any scaling, and `GraphicsWidth`, the mouse and the display modes are physical pixels. (The original has no manifest, so Windows stretches its windows and makes them blurry at 150 %.) `blitzcc` embeds a manifest for this; a program built with its own `.res` or manifest (`--llvm-flag`) keeps that one instead. The windows of BlitzPlus are scaled, see [Windows of BlitzPlus](Windows-of-BlitzPlus).
+Programs on Windows are DPI aware. Windows does not scale their window, so one pixel of the program is one pixel of the screen at any scaling, and `GraphicsWidth`, the mouse and the display modes are physical pixels. The original has no manifest, so Windows stretches its windows and makes them blurry at 150 %.
+
+`blitzcc` embeds a manifest for this. A program built with its own `.res` or manifest (`--llvm-flag`) keeps that one instead.
+
+The windows of BlitzPlus are scaled, see [Windows of BlitzPlus](Windows-of-BlitzPlus).
 
 @param width   Width of the picture in pixels.
 @param height  Height of the picture in pixels.
