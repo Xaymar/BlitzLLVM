@@ -19,4 +19,4 @@ WaitKey
 @param argb    The color. Only the lower 24 bits are used; the pixel is always opaque.
 @param buffer  The buffer to write to. Defaults to the current buffer.
 @gap A position outside of the buffer is ignored.
-@gap A buffer that [Graphics3D](Graphics3D) made with the depth 30 takes A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and one with 64 takes ARGB with 8 bits for each, which is widened. [WritePixel64](WritePixel64) takes Float16 channels. See [Color depth](Color-Depth).
+@gap A buffer that [Graphics3D](Graphics3D) made with the depth 30 takes A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and one with 64 takes ARGB with 8 bits for each, which is widened. [WritePixel64](WritePixel64) takes Float16 channels. See [Color depth](Graphics#color-depth).
