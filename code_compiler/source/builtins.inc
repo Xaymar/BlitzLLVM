@@ -754,7 +754,9 @@
 		{ "gfxmode3dexists", "bb_gfx_mode_3d_exists", 'i', "iii", 3, {}, false },
 		{ "windowed3d", "bb_windowed_3d", 'i', "", 0, {}, false },
 		{ "totalvidmem", "bb_total_vid_mem", 'i', "", 0, {}, false },
+		{ "totalvidmem64", "bb_total_vid_mem64", 'u', "", 0, {}, false },
 		{ "availvidmem", "bb_avail_vid_mem", 'i', "", 0, {}, false },
+		{ "availvidmem64", "bb_avail_vid_mem64", 'u', "", 0, {}, false },
 		{ "trisrendered", "bb_tris_rendered", 'i', "", 0, {}, false },
 		{ "activetextures", "bb_active_textures", 'i', "", 0, {}, false },
 		// Sound

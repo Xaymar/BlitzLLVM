@@ -438,6 +438,7 @@ seekfile	files	done	%SeekFile%file_stream%pos
 writefile	files	done	%WriteFile$filename
 automidhandle	graphics	done	AutoMidHandle%enable
 availvidmem	graphics	done	%AvailVidMem
+availvidmem64	graphics	done	&AvailVidMem64
 backbuffer	graphics	done	%BackBuffer
 bufferdirty	graphics	done	BufferDirty%buffer
 closemovie	graphics	done	CloseMovie%movie
@@ -573,6 +574,7 @@ tformimage	graphics	done	TFormImage%image#a#b#c#d
 tileblock	graphics	done	TileBlock%image%x=0%y=0%frame=0
 tileimage	graphics	done	TileImage%image%x=0%y=0%frame=0
 totalvidmem	graphics	done	%TotalVidMem
+totalvidmem64	graphics	done	&TotalVidMem64
 unlockbuffer	graphics	done	UnlockBuffer%buffer=0
 updategamma	graphics	done	UpdateGamma%calibrate=0
 viewport	graphics	done	Viewport%x%y%width%height
