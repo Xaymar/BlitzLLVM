@@ -68,7 +68,7 @@ namespace {
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	VkPipelineLayout      layout = VK_NULL_HANDLE;
 	VkDescriptorPool      pool = VK_NULL_HANDLE;
-	VkSampler             linear = VK_NULL_HANDLE, nearest = VK_NULL_HANDLE;
+	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
 	VkShaderModule        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
 	struct format_pipelines {
@@ -176,16 +176,11 @@ namespace {
 		return oldest;
 	}
 
-	VkSampler make_sampler(VkFilter filter)
+	bb::rhi::sampler make_sampler(bb::rhi::filter filter)
 	{
-		VkSamplerCreateInfo info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-		info.magFilter           = filter;
-		info.minFilter           = filter;
-		info.mipmapMode          = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-		info.addressModeU = info.addressModeV = info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		VkSampler sampler;
-		check(vkCreateSampler(g.device, &info, nullptr, &sampler), "vkCreateSampler");
-		return sampler;
+		bb::rhi::sampler_desc d;
+		d.min = d.mag = filter; // Nearest between levels, clamped.
+		return bb::rhi::get_sampler(d);
 	}
 
 	gpu_image upload_lookup(VkFormat format, uint32_t width, uint32_t height, const unsigned char* data, size_t size, bb::rhi::gpu_buffer& staging)
@@ -233,8 +228,8 @@ namespace {
 		pool_info.pPoolSizes                 = &size;
 		check(vkCreateDescriptorPool(g.device, &pool_info, nullptr, &pool), "vkCreateDescriptorPool");
 
-		linear  = make_sampler(VK_FILTER_LINEAR);
-		nearest = make_sampler(VK_FILTER_NEAREST);
+		linear  = make_sampler(bb::rhi::filter::linear);
+		nearest = make_sampler(bb::rhi::filter::nearest);
 
 		vertex_modules[0]   = create_shader(bb_shader_smaa_vertex_edges, sizeof(bb_shader_smaa_vertex_edges));
 		vertex_modules[1]   = create_shader(bb_shader_smaa_vertex_weights, sizeof(bb_shader_smaa_vertex_weights));
@@ -276,12 +271,12 @@ namespace {
 		return p;
 	}
 
-	void write_set(VkDescriptorSet set, gpu_image const* a, VkSampler sa, gpu_image const* b, VkSampler sb, VkImageView c, VkSampler sc)
+	void write_set(VkDescriptorSet set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
 	{
 		VkDescriptorImageInfo infos[3] = {
-			{ sa, a->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ sb, b->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ sc, c, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sa), a->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sb), b->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sc), c, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
 		};
 		VkWriteDescriptorSet writes[3] = {};
 		for (uint32_t i = 0; i < 3; i++) {
@@ -609,8 +604,7 @@ namespace bb::gfx {
 			vkDestroyShaderModule(g.device, vertex_modules[i], nullptr);
 			vkDestroyShaderModule(g.device, fragment_modules[i], nullptr);
 		}
-		vkDestroySampler(g.device, linear, nullptr);
-		vkDestroySampler(g.device, nearest, nullptr);
+		linear = nearest = bb::rhi::sampler();
 		vkDestroyDescriptorPool(g.device, pool, nullptr);
 		vkDestroyPipelineLayout(g.device, layout, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, set_layout, nullptr);

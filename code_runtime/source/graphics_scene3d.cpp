@@ -848,7 +848,7 @@ namespace bb::gfx {
 			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 			write.pBufferInfo                  = &buffer_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-			VkDescriptorImageInfo lookup_info = { g.sampler_point_clamp, palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 			write.dstBinding                  = 1;
 			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			write.pBufferInfo                 = nullptr;
@@ -1033,7 +1033,7 @@ namespace bb::gfx {
 		VkDescriptorSet& set = depth_sets[&depth - depth_cache];
 		if (!set) {
 			allocate_descriptor(set);
-			VkDescriptorImageInfo image_info = { g.sampler_clamp, depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
 			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 			write.dstSet                     = set;
 			write.descriptorCount            = 1;

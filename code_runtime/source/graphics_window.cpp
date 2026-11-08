@@ -295,16 +295,7 @@ void bb::gfx::destroy_device_objects()
 	vkDestroyPipelineLayout(g.device, g.layout, nullptr);
 	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
-	destroy_user_samplers();
-	vkDestroySampler(g.device, g.sampler, nullptr);
-	vkDestroySampler(g.device, g.sampler_repeat, nullptr);
-	vkDestroySampler(g.device, g.sampler_clamp, nullptr);
-	vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_repeat, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_clamp, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_repeat_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_clamp_mips, nullptr);
+	bb::rhi::destroy_samplers();
 	if (profile_query_pool) {
 		vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
 		profile_query_pool = VK_NULL_HANDLE;

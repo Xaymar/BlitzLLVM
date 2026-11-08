@@ -218,7 +218,7 @@ namespace bb::gfx {
 		bool           srgb    = false;              // Stored as sRGB: sampling gives linear values, while the bytes that are read and written are the encoded ones.
 		bool           ten     = false;              // Holds A2B10G10R10 instead of RGBA8: a texture with more than 8 bits per channel and no partial alpha. Drawing to it turns it into RGBA8 first.
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
-		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
+		bb::rhi::sampler      sampler;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkFormat       format = VK_FORMAT_R8G8B8A8_UNORM; // What the image was created with.
 		VkImage        image  = VK_NULL_HANDLE;
 		VmaAllocation  allocation = VK_NULL_HANDLE;
@@ -342,15 +342,15 @@ namespace bb::gfx {
 		VkPipelineLayout      layout     = VK_NULL_HANDLE;
 		VkPipeline            triangles  = VK_NULL_HANDLE;
 		VkPipeline            lines      = VK_NULL_HANDLE;
-		VkSampler             sampler    = VK_NULL_HANDLE;
-		VkSampler             sampler_repeat = VK_NULL_HANDLE; // Linear, for 3D textures.
-		VkSampler             sampler_clamp  = VK_NULL_HANDLE;
-		VkSampler             sampler_repeat_mips = VK_NULL_HANDLE; // The same, going through the mip levels of a texture.
-		VkSampler             sampler_clamp_mips  = VK_NULL_HANDLE;
-		VkSampler             sampler_point_repeat = VK_NULL_HANDLE; // Texture flag 1024: nearest texel, nearest level.
-		VkSampler             sampler_point_clamp  = VK_NULL_HANDLE;
-		VkSampler             sampler_point_repeat_mips = VK_NULL_HANDLE;
-		VkSampler             sampler_point_clamp_mips  = VK_NULL_HANDLE;
+		bb::rhi::sampler             sampler;
+		bb::rhi::sampler             sampler_repeat; // Linear, for 3D textures.
+		bb::rhi::sampler             sampler_clamp;
+		bb::rhi::sampler             sampler_repeat_mips; // The same, going through the mip levels of a texture.
+		bb::rhi::sampler             sampler_clamp_mips;
+		bb::rhi::sampler             sampler_point_repeat; // Texture flag 1024: nearest texel, nearest level.
+		bb::rhi::sampler             sampler_point_clamp;
+		bb::rhi::sampler             sampler_point_repeat_mips;
+		bb::rhi::sampler             sampler_point_clamp_mips;
 		gpu_image            textures[TEXTURES];
 		VkDescriptorSet       sets[TEXTURES];
 
@@ -509,7 +509,6 @@ namespace bb::gfx {
 		float     anisotropy = 1.0f;
 		float     border[4] = { 0.0f, 0.0f, 0.0f, 1.0f };         // Where the address mode is border: red, green, blue, alpha.
 		float     lod_bias = 0.0f, lod_min = 0.0f, lod_max = 1000.0f;
-		VkSampler vk = VK_NULL_HANDLE;
 	};
 
 	// Images are what 2D drawing uses. They can have frames, which are cells of one sheet.
@@ -966,7 +965,7 @@ namespace bb::gfx {
 	/** The view that is drawn to for a layer of an image; layer 0, and any layer of an image with just one, is the first. */
 	VkImageView target_view_of(gpu_image const& img, uint32_t layer);
 	/** Points a descriptor set at the view that the image is sampled through, with the sampler. */
-	void describe_image(VkDescriptorSet set, gpu_image const& img, VkSampler sampler);
+	void describe_image(VkDescriptorSet set, gpu_image const& img, bb::rhi::sampler sampler);
 	/** Makes an image that release_image let go of again, with what it held. The layout is the one it had; an image that was only created is cleared. */
 	void rebuild_image(gpu_image& img);
 	/** Destroys the buffers of every surface that is still alive, which the window closing would otherwise leave behind. */
@@ -987,7 +986,7 @@ namespace bb::gfx {
 	/** Remembers the twin of a pipeline that draws to the buffers. */
 	void       add_pipeline_twin(VkPipeline base, VkPipeline twin);
 	void       destroy_pipeline_twins();
-	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler);
+	void write_descriptor(VkDescriptorSet set, VkImageView view, bb::rhi::sampler sampler);
 	void allocate_descriptor(VkDescriptorSet& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
@@ -1055,7 +1054,7 @@ namespace bb::gfx {
 	void textures_rebuild();
 	void images_release();
 	void images_rebuild();
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -1333,15 +1332,19 @@ namespace bb::gfx {
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb = false);
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
-	VkSampler texture_sampler(int flags);
+	bb::rhi::sampler texture_sampler(int flags);
 	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */
-	VkSampler create_user_sampler(sampler_entry const& s);
+	/** The description of a sampler of CreateSampler. */
+	bb::rhi::sampler_desc sampler_desc_of(sampler_entry const& s);
+	inline VkSampler vk_sampler(bb::rhi::sampler s)
+	{
+		return VkSampler(s.id);
+	}
 	/** Makes the set of an image read it through this sampler. Waits until the GPU is done with the old one. */
-	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler);
-	void destroy_user_samplers();
-	VkSampler atlas_sampler(bool point, int max_lod);
+	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, bb::rhi::sampler sampler);
+	bb::rhi::sampler atlas_sampler(bool point, int max_lod);
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */

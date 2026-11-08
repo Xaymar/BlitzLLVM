@@ -126,8 +126,9 @@ namespace {
 		g.layout     = VK_NULL_HANDLE;
 		g.triangles  = VK_NULL_HANDLE;
 		g.lines      = VK_NULL_HANDLE;
-		g.sampler = g.sampler_repeat = g.sampler_clamp = g.sampler_repeat_mips = g.sampler_clamp_mips = VK_NULL_HANDLE;
-		g.sampler_point_repeat = g.sampler_point_clamp = g.sampler_point_repeat_mips = g.sampler_point_clamp_mips = VK_NULL_HANDLE;
+		bb::rhi::forget_samplers(); // The samplers went with the device.
+		g.sampler = g.sampler_repeat = g.sampler_clamp = g.sampler_repeat_mips = g.sampler_clamp_mips = bb::rhi::sampler();
+		g.sampler_point_repeat = g.sampler_point_clamp = g.sampler_point_repeat_mips = g.sampler_point_clamp_mips = bb::rhi::sampler();
 		for (int i = 0; i < TEXTURES; i++) {
 			g.textures[i] = gpu_image();
 			g.sets[i]     = VK_NULL_HANDLE;

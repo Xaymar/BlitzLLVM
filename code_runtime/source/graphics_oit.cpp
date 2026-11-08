@@ -87,7 +87,7 @@ namespace {
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
 				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : rhi_format(formats[i]));
-				infos[i]        = { g.sampler_point_clamp, entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+				infos[i]        = { vk_sampler(g.sampler_point_clamp), entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				writes[i].dstSet          = entry.set;
 				writes[i].dstBinding      = i;
@@ -100,7 +100,7 @@ namespace {
 				entry.slot_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
 				entry.slot_depth = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f, nullptr, 1, 1, slots);
 				entry.slot_weight = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
-				VkDescriptorImageInfo slot_infos[3] = { { g.sampler_point_clamp, entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_weight.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL } };
+				VkDescriptorImageInfo slot_infos[3] = { { vk_sampler(g.sampler_point_clamp), entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { vk_sampler(g.sampler_point_clamp), entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL }, { vk_sampler(g.sampler_point_clamp), entry.slot_weight.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL } };
 				VkWriteDescriptorSet  slot_writes[3];
 				for (uint32_t i = 0; i < 3; i++) {
 					slot_writes[i]                 = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
@@ -114,7 +114,7 @@ namespace {
 			}
 			if (asked == 5) {
 				entry.peel_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f);
-				VkDescriptorImageInfo layer_info  = { g.sampler_point_clamp, entry.peel_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+				VkDescriptorImageInfo layer_info  = { vk_sampler(g.sampler_point_clamp), entry.peel_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				VkWriteDescriptorSet  layer_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				layer_write.dstSet          = entry.set;
 				layer_write.dstBinding      = 5;
@@ -129,7 +129,7 @@ namespace {
 					depth_alloc.descriptorSetCount = 1;
 					depth_alloc.pSetLayouts        = &g.set_layout;
 					check(vkAllocateDescriptorSets(g.device, &depth_alloc, &entry.peel_depth_set[i]), "vkAllocateDescriptorSets");
-					VkDescriptorImageInfo depth_info  = { g.sampler_clamp, entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
 					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 					depth_write.dstSet          = entry.peel_depth_set[i];
 					depth_write.descriptorCount = 1;

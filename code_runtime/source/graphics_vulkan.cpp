@@ -297,7 +297,7 @@ namespace bb::gfx {
 		return img;
 	}
 
-	void describe_image(VkDescriptorSet set, gpu_image const& img, VkSampler sampler)
+	void describe_image(VkDescriptorSet set, gpu_image const& img, bb::rhi::sampler sampler)
 	{
 		write_descriptor(set, img.array_sets && img.array_view ? img.array_view : img.view, sampler);
 	}
@@ -642,9 +642,9 @@ namespace bb::gfx {
 		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
 
-	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
+	void write_descriptor(VkDescriptorSet set, VkImageView view, bb::rhi::sampler sampler)
 	{
-		VkDescriptorImageInfo image_info = { sampler, view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { vk_sampler(sampler), view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = set;
 		write.descriptorCount            = 1;
@@ -653,7 +653,7 @@ namespace bb::gfx {
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 	}
 
-	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler)
+	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, bb::rhi::sampler sampler)
 	{
 		flush(); // What was recorded may use the old sampler.
 		vkDeviceWaitIdle(g.device);
@@ -820,7 +820,7 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
 	{
 		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten, true, layers);
 		image.sampler = sampler;
@@ -828,7 +828,7 @@ namespace bb::gfx {
 		describe_image(set, image, sampler);
 	}
 
-	VkSampler texture_sampler(int flags)
+	bb::rhi::sampler texture_sampler(int flags)
 	{
 		bool clamp = (flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V);
 		if (flags & TEXTURE_POINT) {
@@ -843,20 +843,63 @@ namespace bb::gfx {
 		return clamp ? g.sampler_clamp : g.sampler_repeat;
 	}
 
-	VkSampler create_user_sampler(sampler_entry const& s)
+	bb::rhi::sampler_desc sampler_desc_of(sampler_entry const& s)
 	{
+		using namespace bb::rhi;
+		static const filter filters[2] = { filter::nearest, filter::linear };
+		static const wrap   modes[4]   = { wrap::repeat, wrap::mirror, wrap::clamp, wrap::border };
+		sampler_desc        d;
+		d.min = filters[s.filter_min];
+		d.mag = filters[s.filter_mag];
+		d.mip = filters[s.filter_mip];
+		for (int i = 0; i < 3; i++) {
+			d.address[i] = modes[s.address[i]];
+		}
+		d.anisotropy = s.anisotropy;
+		memcpy(d.border, s.border, sizeof(d.border));
+		d.lod_bias = s.lod_bias;
+		d.lod_min  = s.lod_min;
+		d.lod_max  = s.lod_max;
+		return d;
+	}
+
+}
+
+namespace bb::rhi {
+	bool sampler_desc::operator==(const sampler_desc& o) const
+	{
+		return (min == o.min) && (mag == o.mag) && (mip == o.mip) && (address[0] == o.address[0]) && (address[1] == o.address[1]) && (address[2] == o.address[2])
+		       && (anisotropy == o.anisotropy) && (memcmp(border, o.border, sizeof(border)) == 0) && (lod_bias == o.lod_bias) && (lod_min == o.lod_min) && (lod_max == o.lod_max);
+	}
+
+	namespace {
+		struct sampler_cache_entry {
+			sampler_desc desc;
+			VkSampler    vk;
+		};
+		std::vector<sampler_cache_entry> sampler_cache;
+	} // namespace
+
+	sampler get_sampler(const sampler_desc& s)
+	{
+		for (const sampler_cache_entry& e : sampler_cache) {
+			if (e.desc == s) {
+				return sampler{ uint64_t(e.vk) };
+			}
+		}
+		using namespace bb::gfx;
 		static const VkFilter      filters[2]   = { VK_FILTER_NEAREST, VK_FILTER_LINEAR };
 		static const VkSamplerAddressMode modes[4] = { VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER };
 		VkPhysicalDeviceProperties properties;
 		vkGetPhysicalDeviceProperties(g.physical, &properties);
 
 		VkSamplerCreateInfo info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-		info.minFilter           = filters[s.filter_min];
-		info.magFilter           = filters[s.filter_mag];
-		info.mipmapMode          = s.filter_mip ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
-		info.addressModeU        = modes[s.address[0]];
-		info.addressModeV        = modes[s.address[1]];
-		info.addressModeW        = modes[s.address[2]];
+		info.minFilter           = filters[int(s.min)];
+		info.magFilter           = filters[int(s.mag)];
+		info.mipmapMode          = (s.mip == filter::linear) ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		info.addressModeU        = modes[int(s.address[0])];
+		info.addressModeV        = modes[int(s.address[1])];
+		info.addressModeW        = modes[int(s.address[2])];
 		float limit              = properties.limits.maxSamplerLodBias;
 		info.mipLodBias          = s.lod_bias > limit ? limit : (s.lod_bias < -limit ? -limit : s.lod_bias);
 		float max_aniso          = properties.limits.maxSamplerAnisotropy;
@@ -880,44 +923,35 @@ namespace bb::gfx {
 		} else {
 			info.borderColor = (s.border[0] + s.border[1] + s.border[2] > 1.5f) ? VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE : VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 		}
-		VkSampler sampler;
-		check(vkCreateSampler(g.device, &info, nullptr, &sampler), "vkCreateSampler");
-		return sampler;
+		VkSampler vk;
+		check(vkCreateSampler(g.device, &info, nullptr, &vk), "vkCreateSampler");
+		sampler_cache.push_back({ s, vk });
+		return sampler{ uint64_t(vk) };
 	}
 
-	static VkSampler atlas_samplers[2][16];
+	void destroy_samplers()
+	{
+		for (const sampler_cache_entry& e : sampler_cache) {
+			vkDestroySampler(bb::gfx::g.device, e.vk, nullptr);
+		}
+		sampler_cache.clear();
+	}
 
+	void forget_samplers()
+	{
+		sampler_cache.clear();
+	}
+} // namespace bb::rhi
+
+namespace bb::gfx {
 	// The sampler of a tile of an atlas with a gutter: clamped, and not going further down the mip levels than the gutter keeps clean.
-	VkSampler atlas_sampler(bool point, int max_lod)
+	bb::rhi::sampler atlas_sampler(bool point, int max_lod)
 	{
 		max_lod = max_lod < 0 ? 0 : (max_lod > 15 ? 15 : max_lod);
-		VkSampler& slot = atlas_samplers[point ? 1 : 0][max_lod];
-		if (!slot) {
-			sampler_entry s;
-			s.filter_min = s.filter_mag = s.filter_mip = point ? 0 : 1;
-			s.address[0] = s.address[1] = s.address[2] = 2;
-			s.lod_max = float(max_lod);
-			slot      = create_user_sampler(s);
-		}
-		return slot;
-	}
-
-	void destroy_user_samplers()
-	{
-		for (auto& row : atlas_samplers) {
-			for (VkSampler& slot : row) {
-				if (slot) {
-					vkDestroySampler(g.device, slot, nullptr);
-					slot = VK_NULL_HANDLE;
-				}
-			}
-		}
-		for (uint32_t i = 0; i < sampler_table.size; i++) {
-			if (sampler_table[i].vk) {
-				vkDestroySampler(g.device, sampler_table[i].vk, nullptr);
-				sampler_table[i].vk = VK_NULL_HANDLE;
-			}
-		}
+		bb::rhi::sampler_desc d;
+		d.min = d.mag = d.mip = point ? bb::rhi::filter::nearest : bb::rhi::filter::linear;
+		d.lod_max     = float(max_lod);
+		return bb::rhi::get_sampler(d);
 	}
 
 	// BC4 and BC5 hold data other than colors, so they have no sRGB variant.
@@ -944,7 +978,7 @@ namespace bb::gfx {
 		return (properties.optimalTilingFeatures & needed) == needed;
 	}
 
-	static void upload_blocks(gpu_image& image, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember)
+	static void upload_blocks(gpu_image& image, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember)
 	{
 		srgb = srgb && (p.block != block_format::bc4) && (p.block != block_format::bc5);
 		// The levels the file has are used as they are, when mip maps are wanted.
@@ -1011,7 +1045,7 @@ namespace bb::gfx {
 		rhi::destroy_buffer(staging);
 	}
 
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb)
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb)
 	{
 		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true);
 		allocate_descriptor(set);
@@ -1026,7 +1060,7 @@ namespace bb::gfx {
 		image_recipe*                 recipe = img.recipe;
 		image_spill_scope             spill(recipe->may_spill); // As it was made the first time.
 		VkImageLayout                 layout = img.layout;
-		VkSampler                     sampler = img.sampler;
+		bb::rhi::sampler                     sampler = img.sampler;
 		uint32_t                      width = img.width, height = img.height;
 		gpu_image                     fresh;
 		bool read_again  = recipe->from_file && recipe->kind != image_recipe::content::blank;
@@ -1131,7 +1165,7 @@ namespace bb::gfx {
 		}
 		rhi::destroy_buffer(staging);
 
-		VkSampler sampler = image.sampler;
+		bb::rhi::sampler sampler = image.sampler;
 		uint32_t  width = image.width, height = image.height;
 		bool      mipmaps = image.mips > 1;
 		gpu_image old     = image;
@@ -1180,7 +1214,7 @@ namespace bb::gfx {
 			}
 		}
 
-		VkSampler sampler = image.sampler;
+		bb::rhi::sampler sampler = image.sampler;
 		uint32_t  width = image.width, height = image.height;
 		bool      mipmaps = image.mips > 1; // Only the first level was read, the others are made from it.
 		bool      srgb    = image.srgb;     // The bytes were read as they are stored, so they are stored the same way again.
@@ -1822,40 +1856,35 @@ namespace bb::gfx {
 		create_frame_slots();
 
 		// Descriptors, sampler and pipelines
-		VkSamplerCreateInfo sampler_info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-		sampler_info.magFilter           = VK_FILTER_NEAREST;
-		sampler_info.minFilter           = VK_FILTER_NEAREST;
-		sampler_info.addressModeU        = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		sampler_info.addressModeV        = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		sampler_info.addressModeW        = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler), "vkCreateSampler");
+		{
+			using namespace bb::rhi;
+			sampler_desc d; // Nearest, clamped, the first level only.
+			g.sampler = get_sampler(d);
 
-		// Textures of 3D objects are filtered, and repeat unless told not to.
-		sampler_info.magFilter    = VK_FILTER_LINEAR;
-		sampler_info.minFilter    = VK_FILTER_LINEAR;
-		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat), "vkCreateSampler");
-		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp), "vkCreateSampler");
+			// Textures of 3D objects are filtered, and repeat unless told not to.
+			d.min = d.mag = filter::linear;
+			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
+			g.sampler_repeat = get_sampler(d);
+			d.address[0] = d.address[1] = d.address[2] = wrap::clamp;
+			g.sampler_clamp = get_sampler(d);
 
-		// Textures with mip maps (flag 8) blend between the levels, and use the smaller ones for what is far away.
-		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		sampler_info.maxLod     = VK_LOD_CLAMP_NONE;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp_mips), "vkCreateSampler");
-		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat_mips), "vkCreateSampler");
+			// Textures with mip maps (flag 8) blend between the levels, and use the smaller ones for what is far away.
+			d.mip     = filter::linear;
+			d.lod_max = 1000.0f;
+			g.sampler_clamp_mips = get_sampler(d);
+			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
+			g.sampler_repeat_mips = get_sampler(d);
 
-		// Texture flag 1024 takes the nearest texel of the nearest level.
-		sampler_info.magFilter  = VK_FILTER_NEAREST;
-		sampler_info.minFilter  = VK_FILTER_NEAREST;
-		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_repeat_mips), "vkCreateSampler");
-		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_clamp_mips), "vkCreateSampler");
-		sampler_info.maxLod = 0.0f;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_clamp), "vkCreateSampler");
-		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_repeat), "vkCreateSampler");
+			// Texture flag 1024 takes the nearest texel of the nearest level.
+			d.min = d.mag = d.mip = filter::nearest;
+			g.sampler_point_repeat_mips = get_sampler(d);
+			d.address[0] = d.address[1] = d.address[2] = wrap::clamp;
+			g.sampler_point_clamp_mips = get_sampler(d);
+			d.lod_max = 0.0f;
+			g.sampler_point_clamp = get_sampler(d);
+			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
+			g.sampler_point_repeat = get_sampler(d);
+		}
 
 		// Binding 0 is the texture. The 3D shader reads the texture layers after the first at 1 to 7 as well, so every set has them: they are white until
 		// a set is made for a draw that has layers (see layered_texture_set).

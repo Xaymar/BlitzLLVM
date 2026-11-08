@@ -839,7 +839,7 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		gpu_idle();
 		destroy_image(e->image);
 		e->image = target;
-		VkDescriptorImageInfo image_info = { g.sampler, e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { vk_sampler(g.sampler), e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = e->set;
 		write.descriptorCount            = 1;

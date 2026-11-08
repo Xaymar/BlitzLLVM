@@ -160,6 +160,34 @@ namespace bb::rhi {
 		shader_constants constants;
 	};
 
+	enum class filter : uint8_t { nearest, linear };
+	enum class wrap : uint8_t { repeat, mirror, clamp, border };
+
+	/** How an image is read by a shader. Equal descriptions give the same sampler. */
+	struct sampler_desc {
+		filter min = filter::nearest, mag = filter::nearest, mip = filter::nearest;
+		wrap   address[3] = { wrap::clamp, wrap::clamp, wrap::clamp }; // U, V, W.
+		float  anisotropy = 1.0f;
+		float  border[4]  = { 0.0f, 0.0f, 0.0f, 1.0f }; // Red, green, blue, alpha where the address mode is border.
+		float  lod_bias = 0.0f, lod_min = 0.0f, lod_max = 0.0f; // lod_max 0 is the first level only.
+
+		bool operator==(const sampler_desc& o) const;
+	};
+
+	/** A sampler of the cache, valid until the device is destroyed. Backend handle for now (a VkSampler on Vulkan). */
+	struct sampler {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(const sampler& o) const { return id == o.id; }
+	};
+
+	/** The sampler for a description: made when first asked, then the same one every time. Lives until destroy_samplers. */
+	sampler get_sampler(const sampler_desc& desc);
+
+	/** Frees every sampler (the device is going away); forget_samplers drops them without freeing (the device is lost). */
+	void destroy_samplers();
+	void forget_samplers();
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 
