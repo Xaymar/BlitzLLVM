@@ -128,6 +128,8 @@ EXTENSIONS = {
     "entityready": ("blitz3d", "%EntityReady%entity"),
     "asyncloading": ("graphics", "AsyncLoading%enabled"),
     "savetexture": ("blitz3d", "%SaveTexture%texture$file%frame=0$settings=\\"),
+    "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\\"),
+    "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\\"),
     "asyncsaving": ("graphics", "AsyncSaving%enabled"),
     "savespending": ("graphics", "%SavesPending"),
     "savesfailed": ("graphics", "%SavesFailed"),
