@@ -10,4 +10,4 @@ Print "Video memory: " + (TotalVidMem() / 1048576) + " MB"
 WaitKey
 ```
 @returns The size of the video memory in bytes.
-@gap The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer; [TotalVidMem64](TotalVidMem64) is not. It is 0 when no graphics window is open.
+@gap The answer comes from the graphics card and is cut off at 2 GB, because it has to fit into an integer. [TotalVidMem64](TotalVidMem64) is not cut off. It is 0 when no graphics window is open.
