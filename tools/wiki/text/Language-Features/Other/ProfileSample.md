@@ -8,5 +8,23 @@ ProfileSample "sample.bin"
 ; ... the part of the program that is slow ...
 ProfileSample ""
 ```
+## Format of the call stack file
+
+x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.stacks` next to `<file>`, which keeps its format (the load address of the program, then one instruction address per sample). The call stacks are not recorded without the symbols, as they could not be turned into names. All numbers are little endian. The file starts with a header, followed by one record per sample, in the order of `<file>`; it grows every four seconds.
+
+| Header | Size | What |
+|---|---|---|
+| magic | 4 | `BBST` |
+| version | 4 | `1` |
+| max_frames | 4 | How many addresses a record has room for (`8`) |
+| base | 8 | Where the program is loaded |
+
+| Record | Size | What |
+|---|---|---|
+| frame | 4 | How many `Flip` calls there were before the sample, to cut the samples per phase |
+| depth | 4 | How many of the addresses are used |
+| microseconds | 8 | Since the sampler started |
+| addresses | 8 * max_frames | Where the sample was, then the return addresses of the callers (subtract `base` and look up in the debug information) |
+
 @param file  The file that receives the samples, or an empty string to stop.
 @gap This is a BlitzLLVM extension: the original has no such command.

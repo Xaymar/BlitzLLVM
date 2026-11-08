@@ -86,7 +86,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PROFILE_FPS` | `0` | Prints the frames per second and the timers of the runtime once a second. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileFPS]] (and [[ProfileEnable]] for the timers). |
 | `BLITZLLVM_PROFILE_SLOW` | `0` | A number of milliseconds: every frame that takes longer than that is listed on stderr, with the frame number and the timers of just that frame (collect, draws, clusters, record, waiting for the GPU, ...) and the GPU pass times that came back for it and the three frames after it, so a single stutter shows in a long run. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileSlow]]. |
 | `BLITZLLVM_PROFILE_OUTPUT` | not set | A file that receives the text of the profiling (`BLITZLLVM_PROFILE_FPS` and `BLITZLLVM_PROFILE_SLOW`) instead of the standard error output. Needs a program made with `--profile` or `-d`. [[ProfileOutput]] changes it while the program runs and [[ProfileValue]] gives the numbers of the last frame to the program. |
-| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. [[ProfileSample]] starts and stops it while the program runs. |
+| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see [[ProfileSample]]. [[ProfileSample]] starts and stops it while the program runs. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[CPU-Optimizations]]. |
@@ -96,24 +96,6 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS` | not set | Flip numbers (`3,8`) at which the graphics device counts as lost, by making all the graphics again on a device that works, see [[Lost-Graphics-Device]]. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS_LATE` | `0` | The simulated loss is only noticed after the Flip, so the calls up to the next Flip run against a lost device. |
-
-### Format of the call stack file
-
-x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.stacks` next to `<file>`, which keeps its format (the load address of the program, then one instruction address per sample). The call stacks are not recorded without the symbols, as they could not be turned into names. All numbers are little endian. The file starts with a header, followed by one record per sample, in the order of `<file>`; it grows every four seconds.
-
-| Header | Size | What |
-|---|---|---|
-| magic | 4 | `BBST` |
-| version | 4 | `1` |
-| max_frames | 4 | How many addresses a record has room for (`8`) |
-| base | 8 | Where the program is loaded |
-
-| Record | Size | What |
-|---|---|---|
-| frame | 4 | How many `Flip` calls there were before the sample, to cut the samples per phase |
-| depth | 4 | How many of the addresses are used |
-| microseconds | 8 | Since the sampler started |
-| addresses | 8 * max_frames | Where the sample was, then the return addresses of the callers (subtract `base` and look up in the debug information) |
 
 ## Compiler and tools
 
