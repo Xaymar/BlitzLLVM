@@ -40,7 +40,3 @@ A window is scaled by the display it is on, as the windows of the original are s
 ## Without a display
 
 Where no window of the system can be made (`BLITZLLVM_HEADLESS`, or no window system) the windows are drawn inside the window of `Graphics` (1024 by 768 where the program made none) with a frame and a title bar of the runtime, and cannot leave it. A minimized window is a bar at the bottom of that window, a maximized one fills it. Dialogs answer with what is safe, or with `BLITZLLVM_DIALOG_ANSWER`.
-
-## For tests
-
-The variables `BLITZLLVM_TEST_WINDOW_SHOTS` (saves what every window shows as a picture whenever it is drawn) and `BLITZLLVM_TEST_EVENTS` (presses keys and the mouse in a named window) let the tests of BlitzLLVM look at the windows and use them, see [[Environment-Variables]]. They can change at any time and are not for programs.
