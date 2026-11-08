@@ -44,13 +44,25 @@ Depth 30 or 64 matters most for soft mist or smoke made of many overlapping, nea
 
 ![The same 16 columns of 100 faint layers drawn with the depths 32, 24, 30 and 64, from top to bottom](media/graphics/color-depth-ramp.png)
 
+## Full screen
+
+Mode 1 does not change the video mode of the display. It opens a borderless window over the main display and shows the picture in it at the largest size that fits with its aspect ratio kept, centered, with black bars for the rest (a 4:3 picture on a 16:9 display has them left and right). Alt-Tab is instant and the desktop is not rearranged. Any size is allowed, so `GfxModeExists` and `GfxMode3DExists` do not matter for the window.
+
+* The program only sees the picture: `GraphicsWidth`, `GraphicsHeight`, `ReadPixel`, `GrabImage` and `SaveBuffer` never include the bars or the size of the display. The mouse commands and the BlitzPlus gadgets and dialogs use the coordinates of the picture, and over a bar the mouse is at the nearest edge of it. A picture larger than the display is made smaller to fit.
+* A picture whose size is a whole number times the size you asked for is not smoothed, so pixel art stays sharp; other sizes are smoothed. `BLITZLLVM_FULLSCREEN_FILTER=nearest` or `linear` chooses, and `BLITZLLVM_FULLSCREEN_SCALE=integer` only enlarges by whole numbers (with larger bars).
+* The other modes are not changed; a resizable window (mode 3) still scales the picture to the whole window.
+
+## Windows and DPI
+
+Programs on Windows are DPI aware: Windows does not scale their window, so one pixel of the program is one pixel of the screen at any scaling, and `GraphicsWidth`, the mouse and the display modes are physical pixels. (The original has no manifest, so Windows stretches its windows and makes them blurry at 150 %.) `blitzcc` embeds a manifest for this; a program built with its own `.res` or manifest (`--llvm-flag`) keeps that one instead. The windows of BlitzPlus are scaled, see [Windows of BlitzPlus](Windows-of-BlitzPlus).
+
 @param width   Width of the picture in pixels.
 @param height  Height of the picture in pixels.
 @param depth   Color depth in bits, see Color depth above: 8, 12, 15, 16, 24, 30, 32 or 64, or 0 for 32. Defaults to 0.
-@param mode    0 opens a window, 1 uses full screen (a borderless window over the display, see [Fullscreen](Fullscreen)), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0.
+@param mode    0 opens a window, 1 uses full screen (a borderless window over the display, see Full screen above), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0.
 @gap `Graphics` is the same command as [Graphics3D](Graphics3D): there is no 2D-only mode, so the 3D commands work after `Graphics` as well.
 @gap The depth picks the format of the buffers and not a display mode, and the 8 bit mode has a palette. See Color depth above.
-@gap Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
+@gap Full screen (mode 1) does not change the video mode of the display, see Full screen above.
 @gap In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
 @gap The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
 @gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.

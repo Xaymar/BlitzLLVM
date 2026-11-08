@@ -31,5 +31,5 @@ Wend
 @param mode  Window or full screen as in the table. Defaults to 0.
 @gap Unlike in Blitz3D, mode 0 always opens a window, and `Graphics` and `Graphics3D` are the same command. The 3D commands do not need `Graphics3D` in particular.
 @gap The depth does not pick a video mode, it picks the format of the buffers, see [Color depth](Graphics#color-depth).
-@gap Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
+@gap Full screen (mode 1) does not change the video mode of the display, see [Full screen](Graphics#full-screen).
 @gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
