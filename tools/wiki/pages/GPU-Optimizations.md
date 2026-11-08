@@ -12,7 +12,12 @@ BlitzLLVM leaves out work before the GPU does it, and some of it can be controll
 Every frame BlitzLLVM decides which meshes can not be seen and does not give them to the GPU.
 
 * **Frustum culling.** [CameraCulling](CameraCulling) bit 1 (on by default) leaves out each mesh whose box is completely outside of what the camera sees, including everything behind it and everything farther than `CameraRange` allows. [EntityInView](EntityInView) asks the same for one mesh. `TrisRendered` counts what was given to the GPU, so it shows what this saved.
-* **Culling parts of big meshes.** A single mesh with many faces (a terrain, a level or a scan) is otherwise either out of view or drawn completely. [CameraCulling](CameraCulling) bit 2 (on by default) lets the GPU cut such meshes into runs of 128 faces and skip the runs that are out of view. It applies to solid surfaces of at least 4096 faces; see-through or distance-ordered surfaces, sprites and planes are drawn as a whole. The faces of such a surface are drawn in a different order, which cannot change a solid picture. A surface that changes every frame (`VertexCoord` in a loop) is cut again at most once every 30 frames, so keep dynamic meshes small. It needs a GPU with `multiDrawIndirect` and `drawIndirectFirstInstance`, and the bit is ignored without it. `Stats3D(1004)` counts the runs the GPU decided about in the last `RenderWorld`; `TrisRendered` still counts all faces of such a surface.
+* **Culling parts of big meshes.** A single mesh with many faces (a terrain, a level or a scan) is otherwise either out of view or drawn completely. [CameraCulling](CameraCulling) bit 2 (on by default) lets the GPU cut such meshes into runs of 128 faces and skip the runs that are out of view.
+  * It applies to solid surfaces of at least 4096 faces. See-through or distance-ordered surfaces, sprites and planes are drawn as a whole.
+  * The faces of such a surface are drawn in a different order, which cannot change a solid picture.
+  * A surface that changes every frame (`VertexCoord` in a loop) is cut again at most once every 30 frames, so keep dynamic meshes small.
+  * It needs a GPU with `multiDrawIndirect` and `drawIndirectFirstInstance`. The bit is ignored without it.
+  * `Stats3D(1004)` counts the runs the GPU decided about in the last `RenderWorld`. `TrisRendered` still counts all faces of such a surface.
 * **Back-facing runs.** Bit 4 (needs bit 2, off by default) also leaves out runs whose faces all look away from the camera. It only helps meshes with many faces that look away (the inside of a hull, a level seen from outside), and only applies to solid faces that are not two-sided, entities that are turned and scaled equally and not mirrored, and perspective cameras.
 * **Debugging.** [CameraCullingSource](CameraCullingSource) makes a camera use the culling of another camera. Moving that camera away shows what the other one leaves out.
 
@@ -39,4 +44,12 @@ Meshes that stay as they are for a few frames have their draws made once and kep
 
 A flame, a puff of smoke or a drop of water fills only part of its square sprite, and the see-through rest still costs time. For textures with flag 2 (alpha) or 4 (masked), BlitzLLVM finds the smallest octagon that has every visible pixel in it, with some room for filtering, when the texture is loaded (or written to between `LockBuffer` and `UnlockBuffer`). Sprites with the same texture share one shape and are drawn in far fewer draw calls; a round texture has about 17% less area to fill.
 
-The square is kept when the texture fills most of it, has no alpha or mask, has frames, was drawn on with the drawing commands, is a movie, has been scaled, moved or turned (`ScaleTexture`, `PositionTexture`, `RotateTexture`), has other layers, or is a sphere or cube map, and for sprites that cover fewer than 128 pixels. `BLITZLLVM_SPRITE_HULL=0` turns the shapes off.
+The square is kept for sprites that cover fewer than 128 pixels, and when the texture:
+
+* fills most of the square, or has no alpha or mask
+* has frames, other layers, or is a movie
+* was drawn on with the drawing commands
+* has been scaled, moved or turned (`ScaleTexture`, `PositionTexture`, `RotateTexture`)
+* is a sphere or cube map
+
+`BLITZLLVM_SPRITE_HULL=0` turns the shapes off.
