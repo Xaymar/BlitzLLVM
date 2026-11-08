@@ -52,6 +52,7 @@ namespace bb::rhi {
 		VmaAllocation allocation = VK_NULL_HANDLE;
 		void*         mapped     = nullptr; // For memory::mapped and memory::mesh: where the CPU reads and writes.
 		uint64_t      size       = 0;
+		VkBufferUsageFlags usage = 0; // As Vulkan has it, to make the buffer again when the allocator moves it (move_buffer).
 
 		explicit operator bool() const { return vk != VK_NULL_HANDLE; }
 	};
@@ -174,4 +175,10 @@ namespace bb::rhi {
 	/** How much video memory is in use and how much there is for this program, in bytes (0 and 0 without a device). On Vulkan this is the memory budget of the driver, or the pretended size of BLITZLLVM_VRAM_LIMIT_MB; Direct3D 11 answers from DXGI,
 	    OpenGL can't and says 0 and 0. */
 	void memory_budget(uint64_t& used, uint64_t& total);
+
+	/** Defragmentation by the allocator (Vulkan only, memory::mesh and memory::mapped buffers). move_buffer makes the buffer again in the memory that the allocator
+	    chose, copies what it holds there with the CPU, and destroys the old handle; false (and nothing changed) if it can not. The GPU must be idle, and not use the
+	    buffer afterwards without having been given the new handle. buffer_moved follows when the allocator has finished its pass: that is when mapped changes. */
+	bool move_buffer(gpu_buffer& buffer, VmaAllocation destination);
+	void buffer_moved(gpu_buffer& buffer);
 } // namespace bb::rhi

@@ -3631,6 +3631,83 @@ namespace bb::gfx {
 		version++;
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+	// Defragmentation of the buffers of surfaces (see defragment_images, which the allocator's moves come through)
+	////////////////////////////////////////////////////////////////////////////
+	namespace mesh_defrag_state {
+		struct owner {
+			surface_gpu* gpu;
+			int          which; // 0 vertices, 1 indices, 2 the indices of the clusters.
+		};
+		static std::unordered_map<VmaAllocation, owner> owners;
+		static std::vector<owner>                       moved_in_pass;
+		static uint32_t                                 moved = 0;
+
+		static rhi::gpu_buffer& buffer_of(owner const& o)
+		{
+			return (o.which == 0) ? o.gpu->vertex_buffer : (o.which == 1) ? o.gpu->index_buffer : o.gpu->cluster_index_buffer;
+		}
+	} // namespace mesh_defrag_state
+
+	void mesh_defrag_begin()
+	{
+		using namespace mesh_defrag_state;
+		owners.clear();
+		moved_in_pass.clear();
+		moved = 0;
+		if (!g.device || !g.allocator) {
+			return;
+		}
+		// Whatever was freed is destroyed first (a gap is better than an allocation that can not move), the GPU is done with everything.
+		vkDeviceWaitIdle(g.device);
+		empty_graveyard();
+		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
+			// A buffer that the device lost has no handle.
+			for (int which = 0; which < 3; which++) {
+				owner o = { gpu, which };
+				rhi::gpu_buffer& buffer = buffer_of(o);
+				if (buffer && buffer.allocation && buffer.mapped) {
+					owners[buffer.allocation] = o;
+				}
+			}
+		}
+	}
+
+	bool mesh_defrag_move(VmaAllocation source, VmaAllocation destination)
+	{
+		using namespace mesh_defrag_state;
+		auto found = owners.find(source);
+		if (found == owners.end() || !rhi::move_buffer(buffer_of(found->second), destination)) {
+			return false;
+		}
+		moved_in_pass.push_back(found->second);
+		return true;
+	}
+
+	// The allocations have their new memory once the pass is over: that is where the surfaces write to from now on.
+	void mesh_defrag_pass_done()
+	{
+		using namespace mesh_defrag_state;
+		for (owner const& o : moved_in_pass) {
+			rhi::buffer_moved(buffer_of(o));
+			moved++;
+		}
+		moved_in_pass.clear();
+	}
+
+	uint32_t mesh_defrag_end()
+	{
+		using namespace mesh_defrag_state;
+		uint32_t count = moved;
+		owners.clear();
+		moved = 0;
+		if (count) {
+			// The table of static draws holds the handles of the buffers it draws from.
+			static_invalidate();
+		}
+		return count;
+	}
+
 	// Takes the entries of an entity out of the table, because the program may have changed it. It is drawn the usual way from then on.
 	static void static_demote(int handle)
 	{
