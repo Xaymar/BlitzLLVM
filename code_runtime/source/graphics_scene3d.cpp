@@ -1324,6 +1324,19 @@ namespace bb::gfx {
 				refresh_mips(tex->image); // Whatever was drawn to it since is in its smaller levels as well.
 				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
+			// The texture layers after the first are sampled as well: their smaller levels are made and they are readable, too.
+			if (draws[scene.first_draw + i].layer_group) {
+				for (int handle : layer_groups[draws[scene.first_draw + i].layer_group - 1]) {
+					if (!handle) {
+						break;
+					}
+					texture_entry* layer = texture_of(handle);
+					if (layer && layer->set && !layer->cube && (layer->image.image != target.image->image)) {
+						refresh_mips(layer->image);
+						transition(layer->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					}
+				}
+			}
 		}
 		record_culling(scene);
 		if (scene.static_count) {
