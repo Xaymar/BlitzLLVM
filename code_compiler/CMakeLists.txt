@@ -387,6 +387,24 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	endforeach()
 endif()
 
+# AppTitle names the window of Graphics3D, before or after it. Reads the title from the X server, so it needs a display.
+if(Python3_FOUND AND BLITZ_TEST_GPU AND UNIX AND NOT APPLE)
+	foreach(_CONFIG IN ITEMS release debug)
+		set(_NAME app-title_pixels)
+		if(_CONFIG STREQUAL "debug")
+			set(_NAME app-title-debug_pixels)
+		endif()
+		add_test(
+			NAME ${_NAME}
+			COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/app_title.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/app_title.bb" "${PROJECT_BINARY_DIR}/cli/app_title-${_CONFIG}"
+		)
+		set_tests_properties(${_NAME} PROPERTIES LABELS "gpu")
+		if(_CONFIG STREQUAL "debug")
+			set_property(TEST ${_NAME} APPEND PROPERTY ENVIRONMENT "BLITZCC_OPTIONS=-d")
+		endif()
+	endforeach()
+endif()
+
 # Every BLITZLLVM_ variable that the runtime and the compiler read is on the wiki page, and nothing reads the environment around bb_env.
 if(Python3_FOUND)
 	add_test(NAME environment-variables COMMAND ${Python3_EXECUTABLE} -I "${PROJECT_SOURCE_DIR}/../tools/check_environment.py" "${PROJECT_SOURCE_DIR}/..")

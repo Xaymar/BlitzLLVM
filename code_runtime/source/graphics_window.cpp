@@ -172,7 +172,8 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	if (mode == 1) {
 		SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &bounds);
 	}
-	surface().window = SDL_CreateWindow("BlitzLLVM", bounds.w, bounds.h, flags);
+	// An AppTitle before Graphics names the window, BlitzLLVM until the program sets one.
+	surface().window = SDL_CreateWindow(save_title().c_str(), bounds.w, bounds.h, flags);
 	if (!surface().window) {
 		fail(SDL_GetError());
 	}
