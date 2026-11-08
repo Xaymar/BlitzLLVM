@@ -392,7 +392,7 @@ namespace bb::gfx {
 		if ((shown.width != front.width) || (shown.height != front.height)) {
 			wait_gpu(); // The frame before may still read it.
 			destroy_image(shown);
-			shown = create_image(front.width, front.height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source);
 		}
 
 		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

@@ -14,6 +14,7 @@
 // Vulkan: the device, the swapchain, pipelines, and the images and buffers on the GPU.
 
 #include "graphics_internal.hpp"
+#include "scene.hpp"
 #include "memory.h"
 
 #include <unordered_map>
@@ -159,7 +160,90 @@ namespace bb::gfx {
 		}
 	}
 
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
+	struct format_pair {
+		bb::rhi::format neutral;
+		VkFormat        vk;
+	};
+	static const format_pair format_pairs[] = {
+		{ bb::rhi::format::rgba8, VK_FORMAT_R8G8B8A8_UNORM },
+		{ bb::rhi::format::rgba8_srgb, VK_FORMAT_R8G8B8A8_SRGB },
+		{ bb::rhi::format::a2bgr10, VK_FORMAT_A2B10G10R10_UNORM_PACK32 },
+		{ bb::rhi::format::rgba16f, VK_FORMAT_R16G16B16A16_SFLOAT },
+		{ bb::rhi::format::rgba32f, VK_FORMAT_R32G32B32A32_SFLOAT },
+		{ bb::rhi::format::rg8, VK_FORMAT_R8G8_UNORM },
+		{ bb::rhi::format::r8, VK_FORMAT_R8_UNORM },
+		{ bb::rhi::format::r32f, VK_FORMAT_R32_SFLOAT },
+		{ bb::rhi::format::d32f, VK_FORMAT_D32_SFLOAT },
+		{ bb::rhi::format::r5g6b5, VK_FORMAT_R5G6B5_UNORM_PACK16 },
+		{ bb::rhi::format::a1r5g5b5, VK_FORMAT_A1R5G5B5_UNORM_PACK16 },
+		{ bb::rhi::format::r5g5b5a1, VK_FORMAT_R5G5B5A1_UNORM_PACK16 },
+		{ bb::rhi::format::r4g4b4a4, VK_FORMAT_R4G4B4A4_UNORM_PACK16 },
+		{ bb::rhi::format::b4g4r4a4, VK_FORMAT_B4G4R4A4_UNORM_PACK16 },
+		{ bb::rhi::format::bc1, VK_FORMAT_BC1_RGBA_UNORM_BLOCK },
+		{ bb::rhi::format::bc1_srgb, VK_FORMAT_BC1_RGBA_SRGB_BLOCK },
+		{ bb::rhi::format::bc2, VK_FORMAT_BC2_UNORM_BLOCK },
+		{ bb::rhi::format::bc2_srgb, VK_FORMAT_BC2_SRGB_BLOCK },
+		{ bb::rhi::format::bc3, VK_FORMAT_BC3_UNORM_BLOCK },
+		{ bb::rhi::format::bc3_srgb, VK_FORMAT_BC3_SRGB_BLOCK },
+		{ bb::rhi::format::bc4, VK_FORMAT_BC4_UNORM_BLOCK },
+		{ bb::rhi::format::bc5, VK_FORMAT_BC5_UNORM_BLOCK },
+		{ bb::rhi::format::bc7, VK_FORMAT_BC7_UNORM_BLOCK },
+		{ bb::rhi::format::bc7_srgb, VK_FORMAT_BC7_SRGB_BLOCK },
+	};
+
+	VkFormat vk_format(bb::rhi::format format)
+	{
+		for (const format_pair& pair : format_pairs) {
+			if (pair.neutral == format) {
+				return pair.vk;
+			}
+		}
+		return VK_FORMAT_UNDEFINED;
+	}
+
+	bb::rhi::format rhi_format(VkFormat format)
+	{
+		for (const format_pair& pair : format_pairs) {
+			if (pair.vk == format) {
+				return pair.neutral;
+			}
+		}
+		return bb::rhi::format::undefined;
+	}
+
+	static VkComponentSwizzle vk_swizzle(bb::rhi::channel channel)
+	{
+		switch (channel) {
+		case bb::rhi::channel::zero: return VK_COMPONENT_SWIZZLE_ZERO;
+		case bb::rhi::channel::one: return VK_COMPONENT_SWIZZLE_ONE;
+		case bb::rhi::channel::r: return VK_COMPONENT_SWIZZLE_R;
+		case bb::rhi::channel::g: return VK_COMPONENT_SWIZZLE_G;
+		case bb::rhi::channel::b: return VK_COMPONENT_SWIZZLE_B;
+		case bb::rhi::channel::a: return VK_COMPONENT_SWIZZLE_A;
+		default: return VK_COMPONENT_SWIZZLE_IDENTITY;
+		}
+	}
+
+	gpu_image create_image(uint32_t width, uint32_t height, bb::rhi::image_usage usage, bb::rhi::format format, const bb::rhi::swizzle* components, uint32_t mips, uint32_t layers, uint32_t samples)
+	{
+		if (vk_format(format) == VK_FORMAT_UNDEFINED) {
+			fail("internal error: an image was asked for in a format that is not known");
+		}
+		VkImageUsageFlags flags = 0;
+		flags |= (usage & bb::rhi::image_sampled) ? VK_IMAGE_USAGE_SAMPLED_BIT : 0;
+		flags |= (usage & bb::rhi::image_color_target) ? VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT : 0;
+		flags |= (usage & bb::rhi::image_depth_target) ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : 0;
+		flags |= (usage & bb::rhi::image_copy_source) ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0;
+		flags |= (usage & bb::rhi::image_copy_destination) ? VK_IMAGE_USAGE_TRANSFER_DST_BIT : 0;
+		VkImageAspectFlags aspect = (format == bb::rhi::format::d32f) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		VkComponentMapping mapping = {};
+		if (components) {
+			mapping = { vk_swizzle(components->r), vk_swizzle(components->g), vk_swizzle(components->b), vk_swizzle(components->a) };
+		}
+		return create_image_vk(width, height, flags, vk_format(format), aspect, components ? &mapping : nullptr, mips, layers, samples);
+	}
+
+	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
 		gpu_image img;
 		img.format = format;
@@ -366,66 +450,151 @@ namespace bb::gfx {
 		pipeline_twins.clear();
 	}
 
-	static VkPipeline build_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, VkFormat color_format)
+	static VkBlendFactor vk_blend_factor(bb::rhi::blend_factor f)
+	{
+		switch (f) {
+		case bb::rhi::blend_factor::zero: return VK_BLEND_FACTOR_ZERO;
+		case bb::rhi::blend_factor::one: return VK_BLEND_FACTOR_ONE;
+		case bb::rhi::blend_factor::src_alpha: return VK_BLEND_FACTOR_SRC_ALPHA;
+		case bb::rhi::blend_factor::one_minus_src_alpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		case bb::rhi::blend_factor::src_color: return VK_BLEND_FACTOR_SRC_COLOR;
+		case bb::rhi::blend_factor::dst_color: return VK_BLEND_FACTOR_DST_COLOR;
+		case bb::rhi::blend_factor::one_minus_src_color: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+		}
+		return VK_BLEND_FACTOR_ZERO;
+	}
+
+	// The one translation of a neutral pipeline description to Vulkan state, for every pipeline of the renderer.
+	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-		stages[0].module                          = vs;
+		stages[0].module                          = VkShaderModule(desc.vs);
 		stages[0].pName                           = "main";
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-		stages[1].module                          = fs;
+		stages[1].module                          = VkShaderModule(desc.fs);
 		stages[1].pName                           = "main";
 
-		VkVertexInputBindingDescription binding = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
-		VkVertexInputAttributeDescription attributes[3] = {
-			{ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, x) },
-			{ 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, u) },
-			{ 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) },
-		};
+		// The constants of the 3D shaders.
+		struct {
+			VkBool32 dither;
+			float    factor[5];
+			float    limit[2];
+			float    scale[3];
+			VkBool32 palette;
+			float    bayer_levels;
+			float    multiply;
+			VkBool32 layers;
+		} constants = {};
+		VkSpecializationMapEntry entries[15];
+		VkSpecializationInfo     specialization        = {};
+		VkSpecializationMapEntry vertex_entries[2];
+		VkSpecializationInfo     vertex_specialization = {};
+		if (desc.has_constants) {
+			const bb::rhi::shader_constants& k = desc.constants;
+			constants.dither                   = k.dither ? VK_TRUE : VK_FALSE;
+			memcpy(constants.factor, k.factor, sizeof(constants.factor));
+			memcpy(constants.limit, k.limit, sizeof(constants.limit));
+			memcpy(constants.scale, k.scale, sizeof(constants.scale));
+			constants.palette      = k.palette ? VK_TRUE : VK_FALSE;
+			constants.bayer_levels = k.bayer_levels;
+			constants.multiply     = k.multiply;
+			constants.layers       = k.layers ? VK_TRUE : VK_FALSE;
+			entries[0]             = { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) };
+			for (uint32_t i = 0; i < 5; i++) {
+				entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
+			}
+			entries[6] = { 6, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
+			entries[7] = { 7, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
+			for (uint32_t i = 0; i < 3; i++) {
+				entries[8 + i] = { 8 + i, uint32_t(offsetof(decltype(constants), scale) + i * sizeof(float)), sizeof(float) };
+			}
+			entries[11]                   = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
+			entries[12]                   = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
+			entries[13]                   = { 20, uint32_t(offsetof(decltype(constants), multiply)), sizeof(float) };
+			entries[14]                   = { 21, uint32_t(offsetof(decltype(constants), layers)), sizeof(VkBool32) };
+			specialization                = { 15u, entries, sizeof(constants), &constants };
+			stages[1].pSpecializationInfo = &specialization;
+			vertex_entries[0]             = { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
+			vertex_entries[1]             = { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
+			vertex_specialization         = { 2u, vertex_entries, sizeof(constants), &constants };
+			stages[0].pSpecializationInfo = &vertex_specialization;
+		}
+
+		VkVertexInputBindingDescription   binding       = {};
+		VkVertexInputAttributeDescription attributes[5] = {};
+		uint32_t                          attribute_count = 0;
+		if (desc.vertices == bb::rhi::vertex_layout::flat) {
+			binding             = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
+			attributes[0]       = { 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, x) };
+			attributes[1]       = { 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, u) };
+			attributes[2]       = { 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) };
+			attribute_count     = 3;
+		} else if (desc.vertices == bb::rhi::vertex_layout::scene3d) {
+			binding         = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
+			attributes[0]   = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) };
+			attributes[1]   = { 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) };
+			attributes[2]   = { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) };
+			attributes[3]   = { 3, 0, VK_FORMAT_R16G16B16A16_SFLOAT, offsetof(bb::vertex3d, r) };
+			attributes[4]   = { 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) };
+			attribute_count = 5;
+		}
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-		input.vertexBindingDescriptionCount        = vertices ? 1 : 0;
+		input.vertexBindingDescriptionCount        = attribute_count ? 1 : 0;
 		input.pVertexBindingDescriptions           = &binding;
-		input.vertexAttributeDescriptionCount      = vertices ? 3 : 0;
+		input.vertexAttributeDescriptionCount      = attribute_count;
 		input.pVertexAttributeDescriptions         = attributes;
 
 		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-		assembly.topology                               = topology;
+		assembly.topology                               = (desc.primitives == bb::rhi::topology::lines) ? VK_PRIMITIVE_TOPOLOGY_LINE_LIST : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 		VkPipelineViewportStateCreateInfo viewport = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
 		viewport.viewportCount                     = 1;
 		viewport.scissorCount                      = 1;
 
+		// Blitz3D's front faces are clockwise as seen from the front. The projection flips Y, which flips this once more.
 		VkPipelineRasterizationStateCreateInfo raster = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-		raster.polygonMode                            = VK_POLYGON_MODE_FILL;
-		raster.cullMode                               = VK_CULL_MODE_NONE;
+		raster.polygonMode                            = desc.wire ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
+		raster.cullMode                               = desc.depth ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE;
 		raster.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
 		raster.lineWidth                              = 1.0f;
 
 		VkPipelineMultisampleStateCreateInfo multisample = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
+		multisample.rasterizationSamples                 = VkSampleCountFlagBits(desc.samples);
 
-		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = vertices ? VK_TRUE : VK_FALSE; // Passes over an image replace it.
-		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
-		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
-		blend.srcAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE;
-		blend.dstAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
-		blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		VkPipelineDepthStencilStateCreateInfo depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+		depth.depthTestEnable                       = VK_TRUE;
+		depth.depthWriteEnable                      = VK_TRUE;
+		// The depth is reversed: 1 at the near plane and 0 at the far plane, so closer is greater.
+		depth.depthCompareOp                        = (desc.depth_compare == bb::rhi::compare::less) ? VK_COMPARE_OP_LESS : VK_COMPARE_OP_GREATER_OR_EQUAL;
+
+		VkPipelineColorBlendAttachmentState blend[4]   = {};
+		VkFormat                            formats[4] = {};
+		for (uint32_t i = 0; i < desc.attachment_count; i++) {
+			const bb::rhi::attachment_desc& a = desc.attachments[i];
+			formats[i]                        = vk_format(a.fmt);
+			blend[i].blendEnable              = a.blend.enable ? VK_TRUE : VK_FALSE;
+			blend[i].srcColorBlendFactor      = vk_blend_factor(a.blend.src_color);
+			blend[i].dstColorBlendFactor      = vk_blend_factor(a.blend.dst_color);
+			blend[i].colorBlendOp             = VK_BLEND_OP_ADD;
+			blend[i].srcAlphaBlendFactor      = vk_blend_factor(a.blend.src_alpha);
+			blend[i].dstAlphaBlendFactor      = vk_blend_factor(a.blend.dst_alpha);
+			blend[i].alphaBlendOp             = VK_BLEND_OP_ADD;
+			blend[i].colorWriteMask           = a.blend.write_mask;
+		}
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
-		blending.attachmentCount                     = 1;
-		blending.pAttachments                        = &blend;
+		blending.attachmentCount                     = desc.attachment_count;
+		blending.pAttachments                        = blend;
 
-		VkDynamicState dynamic_states[2]            = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
-		VkPipelineDynamicStateCreateInfo dynamic    = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                   = 2;
-		dynamic.pDynamicStates                      = dynamic_states;
+		VkDynamicState dynamic_states[5]         = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
+		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
+		dynamic.dynamicStateCount                = desc.depth ? 5 : 2;
+		dynamic.pDynamicStates                   = dynamic_states;
 
-		VkFormat                         format    = color_format;
-		VkPipelineRenderingCreateInfo    rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
-		rendering.colorAttachmentCount             = 1;
-		rendering.pColorAttachmentFormats          = &format;
+		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
+		rendering.colorAttachmentCount          = desc.attachment_count;
+		rendering.pColorAttachmentFormats       = formats;
+		rendering.depthAttachmentFormat         = desc.depth ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -436,27 +605,41 @@ namespace bb::gfx {
 		info.pViewportState               = &viewport;
 		info.pRasterizationState          = &raster;
 		info.pMultisampleState            = &multisample;
+		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = layout;
+		info.layout                       = VkPipelineLayout(desc.layout);
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
+	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	{
+		bb::rhi::pipeline_desc desc;
+		desc.vs                      = uint64_t(vs);
+		desc.fs                      = uint64_t(fs);
+		desc.layout                  = uint64_t(layout);
+		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
+		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
+		desc.attachments[0].fmt      = rhi_format(format);
+		desc.attachments[0].blend.enable = vertices; // Passes over an image replace it.
+		return desc;
+	}
+
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
 	{
-		VkPipeline pipeline = build_pipeline(vs, fs, topology, layout, vertices, VK_FORMAT_R8G8B8A8_UNORM);
+		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
 		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
-			add_pipeline_twin(pipeline, build_pipeline(vs, fs, topology, layout, vertices, g.buffer_format));
+			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, layout, topology, vertices, g.buffer_format)));
 		}
 		return pipeline;
 	}
 
 	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format)
 	{
-		return build_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, format);
+		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
 
 	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
@@ -580,9 +763,9 @@ namespace bb::gfx {
 		memcpy(mapped, pixels, size_t(size));
 
 		// Pixels of 10 bits per channel are never drawn to as they are, so they are not a color attachment.
-		VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | (ten ? 0 : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		bb::rhi::image_usage usage = bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source | (ten ? bb::rhi::image_usage(0) : bb::rhi::image_color_target);
 		bool arrays             = image.array_sets;
-		image                   = create_image(width, height, usage, ten ? VK_FORMAT_A2B10G10R10_UNORM_PACK32 : (srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM), VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1, layers);
+		image                   = create_image(width, height, usage, ten ? bb::rhi::format::a2bgr10 : (srgb ? bb::rhi::format::rgba8_srgb : bb::rhi::format::rgba8), nullptr, mipmaps ? mip_count(width, height) : 1, layers);
 		image.array_sets        = arrays;
 		image.ten               = ten;
 		image.srgb              = srgb;
@@ -774,16 +957,16 @@ namespace bb::gfx {
 		memcpy(mapped, p.blocks, p.size);
 
 		// One channel is shown as grey, and alpha is 1 where the file has none to use.
-		VkComponentMapping mapping = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
+		bb::rhi::swizzle mapping;
 		if (p.block == block_format::bc4) {
-			mapping.g = mapping.b = VK_COMPONENT_SWIZZLE_R;
+			mapping.g = mapping.b = bb::rhi::channel::r;
 			opaque = true;
 		}
 		if (opaque) {
-			mapping.a = VK_COMPONENT_SWIZZLE_ONE;
+			mapping.a = bb::rhi::channel::one;
 		}
 		bool arrays = image.array_sets;
-		image = create_image(uint32_t(p.width), uint32_t(p.height), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, vulkan_format(p.block, srgb), VK_IMAGE_ASPECT_COLOR_BIT, &mapping, levels);
+		image = create_image(uint32_t(p.width), uint32_t(p.height), bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source, rhi_format(vulkan_format(p.block, srgb)), &mapping, levels);
 		image.array_sets = arrays;
 		image.srgb    = srgb;
 		image.block   = p.block;
@@ -869,7 +1052,7 @@ namespace bb::gfx {
 			break;
 		}
 		case image_recipe::content::blank:
-			fresh = create_image(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
+			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
 			if (fresh.image && (layout != VK_IMAGE_LAYOUT_UNDEFINED)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();
@@ -1075,7 +1258,7 @@ namespace bb::gfx {
 		g.height = height;
 		image_spill_scope strict(false, true); // The buffers of the window come before textures: those without flag 256 make room if they have to.
 		for (int i = 0; i < 2; i++) {
-			g.buffers[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, g.buffer_format); // Sampled for the gamma pass.
+			g.buffers[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_copy_destination | bb::rhi::image_sampled, rhi_format(g.buffer_format)); // Sampled for the gamma pass.
 		}
 
 		// Both buffers start out black, and stay in the attachment layout between uses.

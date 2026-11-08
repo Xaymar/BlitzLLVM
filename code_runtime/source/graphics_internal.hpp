@@ -946,7 +946,12 @@ namespace bb::gfx {
 	bool is_out_of_memory(VkResult result);
 	/** The memory of an image: video memory, or system memory when an image_spill_scope allows it and video memory is full. */
 	VkResult create_image_memory(const VkImageCreateInfo& info, VkImage& image, VmaAllocation& allocation);
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1, uint32_t samples = 1);
+	/** Makes an image. The aspect follows from the format. The Vulkan objects are visible for now, see rhi.hpp. */
+	gpu_image create_image(uint32_t width, uint32_t height, bb::rhi::image_usage usage, bb::rhi::format format = bb::rhi::format::rgba8, const bb::rhi::swizzle* components = nullptr, uint32_t mips = 1, uint32_t layers = 1, uint32_t samples = 1);
+	/** The same with the Vulkan types, for what still has them (the recipe of an image). */
+	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples);
+	VkFormat vk_format(bb::rhi::format format);
+	bb::rhi::format rhi_format(VkFormat format);
 	void destroy_image(gpu_image& img);
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
 	void release_image(gpu_image& img);
@@ -972,6 +977,8 @@ namespace bb::gfx {
 	VkFormat pick_buffer_format(int depth, int& actual);
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
 	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
+	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
+	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
 	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format);
 	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
 	VkPipeline pipeline_for(VkPipeline base, VkFormat format);

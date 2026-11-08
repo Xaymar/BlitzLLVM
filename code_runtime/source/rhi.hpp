@@ -56,6 +56,110 @@ namespace bb::rhi {
 		explicit operator bool() const { return vk != VK_NULL_HANDLE; }
 	};
 
+
+	/** The pixel formats the program uses for images. Formats that only a pipeline cares about (vertex formats) are not here. */
+	enum class format : uint8_t {
+		undefined,
+		rgba8,
+		rgba8_srgb,
+		a2bgr10,
+		rgba16f,
+		rgba32f,
+		rg8,
+		r8,
+		r32f,
+		d32f,
+		r5g6b5, // The packed formats of Graphics depths 16, 15 and 12.
+		a1r5g5b5,
+		r5g5b5a1,
+		r4g4b4a4,
+		b4g4r4a4,
+		bc1,
+		bc1_srgb,
+		bc2,
+		bc2_srgb,
+		bc3,
+		bc3_srgb,
+		bc4,
+		bc5,
+		bc7,
+		bc7_srgb,
+	};
+
+	/** What an image is used for, any of them together. */
+	enum image_usage : uint32_t {
+		image_sampled          = 1u << 0,
+		image_color_target     = 1u << 1,
+		image_depth_target     = 1u << 2,
+		image_copy_source      = 1u << 3,
+		image_copy_destination = 1u << 4,
+	};
+
+	constexpr image_usage operator|(image_usage a, image_usage b)
+	{
+		return image_usage(uint32_t(a) | uint32_t(b));
+	}
+
+	/** What a sampler reads for a channel of an image: itself, another channel, or a constant. */
+	enum class channel : uint8_t { identity, zero, one, r, g, b, a };
+
+	struct swizzle {
+		channel r = channel::identity, g = channel::identity, b = channel::identity, a = channel::identity;
+	};
+
+	enum class topology : uint8_t { triangles, lines };
+
+	/** How the vertices of a pipeline are laid out in its buffer. none: no vertex buffer (the shader makes the vertices); flat: the 2D vertex of the program (position, texture coordinate, colour);
+	    scene3d: bb::vertex3d. */
+	enum class vertex_layout : uint8_t { none, flat, scene3d };
+
+	enum class blend_factor : uint8_t { zero, one, src_alpha, one_minus_src_alpha, src_color, dst_color, one_minus_src_color };
+
+	/** Blending of one colour attachment; the operation is always addition. */
+	struct blend_state {
+		bool         enable       = false;
+		blend_factor src_color    = blend_factor::src_alpha;
+		blend_factor dst_color    = blend_factor::one_minus_src_alpha;
+		blend_factor src_alpha    = blend_factor::one;
+		blend_factor dst_alpha    = blend_factor::one_minus_src_alpha;
+		uint8_t      write_mask   = 15; // Bits 0 to 3: r, g, b, a.
+	};
+
+	struct attachment_desc {
+		format      fmt = format::rgba8;
+		blend_state blend;
+	};
+
+	enum class compare : uint8_t { less, greater_equal };
+
+	/** The constants of the 3D fragment shader (numbers 0 to 21 of tools/generate_shaders.py) and of the vertex shader (limit). */
+	struct shader_constants {
+		bool  dither = false;
+		float factor[5]{};
+		float limit[2]{};
+		float scale[3]{};
+		bool  palette = false;
+		float bayer_levels = 0;
+		float multiply     = 1;
+		bool  layers       = false;
+	};
+
+	/** What a pipeline is made of. The shaders and the layout stay backend handles until the shader ids of the next commit (a VkShaderModule and a VkPipelineLayout on Vulkan). */
+	struct pipeline_desc {
+		uint64_t         vs = 0, fs = 0, layout = 0;
+		topology         primitives = topology::triangles;
+		vertex_layout    vertices   = vertex_layout::none;
+		bool             wire       = false;
+		bool             depth      = false; // A 3D pipeline: depth tested, culling and depth state set on the command.
+		compare          depth_compare = compare::greater_equal;
+		uint32_t         samples    = 1;
+		uint32_t         attachment_count = 1;
+		attachment_desc  attachments[4];
+		format           depth_format = format::d32f;
+		bool             has_constants = false;
+		shader_constants constants;
+	};
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

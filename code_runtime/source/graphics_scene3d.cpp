@@ -236,13 +236,16 @@ namespace bb::gfx {
 
 	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0, bool layers = true)
 	{
-		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
-		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-		stages[0].module                          = vs;
-		stages[0].pName                           = "main";
-		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-		stages[1].module                          = fs;
-		stages[1].pName                           = "main";
+		using namespace bb::rhi;
+		pipeline_desc desc;
+		desc.vs       = uint64_t(vs);
+		desc.fs       = uint64_t(fs);
+		desc.layout   = uint64_t(g.layout3d);
+		desc.vertices = vertex_layout::scene3d;
+		desc.wire     = wire;
+		desc.depth    = true;
+		desc.has_constants = true;
+		shader_constants& k = desc.constants;
 		// Whether the shader dithers is a constant of the pipeline, so that it costs nothing when it is off. The shader that blends
 		// itself has the factors of its mode (see fragment_shader_masked in tools/generate_shaders.py) as constants 1 to 5.
 		static const float factors[6][5] = { { 1, 0, 1, 0, 0 }, { 1, 0, 1, -1, 0 }, { 0, 1, 0, 0, 0 }, { 1, 0, 1, 0, 0 }, { 0, 1, 0, 0, 1 }, { 0, 1, 0, 0, 0 } };
@@ -250,221 +253,101 @@ namespace bb::gfx {
 		// are constants of the vertex shader (0 and 1) and of the fragment shader (6 and 7), and the largest half float for such a target.
 		const bool  wide    = (color_format == VK_FORMAT_R16G16B16A16_SFLOAT);
 		const float limits[2] = { wide ? -65504.0f : 0.0f, wide ? 65504.0f : 1.0f };
-		struct {
-			VkBool32 dither;
-			float    factor[5];
-			float    limit[2];
-			float    scale[3];
-			VkBool32 palette;
-			float    bayer_levels; // DitherMode: 0 for noise, else the levels of the Bayer pattern.
-			float    multiply;     // Order-independent transparency: what the multiplied color is scaled by (2 for multiply twice).
-			VkBool32 layers;       // The pipeline is for draws that have texture layers (constant 21).
-		} constants;
 		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
 		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
-		constants.dither = ((dither_code() > 0.0f) && ((color_format == VK_FORMAT_R8G8B8A8_UNORM) || packed_layout_of(color_format))) ? VK_TRUE : VK_FALSE;
+		k.dither = (dither_code() > 0.0f) && ((color_format == VK_FORMAT_R8G8B8A8_UNORM) || packed_layout_of(color_format));
 		// With a Graphics of depth 8 the shader makes the color into the nearest of the palette once it has lit, fogged, dithered (and blended, if it does).
-		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
-		constants.bayer_levels = float(bayer_levels());
-		constants.multiply     = (mode == 4) ? 2.0f : 1.0f;
-		constants.layers       = layers ? VK_TRUE : VK_FALSE;
-		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
-		memcpy(constants.limit, limits, sizeof(limits));
+		k.palette      = (g.buffer_depth == 8);
+		k.bayer_levels = float(bayer_levels());
+		k.multiply     = (mode == 4) ? 2.0f : 1.0f; // Order-independent transparency: what the multiplied color is scaled by (2 for multiply twice).
+		k.layers       = layers;
+		memcpy(k.factor, factors[mode], sizeof(k.factor));
+		memcpy(k.limit, limits, sizeof(limits));
 		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
 		const packed_layout* packed = packed_layout_of(color_format);
 		for (int c = 0; c < 3; c++) {
-			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
+			k.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
 		}
-		VkSpecializationMapEntry entries[15] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
-		for (uint32_t i = 0; i < 5; i++) {
-			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
-		}
-		entries[6]                                       = { 6, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
-		entries[7]                                       = { 7, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
-		for (uint32_t i = 0; i < 3; i++) {
-			entries[8 + i] = { 8 + i, uint32_t(offsetof(decltype(constants), scale) + i * sizeof(float)), sizeof(float) };
-		}
-		entries[11] = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
-		entries[12] = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
-		entries[13] = { 20, uint32_t(offsetof(decltype(constants), multiply)), sizeof(float) };
-		entries[14] = { 21, uint32_t(offsetof(decltype(constants), layers)), sizeof(VkBool32) };
-		VkSpecializationInfo specialization              = { 15u, entries, sizeof(constants), &constants };
-		stages[1].pSpecializationInfo                    = &specialization;
-		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
-		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
-		stages[0].pSpecializationInfo                    = &vertex_specialization;
-
-		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
-		VkVertexInputAttributeDescription attributes[5] = {
-			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) },
-			{ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) },
-			{ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) },
-			{ 3, 0, VK_FORMAT_R16G16B16A16_SFLOAT, offsetof(bb::vertex3d, r) },
-			{ 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) },
-		};
-		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-		input.vertexBindingDescriptionCount        = 1;
-		input.pVertexBindingDescriptions           = &binding;
-		input.vertexAttributeDescriptionCount      = 5;
-		input.pVertexAttributeDescriptions         = attributes;
-
-		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-		assembly.topology                               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-		VkPipelineViewportStateCreateInfo viewport = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
-		viewport.viewportCount                     = 1;
-		viewport.scissorCount                      = 1;
-
-		// Blitz3D's front faces are clockwise as seen from the front. The projection flips Y, which flips this once more.
-		VkPipelineRasterizationStateCreateInfo raster = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-		raster.polygonMode                            = wire ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
-		raster.cullMode                               = VK_CULL_MODE_BACK_BIT;
-		raster.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
-		raster.lineWidth                              = 1.0f;
-
-		VkPipelineMultisampleStateCreateInfo multisample = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
-
-		VkPipelineDepthStencilStateCreateInfo depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-		depth.depthTestEnable                       = VK_TRUE;
-		depth.depthWriteEnable                      = VK_TRUE;
-		// The depth is reversed: 1 at the near plane and 0 at the far plane, so closer is greater.
-		depth.depthCompareOp                        = VK_COMPARE_OP_GREATER_OR_EQUAL;
-
-		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = (mode != 0) ? VK_TRUE : VK_FALSE;
-		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
-		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
-		blend.srcAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE;
-		blend.dstAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
-		blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
-		blending.attachmentCount                     = 1;
-		blending.pAttachments                        = &blend;
 
 		// Modes: 0 = no blending, 1 = by alpha, 2 = multiply with what is there, 3 = add to what is there, 4 = multiply by two, 5 = dot product with what is there.
 		// The dot product has no fixed-function blend, so it multiplies.
+		attachment_desc& main = desc.attachments[0];
+		main.fmt              = rhi_format(color_format);
+		main.blend.enable     = (mode != 0);
 		if (mode == 2 || mode == 5) {
-			blend.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
-			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+			main.blend.src_color = blend_factor::dst_color;
+			main.blend.dst_color = blend_factor::zero;
 		} else if (mode == 3) {
-			blend.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+			main.blend.src_color = blend_factor::src_alpha;
+			main.blend.dst_color = blend_factor::one;
 		} else if (mode == 4) {
-			blend.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR; // What is there times what is drawn, twice.
-			blend.dstColorBlendFactor = VK_BLEND_FACTOR_SRC_COLOR;
+			main.blend.src_color = blend_factor::dst_color; // What is there times what is drawn, twice.
+			main.blend.dst_color = blend_factor::src_color;
 		}
 
-		VkDynamicState dynamic_states[5] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
-		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                = 5;
-		dynamic.pDynamicStates                   = dynamic_states;
-
-		VkFormat                      format    = color_format;
-		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
-		rendering.colorAttachmentCount          = 1;
-		rendering.pColorAttachmentFormats       = &format;
-		rendering.depthAttachmentFormat         = depth_format;
 		// Order-independent transparency draws to four images (see graphics_oit.cpp), of which the blend mode writes the ones it has sums in:
 		// alpha writes 0 (color * alpha * weight and alpha * weight, added) and 1 (the product of 1 - alpha), multiply writes 2 (the product
 		// of the colors), add writes 3 (color * alpha, added).
-		VkFormat                            oit_formats[4] = { oit_slots() ? VK_FORMAT_R32G32B32A32_SFLOAT : VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
-		VkPipelineColorBlendAttachmentState oit_blend[4]   = {};
-		VkPipelineLayout                    layout         = g.layout3d;
-		VkPipelineColorBlendAttachmentState slot_blend[2]  = {};
-		VkFormat                            slot_formats[2] = {};
 		if (oit == 4) {
 			// Slots of samples: one half float color attachment with as many samples as there are slots, nothing blended (the sample mask and the depth test of the samples pick).
-			blend.blendEnable                = VK_FALSE;
-			multisample.rasterizationSamples = VkSampleCountFlagBits(oit_slots());
-			slot_blend[0] = slot_blend[1]    = blend;
-			slot_formats[0] = VK_FORMAT_R16G16B16A16_SFLOAT; // The color, and the weight of the fragment.
-			slot_formats[1] = VK_FORMAT_R16G16B16A16_SFLOAT;
-			rendering.colorAttachmentCount    = 2;
-			rendering.pColorAttachmentFormats = slot_formats;
-			blending.attachmentCount          = 2;
-			blending.pAttachments             = slot_blend;
+			main.blend.enable     = false;
+			desc.samples          = oit_slots();
+			desc.attachment_count = 2;
+			desc.attachments[0].fmt = format::rgba16f; // The color, and the weight of the fragment.
+			desc.attachments[1]     = desc.attachments[0];
 		}
 		if (oit == 5) {
 			// A layer of the depth peeling: one half float color attachment, nothing blended, and the depth test keeps the farthest fragment (depth is nearest at 1).
-			blend.blendEnable                 = VK_FALSE;
-			slot_blend[0]                     = blend;
-			slot_formats[0]                   = VK_FORMAT_R16G16B16A16_SFLOAT;
-			depth.depthCompareOp              = VK_COMPARE_OP_LESS;
-			rendering.colorAttachmentCount    = 1;
-			rendering.pColorAttachmentFormats = slot_formats;
-			blending.attachmentCount          = 1;
-			blending.pAttachments             = slot_blend;
+			main.blend.enable     = false;
+			main.fmt              = format::rgba16f;
+			desc.depth_compare    = compare::less;
+			desc.attachment_count = 1;
 		}
 		if (oit && (oit != 4) && (oit != 5)) {
-			const VkColorComponentFlags all = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-			for (VkPipelineColorBlendAttachmentState& state : oit_blend) {
-				state.colorWriteMask = 0;
+			attachment_desc* at = desc.attachments;
+			for (int i = 0; i < 4; i++) {
+				at[i]                  = attachment_desc();
+				at[i].blend.write_mask = 0;
 			}
-			auto sums = [&](int i, VkBlendFactor from_shader, VkBlendFactor from_target) {
-				oit_blend[i].blendEnable         = VK_TRUE;
-				oit_blend[i].srcColorBlendFactor = from_shader;
-				oit_blend[i].dstColorBlendFactor = from_target;
-				oit_blend[i].colorBlendOp        = VK_BLEND_OP_ADD;
-				oit_blend[i].srcAlphaBlendFactor = from_shader;
-				oit_blend[i].dstAlphaBlendFactor = from_target;
-				oit_blend[i].alphaBlendOp        = VK_BLEND_OP_ADD;
-				oit_blend[i].colorWriteMask      = all;
+			at[0].fmt = oit_slots() ? format::rgba32f : format::rgba16f;
+			at[1].fmt = format::r32f;
+			at[2].fmt = format::rgba16f;
+			at[3].fmt = format::rgba16f;
+			auto sums = [&](int i, blend_factor from_shader, blend_factor from_target) {
+				at[i].blend.enable    = true;
+				at[i].blend.src_color = at[i].blend.src_alpha = from_shader;
+				at[i].blend.dst_color = at[i].blend.dst_alpha = from_target;
+				at[i].blend.write_mask = 15;
 			};
 			if (oit == 2) {
 				// The first pass of the moment based kind: the optical depth, and the optical depth times the powers of the depth, added up.
-				oit_formats[0] = VK_FORMAT_R32_SFLOAT;
-				oit_formats[1] = VK_FORMAT_R32G32B32A32_SFLOAT;
-				sums(0, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
-				sums(1, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
-				rendering.colorAttachmentCount    = 2;
-				rendering.pColorAttachmentFormats = oit_formats;
-				blending.attachmentCount          = 2;
-				blending.pAttachments             = oit_blend;
+				at[0].fmt = format::r32f;
+				at[1].fmt = format::rgba32f;
+				sums(0, blend_factor::one, blend_factor::one);
+				sums(1, blend_factor::one, blend_factor::one);
+				desc.attachment_count = 2;
 			} else {
 				if (oit == 3) {
 					// The second pass reads the sums of the first (the image of the optical depth is not an attachment in it).
-					oit_formats[1] = VK_FORMAT_UNDEFINED;
-					layout         = (mode == 1) ? oit_layout3d() : g.layout3d;
+					at[1].fmt   = format::undefined;
+					desc.layout = uint64_t((mode == 1) ? oit_layout3d() : g.layout3d);
 				}
 				if (mode == 1) {
-					sums(0, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+					sums(0, blend_factor::one, blend_factor::one);
 					if (oit == 1) {
-						sums(1, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR);
-						oit_blend[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT;
+						sums(1, blend_factor::zero, blend_factor::one_minus_src_color);
+						at[1].blend.write_mask = 1;
 					}
 				} else if (mode == 3) {
-					sums(3, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+					sums(3, blend_factor::one, blend_factor::one);
 				} else {
-					sums(2, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_SRC_COLOR);
-					oit_blend[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
+					sums(2, blend_factor::zero, blend_factor::src_color);
+					at[2].blend.write_mask = 7;
 				}
-				rendering.colorAttachmentCount    = 4;
-				rendering.pColorAttachmentFormats = oit_formats;
-				blending.attachmentCount          = 4;
-				blending.pAttachments             = oit_blend;
+				desc.attachment_count = 4;
 			}
 		}
-
-		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
-		info.pNext                        = &rendering;
-		info.stageCount                   = 2;
-		info.pStages                      = stages;
-		info.pVertexInputState            = &input;
-		info.pInputAssemblyState          = &assembly;
-		info.pViewportState               = &viewport;
-		info.pRasterizationState          = &raster;
-		info.pMultisampleState            = &multisample;
-		info.pDepthStencilState           = &depth;
-		info.pColorBlendState             = &blending;
-		info.pDynamicState                = &dynamic;
-		info.layout                       = layout;
-
-		VkPipeline pipeline;
-		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines (3D)");
-		return pipeline;
+		return build_pipeline(desc);
 	}
 
 	// What a pipeline for draws without texture layers was made from, so that the one for draws with layers can be made the first time it is
@@ -1178,7 +1061,7 @@ namespace bb::gfx {
 		}
 		for (uint32_t i = 0; i < max_depths; i++) {
 			if (!depth_cache[i].image) {
-				depth_cache[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+				depth_cache[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
 				return depth_cache[i];
 			}
 		}
