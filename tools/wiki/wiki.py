@@ -321,27 +321,36 @@ def category_page(dialect, category, cmds):
     return "\n".join(out)
 
 
-GENERIC_FIRST = ["Installation", "Building", "Language", "Language-Quirks", "Warnings", "Environment-Variables", "Differences", "Releasing"]
+# The groups of the sidebar, in order, and the hand written pages in each. A page that is in no group and is not a
+# command, a category or a difference is listed last, under "More", so that a new page never goes missing.
+GROUPS = [("Getting started", ["Installation", "Building"]),
+          ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Userlib-Declarations"]),
+          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
+
+
+def page_title(page):
+    """The first heading of a built page, or its name."""
+    with open(os.path.join(OUT, page + ".md"), encoding="utf-8") as f:
+        m = re.search(r"^# (.+)$", f.read(), re.M)
+    return m.group(1).strip() if m else page.replace("-", " ")
 
 
 def generic_pages(cats):
-    """Every page that is not a command, category or dialect page, as (name, title). Found by listing the wiki folder,
-    so a new hand written or generated page shows up in the sidebar without anyone editing a list."""
+    """Every page that is not a command, category or dialect page and that is in no group of the sidebar, as (name,
+    title). Found by listing the wiki folder, so a new hand written or generated page shows up in the sidebar without
+    anyone editing a list."""
     own = {"Home", "Command-Index", "_Sidebar", "Differences"} | set(DIALECT_ORDER)  # Differences has its own submenu
     own.update(page for page, _, _ in feature_pages())  # these are listed in it
+    own.update(page for _, pages in GROUPS for page in pages)
     for dialect in cats:
         for category, cmds in cats[dialect].items():
             own.add(cmds[0].page)
             own.update(c.name for c in cmds)
     result = []
     for fn in os.listdir(OUT):
-        if not fn.endswith(".md") or fn[:-3] in own:
-            continue
-        with open(os.path.join(OUT, fn), encoding="utf-8") as f:
-            m = re.search(r"^# (.+)$", f.read(), re.M)
-        result.append((fn[:-3], m.group(1).strip() if m else fn[:-3].replace("-", " ")))
-    first = {n: i for i, n in enumerate(GENERIC_FIRST)}
-    return sorted(result, key=lambda p: (first.get(p[0], len(first)), p[1].lower()))
+        if fn.endswith(".md") and fn[:-3] not in own:
+            result.append((fn[:-3], page_title(fn[:-3])))
+    return sorted(result, key=lambda p: p[1].lower())
 
 
 def differences_menu(cats):
@@ -371,13 +380,13 @@ def sidebar(cats):
     The menu is HTML because Markdown does not render inside <details>, and it uses no styling because the wiki strips
     it."""
     out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", ""]
-    generic = generic_pages(cats)
-    if generic:
+    for group, pages in GROUPS:
+        pages = [p for p in pages if os.path.exists(os.path.join(OUT, p + ".md"))]
+        out.append("<b>%s</b>" % group)
         out.append("<ul>")
-        out.extend('<li><a href="%s">%s</a></li>' % p for p in generic)
-        out.append("</ul>")
-        out += ["", "<hr>", ""]
-    out += differences_menu(cats)
+        out.extend('<li><a href="%s">%s</a></li>' % (p, page_title(p)) for p in pages)
+        out += ["</ul>", ""]
+    out += ["<hr>", ""]
     for dialect in DIALECT_ORDER:
         out.append("<details><summary><b>%s</b></summary>" % categories.TITLES.get(dialect, dialect))
         out.append("<ul>")
@@ -393,6 +402,12 @@ def sidebar(cats):
         out.append("</ul>")
         out.append("</details>")
         out.append("")
+    out += differences_menu(cats)
+    generic = generic_pages(cats)
+    if generic:
+        out += ["<b>More</b>", "<ul>"]
+        out.extend('<li><a href="%s">%s</a></li>' % p for p in generic)
+        out += ["</ul>", ""]
     return "\n".join(out)
 
 
