@@ -30,3 +30,4 @@ Mip levels (`SetSamplerLodMin`, `SetSamplerLodMax`, `SetSamplerLodBias`, `SetSam
 Anisotropic filtering on a floor that goes far into the distance:
 
 ![Anisotropy](media/samplers/samplers_anisotropy.png)
+@gap Not in the originals, which read every texture with the settings of its flags. A sampler holds how a texture is read and can be shared between textures.
