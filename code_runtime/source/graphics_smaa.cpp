@@ -52,7 +52,7 @@ namespace {
 		VkFormat     format = VK_FORMAT_UNDEFINED;
 		bool         temporal = false;
 		gpu_image    src, edges, blend, out[2];
-		VkDescriptorSet edges_set = VK_NULL_HANDLE, weights_set = VK_NULL_HANDLE, blend_set = VK_NULL_HANDLE, resolve_set[2] = { VK_NULL_HANDLE, VK_NULL_HANDLE };
+		bb::rhi::binding_group edges_set, weights_set, blend_set, resolve_set[2];
 		VkImageView  depth_view = VK_NULL_HANDLE;
 		int          current = 0;    // The one of out that this picture goes to.
 		bool         history = false; // The other one has the picture before.
@@ -68,7 +68,7 @@ namespace {
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	VkPipelineLayout      layout = VK_NULL_HANDLE;
 	VkDescriptorPool      pool = VK_NULL_HANDLE;
-	VkSampler             linear = VK_NULL_HANDLE, nearest = VK_NULL_HANDLE;
+	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
 	VkShaderModule        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
 	struct format_pipelines {
@@ -176,16 +176,11 @@ namespace {
 		return oldest;
 	}
 
-	VkSampler make_sampler(VkFilter filter)
+	bb::rhi::sampler make_sampler(bb::rhi::filter filter)
 	{
-		VkSamplerCreateInfo info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
-		info.magFilter           = filter;
-		info.minFilter           = filter;
-		info.mipmapMode          = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-		info.addressModeU = info.addressModeV = info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		VkSampler sampler;
-		check(vkCreateSampler(g.device, &info, nullptr, &sampler), "vkCreateSampler");
-		return sampler;
+		bb::rhi::sampler_desc d;
+		d.min = d.mag = filter; // Nearest between levels, clamped.
+		return bb::rhi::get_sampler(d);
 	}
 
 	gpu_image upload_lookup(VkFormat format, uint32_t width, uint32_t height, const unsigned char* data, size_t size, bb::rhi::gpu_buffer& staging)
@@ -233,8 +228,8 @@ namespace {
 		pool_info.pPoolSizes                 = &size;
 		check(vkCreateDescriptorPool(g.device, &pool_info, nullptr, &pool), "vkCreateDescriptorPool");
 
-		linear  = make_sampler(VK_FILTER_LINEAR);
-		nearest = make_sampler(VK_FILTER_NEAREST);
+		linear  = make_sampler(bb::rhi::filter::linear);
+		nearest = make_sampler(bb::rhi::filter::nearest);
 
 		vertex_modules[0]   = create_shader(bb_shader_smaa_vertex_edges, sizeof(bb_shader_smaa_vertex_edges));
 		vertex_modules[1]   = create_shader(bb_shader_smaa_vertex_weights, sizeof(bb_shader_smaa_vertex_weights));
@@ -276,17 +271,17 @@ namespace {
 		return p;
 	}
 
-	void write_set(VkDescriptorSet set, gpu_image const* a, VkSampler sa, gpu_image const* b, VkSampler sb, VkImageView c, VkSampler sc)
+	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
 	{
 		VkDescriptorImageInfo infos[3] = {
-			{ sa, a->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ sb, b->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ sc, c, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sa), a->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sb), b->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sc), c, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
 		};
 		VkWriteDescriptorSet writes[3] = {};
 		for (uint32_t i = 0; i < 3; i++) {
 			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = set;
+			writes[i].dstSet          = vk_set(set);
 			writes[i].dstBinding      = i;
 			writes[i].descriptorCount = 1;
 			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -295,13 +290,13 @@ namespace {
 		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
 	}
 
-	void allocate_set(VkDescriptorSet& set)
+	void allocate_set(bb::rhi::binding_group& set)
 	{
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		alloc.descriptorPool              = pool;
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &set_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		allocate_group(alloc, set, "vkAllocateDescriptorSets");
 	}
 
 	void release_slot(slot& s)
@@ -312,10 +307,10 @@ namespace {
 		destroy_image(s.out[0]);
 		destroy_image(s.out[1]);
 		if (s.edges_set) {
-			VkDescriptorSet sets[5] = { s.edges_set, s.weights_set, s.blend_set, s.resolve_set[0], s.resolve_set[1] };
+			VkDescriptorSet sets[5] = { vk_set(s.edges_set), vk_set(s.weights_set), vk_set(s.blend_set), vk_set(s.resolve_set[0]), vk_set(s.resolve_set[1]) };
 			vkFreeDescriptorSets(g.device, pool, 5, sets);
 		}
-		s.edges_set = s.weights_set = s.blend_set = s.resolve_set[0] = s.resolve_set[1] = VK_NULL_HANDLE;
+		s.edges_set = s.weights_set = s.blend_set = s.resolve_set[0] = s.resolve_set[1] = bb::rhi::binding_group();
 		s.owner = 0;
 		s.width = s.height = 0;
 		s.depth_view = VK_NULL_HANDLE;
@@ -377,10 +372,10 @@ namespace {
 		vkCmdSetScissor(g.cmd, 0, 1, &area);
 	}
 
-	void draw_pass(VkPipeline pipeline, VkDescriptorSet set, constants const& c)
+	void draw_pass(VkPipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &set, 0, nullptr);
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
 		vkCmdPushConstants(g.cmd, layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(c), &c);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);
@@ -609,8 +604,7 @@ namespace bb::gfx {
 			vkDestroyShaderModule(g.device, vertex_modules[i], nullptr);
 			vkDestroyShaderModule(g.device, fragment_modules[i], nullptr);
 		}
-		vkDestroySampler(g.device, linear, nullptr);
-		vkDestroySampler(g.device, nearest, nullptr);
+		linear = nearest = bb::rhi::sampler();
 		vkDestroyDescriptorPool(g.device, pool, nullptr);
 		vkDestroyPipelineLayout(g.device, layout, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, set_layout, nullptr);

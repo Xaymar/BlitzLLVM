@@ -503,7 +503,7 @@ namespace bb::gfx {
 
 		VkDescriptorBufferInfo buffer_info = { g.entity_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = g.entity_set;
+		write.dstSet                       = vk_set(g.entity_set);
 		write.descriptorCount              = 1;
 		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		write.pBufferInfo                  = &buffer_info;
@@ -529,7 +529,7 @@ namespace bb::gfx {
 
 		VkDescriptorBufferInfo buffer_info = { g.layer_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = g.entity_set;
+		write.dstSet                       = vk_set(g.entity_set);
 		write.dstBinding                   = 1;
 		write.descriptorCount              = 1;
 		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -583,7 +583,7 @@ namespace bb::gfx {
 		VkWriteDescriptorSet   writes[3] = {};
 		for (uint32_t i = 0; i < 3; i++) {
 			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = c.set;
+			writes[i].dstSet          = vk_set(c.set);
 			writes[i].dstBinding      = i;
 			writes[i].descriptorCount = 1;
 			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -836,19 +836,19 @@ namespace bb::gfx {
 			alloc.descriptorPool              = g.set_pool;
 			alloc.descriptorSetCount          = 1;
 			alloc.pSetLayouts                 = &g.scene_layout;
-			check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
+			allocate_group(alloc, g.scene_set, "vkAllocateDescriptorSets");
 
 			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
 
 			VkDescriptorBufferInfo buffer_info = { g.scene_buffer.vk, 0, sizeof(scene_data) };
 			VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                       = g.scene_set;
+			write.dstSet                       = vk_set(g.scene_set);
 			write.descriptorCount              = 1;
 			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 			write.pBufferInfo                  = &buffer_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-			VkDescriptorImageInfo lookup_info = { g.sampler_point_clamp, palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 			write.dstBinding                  = 1;
 			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			write.pBufferInfo                 = nullptr;
@@ -856,13 +856,13 @@ namespace bb::gfx {
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
 			alloc.pSetLayouts = &g.entity_layout;
-			check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
+			allocate_group(alloc, g.entity_set, "vkAllocateDescriptorSets");
 			ensure_entities(1024);
 			ensure_layers(64);
 			if (g.can_gpu_cull) {
 				alloc.pSetLayouts = &g.cull_layout;
-				check(vkAllocateDescriptorSets(g.device, &alloc, &g.cull.set), "vkAllocateDescriptorSets");
-				check(vkAllocateDescriptorSets(g.device, &alloc, &g.statics.set), "vkAllocateDescriptorSets"); // Of the draws that the GPU drives, which have the same kinds of buffers.
+				allocate_group(alloc, g.cull.set, "vkAllocateDescriptorSets");
+				allocate_group(alloc, g.statics.set, "vkAllocateDescriptorSets"); // Of the draws that the GPU drives, which have the same kinds of buffers.
 			}
 		}
 		select_frame_slot(0);
@@ -1026,16 +1026,16 @@ namespace bb::gfx {
 		build_pipelines_3d();
 	}
 	gpu_image          depth_cache[max_depths];
-	static VkDescriptorSet depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a depth fade needs it.
+	static bb::rhi::binding_group depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a depth fade needs it.
 
-	static VkDescriptorSet depth_set_for(gpu_image& depth)
+	static bb::rhi::binding_group depth_set_for(gpu_image& depth)
 	{
-		VkDescriptorSet& set = depth_sets[&depth - depth_cache];
+		bb::rhi::binding_group& set = depth_sets[&depth - depth_cache];
 		if (!set) {
 			allocate_descriptor(set);
-			VkDescriptorImageInfo image_info = { g.sampler_clamp, depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
 			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                     = set;
+			write.dstSet                     = vk_set(set);
 			write.descriptorCount            = 1;
 			write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			write.pImageInfo                 = &image_info;
@@ -1048,7 +1048,7 @@ namespace bb::gfx {
 	{
 		for (uint32_t i = 0; i < max_depths; i++) {
 			destroy_image(depth_cache[i]);
-			depth_sets[i] = VK_NULL_HANDLE; // The pool they came from is going.
+			depth_sets[i] = bb::rhi::binding_group(); // The pool they came from is going.
 		}
 	}
 
@@ -1125,7 +1125,7 @@ namespace bb::gfx {
 	static uintptr_t texture_set_of(int handle)
 	{
 		texture_entry* t = texture_of(handle);
-		return (t && t->set) ? uintptr_t(t->set) : 0;
+		return (t && t->set) ? uintptr_t(t->set.id) : 0;
 	}
 
 	// Whether two draws only differ in their data, which makes them instances of the same call.
@@ -1190,7 +1190,7 @@ namespace bb::gfx {
 		memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
 		push.first_group[0] = int32_t(first);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
-		VkDescriptorSet sets[2] = { g.entity_set, g.cull.set };
+		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline_layout, 0, 2, sets, 0, nullptr);
 		vkCmdPushConstants(g.cmd, g.cull_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
@@ -1241,7 +1241,7 @@ namespace bb::gfx {
 			VkWriteDescriptorSet   writes[3] = {};
 			for (uint32_t i = 0; i < 3; i++) {
 				writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writes[i].dstSet          = s.set;
+				writes[i].dstSet          = vk_set(s.set);
 				writes[i].dstBinding      = i;
 				writes[i].descriptorCount = 1;
 				writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -1275,7 +1275,7 @@ namespace bb::gfx {
 		push.base[0] = int32_t(scene.static_entities);
 		push.base[1] = int32_t(scene.static_commands);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
-		VkDescriptorSet sets[2] = { g.entity_set, g.statics.set };
+		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline_layout, 0, 2, sets, 0, nullptr);
 		vkCmdPushConstants(g.cmd, g.static_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
@@ -1409,10 +1409,10 @@ namespace bb::gfx {
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
 
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -1424,17 +1424,17 @@ namespace bb::gfx {
 			memcpy(g.layer_buffer.mapped, layer_pushes.data, size_t(layer_pushes.size) * sizeof(layer_data));
 		}
 		// The textures of draws with layers are in sets of their own (the first texture and the layers after it), made when the first draw needs one.
-		std::map<std::pair<uint32_t, VkDescriptorSet>, VkDescriptorSet> layered_sets;
-		auto set_for_draw = [&](int texture_handle, uint32_t group) -> VkDescriptorSet {
+		std::map<std::pair<uint32_t, bb::rhi::binding_group>, bb::rhi::binding_group> layered_sets;
+		auto set_for_draw = [&](int texture_handle, uint32_t group) -> bb::rhi::binding_group {
 			auto usable = [&](texture_entry* tex) { return tex && tex->set && (tex->cube || (tex->image.image != target.image->image)); };
 			texture_entry*  tex = texture_of(texture_handle);
-			VkDescriptorSet set = usable(tex) ? tex->set : g.sets[TEXTURE_WHITE_3D];
+			bb::rhi::binding_group set = usable(tex) ? tex->set : g.sets[TEXTURE_WHITE_3D];
 			if (!group) {
 				return set;
 			}
-			VkDescriptorSet& made = layered_sets[{ group, set }];
+			bb::rhi::binding_group& made = layered_sets[{ group, set }];
 			if (!made) {
-				VkDescriptorSet layer_sets[max_texture_layers];
+				bb::rhi::binding_group layer_sets[max_texture_layers];
 				uint32_t        count = 0;
 				for (int handle : layer_groups[group - 1]) {
 					if (!handle) {
@@ -1449,7 +1449,7 @@ namespace bb::gfx {
 		};
 
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
-		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
+		bb::rhi::binding_group bound_set;
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
 		int             bound_cull = -1, bound_test = -1, bound_write = -1;
 
@@ -1500,12 +1500,12 @@ namespace bb::gfx {
 			oit_composite(target.image->format, oit_w, oit_h, oit_modes);
 			vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 			// The pass over the picture had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
-			VkDescriptorSet depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_bound, 0, nullptr);
+			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
+			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
+			bb::rhi::binding_group depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
+			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_bound, 0, nullptr);
 			bound_pipeline = VK_NULL_HANDLE;
-			bound_set      = VK_NULL_HANDLE;
+			bound_set      = bb::rhi::binding_group();
 			bound_cull = bound_test = bound_write = -1;
 		};
 		// The draws that the GPU drives come after what is drawn behind everything, and before the rest.
@@ -1536,9 +1536,9 @@ namespace bb::gfx {
 					bound_write = write;
 				}
 				texture_entry*  tex = texture_of(k.texture);
-				VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
+				bb::rhi::binding_group set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
 				if (set != bound_set) {
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
 					bound_set = set;
 					stats3d.textures++;
 				}
@@ -1580,15 +1580,15 @@ namespace bb::gfx {
 				bound_pipeline = VK_NULL_HANDLE;
 				bound_cull = bound_test = bound_write = -1;
 				if (peel_layer < oit_peel_layers()) {
-					VkDescriptorSet before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_color, &peel_depth);
+					bb::rhi::binding_group before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_color, &peel_depth);
 					vkCmdBeginRendering(g.cmd, &peel_info);
 					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 					// The pass over the layer had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &before, 0, nullptr);
-					bound_set = VK_NULL_HANDLE;
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, before, 0, nullptr);
+					bound_set = bb::rhi::binding_group();
 					i = oit_begin;
 					continue;
 				}
@@ -1639,8 +1639,8 @@ namespace bb::gfx {
 				}
 				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-				VkDescriptorSet moment_set = oit_moment_set(oit_w, oit_h);
-				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, 1, &moment_set, 0, nullptr);
+				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
+				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, moment_set, 0, nullptr);
 				bound_pipeline = VK_NULL_HANDLE;
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 2;
@@ -1658,8 +1658,8 @@ namespace bb::gfx {
 				vkCmdBeginRendering(g.cmd, oit_mode ? &oit_info : &info);
 				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-				VkDescriptorSet depth_set = depth_set_for(depth_image);
-				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
+				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 				read_only = true;
 				bound_pipeline = VK_NULL_HANDLE;
 				bound_cull = bound_test = bound_write = -1;
@@ -1706,8 +1706,8 @@ namespace bb::gfx {
 					vkCmdBeginRendering(g.cmd, &peel_info);
 					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-					VkDescriptorSet scene_set = depth_set_for(depth_image);
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &scene_set, 0, nullptr);
+					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, scene_set, 0, nullptr);
 					bound_pipeline = VK_NULL_HANDLE;
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_slots()) {
@@ -1723,8 +1723,8 @@ namespace bb::gfx {
 						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 						read_only         = true;
 					}
-					VkDescriptorSet depth_set = depth_set_for(depth_image);
-					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+					bb::rhi::binding_group depth_set = depth_set_for(depth_image);
+					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 					oit_attachments_slots(oit_w, oit_h, slot_color, &slot_depth);
 					slot_info                      = info;
 					slot_info.colorAttachmentCount = 2;
@@ -1749,8 +1749,8 @@ namespace bb::gfx {
 						// The sprites with a depth fade read the depth buffer, in both passes: it is only read from here on.
 						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-						VkDescriptorSet depth_set = depth_set_for(depth_image);
-						vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
+						bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 						read_only = true;
 					}
 					oit_attachments_moments(oit_w, oit_h, moment_colors);
@@ -1813,9 +1813,9 @@ namespace bb::gfx {
 				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
 				bound_write = write;
 			}
-			VkDescriptorSet set = set_for_draw(d.texture, d.layer_group);
+			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
 			if (set != bound_set) {
-				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
 				bound_set = set;
 				stats3d.textures++;
 			}

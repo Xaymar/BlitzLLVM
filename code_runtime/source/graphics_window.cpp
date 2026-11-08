@@ -56,7 +56,7 @@ extern "C" {
 
 // What a second call of Graphics takes down before it makes everything again: the window, the device and what the buffers drew. Images and textures stay, with
 // the pixels they have now as the recipe to make them again from (see graphics_recovery.cpp, which does the same for a lost device).
-static void keep_pixels(gpu_image& image, VkDescriptorSet set)
+static void keep_pixels(gpu_image& image, bb::rhi::binding_group set)
 {
 	if (!image.image || !image.recipe) {
 		return;
@@ -295,16 +295,7 @@ void bb::gfx::destroy_device_objects()
 	vkDestroyPipelineLayout(g.device, g.layout, nullptr);
 	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
-	destroy_user_samplers();
-	vkDestroySampler(g.device, g.sampler, nullptr);
-	vkDestroySampler(g.device, g.sampler_repeat, nullptr);
-	vkDestroySampler(g.device, g.sampler_clamp, nullptr);
-	vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_repeat, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_clamp, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_repeat_mips, nullptr);
-	vkDestroySampler(g.device, g.sampler_point_clamp_mips, nullptr);
+	bb::rhi::destroy_samplers();
 	if (profile_query_pool) {
 		vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
 		profile_query_pool = VK_NULL_HANDLE;

@@ -839,9 +839,9 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		gpu_idle();
 		destroy_image(e->image);
 		e->image = target;
-		VkDescriptorImageInfo image_info = { g.sampler, e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { vk_sampler(g.sampler), e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = e->set;
+		write.dstSet                     = vk_set(e->set);
 		write.descriptorCount            = 1;
 		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		write.pImageInfo                 = &image_info;
@@ -1213,7 +1213,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 
 	if (active() && e->set) {
 		gpu_idle();
-		vkFreeDescriptorSets(g.device, g.set_pool, 1, &e->set);
+		free_group(e->set);
 		destroy_image(e->image);
 		upload_texture(e->image, e->set, uint32_t(sheet_w), uint32_t(ih), out, g.sampler);
 	}
@@ -1318,7 +1318,7 @@ namespace bb::gfx {
 		for (uint32_t i = 0; i < image_table.size; i++) {
 			image_entry& e = image_table[i];
 			if (e.used) {
-				e.set = VK_NULL_HANDLE; // The pool it came from is going.
+				e.set = bb::rhi::binding_group(); // The pool it came from is going.
 				release_image(e.image);
 			}
 		}

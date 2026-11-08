@@ -377,7 +377,7 @@ namespace bb::gfx {
 
 	// The sets of draws that have texture layers: binding 0 is the first texture and 1 to 7 are the layers, all copied from the sets of the textures.
 	// They come from pools that are emptied once the frame that used them is done, like the sets that read targets.
-	VkDescriptorSet layered_texture_set(VkDescriptorSet first, VkDescriptorSet const* layers, uint32_t count)
+	bb::rhi::binding_group layered_texture_set(bb::rhi::binding_group first, bb::rhi::binding_group const* layers, uint32_t count)
 	{
 		constexpr uint32_t sets_per_pool = 64;
 		constexpr uint32_t bindings      = 8;
@@ -404,14 +404,14 @@ namespace bb::gfx {
 		VkCopyDescriptorSet copies[bindings];
 		for (uint32_t k = 0; k < bindings; k++) {
 			copies[k]                 = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copies[k].srcSet          = (k == 0) ? first : ((k - 1 < count && layers[k - 1]) ? layers[k - 1] : g.sets[TEXTURE_WHITE_3D]);
+			copies[k].srcSet          = vk_set((k == 0) ? first : ((k - 1 < count && layers[k - 1]) ? layers[k - 1] : g.sets[TEXTURE_WHITE_3D]));
 			copies[k].srcBinding      = 0;
 			copies[k].dstSet          = set;
 			copies[k].dstBinding      = k;
 			copies[k].descriptorCount = 1;
 		}
 		vkUpdateDescriptorSets(g.device, 0, nullptr, bindings, copies);
-		return set;
+		return make_group(set);
 	}
 
 	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
@@ -748,7 +748,7 @@ namespace bb::gfx {
 				continue;
 			}
 
-			VkDescriptorSet set = g.sets[op.texture];
+			bb::rhi::binding_group set = g.sets[op.texture];
 			if (op.image) {
 				image_entry* e = image_of(op.image);
 				if (!e || !e->set) {
@@ -757,7 +757,7 @@ namespace bb::gfx {
 				set = e->set;
 			}
 			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, 1, &set, 0, nullptr);
+			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
 			vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
 		}
