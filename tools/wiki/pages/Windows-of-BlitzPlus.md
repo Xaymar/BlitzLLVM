@@ -10,7 +10,10 @@ The original BlitzPlus makes its windows and gadgets from the controls of Window
 
 ## Windows
 
-* Every top-level window (one whose group is the desktop) is a window of the operating system. The system draws its frame and its title bar, puts it in the task bar, and moves, sizes, minimizes and maximizes it; the program is told with the events `$801` (moved), `$802` (sized), `$803` (close box) and `$804` (activated), as in the original. Flag 1 of `CreateWindow` says whether the window has a frame and a title bar, flag 2 whether the user can size it, and a tool window (flag 16) stays in front of the window of `Graphics`.
+* Every top-level window (one whose group is the desktop) is a window of the operating system. The system draws its frame and its title bar, puts it in the task bar, and moves, sizes, minimizes and maximizes it.
+* The program is told with the events `$801` (moved), `$802` (sized), `$803` (close box) and `$804` (activated), as in the original.
+* Flag 1 of `CreateWindow` says whether the window has a frame and a title bar, and flag 2 whether the user can size it.
+* A tool window (flag 16) stays in front of the window of `Graphics`.
 * Menu bars, status bars and every gadget are drawn by the runtime, in one look on every system. [QueryObject](QueryObject) gives a number for the window of the system, not a handle of the system.
 * Child windows (whose group is another window) are drawn inside their parent.
 * `ActiveWindow` is the window of the program that was activated last, by the user or by `ActivateWindow`; the system decides whether `ActivateWindow` may raise a window in front of other programs.
@@ -27,15 +30,31 @@ A program that never calls `Graphics` opens exactly the windows it makes, nothin
 
 ## Canvases
 
-The buffer of a canvas has 32 bits of color (RGBA8) whatever depth `Graphics` has, and is drawn to by the same renderer as the back buffer, so `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way. [FlipCanvas](FlipCanvas) shows the window of the canvas right away through the window's own triple buffer: a program that never waits for events still shows its canvases, one that flips faster than the display shows the newest picture and never waits, and `FlipCanvas c, 1` returns once the window has shown the picture. `Flip` shows the window of `Graphics` and leaves canvases alone. The buffer follows the size of the canvas and keeps its handle while the size stays.
+The buffer of a canvas has 32 bits of color (RGBA8) whatever depth `Graphics` has. It is drawn to by the same renderer as the back buffer, so `Cls`, the 2D commands, `RenderWorld`, `CopyRect`, `ReadPixel` and `LockBuffer` work in it the same way. The buffer follows the size of the canvas and keeps its handle while the size stays.
+
+[FlipCanvas](FlipCanvas) shows the window of the canvas right away through the window's own triple buffer.
+
+* A program that never waits for events still shows its canvases.
+* A program that flips faster than the display shows the newest picture and never waits.
+* `FlipCanvas c, 1` returns once the window has shown the picture.
+
+`Flip` shows the window of `Graphics` and leaves canvases alone.
 
 ## Requesters and message boxes
 
-`RequestFile`, `RequestDir`, `Notify`, `Confirm` and `Proceed` are the dialogs and message boxes of the operating system, in front of the program's active window. `RequestColor` and `RequestFont` are drawn by the runtime inside the active window (the window of `Graphics` where no window of the program is active) and answered by the mouse in that window and the keys from anywhere; they are simpler than the Windows dialogs, see [RequestColor](RequestColor) and [RequestFont](RequestFont).
+`RequestFile`, `RequestDir`, `Notify`, `Confirm` and `Proceed` are the dialogs and message boxes of the operating system, in front of the active window of the program.
+
+`RequestColor` and `RequestFont` are simpler. The runtime draws them inside the active window (the window of `Graphics` where no window of the program is active). They answer to the mouse in that window and the keys from anywhere. See [RequestColor](RequestColor) and [RequestFont](RequestFont).
 
 ## Displays with a high density of pixels
 
-A window is scaled by the display it is on, as the windows of the original are scaled by Windows, only sharp: on a display at 150 % a window made 400 by 300 has 600 by 450 pixels and its gadgets and text are drawn one and a half times as big. The program keeps counting in its own units for the sizes and places of gadgets, the desktop, the mouse and the buffers of canvases; the picture of a canvas is enlarged when the window is drawn. `WindowScale#(window)` tells the scale of the display a window is on, and a program that wants to handle the DPI itself says `WindowScaling 0`: a unit is a pixel again, and every open window tells its scale in percent with the event `$805`, also when it moves to a display of another scale. `BLITZLLVM_GUI_SCALE` sets the scale by hand or turns it off, see [Windows and DPI](Graphics#windows-and-dpi).
+A window is scaled by the display it is on, as the windows of the original are scaled by Windows, only sharp. On a display at 150 % a window made 400 by 300 has 600 by 450 pixels, and its gadgets and text are drawn one and a half times as big.
+
+The program keeps counting in its own units for the sizes and places of gadgets, the desktop, the mouse and the buffers of canvases. The picture of a canvas is enlarged when the window is drawn. `WindowScale#(window)` tells the scale of the display a window is on.
+
+A program that wants to handle the DPI itself says `WindowScaling 0`. A unit is a pixel again, and every open window tells its scale in percent with the event `$805`, also when it moves to a display of another scale.
+
+`BLITZLLVM_GUI_SCALE` sets the scale by hand or turns it off, see [Windows and DPI](Graphics#windows-and-dpi).
 
 ## Without a display
 
