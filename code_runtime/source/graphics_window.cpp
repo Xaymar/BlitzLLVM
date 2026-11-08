@@ -792,8 +792,8 @@ int32_t bb_windowed_3d(void)
 	return 1;
 }
 
-// Video memory in bytes, as much as the GPU says it has. AvailVidMem is what is left of the budget of this program.
-int32_t bb_total_vid_mem(void)
+// Video memory in bytes, as much as the GPU says it has. AvailVidMem is what is left of the budget of this program. The 64-bit variants are not cut off at 2 GB.
+static uint64_t total_vid_mem()
 {
 	if (!active()) {
 		return 0;
@@ -804,17 +804,39 @@ int32_t bb_total_vid_mem(void)
 			total += g.memory.memoryHeaps[i].size;
 		}
 	}
-	return total > 0x7FFFFFFFull ? 0x7FFFFFFF : int32_t(total);
+	return total;
 }
 
-int32_t bb_avail_vid_mem(void)
+static uint64_t avail_vid_mem()
 {
 	if (!active()) {
 		return 0;
 	}
 	uint64_t used, total;
 	bb::rhi::memory_budget(used, total);
-	uint64_t left = total > used ? total - used : 0;
+	return total > used ? total - used : 0;
+}
+
+uint64_t bb_total_vid_mem64(void)
+{
+	return total_vid_mem();
+}
+
+uint64_t bb_avail_vid_mem64(void)
+{
+	return avail_vid_mem();
+}
+
+// The Int versions give the 64-bit answer, cut off at what an Int can hold.
+int32_t bb_total_vid_mem(void)
+{
+	uint64_t total = bb_total_vid_mem64();
+	return total > 0x7FFFFFFFull ? 0x7FFFFFFF : int32_t(total);
+}
+
+int32_t bb_avail_vid_mem(void)
+{
+	uint64_t left = bb_avail_vid_mem64();
 	return left > 0x7FFFFFFFull ? 0x7FFFFFFF : int32_t(left);
 }
 

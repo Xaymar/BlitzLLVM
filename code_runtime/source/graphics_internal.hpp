@@ -1516,6 +1516,8 @@ int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth);
 int32_t bb_windowed_3d(void);
 int32_t bb_total_vid_mem(void);
 int32_t bb_avail_vid_mem(void);
+uint64_t bb_total_vid_mem64(void);
+uint64_t bb_avail_vid_mem64(void);
 int32_t bb_tris_rendered(void);
 int32_t bb_active_textures(void);
 int32_t bb_open_clipboard(int32_t window);
