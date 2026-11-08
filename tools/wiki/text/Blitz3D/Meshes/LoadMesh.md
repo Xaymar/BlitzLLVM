@@ -8,4 +8,4 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 @returns The handle of the mesh, or 0 if the file could not be loaded.
 @param file    Path of the model file.
 @param parent  Entity the mesh follows, or 0 for none. Defaults to 0.
-@gap Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [DirectX models](DirectX-Models) and the 3D Studio loader in [3D Studio models](3D-Studio-Models). glTF 2.0 files (`.gltf` and `.glb`) can be loaded as well, see [glTF models](glTF-Models).
+@gap Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [Model formats](Model-Formats#directx-x) and the 3D Studio loader in [Model formats](Model-Formats#3d-studio-3ds). glTF 2.0 files (`.gltf` and `.glb`) can be loaded as well, see [Model formats](Model-Formats#gltf-gltf-glb).
