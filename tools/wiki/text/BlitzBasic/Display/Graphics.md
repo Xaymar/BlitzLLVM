@@ -32,7 +32,9 @@ The `depth` argument is not a display mode: it picks what the buffers are made o
 | 32 | R8G8B8A8. |
 | 64 | R16G16B16A16 as half precision floats (values above 1 are kept). |
 
-Any other number gives 32 with a warning. If the graphics card can't draw to a format, the next smaller one in the table is used and a warning says so; [GraphicsDepth](GraphicsDepth) tells you which you got. [GfxModeDepth](GfxModeDepth), `DisplayDepth` and `DisplayModeDepth` always say 32, and `WBuffer` does nothing.
+Any other number gives 32 with a warning. If the graphics card can't draw to a format, the next smaller one in the table is used and a warning says so. [GraphicsDepth](GraphicsDepth) tells you which you got.
+
+[GfxModeDepth](GfxModeDepth), `DisplayDepth` and `DisplayModeDepth` always say 32, and `WBuffer` does nothing.
 
 Pixel commands (`ReadPixel`, `WritePixel`, the `Fast` and `CopyPixel` versions) take and give ARGB with 8 bits per channel for every depth, except 30, which uses A2R10G10B10. Depths 8, 12, 15 and 16 are widened to 8 bits per channel, and what you write is rounded to the nearest value the buffer can hold. For depth 64, [ReadPixel64](ReadPixel64) and [WritePixel64](WritePixel64) work with the half float channels as they are. Textures and images are always RGBA8, and `SaveBuffer`, `GrabImage` and `CopyRect` convert on the way.
 
@@ -49,7 +51,9 @@ Depth 30 or 64 matters most for soft mist or smoke made of many overlapping, nea
 Mode 1 does not change the video mode of the display. It opens a borderless window over the main display and shows the picture in it at the largest size that fits with its aspect ratio kept, centered, with black bars for the rest (a 4:3 picture on a 16:9 display has them left and right). Alt-Tab is instant and the desktop is not rearranged. Any size is allowed, so `GfxModeExists` and `GfxMode3DExists` do not matter for the window.
 
 * The program only sees the picture: `GraphicsWidth`, `GraphicsHeight`, `ReadPixel`, `GrabImage` and `SaveBuffer` never include the bars or the size of the display. The mouse commands and the BlitzPlus gadgets and dialogs use the coordinates of the picture, and over a bar the mouse is at the nearest edge of it. A picture larger than the display is made smaller to fit.
-* A picture whose size is a whole number times the size you asked for is not smoothed, so pixel art stays sharp; other sizes are smoothed. `BLITZLLVM_FULLSCREEN_FILTER=nearest` or `linear` chooses, and `BLITZLLVM_FULLSCREEN_SCALE=integer` only enlarges by whole numbers (with larger bars).
+* A picture whose size is a whole number times the size you asked for is not smoothed, so pixel art stays sharp. Other sizes are smoothed.
+* `BLITZLLVM_FULLSCREEN_FILTER=nearest` or `linear` chooses.
+* `BLITZLLVM_FULLSCREEN_SCALE=integer` only enlarges by whole numbers, with larger bars.
 * The other modes are not changed; a resizable window (mode 3) still scales the picture to the whole window.
 
 ## Windows and DPI
