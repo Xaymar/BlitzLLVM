@@ -21,6 +21,28 @@ Wend
 ```
 
 ![Flip](media/display/flip.gif)
+
+## Flip 2
+
+In the original, `Flip False` shows the picture at once, and the display can tear. `Flip True` waits for the display, which keeps the picture whole but makes the program wait for the refresh.
+
+`Flip 2` is the third mode. The window is synced with the display, so it never tears, and the program is never held back. At each refresh the display shows the newest finished picture. A picture that was not shown yet when a newer one is done is dropped.
+
+```blitzbasic
+Graphics3D 640, 480, 32, 2
+SetBuffer BackBuffer()
+While Not KeyHit(1)
+	RenderWorld
+	Flip 2 ; as fast as the program can go, without tearing
+Wend
+```
+
+It is made for benchmarks and for tests that draw to the window. The time they measure is the time of the program, not of the refresh rate, and CI machines without a real display do not slow down.
+
+Where the system has no mode that can do this, the display is still synced and the program may wait like in `Flip 1`. [VWait](VWait) does not change with it.
+
+A program written for the original should keep `Flip` or `Flip False`. Values other than 0 and 2 act like 1.
+
 @param vwait  1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait and may tear. 2 keeps the picture free of tearing but never makes the program wait (see below). Defaults to 1.
 @gap Without a graphics window nothing happens.
-`Flip 2` is an extension, see [Presentation sync](Presentation-Sync).
+@gap `Flip 2` is an extension: the picture is synced with the display without making the program wait.

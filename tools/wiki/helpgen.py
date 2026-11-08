@@ -452,7 +452,13 @@ def build_help(commands, out, wiki):
         write(os.path.join(out, "language", name + ".html"),
               PAGE % {"title": title, "css": "lang_ref.css", "body": text})
         nav.append((title, name))
-    nav.sort(key=lambda p: (p[1] != "Language", p[0].lower()))
+    # The navigation has the same groups as the sidebar of the wiki (wiki.GROUPS), then Differences, then the rest.
+    known = {n: t for t, n in nav}
+    groups = [(g, [(known[n], n) for n in names if n in known]) for g, names in wiki.GROUPS]
+    listed = {n for _, items in groups for _, n in items} | {"Differences"}
+    groups.append(("Differences", [(known[n], n) for n in ("Differences",) if n in known]))
+    groups.append(("Features", sorted(((t, n) for t, n in nav if n not in listed), key=lambda p: p[0].lower())))
+    groups = [(g, items) for g, items in groups if items]
     write(os.path.join(out, "language", "lang_ref.css"), LANGUAGE_CSS)
     write(os.path.join(out, "language", "title.html"), PAGE % {
         "title": "Language Reference", "css": "lang_ref.css",
@@ -460,7 +466,8 @@ def build_help(commands, out, wiki):
     write(os.path.join(out, "language", "navbar.html"), PAGE % {
         "title": "Navigation", "css": "lang_ref.css",
         "body": "<a target=_top href=../index.html>Home</a><br><br>\n" + "<br>\n".join(
-            '<a href=%s.html target=main>%s</a>' % (n, ESC(t)) for t, n in nav)})
+            "<b>%s</b><br>\n" % g + "<br>\n".join('<a href=%s.html target=main>%s</a>' % (n, ESC(t)) for t, n in items) + "<br>"
+            for g, items in groups)})
     write(os.path.join(out, "language", "index.html"), FRAMES % (
         "BlitzLLVM Language Reference",
         '<frameset rows="56,*" frameborder=0 framespacing=0 border=0>\n'

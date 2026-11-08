@@ -24,6 +24,6 @@ WaitKey
 ```
 @param file  The path of the picture file. BMP, PNG, JPEG, TGA, GIF, WebP, AVIF, JPEG XL and DDS can be loaded, see [Image formats](Image-Formats).
 @returns A handle for the image, or 0 if the file could not be loaded.
-@gap A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [glTF models](glTF-Models).
+@gap A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [Model formats](Model-Formats#gltf-gltf-glb).
 @gap JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and some other formats load instead, see [Image formats](Image-Formats). Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
 @gap Backslashes in paths are changed into slashes on Linux and macOS, and a name that is not found as written is looked for in any case, as on Windows.

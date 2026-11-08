@@ -3,7 +3,7 @@ name: Release
 # Builds a version tag (2026.11.5.19421, 2026.11.5.19421-rc1) from scratch and publishes a GitHub release with the resulting binaries. Nothing is
 # restored from or saved to a cache, so the binaries are clean. The moving tags (nightly) do not
 # match these patterns. A release can also be made, or its binaries replaced, by hand for a tag that exists already.
-# See docs/wiki/Releasing.md.
+# See docs/Releasing.md.
 on:
   push:
     tags:

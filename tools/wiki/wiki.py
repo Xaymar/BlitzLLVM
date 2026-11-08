@@ -321,33 +321,42 @@ def category_page(dialect, category, cmds):
     return "\n".join(out)
 
 
-GENERIC_FIRST = ["Installation", "Building", "Language", "Language-Quirks", "Warnings", "Environment-Variables", "Differences", "Releasing"]
+# The groups of the sidebar, in order, and the hand written pages in each. A page that is in no group and is not a
+# command, a category or a difference is listed last, under "More", so that a new page never goes missing.
+GROUPS = [("Getting started", ["Installation", "Building"]),
+          ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Userlib-Declarations"]),
+          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
+
+
+def page_title(page):
+    """The first heading of a built page, or its name."""
+    with open(os.path.join(OUT, page + ".md"), encoding="utf-8") as f:
+        m = re.search(r"^# (.+)$", f.read(), re.M)
+    return m.group(1).strip() if m else page.replace("-", " ")
 
 
 def generic_pages(cats):
-    """Every page that is not a command, category or dialect page, as (name, title). Found by listing the wiki folder,
-    so a new hand written or generated page shows up in the sidebar without anyone editing a list."""
+    """Every page that is not a command, category or dialect page and that is in no group of the sidebar, as (name,
+    title). Found by listing the wiki folder, so a new hand written or generated page shows up in the sidebar without
+    anyone editing a list."""
     own = {"Home", "Command-Index", "_Sidebar", "Differences"} | set(DIALECT_ORDER)  # Differences has its own submenu
     own.update(page for page, _, _ in feature_pages())  # these are listed in it
+    own.update(page for _, pages in GROUPS for page in pages)
     for dialect in cats:
         for category, cmds in cats[dialect].items():
             own.add(cmds[0].page)
             own.update(c.name for c in cmds)
     result = []
     for fn in os.listdir(OUT):
-        if not fn.endswith(".md") or fn[:-3] in own:
-            continue
-        with open(os.path.join(OUT, fn), encoding="utf-8") as f:
-            m = re.search(r"^# (.+)$", f.read(), re.M)
-        result.append((fn[:-3], m.group(1).strip() if m else fn[:-3].replace("-", " ")))
-    first = {n: i for i, n in enumerate(GENERIC_FIRST)}
-    return sorted(result, key=lambda p: (first.get(p[0], len(first)), p[1].lower()))
+        if fn.endswith(".md") and fn[:-3] not in own:
+            result.append((fn[:-3], page_title(fn[:-3])))
+    return sorted(result, key=lambda p: p[1].lower())
 
 
 def differences_menu(cats):
     """Differences as a submenu like a dialect: the Differences page is the title, and below it Features (the pages
     with an @difference line) and Commands (the commands with a @gap line) fold open with their entries."""
-    features = sorted(feature_pages(), key=lambda f: f[1].lower())
+    features = sorted(((link, t, summary) for _, link, t, summary in feature_entries()), key=lambda f: f[1].lower())
     gapped = sorted((c for dialect in cats for cmds in cats[dialect].values() for c in cmds
                      if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
     out = ["<details><summary><b>Differences</b></summary>", "<ul>", '<li><a href="Differences">Overview</a></li>']
@@ -371,13 +380,13 @@ def sidebar(cats):
     The menu is HTML because Markdown does not render inside <details>, and it uses no styling because the wiki strips
     it."""
     out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", ""]
-    generic = generic_pages(cats)
-    if generic:
+    for group, pages in GROUPS:
+        pages = [p for p in pages if os.path.exists(os.path.join(OUT, p + ".md"))]
+        out.append("<b>%s</b>" % group)
         out.append("<ul>")
-        out.extend('<li><a href="%s">%s</a></li>' % p for p in generic)
-        out.append("</ul>")
-        out += ["", "<hr>", ""]
-    out += differences_menu(cats)
+        out.extend('<li><a href="%s">%s</a></li>' % (p, page_title(p)) for p in pages)
+        out += ["</ul>", ""]
+    out += ["<hr>", ""]
     for dialect in DIALECT_ORDER:
         out.append("<details><summary><b>%s</b></summary>" % categories.TITLES.get(dialect, dialect))
         out.append("<ul>")
@@ -393,6 +402,12 @@ def sidebar(cats):
         out.append("</ul>")
         out.append("</details>")
         out.append("")
+    out += differences_menu(cats)
+    generic = generic_pages(cats)
+    if generic:
+        out += ["<b>More</b>", "<ul>"]
+        out.extend('<li><a href="%s">%s</a></li>' % p for p in generic)
+        out += ["</ul>", ""]
     return "\n".join(out)
 
 
@@ -406,17 +421,34 @@ DIFFERENCES_TEXT = (
     "gets a page in `tools/wiki/pages/` with a line `@difference` and a one sentence summary.\n")
 
 
-def feature_pages():
-    """The pages in tools/wiki/pages/ that have an @difference line, as (page, title, summary)."""
+def feature_entries():
+    """Every @difference line of the pages in tools/wiki/pages/ as (page, link, title, summary). A page can have
+    several: each one sits under a heading, and the entry links to that heading and carries it in its title. One at
+    the top of the page (above every heading) links to the page."""
     result = []
     for fn in sorted(os.listdir(PAGES)):
         with open(os.path.join(PAGES, fn), encoding="utf-8") as f:
             body = f.read()
-        m = DIFFERENCE.search(body)
-        if m:
-            title = re.search(r"^# (.+)$", body, re.M)
-            result.append((fn[:-3], title.group(1) if title else fn[:-3], m.group(1).strip()))
+        title = re.search(r"^# (.+)$", body, re.M)
+        title = title.group(1) if title else fn[:-3]
+        for m in DIFFERENCE.finditer(body):
+            heading = None
+            for h in re.finditer(r"^#{2,4} (.+)$", body[:m.start()], re.M):
+                heading = h.group(1).strip()
+            if heading is None:
+                result.append((fn[:-3], fn[:-3], title, m.group(1).strip()))
+            else:
+                anchor = re.sub(r"[^a-z0-9 -]", "", heading.lower()).replace(" ", "-")
+                result.append((fn[:-3], "%s#%s" % (fn[:-3], anchor), "%s: %s" % (title, heading), m.group(1).strip()))
     return result
+
+
+def feature_pages():
+    """The pages that have an @difference line, as (page, title, summary), once per page."""
+    result = {}
+    for page, link, title, summary in feature_entries():
+        result.setdefault(page, (page, title.split(": ")[0], summary))
+    return list(result.values())
 
 
 def first_sentence(text):
@@ -426,8 +458,8 @@ def first_sentence(text):
 
 def differences_page(commands):
     out = [DIFFERENCES_TEXT, "## Features\n", "Differences that are not caused by one command.\n"]
-    out.extend("* [%s](%s): %s" % (title, page, summary) for page, title, summary in
-               sorted(feature_pages(), key=lambda f: f[1].lower()))
+    out.extend("* [%s](%s): %s" % (title, link, summary) for _, link, title, summary in
+               sorted(feature_entries(), key=lambda f: f[2].lower()))
     out += ["", "## Commands\n", "Commands that differ from the original or are not finished, with the first of the "
             "differences from the \"Differences\" part of their page.\n"]
     gapped = sorted((c for c in commands if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
