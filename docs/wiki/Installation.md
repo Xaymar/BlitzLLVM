@@ -28,7 +28,7 @@ For the zip:
 
 2. Optionally add the `bin` directory to your `PATH`.
 
-Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files, see [[Releasing]].
+Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files.
 
 If you built it yourself, `cmake --install` produces the same layout, see [[Building]].
 
