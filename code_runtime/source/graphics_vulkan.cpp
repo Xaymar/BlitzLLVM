@@ -297,7 +297,7 @@ namespace bb::gfx {
 		return img;
 	}
 
-	void describe_image(VkDescriptorSet set, gpu_image const& img, bb::rhi::sampler sampler)
+	void describe_image(bb::rhi::binding_group set, gpu_image const& img, bb::rhi::sampler sampler)
 	{
 		write_descriptor(set, img.array_sets && img.array_view ? img.array_view : img.view, sampler);
 	}
@@ -642,18 +642,18 @@ namespace bb::gfx {
 		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
 
-	void write_descriptor(VkDescriptorSet set, VkImageView view, bb::rhi::sampler sampler)
+	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler)
 	{
 		VkDescriptorImageInfo image_info = { vk_sampler(sampler), view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = set;
+		write.dstSet                     = vk_set(set);
 		write.descriptorCount            = 1;
 		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		write.pImageInfo                 = &image_info;
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 	}
 
-	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, bb::rhi::sampler sampler)
+	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler)
 	{
 		flush(); // What was recorded may use the old sampler.
 		vkDeviceWaitIdle(g.device);
@@ -661,20 +661,22 @@ namespace bb::gfx {
 		image.sampler = sampler;
 	}
 
-	void allocate_descriptor(VkDescriptorSet& set)
+	void allocate_descriptor(bb::rhi::binding_group& set)
 	{
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		alloc.descriptorPool              = g.set_pool;
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &g.set_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
+		VkDescriptorSet raw;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &raw), "vkAllocateDescriptorSets (too many textures?)");
+		set = make_group(raw);
 		// The bindings of the layers hold white (every shader that reads them needs something in them), until the white texture itself is made.
-		VkDescriptorSet white = g.sets[TEXTURE_WHITE_3D];
+		bb::rhi::binding_group white = g.sets[TEXTURE_WHITE_3D];
 		if (white && (white != set)) {
 			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copy.srcSet              = white;
+			copy.srcSet              = vk_set(white);
 			copy.srcBinding          = 1;
-			copy.dstSet              = set;
+			copy.dstSet              = vk_set(set);
 			copy.dstBinding          = 1;
 			copy.descriptorCount     = texture_layer_bindings - 1;
 			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);
@@ -820,7 +822,7 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
+	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
 	{
 		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten, true, layers);
 		image.sampler = sampler;
@@ -1045,7 +1047,7 @@ namespace bb::gfx {
 		rhi::destroy_buffer(staging);
 	}
 
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb)
+	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb)
 	{
 		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true);
 		allocate_descriptor(set);
@@ -1137,7 +1139,7 @@ namespace bb::gfx {
 	}
 
 	// Turns an image of 10 bits per channel into RGBA8, for what draws to it or reads it as bytes.
-	static void ten_to_rgba(gpu_image& image, VkDescriptorSet set)
+	static void ten_to_rgba(gpu_image& image, bb::rhi::binding_group set)
 	{
 		flush();
 		VkDeviceSize  size = VkDeviceSize(image.width) * image.height * 4;
@@ -1179,7 +1181,7 @@ namespace bb::gfx {
 		describe_image(set, image, sampler);
 	}
 
-	void ensure_color_image(gpu_image& image, VkDescriptorSet set)
+	void ensure_color_image(gpu_image& image, bb::rhi::binding_group set)
 	{
 		if (image.ten && image.image) {
 			ten_to_rgba(image, set);
@@ -1929,9 +1931,9 @@ namespace bb::gfx {
 		for (uint32_t k = 1; k < texture_layer_bindings; k++) {
 			// Every set made from now on takes the bindings of the layers from the white one (see allocate_descriptor), which has them from itself.
 			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copy.srcSet              = g.sets[TEXTURE_WHITE_3D];
+			copy.srcSet              = vk_set(g.sets[TEXTURE_WHITE_3D]);
 			copy.srcBinding          = 0;
-			copy.dstSet              = g.sets[TEXTURE_WHITE_3D];
+			copy.dstSet              = vk_set(g.sets[TEXTURE_WHITE_3D]);
 			copy.dstBinding          = k;
 			copy.descriptorCount     = 1;
 			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);

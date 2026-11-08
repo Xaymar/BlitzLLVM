@@ -269,14 +269,14 @@ namespace bb::gfx {
 
 	/** What the culling on the GPU reads and writes, once for each frame in flight. The first two are filled by the program, the commands by the GPU. */
 	struct cull_buffers {
-		VkDescriptorSet set = VK_NULL_HANDLE;
+		bb::rhi::binding_group set;
 		rhi::gpu_buffer clusters, groups, commands;
 		uint32_t        clusters_capacity = 0, groups_capacity = 0, commands_capacity = 0;
 	};
 
 	/** The table of the draws that the GPU drives (BLITZLLVM_GPU_DRAWS), once for each frame in flight: a copy of what graphics_scene3d.cpp keeps, brought up to date when a frame records. */
 	struct static_buffers {
-		VkDescriptorSet set = VK_NULL_HANDLE;
+		bb::rhi::binding_group set;
 		rhi::gpu_buffer table, infos;
 		uint32_t        capacity = 0;     // Entries.
 		uint64_t        version = 0;      // Of the table that it holds a copy of, 0 for none.
@@ -352,7 +352,7 @@ namespace bb::gfx {
 		bb::rhi::sampler             sampler_point_repeat_mips;
 		bb::rhi::sampler             sampler_point_clamp_mips;
 		gpu_image            textures[TEXTURES];
-		VkDescriptorSet       sets[TEXTURES];
+		bb::rhi::binding_group       sets[TEXTURES];
 
 		// Vertices
 		rhi::gpu_buffer vertex_buffer;
@@ -369,11 +369,11 @@ namespace bb::gfx {
 
 		// 3D
 		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
-		VkDescriptorSet       scene_set      = VK_NULL_HANDLE;
+		bb::rhi::binding_group       scene_set;
 		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
-		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
+		bb::rhi::binding_group       entity_set;
 		rhi::gpu_buffer       entity_buffer;
 		rhi::gpu_buffer       layer_buffer; // The layer_data of the draws that wait, see frame_slot.
 		uint32_t              layer_capacity  = 0;
@@ -496,7 +496,7 @@ namespace bb::gfx {
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
 		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
 		gpu_image       image;
-		VkDescriptorSet set = VK_NULL_HANDLE;
+		bb::rhi::binding_group set;
 	};
 
 
@@ -523,7 +523,7 @@ namespace bb::gfx {
 		uint8_t         mask[3] = { 0, 0, 0 };
 		bool            masked  = true;
 		gpu_image       image;
-		VkDescriptorSet set = VK_NULL_HANDLE;
+		bb::rhi::binding_group set;
 		uint8_t*        solid = nullptr;        // For collisions: one byte per pixel of the sheet, 1 where it is not the mask color.
 		uint32_t        solid_generation = 0;   // What image_generation was when solid was made.
 		bool            internal = false;       // Not one of the program's images: it is not counted and has no handle that a program has.
@@ -572,11 +572,11 @@ namespace bb::gfx {
 		VkSemaphore     acquired = VK_NULL_HANDLE;
 		rhi::gpu_buffer entity_buffer;
 		uint32_t        entity_capacity   = 0;
-		VkDescriptorSet entity_set        = VK_NULL_HANDLE;
+		bb::rhi::binding_group entity_set;
 		rhi::gpu_buffer layer_buffer; // The layer_data of the draws that have texture layers, bound with the draw data (set 2, binding 1).
 		uint32_t        layer_capacity    = 0;
 		rhi::gpu_buffer scene_buffer;
-		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
+		bb::rhi::binding_group scene_set;
 		cull_buffers    cull;
 		static_buffers  statics;
 		std::vector<VkDescriptorPool> layer_pools; // Sets of draws with texture layers (see layered_texture_set), given out until the frame is done.
@@ -965,7 +965,7 @@ namespace bb::gfx {
 	/** The view that is drawn to for a layer of an image; layer 0, and any layer of an image with just one, is the first. */
 	VkImageView target_view_of(gpu_image const& img, uint32_t layer);
 	/** Points a descriptor set at the view that the image is sampled through, with the sampler. */
-	void describe_image(VkDescriptorSet set, gpu_image const& img, bb::rhi::sampler sampler);
+	void describe_image(bb::rhi::binding_group set, gpu_image const& img, bb::rhi::sampler sampler);
 	/** Makes an image that release_image let go of again, with what it held. The layout is the one it had; an image that was only created is cleared. */
 	void rebuild_image(gpu_image& img);
 	/** Destroys the buffers of every surface that is still alive, which the window closing would otherwise leave behind. */
@@ -986,8 +986,8 @@ namespace bb::gfx {
 	/** Remembers the twin of a pipeline that draws to the buffers. */
 	void       add_pipeline_twin(VkPipeline base, VkPipeline twin);
 	void       destroy_pipeline_twins();
-	void write_descriptor(VkDescriptorSet set, VkImageView view, bb::rhi::sampler sampler);
-	void allocate_descriptor(VkDescriptorSet& set);
+	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler);
+	void allocate_descriptor(bb::rhi::binding_group& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
 	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
@@ -1027,7 +1027,7 @@ namespace bb::gfx {
 	bool oit_peel();             // The exact reference (BLITZLLVM_OIT=5): the alpha-blended things are drawn one layer per pass, from the farthest layer to the nearest.
 	uint32_t oit_peel_layers();  // How many layers there are most (BLITZLLVM_OIT_LAYERS, 128 if it is not set).
 	/** Starts layer `layer` of the peeling: a pass with the color of the layer (cleared to nothing) and the depth that the layer writes, and gives the set (for set 3) of the depth it has to be nearer than. */
-	VkDescriptorSet oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	bb::rhi::binding_group oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
 	void oit_peel_to_sampled(uint32_t width, uint32_t height, uint32_t layer);
 	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out);
 	void oit_composite_layer(uint32_t width, uint32_t height);
@@ -1037,7 +1037,7 @@ namespace bb::gfx {
 	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);
 	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
-	VkDescriptorSet oit_moment_set(uint32_t width, uint32_t height);
+	bb::rhi::binding_group oit_moment_set(uint32_t width, uint32_t height);
 	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
 	void oit_to_sampled(uint32_t width, uint32_t height);
 	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
@@ -1054,7 +1054,7 @@ namespace bb::gfx {
 	void textures_rebuild();
 	void images_release();
 	void images_rebuild();
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
+	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -1134,7 +1134,7 @@ namespace bb::gfx {
 	/** The layers after the first texture that a draw can have. */
 	constexpr uint32_t max_texture_layers = texture_layer_bindings - 1;
 	/** A set that has the first texture at binding 0 and the layers after it at 1 and up: all sets are taken from the descriptors at binding 0 of the given sets, unused layers are white. Lives until the frame of the slot is done. */
-	VkDescriptorSet layered_texture_set(VkDescriptorSet first, VkDescriptorSet const* layers, uint32_t count);
+	bb::rhi::binding_group layered_texture_set(bb::rhi::binding_group first, bb::rhi::binding_group const* layers, uint32_t count);
 	bool flush_is_done(uint32_t flush);
 	void poll_resized();
 	void create_frame_slots();
@@ -1332,24 +1332,48 @@ namespace bb::gfx {
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false);
+	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
 	bb::rhi::sampler texture_sampler(int flags);
 	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */
 	/** The description of a sampler of CreateSampler. */
 	bb::rhi::sampler_desc sampler_desc_of(sampler_entry const& s);
+	inline VkDescriptorSet vk_set(bb::rhi::binding_group g)
+	{
+		return VkDescriptorSet(g.id);
+	}
+	inline bb::rhi::binding_group make_group(VkDescriptorSet s)
+	{
+		return bb::rhi::binding_group{ uint64_t(s) };
+	}
+	inline void bind_group(VkPipelineBindPoint point, VkPipelineLayout layout, uint32_t index, bb::rhi::binding_group group, uint32_t dynamic_count, const uint32_t* dynamic_offsets)
+	{
+		VkDescriptorSet set = vk_set(group);
+		vkCmdBindDescriptorSets(g.cmd, point, layout, index, 1, &set, dynamic_count, dynamic_offsets);
+	}
+	inline void free_group(bb::rhi::binding_group group)
+	{
+		VkDescriptorSet set = vk_set(group);
+		vkFreeDescriptorSets(g.device, g.set_pool, 1, &set);
+	}
+	inline void allocate_group(VkDescriptorSetAllocateInfo const& alloc, bb::rhi::binding_group& group, const char* what)
+	{
+		VkDescriptorSet set;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &set), what);
+		group = make_group(set);
+	}
 	inline VkSampler vk_sampler(bb::rhi::sampler s)
 	{
 		return VkSampler(s.id);
 	}
 	/** Makes the set of an image read it through this sampler. Waits until the GPU is done with the old one. */
-	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, bb::rhi::sampler sampler);
+	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler);
 	bb::rhi::sampler atlas_sampler(bool point, int max_lod);
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
 	bool ten_bit_supported();
-	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
+	void ensure_color_image(gpu_image& image, bb::rhi::binding_group set);
 // What one keyboard or mouse did, kept next to the combined state of all of them in g.
 struct device_input {
 	bool  keys[bb::gfx::key_count]     = {};

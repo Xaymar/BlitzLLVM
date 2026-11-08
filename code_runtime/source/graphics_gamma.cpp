@@ -41,14 +41,14 @@ namespace {
 	VkPipelineLayout palette_layout   = VK_NULL_HANDLE;
 	VkPipeline       palette_pipeline = VK_NULL_HANDLE;
 	gpu_image        palette_lookup;
-	VkDescriptorSet  palette_set      = VK_NULL_HANDLE;
+	bb::rhi::binding_group  palette_set;
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
 	bb::rhi::gpu_buffer table_buffer;
 	float*           table_mapped = nullptr;
-	VkDescriptorSet  table_set    = VK_NULL_HANDLE;
-	VkDescriptorSet  front_set    = VK_NULL_HANDLE;
+	bb::rhi::binding_group  table_set;
+	bb::rhi::binding_group  front_set;
 	VkImageView      front_view   = VK_NULL_HANDLE; // What front_set samples.
 	gpu_image        shown;                         // The front buffer through the tables.
 
@@ -237,10 +237,10 @@ namespace {
 		alloc.descriptorPool              = g.set_pool;
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &g.scene_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &table_set), "vkAllocateDescriptorSets");
+		allocate_group(alloc, table_set, "vkAllocateDescriptorSets");
 		VkDescriptorBufferInfo buffer_info = { table_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = table_set;
+		write.dstSet                       = vk_set(table_set);
 		write.descriptorCount              = 1;
 		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 		write.pBufferInfo                  = &buffer_info;
@@ -416,10 +416,10 @@ namespace bb::gfx {
 		VkPipelineLayout used = palettized ? palette_layout : layout;
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, palettized ? palette_pipeline : pipeline);
 		uint32_t offset = 0;
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, 1, &front_set, 0, nullptr);
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, 1, &table_set, 1, &offset);
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, front_set, 0, nullptr);
+		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, table_set, 1, &offset);
 		if (palettized) {
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 2, 1, &palette_set, 0, nullptr);
+			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 2, palette_set, 0, nullptr);
 		}
 		// The noise moves every frame (and repeats after 64): the same offset is added to x and y. It stays with DitherTemporal 0.
 		float push[5] = { dither_shift(), 0, 0, 0, float(bayer) }; // Then the steps and levels of the Bayer pattern.
@@ -489,7 +489,7 @@ namespace bb::gfx {
 			vkDestroyPipeline(g.device, palette_pipeline, nullptr);
 			vkDestroyPipelineLayout(g.device, palette_layout, nullptr);
 			palette_pipeline = VK_NULL_HANDLE;
-			palette_set      = VK_NULL_HANDLE;
+			palette_set      = bb::rhi::binding_group();
 			palette_changed  = true;
 		}
 		if (pipeline) {

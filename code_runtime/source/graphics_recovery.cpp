@@ -131,7 +131,7 @@ namespace {
 		g.sampler_point_repeat = g.sampler_point_clamp = g.sampler_point_repeat_mips = g.sampler_point_clamp_mips = bb::rhi::sampler();
 		for (int i = 0; i < TEXTURES; i++) {
 			g.textures[i] = gpu_image();
-			g.sets[i]     = VK_NULL_HANDLE;
+			g.sets[i]     = bb::rhi::binding_group();
 		}
 
 		g.vertex_buffer = g.vertex_buffer_alt = g.vertex_buffer_alt2 = bb::rhi::gpu_buffer();
@@ -143,10 +143,10 @@ namespace {
 		g.buffers[1]    = gpu_image();
 
 		g.scene_layout = VK_NULL_HANDLE;
-		g.scene_set    = VK_NULL_HANDLE;
+		g.scene_set    = bb::rhi::binding_group();
 		g.layout3d     = VK_NULL_HANDLE;
 		g.entity_layout = VK_NULL_HANDLE;
-		g.entity_set    = VK_NULL_HANDLE;
+		g.entity_set    = bb::rhi::binding_group();
 		g.entity_buffer = bb::rhi::gpu_buffer();
 		g.entity_capacity = 0;
 		g.layer_buffer   = bb::rhi::gpu_buffer();

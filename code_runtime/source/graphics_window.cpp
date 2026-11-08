@@ -56,7 +56,7 @@ extern "C" {
 
 // What a second call of Graphics takes down before it makes everything again: the window, the device and what the buffers drew. Images and textures stay, with
 // the pixels they have now as the recipe to make them again from (see graphics_recovery.cpp, which does the same for a lost device).
-static void keep_pixels(gpu_image& image, VkDescriptorSet set)
+static void keep_pixels(gpu_image& image, bb::rhi::binding_group set)
 {
 	if (!image.image || !image.recipe) {
 		return;

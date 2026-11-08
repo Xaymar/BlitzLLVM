@@ -151,7 +151,7 @@ namespace bb::gfx {
 		if (g.device && e.set) {
 			flush(); // What was asked to be drawn with it comes first.
 			gpu_idle();
-			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
+			free_group(e.set);
 			destroy_image(e.image);
 		}
 		bb_free(e.solid);
@@ -169,7 +169,7 @@ namespace bb::gfx {
 		if (g.device && t.set) {
 			flush(); // What was asked to be drawn with it comes first.
 			gpu_idle();
-			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
+			free_group(t.set);
 			if (t.atlas) {
 				// The image belongs to the atlas.
 			} else if (t.cube) {
@@ -275,12 +275,12 @@ namespace bb::gfx {
 		bb_free(sheet);
 
 		gpu_image       fresh;
-		VkDescriptorSet set     = VK_NULL_HANDLE;
+		bb::rhi::binding_group set;
 		bb::rhi::sampler       sampler = t.image.sampler;
 		fresh.array_sets        = true;
 		upload_texture(fresh, set, uint32_t(t.frame_w), uint32_t(t.frame_h), stack.data(), sampler, t.image.mips > 1, t.image.srgb, false, uint32_t(t.frames));
 		gpu_idle();
-		vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
+		free_group(t.set);
 		destroy_image(t.image);
 		t.image       = fresh;
 		t.set         = set;
@@ -1435,7 +1435,7 @@ namespace bb::gfx {
 			if (!t.used) {
 				continue;
 			}
-			t.set = VK_NULL_HANDLE; // The pool it came from is going.
+			t.set = bb::rhi::binding_group(); // The pool it came from is going.
 			if (t.atlas) {
 				forget_handles(t.image);
 			} else if (t.cube) {
@@ -1462,7 +1462,7 @@ namespace bb::gfx {
 		wait_gpu();
 		struct owner {
 			gpu_image*      image;
-			VkDescriptorSet* set;
+			bb::rhi::binding_group* set;
 			bb::rhi::sampler       sampler;
 		};
 		std::unordered_map<VmaAllocation, owner> owners;
@@ -1582,7 +1582,7 @@ namespace bb::gfx {
 	// Makes the images again from their recipes, and the sets that sample them.
 	void textures_rebuild()
 	{
-		auto describe = [](gpu_image& image, VkDescriptorSet& set, bb::rhi::sampler sampler) {
+		auto describe = [](gpu_image& image, bb::rhi::binding_group& set, bb::rhi::sampler sampler) {
 			allocate_descriptor(set);
 			if (image.view) {
 				describe_image(set, image, sampler);

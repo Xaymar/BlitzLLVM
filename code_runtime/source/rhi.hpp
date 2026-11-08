@@ -188,6 +188,15 @@ namespace bb::rhi {
 	void destroy_samplers();
 	void forget_samplers();
 
+	/** What shaders read as a bundle (images with samplers, buffer ranges), made for a layout kind and bound with one call. Backend handle for now (a VkDescriptorSet on Vulkan). */
+	struct binding_group {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(const binding_group& o) const { return id == o.id; }
+		bool operator!=(const binding_group& o) const { return id != o.id; }
+		bool operator<(const binding_group& o) const { return id < o.id; }
+	};
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 
