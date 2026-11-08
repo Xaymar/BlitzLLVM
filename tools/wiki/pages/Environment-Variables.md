@@ -27,10 +27,10 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 
 | Variable | Default | What it does |
 |---|---|---|
-| `BLITZLLVM_CPU` | native | Lowers the CPU features the runtime may use: `baseline`, `v2`, `v3`, `v4` (x86-64 levels), `native` or `-<feature>`, separated by commas, see [[CPU-Features]]. |
+| `BLITZLLVM_CPU` | native | Lowers the CPU features the runtime may use: `baseline`, `v2`, `v3`, `v4` (x86-64 levels), `native` or `-<feature>`, separated by commas, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_ASYNC_LOAD` | `0` | Loads pictures and models on other threads, see [[Asynchronous-Loading]]. |
 | `BLITZLLVM_ASYNC_SAVE` | `0` | Saves pictures on other threads, see [[Saving-Pictures]]. |
-| `BLITZLLVM_GPU_DRAWS` | `0` | Draws the meshes that stay as they are from a table that the GPU drives (experimental), see [[GPU-Driven-Draws]]. |
+| `BLITZLLVM_GPU_DRAWS` | `0` | Draws the meshes that stay as they are from a table that the GPU drives (experimental), see [[GPU-Optimizations]]. |
 | `BLITZLLVM_FULLSCREEN_FILTER` | by size | `nearest` or `linear` for the picture of a fullscreen program, see [[Fullscreen]]. |
 | `BLITZLLVM_GUI_SCALE` | the scale of the display | How many pixels a unit of the windows of BlitzPlus is, see [[CreateWindow]]: `0` (or `1`) makes every unit one pixel, as the original has it; `1.5` or `2` scales the windows as a display of that scale would, see [[DPI-Scaling]]. |
 | `BLITZLLVM_FULLSCREEN_SCALE` | smooth | `integer` only enlarges the picture by whole numbers, see [[Fullscreen]]. |
@@ -42,7 +42,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
 | `BLITZLLVM_OIT_LAYERS` | `128` | Most layers of `BLITZLLVM_OIT=5`: one pass over the see-through things for each. |
-| `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[Memory]]. |
+| `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[CPU-Optimizations]]. |
 
 ## Features that can be turned off
 
@@ -50,7 +50,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 
 | Variable | What it controls |
 |---|---|
-| `BLITZLLVM_SPRITE_HULL` | The outline that fits the picture of a sprite, see [[Sprite-Shapes]]. |
+| `BLITZLLVM_SPRITE_HULL` | The outline that fits the picture of a sprite, see [[GPU-Optimizations]]. |
 | `BLITZLLVM_TRIANGLE_CLIP` | Cutting triangles with very long edges to the view before they are drawn, as Direct3D 7 does. `0` hands them to the GPU whole, which can make the edges and the texture of a huge ground noisy on some GPUs. |
 | `BLITZLLVM_DITHER_TEMPORAL` | The noise of `Dither` moving from picture to picture (`DitherTemporal`). |
 | `BLITZLLVM_TRANSPARENCY_DISTANCE_SORT_MODE` | `1` orders see-through draws by View Distance and not by distance in space (`TransparencyDistanceSortMode`), 0 by default. |
@@ -59,19 +59,19 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PICK_STATS` | A file name. Every 1000 picks the counters of the pick broad phase (picks that used it, trees made, entities found per pick) are written there, to find out why it helps or not on a machine. |
 | `BLITZLLVM_LIGHT_GRID` | The grid that finds the lights that reach a mesh. |
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
-| `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
+| `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[GPU-Optimizations]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. |
 | `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
 | `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
-| `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[Memory]]. |
+| `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 
 ## Tuning
 
 | Variable | Default | What it does |
 |---|---|---|
-| `BLITZLLVM_SPATIAL_GRID_SCAN_SHARE` | built in | The share of the meshes in the cells that are in view above which the grid is not used for that look, see [[Spatial-Grid]]. |
+| `BLITZLLVM_SPATIAL_GRID_SCAN_SHARE` | built in | The share of the meshes in the cells that are in view above which the grid is not used for that look, see [[GPU-Optimizations]]. |
 | `BLITZLLVM_SPATIAL_GRID_MAX_MOVED` | built in | How many meshes may move in a frame before the grid is left alone. |
 | `BLITZLLVM_COLLISION_BACKEND` | `jolt` | What tells which triangles of a mesh are near the path of a mover in `UpdateWorld`: `jolt` asks the `blitzphysics` library for meshes of at least 64 triangles, `legacy` looks at all of them. The triangles are tested the same either way, so the collisions are too. Skinned meshes and terrains always look at all of them. |
 | `BLITZLLVM_PICK_BACKEND` | `jolt` | What finds the hits of `LinePick`, `EntityPick`, `CameraPick` and `EntityVisible`: `jolt` hands meshes of at least 32 triangles to the `blitzphysics` library, which is much faster on large meshes. Skinned meshes, terrains and small meshes always use the built in test, as does every mesh with `legacy`. |
@@ -87,9 +87,9 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PROFILE_SLOW` | `0` | A number of milliseconds: every frame that takes longer than that is listed on stderr, with the frame number and the timers of just that frame (collect, draws, clusters, record, waiting for the GPU, ...) and the GPU pass times that came back for it and the three frames after it, so a single stutter shows in a long run. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileSlow]]. |
 | `BLITZLLVM_PROFILE_OUTPUT` | not set | A file that receives the text of the profiling (`BLITZLLVM_PROFILE_FPS` and `BLITZLLVM_PROFILE_SLOW`) instead of the standard error output. Needs a program made with `--profile` or `-d`. [[ProfileOutput]] changes it while the program runs and [[ProfileValue]] gives the numbers of the last frame to the program. |
 | `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. [[ProfileSample]] starts and stops it while the program runs. |
-| `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
-| `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
-| `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[Memory]]. |
+| `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[CPU-Optimizations]]. |
+| `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[CPU-Optimizations]]. |
+| `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
