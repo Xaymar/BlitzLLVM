@@ -404,8 +404,8 @@
 <li><a href="SatUInt#differences">SatUInt</a> 〔BlitzLLVM〕</li>
 <li><a href="SatULong#differences">SatULong</a> 〔BlitzLLVM〕</li>
 <li><a href="SatUShort#differences">SatUShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SaveBuffer#differences">SaveBuffer</a></li>
-<li><a href="SaveImage#differences">SaveImage</a></li>
+<li><a href="SaveBuffer#differences">SaveBuffer</a> 〔BlitzLLVM〕</li>
+<li><a href="SaveImage#differences">SaveImage</a> 〔BlitzLLVM〕</li>
 <li><a href="ScaleImage#differences">ScaleImage</a></li>
 <li><a href="ScanLine#differences">ScanLine</a></li>
 <li><a href="SeekMovie#differences">SeekMovie</a> 〔BlitzLLVM〕</li>
@@ -733,7 +733,7 @@
 <li><a href="ReadPixel64">ReadPixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="ReadPixelFast">ReadPixelFast</a></li>
 <li><a href="ReadPixelFast64">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
-<li><a href="SaveBuffer">SaveBuffer</a></li>
+<li><a href="SaveBuffer">SaveBuffer</a> 〔BlitzLLVM〕</li>
 <li><a href="SetBuffer">SetBuffer</a></li>
 <li><a href="UnlockBuffer">UnlockBuffer</a></li>
 <li><a href="WritePixel">WritePixel</a></li>
@@ -886,7 +886,7 @@
 <li><a href="RectsOverlap">RectsOverlap</a></li>
 <li><a href="ResizeImage">ResizeImage</a></li>
 <li><a href="RotateImage">RotateImage</a></li>
-<li><a href="SaveImage">SaveImage</a></li>
+<li><a href="SaveImage">SaveImage</a> 〔BlitzLLVM〕</li>
 <li><a href="SavesFailed">SavesFailed</a> 〔BlitzLLVM〕</li>
 <li><a href="SavesPending">SavesPending</a> 〔BlitzLLVM〕</li>
 <li><a href="ScaleImage">ScaleImage</a></li>

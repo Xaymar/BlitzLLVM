@@ -40,7 +40,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [RectsOverlap](RectsOverlap)
 * [ResizeImage](ResizeImage)
 * [RotateImage](RotateImage)
-* [SaveImage](SaveImage)
+* [SaveImage](SaveImage) 〔BlitzLLVM〕
 * [SavesFailed](SavesFailed) 〔BlitzLLVM〕
 * [SavesPending](SavesPending) 〔BlitzLLVM〕
 * [ScaleImage](ScaleImage)

@@ -29,7 +29,7 @@ This is a BlitzLLVM extension: the originals have no asynchronous saving.
 
 ## Related Commands
 
-[RotateImage](RotateImage), [SaveImage](SaveImage), [SavesPending](SavesPending) 〔BlitzLLVM〕, [ScaleImage](ScaleImage)
+[RotateImage](RotateImage), [SaveImage](SaveImage) 〔BlitzLLVM〕, [SavesPending](SavesPending) 〔BlitzLLVM〕, [ScaleImage](ScaleImage)
 
 <div align="center">
 

@@ -823,8 +823,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SatUInt](SatUInt) 〔BlitzLLVM〕
 * [SatULong](SatULong) 〔BlitzLLVM〕
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [SaveBuffer](SaveBuffer)
-* [SaveImage](SaveImage)
+* [SaveBuffer](SaveBuffer) 〔BlitzLLVM〕
+* [SaveImage](SaveImage) 〔BlitzLLVM〕
 * [SavesFailed](SavesFailed) 〔BlitzLLVM〕
 * [SavesPending](SavesPending) 〔BlitzLLVM〕
 * [SaveTexture](SaveTexture) 〔BlitzLLVM〕

@@ -46,7 +46,7 @@ This is a BlitzLLVM extension: the originals have no asynchronous saving.
 
 ## Related Commands
 
-[SaveImage](SaveImage), [SavesFailed](SavesFailed) 〔BlitzLLVM〕, [ScaleImage](ScaleImage), [TFormFilter](TFormFilter)
+[SaveImage](SaveImage) 〔BlitzLLVM〕, [SavesFailed](SavesFailed) 〔BlitzLLVM〕, [ScaleImage](ScaleImage), [TFormFilter](TFormFilter)
 
 <div align="center">
 

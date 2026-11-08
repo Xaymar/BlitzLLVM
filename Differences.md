@@ -394,8 +394,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [SatUInt](SatUInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatULong](SatULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatUShort](SatUShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SaveBuffer](SaveBuffer#differences): The original only writes BMP files.
-* [SaveImage](SaveImage#differences): The original only writes BMP files.
+* [SaveBuffer](SaveBuffer#differences) 〔BlitzLLVM〕: The original only writes BMP files.
+* [SaveImage](SaveImage#differences) 〔BlitzLLVM〕: The original only writes BMP files.
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.
 * [SeekMovie](SeekMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
