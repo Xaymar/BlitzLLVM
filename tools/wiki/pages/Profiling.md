@@ -7,7 +7,13 @@
 
 ## Timing with Microseconds
 
-[MilliSecs](MilliSecs) counts whole milliseconds, so a single frame time of a program that runs faster than about 60 frames per second is off by up to 1 ms, adding up such frame times keeps the rounding noise, and a frame time of 0 breaks any division by it. Use [Microseconds](Microseconds) for this. It works in every program, needs no option, and returns a `UInt64`; subtract before converting so that nothing is lost:
+[MilliSecs](MilliSecs) counts whole milliseconds. This causes three problems in a program that runs faster than about 60 frames per second:
+
+* A single frame time is off by up to 1 ms.
+* Adding up such frame times keeps the rounding noise.
+* A frame time of 0 breaks any division by it.
+
+Use [Microseconds](Microseconds) instead. It works in every program, needs no option, and returns a `UInt64`. Subtract before converting so that nothing is lost:
 
 ```blitzbasic
 start:UInt64 = Microseconds()
@@ -43,7 +49,9 @@ Next
 
 ## What the runtime measures
 
-Compile with `--profile` (or `-d`). The runtime then times `UpdateWorld`, animation, `RenderWorld` and its parts, `Flip`, `Delay`, the wait for the GPU and the GPU passes. Turn the report on with `BLITZLLVM_PROFILE_FPS=1` or [ProfileFPS](ProfileFPS) `1`; it prints once a second to the error output or the file of [ProfileOutput](ProfileOutput):
+Compile with `--profile` (or `-d`). The runtime then times `UpdateWorld`, animation, `RenderWorld` and its parts, `Flip`, `Delay`, the wait for the GPU and the GPU passes.
+
+Turn the report on with `BLITZLLVM_PROFILE_FPS=1` or [ProfileFPS](ProfileFPS) `1`. It prints once a second to the error output or the file of [ProfileOutput](ProfileOutput):
 
 ```text
 cpu: x86_64 v3: sse3 ssse3 ...
@@ -61,10 +69,16 @@ fps: 497, submits: 497, waiting: 12.4 ms
 * A large `waiting` means the program is limited by the GPU. The GPU passes come back a frame or two late and run next to the CPU, so they do not add up with the CPU timers.
 * If the program is vsynced (`Flip 1`), `Flip` contains the wait for the display and `fps` is the refresh rate. Use `Flip 2` or `Flip 0` to measure how fast it can go, see [Flip](Flip#flip-2).
 
-A single slow frame disappears in these totals. [ProfileSlow](ProfileSlow) `milliseconds` (or `BLITZLLVM_PROFILE_SLOW`) lists such frames one by one with where their time went; only timers of at least 0.5 ms are listed. To use the numbers inside the program, use `ProfileValue` with the names from `ProfileItemName`, for example `ProfileValue("RenderWorld: draws")`.
+A single slow frame disappears in these totals. [ProfileSlow](ProfileSlow) `milliseconds` (or `BLITZLLVM_PROFILE_SLOW`) lists such frames one by one with where their time went. Only timers of at least 0.5 ms are listed.
+
+To use the numbers inside the program, use `ProfileValue` with the names from `ProfileItemName`, for example `ProfileValue("RenderWorld: draws")`.
 
 ## Comparing two versions
 
-Compile both the same way and run them several times on the same machine; a difference smaller than the spread between runs of one build is noise. Use `Flip 2` or `Flip 0`, a window of fixed size, and name the GPU on a machine that has more than one. The timers are for finding where the time goes; take the final comparison from a release build with `Microseconds()`.
+Compile both the same way and run them several times on the same machine. A difference smaller than the spread between runs of one build is noise.
+
+Use `Flip 2` or `Flip 0` and a window of fixed size. Name the GPU on a machine that has more than one.
+
+The timers are for finding where the time goes. Take the final comparison from a release build with `Microseconds()`.
 
 On Windows, [ProfileSample](ProfileSample) `"file"` (or `BLITZLLVM_PROFILE_SAMPLE=file`) samples where the program spends its time in a `--profile` program, with call stacks when built with `-g`; see [Environment variables](Environment-Variables).
