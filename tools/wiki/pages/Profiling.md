@@ -101,7 +101,7 @@ fps: 497, submits: 497, waiting: 12.4 ms
 * `waiting` is the time the program waited for the GPU, and `frames that had to be waited for` counts frames where the GPU was still working on a frame when the program needed its slot. A program with a large `waiting` is limited by the GPU, not by its own code.
 * The GPU passes come back a frame or two late, and are the time the GPU spent, which runs next to the CPU. They do not add up with the CPU timers.
 * Your own keys from `ProfileBegin` are at the end of the list, with the total of the second like the others.
-* If the program is vsynced (`Flip 1`), `Flip` will contain the wait for the display, and `fps` will be the refresh rate. Use `Flip 2` or `Flip 0` to measure how fast the program can go. See [Presentation sync](Presentation-Sync).
+* If the program is vsynced (`Flip 1`), `Flip` will contain the wait for the display, and `fps` will be the refresh rate. Use `Flip 2` or `Flip 0` to measure how fast the program can go. See [Presentation sync](Flip#flip-2).
 
 A frame that takes much longer than the others disappears in these totals. [ProfileSlow](ProfileSlow) `milliseconds` (or `BLITZLLVM_PROFILE_SLOW`) lists such frames one by one, with the frame number and where their time went:
 
