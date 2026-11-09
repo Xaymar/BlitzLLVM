@@ -38,7 +38,7 @@ namespace blitz::compiler_detail {
 		char        ret;
 		const char* params;
 		int         required; // How many parameters have to be provided, the rest uses defaults.
-		double      defaults[8]; // Defaults for the parameters that were not provided.
+		double      defaults[12]; // Defaults for the parameters that were not provided.
 		bool        lead; // If only one argument is provided for two parameters, it is the second one (Rand(10) == Rand(1, 10)).
 	};
 
