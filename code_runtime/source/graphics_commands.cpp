@@ -697,29 +697,26 @@ namespace bb::gfx {
 		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		target.image->mips_stale = target.image->mips > 1;
 
-		VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		attachment.imageView                 = target_view_of(*target.image, target.layer);
-		attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-
-		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
-		info.layerCount           = 1;
-		info.colorAttachmentCount = 1;
-		info.pColorAttachments    = &attachment;
-		vkCmdBeginRendering(g.cmd, &info);
-
 		// Drawing is limited to the part of the image that this buffer is.
-		VkViewport viewport = { float(target.x), float(target.y), float(target.w), float(target.h), 0, 1 };
-		VkRect2D   scissor  = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
-		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+		VkRect2D scissor = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
+		bb::rhi::pass_desc pass;
+		pass.colors[0].view = uint64_t(target_view_of(*target.image, target.layer));
+		pass.color_count    = 1;
+		pass.width          = target.image->width;
+		pass.height         = target.image->height;
+		pass.viewport[0]    = float(target.x);
+		pass.viewport[1]    = float(target.y);
+		pass.viewport[2]    = float(target.w);
+		pass.viewport[3]    = float(target.h);
+		pass.scissor[0]     = target.x;
+		pass.scissor[1]     = target.y;
+		pass.scissor[2]     = target.w;
+		pass.scissor[3]     = target.h;
+		bb::rhi::begin_pass(pass);
 
 		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
-		vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
-		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer.vk, &offset);
+		bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(scale), scale);
+		bb::rhi::bind_vertex_buffer(uint64_t(g.vertex_buffer.vk));
 
 		VkRect2D  current  = scissor;
 		for (uint32_t i = first; i < end; i++) {
@@ -735,16 +732,12 @@ namespace bb::gfx {
 				wanted = { { target.x + x0, target.y + y0 }, { uint32_t(x1 > x0 ? x1 - x0 : 0), uint32_t(y1 > y0 ? y1 - y0 : 0) } };
 			}
 			if (memcmp(&wanted, &current, sizeof(wanted)) != 0) {
-				vkCmdSetScissor(g.cmd, 0, 1, &wanted);
+				bb::rhi::set_scissor(wanted.offset.x, wanted.offset.y, int32_t(wanted.extent.width), int32_t(wanted.extent.height));
 				current = wanted;
 			}
 
 			if (op.kind == OP_CLEAR) {
-				VkClearAttachment clear = {};
-				clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
-				memcpy(clear.clearValue.color.float32, op.color, sizeof(op.color));
-				VkClearRect rect = { current, 0, 1 };
-				vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+				bb::rhi::clear_color(op.color, current.offset.x, current.offset.y, int32_t(current.extent.width), int32_t(current.extent.height));
 				continue;
 			}
 
@@ -756,12 +749,12 @@ namespace bb::gfx {
 				}
 				set = e->set;
 			}
-			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
+			bb::rhi::bind_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format);
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
-			vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
-			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
+			bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 16, sizeof(op.mask), op.mask);
+			bb::rhi::draw(op.count, 1, op.first, 0);
 		}
-		vkCmdEndRendering(g.cmd);
+		bb::rhi::end_pass();
 	}
 
 	// Replays the collected operations into the command buffer, in the order they were asked for.

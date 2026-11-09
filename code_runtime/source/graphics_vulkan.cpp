@@ -2113,3 +2113,143 @@ namespace bb::rhi {
 		return binding_group{ uint64_t(set) };
 	}
 }
+
+namespace bb::rhi {
+	static VkRenderingAttachmentInfo vk_attachment(const pass_attachment& a, VkImageLayout layout)
+	{
+		VkRenderingAttachmentInfo out = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		out.imageView                 = VkImageView(a.view);
+		out.imageLayout               = layout;
+		out.loadOp                    = a.load == load_op::clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : (a.load == load_op::load ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+		out.storeOp                   = a.store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		for (int i = 0; i < 4; i++) {
+			out.clearValue.color.float32[i] = a.clear[i];
+		}
+		return out;
+	}
+
+	void begin_pass(const pass_desc& desc)
+	{
+		VkRenderingAttachmentInfo colors[4];
+		for (uint32_t i = 0; i < desc.color_count; i++) {
+			colors[i] = vk_attachment(desc.colors[i], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		}
+		VkRenderingAttachmentInfo depth = {};
+		VkRenderingInfo           info  = { VK_STRUCTURE_TYPE_RENDERING_INFO };
+		info.renderArea                 = { { 0, 0 }, { desc.width, desc.height } };
+		info.layerCount                 = 1;
+		info.colorAttachmentCount       = desc.color_count;
+		info.pColorAttachments          = colors;
+		if (desc.has_depth) {
+			depth                         = vk_attachment(desc.depth, desc.depth.read_only ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
+			info.pDepthAttachment         = &depth;
+		}
+		vkCmdBeginRendering(gfx::g.cmd, &info);
+		set_viewport(desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3]);
+		set_scissor(desc.scissor[0], desc.scissor[1], desc.scissor[2], desc.scissor[3]);
+	}
+
+	void end_pass()
+	{
+		vkCmdEndRendering(gfx::g.cmd);
+	}
+
+	void set_viewport(float x, float y, float w, float h)
+	{
+		VkViewport viewport = { x, y, w, h, 0, 1 };
+		vkCmdSetViewport(gfx::g.cmd, 0, 1, &viewport);
+	}
+
+	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkRect2D scissor = { { x, y }, { uint32_t(w), uint32_t(h) } };
+		vkCmdSetScissor(gfx::g.cmd, 0, 1, &scissor);
+	}
+}
+
+namespace bb::rhi {
+	void bind_pipeline(pipeline p, uint32_t target_format)
+	{
+		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, VkFormat(target_format)));
+	}
+
+	void bind_raw_pipeline(uint64_t native, bool compute)
+	{
+		vkCmdBindPipeline(gfx::g.cmd, compute ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(native));
+	}
+
+	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data)
+	{
+		VkShaderStageFlags flags = 0;
+		flags |= (stages & stage_vertex) ? VK_SHADER_STAGE_VERTEX_BIT : 0;
+		flags |= (stages & stage_fragment) ? VK_SHADER_STAGE_FRAGMENT_BIT : 0;
+		flags |= (stages & stage_compute) ? VK_SHADER_STAGE_COMPUTE_BIT : 0;
+		vkCmdPushConstants(gfx::g.cmd, gfx::vk_layout(layout), flags, offset, size, data);
+	}
+
+	void bind_vertex_buffer(uint64_t buffer)
+	{
+		VkBuffer     vk     = VkBuffer(buffer);
+		VkDeviceSize offset = 0;
+		vkCmdBindVertexBuffers(gfx::g.cmd, 0, 1, &vk, &offset);
+	}
+
+	void bind_index_buffer(uint64_t buffer)
+	{
+		vkCmdBindIndexBuffer(gfx::g.cmd, VkBuffer(buffer), 0, VK_INDEX_TYPE_UINT32);
+	}
+
+	void set_cull(cull_mode mode)
+	{
+		vkCmdSetCullMode(gfx::g.cmd, mode == cull_mode::front ? VK_CULL_MODE_FRONT_BIT : (mode == cull_mode::back ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE));
+	}
+
+	void set_depth_test(bool enable)
+	{
+		vkCmdSetDepthTestEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+	}
+
+	void set_depth_write(bool enable)
+	{
+		vkCmdSetDepthWriteEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+	}
+
+	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkClearAttachment clear = {};
+		clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
+		memcpy(clear.clearValue.color.float32, rgba, 4 * sizeof(float));
+		VkClearRect rect = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
+		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+	}
+
+	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkClearAttachment clear       = {};
+		clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
+		clear.clearValue.depthStencil = { depth, 0 };
+		VkClearRect rect              = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
+		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+	}
+
+	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
+	{
+		vkCmdDraw(gfx::g.cmd, vertices, instances, first_vertex, first_instance);
+	}
+
+	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance)
+	{
+		vkCmdDrawIndexed(gfx::g.cmd, indices, instances, first_index, base_vertex, first_instance);
+	}
+
+	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride)
+	{
+		vkCmdDrawIndexedIndirect(gfx::g.cmd, VkBuffer(buffer), offset, count, stride);
+	}
+
+	void dispatch(uint32_t x, uint32_t y, uint32_t z)
+	{
+		vkCmdDispatch(gfx::g.cmd, x, y, z);
+	}
+}

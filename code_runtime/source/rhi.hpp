@@ -274,6 +274,61 @@ namespace bb::rhi {
 	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
 	binding_group create_group(group_kind kind);
 
+	/** What a pass does with an attachment when it starts. */
+	enum class load_op : uint8_t { load, clear, dont_care };
+
+	/** One attachment of a pass: the image view (backend handle for now, a VkImageView on Vulkan) and what happens to it. Depth uses clear[0]. */
+	struct pass_attachment {
+		uint64_t view  = 0;
+		load_op  load  = load_op::load;
+		bool     store = true;
+		bool     read_only = false; // Depth only: the pass reads it (a depth fade) and does not write.
+		float    clear[4] = { 0, 0, 0, 0 };
+	};
+
+	/** A pass: the attachments it draws to, the area it covers, and the first viewport and scissor (the viewport is in pixels as floats, the scissor in whole pixels). */
+	struct pass_desc {
+		pass_attachment colors[4];
+		uint32_t        color_count = 0;
+		pass_attachment depth;
+		bool            has_depth = false;
+		uint32_t        width = 0, height = 0;      // The area of the images.
+		float           viewport[4] = { 0, 0, 0, 0 }; // x, y, width, height.
+		int32_t         scissor[4]  = { 0, 0, 0, 0 }; // x, y, width, height.
+	};
+
+	/** Starts a pass with the viewport and scissor of the description. The images must already be in the right state. Draws go between this and end_pass. */
+	void begin_pass(const pass_desc& desc);
+	void end_pass();
+
+	/** Changes the viewport / scissor inside a pass. */
+	void set_viewport(float x, float y, float w, float h);
+	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h);
+
+	/** Draw state, recorded inside a pass (or, for dispatch, outside one). Buffers are backend handles for now (a VkBuffer on Vulkan, 0 for none). */
+	enum class cull_mode : uint8_t { none = 0, front = 1, back = 2 };
+
+	/** Binds the pipeline built for the format of the target (the backend format code of the image, a VkFormat on Vulkan, until images have an rhi::format). */
+	void bind_pipeline(pipeline p, uint32_t target_format);
+	/** Binds a pipeline that is not an rhi::pipeline yet (SMAA, gamma, transparency composites, the compute passes). Goes away when they are. */
+	void bind_raw_pipeline(uint64_t native, bool compute);
+	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data);
+	void bind_vertex_buffer(uint64_t buffer);
+	void bind_index_buffer(uint64_t buffer); // 32-bit indices.
+	void set_cull(cull_mode mode);
+	void set_depth_test(bool enable);
+	void set_depth_write(bool enable);
+
+	/** Clears the colour attachment 0 of the pass (within the rectangle x, y, w, h) or its depth. */
+	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h);
+	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h);
+
+	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance);
+	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance);
+	/** count commands of the given stride in the buffer, starting at offset. */
+	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride);
+	void dispatch(uint32_t x, uint32_t y, uint32_t z);
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

@@ -1172,11 +1172,11 @@ namespace bb::gfx {
 		} push = {};
 		memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
 		push.first_group[0] = int32_t(first);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(g.cull_pipeline), true);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.cull_pipeline_layout), 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, vk_layout(g.cull_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
-		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
+		bb::rhi::push_constants(g.cull_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
+		bb::rhi::dispatch(cull_recorded_groups - first, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
 		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
@@ -1257,11 +1257,11 @@ namespace bb::gfx {
 		memcpy(push.origin, scene.origin, sizeof(scene.origin));
 		push.base[0] = int32_t(scene.static_entities);
 		push.base[1] = int32_t(scene.static_commands);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(g.static_pipeline), true);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.static_pipeline_layout), 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, vk_layout(g.static_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
-		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
+		bb::rhi::push_constants(g.static_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
+		bb::rhi::dispatch(scene.static_count / gpu_static::lanes, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
 		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
@@ -1345,50 +1345,50 @@ namespace bb::gfx {
 			depth_image.layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 		}
 
-		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		color.imageView                 = target_view_of(*target.image, target.layer);
-		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		depth.imageView                 = depth_image.view;
-		depth.imageLayout               = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		depth.loadOp                    = fresh_depth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
-		depth.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-		depth.clearValue.depthStencil   = { 0.0f, 0 };
-
-		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
-		info.layerCount           = 1;
-		info.colorAttachmentCount = 1;
-		info.pColorAttachments    = &color;
-		info.pDepthAttachment     = &depth;
-		vkCmdBeginRendering(g.cmd, &info);
-
 		// Direct3D 7 has the centers of its pixels on whole numbers and Vulkan half a pixel further, so the picture moves by that to land where Blitz3D puts it.
 		VkViewport viewport = { float(scene.x) + 0.5f, float(scene.y) + 0.5f, float(scene.w), float(scene.h), 0, 1 };
 		VkRect2D   scissor  = { { scene.x, scene.y }, { uint32_t(scene.w), uint32_t(scene.h) } };
-		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 
-		VkClearRect rect = { scissor, 0, 1 };
+		// The depth is shared by the passes of the scene: its state (loaded or cleared, read only) follows what has happened so far.
+		bb::rhi::pass_attachment depth;
+		depth.view     = uint64_t(depth_image.view);
+		depth.load     = fresh_depth ? bb::rhi::load_op::clear : bb::rhi::load_op::load;
+		depth.clear[0] = 0.0f;
+
+		bb::rhi::pass_desc info;
+		info.colors[0].view = uint64_t(target_view_of(*target.image, target.layer));
+		info.color_count    = 1;
+		info.has_depth      = true;
+		info.width          = target.image->width;
+		info.height         = target.image->height;
+		info.viewport[0]    = viewport.x;
+		info.viewport[1]    = viewport.y;
+		info.viewport[2]    = viewport.width;
+		info.viewport[3]    = viewport.height;
+		info.scissor[0]     = scene.x;
+		info.scissor[1]     = scene.y;
+		info.scissor[2]     = scene.w;
+		info.scissor[3]     = scene.h;
+		auto begin_shared = [&](bb::rhi::pass_desc desc) {
+			desc.depth = depth;
+			bb::rhi::begin_pass(desc);
+		};
+		begin_shared(info);
+
 		if (scene.clear_color) {
-			VkClearAttachment clear = {};
-			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
-			clear.clearValue.color  = { { scene.color[0], scene.color[1], scene.color[2], 1.0f } };
+			float rgba_clear[4] = { scene.color[0], scene.color[1], scene.color[2], 1.0f };
 			if (g.buffer_depth == 8) {
 				// The buffer only holds colors of the palette.
 				uint8_t rgba[4] = { uint8_t(fminf(fmaxf(scene.color[0], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[1], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[2], 0.0f), 1.0f) * 255.0f + 0.5f), 255 };
 				palette_snap(rgba, 1);
-				clear.clearValue.color = { { rgba[0] / 255.0f, rgba[1] / 255.0f, rgba[2] / 255.0f, 1.0f } };
+				rgba_clear[0] = rgba[0] / 255.0f;
+				rgba_clear[1] = rgba[1] / 255.0f;
+				rgba_clear[2] = rgba[2] / 255.0f;
 			}
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+			bb::rhi::clear_color(rgba_clear, scene.x, scene.y, scene.w, scene.h);
 		}
 		if (scene.clear_depth) {
-			VkClearAttachment clear       = {};
-			clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
-			clear.clearValue.depthStencil = { 0.0f, 0 };
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+			bb::rhi::clear_depth(0.0f, scene.x, scene.y, scene.w, scene.h);
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
@@ -1451,37 +1451,33 @@ namespace bb::gfx {
 
 		// Order-independent transparency: the draws that are marked for it go to four images of their own, in a pass of their own, and the
 		// pass that follows them puts what they made on the picture (see graphics_oit.cpp).
-		VkRenderingAttachmentInfo oit_colors[4];
-		VkRenderingInfo           oit_info  = info;
+		bb::rhi::pass_desc        oit_info  = info;
 		bool                      oit_mode  = false;
 		uint32_t                  oit_modes = 0;
 		// The moment based kind draws what is see-through twice: first (phase 1) to the sums of the optical depth and the moments, then (phase 2) the colors.
 		int                       oit_phase = 0;
 		uint32_t                  oit_begin = 0, oit_end = 0;
-		VkRenderingAttachmentInfo moment_colors[2];
-		VkRenderingInfo           moment_info = info;
+		bb::rhi::pass_desc        moment_info = info;
 		// The slots of samples kind draws the alpha-blended things (phase 3) to a multisampled color and depth, then the multiplied and added ones (phase 4) to the sums.
-		VkRenderingAttachmentInfo slot_color[2], slot_depth;
-		VkRenderingInfo           slot_info = info;
+		bb::rhi::pass_desc        slot_info = info;
 		// The depth peeling (the exact reference) draws the alpha-blended things once per layer, from the farthest, and blends each layer into a float image.
-		VkRenderingAttachmentInfo peel_color, peel_depth, accumulate_color;
-		VkRenderingInfo           peel_info = info, accumulate_info = info;
+		bb::rhi::pass_desc        peel_info = info, accumulate_info = info;
 		uint32_t                  peel_layer = 0;
 		const uint32_t            oit_w = target.image->width, oit_h = target.image->height;
 		auto oit_bit = [&](bb::rhi::pipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
 		auto oit_index = [&](bb::rhi::pipeline pipeline) -> int { return (pipeline == g.blend3d) ? 0 : ((pipeline == g.mul3d) ? 1 : ((pipeline == g.add3d) ? 2 : 3)); };
 		auto leave_oit = [&]() {
-			vkCmdEndRendering(g.cmd);
+			bb::rhi::end_pass();
 			oit_to_sampled(oit_w, oit_h);
-			depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-			oit_mode     = false;
-			oit_phase    = 0;
-			vkCmdBeginRendering(g.cmd, &info);
+			depth.load = bb::rhi::load_op::load;
+			oit_mode   = false;
+			oit_phase  = 0;
+			begin_shared(info);
 			VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
-			vkCmdSetViewport(g.cmd, 0, 1, &whole);
-			vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+			bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
+			bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 			oit_composite(target.image->format, oit_w, oit_h, oit_modes);
-			vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+			bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 			// The pass over the picture had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
@@ -1500,22 +1496,22 @@ namespace bb::gfx {
 				}
 				gpu_static::entry_key const& k = r.key;
 				if (k.pipeline != bound_pipeline) {
-					vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(k.pipeline, target.image->format));
+					bb::rhi::bind_pipeline(k.pipeline, target.image->format);
 					bound_pipeline = k.pipeline;
 					stats3d.pipelines++;
 				}
 				int cull = k.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
 				if (cull != bound_cull) {
-					vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+					bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 					bound_cull = cull;
 				}
 				if (int(k.depth_test) != bound_test) {
-					vkCmdSetDepthTestEnable(g.cmd, k.depth_test ? VK_TRUE : VK_FALSE);
+					bb::rhi::set_depth_test(k.depth_test);
 					bound_test = k.depth_test;
 				}
 				bool write = k.depth_write && !read_only;
 				if (int(write) != bound_write) {
-					vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+					bb::rhi::set_depth_write(write);
 					bound_write = write;
 				}
 				texture_entry*  tex = texture_of(k.texture);
@@ -1526,16 +1522,15 @@ namespace bb::gfx {
 					stats3d.textures++;
 				}
 				if ((k.vertex_buffer != bound_vertices) || (k.index_buffer != bound_indices)) {
-					VkDeviceSize offset = 0;
-					vkCmdBindVertexBuffers(g.cmd, 0, 1, &k.vertex_buffer, &offset);
-					vkCmdBindIndexBuffer(g.cmd, k.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+					bb::rhi::bind_vertex_buffer(uint64_t(k.vertex_buffer));
+					bb::rhi::bind_index_buffer(uint64_t(k.index_buffer));
 					bound_vertices = k.vertex_buffer;
 					bound_indices  = k.index_buffer;
 					stats3d.buffers++;
 				}
 				constexpr uint32_t most = 1u << 24;
 				for (uint32_t done = 0; done < r.count; done += most) {
-					vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
+					bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
 				}
 				stats3d.draws++;
 				if (k.gpu) {
@@ -1547,26 +1542,28 @@ namespace bb::gfx {
 			if ((oit_phase == 5) && (i >= oit_end)) {
 				// This layer is drawn: it goes into the accumulated layers, and the next one is peeled off, or the accumulated layers go on the picture.
 				VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
-				vkCmdEndRendering(g.cmd);
+				bb::rhi::end_pass();
 				oit_peel_to_sampled(oit_w, oit_h, peel_layer);
-				oit_accumulate_begin(oit_w, oit_h, peel_layer, &accumulate_color);
-				accumulate_info                      = info;
-				accumulate_info.colorAttachmentCount = 1;
-				accumulate_info.pColorAttachments    = &accumulate_color;
-				depth.loadOp                         = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, &accumulate_info);
-				vkCmdSetViewport(g.cmd, 0, 1, &whole);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				accumulate_info             = info;
+				accumulate_info.color_count = 1;
+				oit_accumulate_begin(oit_w, oit_h, peel_layer, &accumulate_info.colors[0]);
+				depth.load = bb::rhi::load_op::load;
+				begin_shared(accumulate_info);
+				bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
+				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				oit_composite_layer(oit_w, oit_h);
-				vkCmdEndRendering(g.cmd);
+				bb::rhi::end_pass();
 				peel_layer++;
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				if (peel_layer < oit_peel_layers()) {
-					bb::rhi::binding_group before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_color, &peel_depth);
-					vkCmdBeginRendering(g.cmd, &peel_info);
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					peel_info             = info;
+					peel_info.color_count = 1;
+					peel_info.has_depth   = true;
+					bb::rhi::binding_group before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_info.colors[0], &peel_info.depth);
+					bb::rhi::begin_pass(peel_info);
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					// The pass over the layer had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
 					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
 					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
@@ -1576,11 +1573,11 @@ namespace bb::gfx {
 					continue;
 				}
 				oit_accumulated_to_sampled(oit_w, oit_h);
-				vkCmdBeginRendering(g.cmd, &info);
-				vkCmdSetViewport(g.cmd, 0, 1, &whole);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				begin_shared(info);
+				bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
+				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				oit_composite_accumulated(target.image->format, oit_w, oit_h);
-				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				oit_modes = 0; // The draws of the layers added their blend modes; nothing is left for leave_oit to put on the picture.
 				oit_phase = 0; // The pass that is open is the one of the scene, and leave_oit closes it when the next draw is not see-through.
 				i         = oit_end;
@@ -1588,19 +1585,18 @@ namespace bb::gfx {
 			}
 			if ((oit_phase == 3) && (i >= oit_end)) {
 				// The slots are filled: the multiplied and added things are drawn to the sums, then both are put on the picture.
-				vkCmdEndRendering(g.cmd);
+				bb::rhi::end_pass();
 				oit_slots_to_sampled(oit_w, oit_h);
-				oit_attachments(oit_w, oit_h, oit_colors);
-				oit_info                      = info;
-				oit_info.colorAttachmentCount = 4;
-				oit_info.pColorAttachments    = oit_colors;
-				depth.loadOp                  = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, &oit_info);
-				for (VkRenderingAttachmentInfo& attachment : oit_colors) {
-					attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				oit_info             = info;
+				oit_info.color_count = 4;
+				oit_attachments(oit_w, oit_h, oit_info.colors);
+				depth.load = bb::rhi::load_op::load;
+				begin_shared(oit_info);
+				for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
+					attachment.load = bb::rhi::load_op::load;
 				}
-				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 4;
@@ -1609,19 +1605,18 @@ namespace bb::gfx {
 			}
 			if ((oit_phase == 1) && (i >= oit_end)) {
 				// The sums are done: the second pass draws the same range again, with the colors.
-				vkCmdEndRendering(g.cmd);
+				bb::rhi::end_pass();
 				oit_moments_to_sampled(oit_w, oit_h);
-				oit_attachments_color(oit_w, oit_h, oit_colors);
-				oit_info                      = info;
-				oit_info.colorAttachmentCount = 4;
-				oit_info.pColorAttachments    = oit_colors;
-				depth.loadOp                  = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, &oit_info);
-				for (VkRenderingAttachmentInfo& attachment : oit_colors) {
-					attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				oit_info             = info;
+				oit_info.color_count = 4;
+				oit_attachments_color(oit_w, oit_h, oit_info.colors);
+				depth.load = bb::rhi::load_op::load;
+				begin_shared(oit_info);
+				for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
+					attachment.load = bb::rhi::load_op::load;
 				}
-				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
 				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, moment_set, 0, nullptr);
 				bound_pipeline = bb::rhi::pipeline();
@@ -1634,13 +1629,13 @@ namespace bb::gfx {
 				emit_static();
 			}
 			if ((i == soft_first) && !read_only) {
-				vkCmdEndRendering(g.cmd);
+				bb::rhi::end_pass();
 				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-				depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-				depth.loadOp      = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, oit_mode ? &oit_info : &info);
-				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				depth.read_only = true;
+				depth.load      = bb::rhi::load_op::load;
+				begin_shared(oit_mode ? oit_info : info);
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 				read_only = true;
@@ -1664,7 +1659,7 @@ namespace bb::gfx {
 			}
 			if (d.oit != oit_mode) {
 				if (d.oit && oit_peel()) {
-					vkCmdEndRendering(g.cmd);
+					bb::rhi::end_pass();
 					oit_begin = i;
 					oit_end   = i;
 					while ((oit_end < scene.draw_count) && draws[scene.first_draw + oit_end].oit) {
@@ -1673,28 +1668,26 @@ namespace bb::gfx {
 					if (!read_only) {
 						// The first layer tests against the depth of the scene in the shader, so it is only read from here on.
 						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+						depth.read_only = true;
 						read_only         = true;
 					}
-					depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-					peel_layer   = 0;
-					oit_peel_begin(oit_w, oit_h, 0, &peel_color, &peel_depth);
-					peel_info                      = info;
-					peel_info.colorAttachmentCount = 1;
-					peel_info.pColorAttachments    = &peel_color;
-					peel_info.pDepthAttachment     = &peel_depth;
+					depth.load = bb::rhi::load_op::load;
+					peel_layer = 0;
+					peel_info             = info;
+					peel_info.color_count = 1;
+					oit_peel_begin(oit_w, oit_h, 0, &peel_info.colors[0], &peel_info.depth);
 					oit_mode                       = true;
 					oit_modes                      = 0;
 					oit_phase                      = 5;
-					vkCmdBeginRendering(g.cmd, &peel_info);
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bb::rhi::begin_pass(peel_info);
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
 					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, scene_set, 0, nullptr);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_slots()) {
-					vkCmdEndRendering(g.cmd);
+					bb::rhi::end_pass();
 					oit_begin = i;
 					oit_end   = i;
 					while ((oit_end < scene.draw_count) && draws[scene.first_draw + oit_end].oit) {
@@ -1703,26 +1696,24 @@ namespace bb::gfx {
 					if (!read_only) {
 						// The slots test against the depth of the scene in the shader, so it is only read from here on (as with a depth fade).
 						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+						depth.read_only = true;
 						read_only         = true;
 					}
 					bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
-					oit_attachments_slots(oit_w, oit_h, slot_color, &slot_depth);
-					slot_info                      = info;
-					slot_info.colorAttachmentCount = 2;
-					slot_info.pColorAttachments    = slot_color;
-					slot_info.pDepthAttachment     = &slot_depth;
+					slot_info             = info;
+					slot_info.color_count = 2;
+					oit_attachments_slots(oit_w, oit_h, slot_info.colors, &slot_info.depth);
 					oit_mode                       = true;
 					oit_modes                      = 0;
 					oit_phase                      = 3;
-					vkCmdBeginRendering(g.cmd, &slot_info);
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bb::rhi::begin_pass(slot_info);
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_moments()) {
-					vkCmdEndRendering(g.cmd);
+					bb::rhi::end_pass();
 					oit_begin = i;
 					oit_end   = i;
 					while ((oit_end < scene.draw_count) && draws[scene.first_draw + oit_end].oit) {
@@ -1731,39 +1722,37 @@ namespace bb::gfx {
 					if ((soft_first < oit_end) && !read_only) {
 						// The sprites with a depth fade read the depth buffer, in both passes: it is only read from here on.
 						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+						depth.read_only = true;
 						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 						bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 						read_only = true;
 					}
-					oit_attachments_moments(oit_w, oit_h, moment_colors);
-					moment_info                       = info;
-					moment_info.colorAttachmentCount  = 2;
-					moment_info.pColorAttachments     = moment_colors;
-					depth.loadOp                      = VK_ATTACHMENT_LOAD_OP_LOAD;
+					moment_info             = info;
+					moment_info.color_count = 2;
+					oit_attachments_moments(oit_w, oit_h, moment_info.colors);
+					depth.load              = bb::rhi::load_op::load;
 					oit_mode                          = true;
 					oit_modes                         = 0;
 					oit_phase                         = 1;
-					vkCmdBeginRendering(g.cmd, &moment_info);
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					begin_shared(moment_info);
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit) {
-					vkCmdEndRendering(g.cmd);
-					oit_attachments(oit_w, oit_h, oit_colors);
-					oit_info                    = info;
-					oit_info.colorAttachmentCount = 4;
-					oit_info.pColorAttachments  = oit_colors;
-					depth.loadOp                = VK_ATTACHMENT_LOAD_OP_LOAD;
-					oit_mode                    = true;
-					oit_modes                   = 0;
-					vkCmdBeginRendering(g.cmd, &oit_info);
-					for (VkRenderingAttachmentInfo& attachment : oit_colors) {
-						attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // For when a depth fade restarts the pass.
+					bb::rhi::end_pass();
+					oit_info             = info;
+					oit_info.color_count = 4;
+					oit_attachments(oit_w, oit_h, oit_info.colors);
+					depth.load  = bb::rhi::load_op::load;
+					oit_mode    = true;
+					oit_modes   = 0;
+					begin_shared(oit_info);
+					for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
+						attachment.load = bb::rhi::load_op::load; // For when a depth fade restarts the pass.
 					}
-					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else {
@@ -1776,24 +1765,24 @@ namespace bb::gfx {
 			// Draws with texture layers have a pipeline of their own (the shader of the others does not have the layers).
 			bb::rhi::pipeline wanted = (d.layer_group && !d.oit) ? layered_pipeline_of(d.pipeline) : d.pipeline;
 			if (wanted != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : wanted, target.image->format));
+				bb::rhi::bind_pipeline(d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : wanted, target.image->format);
 				bound_pipeline = wanted;
 				stats3d.pipelines++;
 			}
 			int cull = d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
 			if (cull != bound_cull) {
-				vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+				bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 				bound_cull = cull;
 			}
 			// The depth of the slots picks the nearest fragment of each, so it is always tested and written there.
 			bool test_now = d.depth_test || (oit_phase == 3) || (oit_phase == 5);
 			if (int(test_now) != bound_test) {
-				vkCmdSetDepthTestEnable(g.cmd, test_now ? VK_TRUE : VK_FALSE);
+				bb::rhi::set_depth_test(test_now);
 				bound_test = test_now;
 			}
 			bool write = (oit_phase == 3) || (oit_phase == 5) || (d.depth_write && !read_only);
 			if (int(write) != bound_write) {
-				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+				bb::rhi::set_depth_write(write);
 				bound_write = write;
 			}
 			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
@@ -1803,17 +1792,16 @@ namespace bb::gfx {
 				stats3d.textures++;
 			}
 			if ((d.vertex_buffer != bound_vertices) || (d.index_buffer != bound_indices)) {
-				VkDeviceSize offset = 0;
-				vkCmdBindVertexBuffers(g.cmd, 0, 1, &d.vertex_buffer, &offset);
-				vkCmdBindIndexBuffer(g.cmd, d.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+				bb::rhi::bind_vertex_buffer(uint64_t(d.vertex_buffer));
+				bb::rhi::bind_index_buffer(uint64_t(d.index_buffer));
 				bound_vertices = d.vertex_buffer;
 				bound_indices  = d.index_buffer;
 				stats3d.buffers++;
 			}
 			if (d.cluster_count) {
-				vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
+				bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
 			} else {
-				vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
+				bb::rhi::draw_indexed(d.index_count, instances, 0, 0, scene.first_draw + i);
 			}
 			stats3d.draws++;
 			i += instances;
@@ -1824,7 +1812,7 @@ namespace bb::gfx {
 		if (!static_done) {
 			emit_static();
 		}
-		vkCmdEndRendering(g.cmd);
+		bb::rhi::end_pass();
 		if (read_only) {
 			barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
