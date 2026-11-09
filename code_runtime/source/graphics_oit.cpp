@@ -39,10 +39,10 @@ namespace {
 	};
 	constexpr uint32_t max_sizes = 4;
 	image_set        cache[max_sizes];
-	VkPipelineLayout layout       = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout;
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	std::map<VkFormat, VkPipeline[7]> composites;
-	VkPipelineLayout layout3d_moments = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout3d_moments;
 
 	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
 
@@ -59,10 +59,11 @@ namespace {
 		info.bindingCount                    = 8;
 		info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount             = 1;
-		layout_info.pSetLayouts                = &set_layout;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &layout), "vkCreatePipelineLayout");
+		g.images8_layout = set_layout;
+		bb::rhi::layout_desc desc;
+		desc.sets[0]   = bb::rhi::group_kind::images8;
+		desc.set_count = 1;
+		layout         = bb::rhi::get_layout(desc);
 	}
 
 	image_set& images_for(uint32_t width, uint32_t height)
@@ -237,7 +238,7 @@ namespace {
 			info.pDepthStencilState           = &depth;
 			info.pColorBlendState             = &blending;
 			info.pDynamicState                = &dynamic;
-			info.layout                       = layout;
+			info.layout                       = vk_layout(layout);
 			check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &made[mode]), "vkCreateGraphicsPipelines (OIT)");
 			destroy_shader(fs);
 		}
@@ -380,15 +381,18 @@ namespace bb::gfx {
 	}
 
 	// The 3D pipelines of the second pass of the moment based kind: they read the sums of the first (set 4) next to what the other 3D pipelines read.
-	VkPipelineLayout oit_layout3d()
+	bb::rhi::pipeline_layout oit_layout3d()
 	{
 		if (!layout3d_moments) {
 			create_set_layout();
-			VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, set_layout };
-			VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-			layout_info.setLayoutCount         = 5;
-			layout_info.pSetLayouts            = layouts;
-			check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &layout3d_moments), "vkCreatePipelineLayout");
+			bb::rhi::layout_desc desc;
+			desc.sets[0]   = bb::rhi::group_kind::texture;
+			desc.sets[1]   = bb::rhi::group_kind::scene;
+			desc.sets[2]   = bb::rhi::group_kind::entities;
+			desc.sets[3]   = bb::rhi::group_kind::texture;
+			desc.sets[4]   = bb::rhi::group_kind::images8;
+			desc.set_count = 5;
+			layout3d_moments = bb::rhi::get_layout(desc);
 		}
 		return layout3d_moments;
 	}

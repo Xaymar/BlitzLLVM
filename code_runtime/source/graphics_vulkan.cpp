@@ -388,6 +388,25 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
+	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind)
+	{
+		switch (kind) {
+		case bb::rhi::group_kind::texture:
+			return g.set_layout;
+		case bb::rhi::group_kind::scene:
+			return g.scene_layout;
+		case bb::rhi::group_kind::entities:
+			return g.entity_layout;
+		case bb::rhi::group_kind::cull:
+			return g.cull_layout;
+		case bb::rhi::group_kind::images3:
+			return g.images3_layout;
+		case bb::rhi::group_kind::images8:
+			return g.images8_layout;
+		}
+		return VK_NULL_HANDLE;
+	}
+
 	bb::rhi::shader create_shader(const unsigned int* words, size_t size)
 	{
 		VkShaderModuleCreateInfo info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
@@ -613,19 +632,19 @@ namespace bb::gfx {
 		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = VkPipelineLayout(desc.layout);
+		info.layout                       = vk_layout(desc.layout);
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
-	static bb::rhi::pipeline_desc flat_desc(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	static bb::rhi::pipeline_desc flat_desc(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
 	{
 		bb::rhi::pipeline_desc desc;
 		desc.vs                      = vs;
 		desc.fs                      = fs;
-		desc.layout                  = uint64_t(layout);
+		desc.layout                  = layout;
 		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
 		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
 		desc.attachments[0].fmt      = rhi_format(format);
@@ -633,7 +652,7 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices, bool for_buffers)
 	{
 		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
 		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
@@ -642,7 +661,7 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkFormat format)
+	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format)
 	{
 		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
@@ -1912,13 +1931,13 @@ namespace bb::gfx {
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
 
-		VkPushConstantRange push = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 32 }; // Scale for the vertices, mask color for the fragments.
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount             = 1;
-		layout_info.pSetLayouts                = &g.set_layout;
-		layout_info.pushConstantRangeCount     = 1;
-		layout_info.pPushConstantRanges        = &push;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout), "vkCreatePipelineLayout");
+		// Scale for the vertices, mask color for the fragments.
+		bb::rhi::layout_desc flat;
+		flat.sets[0]     = bb::rhi::group_kind::texture;
+		flat.set_count   = 1;
+		flat.push_size   = 32;
+		flat.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
+		g.layout         = bb::rhi::get_layout(flat);
 
 		g.buffer_format = pick_buffer_format(g.requested_depth, g.buffer_depth);
 
@@ -1982,3 +2001,55 @@ namespace bb::gfx {
 		create_device(surface().surface);
 	}
 } // namespace bb::gfx
+
+namespace bb::rhi {
+	// The layouts that were made, so that equal descriptions share one.
+	static std::vector<std::pair<layout_desc, pipeline_layout>> made_layouts;
+
+	pipeline_layout get_layout(layout_desc const& desc)
+	{
+		for (auto const& entry : made_layouts) {
+			if (entry.first == desc) {
+				return entry.second;
+			}
+		}
+		VkDescriptorSetLayout sets[5];
+		for (uint32_t i = 0; i < desc.set_count; i++) {
+			sets[i] = bb::gfx::vk_set_layout(desc.sets[i]);
+		}
+		VkPushConstantRange range = {};
+		range.size                = desc.push_size;
+		if (desc.push_stages & stage_vertex) {
+			range.stageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
+		}
+		if (desc.push_stages & stage_fragment) {
+			range.stageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+		}
+		if (desc.push_stages & stage_compute) {
+			range.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+		}
+		VkPipelineLayoutCreateInfo info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		info.setLayoutCount             = desc.set_count;
+		info.pSetLayouts                = sets;
+		info.pushConstantRangeCount     = desc.push_size ? 1 : 0;
+		info.pPushConstantRanges        = &range;
+		VkPipelineLayout layout;
+		bb::gfx::check(vkCreatePipelineLayout(bb::gfx::g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
+		pipeline_layout made{ uint64_t(layout) };
+		made_layouts.push_back({ desc, made });
+		return made;
+	}
+
+	void destroy_layouts()
+	{
+		for (auto const& entry : made_layouts) {
+			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
+		}
+		made_layouts.clear();
+	}
+
+	void forget_layouts()
+	{
+		made_layouts.clear();
+	}
+}

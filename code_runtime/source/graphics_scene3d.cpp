@@ -240,7 +240,7 @@ namespace bb::gfx {
 		pipeline_desc desc;
 		desc.vs       = vs;
 		desc.fs       = fs;
-		desc.layout   = uint64_t(g.layout3d);
+		desc.layout   = g.layout3d;
 		desc.vertices = vertex_layout::scene3d;
 		desc.wire     = wire;
 		desc.depth    = true;
@@ -330,7 +330,7 @@ namespace bb::gfx {
 				if (oit == 3) {
 					// The second pass reads the sums of the first (the image of the optical depth is not an attachment in it).
 					at[1].fmt   = format::undefined;
-					desc.layout = uint64_t((mode == 1) ? oit_layout3d() : g.layout3d);
+					desc.layout = (mode == 1) ? oit_layout3d() : g.layout3d;
 				}
 				if (mode == 1) {
 					sums(0, blend_factor::one, blend_factor::one);
@@ -868,38 +868,38 @@ namespace bb::gfx {
 		select_frame_slot(0);
 
 		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
-		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = 4;
-		layout_info.pSetLayouts            = layouts;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
+		bb::rhi::layout_desc layout3d;
+		layout3d.sets[0]   = bb::rhi::group_kind::texture;
+		layout3d.sets[1]   = bb::rhi::group_kind::scene;
+		layout3d.sets[2]   = bb::rhi::group_kind::entities;
+		layout3d.sets[3]   = bb::rhi::group_kind::texture;
+		layout3d.set_count = 4;
+		g.layout3d         = bb::rhi::get_layout(layout3d);
 
 		if (g.can_gpu_cull) {
-			VkDescriptorSetLayout cull_layouts[2] = { g.entity_layout, g.cull_layout };
-			VkPushConstantRange   cull_push       = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 }; // The planes of the view and the first group.
-			VkPipelineLayoutCreateInfo cull_layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-			cull_layout_info.setLayoutCount             = 2;
-			cull_layout_info.pSetLayouts                = cull_layouts;
-			cull_layout_info.pushConstantRangeCount     = 1;
-			cull_layout_info.pPushConstantRanges        = &cull_push;
-			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.cull_pipeline_layout), "vkCreatePipelineLayout");
+			bb::rhi::layout_desc cull_desc;
+			cull_desc.sets[0]     = bb::rhi::group_kind::entities;
+			cull_desc.sets[1]     = bb::rhi::group_kind::cull;
+			cull_desc.set_count   = 2;
+			cull_desc.push_size   = 6 * 16 + 16; // The planes of the view and the first group.
+			cull_desc.push_stages = bb::rhi::stage_compute;
+			g.cull_pipeline_layout = bb::rhi::get_layout(cull_desc);
 			bb::rhi::shader cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
 			VkComputePipelineCreateInfo cull_pipeline = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
 			cull_pipeline.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			cull_pipeline.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
 			cull_pipeline.stage.module                = vk_shader(cs);
 			cull_pipeline.stage.pName                 = "main";
-			cull_pipeline.layout                      = g.cull_pipeline_layout;
+			cull_pipeline.layout                      = vk_layout(g.cull_pipeline_layout);
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
 			destroy_shader(cs);
 
 			// The draws that the GPU drives: the same sets, and the planes, where the camera is and where to write.
-			VkPushConstantRange static_push = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 + 16 };
-			cull_layout_info.pPushConstantRanges = &static_push;
-			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.static_pipeline_layout), "vkCreatePipelineLayout");
+			cull_desc.push_size    = 6 * 16 + 16 + 16;
+			g.static_pipeline_layout = bb::rhi::get_layout(cull_desc);
 			bb::rhi::shader ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
 			cull_pipeline.stage.module = vk_shader(ss);
-			cull_pipeline.layout       = g.static_pipeline_layout;
+			cull_pipeline.layout       = vk_layout(g.static_pipeline_layout);
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.static_pipeline), "vkCreateComputePipelines");
 			destroy_shader(ss);
 		}
@@ -1191,8 +1191,8 @@ namespace bb::gfx {
 		push.first_group[0] = int32_t(first);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline_layout, 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, g.cull_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.cull_pipeline_layout), 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, vk_layout(g.cull_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
@@ -1276,8 +1276,8 @@ namespace bb::gfx {
 		push.base[1] = int32_t(scene.static_commands);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline_layout, 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, g.static_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.static_pipeline_layout), 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, vk_layout(g.static_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;

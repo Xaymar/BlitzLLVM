@@ -273,13 +273,10 @@ void bb::gfx::destroy_device_objects()
 	if (g.cull_pipeline) {
 		vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
 	}
-	vkDestroyPipelineLayout(g.device, g.cull_pipeline_layout, nullptr);
 	if (g.static_pipeline) {
 		vkDestroyPipeline(g.device, g.static_pipeline, nullptr);
 	}
-	vkDestroyPipelineLayout(g.device, g.static_pipeline_layout, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
-	vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 	for (int i = 0; i < TEXTURES; i++) {
 		destroy_image(g.textures[i]);
@@ -292,7 +289,7 @@ void bb::gfx::destroy_device_objects()
 	destroy_pipeline_twins();
 	vkDestroyPipeline(g.device, g.triangles, nullptr);
 	vkDestroyPipeline(g.device, g.lines, nullptr);
-	vkDestroyPipelineLayout(g.device, g.layout, nullptr);
+	bb::rhi::destroy_layouts();
 	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
 	bb::rhi::destroy_samplers();

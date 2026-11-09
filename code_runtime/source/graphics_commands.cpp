@@ -717,7 +717,7 @@ namespace bb::gfx {
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 
 		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
-		vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
+		vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer.vk, &offset);
 
@@ -758,7 +758,7 @@ namespace bb::gfx {
 			}
 			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
-			vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
+			vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
 		}
 		vkCmdEndRendering(g.cmd);

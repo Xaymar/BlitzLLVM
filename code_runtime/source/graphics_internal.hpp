@@ -338,8 +338,10 @@ namespace bb::gfx {
 
 		// Pipelines
 		VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
+		VkDescriptorSetLayout images3_layout = VK_NULL_HANDLE; // The kinds of group that are made by SMAA and the transparency code, see vk_set_layout.
+		VkDescriptorSetLayout images8_layout = VK_NULL_HANDLE;
 		VkDescriptorPool      set_pool   = VK_NULL_HANDLE;
-		VkPipelineLayout      layout     = VK_NULL_HANDLE;
+		bb::rhi::pipeline_layout layout;
 		VkPipeline            triangles  = VK_NULL_HANDLE;
 		VkPipeline            lines      = VK_NULL_HANDLE;
 		bb::rhi::sampler             sampler;
@@ -370,7 +372,7 @@ namespace bb::gfx {
 		// 3D
 		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
 		bb::rhi::binding_group       scene_set;
-		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
+		bb::rhi::pipeline_layout layout3d;
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
 		bb::rhi::binding_group       entity_set;
@@ -381,11 +383,11 @@ namespace bb::gfx {
 		// Culling of clusters of big surfaces on the GPU, if it can draw the commands that come out of it.
 		bool                  can_gpu_cull   = false;
 		VkDescriptorSetLayout cull_layout    = VK_NULL_HANDLE;
-		VkPipelineLayout      cull_pipeline_layout = VK_NULL_HANDLE;
+		bb::rhi::pipeline_layout cull_pipeline_layout;
 		VkPipeline            cull_pipeline  = VK_NULL_HANDLE;
 		cull_buffers          cull;
 		static_buffers        statics;
-		VkPipelineLayout      static_pipeline_layout = VK_NULL_HANDLE;
+		bb::rhi::pipeline_layout static_pipeline_layout;
 		VkPipeline            static_pipeline = VK_NULL_HANDLE;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
@@ -976,11 +978,11 @@ namespace bb::gfx {
 	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
 	VkFormat pick_buffer_format(int depth, int& actual);
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices = true, bool for_buffers = true);
 	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
 	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
-	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkFormat format);
+	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format);
 	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
 	VkPipeline pipeline_for(VkPipeline base, VkFormat format);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
@@ -1035,7 +1037,7 @@ namespace bb::gfx {
 	void oit_composite_layer(uint32_t width, uint32_t height);
 	void oit_accumulated_to_sampled(uint32_t width, uint32_t height);
 	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height);
-	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
+	bb::rhi::pipeline_layout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
 	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);
 	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
@@ -1348,10 +1350,16 @@ namespace bb::gfx {
 	{
 		return bb::rhi::binding_group{ uint64_t(s) };
 	}
-	inline void bind_group(VkPipelineBindPoint point, VkPipelineLayout layout, uint32_t index, bb::rhi::binding_group group, uint32_t dynamic_count, const uint32_t* dynamic_offsets)
+	inline VkPipelineLayout vk_layout(bb::rhi::pipeline_layout layout)
+	{
+		return VkPipelineLayout(layout.id);
+	}
+	/** The set layout that a kind of group has on Vulkan. */
+	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind);
+	inline void bind_group(VkPipelineBindPoint point, bb::rhi::pipeline_layout layout, uint32_t index, bb::rhi::binding_group group, uint32_t dynamic_count, const uint32_t* dynamic_offsets)
 	{
 		VkDescriptorSet set = vk_set(group);
-		vkCmdBindDescriptorSets(g.cmd, point, layout, index, 1, &set, dynamic_count, dynamic_offsets);
+		vkCmdBindDescriptorSets(g.cmd, point, vk_layout(layout), index, 1, &set, dynamic_count, dynamic_offsets);
 	}
 	inline void free_group(bb::rhi::binding_group group)
 	{

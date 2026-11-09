@@ -153,10 +153,53 @@ namespace bb::rhi {
 		bool operator<(shader const& o) const { return id < o.id; }
 	};
 
-	/** What a pipeline is made of. The layout stays a backend handle until the layout kinds of 4a (a VkPipelineLayout on Vulkan). */
+	/** The kinds of binding group that shaders read. Every group is made for one of them, and the backend knows what each one holds. */
+	enum class group_kind : uint8_t {
+		texture,  // The textures of a draw: one image with its sampler, and the layers of it.
+		scene,    // The uniform buffer of the scene, bound with a dynamic offset.
+		entities, // The per-entity buffers.
+		cull,     // What the culling and static draw passes read and write.
+		images3,  // Three sampled images (SMAA).
+		images8,  // Eight sampled images (order independent transparency).
+	};
+	constexpr uint8_t stage_vertex = 1, stage_fragment = 2, stage_compute = 4;
+
+	/** What a pipeline reads: up to five groups in order, and the push constants (a size, and the stages that read them). */
+	struct layout_desc {
+		group_kind sets[5]{};
+		uint32_t   set_count    = 0;
+		uint32_t   push_size    = 0;
+		uint8_t    push_stages  = 0;
+		bool operator==(layout_desc const& o) const
+		{
+			if ((set_count != o.set_count) || (push_size != o.push_size) || (push_stages != o.push_stages)) {
+				return false;
+			}
+			for (uint32_t i = 0; i < set_count; i++) {
+				if (sets[i] != o.sets[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+	};
+
+	/** A pipeline layout, made by get_layout. Equal descriptions give the same layout; the device frees them. A VkPipelineLayout on Vulkan. */
+	struct pipeline_layout {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(pipeline_layout const& o) const { return id == o.id; }
+		bool operator!=(pipeline_layout const& o) const { return id != o.id; }
+	};
+	pipeline_layout get_layout(layout_desc const& desc);
+	void            destroy_layouts();
+	/** For a lost device: the layouts went with it. */
+	void            forget_layouts();
+
+	/** What a pipeline is made of. */
 	struct pipeline_desc {
 		shader           vs, fs;
-		uint64_t         layout = 0;
+		pipeline_layout  layout;
 		topology         primitives = topology::triangles;
 		vertex_layout    vertices   = vertex_layout::none;
 		bool             wire       = false;
