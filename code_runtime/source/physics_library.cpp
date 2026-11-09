@@ -92,6 +92,13 @@ api const* library()
 	BB_BP(sim_body_add_impulse);
 	BB_BP(sim_body_add_angular_impulse);
 	BB_BP(sim_step);
+	BB_BP(sim_contact_count);
+	BB_BP(sim_contact_get);
+	BB_BP(sim_contacts_clear);
+	BB_BP(sim_ray_cast);
+	BB_BP(sim_point_inside);
+	BB_BP(sim_overlap_sphere);
+	BB_BP(sim_overlap_box);
 #undef BB_BP
 	loaded = functions.world_create && functions.world_destroy && functions.mesh_create && functions.mesh_destroy && functions.mesh_query_box && functions.body_add_mesh && functions.body_remove
 	         && functions.body_set_transform && functions.world_update && functions.cast_closest && functions.cast_closest_batch;
