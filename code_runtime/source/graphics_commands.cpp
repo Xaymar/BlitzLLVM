@@ -756,7 +756,7 @@ namespace bb::gfx {
 				}
 				set = e->set;
 			}
-			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
+			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
 			vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);

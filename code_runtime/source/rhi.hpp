@@ -20,6 +20,7 @@
 #include <vk_mem_alloc.h>
 
 #include <stdint.h>
+#include <functional>
 
 namespace bb::rhi {
 	/** What a buffer is used for, any of them together. */
@@ -212,6 +213,27 @@ namespace bb::rhi {
 		bool             has_constants = false;
 		shader_constants constants;
 	};
+
+	/** What a pipeline is, for a target format. The description may depend on the format it draws to (a 3D shader has the limits and the dither of the target
+	    as constants), so a pipeline is made from a function that gives the description for a format and the backend asks it when the pipeline is first used
+	    with the format. */
+	using pipeline_recipe = std::function<pipeline_desc(format target)>;
+
+	/** A pipeline object. The backend builds the real pipeline for each target format when it is first drawn to, and keeps it until the pipeline is destroyed. */
+	struct pipeline {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		explicit operator uint64_t() const { return id; }
+		bool operator==(pipeline const& o) const { return id == o.id; }
+		bool operator!=(pipeline const& o) const { return id != o.id; }
+		bool operator<(pipeline const& o) const { return id < o.id; }
+	};
+	pipeline create_pipeline(pipeline_recipe recipe);
+	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
+	void     destroy_pipeline(pipeline p);
+	void     destroy_pipelines();
+	/** For a lost device: the pipelines went with it. */
+	void     forget_pipelines();
 
 	enum class filter : uint8_t { nearest, linear };
 	enum class wrap : uint8_t { repeat, mirror, clamp, border };

@@ -286,9 +286,7 @@ void bb::gfx::destroy_device_objects()
 	rhi::destroy_buffer(g.vertex_buffer);
 	rhi::destroy_buffer(g.vertex_buffer_alt);
 	rhi::destroy_buffer(g.vertex_buffer_alt2);
-	destroy_pipeline_twins();
-	vkDestroyPipeline(g.device, g.triangles, nullptr);
-	vkDestroyPipeline(g.device, g.lines, nullptr);
+	bb::rhi::destroy_pipelines();
 	bb::rhi::destroy_layouts();
 	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);

@@ -450,28 +450,27 @@ namespace bb::gfx {
 		vkCmdBlitImage(g.cmd, from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 	}
 
-	static std::unordered_map<VkPipeline, VkPipeline> pipeline_twins;
+	namespace {
+		struct pipeline_object {
+			bb::rhi::pipeline_recipe                                 recipe;
+			std::unordered_map<bb::rhi::format, VkPipeline>          built;
+			bool                                                     alive = false;
+		};
+		std::vector<pipeline_object> pipeline_objects;
+	} // namespace
 
-	void add_pipeline_twin(VkPipeline base, VkPipeline twin)
+	/** The Vulkan pipeline to draw to an image of that format. A target that is not the format of the buffers (when those are not RGBA8) gets the one made for RGBA8. */
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format)
 	{
-		pipeline_twins[base] = twin;
-	}
-
-	VkPipeline pipeline_for(VkPipeline base, VkFormat format)
-	{
-		if ((format == VK_FORMAT_R8G8B8A8_UNORM) || (format != g.buffer_format)) {
-			return base;
+		pipeline_object& object = pipeline_objects[pipeline.id - 1];
+		bb::rhi::format  key    = ((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8;
+		auto             found  = object.built.find(key);
+		if (found != object.built.end()) {
+			return found->second;
 		}
-		auto it = pipeline_twins.find(base);
-		return it != pipeline_twins.end() ? it->second : base;
-	}
-
-	void destroy_pipeline_twins()
-	{
-		for (auto& twin : pipeline_twins) {
-			vkDestroyPipeline(g.device, twin.second, nullptr);
-		}
-		pipeline_twins.clear();
+		VkPipeline made = build_pipeline(object.recipe(key));
+		object.built[key] = made;
+		return made;
 	}
 
 	static VkBlendFactor vk_blend_factor(bb::rhi::blend_factor f)
@@ -652,11 +651,17 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices, bool for_buffers)
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices)
 	{
-		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
-		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
-			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, layout, topology, vertices, g.buffer_format)));
+		return build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
+	}
+
+	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
+	{
+		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
+		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM); // Both versions are made now, so that nothing is compiled in the middle of a frame.
+		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+			vk_pipeline(pipeline, g.buffer_format);
 		}
 		return pipeline;
 	}
@@ -1943,8 +1948,8 @@ namespace bb::gfx {
 
 		bb::rhi::shader vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
-		g.triangles       = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
-		g.lines           = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
+		g.triangles       = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
+		g.lines           = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
 		destroy_shader(vs);
 		destroy_shader(fs);
 
@@ -2051,5 +2056,52 @@ namespace bb::rhi {
 	void forget_layouts()
 	{
 		made_layouts.clear();
+	}
+}
+
+namespace bb::rhi {
+	pipeline create_pipeline(pipeline_recipe recipe)
+	{
+		auto& objects = gfx::pipeline_objects;
+		for (size_t i = 0; i < objects.size(); i++) {
+			if (!objects[i].alive) {
+				objects[i].recipe = std::move(recipe);
+				objects[i].alive  = true;
+				return pipeline{ i + 1 };
+			}
+		}
+		objects.emplace_back();
+		objects.back().recipe = std::move(recipe);
+		objects.back().alive  = true;
+		return pipeline{ objects.size() };
+	}
+
+	void destroy_pipeline(pipeline p)
+	{
+		if (!p) {
+			return;
+		}
+		auto& object = gfx::pipeline_objects[p.id - 1];
+		for (auto& built : object.built) {
+			vkDestroyPipeline(gfx::g.device, built.second, nullptr);
+		}
+		object.built.clear();
+		object.recipe = nullptr;
+		object.alive  = false;
+	}
+
+	void destroy_pipelines()
+	{
+		for (size_t i = 0; i < gfx::pipeline_objects.size(); i++) {
+			if (gfx::pipeline_objects[i].alive) {
+				destroy_pipeline(pipeline{ i + 1 });
+			}
+		}
+		gfx::pipeline_objects.clear();
+	}
+
+	void forget_pipelines()
+	{
+		gfx::pipeline_objects.clear();
 	}
 }

@@ -206,7 +206,7 @@ namespace {
 
 		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
-		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false, false);
+		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false);
 		destroy_shader(vs);
 		destroy_shader(fs);
 	}
@@ -223,7 +223,7 @@ namespace {
 
 		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
-		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, false);
+		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false);
 		destroy_shader(vs);
 		destroy_shader(fs);
 

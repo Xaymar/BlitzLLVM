@@ -342,8 +342,8 @@ namespace bb::gfx {
 		VkDescriptorSetLayout images8_layout = VK_NULL_HANDLE;
 		VkDescriptorPool      set_pool   = VK_NULL_HANDLE;
 		bb::rhi::pipeline_layout layout;
-		VkPipeline            triangles  = VK_NULL_HANDLE;
-		VkPipeline            lines      = VK_NULL_HANDLE;
+		bb::rhi::pipeline     triangles;
+		bb::rhi::pipeline     lines;
 		bb::rhi::sampler             sampler;
 		bb::rhi::sampler             sampler_repeat; // Linear, for 3D textures.
 		bb::rhi::sampler             sampler_clamp;
@@ -389,18 +389,18 @@ namespace bb::gfx {
 		static_buffers        statics;
 		bb::rhi::pipeline_layout static_pipeline_layout;
 		VkPipeline            static_pipeline = VK_NULL_HANDLE;
-		VkPipeline            opaque3d       = VK_NULL_HANDLE;
-		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
-		VkPipeline            oit3d[4]       = {}; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
-		VkPipeline            oit3dm[4]      = {}; // The same for the second pass of the moment based kind (it reads the sums of the first).
-		VkPipeline            oit_moments3d  = VK_NULL_HANDLE; // The first pass of the moment based kind.
-		VkPipeline            oit_slots3d    = VK_NULL_HANDLE; // Alpha-blended things for the slots of samples.
-		VkPipeline            oit_peel3d     = VK_NULL_HANDLE; // Alpha-blended things for a layer of the depth peeling (BLITZLLVM_OIT=5).
-		VkPipeline            blend3d        = VK_NULL_HANDLE;
-		VkPipeline            mul3d          = VK_NULL_HANDLE;
-		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
-		VkPipeline            add3d          = VK_NULL_HANDLE;
-		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
+		bb::rhi::pipeline            opaque3d       ;
+		bb::rhi::pipeline            solid3d        ; // The same without the discard, so that depth is tested before the shader runs.
+		bb::rhi::pipeline            oit3d[4]; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
+		bb::rhi::pipeline            oit3dm[4]; // The same for the second pass of the moment based kind (it reads the sums of the first).
+		bb::rhi::pipeline            oit_moments3d  ; // The first pass of the moment based kind.
+		bb::rhi::pipeline            oit_slots3d    ; // Alpha-blended things for the slots of samples.
+		bb::rhi::pipeline            oit_peel3d     ; // Alpha-blended things for a layer of the depth peeling (BLITZLLVM_OIT=5).
+		bb::rhi::pipeline            blend3d        ;
+		bb::rhi::pipeline            mul3d          ;
+		bb::rhi::pipeline            mul2x3d        ; // Multiplies by twice the color.
+		bb::rhi::pipeline            add3d          ;
+		bb::rhi::pipeline            wire3d[4];  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
@@ -735,7 +735,7 @@ namespace bb::gfx {
 		int         texture; // Handle, 0 for none.
 		uintptr_t   texture_set; // What the handle is bound as (its descriptor set), which is what draws are grouped by: handles that share one are the same state.
 		uint32_t    layer_group; // The textures of the layers after the first as a group (the number plus 1 of an entry of the groups of layers), 0 if there are none. Draws with another group are another state.
-		VkPipeline  pipeline;
+		bb::rhi::pipeline pipeline;
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
 		bool        unit_start; // First of the draws of a surface: the ones after it that are not are layers over it and stay behind it.
@@ -978,18 +978,16 @@ namespace bb::gfx {
 	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
 	VkFormat pick_buffer_format(int depth, int& actual);
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices = true, bool for_buffers = true);
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices = true);
 	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
 	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
 	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format);
-	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
-	VkPipeline pipeline_for(VkPipeline base, VkFormat format);
+	/** The pipeline to draw to an image of that format, built the first time. */
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format);
+	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
 	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer = 0, uint32_t to_layer = 0);
-	/** Remembers the twin of a pipeline that draws to the buffers. */
-	void       add_pipeline_twin(VkPipeline base, VkPipeline twin);
-	void       destroy_pipeline_twins();
 	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler);
 	void allocate_descriptor(bb::rhi::binding_group& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
