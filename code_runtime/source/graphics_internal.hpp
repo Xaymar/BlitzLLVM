@@ -970,15 +970,17 @@ namespace bb::gfx {
 	void rebuild_image(gpu_image& img);
 	/** Destroys the buffers of every surface that is still alive, which the window closing would otherwise leave behind. */
 	void destroy_surface_buffers();
-	VkShaderModule create_shader(const unsigned int* words, size_t size);
+	bb::rhi::shader create_shader(const unsigned int* words, size_t size);
+	void            destroy_shader(bb::rhi::shader shader);
+	inline VkShaderModule vk_shader(bb::rhi::shader shader) { return VkShaderModule(shader.id); }
 	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
 	VkFormat pick_buffer_format(int depth, int& actual);
-	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
 	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
 	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
-	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format);
+	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkFormat format);
 	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
 	VkPipeline pipeline_for(VkPipeline base, VkFormat format);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */

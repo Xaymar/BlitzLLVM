@@ -144,9 +144,19 @@ namespace bb::rhi {
 		bool  layers       = false;
 	};
 
-	/** What a pipeline is made of. The shaders and the layout stay backend handles until the shader ids of the next commit (a VkShaderModule and a VkPipelineLayout on Vulkan). */
+	/** A compiled shader stage. Made from the SPIR-V words of the shader (backends without SPIR-V find their own source by the same words), destroyed with destroy_shader. A VkShaderModule on Vulkan. */
+	struct shader {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(shader const& o) const { return id == o.id; }
+		bool operator!=(shader const& o) const { return id != o.id; }
+		bool operator<(shader const& o) const { return id < o.id; }
+	};
+
+	/** What a pipeline is made of. The layout stays a backend handle until the layout kinds of 4a (a VkPipelineLayout on Vulkan). */
 	struct pipeline_desc {
-		uint64_t         vs = 0, fs = 0, layout = 0;
+		shader           vs, fs;
+		uint64_t         layout = 0;
 		topology         primitives = topology::triangles;
 		vertex_layout    vertices   = vertex_layout::none;
 		bool             wire       = false;

@@ -388,14 +388,19 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
-	VkShaderModule create_shader(const unsigned int* words, size_t size)
+	bb::rhi::shader create_shader(const unsigned int* words, size_t size)
 	{
 		VkShaderModuleCreateInfo info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
 		info.codeSize                 = size;
 		info.pCode                    = words;
 		VkShaderModule module;
 		check(vkCreateShaderModule(g.device, &info, nullptr, &module), "vkCreateShaderModule");
-		return module;
+		return bb::rhi::shader{ uint64_t(module) };
+	}
+
+	void destroy_shader(bb::rhi::shader shader)
+	{
+		vkDestroyShaderModule(g.device, vk_shader(shader), nullptr);
 	}
 
 	// An image of RGBA8 stored as sRGB is copied as the bytes it has, so it counts as the same as one stored linear.
@@ -469,10 +474,10 @@ namespace bb::gfx {
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-		stages[0].module                          = VkShaderModule(desc.vs);
+		stages[0].module                          = vk_shader(desc.vs);
 		stages[0].pName                           = "main";
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-		stages[1].module                          = VkShaderModule(desc.fs);
+		stages[1].module                          = vk_shader(desc.fs);
 		stages[1].pName                           = "main";
 
 		// The constants of the 3D shaders.
@@ -615,11 +620,11 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	static bb::rhi::pipeline_desc flat_desc(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
 	{
 		bb::rhi::pipeline_desc desc;
-		desc.vs                      = uint64_t(vs);
-		desc.fs                      = uint64_t(fs);
+		desc.vs                      = vs;
+		desc.fs                      = fs;
 		desc.layout                  = uint64_t(layout);
 		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
 		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
@@ -628,7 +633,7 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
 	{
 		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
 		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
@@ -637,7 +642,7 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format)
+	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPipelineLayout layout, VkFormat format)
 	{
 		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
@@ -1917,12 +1922,12 @@ namespace bb::gfx {
 
 		g.buffer_format = pick_buffer_format(g.requested_depth, g.buffer_depth);
 
-		VkShaderModule vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
-		VkShaderModule fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
 		g.triangles       = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
 		g.lines           = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		destroy_shader(vs);
+		destroy_shader(fs);
 
 		// Textures: a white pixel for untextured drawing, and the font.
 		const uint8_t white[4] = { 255, 255, 255, 255 };

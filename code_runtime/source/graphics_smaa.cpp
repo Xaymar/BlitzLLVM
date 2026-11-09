@@ -69,7 +69,7 @@ namespace {
 	VkPipelineLayout      layout = VK_NULL_HANDLE;
 	VkDescriptorPool      pool = VK_NULL_HANDLE;
 	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
-	VkShaderModule        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
+	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
 	struct format_pipelines {
 		VkFormat   format = VK_FORMAT_UNDEFINED;
@@ -601,8 +601,8 @@ namespace bb::gfx {
 		vkDestroyPipeline(g.device, edges_pipeline, nullptr);
 		vkDestroyPipeline(g.device, weights_pipeline, nullptr);
 		for (int i = 0; i < 4; i++) {
-			vkDestroyShaderModule(g.device, vertex_modules[i], nullptr);
-			vkDestroyShaderModule(g.device, fragment_modules[i], nullptr);
+			destroy_shader(vertex_modules[i]);
+			destroy_shader(fragment_modules[i]);
 		}
 		linear = nearest = bb::rhi::sampler();
 		vkDestroyDescriptorPool(g.device, pool, nullptr);

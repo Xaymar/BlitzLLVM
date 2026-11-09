@@ -204,11 +204,11 @@ namespace {
 		info.pPushConstantRanges         = &shift;
 		check(vkCreatePipelineLayout(g.device, &info, nullptr, &palette_layout), "vkCreatePipelineLayout");
 
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
-		VkShaderModule fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
 		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false, false);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		destroy_shader(vs);
+		destroy_shader(fs);
 	}
 
 	void create_resources()
@@ -222,11 +222,11 @@ namespace {
 		info.pPushConstantRanges        = &shift;
 		check(vkCreatePipelineLayout(g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
 
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
-		VkShaderModule fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
 		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, false);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		destroy_shader(vs);
+		destroy_shader(fs);
 
 		void* mapped;
 		bb::rhi::create_buffer(table_buffer, 256 * 4 * sizeof(float), bb::rhi::uniform_data, bb::rhi::memory::mapped);

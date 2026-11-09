@@ -154,7 +154,7 @@ namespace {
 		}
 		create_set_layout();
 		VkPipeline* made = composites[format];
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		const bool          eight    = (oit_slots() == 8);
 		const unsigned int* codes[7] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3, eight ? bb_shader_fragment_oit_resolve8 : bb_shader_fragment_oit_resolve4, bb_shader_fragment_oit_layer, bb_shader_fragment_oit_accumulated };
 		const size_t        sizes[7] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3), eight ? sizeof(bb_shader_fragment_oit_resolve8) : sizeof(bb_shader_fragment_oit_resolve4), sizeof(bb_shader_fragment_oit_layer), sizeof(bb_shader_fragment_oit_accumulated) };
@@ -162,13 +162,13 @@ namespace {
 			if (((mode == 4) && !oit_slots()) || ((mode >= 5) && !oit_peel())) {
 				continue;
 			}
-			VkShaderModule fs = create_shader(codes[mode], sizes[mode]);
+			bb::rhi::shader fs = create_shader(codes[mode], sizes[mode]);
 			VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 			stages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
-			stages[0].module = vs;
+			stages[0].module = vk_shader(vs);
 			stages[0].pName  = "main";
 			stages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-			stages[1].module = fs;
+			stages[1].module = vk_shader(fs);
 			stages[1].pName  = "main";
 			VkPipelineVertexInputStateCreateInfo   input    = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 			VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -239,9 +239,9 @@ namespace {
 			info.pDynamicState                = &dynamic;
 			info.layout                       = layout;
 			check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &made[mode]), "vkCreateGraphicsPipelines (OIT)");
-			vkDestroyShaderModule(g.device, fs, nullptr);
+			destroy_shader(fs);
 		}
-		vkDestroyShaderModule(g.device, vs, nullptr);
+		destroy_shader(vs);
 		return made;
 	}
 } // namespace

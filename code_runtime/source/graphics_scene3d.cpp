@@ -234,12 +234,12 @@ namespace bb::gfx {
 		return value;
 	}
 
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0, bool layers = true)
+	static VkPipeline build_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bool wire, VkFormat color_format, int oit = 0, bool layers = true)
 	{
 		using namespace bb::rhi;
 		pipeline_desc desc;
-		desc.vs       = uint64_t(vs);
-		desc.fs       = uint64_t(fs);
+		desc.vs       = vs;
+		desc.fs       = fs;
 		desc.layout   = uint64_t(g.layout3d);
 		desc.vertices = vertex_layout::scene3d;
 		desc.wire     = wire;
@@ -353,7 +353,7 @@ namespace bb::gfx {
 	// What a pipeline for draws without texture layers was made from, so that the one for draws with layers can be made the first time it is
 	// needed (the layers make the shader much larger, and most programs never have them).
 	struct layered_source {
-		VkShaderModule vs, fs;
+		bb::rhi::shader vs, fs;
 		int            mode;
 		bool           wire;
 	};
@@ -362,7 +362,7 @@ namespace bb::gfx {
 
 	// The twin is the pipeline for a buffer that is not RGBA8. The pipeline is the one for draws without layers (constant 21 of the shader is
 	// off), see layered_pipeline_of for the other.
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
+	static VkPipeline create_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bool wire = false)
 	{
 		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, 0, false);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
@@ -883,25 +883,25 @@ namespace bb::gfx {
 			cull_layout_info.pushConstantRangeCount     = 1;
 			cull_layout_info.pPushConstantRanges        = &cull_push;
 			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.cull_pipeline_layout), "vkCreatePipelineLayout");
-			VkShaderModule cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
+			bb::rhi::shader cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
 			VkComputePipelineCreateInfo cull_pipeline = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
 			cull_pipeline.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			cull_pipeline.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
-			cull_pipeline.stage.module                = cs;
+			cull_pipeline.stage.module                = vk_shader(cs);
 			cull_pipeline.stage.pName                 = "main";
 			cull_pipeline.layout                      = g.cull_pipeline_layout;
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
-			vkDestroyShaderModule(g.device, cs, nullptr);
+			destroy_shader(cs);
 
 			// The draws that the GPU drives: the same sets, and the planes, where the camera is and where to write.
 			VkPushConstantRange static_push = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 + 16 };
 			cull_layout_info.pPushConstantRanges = &static_push;
 			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.static_pipeline_layout), "vkCreatePipelineLayout");
-			VkShaderModule ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
-			cull_pipeline.stage.module = ss;
+			bb::rhi::shader ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
+			cull_pipeline.stage.module = vk_shader(ss);
 			cull_pipeline.layout       = g.static_pipeline_layout;
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.static_pipeline), "vkCreateComputePipelines");
-			vkDestroyShaderModule(g.device, ss, nullptr);
+			destroy_shader(ss);
 		}
 
 		build_pipelines_3d();
@@ -909,9 +909,9 @@ namespace bb::gfx {
 
 	void build_pipelines_3d()
 	{
-		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
-		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
-		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
+		bb::rhi::shader fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
 		g.blend3d         = create_pipeline_3d(vs, fs, 1);
@@ -919,33 +919,33 @@ namespace bb::gfx {
 		g.add3d           = create_pipeline_3d(vs, fs, 3);
 		g.mul2x3d         = create_pipeline_3d(vs, fs, 4);
 		if (oit_active()) {
-			VkShaderModule fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
+			bb::rhi::shader fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
 			if (oit_moments()) {
-				VkShaderModule fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
-				VkShaderModule fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
+				bb::rhi::shader fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
+				bb::rhi::shader fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
 				g.oit_moments3d = build_pipeline_3d(vs, fs_moments, 1, false, VK_FORMAT_R8G8B8A8_UNORM, 2);
 				for (int mode = 1; mode <= 4; mode++) {
 					g.oit3dm[mode - 1] = build_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 3);
 				}
-				vkDestroyShaderModule(g.device, fs_moments, nullptr);
-				vkDestroyShaderModule(g.device, fs_color, nullptr);
+				destroy_shader(fs_moments);
+				destroy_shader(fs_color);
 			} else {
 				for (int mode = 1; mode <= 4; mode++) {
 					g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 1);
 				}
 			}
-			vkDestroyShaderModule(g.device, fs_oit, nullptr);
+			destroy_shader(fs_oit);
 		}
 		if (oit_slots()) {
 			// The alpha-blended things go to the slots, the multiplied and added ones to the sums as before.
-			VkShaderModule fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
+			bb::rhi::shader fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
 			g.oit_slots3d = build_pipeline_3d(vs, fs_slots, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 4);
-			vkDestroyShaderModule(g.device, fs_slots, nullptr);
+			destroy_shader(fs_slots);
 		}
 		if (oit_peel()) {
-			VkShaderModule fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
+			bb::rhi::shader fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
 			g.oit_peel3d = build_pipeline_3d(vs, fs_peel, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 5);
-			vkDestroyShaderModule(g.device, fs_peel, nullptr);
+			destroy_shader(fs_peel);
 		}
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
@@ -968,13 +968,13 @@ namespace bb::gfx {
 			vkDestroyPipeline(g.device, made.second, nullptr);
 		}
 		layered_pipelines.clear();
-		std::set<VkShaderModule> modules;
+		std::set<bb::rhi::shader> modules;
 		for (auto& source : layered_sources) {
 			modules.insert(source.second.vs);
 			modules.insert(source.second.fs);
 		}
-		for (VkShaderModule module : modules) {
-			vkDestroyShaderModule(g.device, module, nullptr);
+		for (bb::rhi::shader module : modules) {
+			destroy_shader(module);
 		}
 		layered_sources.clear();
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
