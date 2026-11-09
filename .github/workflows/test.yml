@@ -191,6 +191,8 @@ jobs:
           install_runtime_only: true
           install_runtime: true
           install_lavapipe: true
+          # The action reads release information from the GitHub API, which answered 503 for the runners without a token.
+          github_token: ${{ github.token }}
       - name: Set up llvm-mingw (Windows)
         # blitzcc links the programs of the tests with clang, for the MinGW target.
         if: env.RUN == 'true' && matrix.label == 'Windows'
