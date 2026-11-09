@@ -2360,3 +2360,65 @@ namespace bb::rhi {
 		vkCmdCopyImageToBuffer(gfx::g.cmd, VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkBuffer(buffer), count, copies.data());
 	}
 }
+
+namespace bb::rhi {
+	namespace {
+		VkQueryPool timestamp_pool   = VK_NULL_HANDLE;
+		float       timestamp_period = 1.0f;
+	}
+
+	bool create_timestamps(uint32_t count)
+	{
+		uint32_t family_count = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(gfx::g.physical, &family_count, nullptr);
+		VkQueueFamilyProperties families[32];
+		if (family_count > 32) {
+			family_count = 32;
+		}
+		vkGetPhysicalDeviceQueueFamilyProperties(gfx::g.physical, &family_count, families);
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(gfx::g.physical, &props);
+		if ((gfx::g.family >= family_count) || !families[gfx::g.family].timestampValidBits) {
+			return false;
+		}
+		VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
+		info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
+		info.queryCount            = count;
+		if (vkCreateQueryPool(gfx::g.device, &info, nullptr, &timestamp_pool) != VK_SUCCESS) {
+			timestamp_pool = VK_NULL_HANDLE;
+			return false;
+		}
+		timestamp_period = props.limits.timestampPeriod;
+		return true;
+	}
+
+	void destroy_timestamps()
+	{
+		if (timestamp_pool) {
+			vkDestroyQueryPool(gfx::g.device, timestamp_pool, nullptr);
+			timestamp_pool = VK_NULL_HANDLE;
+		}
+	}
+
+	void reset_timestamps(uint32_t first, uint32_t count)
+	{
+		vkCmdResetQueryPool(gfx::g.cmd, timestamp_pool, first, count);
+	}
+
+	void write_timestamp(uint32_t index)
+	{
+		vkCmdWriteTimestamp(gfx::g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, timestamp_pool, index);
+	}
+
+	bool read_timestamps(uint32_t first, uint32_t count, double* nanoseconds)
+	{
+		uint64_t ticks[256];
+		if ((count > 256) || (vkGetQueryPoolResults(gfx::g.device, timestamp_pool, first, count, sizeof(uint64_t) * count, ticks, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) != VK_SUCCESS)) {
+			return false;
+		}
+		for (uint32_t i = 0; i < count; i++) {
+			nanoseconds[i] = double(ticks[i]) * double(timestamp_period);
+		}
+		return true;
+	}
+}

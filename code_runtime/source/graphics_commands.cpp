@@ -261,13 +261,11 @@ namespace bb::gfx {
 
 	// GPU timestamps for BLITZLLVM_PROFILE_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
 	// mark before is that pass's. They are read back when the slot is used again, as its command buffer is done by then.
-	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
 	double         profile_gpu_pass[5] = {};
 	static const uint32_t profile_marks_max = 128;
 	static uint8_t        profile_mark_pass[frame_slots][profile_marks_max];
 	static uint32_t       profile_mark_count[frame_slots] = {};
 	int                   profile_mark_state = -1; // -1 not tried, 0 not available, 1 available.
-	static float          profile_mark_period = 1.0f;
 
 	void profile_gpu_mark(int pass)
 	{
@@ -275,7 +273,7 @@ namespace bb::gfx {
 		if (profile_mark_state != 1 || count >= profile_marks_max || (pass != 255 && count == 0)) { // A frame that did not begin (profiling was off) has no reset queries to write to.
 			return;
 		}
-		vkCmdWriteTimestamp(g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profile_query_pool, current_slot * profile_marks_max + count);
+		bb::rhi::write_timestamp(current_slot * profile_marks_max + count);
 		profile_mark_pass[current_slot][count++] = uint8_t(pass);
 	}
 
@@ -286,12 +284,12 @@ namespace bb::gfx {
 		if (profile_mark_state != 1 || count < 2) {
 			return;
 		}
-		uint64_t times[profile_marks_max];
-		if (vkGetQueryPoolResults(g.device, profile_query_pool, slot * profile_marks_max, count, sizeof(times), times, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS) {
+		double times[profile_marks_max];
+		if (bb::rhi::read_timestamps(slot * profile_marks_max, count, times)) {
 			for (uint32_t i = 1; i < count; i++) {
-				profile_gpu_pass[profile_mark_pass[slot][i]] += double(times[i] - times[i - 1]) * double(profile_mark_period);
+				profile_gpu_pass[profile_mark_pass[slot][i]] += times[i] - times[i - 1];
 			}
-			profile_gpu_pass[4] += double(times[count - 1] - times[0]) * double(profile_mark_period);
+			profile_gpu_pass[4] += times[count - 1] - times[0];
 		}
 		profile_mark_count[slot] = 0;
 	}
@@ -304,29 +302,13 @@ namespace bb::gfx {
 		}
 		if (profile_mark_state < 0) {
 			profile_mark_state = 0;
-			uint32_t family_count = 0;
-			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, nullptr);
-			VkQueueFamilyProperties families[32];
-			if (family_count > 32) {
-				family_count = 32;
-			}
-			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, families);
-			VkPhysicalDeviceProperties props;
-			vkGetPhysicalDeviceProperties(g.physical, &props);
-			if ((g.family >= family_count) || !families[g.family].timestampValidBits) {
+			if (!bb::rhi::create_timestamps(profile_marks_max * frame_slots)) {
 				return;
 			}
-			VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
-			info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
-			info.queryCount            = profile_marks_max * frame_slots;
-			if (vkCreateQueryPool(g.device, &info, nullptr, &profile_query_pool) != VK_SUCCESS) {
-				return;
-			}
-			profile_mark_period = props.limits.timestampPeriod;
-			profile_mark_state  = 1;
+			profile_mark_state = 1;
 		}
 		profile_mark_count[current_slot] = 0;
-		vkCmdResetQueryPool(g.cmd, profile_query_pool, current_slot * profile_marks_max, profile_marks_max);
+		bb::rhi::reset_timestamps(current_slot * profile_marks_max, profile_marks_max);
 		profile_gpu_mark(255);
 	}
 

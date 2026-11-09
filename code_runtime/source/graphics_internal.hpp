@@ -893,7 +893,6 @@ namespace bb::gfx {
 	extern Uint64 profile_gpu_submit;
 	extern Uint64 profile_gpu_present;
 	extern int    profile_overlap;
-	extern VkQueryPool profile_query_pool;
 	extern int    profile_mark_state; // -1 not tried, 0 not available, 1 available.
 	extern double profile_gpu_pass[5]; // GPU time in ns of the scenes, 2D runs, copies, the present and the whole frame.
 	void profile_gpu_mark(int pass);

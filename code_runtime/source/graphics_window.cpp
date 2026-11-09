@@ -291,9 +291,8 @@ void bb::gfx::destroy_device_objects()
 	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
 	bb::rhi::destroy_samplers();
-	if (profile_query_pool) {
-		vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
-		profile_query_pool = VK_NULL_HANDLE;
+	if (profile_mark_state == 1) {
+		bb::rhi::destroy_timestamps();
 		profile_mark_state = -1;
 	}
 	destroy_frame_slots();

@@ -324,6 +324,13 @@ namespace bb::rhi {
 	void copy_buffer_to_image(uint64_t buffer, uint64_t image, const buffer_image_copy* regions, uint32_t count);
 	void copy_image_to_buffer(uint64_t image, uint64_t buffer, const buffer_image_copy* regions, uint32_t count);
 
+	/** GPU timestamps (for BLITZLLVM_PROFILE_FPS): a pool of count slots. create_timestamps is false if the device can't (nothing is made). Times come back in nanoseconds. */
+	bool create_timestamps(uint32_t count);
+	void destroy_timestamps();
+	void reset_timestamps(uint32_t first, uint32_t count); // Before the slots are written again.
+	void write_timestamp(uint32_t index);                    // When all earlier work is done.
+	bool read_timestamps(uint32_t first, uint32_t count, double* nanoseconds); // False if the GPU has not written them yet.
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 
