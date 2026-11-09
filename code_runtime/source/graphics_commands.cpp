@@ -834,11 +834,10 @@ namespace bb::gfx {
 		if (copy_back) {
 			barrier(back.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_src);
 			barrier(front.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_dst);
-			VkImageCopy copy                 = {};
-			copy.srcSubresource              = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			copy.dstSubresource              = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			copy.extent                      = { front.width, front.height, 1 };
-			vkCmdCopyImage(g.cmd, back.image, vk_layout_of(bb::rhi::image_state::copy_src), front.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
+			bb::rhi::image_copy copy;
+			copy.w = front.width;
+			copy.h = front.height;
+			bb::rhi::copy_image(uint64_t(back.image), uint64_t(front.image), &copy, 1);
 			barrier(back.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 			barrier(front.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::copy_src);
 		} else {
@@ -850,26 +849,26 @@ namespace bb::gfx {
 
 		barrier(surface().swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		buffer_rect area = fit_buffer(float(surface().swap_extent.width), float(surface().swap_extent.height));
-		VkFilter    filter = VK_FILTER_NEAREST;
+		bb::rhi::filter filter = bb::rhi::filter::nearest;
 		if (surface().fullscreen) {
 			// Black around the buffer. Whole-number sizes stay sharp, others are smoothed.
-			VkClearColorValue       black = {};
-			VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-			vkCmdClearColorImage(g.cmd, surface().swap_images[index], vk_layout_of(bb::rhi::image_state::copy_dst), &black, 1, &range);
+			const float black[4] = { 0, 0, 0, 0 };
+			bb::rhi::clear_image(uint64_t(surface().swap_images[index]), black, 1, 1);
 			const char* rule = bb_env("BLITZLLVM_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
 			if (rule && (strcmp(rule, "linear") == 0)) {
-				filter = VK_FILTER_LINEAR;
+				filter = bb::rhi::filter::linear;
 			} else if (!rule || (strcmp(rule, "nearest") != 0)) {
-				filter = (fmodf(area.w, float(front.width)) == 0.0f && fmodf(area.h, float(front.height)) == 0.0f) ? VK_FILTER_NEAREST : VK_FILTER_LINEAR;
+				filter = (fmodf(area.w, float(front.width)) == 0.0f && fmodf(area.h, float(front.height)) == 0.0f) ? bb::rhi::filter::nearest : bb::rhi::filter::linear;
 			}
 		}
-		VkImageBlit blit       = {};
-		blit.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.srcOffsets[1]     = { int32_t(shown.width), int32_t(shown.height), 1 };
-		blit.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.dstOffsets[0]     = { int32_t(area.x), int32_t(area.y), 0 };
-		blit.dstOffsets[1]     = { int32_t(area.x + area.w), int32_t(area.y + area.h), 1 };
-		vkCmdBlitImage(g.cmd, shown.image, vk_layout_of(bb::rhi::image_state::copy_src), surface().swap_images[index], vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, filter);
+		bb::rhi::image_blit blit;
+		blit.src[2] = int32_t(shown.width);
+		blit.src[3] = int32_t(shown.height);
+		blit.dst[0] = int32_t(area.x);
+		blit.dst[1] = int32_t(area.y);
+		blit.dst[2] = int32_t(area.x + area.w);
+		blit.dst[3] = int32_t(area.y + area.h);
+		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().swap_images[index]), &blit, 1, filter);
 		barrier(surface().swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 

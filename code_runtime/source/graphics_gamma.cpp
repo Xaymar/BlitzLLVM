@@ -434,10 +434,10 @@ namespace bb::gfx {
 				dump_mapped = static_cast<uint8_t*>(mapped);
 				dump_size   = size;
 			}
-			VkBufferImageCopy copy = {};
-			copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			copy.imageExtent       = { shown.width, shown.height, 1 };
-			vkCmdCopyImageToBuffer(g.cmd, shown.image, vk_layout_of(bb::rhi::image_state::copy_src), dump_buffer.vk, 1, &copy);
+			bb::rhi::buffer_image_copy copy;
+			copy.w = shown.width;
+			copy.h = shown.height;
+			bb::rhi::copy_image_to_buffer(uint64_t(shown.image), uint64_t(dump_buffer.vk), &copy, 1);
 		}
 		return &shown;
 	}

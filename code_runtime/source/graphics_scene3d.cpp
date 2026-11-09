@@ -1129,12 +1129,12 @@ namespace bb::gfx {
 		}
 		transition(c.sheet, bb::rhi::image_state::copy_dst);
 		for (int i = 0; i < 6; i++) {
-			VkImageCopy region = {};
-			region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			region.dstOffset      = { (i % 3) * t.width, (i / 3) * t.height, 0 };
-			region.extent         = { uint32_t(t.width), uint32_t(t.height), 1 };
-			vkCmdCopyImage(g.cmd, face(i).image, vk_layout_of(bb::rhi::image_state::copy_src), c.sheet.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &region);
+			bb::rhi::image_copy region;
+			region.dst.x = (i % 3) * t.width;
+			region.dst.y = (i / 3) * t.height;
+			region.w     = uint32_t(t.width);
+			region.h     = uint32_t(t.height);
+			bb::rhi::copy_image(uint64_t(face(i).image), uint64_t(c.sheet.image), &region, 1);
 		}
 		transition(c.sheet, bb::rhi::image_state::sampled);
 	}
@@ -1830,12 +1830,14 @@ namespace bb::gfx {
 		to.image->mips_stale = to.image->mips > 1;
 		if (from.image->image == to.image->image) {
 			// The parts may overlap, so the pixels take a detour through a buffer.
-			VkBufferImageCopy part = {};
-			part.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, from.layer, 1 };
-			part.imageOffset       = { from.x + c.sx, from.y + c.sy, 0 };
-			part.imageExtent       = { uint32_t(c.w), uint32_t(c.h), 1 };
+			bb::rhi::buffer_image_copy part;
+			part.image.layer = from.layer;
+			part.image.x     = from.x + c.sx;
+			part.image.y     = from.y + c.sy;
+			part.w           = uint32_t(c.w);
+			part.h           = uint32_t(c.h);
 			transition(*from.image, bb::rhi::image_state::copy_src);
-			vkCmdCopyImageToBuffer(g.cmd, from.image->image, vk_layout_of(bb::rhi::image_state::copy_src), scratch.vk, 1, &part);
+			bb::rhi::copy_image_to_buffer(uint64_t(from.image->image), uint64_t(scratch.vk), &part, 1);
 			VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 			memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 			memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
@@ -1846,9 +1848,10 @@ namespace bb::gfx {
 			dep.pMemoryBarriers     = &memory;
 			transition(*to.image, bb::rhi::image_state::copy_dst);
 			vkCmdPipelineBarrier2(g.cmd, &dep);
-			part.imageSubresource.baseArrayLayer = to.layer;
-			part.imageOffset = { to.x + c.dx, to.y + c.dy, 0 };
-			vkCmdCopyBufferToImage(g.cmd, scratch.vk, to.image->image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &part);
+			part.image.layer = to.layer;
+			part.image.x     = to.x + c.dx;
+			part.image.y     = to.y + c.dy;
+			bb::rhi::copy_buffer_to_image(uint64_t(scratch.vk), uint64_t(to.image->image), &part, 1);
 			transition(*to.image, previous_to);
 			return;
 		}

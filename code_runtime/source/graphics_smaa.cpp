@@ -191,10 +191,10 @@ namespace {
 		memcpy(mapped, data, size);
 		gpu_image image = create_image(width, height, bb::rhi::image_sampled | bb::rhi::image_copy_destination, rhi_format(format));
 		transition(image, bb::rhi::image_state::copy_dst);
-		VkBufferImageCopy copy = {};
-		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.imageExtent       = { width, height, 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
+		bb::rhi::buffer_image_copy copy;
+		copy.w = width;
+		copy.h = height;
+		bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(image.image), &copy, 1);
 		transition(image, bb::rhi::image_state::sampled);
 		return image;
 	}
@@ -475,12 +475,13 @@ namespace bb::gfx {
 		// The part of the target that the camera drew.
 		transition(*target.image, bb::rhi::image_state::copy_src);
 		transition(s.src, bb::rhi::image_state::copy_dst);
-		VkImageCopy copy       = {};
-		copy.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, r.layer, 1 };
-		copy.srcOffset         = { r.x, r.y, 0 };
-		copy.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.extent            = { uint32_t(r.w), uint32_t(r.h), 1 };
-		vkCmdCopyImage(g.cmd, target.image->image, vk_layout_of(bb::rhi::image_state::copy_src), s.src.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
+		bb::rhi::image_copy copy;
+		copy.src.layer = r.layer;
+		copy.src.x     = r.x;
+		copy.src.y     = r.y;
+		copy.w         = uint32_t(r.w);
+		copy.h         = uint32_t(r.h);
+		bb::rhi::copy_image(uint64_t(target.image->image), uint64_t(s.src.image), &copy, 1);
 		transition(s.src, bb::rhi::image_state::sampled);
 
 		constants c = {};

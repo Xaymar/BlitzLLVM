@@ -289,6 +289,41 @@ namespace bb::rhi {
 	/** Records the change of an image from one use to the next (a layout change with a barrier on Vulkan; Direct3D 11 and OpenGL need nothing). depth: a depth image. The image is a backend handle for now. */
 	void transition_image(uint64_t image, image_state from, image_state to, bool depth);
 
+	/** A box inside one image: which level and layers, and where. Images are backend handles for now. depth: the depth aspect of a depth image. */
+	struct image_region {
+		uint32_t mip = 0, layer = 0, layers = 1;
+		int32_t  x = 0, y = 0;
+		bool     depth = false;
+	};
+
+	/** Copy of a w x h box from one image to another (the images must be in the copy_src and copy_dst state). */
+	struct image_copy {
+		image_region src, dst;
+		uint32_t     w = 0, h = 0;
+	};
+
+	/** A stretched copy: boxes x0, y0, x1, y1 in each image; same level and layer counts. */
+	struct image_blit {
+		uint32_t mip_src = 0, layer_src = 0, mip_dst = 0, layer_dst = 0, layers = 1;
+		int32_t  src[4] = { 0, 0, 0, 0 };
+		int32_t  dst[4] = { 0, 0, 0, 0 };
+	};
+
+	/** Bytes of a buffer to or from a box of an image: row_length in pixels (0 = tight). */
+	struct buffer_image_copy {
+		uint64_t     buffer_offset = 0;
+		uint32_t     row_length    = 0;
+		image_region image;
+		uint32_t     w = 0, h = 0;
+	};
+
+	void copy_image(uint64_t src, uint64_t dst, const image_copy* regions, uint32_t count);
+	void blit_image(uint64_t src, uint64_t dst, const image_blit* regions, uint32_t count, filter mode);
+	/** Clears the levels and layers of a colour image (in the copy_dst state) to a colour. */
+	void clear_image(uint64_t image, const float rgba[4], uint32_t mips, uint32_t layers);
+	void copy_buffer_to_image(uint64_t buffer, uint64_t image, const buffer_image_copy* regions, uint32_t count);
+	void copy_image_to_buffer(uint64_t image, uint64_t buffer, const buffer_image_copy* regions, uint32_t count);
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 

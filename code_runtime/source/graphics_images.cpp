@@ -84,11 +84,13 @@ namespace bb::gfx {
 		begin_commands();
 		bb::rhi::image_state previous = img.layout;
 		transition(img, bb::rhi::image_state::copy_src);
-		VkBufferImageCopy copy = {};
-		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, layer, 1 };
-		copy.imageOffset       = { x, y, 0 };
-		copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
-		vkCmdCopyImageToBuffer(g.cmd, img.image, vk_layout_of(bb::rhi::image_state::copy_src), staging.vk, 1, &copy);
+		bb::rhi::buffer_image_copy copy;
+		copy.image.layer = layer;
+		copy.image.x     = x;
+		copy.image.y     = y;
+		copy.w           = uint32_t(w);
+		copy.h           = uint32_t(h);
+		bb::rhi::copy_image_to_buffer(uint64_t(img.image), uint64_t(staging.vk), &copy, 1);
 		transition(img, previous);
 		submit_commands();
 
@@ -212,11 +214,13 @@ namespace bb::gfx {
 		begin_commands();
 		bb::rhi::image_state previous = img.layout;
 		transition(img, bb::rhi::image_state::copy_dst);
-		VkBufferImageCopy copy = {};
-		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, layer, 1 };
-		copy.imageOffset       = { x, y, 0 };
-		copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, img.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
+		bb::rhi::buffer_image_copy copy;
+		copy.image.layer = layer;
+		copy.image.x     = x;
+		copy.image.y     = y;
+		copy.w           = uint32_t(w);
+		copy.h           = uint32_t(h);
+		bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(img.image), &copy, 1);
 		transition(img, previous);
 		submit_commands();
 
@@ -825,12 +829,12 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		begin_commands();
 		transition(e->image, bb::rhi::image_state::copy_src);
 		barrier(target.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-		VkImageBlit blit    = {};
-		blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.srcOffsets[1]  = { e->sheet_w, e->sheet_h, 1 };
-		blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.dstOffsets[1]  = { sheet_w, sheet_h, 1 };
-		vkCmdBlitImage(g.cmd, e->image.image, vk_layout_of(bb::rhi::image_state::copy_src), target.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_LINEAR);
+		bb::rhi::image_blit blit;
+		blit.src[2] = e->sheet_w;
+		blit.src[3] = e->sheet_h;
+		blit.dst[2] = sheet_w;
+		blit.dst[3] = sheet_h;
+		bb::rhi::blit_image(uint64_t(e->image.image), uint64_t(target.image), &blit, 1, bb::rhi::filter::linear);
 		barrier(target.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
 		target.layout = bb::rhi::image_state::sampled;
 		submit_commands();
