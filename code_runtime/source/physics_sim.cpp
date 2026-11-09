@@ -48,6 +48,12 @@ struct pending_force {
 	float point[3];
 };
 
+struct contact_rec {
+	int   a = 0, b = 0; // Entities.
+	float point[3] = {}, normal[3] = {}, depth = 0;
+	int   sensor = 0;
+};
+
 struct world_rec {
 	int                       number = 0;
 	bp_sim*                   sim = nullptr;
@@ -61,6 +67,7 @@ struct world_rec {
 	uint64_t                  last_ticks = 0;
 	std::vector<int>          bodies; // Entities, in the order they were made (a body that is freed is replaced by the last).
 	std::vector<pending_force> forces;
+	std::vector<contact_rec>  contacts; // Of the last PhysicsUpdate.
 };
 
 std::unordered_map<int, body_rec> body_table;
@@ -315,6 +322,7 @@ bool make_in_world(int handle, body_rec& r, world_rec& w, const float* velocity_
 	float               q[4];
 	world_pose(handle, r.desc.position, q, nullptr);
 	memcpy(r.desc.rotation, q, sizeof(q));
+	r.desc.user   = uint64_t(handle);
 	r.desc.points = r.points.empty() ? nullptr : r.points.data();
 	r.desc.mesh   = r.mesh;
 	r.body        = l.sim_body_create(w.sim, &r.desc);
@@ -431,10 +439,9 @@ void apply_forces(physics::api const& l, world_rec& w)
 	}
 }
 
-void update_world(world_rec& w, float dt)
+// What the program moved since the last step is where the body is now.
+void sync_poses(world_rec& w, physics::api const& l)
 {
-	physics::api const& l = lib("PhysicsUpdate");
-	// What the program moved since the last step is where the body is now.
 	for (int handle : w.bodies) {
 		body_rec& r = body_table[handle];
 		if (r.desc.motion == BP_DYNAMIC || r.desc.motion == BP_KINEMATIC || r.desc.motion == BP_STATIC) {
@@ -447,7 +454,14 @@ void update_world(world_rec& w, float dt)
 			}
 		}
 	}
+}
 
+void update_world(world_rec& w, float dt)
+{
+	physics::api const& l = lib("PhysicsUpdate");
+	sync_poses(w, l);
+
+	l.sim_contacts_clear(w.sim);
 	const float step = 1.0f / w.rate;
 	int         steps = 0;
 	if (w.mode == 0) {
@@ -473,6 +487,21 @@ void update_world(world_rec& w, float dt)
 		w.alpha = 1.0f;
 	}
 	w.forces.clear();
+
+	// What touched during this call, with the entities of the bodies.
+	w.contacts.clear();
+	for (uint32_t i = 0, n = l.sim_contact_count(w.sim); i < n; i++) {
+		bp_contact c;
+		l.sim_contact_get(w.sim, i, &c);
+		contact_rec r;
+		r.a = int(c.user_a);
+		r.b = int(c.user_b);
+		memcpy(r.point, c.point, sizeof(r.point));
+		memcpy(r.normal, c.normal, sizeof(r.normal));
+		r.depth  = c.depth;
+		r.sensor = int(c.sensor);
+		w.contacts.push_back(r);
+	}
 
 	// Where the bodies are now is where their entities are, and for a world of fixed steps they are drawn between the step before and this one.
 	for (int handle : w.bodies) {
@@ -1082,4 +1111,146 @@ BB_PHYSICS_FLOAT(bb_physics_sleep_threshold, bb_get_physics_sleep_threshold, sle
 BB_PHYSICS_INT(bb_physics_world_sleeping, bb_get_physics_world_sleeping, allow_sleeping, 0, 1)
 BB_PHYSICS_INT(bb_physics_continuous_default, bb_get_physics_continuous_default, continuous_default, 0, 1)
 BB_PHYSICS_INT(bb_physics_deterministic, bb_get_physics_deterministic, deterministic, 0, 1)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Queries and contacts
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static struct {
+	int   entity = 0;
+	float point[3] = {}, normal[3] = {}, distance = 0;
+} last_hit;
+static std::vector<int> last_overlaps;
+
+static uint64_t layer_mask(int32_t low, int32_t high) { return (uint64_t(uint32_t(high)) << 32) | uint64_t(uint32_t(low)); }
+
+static void keep_hit(bp_query_hit const& h)
+{
+	last_hit.entity = int(h.user);
+	memcpy(last_hit.point, h.point, sizeof(last_hit.point));
+	memcpy(last_hit.normal, h.normal, sizeof(last_hit.normal));
+	last_hit.distance = h.distance;
+}
+
+static void clear_hit()
+{
+	last_hit = {};
+}
+
+int32_t bb_physics_ray_cast(float x1, float y1, float z1, float x2, float y2, float z2, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	world_rec&          w = world_of(world, "PhysicsRayCast");
+	physics::api const& l = lib("PhysicsRayCast");
+	sync_poses(w, l);
+	float               from[3] = { x1, y1, z1 }, along[3] = { x2 - x1, y2 - y1, z2 - z1 };
+	bp_query_hit        hit{};
+	clear_hit();
+	if (!l.sim_ray_cast(w.sim, from, along, layer_mask(mask_low, mask_high), sensors ? BP_QUERY_SENSORS : 0, &hit)) {
+		return 0;
+	}
+	keep_hit(hit);
+	return last_hit.entity;
+}
+
+int32_t bb_physics_point_inside(float x, float y, float z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	world_rec&          w = world_of(world, "PhysicsPointInside");
+	physics::api const& l = lib("PhysicsPointInside");
+	sync_poses(w, l);
+	float               p[3] = { x, y, z };
+	bp_query_hit        hit{};
+	clear_hit();
+	if (!l.sim_point_inside(w.sim, p, layer_mask(mask_low, mask_high), sensors ? BP_QUERY_SENSORS : 0, &hit)) {
+		return 0;
+	}
+	keep_hit(hit);
+	return last_hit.entity;
+}
+
+static int32_t keep_overlaps(uint32_t count, std::vector<uint64_t>& users)
+{
+	last_overlaps.clear();
+	for (uint32_t i = 0; i < count && i < users.size(); i++) {
+		last_overlaps.push_back(int(users[i]));
+	}
+	return int32_t(last_overlaps.size());
+}
+
+int32_t bb_physics_overlap_sphere(float x, float y, float z, float radius, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	world_rec&          w = world_of(world, "PhysicsOverlapSphere");
+	physics::api const& l = lib("PhysicsOverlapSphere");
+	sync_poses(w, l);
+	float               c[3] = { x, y, z };
+	uint64_t            mask = layer_mask(mask_low, mask_high);
+	uint32_t            flags = sensors ? BP_QUERY_SENSORS : 0;
+	uint32_t            count = l.sim_overlap_sphere(w.sim, c, radius, mask, flags, nullptr, 0);
+	std::vector<uint64_t> users(count);
+	if (count) {
+		l.sim_overlap_sphere(w.sim, c, radius, mask, flags, users.data(), count);
+	}
+	return keep_overlaps(count, users);
+}
+
+int32_t bb_physics_overlap_box(float x, float y, float z, float half_x, float half_y, float half_z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	world_rec&          w = world_of(world, "PhysicsOverlapBox");
+	physics::api const& l = lib("PhysicsOverlapBox");
+	sync_poses(w, l);
+	float               c[3] = { x, y, z }, half[3] = { half_x, half_y, half_z };
+	uint64_t            mask = layer_mask(mask_low, mask_high);
+	uint32_t            flags = sensors ? BP_QUERY_SENSORS : 0;
+	uint32_t            count = l.sim_overlap_box(w.sim, c, half, nullptr, mask, flags, nullptr, 0);
+	std::vector<uint64_t> users(count);
+	if (count) {
+		l.sim_overlap_box(w.sim, c, half, nullptr, mask, flags, users.data(), count);
+	}
+	return keep_overlaps(count, users);
+}
+
+int32_t bb_get_physics_overlap(int32_t index)
+{
+	if (index < 0 || size_t(index) >= last_overlaps.size()) {
+		die("GetPhysicsOverlap", "the index is not one of the bodies that the last overlap query found.");
+	}
+	return last_overlaps[size_t(index)];
+}
+
+int32_t bb_get_physics_hit_entity(void) { return last_hit.entity; }
+float   bb_get_physics_hit_x(void) { return last_hit.point[0]; }
+float   bb_get_physics_hit_y(void) { return last_hit.point[1]; }
+float   bb_get_physics_hit_z(void) { return last_hit.point[2]; }
+float   bb_get_physics_hit_nx(void) { return last_hit.normal[0]; }
+float   bb_get_physics_hit_ny(void) { return last_hit.normal[1]; }
+float   bb_get_physics_hit_nz(void) { return last_hit.normal[2]; }
+float   bb_get_physics_hit_distance(void) { return last_hit.distance; }
+
+void bb_physics_contact_report(int32_t entity, int32_t report)
+{
+	body_rec& r = body_of(entity, "PhysicsContactReport");
+	r.desc.report_contacts = report != 0;
+	lib("PhysicsContactReport").sim_body_set_report_contacts(world_of(r.world, "PhysicsContactReport").sim, r.body, report != 0);
+}
+int32_t bb_get_physics_contact_report(int32_t entity) { return int32_t(body_of(entity, "GetPhysicsContactReport").desc.report_contacts); }
+
+int32_t bb_get_physics_contact_count(int32_t world) { return int32_t(world_of(world, "GetPhysicsContactCount").contacts.size()); }
+
+static contact_rec const& contact_at(int32_t index, int32_t world, const char* what)
+{
+	world_rec& w = world_of(world, what);
+	if (index < 0 || size_t(index) >= w.contacts.size()) {
+		die(what, "the index is not one of the contacts of the last PhysicsUpdate.");
+	}
+	return w.contacts[size_t(index)];
+}
+
+int32_t bb_get_physics_contact_entity_a(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactEntityA").a; }
+int32_t bb_get_physics_contact_entity_b(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactEntityB").b; }
+float   bb_get_physics_contact_x(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactX").point[0]; }
+float   bb_get_physics_contact_y(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactY").point[1]; }
+float   bb_get_physics_contact_z(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactZ").point[2]; }
+float   bb_get_physics_contact_nx(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactNX").normal[0]; }
+float   bb_get_physics_contact_ny(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactNY").normal[1]; }
+float   bb_get_physics_contact_nz(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactNZ").normal[2]; }
+float   bb_get_physics_contact_depth(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactDepth").depth; }
+int32_t bb_get_physics_contact_sensor(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactSensor").sensor; }
 } // extern "C"
