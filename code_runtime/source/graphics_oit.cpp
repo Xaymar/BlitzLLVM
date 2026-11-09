@@ -254,7 +254,7 @@ namespace bb::gfx {
 		return oit_active() && (asked == 2);
 	}
 
-	static void color_attachment(VkRenderingAttachmentInfo& out, gpu_image& image, float r, float g_, float b, float a);
+	static void color_attachment(bb::rhi::pass_attachment& out, gpu_image& image, float r, float g_, float b, float a);
 
 	// The samples per pixel that the slots use: 4 or 8 as asked, or what the driver can do for both color and depth, to sample and to draw to (0 if the kind is not asked for).
 	int oit_mode() { return asked; }
@@ -275,19 +275,17 @@ namespace bb::gfx {
 	}
 
 	// The pass of the alpha-blended things for the slots: multisampled color (cleared to nothing) and depth (cleared to the far plane, which is 0).
-	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth)
+	void oit_attachments_slots(uint32_t width, uint32_t height, bb::rhi::pass_attachment color[2], bb::rhi::pass_attachment* depth)
 	{
 		image_set& entry = images_for(width, height);
 		color_attachment(color[0], entry.slot_color, 0, 0, 0, 0);
 		color_attachment(color[1], entry.slot_weight, 0, 0, 0, 0);
 		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		*depth                  = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		depth->imageView        = entry.slot_depth.view;
-		depth->imageLayout      = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		depth->loadOp           = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depth->storeOp          = VK_ATTACHMENT_STORE_OP_STORE;
-		depth->clearValue.depthStencil = { 0.0f, 0 };
+		*depth                  = bb::rhi::pass_attachment();
+		depth->view             = uint64_t(entry.slot_depth.view);
+		depth->load             = bb::rhi::load_op::clear;
+		depth->clear[0]         = 0.0f;
 	}
 
 	void oit_slots_to_sampled(uint32_t width, uint32_t height)
@@ -312,19 +310,17 @@ namespace bb::gfx {
 
 	// A layer of the peeling: the color is cleared to nothing and the depth to the nearest value, so that what no layer wrote to stays out of the next layers.
 	// The layers alternate between the two depth images; the first one is tested against the depth of the scene (the caller binds that).
-	bb::rhi::binding_group oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth)
+	bb::rhi::binding_group oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, bb::rhi::pass_attachment* color, bb::rhi::pass_attachment* depth)
 	{
 		image_set&     entry = images_for(width, height);
 		const uint32_t now   = layer & 1;
 		color_attachment(*color, entry.peel_color, 0, 0, 0, 0);
 		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		entry.peel_depth_layout[now]   = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		*depth                         = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		depth->imageView               = entry.peel_depth[now].view;
-		depth->imageLayout             = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		depth->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depth->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
-		depth->clearValue.depthStencil = { 1.0f, 0 };
+		*depth                         = bb::rhi::pass_attachment();
+		depth->view                    = uint64_t(entry.peel_depth[now].view);
+		depth->load                    = bb::rhi::load_op::clear;
+		depth->clear[0]                = 1.0f;
 		return (layer > 0) ? entry.peel_depth_set[now ^ 1] : bb::rhi::binding_group();
 	}
 
@@ -338,12 +334,12 @@ namespace bb::gfx {
 	}
 
 	// The layers are blended, from the farthest to the nearest, into a float image of their own (the 8 bits of the picture would round every layer).
-	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out)
+	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, bb::rhi::pass_attachment* out)
 	{
 		image_set& entry = images_for(width, height);
 		color_attachment(*out, entry.images[0], 0, 0, 0, 0);
 		if (layer > 0) {
-			out->loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+			out->load = bb::rhi::load_op::load;
 		}
 	}
 
@@ -394,20 +390,21 @@ namespace bb::gfx {
 		return images_for(width, height).set;
 	}
 
-	static void color_attachment(VkRenderingAttachmentInfo& out, gpu_image& image, float r, float g_, float b, float a)
+	static void color_attachment(bb::rhi::pass_attachment& out, gpu_image& image, float r, float g_, float b, float a)
 	{
 		transition(image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		out             = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		out.imageView   = image.view;
-		out.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		out.loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		out.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
-		out.clearValue.color = { { r, g_, b, a } };
+		out          = bb::rhi::pass_attachment();
+		out.view     = uint64_t(image.view);
+		out.load     = bb::rhi::load_op::clear;
+		out.clear[0] = r;
+		out.clear[1] = g_;
+		out.clear[2] = b;
+		out.clear[3] = a;
 	}
 
 	// Starts the pass of the blended things: the images are cleared to what no blended thing changes (nothing summed, all light
 	// remains, nothing multiplied) and become the color attachments, with the depth of the scene to test against.
-	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4])
+	void oit_attachments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[4])
 	{
 		image_set& entry = images_for(width, height);
 		color_attachment(out[0], entry.images[0], 0, 0, 0, 0);
@@ -417,7 +414,7 @@ namespace bb::gfx {
 	}
 
 	// The first pass of the moment based kind: the optical depth and the moments, both start at 0.
-	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2])
+	void oit_attachments_moments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[2])
 	{
 		image_set& entry = images_for(width, height);
 		color_attachment(out[0], entry.images[1], 0, 0, 0, 0);
@@ -432,11 +429,11 @@ namespace bb::gfx {
 	}
 
 	// The second pass of the moment based kind: what the layers add up to, and the multiplied and added colors. The image of the optical depth is not an attachment.
-	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4])
+	void oit_attachments_color(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[4])
 	{
 		image_set& entry = images_for(width, height);
 		color_attachment(out[0], entry.images[0], 0, 0, 0, 0);
-		out[1] = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		out[1] = bb::rhi::pass_attachment(); // Not an attachment: no view.
 		color_attachment(out[2], entry.images[2], 1, 1, 1, 1);
 		color_attachment(out[3], entry.images[3], 0, 0, 0, 0);
 	}

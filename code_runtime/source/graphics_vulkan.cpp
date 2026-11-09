@@ -2141,7 +2141,7 @@ namespace bb::rhi {
 		info.colorAttachmentCount       = desc.color_count;
 		info.pColorAttachments          = colors;
 		if (desc.has_depth) {
-			depth                         = vk_attachment(desc.depth, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+			depth                         = vk_attachment(desc.depth, desc.depth.read_only ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
 			info.pDepthAttachment         = &depth;
 		}

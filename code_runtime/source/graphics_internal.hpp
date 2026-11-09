@@ -1024,23 +1024,23 @@ namespace bb::gfx {
 	/** What GraphicsOrderIndependentTransparency was set to, 0 to 5. */
 	int oit_mode();
 	uint32_t oit_slots(); // The slots of samples of the kind that sorts fragments in the samples of a pixel (BLITZLLVM_OIT=3 for 4, =4 for 8): 0 if it is off or the driver has no such samples.
-	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth);
+	void oit_attachments_slots(uint32_t width, uint32_t height, bb::rhi::pass_attachment color[2], bb::rhi::pass_attachment* depth);
 	void oit_slots_to_sampled(uint32_t width, uint32_t height);
 	bool oit_peel();             // The exact reference (BLITZLLVM_OIT=5): the alpha-blended things are drawn one layer per pass, from the farthest layer to the nearest.
 	uint32_t oit_peel_layers();  // How many layers there are most (BLITZLLVM_OIT_LAYERS, 128 if it is not set).
 	/** Starts layer `layer` of the peeling: a pass with the color of the layer (cleared to nothing) and the depth that the layer writes, and gives the set (for set 3) of the depth it has to be nearer than. */
-	bb::rhi::binding_group oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	bb::rhi::binding_group oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, bb::rhi::pass_attachment* color, bb::rhi::pass_attachment* depth);
 	void oit_peel_to_sampled(uint32_t width, uint32_t height, uint32_t layer);
-	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out);
+	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, bb::rhi::pass_attachment* out);
 	void oit_composite_layer(uint32_t width, uint32_t height);
 	void oit_accumulated_to_sampled(uint32_t width, uint32_t height);
 	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height);
 	bb::rhi::pipeline_layout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
-	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
+	void oit_attachments_moments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);
-	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	void oit_attachments_color(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[4]);
 	bb::rhi::binding_group oit_moment_set(uint32_t width, uint32_t height);
-	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	void oit_attachments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[4]);
 	void oit_to_sampled(uint32_t width, uint32_t height);
 	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
 	void oit_destroy();

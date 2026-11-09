@@ -282,6 +282,7 @@ namespace bb::rhi {
 		uint64_t view  = 0;
 		load_op  load  = load_op::load;
 		bool     store = true;
+		bool     read_only = false; // Depth only: the pass reads it (a depth fade) and does not write.
 		float    clear[4] = { 0, 0, 0, 0 };
 	};
 
