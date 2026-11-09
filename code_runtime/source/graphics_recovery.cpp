@@ -122,11 +122,13 @@ namespace {
 		surface().acquired    = VK_NULL_HANDLE;
 
 		g.set_layout = VK_NULL_HANDLE;
+		g.images3_layout = g.images8_layout = VK_NULL_HANDLE;
 		g.set_pool   = VK_NULL_HANDLE;
-		g.layout     = VK_NULL_HANDLE;
-		g.triangles  = VK_NULL_HANDLE;
-		g.lines      = VK_NULL_HANDLE;
+		g.layout     = bb::rhi::pipeline_layout();
+		g.triangles  = bb::rhi::pipeline();
+		g.lines      = bb::rhi::pipeline();
 		bb::rhi::forget_samplers(); // The samplers went with the device.
+		bb::rhi::forget_layouts();
 		g.sampler = g.sampler_repeat = g.sampler_clamp = g.sampler_repeat_mips = g.sampler_clamp_mips = bb::rhi::sampler();
 		g.sampler_point_repeat = g.sampler_point_clamp = g.sampler_point_repeat_mips = g.sampler_point_clamp_mips = bb::rhi::sampler();
 		for (int i = 0; i < TEXTURES; i++) {
@@ -144,7 +146,7 @@ namespace {
 
 		g.scene_layout = VK_NULL_HANDLE;
 		g.scene_set    = bb::rhi::binding_group();
-		g.layout3d     = VK_NULL_HANDLE;
+		g.layout3d     = bb::rhi::pipeline_layout();
 		g.entity_layout = VK_NULL_HANDLE;
 		g.entity_set    = bb::rhi::binding_group();
 		g.entity_buffer = bb::rhi::gpu_buffer();
@@ -153,26 +155,27 @@ namespace {
 		g.layer_capacity = 0;
 		g.can_gpu_cull    = false;
 		g.cull_layout = VK_NULL_HANDLE;
-		g.cull_pipeline_layout = VK_NULL_HANDLE;
+		g.cull_pipeline_layout = bb::rhi::pipeline_layout();
 		g.cull_pipeline = VK_NULL_HANDLE;
 		g.cull          = cull_buffers();
 		g.statics       = static_buffers();
-		g.static_pipeline_layout = VK_NULL_HANDLE;
+		g.static_pipeline_layout = bb::rhi::pipeline_layout();
 		g.static_pipeline        = VK_NULL_HANDLE;
 		forget_layered_pipelines();
-		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = VK_NULL_HANDLE;
-		for (VkPipeline& pipeline : g.wire3d) {
-			pipeline = VK_NULL_HANDLE;
+		bb::rhi::forget_pipelines();
+		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = bb::rhi::pipeline();
+		for (bb::rhi::pipeline& pipeline : g.wire3d) {
+			pipeline = bb::rhi::pipeline();
 		}
-		for (VkPipeline& pipeline : g.oit3d) {
-			pipeline = VK_NULL_HANDLE;
+		for (bb::rhi::pipeline& pipeline : g.oit3d) {
+			pipeline = bb::rhi::pipeline();
 		}
-		for (VkPipeline& pipeline : g.oit3dm) {
-			pipeline = VK_NULL_HANDLE;
+		for (bb::rhi::pipeline& pipeline : g.oit3dm) {
+			pipeline = bb::rhi::pipeline();
 		}
-		g.oit_moments3d = VK_NULL_HANDLE;
-		g.oit_slots3d   = VK_NULL_HANDLE;
-		g.oit_peel3d    = VK_NULL_HANDLE;
+		g.oit_moments3d = bb::rhi::pipeline();
+		g.oit_slots3d   = bb::rhi::pipeline();
+		g.oit_peel3d    = bb::rhi::pipeline();
 		g.can_wireframe = g.can_anisotropy = g.can_custom_border = false;
 		g.scene_buffer = bb::rhi::gpu_buffer();
 	}

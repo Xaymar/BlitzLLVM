@@ -38,12 +38,12 @@ namespace {
 	bool            palette_ready   = false;
 	bool            palette_changed = true; // The lookup texture does not have the palette yet.
 	float           palette_steps[3];       // How far apart the colors of a channel are on average, in the 0 to 255 of a color: the noise of Dither.
-	VkPipelineLayout palette_layout   = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout palette_layout;
 	VkPipeline       palette_pipeline = VK_NULL_HANDLE;
 	gpu_image        palette_lookup;
 	bb::rhi::binding_group  palette_set;
 
-	VkPipelineLayout layout   = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
 	bb::rhi::gpu_buffer table_buffer;
 	float*           table_mapped = nullptr;
@@ -195,49 +195,44 @@ namespace {
 	// The pipeline for a depth of 8: the same inputs as the other one, and the lookup texture of the palette as a third set.
 	void create_palette_resources()
 	{
-		VkDescriptorSetLayout layouts[3] = { g.set_layout, g.scene_layout, g.set_layout };
-		VkPipelineLayoutCreateInfo info  = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		VkPushConstantRange shift        = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, 5 * sizeof(float) }; // The noise, and the Bayer pattern.
-		info.setLayoutCount              = 3;
-		info.pSetLayouts                 = layouts;
-		info.pushConstantRangeCount      = 1;
-		info.pPushConstantRanges         = &shift;
-		check(vkCreatePipelineLayout(g.device, &info, nullptr, &palette_layout), "vkCreatePipelineLayout");
+		bb::rhi::layout_desc desc;
+		desc.sets[0]     = bb::rhi::group_kind::texture;
+		desc.sets[1]     = bb::rhi::group_kind::scene;
+		desc.sets[2]     = bb::rhi::group_kind::texture;
+		desc.set_count   = 3;
+		desc.push_size   = 5 * sizeof(float); // The noise, and the Bayer pattern.
+		desc.push_stages = bb::rhi::stage_fragment;
+		palette_layout   = bb::rhi::get_layout(desc);
 
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
-		VkShaderModule fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
-		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false, false);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
+		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false);
+		destroy_shader(vs);
+		destroy_shader(fs);
 	}
 
 	void create_resources()
 	{
-		VkDescriptorSetLayout layouts[2] = { g.set_layout, g.scene_layout }; // A sampled image, and a uniform buffer.
-		VkPipelineLayoutCreateInfo info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		VkPushConstantRange shift       = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, 5 * sizeof(float) }; // Where the noise is this frame, and the Bayer pattern.
-		info.setLayoutCount             = 2;
-		info.pSetLayouts                = layouts;
-		info.pushConstantRangeCount     = 1;
-		info.pPushConstantRanges        = &shift;
-		check(vkCreatePipelineLayout(g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
+		bb::rhi::layout_desc desc; // A sampled image, and a uniform buffer.
+		desc.sets[0]     = bb::rhi::group_kind::texture;
+		desc.sets[1]     = bb::rhi::group_kind::scene;
+		desc.set_count   = 2;
+		desc.push_size   = 5 * sizeof(float); // Where the noise is this frame, and the Bayer pattern.
+		desc.push_stages = bb::rhi::stage_fragment;
+		layout           = bb::rhi::get_layout(desc);
 
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
-		VkShaderModule fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
-		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, false);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
+		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false);
+		destroy_shader(vs);
+		destroy_shader(fs);
 
 		void* mapped;
 		bb::rhi::create_buffer(table_buffer, 256 * 4 * sizeof(float), bb::rhi::uniform_data, bb::rhi::memory::mapped);
 		mapped = table_buffer.mapped;
 		table_mapped = static_cast<float*>(mapped);
 
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.scene_layout;
-		allocate_group(alloc, table_set, "vkAllocateDescriptorSets");
+		table_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
 		VkDescriptorBufferInfo buffer_info = { table_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = vk_set(table_set);
@@ -413,7 +408,7 @@ namespace bb::gfx {
 		VkRect2D   scissor  = { { 0, 0 }, { shown.width, shown.height } };
 		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-		VkPipelineLayout used = palettized ? palette_layout : layout;
+		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, palettized ? palette_pipeline : pipeline);
 		uint32_t offset = 0;
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, front_set, 0, nullptr);
@@ -425,7 +420,7 @@ namespace bb::gfx {
 		float push[5] = { dither_shift(), 0, 0, 0, float(bayer) }; // Then the steps and levels of the Bayer pattern.
 		dither_steps(push + 1);
 		presented++;
-		vkCmdPushConstants(g.cmd, used, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), push);
+		vkCmdPushConstants(g.cmd, vk_layout(used), VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), push);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);
 
@@ -487,14 +482,14 @@ namespace bb::gfx {
 		if (palette_pipeline) {
 			wait_gpu();
 			vkDestroyPipeline(g.device, palette_pipeline, nullptr);
-			vkDestroyPipelineLayout(g.device, palette_layout, nullptr);
+			palette_layout = bb::rhi::pipeline_layout();
 			palette_pipeline = VK_NULL_HANDLE;
 			palette_set      = bb::rhi::binding_group();
 			palette_changed  = true;
 		}
 		if (pipeline) {
 			vkDestroyPipeline(g.device, pipeline, nullptr);
-			vkDestroyPipelineLayout(g.device, layout, nullptr);
+			layout = bb::rhi::pipeline_layout();
 			bb::rhi::destroy_buffer(table_buffer);
 			pipeline   = VK_NULL_HANDLE;
 			front_view = VK_NULL_HANDLE;

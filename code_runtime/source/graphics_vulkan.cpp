@@ -388,14 +388,38 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
-	VkShaderModule create_shader(const unsigned int* words, size_t size)
+	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind)
+	{
+		switch (kind) {
+		case bb::rhi::group_kind::texture:
+			return g.set_layout;
+		case bb::rhi::group_kind::scene:
+			return g.scene_layout;
+		case bb::rhi::group_kind::entities:
+			return g.entity_layout;
+		case bb::rhi::group_kind::cull:
+			return g.cull_layout;
+		case bb::rhi::group_kind::images3:
+			return g.images3_layout;
+		case bb::rhi::group_kind::images8:
+			return g.images8_layout;
+		}
+		return VK_NULL_HANDLE;
+	}
+
+	bb::rhi::shader create_shader(const unsigned int* words, size_t size)
 	{
 		VkShaderModuleCreateInfo info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
 		info.codeSize                 = size;
 		info.pCode                    = words;
 		VkShaderModule module;
 		check(vkCreateShaderModule(g.device, &info, nullptr, &module), "vkCreateShaderModule");
-		return module;
+		return bb::rhi::shader{ uint64_t(module) };
+	}
+
+	void destroy_shader(bb::rhi::shader shader)
+	{
+		vkDestroyShaderModule(g.device, vk_shader(shader), nullptr);
 	}
 
 	// An image of RGBA8 stored as sRGB is copied as the bytes it has, so it counts as the same as one stored linear.
@@ -426,28 +450,27 @@ namespace bb::gfx {
 		vkCmdBlitImage(g.cmd, from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 	}
 
-	static std::unordered_map<VkPipeline, VkPipeline> pipeline_twins;
+	namespace {
+		struct pipeline_object {
+			bb::rhi::pipeline_recipe                                 recipe;
+			std::unordered_map<bb::rhi::format, VkPipeline>          built;
+			bool                                                     alive = false;
+		};
+		std::vector<pipeline_object> pipeline_objects;
+	} // namespace
 
-	void add_pipeline_twin(VkPipeline base, VkPipeline twin)
+	/** The Vulkan pipeline to draw to an image of that format. A target that is not the format of the buffers (when those are not RGBA8) gets the one made for RGBA8. */
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format)
 	{
-		pipeline_twins[base] = twin;
-	}
-
-	VkPipeline pipeline_for(VkPipeline base, VkFormat format)
-	{
-		if ((format == VK_FORMAT_R8G8B8A8_UNORM) || (format != g.buffer_format)) {
-			return base;
+		pipeline_object& object = pipeline_objects[pipeline.id - 1];
+		bb::rhi::format  key    = ((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8;
+		auto             found  = object.built.find(key);
+		if (found != object.built.end()) {
+			return found->second;
 		}
-		auto it = pipeline_twins.find(base);
-		return it != pipeline_twins.end() ? it->second : base;
-	}
-
-	void destroy_pipeline_twins()
-	{
-		for (auto& twin : pipeline_twins) {
-			vkDestroyPipeline(g.device, twin.second, nullptr);
-		}
-		pipeline_twins.clear();
+		VkPipeline made = build_pipeline(object.recipe(key));
+		object.built[key] = made;
+		return made;
 	}
 
 	static VkBlendFactor vk_blend_factor(bb::rhi::blend_factor f)
@@ -469,10 +492,10 @@ namespace bb::gfx {
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-		stages[0].module                          = VkShaderModule(desc.vs);
+		stages[0].module                          = vk_shader(desc.vs);
 		stages[0].pName                           = "main";
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-		stages[1].module                          = VkShaderModule(desc.fs);
+		stages[1].module                          = vk_shader(desc.fs);
 		stages[1].pName                           = "main";
 
 		// The constants of the 3D shaders.
@@ -608,19 +631,19 @@ namespace bb::gfx {
 		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = VkPipelineLayout(desc.layout);
+		info.layout                       = vk_layout(desc.layout);
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
-	static bb::rhi::pipeline_desc flat_desc(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
+	static bb::rhi::pipeline_desc flat_desc(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
 	{
 		bb::rhi::pipeline_desc desc;
-		desc.vs                      = uint64_t(vs);
-		desc.fs                      = uint64_t(fs);
-		desc.layout                  = uint64_t(layout);
+		desc.vs                      = vs;
+		desc.fs                      = fs;
+		desc.layout                  = layout;
 		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
 		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
 		desc.attachments[0].fmt      = rhi_format(format);
@@ -628,16 +651,22 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices, bool for_buffers)
+	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices)
 	{
-		VkPipeline pipeline = build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
-		if (for_buffers && (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM)) {
-			add_pipeline_twin(pipeline, build_pipeline(flat_desc(vs, fs, layout, topology, vertices, g.buffer_format)));
+		return build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
+	}
+
+	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
+	{
+		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
+		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM); // Both versions are made now, so that nothing is compiled in the middle of a frame.
+		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+			vk_pipeline(pipeline, g.buffer_format);
 		}
 		return pipeline;
 	}
 
-	VkPipeline create_fullscreen_pipeline(VkShaderModule vs, VkShaderModule fs, VkPipelineLayout layout, VkFormat format)
+	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format)
 	{
 		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
 	}
@@ -663,13 +692,7 @@ namespace bb::gfx {
 
 	void allocate_descriptor(bb::rhi::binding_group& set)
 	{
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.set_layout;
-		VkDescriptorSet raw;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &raw), "vkAllocateDescriptorSets (too many textures?)");
-		set = make_group(raw);
+		set = bb::rhi::create_group(bb::rhi::group_kind::texture);
 		// The bindings of the layers hold white (every shader that reads them needs something in them), until the white texture itself is made.
 		bb::rhi::binding_group white = g.sets[TEXTURE_WHITE_3D];
 		if (white && (white != set)) {
@@ -1907,22 +1930,22 @@ namespace bb::gfx {
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
 
-		VkPushConstantRange push = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 32 }; // Scale for the vertices, mask color for the fragments.
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount             = 1;
-		layout_info.pSetLayouts                = &g.set_layout;
-		layout_info.pushConstantRangeCount     = 1;
-		layout_info.pPushConstantRanges        = &push;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout), "vkCreatePipelineLayout");
+		// Scale for the vertices, mask color for the fragments.
+		bb::rhi::layout_desc flat;
+		flat.sets[0]     = bb::rhi::group_kind::texture;
+		flat.set_count   = 1;
+		flat.push_size   = 32;
+		flat.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
+		g.layout         = bb::rhi::get_layout(flat);
 
 		g.buffer_format = pick_buffer_format(g.requested_depth, g.buffer_depth);
 
-		VkShaderModule vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
-		VkShaderModule fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
-		g.triangles       = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
-		g.lines           = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
-		vkDestroyShaderModule(g.device, vs, nullptr);
-		vkDestroyShaderModule(g.device, fs, nullptr);
+		bb::rhi::shader vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
+		g.triangles       = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
+		g.lines           = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
+		destroy_shader(vs);
+		destroy_shader(fs);
 
 		// Textures: a white pixel for untextured drawing, and the font.
 		const uint8_t white[4] = { 255, 255, 255, 255 };
@@ -1977,3 +2000,116 @@ namespace bb::gfx {
 		create_device(surface().surface);
 	}
 } // namespace bb::gfx
+
+namespace bb::rhi {
+	// The layouts that were made, so that equal descriptions share one.
+	static std::vector<std::pair<layout_desc, pipeline_layout>> made_layouts;
+
+	pipeline_layout get_layout(layout_desc const& desc)
+	{
+		for (auto const& entry : made_layouts) {
+			if (entry.first == desc) {
+				return entry.second;
+			}
+		}
+		VkDescriptorSetLayout sets[5];
+		for (uint32_t i = 0; i < desc.set_count; i++) {
+			sets[i] = bb::gfx::vk_set_layout(desc.sets[i]);
+		}
+		VkPushConstantRange range = {};
+		range.size                = desc.push_size;
+		if (desc.push_stages & stage_vertex) {
+			range.stageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
+		}
+		if (desc.push_stages & stage_fragment) {
+			range.stageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+		}
+		if (desc.push_stages & stage_compute) {
+			range.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+		}
+		VkPipelineLayoutCreateInfo info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		info.setLayoutCount             = desc.set_count;
+		info.pSetLayouts                = sets;
+		info.pushConstantRangeCount     = desc.push_size ? 1 : 0;
+		info.pPushConstantRanges        = &range;
+		VkPipelineLayout layout;
+		bb::gfx::check(vkCreatePipelineLayout(bb::gfx::g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
+		pipeline_layout made{ uint64_t(layout) };
+		made_layouts.push_back({ desc, made });
+		return made;
+	}
+
+	void destroy_layouts()
+	{
+		for (auto const& entry : made_layouts) {
+			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
+		}
+		made_layouts.clear();
+	}
+
+	void forget_layouts()
+	{
+		made_layouts.clear();
+	}
+}
+
+namespace bb::rhi {
+	pipeline create_pipeline(pipeline_recipe recipe)
+	{
+		auto& objects = gfx::pipeline_objects;
+		for (size_t i = 0; i < objects.size(); i++) {
+			if (!objects[i].alive) {
+				objects[i].recipe = std::move(recipe);
+				objects[i].alive  = true;
+				return pipeline{ i + 1 };
+			}
+		}
+		objects.emplace_back();
+		objects.back().recipe = std::move(recipe);
+		objects.back().alive  = true;
+		return pipeline{ objects.size() };
+	}
+
+	void destroy_pipeline(pipeline p)
+	{
+		if (!p) {
+			return;
+		}
+		auto& object = gfx::pipeline_objects[p.id - 1];
+		for (auto& built : object.built) {
+			vkDestroyPipeline(gfx::g.device, built.second, nullptr);
+		}
+		object.built.clear();
+		object.recipe = nullptr;
+		object.alive  = false;
+	}
+
+	void destroy_pipelines()
+	{
+		for (size_t i = 0; i < gfx::pipeline_objects.size(); i++) {
+			if (gfx::pipeline_objects[i].alive) {
+				destroy_pipeline(pipeline{ i + 1 });
+			}
+		}
+		gfx::pipeline_objects.clear();
+	}
+
+	void forget_pipelines()
+	{
+		gfx::pipeline_objects.clear();
+	}
+}
+
+namespace bb::rhi {
+	binding_group create_group(group_kind kind)
+	{
+		VkDescriptorSetLayout       layout = gfx::vk_set_layout(kind);
+		VkDescriptorSetAllocateInfo alloc  = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool               = gfx::g.set_pool;
+		alloc.descriptorSetCount           = 1;
+		alloc.pSetLayouts                  = &layout;
+		VkDescriptorSet set;
+		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
+		return binding_group{ uint64_t(set) };
+	}
+}

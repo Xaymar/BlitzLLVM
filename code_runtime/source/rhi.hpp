@@ -20,6 +20,7 @@
 #include <vk_mem_alloc.h>
 
 #include <stdint.h>
+#include <functional>
 
 namespace bb::rhi {
 	/** What a buffer is used for, any of them together. */
@@ -144,9 +145,62 @@ namespace bb::rhi {
 		bool  layers       = false;
 	};
 
-	/** What a pipeline is made of. The shaders and the layout stay backend handles until the shader ids of the next commit (a VkShaderModule and a VkPipelineLayout on Vulkan). */
+	/** A compiled shader stage. Made from the SPIR-V words of the shader (backends without SPIR-V find their own source by the same words), destroyed with destroy_shader. A VkShaderModule on Vulkan. */
+	struct shader {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(shader const& o) const { return id == o.id; }
+		bool operator!=(shader const& o) const { return id != o.id; }
+		bool operator<(shader const& o) const { return id < o.id; }
+	};
+
+	/** The kinds of binding group that shaders read. Every group is made for one of them, and the backend knows what each one holds. */
+	enum class group_kind : uint8_t {
+		texture,  // The textures of a draw: one image with its sampler, and the layers of it.
+		scene,    // The uniform buffer of the scene, bound with a dynamic offset.
+		entities, // The per-entity buffers.
+		cull,     // What the culling and static draw passes read and write.
+		images3,  // Three sampled images (SMAA).
+		images8,  // Eight sampled images (order independent transparency).
+	};
+	constexpr uint8_t stage_vertex = 1, stage_fragment = 2, stage_compute = 4;
+
+	/** What a pipeline reads: up to five groups in order, and the push constants (a size, and the stages that read them). */
+	struct layout_desc {
+		group_kind sets[5]{};
+		uint32_t   set_count    = 0;
+		uint32_t   push_size    = 0;
+		uint8_t    push_stages  = 0;
+		bool operator==(layout_desc const& o) const
+		{
+			if ((set_count != o.set_count) || (push_size != o.push_size) || (push_stages != o.push_stages)) {
+				return false;
+			}
+			for (uint32_t i = 0; i < set_count; i++) {
+				if (sets[i] != o.sets[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+	};
+
+	/** A pipeline layout, made by get_layout. Equal descriptions give the same layout; the device frees them. A VkPipelineLayout on Vulkan. */
+	struct pipeline_layout {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(pipeline_layout const& o) const { return id == o.id; }
+		bool operator!=(pipeline_layout const& o) const { return id != o.id; }
+	};
+	pipeline_layout get_layout(layout_desc const& desc);
+	void            destroy_layouts();
+	/** For a lost device: the layouts went with it. */
+	void            forget_layouts();
+
+	/** What a pipeline is made of. */
 	struct pipeline_desc {
-		uint64_t         vs = 0, fs = 0, layout = 0;
+		shader           vs, fs;
+		pipeline_layout  layout;
 		topology         primitives = topology::triangles;
 		vertex_layout    vertices   = vertex_layout::none;
 		bool             wire       = false;
@@ -159,6 +213,26 @@ namespace bb::rhi {
 		bool             has_constants = false;
 		shader_constants constants;
 	};
+
+	/** What a pipeline is, for a target format. The description may depend on the format it draws to (a 3D shader has the limits and the dither of the target
+	    as constants), so a pipeline is made from a function that gives the description for a format and the backend asks it when the pipeline is first used
+	    with the format. */
+	using pipeline_recipe = std::function<pipeline_desc(format target)>;
+
+	/** A pipeline object. The backend builds the real pipeline for each target format when it is first drawn to, and keeps it until the pipeline is destroyed. */
+	struct pipeline {
+		uint64_t id = 0;
+		explicit operator bool() const { return id != 0; }
+		bool operator==(pipeline const& o) const { return id == o.id; }
+		bool operator!=(pipeline const& o) const { return id != o.id; }
+		bool operator<(pipeline const& o) const { return id < o.id; }
+	};
+	pipeline create_pipeline(pipeline_recipe recipe);
+	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
+	void     destroy_pipeline(pipeline p);
+	void     destroy_pipelines();
+	/** For a lost device: the pipelines went with it. */
+	void     forget_pipelines();
 
 	enum class filter : uint8_t { nearest, linear };
 	enum class wrap : uint8_t { repeat, mirror, clamp, border };
@@ -196,6 +270,9 @@ namespace bb::rhi {
 		bool operator!=(const binding_group& o) const { return id != o.id; }
 		bool operator<(const binding_group& o) const { return id < o.id; }
 	};
+
+	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
+	binding_group create_group(group_kind kind);
 
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);

@@ -234,13 +234,15 @@ namespace bb::gfx {
 		return value;
 	}
 
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, int oit = 0, bool layers = true)
+	/** What a 3D pipeline is, for a target of that format. */
+	static bb::rhi::pipeline_desc describe_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bool wire, bb::rhi::format target, int oit = 0, bool layers = true)
 	{
 		using namespace bb::rhi;
+		const VkFormat color_format = vk_format(target);
 		pipeline_desc desc;
-		desc.vs       = uint64_t(vs);
-		desc.fs       = uint64_t(fs);
-		desc.layout   = uint64_t(g.layout3d);
+		desc.vs       = vs;
+		desc.fs       = fs;
+		desc.layout   = g.layout3d;
 		desc.vertices = vertex_layout::scene3d;
 		desc.wire     = wire;
 		desc.depth    = true;
@@ -330,7 +332,7 @@ namespace bb::gfx {
 				if (oit == 3) {
 					// The second pass reads the sums of the first (the image of the optical depth is not an attachment in it).
 					at[1].fmt   = format::undefined;
-					desc.layout = uint64_t((mode == 1) ? oit_layout3d() : g.layout3d);
+					desc.layout = (mode == 1) ? oit_layout3d() : g.layout3d;
 				}
 				if (mode == 1) {
 					sums(0, blend_factor::one, blend_factor::one);
@@ -347,33 +349,48 @@ namespace bb::gfx {
 				desc.attachment_count = 4;
 			}
 		}
-		return build_pipeline(desc);
+		return desc;
 	}
 
 	// What a pipeline for draws without texture layers was made from, so that the one for draws with layers can be made the first time it is
 	// needed (the layers make the shader much larger, and most programs never have them).
 	struct layered_source {
-		VkShaderModule vs, fs;
+		bb::rhi::shader vs, fs;
 		int            mode;
 		bool           wire;
 	};
-	static std::unordered_map<VkPipeline, layered_source> layered_sources;
-	static std::unordered_map<VkPipeline, VkPipeline>     layered_pipelines;
+	static std::map<bb::rhi::pipeline, layered_source>      layered_sources;
+	static std::map<bb::rhi::pipeline, bb::rhi::pipeline>   layered_pipelines;
 
-	// The twin is the pipeline for a buffer that is not RGBA8. The pipeline is the one for draws without layers (constant 21 of the shader is
-	// off), see layered_pipeline_of for the other.
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
+	/** Builds a pipeline for the targets that are drawn to before the first draw, so that nothing is compiled in the middle of a frame. */
+	static bb::rhi::pipeline prebuilt(bb::rhi::pipeline pipeline)
 	{
-		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, 0, false);
+		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format, 0, false));
+			vk_pipeline(pipeline, g.buffer_format);
 		}
-		layered_sources[pipeline] = { vs, fs, mode, wire };
+		return pipeline;
+	}
+
+	// The pipeline is the one for draws without layers (constant 21 of the shader is off), see layered_pipeline_of for the other. It has
+	// a version for each target format that is drawn to (the buffers of the Graphics depth, and RGBA8).
+	static bb::rhi::pipeline create_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bool wire = false)
+	{
+		bb::rhi::pipeline pipeline = prebuilt(bb::rhi::create_pipeline([=](bb::rhi::format target) { return describe_3d(vs, fs, mode, wire, target, 0, false); }));
+		layered_sources[pipeline]  = { vs, fs, mode, wire };
+		return pipeline;
+	}
+
+	/** A pipeline of the order independent transparency passes: it draws to its own images, so it has one version only. The shader can be destroyed once this is made. */
+	static bb::rhi::pipeline create_oit_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bb::rhi::format target, int oit)
+	{
+		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format) { return describe_3d(vs, fs, mode, false, target, oit, true); });
+		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM);
 		return pipeline;
 	}
 
 	/** The pipeline to draw what has texture layers with the same state as the pipeline: its shader has the layers, made when this is first asked. */
-	static VkPipeline layered_pipeline_of(VkPipeline base)
+	static bb::rhi::pipeline layered_pipeline_of(bb::rhi::pipeline base)
 	{
 		auto made = layered_pipelines.find(base);
 		if (made != layered_pipelines.end()) {
@@ -383,12 +400,10 @@ namespace bb::gfx {
 		if (source == layered_sources.end()) {
 			return base; // The pipelines for order-independent transparency have the layers in them.
 		}
-		layered_source const& from = source->second;
-		VkPipeline            layered = build_pipeline_3d(from.vs, from.fs, from.mode, from.wire, VK_FORMAT_R8G8B8A8_UNORM, 0, true);
-		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(layered, build_pipeline_3d(from.vs, from.fs, from.mode, from.wire, g.buffer_format, 0, true));
-		}
-		layered_pipelines[base] = layered;
+		layered_source const& from    = source->second;
+		layered_source        copy    = from;
+		bb::rhi::pipeline     layered = prebuilt(bb::rhi::create_pipeline([=](bb::rhi::format target) { return describe_3d(copy.vs, copy.fs, copy.mode, copy.wire, target, 0, true); }));
+		layered_pipelines[base]       = layered;
 		return layered;
 	}
 
@@ -410,7 +425,7 @@ namespace bb::gfx {
 
 		// What entries have to share to be drawn by the same call.
 		struct entry_key {
-			VkPipeline   pipeline;
+			bb::rhi::pipeline pipeline;
 			int          texture; // The handle that the draw was made with.
 			uintptr_t    texture_set;
 			VkBuffer     vertex_buffer, index_buffer;
@@ -431,7 +446,7 @@ namespace bb::gfx {
 		struct built_from {
 			uint32_t   mesh, surface, texture, lights, light_count;
 			bool       wireframe;
-			VkPipeline opaque, solid, wire;
+			bb::rhi::pipeline opaque, solid, wire;
 
 			// Member by member: the padding after 'wireframe' is not set by every compiler, so memcmp would see changes that are none.
 			bool operator==(const built_from& o) const
@@ -832,11 +847,7 @@ namespace bb::gfx {
 		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
 		for (uint32_t slot = 0; slot < frame_slots; slot++) {
 			select_frame_slot(slot);
-			VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-			alloc.descriptorPool              = g.set_pool;
-			alloc.descriptorSetCount          = 1;
-			alloc.pSetLayouts                 = &g.scene_layout;
-			allocate_group(alloc, g.scene_set, "vkAllocateDescriptorSets");
+			g.scene_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
 
 			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
@@ -855,53 +866,51 @@ namespace bb::gfx {
 			write.pImageInfo                  = &lookup_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
-			alloc.pSetLayouts = &g.entity_layout;
-			allocate_group(alloc, g.entity_set, "vkAllocateDescriptorSets");
+			g.entity_set = bb::rhi::create_group(bb::rhi::group_kind::entities);
 			ensure_entities(1024);
 			ensure_layers(64);
 			if (g.can_gpu_cull) {
-				alloc.pSetLayouts = &g.cull_layout;
-				allocate_group(alloc, g.cull.set, "vkAllocateDescriptorSets");
-				allocate_group(alloc, g.statics.set, "vkAllocateDescriptorSets"); // Of the draws that the GPU drives, which have the same kinds of buffers.
+				g.cull.set    = bb::rhi::create_group(bb::rhi::group_kind::cull);
+				g.statics.set = bb::rhi::create_group(bb::rhi::group_kind::cull); // Of the draws that the GPU drives, which have the same kinds of buffers.
 			}
 		}
 		select_frame_slot(0);
 
 		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
-		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = 4;
-		layout_info.pSetLayouts            = layouts;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
+		bb::rhi::layout_desc layout3d;
+		layout3d.sets[0]   = bb::rhi::group_kind::texture;
+		layout3d.sets[1]   = bb::rhi::group_kind::scene;
+		layout3d.sets[2]   = bb::rhi::group_kind::entities;
+		layout3d.sets[3]   = bb::rhi::group_kind::texture;
+		layout3d.set_count = 4;
+		g.layout3d         = bb::rhi::get_layout(layout3d);
 
 		if (g.can_gpu_cull) {
-			VkDescriptorSetLayout cull_layouts[2] = { g.entity_layout, g.cull_layout };
-			VkPushConstantRange   cull_push       = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 }; // The planes of the view and the first group.
-			VkPipelineLayoutCreateInfo cull_layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-			cull_layout_info.setLayoutCount             = 2;
-			cull_layout_info.pSetLayouts                = cull_layouts;
-			cull_layout_info.pushConstantRangeCount     = 1;
-			cull_layout_info.pPushConstantRanges        = &cull_push;
-			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.cull_pipeline_layout), "vkCreatePipelineLayout");
-			VkShaderModule cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
+			bb::rhi::layout_desc cull_desc;
+			cull_desc.sets[0]     = bb::rhi::group_kind::entities;
+			cull_desc.sets[1]     = bb::rhi::group_kind::cull;
+			cull_desc.set_count   = 2;
+			cull_desc.push_size   = 6 * 16 + 16; // The planes of the view and the first group.
+			cull_desc.push_stages = bb::rhi::stage_compute;
+			g.cull_pipeline_layout = bb::rhi::get_layout(cull_desc);
+			bb::rhi::shader cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
 			VkComputePipelineCreateInfo cull_pipeline = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
 			cull_pipeline.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			cull_pipeline.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
-			cull_pipeline.stage.module                = cs;
+			cull_pipeline.stage.module                = vk_shader(cs);
 			cull_pipeline.stage.pName                 = "main";
-			cull_pipeline.layout                      = g.cull_pipeline_layout;
+			cull_pipeline.layout                      = vk_layout(g.cull_pipeline_layout);
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
-			vkDestroyShaderModule(g.device, cs, nullptr);
+			destroy_shader(cs);
 
 			// The draws that the GPU drives: the same sets, and the planes, where the camera is and where to write.
-			VkPushConstantRange static_push = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 + 16 };
-			cull_layout_info.pPushConstantRanges = &static_push;
-			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.static_pipeline_layout), "vkCreatePipelineLayout");
-			VkShaderModule ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
-			cull_pipeline.stage.module = ss;
-			cull_pipeline.layout       = g.static_pipeline_layout;
+			cull_desc.push_size    = 6 * 16 + 16 + 16;
+			g.static_pipeline_layout = bb::rhi::get_layout(cull_desc);
+			bb::rhi::shader ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
+			cull_pipeline.stage.module = vk_shader(ss);
+			cull_pipeline.layout       = vk_layout(g.static_pipeline_layout);
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.static_pipeline), "vkCreateComputePipelines");
-			vkDestroyShaderModule(g.device, ss, nullptr);
+			destroy_shader(ss);
 		}
 
 		build_pipelines_3d();
@@ -909,9 +918,9 @@ namespace bb::gfx {
 
 	void build_pipelines_3d()
 	{
-		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
-		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
-		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
+		bb::rhi::shader fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
+		bb::rhi::shader fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
 		g.blend3d         = create_pipeline_3d(vs, fs, 1);
@@ -919,33 +928,33 @@ namespace bb::gfx {
 		g.add3d           = create_pipeline_3d(vs, fs, 3);
 		g.mul2x3d         = create_pipeline_3d(vs, fs, 4);
 		if (oit_active()) {
-			VkShaderModule fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
+			bb::rhi::shader fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
 			if (oit_moments()) {
-				VkShaderModule fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
-				VkShaderModule fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
-				g.oit_moments3d = build_pipeline_3d(vs, fs_moments, 1, false, VK_FORMAT_R8G8B8A8_UNORM, 2);
+				bb::rhi::shader fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
+				bb::rhi::shader fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
+				g.oit_moments3d = create_oit_pipeline_3d(vs, fs_moments, 1, bb::rhi::format::rgba8, 2);
 				for (int mode = 1; mode <= 4; mode++) {
-					g.oit3dm[mode - 1] = build_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 3);
+					g.oit3dm[mode - 1] = create_oit_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, bb::rhi::format::rgba8, 3);
 				}
-				vkDestroyShaderModule(g.device, fs_moments, nullptr);
-				vkDestroyShaderModule(g.device, fs_color, nullptr);
+				destroy_shader(fs_moments);
+				destroy_shader(fs_color);
 			} else {
 				for (int mode = 1; mode <= 4; mode++) {
-					g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, 1);
+					g.oit3d[mode - 1] = create_oit_pipeline_3d(vs, fs_oit, mode, bb::rhi::format::rgba8, 1);
 				}
 			}
-			vkDestroyShaderModule(g.device, fs_oit, nullptr);
+			destroy_shader(fs_oit);
 		}
 		if (oit_slots()) {
 			// The alpha-blended things go to the slots, the multiplied and added ones to the sums as before.
-			VkShaderModule fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
-			g.oit_slots3d = build_pipeline_3d(vs, fs_slots, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 4);
-			vkDestroyShaderModule(g.device, fs_slots, nullptr);
+			bb::rhi::shader fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
+			g.oit_slots3d = create_oit_pipeline_3d(vs, fs_slots, 1, bb::rhi::format::rgba16f, 4);
+			destroy_shader(fs_slots);
 		}
 		if (oit_peel()) {
-			VkShaderModule fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
-			g.oit_peel3d = build_pipeline_3d(vs, fs_peel, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, 5);
-			vkDestroyShaderModule(g.device, fs_peel, nullptr);
+			bb::rhi::shader fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
+			g.oit_peel3d = create_oit_pipeline_3d(vs, fs_peel, 1, bb::rhi::format::rgba16f, 5);
+			destroy_shader(fs_peel);
 		}
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
@@ -965,53 +974,27 @@ namespace bb::gfx {
 	void destroy_pipelines_3d()
 	{
 		for (auto& made : layered_pipelines) {
-			vkDestroyPipeline(g.device, made.second, nullptr);
+			bb::rhi::destroy_pipeline(made.second);
 		}
 		layered_pipelines.clear();
-		std::set<VkShaderModule> modules;
+		std::set<bb::rhi::shader> modules;
 		for (auto& source : layered_sources) {
 			modules.insert(source.second.vs);
 			modules.insert(source.second.fs);
 		}
-		for (VkShaderModule module : modules) {
-			vkDestroyShaderModule(g.device, module, nullptr);
+		for (bb::rhi::shader module : modules) {
+			destroy_shader(module);
 		}
 		layered_sources.clear();
-		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
-		vkDestroyPipeline(g.device, g.solid3d, nullptr);
-		vkDestroyPipeline(g.device, g.blend3d, nullptr);
-		vkDestroyPipeline(g.device, g.mul3d, nullptr);
-		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
-		vkDestroyPipeline(g.device, g.add3d, nullptr);
-		for (VkPipeline& pipeline : g.wire3d) {
-			if (pipeline) {
-				vkDestroyPipeline(g.device, pipeline, nullptr);
-				pipeline = VK_NULL_HANDLE;
+		for (bb::rhi::pipeline* pipeline : { &g.opaque3d, &g.solid3d, &g.blend3d, &g.mul3d, &g.mul2x3d, &g.add3d, &g.oit_moments3d, &g.oit_slots3d, &g.oit_peel3d }) {
+			bb::rhi::destroy_pipeline(*pipeline);
+			*pipeline = bb::rhi::pipeline();
+		}
+		for (bb::rhi::pipeline* group : { g.wire3d, g.oit3d, g.oit3dm }) {
+			for (int i = 0; i < 4; i++) {
+				bb::rhi::destroy_pipeline(group[i]);
+				group[i] = bb::rhi::pipeline();
 			}
-		}
-		for (VkPipeline& pipeline : g.oit3d) {
-			if (pipeline) {
-				vkDestroyPipeline(g.device, pipeline, nullptr);
-				pipeline = VK_NULL_HANDLE;
-			}
-		}
-		for (VkPipeline& pipeline : g.oit3dm) {
-			if (pipeline) {
-				vkDestroyPipeline(g.device, pipeline, nullptr);
-				pipeline = VK_NULL_HANDLE;
-			}
-		}
-		if (g.oit_moments3d) {
-			vkDestroyPipeline(g.device, g.oit_moments3d, nullptr);
-			g.oit_moments3d = VK_NULL_HANDLE;
-		}
-		if (g.oit_slots3d) {
-			vkDestroyPipeline(g.device, g.oit_slots3d, nullptr);
-			g.oit_slots3d = VK_NULL_HANDLE;
-		}
-		if (g.oit_peel3d) {
-			vkDestroyPipeline(g.device, g.oit_peel3d, nullptr);
-			g.oit_peel3d = VK_NULL_HANDLE;
 		}
 	}
 
@@ -1191,8 +1174,8 @@ namespace bb::gfx {
 		push.first_group[0] = int32_t(first);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline_layout, 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, g.cull_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.cull_pipeline_layout), 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, vk_layout(g.cull_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
@@ -1276,8 +1259,8 @@ namespace bb::gfx {
 		push.base[1] = int32_t(scene.static_commands);
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline_layout, 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, g.static_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.static_pipeline_layout), 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, vk_layout(g.static_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
 		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
@@ -1448,7 +1431,7 @@ namespace bb::gfx {
 			return made;
 		};
 
-		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
+		bb::rhi::pipeline bound_pipeline;
 		bb::rhi::binding_group bound_set;
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
 		int             bound_cull = -1, bound_test = -1, bound_write = -1;
@@ -1485,8 +1468,8 @@ namespace bb::gfx {
 		VkRenderingInfo           peel_info = info, accumulate_info = info;
 		uint32_t                  peel_layer = 0;
 		const uint32_t            oit_w = target.image->width, oit_h = target.image->height;
-		auto oit_bit = [&](VkPipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
-		auto oit_index = [&](VkPipeline pipeline) -> int { return (pipeline == g.blend3d) ? 0 : ((pipeline == g.mul3d) ? 1 : ((pipeline == g.add3d) ? 2 : 3)); };
+		auto oit_bit = [&](bb::rhi::pipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
+		auto oit_index = [&](bb::rhi::pipeline pipeline) -> int { return (pipeline == g.blend3d) ? 0 : ((pipeline == g.mul3d) ? 1 : ((pipeline == g.add3d) ? 2 : 3)); };
 		auto leave_oit = [&]() {
 			vkCmdEndRendering(g.cmd);
 			oit_to_sampled(oit_w, oit_h);
@@ -1504,7 +1487,7 @@ namespace bb::gfx {
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
 			bb::rhi::binding_group depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_bound, 0, nullptr);
-			bound_pipeline = VK_NULL_HANDLE;
+			bound_pipeline = bb::rhi::pipeline();
 			bound_set      = bb::rhi::binding_group();
 			bound_cull = bound_test = bound_write = -1;
 		};
@@ -1517,7 +1500,7 @@ namespace bb::gfx {
 				}
 				gpu_static::entry_key const& k = r.key;
 				if (k.pipeline != bound_pipeline) {
-					vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(k.pipeline, target.image->format));
+					vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(k.pipeline, target.image->format));
 					bound_pipeline = k.pipeline;
 					stats3d.pipelines++;
 				}
@@ -1577,7 +1560,7 @@ namespace bb::gfx {
 				oit_composite_layer(oit_w, oit_h);
 				vkCmdEndRendering(g.cmd);
 				peel_layer++;
-				bound_pipeline = VK_NULL_HANDLE;
+				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				if (peel_layer < oit_peel_layers()) {
 					bb::rhi::binding_group before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_color, &peel_depth);
@@ -1618,7 +1601,7 @@ namespace bb::gfx {
 				}
 				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-				bound_pipeline = VK_NULL_HANDLE;
+				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 4;
 				i         = oit_begin;
@@ -1641,7 +1624,7 @@ namespace bb::gfx {
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
 				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, moment_set, 0, nullptr);
-				bound_pipeline = VK_NULL_HANDLE;
+				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 2;
 				i         = oit_begin;
@@ -1661,7 +1644,7 @@ namespace bb::gfx {
 				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
 				read_only = true;
-				bound_pipeline = VK_NULL_HANDLE;
+				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 			}
 			draw_record& d = draws[scene.first_draw + i];
@@ -1708,7 +1691,7 @@ namespace bb::gfx {
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
 					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, scene_set, 0, nullptr);
-					bound_pipeline = VK_NULL_HANDLE;
+					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_slots()) {
 					vkCmdEndRendering(g.cmd);
@@ -1736,7 +1719,7 @@ namespace bb::gfx {
 					vkCmdBeginRendering(g.cmd, &slot_info);
 					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-					bound_pipeline = VK_NULL_HANDLE;
+					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_moments()) {
 					vkCmdEndRendering(g.cmd);
@@ -1764,7 +1747,7 @@ namespace bb::gfx {
 					vkCmdBeginRendering(g.cmd, &moment_info);
 					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-					bound_pipeline = VK_NULL_HANDLE;
+					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit) {
 					vkCmdEndRendering(g.cmd);
@@ -1781,7 +1764,7 @@ namespace bb::gfx {
 					}
 					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-					bound_pipeline = VK_NULL_HANDLE;
+					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else {
 					leave_oit();
@@ -1791,9 +1774,9 @@ namespace bb::gfx {
 				oit_modes |= 1u << oit_bit(d.pipeline);
 			}
 			// Draws with texture layers have a pipeline of their own (the shader of the others does not have the layers).
-			VkPipeline wanted = (d.layer_group && !d.oit) ? layered_pipeline_of(d.pipeline) : d.pipeline;
+			bb::rhi::pipeline wanted = (d.layer_group && !d.oit) ? layered_pipeline_of(d.pipeline) : d.pipeline;
 			if (wanted != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(wanted, target.image->format));
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : wanted, target.image->format));
 				bound_pipeline = wanted;
 				stats3d.pipelines++;
 			}
@@ -2254,7 +2237,7 @@ namespace bb::gfx {
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
+			state_key k = { uintptr_t(d.pipeline.id), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
 			// The same few states come again and again, so the last ones are looked at before the table is.
 			int found = -1;
 			for (int r = 0; r < recent_count; r++) {
@@ -2343,7 +2326,7 @@ namespace bb::gfx {
 		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
 		// be depth tested before they are shaded.
 		auto key = [&](draw_record const& d) {
-			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline.id), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
 		};
 		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
 		std::vector<draw_record> sorted;

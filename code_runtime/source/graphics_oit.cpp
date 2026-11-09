@@ -39,10 +39,10 @@ namespace {
 	};
 	constexpr uint32_t max_sizes = 4;
 	image_set        cache[max_sizes];
-	VkPipelineLayout layout       = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout;
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	std::map<VkFormat, VkPipeline[7]> composites;
-	VkPipelineLayout layout3d_moments = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout3d_moments;
 
 	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
 
@@ -59,10 +59,11 @@ namespace {
 		info.bindingCount                    = 8;
 		info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount             = 1;
-		layout_info.pSetLayouts                = &set_layout;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &layout), "vkCreatePipelineLayout");
+		g.images8_layout = set_layout;
+		bb::rhi::layout_desc desc;
+		desc.sets[0]   = bb::rhi::group_kind::images8;
+		desc.set_count = 1;
+		layout         = bb::rhi::get_layout(desc);
 	}
 
 	image_set& images_for(uint32_t width, uint32_t height)
@@ -77,11 +78,7 @@ namespace {
 				continue;
 			}
 			create_set_layout();
-			VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-			alloc.descriptorPool              = g.set_pool;
-			alloc.descriptorSetCount          = 1;
-			alloc.pSetLayouts                 = &set_layout;
-			allocate_group(alloc, entry.set, "vkAllocateDescriptorSets");
+			entry.set = bb::rhi::create_group(bb::rhi::group_kind::images8);
 			VkDescriptorImageInfo infos[5];
 			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
@@ -124,11 +121,7 @@ namespace {
 				vkUpdateDescriptorSets(g.device, 1, &layer_write, 0, nullptr);
 				for (int i = 0; i < 2; i++) {
 					entry.peel_depth[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
-					VkDescriptorSetAllocateInfo depth_alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-					depth_alloc.descriptorPool     = g.set_pool;
-					depth_alloc.descriptorSetCount = 1;
-					depth_alloc.pSetLayouts        = &g.set_layout;
-					allocate_group(depth_alloc, entry.peel_depth_set[i], "vkAllocateDescriptorSets");
+					entry.peel_depth_set[i] = bb::rhi::create_group(bb::rhi::group_kind::texture);
 					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
 					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 					depth_write.dstSet          = vk_set(entry.peel_depth_set[i]);
@@ -154,7 +147,7 @@ namespace {
 		}
 		create_set_layout();
 		VkPipeline* made = composites[format];
-		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		const bool          eight    = (oit_slots() == 8);
 		const unsigned int* codes[7] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3, eight ? bb_shader_fragment_oit_resolve8 : bb_shader_fragment_oit_resolve4, bb_shader_fragment_oit_layer, bb_shader_fragment_oit_accumulated };
 		const size_t        sizes[7] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3), eight ? sizeof(bb_shader_fragment_oit_resolve8) : sizeof(bb_shader_fragment_oit_resolve4), sizeof(bb_shader_fragment_oit_layer), sizeof(bb_shader_fragment_oit_accumulated) };
@@ -162,13 +155,13 @@ namespace {
 			if (((mode == 4) && !oit_slots()) || ((mode >= 5) && !oit_peel())) {
 				continue;
 			}
-			VkShaderModule fs = create_shader(codes[mode], sizes[mode]);
+			bb::rhi::shader fs = create_shader(codes[mode], sizes[mode]);
 			VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 			stages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
-			stages[0].module = vs;
+			stages[0].module = vk_shader(vs);
 			stages[0].pName  = "main";
 			stages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-			stages[1].module = fs;
+			stages[1].module = vk_shader(fs);
 			stages[1].pName  = "main";
 			VkPipelineVertexInputStateCreateInfo   input    = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 			VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -237,11 +230,11 @@ namespace {
 			info.pDepthStencilState           = &depth;
 			info.pColorBlendState             = &blending;
 			info.pDynamicState                = &dynamic;
-			info.layout                       = layout;
+			info.layout                       = vk_layout(layout);
 			check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &made[mode]), "vkCreateGraphicsPipelines (OIT)");
-			vkDestroyShaderModule(g.device, fs, nullptr);
+			destroy_shader(fs);
 		}
-		vkDestroyShaderModule(g.device, vs, nullptr);
+		destroy_shader(vs);
 		return made;
 	}
 } // namespace
@@ -380,15 +373,18 @@ namespace bb::gfx {
 	}
 
 	// The 3D pipelines of the second pass of the moment based kind: they read the sums of the first (set 4) next to what the other 3D pipelines read.
-	VkPipelineLayout oit_layout3d()
+	bb::rhi::pipeline_layout oit_layout3d()
 	{
 		if (!layout3d_moments) {
 			create_set_layout();
-			VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, set_layout };
-			VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-			layout_info.setLayoutCount         = 5;
-			layout_info.pSetLayouts            = layouts;
-			check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &layout3d_moments), "vkCreatePipelineLayout");
+			bb::rhi::layout_desc desc;
+			desc.sets[0]   = bb::rhi::group_kind::texture;
+			desc.sets[1]   = bb::rhi::group_kind::scene;
+			desc.sets[2]   = bb::rhi::group_kind::entities;
+			desc.sets[3]   = bb::rhi::group_kind::texture;
+			desc.sets[4]   = bb::rhi::group_kind::images8;
+			desc.set_count = 5;
+			layout3d_moments = bb::rhi::get_layout(desc);
 		}
 		return layout3d_moments;
 	}

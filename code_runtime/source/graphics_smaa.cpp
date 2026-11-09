@@ -66,10 +66,10 @@ namespace {
 
 	bool                  ready = false;
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
-	VkPipelineLayout      layout = VK_NULL_HANDLE;
+	bb::rhi::pipeline_layout layout;
 	VkDescriptorPool      pool = VK_NULL_HANDLE;
 	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
-	VkShaderModule        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
+	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
 	struct format_pipelines {
 		VkFormat   format = VK_FORMAT_UNDEFINED;
@@ -213,13 +213,13 @@ namespace {
 		set_info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
 
-		VkPushConstantRange range = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(constants) };
-		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount             = 1;
-		layout_info.pSetLayouts                = &set_layout;
-		layout_info.pushConstantRangeCount     = 1;
-		layout_info.pPushConstantRanges        = &range;
-		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &layout), "vkCreatePipelineLayout");
+		g.images3_layout = set_layout;
+		bb::rhi::layout_desc desc;
+		desc.sets[0]     = bb::rhi::group_kind::images3;
+		desc.set_count   = 1;
+		desc.push_size   = sizeof(constants);
+		desc.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
+		layout           = bb::rhi::get_layout(desc);
 
 		VkDescriptorPoolSize size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, max_slots * 5 * 3 };
 		VkDescriptorPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
@@ -376,7 +376,7 @@ namespace {
 	{
 		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
-		vkCmdPushConstants(g.cmd, layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(c), &c);
+		vkCmdPushConstants(g.cmd, vk_layout(layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(c), &c);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);
 	}
@@ -601,13 +601,14 @@ namespace bb::gfx {
 		vkDestroyPipeline(g.device, edges_pipeline, nullptr);
 		vkDestroyPipeline(g.device, weights_pipeline, nullptr);
 		for (int i = 0; i < 4; i++) {
-			vkDestroyShaderModule(g.device, vertex_modules[i], nullptr);
-			vkDestroyShaderModule(g.device, fragment_modules[i], nullptr);
+			destroy_shader(vertex_modules[i]);
+			destroy_shader(fragment_modules[i]);
 		}
 		linear = nearest = bb::rhi::sampler();
 		vkDestroyDescriptorPool(g.device, pool, nullptr);
-		vkDestroyPipelineLayout(g.device, layout, nullptr);
+		layout = bb::rhi::pipeline_layout();
 		vkDestroyDescriptorSetLayout(g.device, set_layout, nullptr);
+		g.images3_layout = VK_NULL_HANDLE;
 		destroy_image(area_texture);
 		destroy_image(search_texture);
 		bb::rhi::destroy_buffer(area_staging);
