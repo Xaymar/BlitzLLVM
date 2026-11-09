@@ -78,11 +78,7 @@ namespace {
 				continue;
 			}
 			create_set_layout();
-			VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-			alloc.descriptorPool              = g.set_pool;
-			alloc.descriptorSetCount          = 1;
-			alloc.pSetLayouts                 = &set_layout;
-			allocate_group(alloc, entry.set, "vkAllocateDescriptorSets");
+			entry.set = bb::rhi::create_group(bb::rhi::group_kind::images8);
 			VkDescriptorImageInfo infos[5];
 			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
@@ -125,11 +121,7 @@ namespace {
 				vkUpdateDescriptorSets(g.device, 1, &layer_write, 0, nullptr);
 				for (int i = 0; i < 2; i++) {
 					entry.peel_depth[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
-					VkDescriptorSetAllocateInfo depth_alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-					depth_alloc.descriptorPool     = g.set_pool;
-					depth_alloc.descriptorSetCount = 1;
-					depth_alloc.pSetLayouts        = &g.set_layout;
-					allocate_group(depth_alloc, entry.peel_depth_set[i], "vkAllocateDescriptorSets");
+					entry.peel_depth_set[i] = bb::rhi::create_group(bb::rhi::group_kind::texture);
 					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
 					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 					depth_write.dstSet          = vk_set(entry.peel_depth_set[i]);

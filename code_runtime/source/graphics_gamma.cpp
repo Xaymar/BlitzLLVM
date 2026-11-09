@@ -232,11 +232,7 @@ namespace {
 		mapped = table_buffer.mapped;
 		table_mapped = static_cast<float*>(mapped);
 
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.scene_layout;
-		allocate_group(alloc, table_set, "vkAllocateDescriptorSets");
+		table_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
 		VkDescriptorBufferInfo buffer_info = { table_buffer.vk, 0, VK_WHOLE_SIZE };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = vk_set(table_set);

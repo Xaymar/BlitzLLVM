@@ -847,11 +847,7 @@ namespace bb::gfx {
 		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
 		for (uint32_t slot = 0; slot < frame_slots; slot++) {
 			select_frame_slot(slot);
-			VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-			alloc.descriptorPool              = g.set_pool;
-			alloc.descriptorSetCount          = 1;
-			alloc.pSetLayouts                 = &g.scene_layout;
-			allocate_group(alloc, g.scene_set, "vkAllocateDescriptorSets");
+			g.scene_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
 
 			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
@@ -870,14 +866,12 @@ namespace bb::gfx {
 			write.pImageInfo                  = &lookup_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
-			alloc.pSetLayouts = &g.entity_layout;
-			allocate_group(alloc, g.entity_set, "vkAllocateDescriptorSets");
+			g.entity_set = bb::rhi::create_group(bb::rhi::group_kind::entities);
 			ensure_entities(1024);
 			ensure_layers(64);
 			if (g.can_gpu_cull) {
-				alloc.pSetLayouts = &g.cull_layout;
-				allocate_group(alloc, g.cull.set, "vkAllocateDescriptorSets");
-				allocate_group(alloc, g.statics.set, "vkAllocateDescriptorSets"); // Of the draws that the GPU drives, which have the same kinds of buffers.
+				g.cull.set    = bb::rhi::create_group(bb::rhi::group_kind::cull);
+				g.statics.set = bb::rhi::create_group(bb::rhi::group_kind::cull); // Of the draws that the GPU drives, which have the same kinds of buffers.
 			}
 		}
 		select_frame_slot(0);

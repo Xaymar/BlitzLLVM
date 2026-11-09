@@ -272,6 +272,9 @@ namespace bb::rhi {
 		bool operator<(const binding_group& o) const { return id < o.id; }
 	};
 
+	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
+	binding_group create_group(group_kind kind);
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

@@ -692,13 +692,7 @@ namespace bb::gfx {
 
 	void allocate_descriptor(bb::rhi::binding_group& set)
 	{
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.set_layout;
-		VkDescriptorSet raw;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &raw), "vkAllocateDescriptorSets (too many textures?)");
-		set = make_group(raw);
+		set = bb::rhi::create_group(bb::rhi::group_kind::texture);
 		// The bindings of the layers hold white (every shader that reads them needs something in them), until the white texture itself is made.
 		bb::rhi::binding_group white = g.sets[TEXTURE_WHITE_3D];
 		if (white && (white != set)) {
@@ -2103,5 +2097,19 @@ namespace bb::rhi {
 	void forget_pipelines()
 	{
 		gfx::pipeline_objects.clear();
+	}
+}
+
+namespace bb::rhi {
+	binding_group create_group(group_kind kind)
+	{
+		VkDescriptorSetLayout       layout = gfx::vk_set_layout(kind);
+		VkDescriptorSetAllocateInfo alloc  = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool               = gfx::g.set_pool;
+		alloc.descriptorSetCount           = 1;
+		alloc.pSetLayouts                  = &layout;
+		VkDescriptorSet set;
+		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
+		return binding_group{ uint64_t(set) };
 	}
 }
