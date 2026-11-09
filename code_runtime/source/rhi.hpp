@@ -223,7 +223,6 @@ namespace bb::rhi {
 	struct pipeline {
 		uint64_t id = 0;
 		explicit operator bool() const { return id != 0; }
-		explicit operator uint64_t() const { return id; }
 		bool operator==(pipeline const& o) const { return id == o.id; }
 		bool operator!=(pipeline const& o) const { return id != o.id; }
 		bool operator<(pipeline const& o) const { return id < o.id; }

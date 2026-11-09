@@ -2237,7 +2237,7 @@ namespace bb::gfx {
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
+			state_key k = { uintptr_t(d.pipeline.id), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
 			// The same few states come again and again, so the last ones are looked at before the table is.
 			int found = -1;
 			for (int r = 0; r < recent_count; r++) {
@@ -2326,7 +2326,7 @@ namespace bb::gfx {
 		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
 		// be depth tested before they are shaded.
 		auto key = [&](draw_record const& d) {
-			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline.id), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
 		};
 		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
 		std::vector<draw_record> sorted;
