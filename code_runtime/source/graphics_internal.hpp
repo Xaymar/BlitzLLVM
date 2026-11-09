@@ -231,9 +231,24 @@ namespace bb::gfx {
 		VkImageView*   layer_targets = nullptr;      // With more than one layer: a view of each layer to draw to (layers of them). Owned like the recipe.
 		bool           mips_stale = false;        // Something was drawn to the first level, so the others are out of date.
 		uint32_t       width = 0, height = 0;
-		VkImageLayout  layout = VK_IMAGE_LAYOUT_UNDEFINED; // What it was last transitioned to.
+		bb::rhi::image_state layout = bb::rhi::image_state::undefined; // What it was last transitioned to.
 	};
 
+
+	/** The Vulkan layout that an image is in while it has the use. */
+	inline VkImageLayout vk_layout_of(bb::rhi::image_state usage)
+	{
+		switch (usage) {
+		case bb::rhi::image_state::sampled: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		case bb::rhi::image_state::color_target: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		case bb::rhi::image_state::depth_target: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		case bb::rhi::image_state::depth_read: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		case bb::rhi::image_state::copy_src: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		case bb::rhi::image_state::copy_dst: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		case bb::rhi::image_state::present: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		default: return VK_IMAGE_LAYOUT_UNDEFINED;
+		}
+	}
 
 	enum op_kind { OP_CLEAR, OP_TRIANGLES, OP_LINES, OP_SCENE, OP_COPY, OP_ANTIALIAS };
 
@@ -1149,8 +1164,8 @@ namespace bb::gfx {
 	void stop_gpu_thread();
 	void begin_commands();
 	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
-	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);
-	void transition(gpu_image& img, VkImageLayout to);
+	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);
+	void transition(gpu_image& img, bb::rhi::image_state to);
 	void record_operations();
 	void present_front(bool copy_back);
 	/** Records and sends everything that was asked for, puts the picture into the layout the thread of its window blits from, and

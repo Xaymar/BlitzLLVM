@@ -275,7 +275,7 @@ namespace bb::gfx {
 		info.tiling            = VK_IMAGE_TILING_OPTIMAL;
 		info.usage             = usage;
 		info.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-		info.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
+		info.initialLayout     = vk_layout_of(bb::rhi::image_state::undefined);
 		// An sRGB image is drawn to and read back through a view that does not convert, so the bytes in it stay as they were written.
 		bool srgb_rgba = (format == VK_FORMAT_R8G8B8A8_SRGB);
 		if (srgb_rgba) {
@@ -356,19 +356,19 @@ namespace bb::gfx {
 			}
 			return false;
 		}
-		if (img.layout != VK_IMAGE_LAYOUT_UNDEFINED) {
+		if (img.layout != bb::rhi::image_state::undefined) {
 			// What the image holds goes over on the GPU: every level and layer.
 			begin_commands();
-			barrier(img.image, img.layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, img.recipe->aspect);
-			barrier(fresh, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, img.recipe->aspect);
+			barrier(img.image, img.layout, bb::rhi::image_state::copy_src, img.recipe->aspect);
+			barrier(fresh, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, img.recipe->aspect);
 			std::vector<VkImageCopy> regions(info.mipLevels);
 			for (uint32_t level = 0; level < info.mipLevels; level++) {
 				regions[level].srcSubresource = { img.recipe->aspect, level, 0, info.arrayLayers };
 				regions[level].dstSubresource = regions[level].srcSubresource;
 				regions[level].extent         = { (info.extent.width >> level) ? (info.extent.width >> level) : 1, (info.extent.height >> level) ? (info.extent.height >> level) : 1, 1 };
 			}
-			vkCmdCopyImage(g.cmd, img.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, fresh, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, info.mipLevels, regions.data());
-			barrier(fresh, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, img.layout, img.recipe->aspect);
+			vkCmdCopyImage(g.cmd, img.image, vk_layout_of(bb::rhi::image_state::copy_src), fresh, vk_layout_of(bb::rhi::image_state::copy_dst), info.mipLevels, regions.data());
+			barrier(fresh, bb::rhi::image_state::copy_dst, img.layout, img.recipe->aspect);
 			submit_commands();
 		}
 		destroy_views(img);
@@ -437,7 +437,7 @@ namespace bb::gfx {
 			copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, to_layer, 1 };
 			copy.dstOffset      = { dx, dy, 0 };
 			copy.extent         = { uint32_t(w), uint32_t(h), 1 };
-			vkCmdCopyImage(g.cmd, from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+			vkCmdCopyImage(g.cmd, from.image, vk_layout_of(bb::rhi::image_state::copy_src), to.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
 			return;
 		}
 		VkImageBlit blit    = {};
@@ -447,7 +447,7 @@ namespace bb::gfx {
 		blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, to_layer, 1 };
 		blit.dstOffsets[0]  = { dx, dy, 0 };
 		blit.dstOffsets[1]  = { dx + w, dy + h, 1 };
-		vkCmdBlitImage(g.cmd, from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
+		vkCmdBlitImage(g.cmd, from.image, vk_layout_of(bb::rhi::image_state::copy_src), to.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
 	}
 
 	namespace {
@@ -673,7 +673,7 @@ namespace bb::gfx {
 
 	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler)
 	{
-		VkDescriptorImageInfo image_info = { vk_sampler(sampler), view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { vk_sampler(sampler), view, vk_layout_of(bb::rhi::image_state::sampled) };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = vk_set(set);
 		write.descriptorCount            = 1;
@@ -715,15 +715,15 @@ namespace bb::gfx {
 		return levels;
 	}
 
-	static void level_barrier(VkImage image, uint32_t first, uint32_t count, VkImageLayout from, VkImageLayout to)
+	static void level_barrier(VkImage image, uint32_t first, uint32_t count, bb::rhi::image_state from, bb::rhi::image_state to)
 	{
 		VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
 		b.srcStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 		b.srcAccessMask               = VK_ACCESS_2_MEMORY_WRITE_BIT;
 		b.dstStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 		b.dstAccessMask               = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-		b.oldLayout                   = from;
-		b.newLayout                   = to;
+		b.oldLayout                   = vk_layout_of(from);
+		b.newLayout                   = vk_layout_of(to);
 		b.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
 		b.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
 		b.image                       = image;
@@ -739,11 +739,11 @@ namespace bb::gfx {
 
 	// Fills every level below the first by halving the one above it with a linear filter, which averages 2 by 2 pixels. All
 	// levels are expected to be in the layout, and are in the shader read layout afterwards. Expects an open command buffer.
-	static void generate_mips(gpu_image& image, VkImageLayout from)
+	static void generate_mips(gpu_image& image, bb::rhi::image_state from)
 	{
-		level_barrier(image.image, 0, 1, from, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		if (from != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			level_barrier(image.image, 1, image.mips - 1, from, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		level_barrier(image.image, 0, 1, from, bb::rhi::image_state::copy_src);
+		if (from != bb::rhi::image_state::copy_dst) {
+			level_barrier(image.image, 1, image.mips - 1, from, bb::rhi::image_state::copy_dst);
 		}
 		int32_t w = int32_t(image.width), h = int32_t(image.height);
 		for (uint32_t level = 1; level < image.mips; level++) {
@@ -753,13 +753,13 @@ namespace bb::gfx {
 			blit.srcOffsets[1]  = { w, h, 1 };
 			blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, level, 0, image.layers };
 			blit.dstOffsets[1]  = { next_w, next_h, 1 };
-			vkCmdBlitImage(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
-			level_barrier(image.image, level, 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			vkCmdBlitImage(g.cmd, image.image, vk_layout_of(bb::rhi::image_state::copy_src), image.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_LINEAR);
+			level_barrier(image.image, level, 1, bb::rhi::image_state::copy_dst, bb::rhi::image_state::copy_src);
 			w = next_w;
 			h = next_h;
 		}
-		level_barrier(image.image, 0, image.mips, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		image.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		level_barrier(image.image, 0, image.mips, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
+		image.layout     = bb::rhi::image_state::sampled;
 		image.mips_stale = false;
 	}
 
@@ -808,11 +808,11 @@ namespace bb::gfx {
 		}
 
 		begin_commands();
-		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		barrier(image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layers };
 		copy.imageExtent       = { width, height, 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
 		if (ten && (image.mips > 1)) {
 			std::vector<VkBufferImageCopy> copies(levels);
 			VkDeviceSize                   offset = 0;
@@ -825,14 +825,14 @@ namespace bb::gfx {
 				offset += VkDeviceSize(w) * h * 4;
 			}
 			// The first copy above only covered level 0; the others come from the rest of the buffer.
-			vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels - 1, copies.data() + 1);
-			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, vk_layout_of(bb::rhi::image_state::copy_dst), levels - 1, copies.data() + 1);
+			barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
+			image.layout = bb::rhi::image_state::sampled;
 		} else if (image.mips > 1) {
-			generate_mips(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			generate_mips(image, bb::rhi::image_state::copy_dst);
 		} else {
-			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
+			image.layout = bb::rhi::image_state::sampled;
 		}
 		submit_commands();
 
@@ -1047,7 +1047,7 @@ namespace bb::gfx {
 		}
 
 		begin_commands();
-		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		barrier(image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		std::vector<VkBufferImageCopy> copies(levels);
 		VkDeviceSize                   offset = 0;
 		for (uint32_t level = 0; level < levels; level++) {
@@ -1062,9 +1062,9 @@ namespace bb::gfx {
 			copy.imageExtent        = { w, h, 1 };
 			offset += block_bytes(p.block, int(w), int(h));
 		}
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels, copies.data());
-		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, vk_layout_of(bb::rhi::image_state::copy_dst), levels, copies.data());
+		barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
+		image.layout = bb::rhi::image_state::sampled;
 		submit_commands();
 
 		rhi::destroy_buffer(staging);
@@ -1084,7 +1084,7 @@ namespace bb::gfx {
 		}
 		image_recipe*                 recipe = img.recipe;
 		image_spill_scope             spill(recipe->may_spill); // As it was made the first time.
-		VkImageLayout                 layout = img.layout;
+		bb::rhi::image_state layout = img.layout;
 		bb::rhi::sampler                     sampler = img.sampler;
 		uint32_t                      width = img.width, height = img.height;
 		gpu_image                     fresh;
@@ -1112,16 +1112,16 @@ namespace bb::gfx {
 		}
 		case image_recipe::content::blank:
 			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
-			if (fresh.image && (layout != VK_IMAGE_LAYOUT_UNDEFINED)) {
+			if (fresh.image && (layout != bb::rhi::image_state::undefined)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();
-				barrier(fresh.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, recipe->aspect);
+				barrier(fresh.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, recipe->aspect);
 				if (recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT) {
 					VkClearColorValue       clear = {};
 					VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, recipe->mips, 0, recipe->layers };
-					vkCmdClearColorImage(g.cmd, fresh.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear, 1, &range);
+					vkCmdClearColorImage(g.cmd, fresh.image, vk_layout_of(bb::rhi::image_state::copy_dst), &clear, 1, &range);
 				}
-				barrier(fresh.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, recipe->aspect);
+				barrier(fresh.image, bb::rhi::image_state::copy_dst, layout, recipe->aspect);
 				fresh.layout = layout;
 				submit_commands();
 			}
@@ -1172,11 +1172,11 @@ namespace bb::gfx {
 		mapped = staging.mapped;
 
 		begin_commands();
-		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		transition(image, bb::rhi::image_state::copy_src);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { image.width, image.height, 1 };
-		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging.vk, 1, &copy);
+		vkCmdCopyImageToBuffer(g.cmd, image.image, vk_layout_of(bb::rhi::image_state::copy_src), staging.vk, 1, &copy);
 		submit_commands();
 
 		uint8_t*        pixels = static_cast<uint8_t*>(bb_malloc(size_t(size)));
@@ -1222,12 +1222,12 @@ namespace bb::gfx {
 		mapped = staging.mapped;
 
 		begin_commands();
-		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		transition(image, bb::rhi::image_state::copy_src);
 		VkBufferImageCopy copy = {};
 		copy.bufferRowLength   = (image.width + 3) / 4 * 4;
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { image.width, image.height, 1 };
-		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging.vk, 1, &copy);
+		vkCmdCopyImageToBuffer(g.cmd, image.image, vk_layout_of(bb::rhi::image_state::copy_src), staging.vk, 1, &copy);
 		submit_commands();
 
 		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(image.width) * image.height * 4));
@@ -1323,8 +1323,8 @@ namespace bb::gfx {
 		// Both buffers start out black, and stay in the attachment layout between uses.
 		begin_commands();
 		for (int i = 0; i < 2; i++) {
-			barrier(g.buffers[i].image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			g.buffers[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			barrier(g.buffers[i].image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);
+			g.buffers[i].layout = bb::rhi::image_state::color_target;
 		}
 		submit_commands();
 		g.op_count     = 0;
@@ -2115,11 +2115,11 @@ namespace bb::rhi {
 }
 
 namespace bb::rhi {
-	static VkRenderingAttachmentInfo vk_attachment(const pass_attachment& a, VkImageLayout layout)
+	static VkRenderingAttachmentInfo vk_attachment(const pass_attachment& a, image_state usage)
 	{
 		VkRenderingAttachmentInfo out = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 		out.imageView                 = VkImageView(a.view);
-		out.imageLayout               = layout;
+		out.imageLayout               = gfx::vk_layout_of(usage);
 		out.loadOp                    = a.load == load_op::clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : (a.load == load_op::load ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE);
 		out.storeOp                   = a.store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		for (int i = 0; i < 4; i++) {
@@ -2132,7 +2132,7 @@ namespace bb::rhi {
 	{
 		VkRenderingAttachmentInfo colors[4];
 		for (uint32_t i = 0; i < desc.color_count; i++) {
-			colors[i] = vk_attachment(desc.colors[i], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			colors[i] = vk_attachment(desc.colors[i], bb::rhi::image_state::color_target);
 		}
 		VkRenderingAttachmentInfo depth = {};
 		VkRenderingInfo           info  = { VK_STRUCTURE_TYPE_RENDERING_INFO };
@@ -2141,7 +2141,7 @@ namespace bb::rhi {
 		info.colorAttachmentCount       = desc.color_count;
 		info.pColorAttachments          = colors;
 		if (desc.has_depth) {
-			depth                         = vk_attachment(desc.depth, desc.depth.read_only ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+			depth                         = vk_attachment(desc.depth, desc.depth.read_only ? bb::rhi::image_state::depth_read : bb::rhi::image_state::depth_target);
 			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
 			info.pDepthAttachment         = &depth;
 		}
@@ -2251,5 +2251,29 @@ namespace bb::rhi {
 	void dispatch(uint32_t x, uint32_t y, uint32_t z)
 	{
 		vkCmdDispatch(gfx::g.cmd, x, y, z);
+	}
+}
+
+namespace bb::rhi {
+	void transition_image(uint64_t image, image_state from, image_state to, bool depth)
+	{
+		VkImageMemoryBarrier2 b            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
+		b.srcStageMask                     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		b.srcAccessMask                    = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		b.dstStageMask                     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		b.dstAccessMask                    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+		b.oldLayout                        = gfx::vk_layout_of(from);
+		b.newLayout                        = gfx::vk_layout_of(to);
+		b.srcQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
+		b.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
+		b.image                            = VkImage(image);
+		b.subresourceRange.aspectMask      = depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		b.subresourceRange.levelCount      = VK_REMAINING_MIP_LEVELS; // Every level of an image is in the same layout between uses.
+		b.subresourceRange.layerCount      = VK_REMAINING_ARRAY_LAYERS;
+
+		VkDependencyInfo dep        = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dep.imageMemoryBarrierCount = 1;
+		dep.pImageMemoryBarriers    = &b;
+		vkCmdPipelineBarrier2(gfx::g.cmd, &dep);
 	}
 }

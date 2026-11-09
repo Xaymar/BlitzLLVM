@@ -30,9 +30,9 @@ namespace {
 	struct image_set {
 		gpu_image       slot_color, slot_depth, slot_weight; // The slots of samples: multisampled color, depth and the weight of the fragment.
 	gpu_image       peel_color, peel_depth[2]; // The depth peeling: the color of a layer, and the depths of the layer and of the one before it.
-	VkImageLayout   peel_depth_layout[2] = { VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_UNDEFINED };
+	bb::rhi::image_state peel_depth_layout[2] = { bb::rhi::image_state::undefined, bb::rhi::image_state::undefined };
 	bb::rhi::binding_group peel_depth_set[2]    = {};
-		VkImageLayout   slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+		bb::rhi::image_state slot_depth_layout = bb::rhi::image_state::undefined;
 		gpu_image       images[5]; // Sums of alpha, what remains of the light (or the optical depth, moment based), product of multiplied colors, sum of added colors, moments.
 		bb::rhi::binding_group set;
 		uint32_t        width  = 0, height = 0;
@@ -84,7 +84,7 @@ namespace {
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
 				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : rhi_format(formats[i]));
-				infos[i]        = { vk_sampler(g.sampler_point_clamp), entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+				infos[i]        = { vk_sampler(g.sampler_point_clamp), entry.images[i].view, vk_layout_of(bb::rhi::image_state::sampled) };
 				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				writes[i].dstSet          = vk_set(entry.set);
 				writes[i].dstBinding      = i;
@@ -97,7 +97,7 @@ namespace {
 				entry.slot_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
 				entry.slot_depth = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f, nullptr, 1, 1, slots);
 				entry.slot_weight = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
-				VkDescriptorImageInfo slot_infos[3] = { { vk_sampler(g.sampler_point_clamp), entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { vk_sampler(g.sampler_point_clamp), entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL }, { vk_sampler(g.sampler_point_clamp), entry.slot_weight.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL } };
+				VkDescriptorImageInfo slot_infos[3] = { { vk_sampler(g.sampler_point_clamp), entry.slot_color.view, vk_layout_of(bb::rhi::image_state::sampled) }, { vk_sampler(g.sampler_point_clamp), entry.slot_depth.view, vk_layout_of(bb::rhi::image_state::depth_read) }, { vk_sampler(g.sampler_point_clamp), entry.slot_weight.view, vk_layout_of(bb::rhi::image_state::sampled) } };
 				VkWriteDescriptorSet  slot_writes[3];
 				for (uint32_t i = 0; i < 3; i++) {
 					slot_writes[i]                 = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
@@ -111,7 +111,7 @@ namespace {
 			}
 			if (asked == 5) {
 				entry.peel_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f);
-				VkDescriptorImageInfo layer_info  = { vk_sampler(g.sampler_point_clamp), entry.peel_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+				VkDescriptorImageInfo layer_info  = { vk_sampler(g.sampler_point_clamp), entry.peel_color.view, vk_layout_of(bb::rhi::image_state::sampled) };
 				VkWriteDescriptorSet  layer_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				layer_write.dstSet          = vk_set(entry.set);
 				layer_write.dstBinding      = 5;
@@ -122,7 +122,7 @@ namespace {
 				for (int i = 0; i < 2; i++) {
 					entry.peel_depth[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
 					entry.peel_depth_set[i] = bb::rhi::create_group(bb::rhi::group_kind::texture);
-					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, vk_layout_of(bb::rhi::image_state::depth_read) };
 					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 					depth_write.dstSet          = vk_set(entry.peel_depth_set[i]);
 					depth_write.descriptorCount = 1;
@@ -280,8 +280,8 @@ namespace bb::gfx {
 		image_set& entry = images_for(width, height);
 		color_attachment(color[0], entry.slot_color, 0, 0, 0, 0);
 		color_attachment(color[1], entry.slot_weight, 0, 0, 0, 0);
-		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.slot_depth_layout = bb::rhi::image_state::depth_target;
 		*depth                  = bb::rhi::pass_attachment();
 		depth->view             = uint64_t(entry.slot_depth.view);
 		depth->load             = bb::rhi::load_op::clear;
@@ -291,10 +291,10 @@ namespace bb::gfx {
 	void oit_slots_to_sampled(uint32_t width, uint32_t height)
 	{
 		image_set& entry = images_for(width, height);
-		transition(entry.slot_color, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		transition(entry.slot_weight, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		transition(entry.slot_color, bb::rhi::image_state::sampled);
+		transition(entry.slot_weight, bb::rhi::image_state::sampled);
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.slot_depth_layout = bb::rhi::image_state::depth_read;
 	}
 
 	bool oit_peel()
@@ -315,8 +315,8 @@ namespace bb::gfx {
 		image_set&     entry = images_for(width, height);
 		const uint32_t now   = layer & 1;
 		color_attachment(*color, entry.peel_color, 0, 0, 0, 0);
-		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		entry.peel_depth_layout[now]   = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.peel_depth_layout[now]   = bb::rhi::image_state::depth_target;
 		*depth                         = bb::rhi::pass_attachment();
 		depth->view                    = uint64_t(entry.peel_depth[now].view);
 		depth->load                    = bb::rhi::load_op::clear;
@@ -328,9 +328,9 @@ namespace bb::gfx {
 	{
 		image_set&     entry = images_for(width, height);
 		const uint32_t now   = layer & 1;
-		transition(entry.peel_color, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		entry.peel_depth_layout[now] = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		transition(entry.peel_color, bb::rhi::image_state::sampled);
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.peel_depth_layout[now] = bb::rhi::image_state::depth_read;
 	}
 
 	// The layers are blended, from the farthest to the nearest, into a float image of their own (the 8 bits of the picture would round every layer).
@@ -355,7 +355,7 @@ namespace bb::gfx {
 
 	void oit_accumulated_to_sampled(uint32_t width, uint32_t height)
 	{
-		transition(images_for(width, height).images[0], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(images_for(width, height).images[0], bb::rhi::image_state::sampled);
 	}
 
 	// Puts the accumulated layers on the picture, once: inside a pass that draws to a target of the format.
@@ -392,7 +392,7 @@ namespace bb::gfx {
 
 	static void color_attachment(bb::rhi::pass_attachment& out, gpu_image& image, float r, float g_, float b, float a)
 	{
-		transition(image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		transition(image, bb::rhi::image_state::color_target);
 		out          = bb::rhi::pass_attachment();
 		out.view     = uint64_t(image.view);
 		out.load     = bb::rhi::load_op::clear;
@@ -424,8 +424,8 @@ namespace bb::gfx {
 	void oit_moments_to_sampled(uint32_t width, uint32_t height)
 	{
 		image_set& entry = images_for(width, height);
-		transition(entry.images[1], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		transition(entry.images[4], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(entry.images[1], bb::rhi::image_state::sampled);
+		transition(entry.images[4], bb::rhi::image_state::sampled);
 	}
 
 	// The second pass of the moment based kind: what the layers add up to, and the multiplied and added colors. The image of the optical depth is not an attachment.
@@ -442,7 +442,7 @@ namespace bb::gfx {
 	{
 		image_set& entry = images_for(width, height);
 		for (uint32_t i = 0; i < 4; i++) {
-			transition(entry.images[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			transition(entry.images[i], bb::rhi::image_state::sampled);
 		}
 	}
 
@@ -477,8 +477,8 @@ namespace bb::gfx {
 						*image = gpu_image();
 					}
 				}
-				entry.slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-				entry.peel_depth_layout[0] = entry.peel_depth_layout[1] = VK_IMAGE_LAYOUT_UNDEFINED;
+				entry.slot_depth_layout = bb::rhi::image_state::undefined;
+				entry.peel_depth_layout[0] = entry.peel_depth_layout[1] = bb::rhi::image_state::undefined;
 				entry.peel_depth_set[0] = entry.peel_depth_set[1] = bb::rhi::binding_group();
 				entry.set = bb::rhi::binding_group(); // The pool takes the set.
 				entry.width = entry.height = 0;

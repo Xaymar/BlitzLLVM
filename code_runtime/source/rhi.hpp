@@ -274,6 +274,21 @@ namespace bb::rhi {
 	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
 	binding_group create_group(group_kind kind);
 
+	/** How an image is used next. The backend turns a change of use into whatever the API needs (a layout change and barrier on Vulkan, nothing on Direct3D 11 and OpenGL). */
+	enum class image_state : uint8_t {
+		undefined,    // Contents do not matter (first use, or about to be overwritten).
+		sampled,      // Read by shaders.
+		color_target, // Drawn to as a colour attachment.
+		depth_target, // Drawn to as the depth attachment.
+		depth_read,   // Depth read by the pass and sampled by shaders, not written.
+		copy_src,
+		copy_dst,
+		present,
+	};
+
+	/** Records the change of an image from one use to the next (a layout change with a barrier on Vulkan; Direct3D 11 and OpenGL need nothing). depth: a depth image. The image is a backend handle for now. */
+	void transition_image(uint64_t image, image_state from, image_state to, bool depth);
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 

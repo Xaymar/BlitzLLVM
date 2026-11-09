@@ -390,8 +390,8 @@ namespace bb::gfx {
 			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source);
 		}
 
-		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		barrier(shown.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
+		barrier(shown.image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);
 
 		bb::rhi::pass_desc pass;
 		pass.colors[0].view = uint64_t(shown.view);
@@ -420,8 +420,8 @@ namespace bb::gfx {
 		bb::rhi::draw(3, 1, 0, 0);
 		bb::rhi::end_pass();
 
-		barrier(shown.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		barrier(front.image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		barrier(shown.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_src);
+		barrier(front.image, bb::rhi::image_state::sampled, bb::rhi::image_state::copy_src);
 
 		if (dump_path()) {
 			uint32_t size = shown.width * shown.height * 4;
@@ -437,7 +437,7 @@ namespace bb::gfx {
 			VkBufferImageCopy copy = {};
 			copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 			copy.imageExtent       = { shown.width, shown.height, 1 };
-			vkCmdCopyImageToBuffer(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dump_buffer.vk, 1, &copy);
+			vkCmdCopyImageToBuffer(g.cmd, shown.image, vk_layout_of(bb::rhi::image_state::copy_src), dump_buffer.vk, 1, &copy);
 		}
 		return &shown;
 	}

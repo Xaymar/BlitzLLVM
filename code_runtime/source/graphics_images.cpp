@@ -82,13 +82,13 @@ namespace bb::gfx {
 		mapped = staging.mapped;
 
 		begin_commands();
-		VkImageLayout previous = img.layout;
-		transition(img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		bb::rhi::image_state previous = img.layout;
+		transition(img, bb::rhi::image_state::copy_src);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, layer, 1 };
 		copy.imageOffset       = { x, y, 0 };
 		copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
-		vkCmdCopyImageToBuffer(g.cmd, img.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging.vk, 1, &copy);
+		vkCmdCopyImageToBuffer(g.cmd, img.image, vk_layout_of(bb::rhi::image_state::copy_src), staging.vk, 1, &copy);
 		transition(img, previous);
 		submit_commands();
 
@@ -210,13 +210,13 @@ namespace bb::gfx {
 		}
 
 		begin_commands();
-		VkImageLayout previous = img.layout;
-		transition(img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		bb::rhi::image_state previous = img.layout;
+		transition(img, bb::rhi::image_state::copy_dst);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, layer, 1 };
 		copy.imageOffset       = { x, y, 0 };
 		copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, img.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		vkCmdCopyBufferToImage(g.cmd, staging.vk, img.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &copy);
 		transition(img, previous);
 		submit_commands();
 
@@ -823,23 +823,23 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		gpu_image target = create_image(uint32_t(sheet_w), uint32_t(sheet_h), bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source | bb::rhi::image_color_target);
 
 		begin_commands();
-		transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		barrier(target.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transition(e->image, bb::rhi::image_state::copy_src);
+		barrier(target.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		VkImageBlit blit    = {};
 		blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		blit.srcOffsets[1]  = { e->sheet_w, e->sheet_h, 1 };
 		blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		blit.dstOffsets[1]  = { sheet_w, sheet_h, 1 };
-		vkCmdBlitImage(g.cmd, e->image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, target.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
-		barrier(target.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		target.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		vkCmdBlitImage(g.cmd, e->image.image, vk_layout_of(bb::rhi::image_state::copy_src), target.image, vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_LINEAR);
+		barrier(target.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
+		target.layout = bb::rhi::image_state::sampled;
 		submit_commands();
 
 
 		gpu_idle();
 		destroy_image(e->image);
 		e->image = target;
-		VkDescriptorImageInfo image_info = { vk_sampler(g.sampler), e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { vk_sampler(g.sampler), e->image.view, vk_layout_of(bb::rhi::image_state::sampled) };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = vk_set(e->set);
 		write.descriptorCount            = 1;
@@ -884,12 +884,12 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 
 	ensure_color_image(e->image, e->set);
 	begin_commands();
-	VkImageLayout previous_source = source.image->layout;
-	transition(*source.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	bb::rhi::image_state previous_source = source.image->layout;
+	transition(*source.image, bb::rhi::image_state::copy_src);
+	transition(e->image, bb::rhi::image_state::copy_dst);
 	copy_region(*source.image, source.x + int32_t(sx), source.y + int32_t(sy), e->image, fx + int32_t(dx), fy + int32_t(dy), int(w), int(h), source.layer);
 	transition(*source.image, previous_source);
-	transition(e->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	transition(e->image, bb::rhi::image_state::sampled);
 	submit_commands();
 }
 
