@@ -627,6 +627,179 @@ static void test_queries()
 	bp_sim_destroy(sim);
 }
 
+static float dist3(const float a[3], const float b[3]) { return std::sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2])); }
+
+static bp_constraint_desc cdesc(uint32_t kind, bp_body a, bp_body b)
+{
+	bp_constraint_desc d{};
+	d.kind = kind;
+	d.a = a;
+	d.b = b;
+	d.axis[2] = 1.0f;
+	return d;
+}
+
+static void test_constraints()
+{
+	float origin[3] = { 0, 0, 0 }, p[3];
+	// A ball on a point constraint to the world swings and keeps its distance.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_SPHERE, BP_DYNAMIC, 0.25f, 0, 0, 2, 0, 0);
+		bp_body ball = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_POINT, ball, 0);
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0 && bp_sim_constraint_state(sim, c) == 1);
+		steps(sim, 50);
+		pos(sim, ball, p);
+		CHECK(p[1] < -1.5f); // It swung down.
+		steps(sim, 70);
+		pos(sim, ball, p);
+		CHECK(near(dist3(p, origin), 2.0f, 0.05f));
+		bp_sim_destroy(sim);
+	}
+	// A hinge about z with limits: a box hangs from it and stops at the limit.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_BOX, BP_DYNAMIC, 0.25f, 0.25f, 0.25f, 1, 0, 0);
+		bp_body box = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_HINGE, box, 0);
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0);
+		CHECK(bp_sim_constraint_set_limits(sim, c, -0.5f, 0.5f) == 1);
+		steps(sim, 180);
+		pos(sim, box, p);
+		CHECK(near(p[2], 0.0f, 0.02f) && near(dist3(p, origin), 1.0f, 0.05f));
+		CHECK(p[1] < -0.3f && p[1] > -0.55f); // Stopped about 0.5 rad (sin = 0.48) below the horizontal.
+		bp_sim_destroy(sim);
+	}
+	// A slider with a motor drives the box along x at 2 m/s.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_BOX, BP_DYNAMIC, 0.25f, 0.25f, 0.25f, 0, 0, 0);
+		bd.gravity_scale = 0.0f;
+		bp_body box = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_SLIDER, box, 0);
+		d.axis[0] = 1.0f;
+		d.axis[2] = 0.0f;
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0);
+		CHECK(bp_sim_constraint_set_motor(sim, c, 1, 2.0f, 10000.0f) == 1);
+		steps(sim, 60);
+		pos(sim, box, p);
+		CHECK(near(p[0], 2.0f, 0.2f) && near(p[1], 0.0f, 0.02f) && near(p[2], 0.0f, 0.02f));
+		CHECK(bp_sim_constraint_set_motor(sim, c, 0, 0.0f, 0.0f) == 1);
+		CHECK(bp_sim_constraint_set_limits(sim, c, -1.0f, 3.0f) == 1);
+		CHECK(bp_sim_constraint_set_spring(sim, c, 5.0f, 1.0f) == 1);
+		bp_sim_destroy(sim);
+	}
+	// Welded boxes keep their offset while falling and landing.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		make_floor(sim);
+		bp_body_desc ad = desc(BP_SHAPE_BOX, BP_DYNAMIC, 0.25f, 0.25f, 0.25f, 0, 3, 0), bd = desc(BP_SHAPE_BOX, BP_DYNAMIC, 0.25f, 0.25f, 0.25f, 1, 3, 0);
+		bp_body a = bp_sim_body_create(sim, &ad), b = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_FIXED, a, b);
+		CHECK(bp_sim_constraint_create(sim, &d) != 0);
+		steps(sim, 240);
+		float pa[3], pb[3];
+		pos(sim, a, pa);
+		pos(sim, b, pb);
+		CHECK(near(dist3(pa, pb), 1.0f, 0.05f) && near(pa[1], pb[1], 0.05f));
+		bp_sim_destroy(sim);
+	}
+	// A distance constraint keeps a pendulum at its length.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_SPHERE, BP_DYNAMIC, 0.25f, 0, 0, 3, 0, 0);
+		bp_body ball = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_DISTANCE, ball, 0);
+		d.point[0] = 3.0f;
+		d.min = d.max = 3.0f;
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0);
+		steps(sim, 120);
+		pos(sim, ball, p);
+		CHECK(near(dist3(p, origin), 3.0f, 0.05f));
+		CHECK(bp_sim_constraint_set_limits(sim, c, 1.0f, 2.0f) == 1);
+		CHECK(bp_sim_constraint_set_spring(sim, c, 3.0f, 0.5f) == 1);
+		bp_sim_destroy(sim);
+	}
+	// A cone constraint can be made and keeps the point.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_SPHERE, BP_DYNAMIC, 0.25f, 0, 0, 0, -1, 0);
+		bp_body ball = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_CONE, ball, 0);
+		d.axis[0] = 0.0f;
+		d.axis[2] = 0.0f;
+		d.axis[1] = -1.0f;
+		d.max = 0.5f;
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0 && bp_sim_constraint_set_limits(sim, c, 0.0f, 0.3f) == 1);
+		steps(sim, 60);
+		pos(sim, ball, p);
+		CHECK(near(dist3(p, origin), 1.0f, 0.05f));
+		bp_sim_destroy(sim);
+	}
+	// A constraint that carries more than its break force is removed, and the ball falls; one with a high limit holds.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc bd = desc(BP_SHAPE_SPHERE, BP_DYNAMIC, 0.25f, 0, 0, 0, 0, 0);
+		bd.mass = 10.0f;
+		bp_body weak = bp_sim_body_create(sim, &bd);
+		bd.position[0] = 5.0f;
+		bp_body strong = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_POINT, weak, 0);
+		bp_constraint cw = bp_sim_constraint_create(sim, &d);
+		d = cdesc(BP_CONSTRAINT_POINT, strong, 0);
+		d.point[0] = 5.0f;
+		bp_constraint cs = bp_sim_constraint_create(sim, &d);
+		CHECK(bp_sim_constraint_set_break_force(sim, cw, 5.0f) == 1 && bp_sim_constraint_set_break_force(sim, cs, 100000.0f) == 1);
+		steps(sim, 90);
+		CHECK(bp_sim_constraint_state(sim, cw) == 2 && bp_sim_constraint_state(sim, cs) == 1);
+		pos(sim, weak, p);
+		CHECK(p[1] < -5.0f);
+		pos(sim, strong, p);
+		CHECK(near(p[1], 0.0f, 0.05f));
+		// A constraint is gone with its body.
+		bp_sim_body_destroy(sim, strong);
+		CHECK(bp_sim_constraint_state(sim, cs) == 0);
+		CHECK(bp_sim_constraint_set_break_force(sim, cs, 1.0f) == 0);
+		steps(sim, 5);
+		bp_sim_destroy(sim);
+	}
+	// What is not valid.
+	{
+		bp_sim* sim = bp_sim_create(0, 0);
+		bp_body_desc sd = desc(BP_SHAPE_BOX, BP_STATIC, 1, 1, 1, 0, 0, 0);
+		bp_body s1 = bp_sim_body_create(sim, &sd);
+		sd.position[0] = 5.0f;
+		bp_body s2 = bp_sim_body_create(sim, &sd);
+		bp_body_desc bd = desc(BP_SHAPE_BOX, BP_DYNAMIC, 0.25f, 0.25f, 0.25f, 0, 5, 0);
+		bp_body dyn = bp_sim_body_create(sim, &bd);
+		bp_constraint_desc d = cdesc(BP_CONSTRAINT_FIXED, s1, s2);
+		CHECK(bp_sim_constraint_create(sim, &d) == 0); // Nothing can move.
+		d = cdesc(BP_CONSTRAINT_FIXED, dyn, dyn);
+		CHECK(bp_sim_constraint_create(sim, &d) == 0);
+		d = cdesc(BP_CONSTRAINT_HINGE, dyn, 0);
+		d.axis[2] = 0.0f;
+		CHECK(bp_sim_constraint_create(sim, &d) == 0); // No axis.
+		d = cdesc(BP_CONSTRAINT_FIXED, 12345, 0);
+		CHECK(bp_sim_constraint_create(sim, &d) == 0); // No such body.
+		d = cdesc(99, dyn, 0);
+		CHECK(bp_sim_constraint_create(sim, &d) == 0);
+		d = cdesc(BP_CONSTRAINT_POINT, dyn, 0);
+		bp_constraint c = bp_sim_constraint_create(sim, &d);
+		CHECK(c != 0);
+		CHECK(bp_sim_constraint_set_motor(sim, c, 1, 1.0f, 1.0f) == 0); // Only hinges and sliders have motors.
+		CHECK(bp_sim_constraint_set_spring(sim, c, 1.0f, 1.0f) == 0);
+		bp_sim_constraint_destroy(sim, c);
+		CHECK(bp_sim_constraint_state(sim, c) == 0);
+		bp_sim_destroy(sim);
+	}
+}
+
 int main(int argc, char** argv)
 {
 	uint32_t threads = 0;
@@ -659,6 +832,7 @@ int main(int argc, char** argv)
 	test_shapes();
 	test_interpolation();
 	test_queries();
+	test_constraints();
 	test_determinism();
 	if (failures) {
 		std::printf("%d checks failed\n", failures);

@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 // Bumped when the interface changes.
-#define BP_VERSION 5
+#define BP_VERSION 6
 
 typedef struct bp_world bp_world;
 typedef struct bp_mesh  bp_mesh;
@@ -262,6 +262,40 @@ BP_API int bp_sim_point_inside(const bp_sim* sim, const float point[3], uint64_t
 // are, which may be more than capacity; out gets the user values (bp_body_desc.user) of the first capacity of them.
 BP_API uint32_t bp_sim_overlap_sphere(const bp_sim* sim, const float center[3], float radius, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity);
 BP_API uint32_t bp_sim_overlap_box(const bp_sim* sim, const float center[3], const float half_extents[3], const float* rotation, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity);
+
+// Constraints between two bodies of a simulation (or one body and the world, with b = 0). All values are in the world, angles in radians.
+// Positions, angles, speeds and limits of a constraint are those of a relative to b. A constraint is gone when either of its bodies is destroyed.
+typedef uint32_t bp_constraint;
+typedef enum bp_constraint_kind {
+	BP_CONSTRAINT_FIXED    = 1, // Welds the two bodies in the pose they have.
+	BP_CONSTRAINT_POINT    = 2, // The two bodies share the point and turn freely around it (ball joint).
+	BP_CONSTRAINT_HINGE    = 3, // Share the point and turn around the axis only.
+	BP_CONSTRAINT_SLIDER   = 4, // Move along the axis only.
+	BP_CONSTRAINT_DISTANCE = 5, // The distance between point (on a) and point2 (on b) stays between min and max.
+	BP_CONSTRAINT_CONE     = 6, // Share the point; the axis of b stays within max (half angle) of the axis of a.
+} bp_constraint_kind;
+
+typedef struct bp_constraint_desc {
+	uint32_t kind;
+	bp_body  a, b;
+	float    point[3], point2[3], axis[3];
+	float    min, max;
+} bp_constraint_desc;
+
+// 0 if the description is not valid (a body that is not there, both bodies the same or both not able to move, an axis of length 0).
+BP_API bp_constraint bp_sim_constraint_create(bp_sim* sim, const bp_constraint_desc* desc);
+BP_API void          bp_sim_constraint_destroy(bp_sim* sim, bp_constraint constraint);
+// The next functions return 1 if they apply to the kind of constraint, 0 if not (or if the constraint is gone).
+// hinge: angle limits lo..hi (-pi to pi); slider: position limits; distance: min and max distance; cone: hi is the half angle.
+BP_API int bp_sim_constraint_set_limits(bp_sim* sim, bp_constraint constraint, float lo, float hi);
+// hinge and slider. mode 0 off, 1 drive to the target speed (rad/s, m/s), 2 drive to the target position (rad, m); at most max_force (torque, force).
+BP_API int bp_sim_constraint_set_motor(bp_sim* sim, bp_constraint constraint, uint32_t mode, float target, float max_force);
+// distance and slider: makes the limits soft. frequency in Hz (0 turns it off), damping ratio.
+BP_API int bp_sim_constraint_set_spring(bp_sim* sim, bp_constraint constraint, float frequency, float damping);
+// The constraint is removed (state 2) in the step in which it carries more than this force; 0 turns it off. The force is estimated from the solver.
+BP_API int bp_sim_constraint_set_break_force(bp_sim* sim, bp_constraint constraint, float force);
+// 0 gone, 1 working, 2 broken.
+BP_API uint32_t bp_sim_constraint_state(const bp_sim* sim, bp_constraint constraint);
 
 #ifdef __cplusplus
 }
