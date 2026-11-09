@@ -697,24 +697,22 @@ namespace bb::gfx {
 		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		target.image->mips_stale = target.image->mips > 1;
 
-		VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		attachment.imageView                 = target_view_of(*target.image, target.layer);
-		attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-
-		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
-		info.layerCount           = 1;
-		info.colorAttachmentCount = 1;
-		info.pColorAttachments    = &attachment;
-		vkCmdBeginRendering(g.cmd, &info);
-
 		// Drawing is limited to the part of the image that this buffer is.
-		VkViewport viewport = { float(target.x), float(target.y), float(target.w), float(target.h), 0, 1 };
-		VkRect2D   scissor  = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
-		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+		VkRect2D scissor = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
+		bb::rhi::pass_desc pass;
+		pass.colors[0].view = uint64_t(target_view_of(*target.image, target.layer));
+		pass.color_count    = 1;
+		pass.width          = target.image->width;
+		pass.height         = target.image->height;
+		pass.viewport[0]    = float(target.x);
+		pass.viewport[1]    = float(target.y);
+		pass.viewport[2]    = float(target.w);
+		pass.viewport[3]    = float(target.h);
+		pass.scissor[0]     = target.x;
+		pass.scissor[1]     = target.y;
+		pass.scissor[2]     = target.w;
+		pass.scissor[3]     = target.h;
+		bb::rhi::begin_pass(pass);
 
 		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
 		vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
@@ -761,7 +759,7 @@ namespace bb::gfx {
 			vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
 		}
-		vkCmdEndRendering(g.cmd);
+		bb::rhi::end_pass();
 	}
 
 	// Replays the collected operations into the command buffer, in the order they were asked for.

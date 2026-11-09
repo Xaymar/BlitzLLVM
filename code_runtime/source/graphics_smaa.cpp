@@ -356,20 +356,21 @@ namespace {
 
 	void begin_pass(gpu_image& image, VkRect2D area, bool clear, bool load = false)
 	{
-		VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		attachment.imageView                 = image.view;
-		attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment.loadOp                    = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : (load ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE);
-		attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-		VkRenderingInfo info                 = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea                      = { { 0, 0 }, { image.width, image.height } };
-		info.layerCount                      = 1;
-		info.colorAttachmentCount            = 1;
-		info.pColorAttachments               = &attachment;
-		vkCmdBeginRendering(g.cmd, &info);
-		VkViewport viewport = { float(area.offset.x), float(area.offset.y), float(area.extent.width), float(area.extent.height), 0, 1 };
-		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-		vkCmdSetScissor(g.cmd, 0, 1, &area);
+		bb::rhi::pass_desc pass;
+		pass.colors[0].view = uint64_t(image.view);
+		pass.colors[0].load = clear ? bb::rhi::load_op::clear : (load ? bb::rhi::load_op::load : bb::rhi::load_op::dont_care);
+		pass.color_count    = 1;
+		pass.width          = image.width;
+		pass.height         = image.height;
+		pass.viewport[0]    = float(area.offset.x);
+		pass.viewport[1]    = float(area.offset.y);
+		pass.viewport[2]    = float(area.extent.width);
+		pass.viewport[3]    = float(area.extent.height);
+		pass.scissor[0]     = area.offset.x;
+		pass.scissor[1]     = area.offset.y;
+		pass.scissor[2]     = int32_t(area.extent.width);
+		pass.scissor[3]     = int32_t(area.extent.height);
+		bb::rhi::begin_pass(pass);
 	}
 
 	void draw_pass(VkPipeline pipeline, bb::rhi::binding_group set, constants const& c)
@@ -378,7 +379,7 @@ namespace {
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
 		vkCmdPushConstants(g.cmd, vk_layout(layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(c), &c);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
-		vkCmdEndRendering(g.cmd);
+		bb::rhi::end_pass();
 	}
 } // namespace
 
@@ -530,20 +531,20 @@ namespace bb::gfx {
 		VkRect2D          area = { { r.x, r.y }, { uint32_t(r.w), uint32_t(r.h) } };
 		if (!r.temporal) {
 			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-			attachment.imageView                 = target_view_of(*target.image, r.layer);
-			attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-			attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-			VkRenderingInfo info                 = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-			info.renderArea                      = { { 0, 0 }, { target.image->width, target.image->height } };
-			info.layerCount                      = 1;
-			info.colorAttachmentCount            = 1;
-			info.pColorAttachments               = &attachment;
-			vkCmdBeginRendering(g.cmd, &info);
-			VkViewport viewport = { float(r.x), float(r.y), float(r.w), float(r.h), 0, 1 };
-			vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-			vkCmdSetScissor(g.cmd, 0, 1, &area);
+			bb::rhi::pass_desc pass;
+			pass.colors[0].view = uint64_t(target_view_of(*target.image, r.layer));
+			pass.color_count    = 1;
+			pass.width          = target.image->width;
+			pass.height         = target.image->height;
+			pass.viewport[0]    = float(r.x);
+			pass.viewport[1]    = float(r.y);
+			pass.viewport[2]    = float(r.w);
+			pass.viewport[3]    = float(r.h);
+			pass.scissor[0]     = r.x;
+			pass.scissor[1]     = r.y;
+			pass.scissor[2]     = r.w;
+			pass.scissor[3]     = r.h;
+			bb::rhi::begin_pass(pass);
 			draw_pass(p.blend, s.blend_set, c);
 		} else {
 			gpu_image& now     = s.out[s.current];
@@ -555,20 +556,20 @@ namespace bb::gfx {
 			draw_pass(p.blend, s.blend_set, c);
 			transition(now, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-			attachment.imageView                 = target_view_of(*target.image, r.layer);
-			attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-			attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-			VkRenderingInfo info                 = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-			info.renderArea                      = { { 0, 0 }, { target.image->width, target.image->height } };
-			info.layerCount                      = 1;
-			info.colorAttachmentCount            = 1;
-			info.pColorAttachments               = &attachment;
-			vkCmdBeginRendering(g.cmd, &info);
-			VkViewport viewport = { float(r.x), float(r.y), float(r.w), float(r.h), 0, 1 };
-			vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-			vkCmdSetScissor(g.cmd, 0, 1, &area);
+			bb::rhi::pass_desc pass;
+			pass.colors[0].view = uint64_t(target_view_of(*target.image, r.layer));
+			pass.color_count    = 1;
+			pass.width          = target.image->width;
+			pass.height         = target.image->height;
+			pass.viewport[0]    = float(r.x);
+			pass.viewport[1]    = float(r.y);
+			pass.viewport[2]    = float(r.w);
+			pass.viewport[3]    = float(r.h);
+			pass.scissor[0]     = r.x;
+			pass.scissor[1]     = r.y;
+			pass.scissor[2]     = r.w;
+			pass.scissor[3]     = r.h;
+			bb::rhi::begin_pass(pass);
 			c.resolve[2] = dither_for_pass;
 			draw_pass(p.resolve, s.resolve_set[s.current], c);
 			s.current = 1 - s.current;

@@ -274,6 +274,36 @@ namespace bb::rhi {
 	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
 	binding_group create_group(group_kind kind);
 
+	/** What a pass does with an attachment when it starts. */
+	enum class load_op : uint8_t { load, clear, dont_care };
+
+	/** One attachment of a pass: the image view (backend handle for now, a VkImageView on Vulkan) and what happens to it. Depth uses clear[0]. */
+	struct pass_attachment {
+		uint64_t view  = 0;
+		load_op  load  = load_op::load;
+		bool     store = true;
+		float    clear[4] = { 0, 0, 0, 0 };
+	};
+
+	/** A pass: the attachments it draws to, the area it covers, and the first viewport and scissor (the viewport is in pixels as floats, the scissor in whole pixels). */
+	struct pass_desc {
+		pass_attachment colors[4];
+		uint32_t        color_count = 0;
+		pass_attachment depth;
+		bool            has_depth = false;
+		uint32_t        width = 0, height = 0;      // The area of the images.
+		float           viewport[4] = { 0, 0, 0, 0 }; // x, y, width, height.
+		int32_t         scissor[4]  = { 0, 0, 0, 0 }; // x, y, width, height.
+	};
+
+	/** Starts a pass with the viewport and scissor of the description. The images must already be in the right state. Draws go between this and end_pass. */
+	void begin_pass(const pass_desc& desc);
+	void end_pass();
+
+	/** Changes the viewport / scissor inside a pass. */
+	void set_viewport(float x, float y, float w, float h);
+	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h);
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 

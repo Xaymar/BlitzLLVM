@@ -2113,3 +2113,57 @@ namespace bb::rhi {
 		return binding_group{ uint64_t(set) };
 	}
 }
+
+namespace bb::rhi {
+	static VkRenderingAttachmentInfo vk_attachment(const pass_attachment& a, VkImageLayout layout)
+	{
+		VkRenderingAttachmentInfo out = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		out.imageView                 = VkImageView(a.view);
+		out.imageLayout               = layout;
+		out.loadOp                    = a.load == load_op::clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : (a.load == load_op::load ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+		out.storeOp                   = a.store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		for (int i = 0; i < 4; i++) {
+			out.clearValue.color.float32[i] = a.clear[i];
+		}
+		return out;
+	}
+
+	void begin_pass(const pass_desc& desc)
+	{
+		VkRenderingAttachmentInfo colors[4];
+		for (uint32_t i = 0; i < desc.color_count; i++) {
+			colors[i] = vk_attachment(desc.colors[i], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		}
+		VkRenderingAttachmentInfo depth = {};
+		VkRenderingInfo           info  = { VK_STRUCTURE_TYPE_RENDERING_INFO };
+		info.renderArea                 = { { 0, 0 }, { desc.width, desc.height } };
+		info.layerCount                 = 1;
+		info.colorAttachmentCount       = desc.color_count;
+		info.pColorAttachments          = colors;
+		if (desc.has_depth) {
+			depth                         = vk_attachment(desc.depth, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
+			info.pDepthAttachment         = &depth;
+		}
+		vkCmdBeginRendering(gfx::g.cmd, &info);
+		set_viewport(desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3]);
+		set_scissor(desc.scissor[0], desc.scissor[1], desc.scissor[2], desc.scissor[3]);
+	}
+
+	void end_pass()
+	{
+		vkCmdEndRendering(gfx::g.cmd);
+	}
+
+	void set_viewport(float x, float y, float w, float h)
+	{
+		VkViewport viewport = { x, y, w, h, 0, 1 };
+		vkCmdSetViewport(gfx::g.cmd, 0, 1, &viewport);
+	}
+
+	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkRect2D scissor = { { x, y }, { uint32_t(w), uint32_t(h) } };
+		vkCmdSetScissor(gfx::g.cmd, 0, 1, &scissor);
+	}
+}
