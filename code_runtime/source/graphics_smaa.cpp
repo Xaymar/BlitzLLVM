@@ -375,10 +375,10 @@ namespace {
 
 	void draw_pass(VkPipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(pipeline), false);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
-		vkCmdPushConstants(g.cmd, vk_layout(layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(c), &c);
-		vkCmdDraw(g.cmd, 3, 1, 0, 0);
+		bb::rhi::push_constants(layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(c), &c);
+		bb::rhi::draw(3, 1, 0, 0);
 		bb::rhi::end_pass();
 	}
 } // namespace

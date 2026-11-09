@@ -1172,11 +1172,11 @@ namespace bb::gfx {
 		} push = {};
 		memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
 		push.first_group[0] = int32_t(first);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(g.cull_pipeline), true);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.cull_pipeline_layout), 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, vk_layout(g.cull_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
-		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
+		bb::rhi::push_constants(g.cull_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
+		bb::rhi::dispatch(cull_recorded_groups - first, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
 		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
@@ -1257,11 +1257,11 @@ namespace bb::gfx {
 		memcpy(push.origin, scene.origin, sizeof(scene.origin));
 		push.base[0] = int32_t(scene.static_entities);
 		push.base[1] = int32_t(scene.static_commands);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(g.static_pipeline), true);
 		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.static_pipeline_layout), 0, 2, sets, 0, nullptr);
-		vkCmdPushConstants(g.cmd, vk_layout(g.static_pipeline_layout), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
-		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
+		bb::rhi::push_constants(g.static_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
+		bb::rhi::dispatch(scene.static_count / gpu_static::lanes, 1, 1);
 		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
 		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
@@ -1375,24 +1375,20 @@ namespace bb::gfx {
 		};
 		begin_shared(info);
 
-		VkClearRect rect = { scissor, 0, 1 };
 		if (scene.clear_color) {
-			VkClearAttachment clear = {};
-			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
-			clear.clearValue.color  = { { scene.color[0], scene.color[1], scene.color[2], 1.0f } };
+			float rgba_clear[4] = { scene.color[0], scene.color[1], scene.color[2], 1.0f };
 			if (g.buffer_depth == 8) {
 				// The buffer only holds colors of the palette.
 				uint8_t rgba[4] = { uint8_t(fminf(fmaxf(scene.color[0], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[1], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[2], 0.0f), 1.0f) * 255.0f + 0.5f), 255 };
 				palette_snap(rgba, 1);
-				clear.clearValue.color = { { rgba[0] / 255.0f, rgba[1] / 255.0f, rgba[2] / 255.0f, 1.0f } };
+				rgba_clear[0] = rgba[0] / 255.0f;
+				rgba_clear[1] = rgba[1] / 255.0f;
+				rgba_clear[2] = rgba[2] / 255.0f;
 			}
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+			bb::rhi::clear_color(rgba_clear, scene.x, scene.y, scene.w, scene.h);
 		}
 		if (scene.clear_depth) {
-			VkClearAttachment clear       = {};
-			clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
-			clear.clearValue.depthStencil = { 0.0f, 0 };
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+			bb::rhi::clear_depth(0.0f, scene.x, scene.y, scene.w, scene.h);
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
@@ -1500,22 +1496,22 @@ namespace bb::gfx {
 				}
 				gpu_static::entry_key const& k = r.key;
 				if (k.pipeline != bound_pipeline) {
-					vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(k.pipeline, target.image->format));
+					bb::rhi::bind_pipeline(k.pipeline, target.image->format);
 					bound_pipeline = k.pipeline;
 					stats3d.pipelines++;
 				}
 				int cull = k.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
 				if (cull != bound_cull) {
-					vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+					bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 					bound_cull = cull;
 				}
 				if (int(k.depth_test) != bound_test) {
-					vkCmdSetDepthTestEnable(g.cmd, k.depth_test ? VK_TRUE : VK_FALSE);
+					bb::rhi::set_depth_test(k.depth_test);
 					bound_test = k.depth_test;
 				}
 				bool write = k.depth_write && !read_only;
 				if (int(write) != bound_write) {
-					vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+					bb::rhi::set_depth_write(write);
 					bound_write = write;
 				}
 				texture_entry*  tex = texture_of(k.texture);
@@ -1526,16 +1522,15 @@ namespace bb::gfx {
 					stats3d.textures++;
 				}
 				if ((k.vertex_buffer != bound_vertices) || (k.index_buffer != bound_indices)) {
-					VkDeviceSize offset = 0;
-					vkCmdBindVertexBuffers(g.cmd, 0, 1, &k.vertex_buffer, &offset);
-					vkCmdBindIndexBuffer(g.cmd, k.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+					bb::rhi::bind_vertex_buffer(uint64_t(k.vertex_buffer));
+					bb::rhi::bind_index_buffer(uint64_t(k.index_buffer));
 					bound_vertices = k.vertex_buffer;
 					bound_indices  = k.index_buffer;
 					stats3d.buffers++;
 				}
 				constexpr uint32_t most = 1u << 24;
 				for (uint32_t done = 0; done < r.count; done += most) {
-					vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
+					bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
 				}
 				stats3d.draws++;
 				if (k.gpu) {
@@ -1770,24 +1765,24 @@ namespace bb::gfx {
 			// Draws with texture layers have a pipeline of their own (the shader of the others does not have the layers).
 			bb::rhi::pipeline wanted = (d.layer_group && !d.oit) ? layered_pipeline_of(d.pipeline) : d.pipeline;
 			if (wanted != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : wanted, target.image->format));
+				bb::rhi::bind_pipeline(d.oit ? ((oit_phase == 5) ? g.oit_peel3d : (oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : wanted, target.image->format);
 				bound_pipeline = wanted;
 				stats3d.pipelines++;
 			}
 			int cull = d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
 			if (cull != bound_cull) {
-				vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+				bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 				bound_cull = cull;
 			}
 			// The depth of the slots picks the nearest fragment of each, so it is always tested and written there.
 			bool test_now = d.depth_test || (oit_phase == 3) || (oit_phase == 5);
 			if (int(test_now) != bound_test) {
-				vkCmdSetDepthTestEnable(g.cmd, test_now ? VK_TRUE : VK_FALSE);
+				bb::rhi::set_depth_test(test_now);
 				bound_test = test_now;
 			}
 			bool write = (oit_phase == 3) || (oit_phase == 5) || (d.depth_write && !read_only);
 			if (int(write) != bound_write) {
-				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+				bb::rhi::set_depth_write(write);
 				bound_write = write;
 			}
 			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
@@ -1797,17 +1792,16 @@ namespace bb::gfx {
 				stats3d.textures++;
 			}
 			if ((d.vertex_buffer != bound_vertices) || (d.index_buffer != bound_indices)) {
-				VkDeviceSize offset = 0;
-				vkCmdBindVertexBuffers(g.cmd, 0, 1, &d.vertex_buffer, &offset);
-				vkCmdBindIndexBuffer(g.cmd, d.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+				bb::rhi::bind_vertex_buffer(uint64_t(d.vertex_buffer));
+				bb::rhi::bind_index_buffer(uint64_t(d.index_buffer));
 				bound_vertices = d.vertex_buffer;
 				bound_indices  = d.index_buffer;
 				stats3d.buffers++;
 			}
 			if (d.cluster_count) {
-				vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands.vk, VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
+				bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
 			} else {
-				vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
+				bb::rhi::draw_indexed(d.index_count, instances, 0, 0, scene.first_draw + i);
 			}
 			stats3d.draws++;
 			i += instances;

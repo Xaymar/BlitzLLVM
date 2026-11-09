@@ -715,9 +715,8 @@ namespace bb::gfx {
 		bb::rhi::begin_pass(pass);
 
 		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
-		vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
-		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer.vk, &offset);
+		bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(scale), scale);
+		bb::rhi::bind_vertex_buffer(uint64_t(g.vertex_buffer.vk));
 
 		VkRect2D  current  = scissor;
 		for (uint32_t i = first; i < end; i++) {
@@ -733,16 +732,12 @@ namespace bb::gfx {
 				wanted = { { target.x + x0, target.y + y0 }, { uint32_t(x1 > x0 ? x1 - x0 : 0), uint32_t(y1 > y0 ? y1 - y0 : 0) } };
 			}
 			if (memcmp(&wanted, &current, sizeof(wanted)) != 0) {
-				vkCmdSetScissor(g.cmd, 0, 1, &wanted);
+				bb::rhi::set_scissor(wanted.offset.x, wanted.offset.y, int32_t(wanted.extent.width), int32_t(wanted.extent.height));
 				current = wanted;
 			}
 
 			if (op.kind == OP_CLEAR) {
-				VkClearAttachment clear = {};
-				clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
-				memcpy(clear.clearValue.color.float32, op.color, sizeof(op.color));
-				VkClearRect rect = { current, 0, 1 };
-				vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+				bb::rhi::clear_color(op.color, current.offset.x, current.offset.y, int32_t(current.extent.width), int32_t(current.extent.height));
 				continue;
 			}
 
@@ -754,10 +749,10 @@ namespace bb::gfx {
 				}
 				set = e->set;
 			}
-			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format));
+			bb::rhi::bind_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format);
 			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
-			vkCmdPushConstants(g.cmd, vk_layout(g.layout), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
-			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
+			bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 16, sizeof(op.mask), op.mask);
+			bb::rhi::draw(op.count, 1, op.first, 0);
 		}
 		bb::rhi::end_pass();
 	}

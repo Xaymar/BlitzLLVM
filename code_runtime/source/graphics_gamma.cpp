@@ -405,7 +405,7 @@ namespace bb::gfx {
 		pass.scissor[3]     = int32_t(shown.height);
 		bb::rhi::begin_pass(pass);
 		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, palettized ? palette_pipeline : pipeline);
+		bb::rhi::bind_raw_pipeline(uint64_t(palettized ? palette_pipeline : pipeline), false);
 		uint32_t offset = 0;
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, front_set, 0, nullptr);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, table_set, 1, &offset);
@@ -416,8 +416,8 @@ namespace bb::gfx {
 		float push[5] = { dither_shift(), 0, 0, 0, float(bayer) }; // Then the steps and levels of the Bayer pattern.
 		dither_steps(push + 1);
 		presented++;
-		vkCmdPushConstants(g.cmd, vk_layout(used), VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), push);
-		vkCmdDraw(g.cmd, 3, 1, 0, 0);
+		bb::rhi::push_constants(used, bb::rhi::stage_fragment, 0, sizeof(push), push);
+		bb::rhi::draw(3, 1, 0, 0);
 		bb::rhi::end_pass();
 
 		barrier(shown.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);

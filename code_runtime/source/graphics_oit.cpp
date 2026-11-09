@@ -349,8 +349,8 @@ namespace bb::gfx {
 		VkPipeline* pipelines = composites_for(VK_FORMAT_R32G32B32A32_SFLOAT);
 		image_set&  entry     = images_for(width, height);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[5]);
-		vkCmdDraw(g.cmd, 3, 1, 0, 0);
+		bb::rhi::bind_raw_pipeline(uint64_t(pipelines[5]), false);
+		bb::rhi::draw(3, 1, 0, 0);
 	}
 
 	void oit_accumulated_to_sampled(uint32_t width, uint32_t height)
@@ -364,8 +364,8 @@ namespace bb::gfx {
 		VkPipeline* pipelines = composites_for(format);
 		image_set&  entry     = images_for(width, height);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[6]);
-		vkCmdDraw(g.cmd, 3, 1, 0, 0);
+		bb::rhi::bind_raw_pipeline(uint64_t(pipelines[6]), false);
+		bb::rhi::draw(3, 1, 0, 0);
 	}
 
 	// The 3D pipelines of the second pass of the moment based kind: they read the sums of the first (set 4) next to what the other 3D pipelines read.
@@ -455,8 +455,8 @@ namespace bb::gfx {
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
 		for (int mode = 0; mode < 3; mode++) {
 			if (modes & (1u << mode)) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode]);
-				vkCmdDraw(g.cmd, 3, 1, 0, 0);
+				bb::rhi::bind_raw_pipeline(uint64_t(pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode]), false);
+				bb::rhi::draw(3, 1, 0, 0);
 			}
 		}
 	}

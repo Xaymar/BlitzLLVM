@@ -2167,3 +2167,89 @@ namespace bb::rhi {
 		vkCmdSetScissor(gfx::g.cmd, 0, 1, &scissor);
 	}
 }
+
+namespace bb::rhi {
+	void bind_pipeline(pipeline p, uint32_t target_format)
+	{
+		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, VkFormat(target_format)));
+	}
+
+	void bind_raw_pipeline(uint64_t native, bool compute)
+	{
+		vkCmdBindPipeline(gfx::g.cmd, compute ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(native));
+	}
+
+	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data)
+	{
+		VkShaderStageFlags flags = 0;
+		flags |= (stages & stage_vertex) ? VK_SHADER_STAGE_VERTEX_BIT : 0;
+		flags |= (stages & stage_fragment) ? VK_SHADER_STAGE_FRAGMENT_BIT : 0;
+		flags |= (stages & stage_compute) ? VK_SHADER_STAGE_COMPUTE_BIT : 0;
+		vkCmdPushConstants(gfx::g.cmd, gfx::vk_layout(layout), flags, offset, size, data);
+	}
+
+	void bind_vertex_buffer(uint64_t buffer)
+	{
+		VkBuffer     vk     = VkBuffer(buffer);
+		VkDeviceSize offset = 0;
+		vkCmdBindVertexBuffers(gfx::g.cmd, 0, 1, &vk, &offset);
+	}
+
+	void bind_index_buffer(uint64_t buffer)
+	{
+		vkCmdBindIndexBuffer(gfx::g.cmd, VkBuffer(buffer), 0, VK_INDEX_TYPE_UINT32);
+	}
+
+	void set_cull(cull_mode mode)
+	{
+		vkCmdSetCullMode(gfx::g.cmd, mode == cull_mode::front ? VK_CULL_MODE_FRONT_BIT : (mode == cull_mode::back ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE));
+	}
+
+	void set_depth_test(bool enable)
+	{
+		vkCmdSetDepthTestEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+	}
+
+	void set_depth_write(bool enable)
+	{
+		vkCmdSetDepthWriteEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+	}
+
+	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkClearAttachment clear = {};
+		clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
+		memcpy(clear.clearValue.color.float32, rgba, 4 * sizeof(float));
+		VkClearRect rect = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
+		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+	}
+
+	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		VkClearAttachment clear       = {};
+		clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
+		clear.clearValue.depthStencil = { depth, 0 };
+		VkClearRect rect              = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
+		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+	}
+
+	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
+	{
+		vkCmdDraw(gfx::g.cmd, vertices, instances, first_vertex, first_instance);
+	}
+
+	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance)
+	{
+		vkCmdDrawIndexed(gfx::g.cmd, indices, instances, first_index, base_vertex, first_instance);
+	}
+
+	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride)
+	{
+		vkCmdDrawIndexedIndirect(gfx::g.cmd, VkBuffer(buffer), offset, count, stride);
+	}
+
+	void dispatch(uint32_t x, uint32_t y, uint32_t z)
+	{
+		vkCmdDispatch(gfx::g.cmd, x, y, z);
+	}
+}

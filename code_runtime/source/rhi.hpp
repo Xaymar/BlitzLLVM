@@ -305,6 +305,30 @@ namespace bb::rhi {
 	void set_viewport(float x, float y, float w, float h);
 	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h);
 
+	/** Draw state, recorded inside a pass (or, for dispatch, outside one). Buffers are backend handles for now (a VkBuffer on Vulkan, 0 for none). */
+	enum class cull_mode : uint8_t { none = 0, front = 1, back = 2 };
+
+	/** Binds the pipeline built for the format of the target (the backend format code of the image, a VkFormat on Vulkan, until images have an rhi::format). */
+	void bind_pipeline(pipeline p, uint32_t target_format);
+	/** Binds a pipeline that is not an rhi::pipeline yet (SMAA, gamma, transparency composites, the compute passes). Goes away when they are. */
+	void bind_raw_pipeline(uint64_t native, bool compute);
+	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data);
+	void bind_vertex_buffer(uint64_t buffer);
+	void bind_index_buffer(uint64_t buffer); // 32-bit indices.
+	void set_cull(cull_mode mode);
+	void set_depth_test(bool enable);
+	void set_depth_write(bool enable);
+
+	/** Clears the colour attachment 0 of the pass (within the rectangle x, y, w, h) or its depth. */
+	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h);
+	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h);
+
+	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance);
+	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance);
+	/** count commands of the given stride in the buffer, starting at offset. */
+	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride);
+	void dispatch(uint32_t x, uint32_t y, uint32_t z);
+
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
 
