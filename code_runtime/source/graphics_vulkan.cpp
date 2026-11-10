@@ -695,7 +695,7 @@ namespace bb::gfx {
 	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler)
 	{
 		flush(); // What was recorded may use the old sampler.
-		vkDeviceWaitIdle(g.device);
+		bb::rhi::wait_idle();
 		describe_image(set, image, sampler);
 		image.sampler = sampler;
 	}
@@ -2486,5 +2486,14 @@ namespace bb::rhi {
 		VkFence fence = VkFence(sync.fence);
 		gfx::check(vkWaitForFences(gfx::g.device, 1, &fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
 		gfx::check(vkResetFences(gfx::g.device, 1, &fence), "vkResetFences");
+	}
+}
+
+namespace bb::rhi {
+	void wait_idle()
+	{
+		gfx::queue_lock_all();
+		vkDeviceWaitIdle(gfx::g.device);
+		gfx::queue_unlock_all();
 	}
 }

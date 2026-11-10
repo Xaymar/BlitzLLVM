@@ -421,9 +421,7 @@ namespace bb::gfx {
 	void gpu_idle()
 	{
 		wait_gpu();
-		queue_lock_all();
-		vkDeviceWaitIdle(g.device);
-		queue_unlock_all();
+		bb::rhi::wait_idle();
 	}
 
 	void stop_gpu_thread()

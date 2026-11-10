@@ -260,7 +260,7 @@ namespace {
 		}
 		if (free_index < 0) {
 			free_index = 0; // More formats than there can be: not reached, the targets of 3D have a few.
-			vkDeviceWaitIdle(g.device);
+			bb::rhi::wait_idle();
 			vkDestroyPipeline(g.device, pipelines[0].blend, nullptr);
 			vkDestroyPipeline(g.device, pipelines[0].resolve, nullptr);
 		}

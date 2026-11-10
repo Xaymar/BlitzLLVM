@@ -343,6 +343,9 @@ namespace bb::rhi {
 	/** Waits until the GPU is done with what was sent with the slot, and readies the fence for the next send. */
 	void wait_frame_sync(const frame_sync& sync);
 
+	/** Waits until the GPU has finished everything that was sent, from any thread (takes every queue for itself while it waits). */
+	void wait_idle();
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 
