@@ -557,32 +557,14 @@ namespace bb::gfx {
 	void submit_commands(VkSemaphore wait, VkSemaphore signal)
 	{
 		wait_gpu();
-		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
-		if (device_lost()) {
+		Uint64 wait_start = BB_PROFILE_NOW();
+		if (!bb::rhi::submit_and_wait(uint64_t(wait), uint64_t(signal))) {
 			// Nothing can be sent to a device that is lost. The graphics are made again where the next frame begins.
 			completed_flush = int64_t(flush_number) - 1;
 			retire_graveyard(false);
 			return;
 		}
-
-		VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-		info.waitSemaphoreCount    = wait ? 1 : 0;
-		info.pWaitSemaphores       = &wait;
-		info.pWaitDstStageMask     = &stage;
-		info.commandBufferCount    = 1;
-		info.pCommandBuffers       = &g.cmd;
-		info.signalSemaphoreCount  = signal ? 1 : 0;
-		info.pSignalSemaphores     = &signal;
-		vkResetFences(g.device, 1, &g.fence);
 		profile_submits++;
-		Uint64 wait_start = BB_PROFILE_NOW();
-		queue_lock();
-		VkResult submitted = vkQueueSubmit(g.queue, 1, &info, g.fence);
-		queue_unlock();
-		check(submitted, "vkQueueSubmit");
-		check(vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		check(vkResetFences(g.device, 1, &g.fence), "vkResetFences");
 		profile_wait += BB_PROFILE_NOW() - wait_start;
 		profile_gpu_collect(current_slot);
 		completed_flush = int64_t(flush_number) - 1; // Everything before was done by wait_gpu, and what was recorded just now is.

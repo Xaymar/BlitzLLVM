@@ -2422,3 +2422,32 @@ namespace bb::rhi {
 		return true;
 	}
 }
+
+namespace bb::rhi {
+	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore)
+	{
+		gfx::check(vkEndCommandBuffer(gfx::g.cmd), "vkEndCommandBuffer");
+		if (gfx::device_lost()) {
+			return false;
+		}
+		VkSemaphore          wait   = VkSemaphore(wait_semaphore);
+		VkSemaphore          signal = VkSemaphore(signal_semaphore);
+		VkPipelineStageFlags stage  = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		VkSubmitInfo         info   = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		info.waitSemaphoreCount     = wait ? 1 : 0;
+		info.pWaitSemaphores        = &wait;
+		info.pWaitDstStageMask      = &stage;
+		info.commandBufferCount     = 1;
+		info.pCommandBuffers        = &gfx::g.cmd;
+		info.signalSemaphoreCount   = signal ? 1 : 0;
+		info.pSignalSemaphores      = &signal;
+		vkResetFences(gfx::g.device, 1, &gfx::g.fence);
+		gfx::queue_lock();
+		VkResult submitted = vkQueueSubmit(gfx::g.queue, 1, &info, gfx::g.fence);
+		gfx::queue_unlock();
+		gfx::check(submitted, "vkQueueSubmit");
+		gfx::check(vkWaitForFences(gfx::g.device, 1, &gfx::g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		gfx::check(vkResetFences(gfx::g.device, 1, &gfx::g.fence), "vkResetFences");
+		return true;
+	}
+}

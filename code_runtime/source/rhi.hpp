@@ -331,6 +331,9 @@ namespace bb::rhi {
 	void write_timestamp(uint32_t index);                    // When all earlier work is done.
 	bool read_timestamps(uint32_t first, uint32_t count, double* nanoseconds); // False if the GPU has not written them yet.
 
+	/** Ends the open command buffer, sends it and waits until the GPU is done with it (the one-shot work of uploads and readbacks). wait / signal are backend semaphores of presentation (0 for none). False if the device is lost: nothing is sent. */
+	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore);
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 
