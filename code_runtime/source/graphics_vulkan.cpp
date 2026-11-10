@@ -695,7 +695,7 @@ namespace bb::gfx {
 	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler)
 	{
 		flush(); // What was recorded may use the old sampler.
-		vkDeviceWaitIdle(g.device);
+		bb::rhi::wait_idle();
 		describe_image(set, image, sampler);
 		image.sampler = sampler;
 	}
@@ -2420,5 +2420,80 @@ namespace bb::rhi {
 			nanoseconds[i] = double(ticks[i]) * double(timestamp_period);
 		}
 		return true;
+	}
+}
+
+namespace bb::rhi {
+	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore)
+	{
+		gfx::check(vkEndCommandBuffer(gfx::g.cmd), "vkEndCommandBuffer");
+		if (gfx::device_lost()) {
+			return false;
+		}
+		VkSemaphore          wait   = VkSemaphore(wait_semaphore);
+		VkSemaphore          signal = VkSemaphore(signal_semaphore);
+		VkPipelineStageFlags stage  = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		VkSubmitInfo         info   = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		info.waitSemaphoreCount     = wait ? 1 : 0;
+		info.pWaitSemaphores        = &wait;
+		info.pWaitDstStageMask      = &stage;
+		info.commandBufferCount     = 1;
+		info.pCommandBuffers        = &gfx::g.cmd;
+		info.signalSemaphoreCount   = signal ? 1 : 0;
+		info.pSignalSemaphores      = &signal;
+		vkResetFences(gfx::g.device, 1, &gfx::g.fence);
+		gfx::queue_lock();
+		VkResult submitted = vkQueueSubmit(gfx::g.queue, 1, &info, gfx::g.fence);
+		gfx::queue_unlock();
+		gfx::check(submitted, "vkQueueSubmit");
+		gfx::check(vkWaitForFences(gfx::g.device, 1, &gfx::g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		gfx::check(vkResetFences(gfx::g.device, 1, &gfx::g.fence), "vkResetFences");
+		return true;
+	}
+}
+
+namespace bb::rhi {
+	frame_sync create_frame_sync()
+	{
+		frame_sync                  sync;
+		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+		cmd_info.commandPool                 = gfx::g.pool;
+		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmd_info.commandBufferCount          = 1;
+		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
+		gfx::check(vkAllocateCommandBuffers(gfx::g.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
+		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+		VkFence           fence      = VK_NULL_HANDLE;
+		gfx::check(vkCreateFence(gfx::g.device, &fence_info, nullptr, &fence), "vkCreateFence");
+		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		VkSemaphore           acquired = VK_NULL_HANDLE;
+		gfx::check(vkCreateSemaphore(gfx::g.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
+		sync.cmd      = uint64_t(cmd);
+		sync.fence    = uint64_t(fence);
+		sync.acquired = uint64_t(acquired);
+		return sync;
+	}
+
+	void destroy_frame_sync(frame_sync& sync)
+	{
+		vkDestroySemaphore(gfx::g.device, VkSemaphore(sync.acquired), nullptr);
+		vkDestroyFence(gfx::g.device, VkFence(sync.fence), nullptr);
+		sync = frame_sync(); // The command buffer goes with its pool.
+	}
+
+	void wait_frame_sync(const frame_sync& sync)
+	{
+		VkFence fence = VkFence(sync.fence);
+		gfx::check(vkWaitForFences(gfx::g.device, 1, &fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		gfx::check(vkResetFences(gfx::g.device, 1, &fence), "vkResetFences");
+	}
+}
+
+namespace bb::rhi {
+	void wait_idle()
+	{
+		gfx::queue_lock_all();
+		vkDeviceWaitIdle(gfx::g.device);
+		gfx::queue_unlock_all();
 	}
 }
