@@ -166,11 +166,10 @@ namespace bb::gfx {
 		}
 
 		begin_commands();
-		barrier(s->swap_images[index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		VkClearColorValue         color = { { r, gr, b, 1.0f } };
-		VkImageSubresourceRange   range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		vkCmdClearColorImage(g.cmd, s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
-		barrier(s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		barrier(s->swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		const float color[4] = { r, gr, b, 1.0f };
+		bb::rhi::clear_image(uint64_t(s->swap_images[index]), color, 1, 1);
+		barrier(s->swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		submit_commands(s->acquired, s->swap_done[index]);
 
 		VkPresentInfoKHR present = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };

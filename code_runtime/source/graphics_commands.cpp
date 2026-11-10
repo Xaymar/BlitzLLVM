@@ -261,13 +261,11 @@ namespace bb::gfx {
 
 	// GPU timestamps for BLITZLLVM_PROFILE_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
 	// mark before is that pass's. They are read back when the slot is used again, as its command buffer is done by then.
-	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
 	double         profile_gpu_pass[5] = {};
 	static const uint32_t profile_marks_max = 128;
 	static uint8_t        profile_mark_pass[frame_slots][profile_marks_max];
 	static uint32_t       profile_mark_count[frame_slots] = {};
 	int                   profile_mark_state = -1; // -1 not tried, 0 not available, 1 available.
-	static float          profile_mark_period = 1.0f;
 
 	void profile_gpu_mark(int pass)
 	{
@@ -275,7 +273,7 @@ namespace bb::gfx {
 		if (profile_mark_state != 1 || count >= profile_marks_max || (pass != 255 && count == 0)) { // A frame that did not begin (profiling was off) has no reset queries to write to.
 			return;
 		}
-		vkCmdWriteTimestamp(g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profile_query_pool, current_slot * profile_marks_max + count);
+		bb::rhi::write_timestamp(current_slot * profile_marks_max + count);
 		profile_mark_pass[current_slot][count++] = uint8_t(pass);
 	}
 
@@ -286,12 +284,12 @@ namespace bb::gfx {
 		if (profile_mark_state != 1 || count < 2) {
 			return;
 		}
-		uint64_t times[profile_marks_max];
-		if (vkGetQueryPoolResults(g.device, profile_query_pool, slot * profile_marks_max, count, sizeof(times), times, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS) {
+		double times[profile_marks_max];
+		if (bb::rhi::read_timestamps(slot * profile_marks_max, count, times)) {
 			for (uint32_t i = 1; i < count; i++) {
-				profile_gpu_pass[profile_mark_pass[slot][i]] += double(times[i] - times[i - 1]) * double(profile_mark_period);
+				profile_gpu_pass[profile_mark_pass[slot][i]] += times[i] - times[i - 1];
 			}
-			profile_gpu_pass[4] += double(times[count - 1] - times[0]) * double(profile_mark_period);
+			profile_gpu_pass[4] += times[count - 1] - times[0];
 		}
 		profile_mark_count[slot] = 0;
 	}
@@ -304,29 +302,13 @@ namespace bb::gfx {
 		}
 		if (profile_mark_state < 0) {
 			profile_mark_state = 0;
-			uint32_t family_count = 0;
-			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, nullptr);
-			VkQueueFamilyProperties families[32];
-			if (family_count > 32) {
-				family_count = 32;
-			}
-			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, families);
-			VkPhysicalDeviceProperties props;
-			vkGetPhysicalDeviceProperties(g.physical, &props);
-			if ((g.family >= family_count) || !families[g.family].timestampValidBits) {
+			if (!bb::rhi::create_timestamps(profile_marks_max * frame_slots)) {
 				return;
 			}
-			VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
-			info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
-			info.queryCount            = profile_marks_max * frame_slots;
-			if (vkCreateQueryPool(g.device, &info, nullptr, &profile_query_pool) != VK_SUCCESS) {
-				return;
-			}
-			profile_mark_period = props.limits.timestampPeriod;
-			profile_mark_state  = 1;
+			profile_mark_state = 1;
 		}
 		profile_mark_count[current_slot] = 0;
-		vkCmdResetQueryPool(g.cmd, profile_query_pool, current_slot * profile_marks_max, profile_marks_max);
+		bb::rhi::reset_timestamps(current_slot * profile_marks_max, profile_marks_max);
 		profile_gpu_mark(255);
 	}
 
@@ -646,30 +628,13 @@ namespace bb::gfx {
 		}
 	}
 
-	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect)
+	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, VkImageAspectFlags aspect)
 	{
-		VkImageMemoryBarrier2 b            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
-		b.srcStageMask                     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		b.srcAccessMask                    = VK_ACCESS_2_MEMORY_WRITE_BIT;
-		b.dstStageMask                     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		b.dstAccessMask                    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-		b.oldLayout                        = from;
-		b.newLayout                        = to;
-		b.srcQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
-		b.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
-		b.image                            = img;
-		b.subresourceRange.aspectMask      = aspect;
-		b.subresourceRange.levelCount      = VK_REMAINING_MIP_LEVELS; // Every level of an image is in the same layout between uses.
-		b.subresourceRange.layerCount      = VK_REMAINING_ARRAY_LAYERS;
-
-		VkDependencyInfo dep        = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-		dep.imageMemoryBarrierCount = 1;
-		dep.pImageMemoryBarriers    = &b;
-		vkCmdPipelineBarrier2(g.cmd, &dep);
+		bb::rhi::transition_image(uint64_t(img), from, to, (aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 	}
 
 	// Moves the image to the layout, from the one it is in.
-	void transition(gpu_image& img, VkImageLayout to)
+	void transition(gpu_image& img, bb::rhi::image_state to)
 	{
 		if (img.layout != to) {
 			barrier(img.image, img.layout, to);
@@ -690,11 +655,11 @@ namespace bb::gfx {
 			if ((g.ops[i].kind != OP_CLEAR) && g.ops[i].image) {
 				image_entry* e = image_of(g.ops[i].image);
 				if (e && e->set && (e->image.image != target.image->image)) {
-					transition(e->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					transition(e->image, bb::rhi::image_state::sampled);
 				}
 			}
 		}
-		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		transition(*target.image, bb::rhi::image_state::color_target);
 		target.image->mips_stale = target.image->mips > 1;
 
 		// Drawing is limited to the part of the image that this buffer is.
@@ -849,46 +814,45 @@ namespace bb::gfx {
 		gpu_image& back  = g.buffers[1];
 
 		if (copy_back) {
-			barrier(back.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			barrier(front.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			VkImageCopy copy                 = {};
-			copy.srcSubresource              = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			copy.dstSubresource              = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			copy.extent                      = { front.width, front.height, 1 };
-			vkCmdCopyImage(g.cmd, back.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, front.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-			barrier(back.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			barrier(back.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_src);
+			barrier(front.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_dst);
+			bb::rhi::image_copy copy;
+			copy.w = front.width;
+			copy.h = front.height;
+			bb::rhi::copy_image(uint64_t(back.image), uint64_t(front.image), &copy, 1);
+			barrier(back.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
+			barrier(front.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::copy_src);
 		} else {
-			barrier(front.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			barrier(front.image, bb::rhi::image_state::color_target, bb::rhi::image_state::copy_src);
 		}
 
 		// The gamma tables change what the window shows, not the buffer.
 		gpu_image& shown = *apply_gamma(front);
 
-		barrier(surface().swap_images[index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		barrier(surface().swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		buffer_rect area = fit_buffer(float(surface().swap_extent.width), float(surface().swap_extent.height));
-		VkFilter    filter = VK_FILTER_NEAREST;
+		bb::rhi::filter filter = bb::rhi::filter::nearest;
 		if (surface().fullscreen) {
 			// Black around the buffer. Whole-number sizes stay sharp, others are smoothed.
-			VkClearColorValue       black = {};
-			VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-			vkCmdClearColorImage(g.cmd, surface().swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &black, 1, &range);
+			const float black[4] = { 0, 0, 0, 0 };
+			bb::rhi::clear_image(uint64_t(surface().swap_images[index]), black, 1, 1);
 			const char* rule = bb_env("BLITZLLVM_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
 			if (rule && (strcmp(rule, "linear") == 0)) {
-				filter = VK_FILTER_LINEAR;
+				filter = bb::rhi::filter::linear;
 			} else if (!rule || (strcmp(rule, "nearest") != 0)) {
-				filter = (fmodf(area.w, float(front.width)) == 0.0f && fmodf(area.h, float(front.height)) == 0.0f) ? VK_FILTER_NEAREST : VK_FILTER_LINEAR;
+				filter = (fmodf(area.w, float(front.width)) == 0.0f && fmodf(area.h, float(front.height)) == 0.0f) ? bb::rhi::filter::nearest : bb::rhi::filter::linear;
 			}
 		}
-		VkImageBlit blit       = {};
-		blit.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.srcOffsets[1]     = { int32_t(shown.width), int32_t(shown.height), 1 };
-		blit.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.dstOffsets[0]     = { int32_t(area.x), int32_t(area.y), 0 };
-		blit.dstOffsets[1]     = { int32_t(area.x + area.w), int32_t(area.y + area.h), 1 };
-		vkCmdBlitImage(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, surface().swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, filter);
-		barrier(surface().swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		bb::rhi::image_blit blit;
+		blit.src[2] = int32_t(shown.width);
+		blit.src[3] = int32_t(shown.height);
+		blit.dst[0] = int32_t(area.x);
+		blit.dst[1] = int32_t(area.y);
+		blit.dst[2] = int32_t(area.x + area.w);
+		blit.dst[3] = int32_t(area.y + area.h);
+		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().swap_images[index]), &blit, 1, filter);
+		barrier(surface().swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 
 		profile_gpu_mark(3);
 		submit_async(surface().acquired, surface().swap_done[index], true, index);
@@ -907,7 +871,7 @@ namespace bb::gfx {
 		begin_commands();
 		record_operations();
 		// The barrier comes after everything sent before on the queue, so the signal that follows it means all drawing into the picture is done.
-		transition(picture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		transition(picture, bb::rhi::image_state::copy_src);
 		submit_async(VK_NULL_HANDLE, VK_NULL_HANDLE, false, 0, timeline, value);
 	}
 

@@ -73,15 +73,15 @@ namespace bb::gfx {
 
 	namespace {
 		// The barrier of graphics_commands.cpp records into the program's command buffer; the thread has its own.
-		void thread_barrier(VkCommandBuffer cmd, VkImage image, VkImageLayout from, VkImageLayout to)
+		void thread_barrier(VkCommandBuffer cmd, VkImage image, bb::rhi::image_state from, bb::rhi::image_state to)
 		{
 			VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
 			b.srcStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 			b.srcAccessMask               = VK_ACCESS_2_MEMORY_WRITE_BIT;
 			b.dstStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 			b.dstAccessMask               = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-			b.oldLayout                   = from;
-			b.newLayout                   = to;
+			b.oldLayout                   = vk_layout_of(from);
+			b.newLayout                   = vk_layout_of(to);
 			b.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
 			b.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
 			b.image                       = image;
@@ -181,15 +181,15 @@ namespace bb::gfx {
 				begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 				vkResetCommandBuffer(p.cmd, 0);
 				vkBeginCommandBuffer(p.cmd, &begin);
-				thread_barrier(p.cmd, p.s->swap_images[index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+				thread_barrier(p.cmd, p.s->swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
 				VkImageBlit blit    = {};
 				blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 				blit.srcOffsets[1]  = { int32_t(frame_w), int32_t(frame_h), 1 };
 				blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 				blit.dstOffsets[1]  = { int32_t(p.s->swap_extent.width), int32_t(p.s->swap_extent.height), 1 };
-				vkCmdBlitImage(p.cmd, frame, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
-				thread_barrier(p.cmd, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+				vkCmdBlitImage(p.cmd, frame, vk_layout_of(bb::rhi::image_state::copy_src), p.s->swap_images[index], vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
+				thread_barrier(p.cmd, p.s->swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 				vkEndCommandBuffer(p.cmd);
 
 				VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;

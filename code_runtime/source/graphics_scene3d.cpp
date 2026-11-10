@@ -859,7 +859,7 @@ namespace bb::gfx {
 			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 			write.pBufferInfo                  = &buffer_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), vk_layout_of(bb::rhi::image_state::sampled) };
 			write.dstBinding                  = 1;
 			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			write.pBufferInfo                 = nullptr;
@@ -1016,7 +1016,7 @@ namespace bb::gfx {
 		bb::rhi::binding_group& set = depth_sets[&depth - depth_cache];
 		if (!set) {
 			allocate_descriptor(set);
-			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, vk_layout_of(bb::rhi::image_state::depth_read) };
 			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 			write.dstSet                     = vk_set(set);
 			write.descriptorCount            = 1;
@@ -1125,18 +1125,18 @@ namespace bb::gfx {
 		// The face that is chosen lives in the image of the texture, which is what the buffers draw to and keep the state of.
 		auto face = [&](int i) -> gpu_image& { return i == c.face ? t.image : c.faces[i]; };
 		for (int i = 0; i < 6; i++) {
-			transition(face(i), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			transition(face(i), bb::rhi::image_state::copy_src);
 		}
-		transition(c.sheet, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transition(c.sheet, bb::rhi::image_state::copy_dst);
 		for (int i = 0; i < 6; i++) {
-			VkImageCopy region = {};
-			region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			region.dstOffset      = { (i % 3) * t.width, (i / 3) * t.height, 0 };
-			region.extent         = { uint32_t(t.width), uint32_t(t.height), 1 };
-			vkCmdCopyImage(g.cmd, face(i).image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, c.sheet.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+			bb::rhi::image_copy region;
+			region.dst.x = (i % 3) * t.width;
+			region.dst.y = (i / 3) * t.height;
+			region.w     = uint32_t(t.width);
+			region.h     = uint32_t(t.height);
+			bb::rhi::copy_image(uint64_t(face(i).image), uint64_t(c.sheet.image), &region, 1);
 		}
-		transition(c.sheet, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(c.sheet, bb::rhi::image_state::sampled);
 	}
 
 	// Has the GPU decide for the clusters of the draws of a scene which are in view, writing a command for each that draws it or not.
@@ -1305,7 +1305,7 @@ namespace bb::gfx {
 				}
 			} else if (tex && tex->set && (tex->image.image != target.image->image)) {
 				refresh_mips(tex->image); // Whatever was drawn to it since is in its smaller levels as well.
-				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				transition(tex->image, bb::rhi::image_state::sampled);
 			}
 			// The texture layers after the first are sampled as well: their smaller levels are made and they are readable, too.
 			if (draws[scene.first_draw + i].layer_group) {
@@ -1316,7 +1316,7 @@ namespace bb::gfx {
 					texture_entry* layer = texture_of(handle);
 					if (layer && layer->set && !layer->cube && (layer->image.image != target.image->image)) {
 						refresh_mips(layer->image);
-						transition(layer->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+						transition(layer->image, bb::rhi::image_state::sampled);
 					}
 				}
 			}
@@ -1332,17 +1332,17 @@ namespace bb::gfx {
 					}
 				} else if (tex && tex->set && (tex->image.image != target.image->image)) {
 					refresh_mips(tex->image);
-					transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					transition(tex->image, bb::rhi::image_state::sampled);
 				}
 			}
 			record_static_pass(scene);
 		}
-		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		transition(*target.image, bb::rhi::image_state::color_target);
 		target.image->mips_stale = target.image->mips > 1;
-		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
+		bool fresh_depth = depth_image.layout == bb::rhi::image_state::undefined;
 		if (fresh_depth) {
-			barrier(depth_image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-			depth_image.layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			barrier(depth_image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+			depth_image.layout = bb::rhi::image_state::depth_target;
 		}
 
 		// Direct3D 7 has the centers of its pixels on whole numbers and Vulkan half a pixel further, so the picture moves by that to land where Blitz3D puts it.
@@ -1630,7 +1630,7 @@ namespace bb::gfx {
 			}
 			if ((i == soft_first) && !read_only) {
 				bb::rhi::end_pass();
-				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+				barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 				depth.read_only = true;
 				depth.load      = bb::rhi::load_op::load;
 				begin_shared(oit_mode ? oit_info : info);
@@ -1667,7 +1667,7 @@ namespace bb::gfx {
 					}
 					if (!read_only) {
 						// The first layer tests against the depth of the scene in the shader, so it is only read from here on.
-						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.read_only = true;
 						read_only         = true;
 					}
@@ -1695,7 +1695,7 @@ namespace bb::gfx {
 					}
 					if (!read_only) {
 						// The slots test against the depth of the scene in the shader, so it is only read from here on (as with a depth fade).
-						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.read_only = true;
 						read_only         = true;
 					}
@@ -1721,7 +1721,7 @@ namespace bb::gfx {
 					}
 					if ((soft_first < oit_end) && !read_only) {
 						// The sprites with a depth fade read the depth buffer, in both passes: it is only read from here on.
-						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.read_only = true;
 						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 						bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
@@ -1814,7 +1814,7 @@ namespace bb::gfx {
 		}
 		bb::rhi::end_pass();
 		if (read_only) {
-			barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth_image.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
 	}
 
@@ -1826,16 +1826,18 @@ namespace bb::gfx {
 		if (!from.image || !to.image) {
 			return;
 		}
-		VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
+		bb::rhi::image_state previous_from = from.image->layout, previous_to = to.image->layout;
 		to.image->mips_stale = to.image->mips > 1;
 		if (from.image->image == to.image->image) {
 			// The parts may overlap, so the pixels take a detour through a buffer.
-			VkBufferImageCopy part = {};
-			part.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, from.layer, 1 };
-			part.imageOffset       = { from.x + c.sx, from.y + c.sy, 0 };
-			part.imageExtent       = { uint32_t(c.w), uint32_t(c.h), 1 };
-			transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch.vk, 1, &part);
+			bb::rhi::buffer_image_copy part;
+			part.image.layer = from.layer;
+			part.image.x     = from.x + c.sx;
+			part.image.y     = from.y + c.sy;
+			part.w           = uint32_t(c.w);
+			part.h           = uint32_t(c.h);
+			transition(*from.image, bb::rhi::image_state::copy_src);
+			bb::rhi::copy_image_to_buffer(uint64_t(from.image->image), uint64_t(scratch.vk), &part, 1);
 			VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
 			memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 			memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
@@ -1844,16 +1846,17 @@ namespace bb::gfx {
 			VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 			dep.memoryBarrierCount  = 1;
 			dep.pMemoryBarriers     = &memory;
-			transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			transition(*to.image, bb::rhi::image_state::copy_dst);
 			vkCmdPipelineBarrier2(g.cmd, &dep);
-			part.imageSubresource.baseArrayLayer = to.layer;
-			part.imageOffset = { to.x + c.dx, to.y + c.dy, 0 };
-			vkCmdCopyBufferToImage(g.cmd, scratch.vk, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
+			part.image.layer = to.layer;
+			part.image.x     = to.x + c.dx;
+			part.image.y     = to.y + c.dy;
+			bb::rhi::copy_buffer_to_image(uint64_t(scratch.vk), uint64_t(to.image->image), &part, 1);
 			transition(*to.image, previous_to);
 			return;
 		}
-		transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transition(*from.image, bb::rhi::image_state::copy_src);
+		transition(*to.image, bb::rhi::image_state::copy_dst);
 		copy_region(*from.image, from.x + c.sx, from.y + c.sy, *to.image, to.x + c.dx, to.y + c.dy, c.w, c.h, from.layer, to.layer);
 		transition(*from.image, previous_from);
 		transition(*to.image, previous_to);

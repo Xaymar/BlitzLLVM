@@ -190,12 +190,12 @@ namespace {
 		mapped = staging.mapped;
 		memcpy(mapped, data, size);
 		gpu_image image = create_image(width, height, bb::rhi::image_sampled | bb::rhi::image_copy_destination, rhi_format(format));
-		transition(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		VkBufferImageCopy copy = {};
-		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.imageExtent       = { width, height, 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging.vk, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-		transition(image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(image, bb::rhi::image_state::copy_dst);
+		bb::rhi::buffer_image_copy copy;
+		copy.w = width;
+		copy.h = height;
+		bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(image.image), &copy, 1);
+		transition(image, bb::rhi::image_state::sampled);
 		return image;
 	}
 
@@ -274,9 +274,9 @@ namespace {
 	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
 	{
 		VkDescriptorImageInfo infos[3] = {
-			{ vk_sampler(sa), a->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ vk_sampler(sb), b->view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
-			{ vk_sampler(sc), c, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+			{ vk_sampler(sa), a->view, vk_layout_of(bb::rhi::image_state::sampled) },
+			{ vk_sampler(sb), b->view, vk_layout_of(bb::rhi::image_state::sampled) },
+			{ vk_sampler(sc), c, vk_layout_of(bb::rhi::image_state::sampled) },
 		};
 		VkWriteDescriptorSet writes[3] = {};
 		for (uint32_t i = 0; i < 3; i++) {
@@ -473,15 +473,16 @@ namespace bb::gfx {
 		float weight = (r.temporal && s.history) ? r.history_weight : 0.0f;
 
 		// The part of the target that the camera drew.
-		transition(*target.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		transition(s.src, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		VkImageCopy copy       = {};
-		copy.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, r.layer, 1 };
-		copy.srcOffset         = { r.x, r.y, 0 };
-		copy.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.extent            = { uint32_t(r.w), uint32_t(r.h), 1 };
-		vkCmdCopyImage(g.cmd, target.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, s.src.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-		transition(s.src, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(*target.image, bb::rhi::image_state::copy_src);
+		transition(s.src, bb::rhi::image_state::copy_dst);
+		bb::rhi::image_copy copy;
+		copy.src.layer = r.layer;
+		copy.src.x     = r.x;
+		copy.src.y     = r.y;
+		copy.w         = uint32_t(r.w);
+		copy.h         = uint32_t(r.h);
+		bb::rhi::copy_image(uint64_t(target.image->image), uint64_t(s.src.image), &copy, 1);
+		transition(s.src, bb::rhi::image_state::sampled);
 
 		constants c = {};
 		c.metrics[0] = 1.0f / float(r.w);
@@ -501,14 +502,14 @@ namespace bb::gfx {
 		VkRect2D whole = { { 0, 0 }, { uint32_t(r.w), uint32_t(r.h) } };
 
 		// Edges, then the weights of the blend along them.
-		transition(s.edges, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		transition(s.edges, bb::rhi::image_state::color_target);
 		begin_pass(s.edges, whole, true);
 		draw_pass(edges_pipeline, s.edges_set, c);
-		transition(s.edges, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		transition(s.blend, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		transition(s.edges, bb::rhi::image_state::sampled);
+		transition(s.blend, bb::rhi::image_state::color_target);
 		begin_pass(s.blend, whole, true);
 		draw_pass(weights_pipeline, s.weights_set, c);
-		transition(s.blend, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(s.blend, bb::rhi::image_state::sampled);
 
 		// The blend itself reads the depth, to leave alone what 3D did not draw.
 		bool reads_depth = r.masked || r.temporal;
@@ -525,12 +526,12 @@ namespace bb::gfx {
 		c.subsample[3] = float(bayer_levels());
 		c.resolve[2]   = r.temporal ? 0.0f : dither_for_pass;
 		if (reads_depth) {
-			barrier(depth.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
 		format_pipelines& p = pipelines_for(target.image->format);
 		VkRect2D          area = { { r.x, r.y }, { uint32_t(r.w), uint32_t(r.h) } };
 		if (!r.temporal) {
-			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			transition(*target.image, bb::rhi::image_state::color_target);
 			bb::rhi::pass_desc pass;
 			pass.colors[0].view = uint64_t(target_view_of(*target.image, r.layer));
 			pass.color_count    = 1;
@@ -549,13 +550,13 @@ namespace bb::gfx {
 		} else {
 			gpu_image& now     = s.out[s.current];
 			gpu_image& before  = s.out[1 - s.current];
-			transition(now, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-			transition(before, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			transition(now, bb::rhi::image_state::color_target);
+			transition(before, bb::rhi::image_state::sampled);
 			c.resolve[2] = 0.0f;
 			begin_pass(now, whole, false);
 			draw_pass(p.blend, s.blend_set, c);
-			transition(now, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			transition(now, bb::rhi::image_state::sampled);
+			transition(*target.image, bb::rhi::image_state::color_target);
 			bb::rhi::pass_desc pass;
 			pass.colors[0].view = uint64_t(target_view_of(*target.image, r.layer));
 			pass.color_count    = 1;
@@ -576,7 +577,7 @@ namespace bb::gfx {
 			s.history = true;
 		}
 		if (reads_depth) {
-			barrier(depth.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
 		target.image->mips_stale = target.image->mips > 1;
 	}
