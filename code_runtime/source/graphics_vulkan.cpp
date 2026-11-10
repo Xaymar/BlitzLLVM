@@ -2588,3 +2588,178 @@ namespace bb::rhi {
 		return vk_present_result(result);
 	}
 } // namespace bb::rhi
+
+namespace bb::rhi {
+	namespace {
+		// The barrier of graphics_commands.cpp records into the program's command buffer; the thread of a window has its own.
+		void presenter_barrier(VkCommandBuffer cmd, VkImage image, image_state from, image_state to)
+		{
+			VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
+			b.srcStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			b.srcAccessMask               = VK_ACCESS_2_MEMORY_WRITE_BIT;
+			b.dstStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			b.dstAccessMask               = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+			b.oldLayout                   = gfx::vk_layout_of(from);
+			b.newLayout                   = gfx::vk_layout_of(to);
+			b.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+			b.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+			b.image                       = image;
+			b.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			b.subresourceRange.levelCount = 1;
+			b.subresourceRange.layerCount = 1;
+			VkDependencyInfo info         = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+			info.imageMemoryBarrierCount  = 1;
+			info.pImageMemoryBarriers     = &b;
+			vkCmdPipelineBarrier2(cmd, &info);
+		}
+	} // namespace
+
+	void create_window_presenter(window_presenter& presenter, uint32_t queue_index)
+	{
+		using namespace gfx;
+		presenter.device       = uint64_t(g.device);
+		presenter.queue_index  = queue_index;
+		presenter.queue        = uint64_t(g.queues[queue_index]);
+		presenter.present_wait = g.can_present_wait;
+
+		// The pictures are blitted from once they were handed over, which puts them in the layout for that; nothing is shown before.
+		VkSemaphoreTypeCreateInfo timeline_info = { VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
+		timeline_info.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
+		timeline_info.initialValue              = 0;
+		VkSemaphoreCreateInfo timeline_create   = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		timeline_create.pNext                   = &timeline_info;
+		VkSemaphore timeline                    = VK_NULL_HANDLE;
+		check(vkCreateSemaphore(g.device, &timeline_create, nullptr, &timeline), "vkCreateSemaphore");
+		presenter.timeline = uint64_t(timeline);
+
+		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		pool_info.queueFamilyIndex        = g.family;
+		VkCommandPool pool                = VK_NULL_HANDLE; // Its own: a command pool belongs to one thread.
+		check(vkCreateCommandPool(g.device, &pool_info, nullptr, &pool), "vkCreateCommandPool");
+		presenter.pool = uint64_t(pool);
+		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+		cmd_info.commandPool                 = pool;
+		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmd_info.commandBufferCount          = 1;
+		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
+		check(vkAllocateCommandBuffers(g.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
+		presenter.cmd = uint64_t(cmd);
+		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+		VkFence           fence      = VK_NULL_HANDLE;
+		check(vkCreateFence(g.device, &fence_info, nullptr, &fence), "vkCreateFence");
+		presenter.fence = uint64_t(fence);
+		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		VkSemaphore           acquired = VK_NULL_HANDLE;
+		check(vkCreateSemaphore(g.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
+		presenter.acquired = uint64_t(acquired);
+	}
+
+	void destroy_window_presenter(window_presenter& presenter)
+	{
+		vkDestroySemaphore(gfx::g.device, VkSemaphore(presenter.timeline), nullptr);
+		vkDestroySemaphore(gfx::g.device, VkSemaphore(presenter.acquired), nullptr);
+		vkDestroyFence(gfx::g.device, VkFence(presenter.fence), nullptr);
+		vkDestroyCommandPool(gfx::g.device, VkCommandPool(presenter.pool), nullptr);
+		presenter = {};
+	}
+
+	wait_status wait_timeline(const window_presenter& presenter, uint64_t value, uint64_t timeout_ns)
+	{
+		VkSemaphore         timeline = VkSemaphore(presenter.timeline);
+		VkSemaphoreWaitInfo info     = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
+		info.semaphoreCount          = 1;
+		info.pSemaphores             = &timeline;
+		info.pValues                 = &value;
+		VkResult result              = vkWaitSemaphores(VkDevice(presenter.device), &info, timeout_ns);
+		if (result == VK_SUCCESS) {
+			return wait_status::reached;
+		}
+		return (result == VK_TIMEOUT) ? wait_status::timeout : wait_status::failed;
+	}
+
+	show_result show_picture(window_presenter& presenter, swapchain& chain, uint64_t picture, uint32_t w, uint32_t h)
+	{
+		using namespace gfx;
+		show_result       shown;
+		VkDevice          device    = VkDevice(presenter.device);
+		VkSwapchainKHR    swapchain = VkSwapchainKHR(chain.handle);
+		VkSemaphore       acquired  = VkSemaphore(presenter.acquired);
+		VkCommandBuffer   cmd       = VkCommandBuffer(presenter.cmd);
+		VkFence           fence     = VkFence(presenter.fence);
+		VkQueue           queue     = VkQueue(presenter.queue);
+
+		// The thread is the only one that uses this swapchain, so it can wait for an image as long as it takes: in FIFO
+		// mode, that is until the display has shown one, which is what paces it.
+		uint32_t index  = 0;
+		VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, acquired, VK_NULL_HANDLE, &index);
+		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR))) {
+			return shown; // Or the device is lost, which the program's thread finds out on its own.
+		}
+		VkImage target = VkImage(chain.images[index]);
+
+		VkCommandBufferBeginInfo begin = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		vkResetCommandBuffer(cmd, 0);
+		vkBeginCommandBuffer(cmd, &begin);
+		presenter_barrier(cmd, target, image_state::undefined, image_state::copy_dst);
+		// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
+		VkImageBlit blit    = {};
+		blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		blit.srcOffsets[1]  = { int32_t(w), int32_t(h), 1 };
+		blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		blit.dstOffsets[1]  = { int32_t(chain.width), int32_t(chain.height), 1 };
+		vkCmdBlitImage(cmd, VkImage(picture), vk_layout_of(image_state::copy_src), target, vk_layout_of(image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
+		presenter_barrier(cmd, target, image_state::copy_dst, image_state::present);
+		vkEndCommandBuffer(cmd);
+
+		VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		info.waitSemaphoreCount    = 1;
+		info.pWaitSemaphores       = &acquired;
+		info.pWaitDstStageMask     = &stage;
+		info.commandBufferCount    = 1;
+		info.pCommandBuffers       = &cmd;
+		info.signalSemaphoreCount  = 1;
+		VkSemaphore done_semaphore = VkSemaphore(chain.done[index]);
+		info.pSignalSemaphores     = &done_semaphore;
+		VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+		present.waitSemaphoreCount = 1;
+		present.pWaitSemaphores    = &done_semaphore;
+		present.swapchainCount     = 1;
+		present.pSwapchains        = &swapchain;
+		present.pImageIndices      = &index;
+		VkPresentIdKHR present_id  = { VK_STRUCTURE_TYPE_PRESENT_ID_KHR };
+		uint64_t       this_id     = presenter.present_id + 1;
+		if (presenter.present_wait) {
+			present_id.swapchainCount = 1;
+			present_id.pPresentIds    = &this_id;
+			present.pNext             = &present_id;
+		}
+		// Without a queue of its own, the thread shares queue 0 with the program's thread and the submission thread. Neither call
+		// waits for the display: the swapchain is MAILBOX or IMMEDIATE, so the lock is held for the calls themselves only.
+		queue_lock(presenter.queue_index);
+		result             = vkQueueSubmit(queue, 1, &info, fence);
+		VkResult presented = (result == VK_SUCCESS) ? vkQueuePresentKHR(queue, &present) : result;
+		queue_unlock(presenter.queue_index);
+		shown.presented = vk_present_result(presented).status;
+		if (result != VK_SUCCESS) {
+			shown.stage = show_result::stage::submit_failed;
+			return shown;
+		}
+		shown.stage          = show_result::stage::submitted;
+		presenter.present_id = this_id;
+		vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX); // The picture may be drawn into again once the blit is done.
+		vkResetFences(device, 1, &fence);
+		return shown;
+	}
+
+	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns)
+	{
+		if (!presenter.present_wait || !vkWaitForPresentKHR) {
+			return false;
+		}
+		vkWaitForPresentKHR(VkDevice(presenter.device), VkSwapchainKHR(chain.handle), presenter.present_id, timeout_ns);
+		return true;
+	}
+} // namespace bb::rhi

@@ -42,17 +42,12 @@ using namespace bb::gfx;
 namespace bb::gfx {
 	struct presenter {
 		surface_state*  s      = nullptr;
-		VkDevice        device = VK_NULL_HANDLE; // Copies for the thread, which has no graphics state of its own.
-		VkQueue         queue  = VK_NULL_HANDLE;
-		uint32_t        queue_index  = 0;          // Which queue of the device: its own where there are enough, else 0 with the lock.
-		bool            present_wait = false;      // The device has vkWaitForPresentKHR.
-		uint64_t        present_id   = 0;          // Of the last present, for vkWaitForPresentKHR; grows with every present.
+		bb::rhi::window_presenter wp;              // What the thread shows pictures with: its own recording, fence, semaphores and queue (the backend's).
 		uint64_t        period_ns    = 16666667;   // One refresh of the display, for pacing without present_wait.
 		uint64_t        next_show_ns = 0;          // When the next picture may be shown, by SDL_GetTicksNS.
 		int             frames[3] = { 0, 0, 0 };    // The three pictures: images (make_internal_target), so that SetBuffer can draw to them.
-		VkImage         frame_images[3] = {};       // Copies for the thread, which looks at no table.
+		uint64_t        frame_images[3] = {};       // Copies for the thread, which looks at no table.
 		uint32_t        frame_w = 1, frame_h = 1;
-		VkSemaphore     timeline = VK_NULL_HANDLE;  // Reaches the number of a handover once its drawing is done on the GPU; the blit waits for it.
 		int             drawing = 0, ready = -1, showing = -1; // Which of the three the program draws into, waits to be shown, is shown.
 		uint64_t        handovers = 0;             // How many pictures the program handed over; the number of a picture is its handover.
 		uint64_t        ready_number = 0, showing_number = 0, presented = 0; // presented: the number of the last picture that was shown.
@@ -65,49 +60,19 @@ namespace bb::gfx {
 		SDL_Thread*     thread = nullptr;
 		SDL_Mutex*      mutex  = nullptr;
 		SDL_Condition*  cond   = nullptr;
-		VkCommandPool   pool  = VK_NULL_HANDLE;    // Its own: a command pool belongs to one thread.
-		VkCommandBuffer cmd   = VK_NULL_HANDLE;
-		VkFence         fence = VK_NULL_HANDLE;
-		VkSemaphore     acquired = VK_NULL_HANDLE; // The swapchain image is ours.
 	};
 
 	namespace {
-		// The barrier of graphics_commands.cpp records into the program's command buffer; the thread has its own.
-		void thread_barrier(VkCommandBuffer cmd, VkImage image, bb::rhi::image_state from, bb::rhi::image_state to)
-		{
-			VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
-			b.srcStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-			b.srcAccessMask               = VK_ACCESS_2_MEMORY_WRITE_BIT;
-			b.dstStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-			b.dstAccessMask               = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-			b.oldLayout                   = vk_layout_of(from);
-			b.newLayout                   = vk_layout_of(to);
-			b.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-			b.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-			b.image                       = image;
-			b.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			b.subresourceRange.levelCount = 1;
-			b.subresourceRange.layerCount = 1;
-			VkDependencyInfo info         = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-			info.imageMemoryBarrierCount  = 1;
-			info.pImageMemoryBarriers     = &b;
-			vkCmdPipelineBarrier2(cmd, &info);
-		}
-
 		// Waits, on the thread of the window, until the timeline has reached the number of the picture: its drawing is done on the
 		// GPU. False when the thread was asked to quit, or the wait failed (the device is lost).
 		bool wait_for_drawing(presenter& p, uint64_t number)
 		{
-			VkSemaphoreWaitInfo info = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
-			info.semaphoreCount      = 1;
-			info.pSemaphores         = &p.timeline;
-			info.pValues             = &number;
 			for (;;) {
-				VkResult result = vkWaitSemaphores(p.device, &info, 100000000ull); // A tenth of a second at a time, to notice quit.
-				if (result == VK_SUCCESS) {
+				bb::rhi::wait_status status = bb::rhi::wait_timeline(p.wp, number, 100000000ull); // A tenth of a second at a time, to notice quit.
+				if (status == bb::rhi::wait_status::reached) {
 					return true;
 				}
-				if (result != VK_TIMEOUT) {
+				if (status != bb::rhi::wait_status::timeout) {
 					return false;
 				}
 				SDL_LockMutex(p.mutex);
@@ -153,12 +118,12 @@ namespace bb::gfx {
 				p.busy  = true;
 				int            showing   = p.showing;
 				uint64_t       number    = p.showing_number;
-				VkSwapchainKHR swapchain = VkSwapchainKHR(p.s->chain.handle);
-				VkImage        frame     = p.frame_images[showing]; // Taken under the lock: presenter_resize replaces the pictures while the thread is not busy.
+				uint64_t       swapchain = p.s->chain.handle;
+				uint64_t       frame     = p.frame_images[showing]; // Taken under the lock: presenter_resize replaces the pictures while the thread is not busy.
 				uint32_t       frame_w   = p.frame_w, frame_h = p.frame_h;
 				SDL_UnlockMutex(p.mutex);
 
-				if (swapchain == VK_NULL_HANDLE) {
+				if (swapchain == 0) {
 					ask_for_swapchain(p);
 					continue;
 				}
@@ -168,69 +133,17 @@ namespace bb::gfx {
 				if (!wait_for_drawing(p, number)) {
 					continue; // Asked to quit, or the device is lost.
 				}
-				// The thread is the only one that uses this swapchain, so it can wait for an image as long as it takes: in FIFO
-				// mode, that is until the display has shown one, which is what paces it.
-				uint32_t index  = 0;
-				VkResult result = vkAcquireNextImageKHR(p.device, swapchain, UINT64_MAX, p.acquired, VK_NULL_HANDLE, &index);
-				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR))) {
-					ask_for_swapchain(p); // Or the device is lost, which the program's thread finds out on its own.
+				bb::rhi::show_result shown = bb::rhi::show_picture(p.wp, p.s->chain, frame, frame_w, frame_h);
+				if (shown.stage == bb::rhi::show_result::stage::acquire_failed) {
+					ask_for_swapchain(p);
 					continue;
 				}
-
-				VkCommandBufferBeginInfo begin = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-				begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-				vkResetCommandBuffer(p.cmd, 0);
-				vkBeginCommandBuffer(p.cmd, &begin);
-				thread_barrier(p.cmd, VkImage(p.s->chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
-				VkImageBlit blit    = {};
-				blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				blit.srcOffsets[1]  = { int32_t(frame_w), int32_t(frame_h), 1 };
-				blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				blit.dstOffsets[1]  = { int32_t(p.s->chain.width), int32_t(p.s->chain.height), 1 };
-				vkCmdBlitImage(p.cmd, frame, vk_layout_of(bb::rhi::image_state::copy_src), VkImage(p.s->chain.images[index]), vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
-				thread_barrier(p.cmd, VkImage(p.s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
-				vkEndCommandBuffer(p.cmd);
-
-				VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-				VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-				info.waitSemaphoreCount    = 1;
-				info.pWaitSemaphores       = &p.acquired;
-				info.pWaitDstStageMask     = &stage;
-				info.commandBufferCount    = 1;
-				info.pCommandBuffers       = &p.cmd;
-				info.signalSemaphoreCount  = 1;
-				VkSemaphore done_semaphore = VkSemaphore(p.s->chain.done[index]);
-				info.pSignalSemaphores     = &done_semaphore;
-				VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-				present.waitSemaphoreCount = 1;
-				present.pWaitSemaphores    = &done_semaphore;
-				present.swapchainCount     = 1;
-				present.pSwapchains        = &swapchain;
-				present.pImageIndices      = &index;
-				VkPresentIdKHR present_id  = { VK_STRUCTURE_TYPE_PRESENT_ID_KHR };
-				uint64_t       this_id     = p.present_id + 1;
-				if (p.present_wait) {
-					present_id.swapchainCount = 1;
-					present_id.pPresentIds    = &this_id;
-					present.pNext             = &present_id;
-				}
-				// Without a queue of its own, the thread shares queue 0 with the program's thread and the submission thread. Neither call
-				// waits for the display: the swapchain is MAILBOX or IMMEDIATE, so the lock is held for the calls themselves only.
-				queue_lock(p.queue_index);
-				result = vkQueueSubmit(p.queue, 1, &info, p.fence);
-				VkResult presented = (result == VK_SUCCESS) ? vkQueuePresentKHR(p.queue, &present) : result;
-				queue_unlock(p.queue_index);
-				if (result == VK_SUCCESS) {
-					p.present_id = this_id;
-					vkWaitForFences(p.device, 1, &p.fence, VK_TRUE, UINT64_MAX); // The picture may be drawn into again once the blit is done.
-					vkResetFences(p.device, 1, &p.fence);
+				bool submitted = (shown.stage == bb::rhi::show_result::stage::submitted);
+				if (submitted) {
 					// Pacing, outside of every lock: the next picture goes out one refresh after this one was shown. With present_wait, that
 					// is when the display has it; without, when the timer says the display should. A handover that waits returns after this.
-					bool ok = (presented == VK_SUCCESS) || (presented == VK_SUBOPTIMAL_KHR);
-					if (p.present_wait && ok && vkWaitForPresentKHR) {
-						vkWaitForPresentKHR(p.device, swapchain, this_id, 1000000000ull); // A second: a hidden window may never show it.
-					} else {
+					bool ok = (shown.presented == bb::rhi::present_status::ok) || (shown.presented == bb::rhi::present_status::suboptimal);
+					if (!(ok && bb::rhi::wait_present(p.wp, p.s->chain, 1000000000ull))) { // A second: a hidden window may never show it.
 						uint64_t now = SDL_GetTicksNS();
 						if (p.next_show_ns > now) {
 							SDL_DelayNS(p.next_show_ns - now);
@@ -241,12 +154,12 @@ namespace bb::gfx {
 				}
 
 				SDL_LockMutex(p.mutex);
-				if (result == VK_SUCCESS) {
+				if (submitted) {
 					p.presents++;
 					p.shows += fresh ? 1 : 0;
 					p.presented = number;
 				}
-				if ((presented == VK_ERROR_OUT_OF_DATE_KHR) || (presented == VK_SUBOPTIMAL_KHR)) {
+				if ((shown.presented == bb::rhi::present_status::out_of_date) || (shown.presented == bb::rhi::present_status::suboptimal)) {
 					p.needs_swapchain = true;
 					p.dirty           = true; // Shown again at the new size.
 				}
@@ -264,10 +177,7 @@ namespace bb::gfx {
 		static uint32_t presenters_made = 0;
 		presenter* p    = new presenter();
 		p->s            = &s;
-		p->device       = g.device;
-		p->queue_index  = (g.queue_count > 1) ? 1 + (presenters_made++ % (g.queue_count - 1)) : 0; // Queue 0 stays with Graphics where it can.
-		p->queue        = g.queues[p->queue_index];
-		p->present_wait = g.can_present_wait;
+		const uint32_t queue_index = (g.queue_count > 1) ? 1 + (presenters_made++ % (g.queue_count - 1)) : 0; // Queue 0 stays with Graphics where it can.
 		if (const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetDisplayForWindow(s.window)); mode && (mode->refresh_rate > 1.0f)) {
 			p->period_ns = uint64_t(1000000000.0 / mode->refresh_rate);
 		}
@@ -277,29 +187,9 @@ namespace bb::gfx {
 		p->frame_h = uint32_t(h > 0 ? h : 1);
 		for (int i = 0; i < 3; i++) {
 			p->frames[i]       = make_internal_target(int(p->frame_w), int(p->frame_h));
-			p->frame_images[i] = image_of(p->frames[i])->image.image;
+			p->frame_images[i] = uint64_t(image_of(p->frames[i])->image.image);
 		}
-		// The pictures are blitted from once they were handed over, which puts them in the layout for that; nothing is shown before.
-		VkSemaphoreTypeCreateInfo timeline_info = { VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
-		timeline_info.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
-		timeline_info.initialValue              = 0;
-		VkSemaphoreCreateInfo timeline_create    = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-		timeline_create.pNext                   = &timeline_info;
-		check(vkCreateSemaphore(g.device, &timeline_create, nullptr, &p->timeline), "vkCreateSemaphore");
-
-		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		pool_info.queueFamilyIndex        = g.family;
-		check(vkCreateCommandPool(g.device, &pool_info, nullptr, &p->pool), "vkCreateCommandPool");
-		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-		cmd_info.commandPool                 = p->pool;
-		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmd_info.commandBufferCount          = 1;
-		check(vkAllocateCommandBuffers(g.device, &cmd_info, &p->cmd), "vkAllocateCommandBuffers");
-		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-		check(vkCreateFence(g.device, &fence_info, nullptr, &p->fence), "vkCreateFence");
-		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-		check(vkCreateSemaphore(g.device, &sem_info, nullptr, &p->acquired), "vkCreateSemaphore");
+		bb::rhi::create_window_presenter(p->wp, queue_index);
 		p->mutex  = SDL_CreateMutex();
 		p->cond   = SDL_CreateCondition();
 		s.show    = p;
@@ -328,10 +218,7 @@ namespace bb::gfx {
 		for (int frame : p->frames) {
 			free_internal_image(frame);
 		}
-		vkDestroySemaphore(g.device, p->timeline, nullptr);
-		vkDestroySemaphore(g.device, p->acquired, nullptr);
-		vkDestroyFence(g.device, p->fence, nullptr);
-		vkDestroyCommandPool(g.device, p->pool, nullptr);
+		bb::rhi::destroy_window_presenter(p->wp);
 		SDL_DestroyCondition(p->cond);
 		SDL_DestroyMutex(p->mutex);
 		delete p;
@@ -356,7 +243,7 @@ namespace bb::gfx {
 		int old[3] = { p->frames[0], p->frames[1], p->frames[2] };
 		for (int i = 0; i < 3; i++) {
 			p->frames[i]       = make_internal_target(int(w), int(h));
-			p->frame_images[i] = image_of(p->frames[i])->image.image;
+			p->frame_images[i] = uint64_t(image_of(p->frames[i])->image.image);
 		}
 		p->frame_w = w;
 		p->frame_h = h;
@@ -378,7 +265,7 @@ namespace bb::gfx {
 	{
 		presenter& p      = *s.show;
 		uint64_t   number = p.handovers + 1; // Only this thread changes handovers.
-		flush_handover(image_of(p.frames[p.drawing])->image, p.timeline, number);
+		flush_handover(image_of(p.frames[p.drawing])->image, VkSemaphore(p.wp.timeline), number);
 		SDL_LockMutex(p.mutex);
 		p.ready        = p.drawing;
 		p.handovers    = number;
