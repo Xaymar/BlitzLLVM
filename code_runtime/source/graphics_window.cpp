@@ -232,8 +232,8 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
 		// the window corners and center, one number per line in the named file.
 		if (FILE* file = fopen(path, "w")) {
-			buffer_rect area = fit_buffer(float(surface().swap_extent.width), float(surface().swap_extent.height));
-			fprintf(file, "%u\n%u\n%d\n%d\n%d\n%d\n", surface().swap_extent.width, surface().swap_extent.height, int(area.x), int(area.y), int(area.w), int(area.h));
+			buffer_rect area = fit_buffer(float(surface().chain.width), float(surface().chain.height));
+			fprintf(file, "%u\n%u\n%d\n%d\n%d\n%d\n", surface().chain.width, surface().chain.height, int(area.x), int(area.y), int(area.w), int(area.h));
 			int ww = 1, wh = 1;
 			SDL_GetWindowSize(surface().window, &ww, &wh);
 			float points[3][2] = { { 0, 0 }, { float(ww) * 0.5f, float(wh) * 0.5f }, { float(ww - 1), float(wh - 1) } };
@@ -751,7 +751,7 @@ void bb_flip(int32_t vwait)
 	}
 	poll_resized(); // To know whether the last present wants a new swapchain.
 	ensure_swapchain();
-	if (surface().swapchain == VK_NULL_HANDLE) {
+	if (surface().chain.handle == 0) {
 		flush();
 		return; // Minimized
 	}

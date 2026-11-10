@@ -1406,7 +1406,7 @@ namespace bb::gfx {
 
 	void ensure_swapchain()
 	{
-		if (surface().resized || (surface().swapchain == VK_NULL_HANDLE)) {
+		if (surface().resized || (surface().chain.handle == 0)) {
 			destroy_swapchain();
 			create_swapchain();
 		}
@@ -1414,117 +1414,23 @@ namespace bb::gfx {
 
 	void create_swapchain(surface_state& s)
 	{
-		VkSurfaceCapabilitiesKHR caps;
-		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(g.physical, s.surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-		if (device_lost()) {
-			return; // Made again with the rest of the graphics.
-		}
-
 		int w = 0, h = 0;
 		SDL_GetWindowSizeInPixels(s.window, &w, &h);
-		VkExtent2D extent = caps.currentExtent;
-		if (extent.width == 0xFFFFFFFFu) {
-			extent.width  = uint32_t(w) < caps.minImageExtent.width ? caps.minImageExtent.width : (uint32_t(w) > caps.maxImageExtent.width ? caps.maxImageExtent.width : uint32_t(w));
-			extent.height = uint32_t(h) < caps.minImageExtent.height ? caps.minImageExtent.height : (uint32_t(h) > caps.maxImageExtent.height ? caps.maxImageExtent.height : uint32_t(h));
-		}
-		s.swap_extent = extent;
-		s.resized     = false;
-		if ((extent.width == 0) || (extent.height == 0)) {
-			return; // Minimized, try again later.
-		}
-
-		uint32_t format_count = 0;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, s.surface, &format_count, nullptr);
-		VkSurfaceFormatKHR formats[64];
-		if (format_count > 64) {
-			format_count = 64;
-		}
-		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, s.surface, &format_count, formats);
-		VkSurfaceFormatKHR chosen = formats[0];
-		for (uint32_t i = 0; i < format_count; i++) {
-			// Match the UNORM back buffer: no sRGB conversion when blitting.
-			if ((formats[i].format == VK_FORMAT_B8G8R8A8_UNORM) || (formats[i].format == VK_FORMAT_R8G8B8A8_UNORM)) {
-				chosen = formats[i];
-				break;
-			}
-		}
-
-		// Flip 1 is FIFO, which is always available and makes the program wait for the display. Flip 0 shows at once (tearing).
-		// Flip 2 syncs the picture with the display without making the program wait: MAILBOX replaces a picture that was
-		// not shown yet with the newer one. Without MAILBOX it falls back to FIFO, which is synced but can make the program wait.
-		// A window with a thread of its own (graphics_presenter.cpp) uses MAILBOX, or else IMMEDIATE: a present that never waits for the
-		// display, so that the lock of its queue is held only for the call itself; the thread paces itself to the display instead.
-		VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
-		if ((s.vsync != 1) || s.show) {
-			uint32_t        mode_count = 0;
-			VkPresentModeKHR modes[16];
-			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, s.surface, &mode_count, nullptr);
-			if (mode_count > 16) {
-				mode_count = 16;
-			}
-			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, s.surface, &mode_count, modes);
-			VkPresentModeKHR wanted = ((s.vsync == 2) || s.show) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
-			for (uint32_t i = 0; i < mode_count; i++) {
-				if (modes[i] == wanted) {
-					mode = modes[i];
-				}
-			}
-			if (s.show && (mode == VK_PRESENT_MODE_FIFO_KHR)) {
-				for (uint32_t i = 0; i < mode_count; i++) {
-					if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-						mode = modes[i];
-					}
-				}
-			}
-		}
-
-		// MAILBOX needs a spare image: the display and the window system may each hold one, and the program must still find one to draw to.
-		uint32_t count = caps.minImageCount + ((mode == VK_PRESENT_MODE_MAILBOX_KHR) ? 3 : 1);
-		if ((caps.maxImageCount > 0) && (count > caps.maxImageCount)) {
-			count = caps.maxImageCount;
-		}
-		if (count > max_swapchain_images) {
-			count = max_swapchain_images;
-		}
-
-		VkSwapchainCreateInfoKHR info = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
-		info.surface                  = s.surface;
-		info.minImageCount            = count;
-		info.imageFormat              = chosen.format;
-		info.imageColorSpace          = chosen.colorSpace;
-		info.imageExtent              = extent;
-		info.imageArrayLayers         = 1;
-		info.imageUsage               = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		info.imageSharingMode         = VK_SHARING_MODE_EXCLUSIVE;
-		info.preTransform             = caps.currentTransform;
-		info.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		info.presentMode              = mode;
-		info.clipped                  = VK_TRUE;
-		check(vkCreateSwapchainKHR(g.device, &info, nullptr, &s.swapchain), "vkCreateSwapchainKHR");
-		if (!s.swapchain) {
-			return; // The device is lost.
-		}
-
-		s.swap_count = max_swapchain_images;
-		check(vkGetSwapchainImagesKHR(g.device, s.swapchain, &s.swap_count, s.swap_images), "vkGetSwapchainImagesKHR");
-		for (uint32_t i = 0; i < s.swap_count; i++) {
-			VkSemaphoreCreateInfo sem = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-			check(vkCreateSemaphore(g.device, &sem, nullptr, &s.swap_done[i]), "vkCreateSemaphore");
+		bb::rhi::swapchain_desc desc;
+		desc.surface    = uint64_t(s.surface);
+		desc.width      = uint32_t(w);
+		desc.height     = uint32_t(h);
+		desc.vsync      = s.vsync;
+		desc.own_thread = (s.show != nullptr);
+		if (bb::rhi::create_swapchain(s.chain, desc)) {
+			s.resized = false;
 		}
 	}
 
 	void destroy_swapchain(surface_state& s)
 	{
-
 		gpu_idle();
-		for (uint32_t i = 0; i < s.swap_count; i++) {
-			vkDestroySemaphore(g.device, s.swap_done[i], nullptr);
-		}
-		s.swap_count = 0;
-		if (s.swapchain) {
-			vkDestroySwapchainKHR(g.device, s.swapchain, nullptr);
-			s.swapchain = VK_NULL_HANDLE;
-		}
+		bb::rhi::destroy_swapchain(s.chain);
 	}
 
 	void create_swapchain()
@@ -2496,4 +2402,131 @@ namespace bb::rhi {
 		vkDeviceWaitIdle(gfx::g.device);
 		gfx::queue_unlock_all();
 	}
+}
+
+namespace bb::rhi {
+	bool create_swapchain(swapchain& sc, const swapchain_desc& d)
+	{
+		using namespace gfx;
+		const VkSurfaceKHR surface = VkSurfaceKHR(d.surface);
+		VkSurfaceCapabilitiesKHR caps;
+		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(g.physical, surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+		if (device_lost()) {
+			return false; // Made again with the rest of the graphics.
+		}
+
+		const int w = int(d.width), h = int(d.height);
+		VkExtent2D extent = caps.currentExtent;
+		if (extent.width == 0xFFFFFFFFu) {
+			extent.width  = uint32_t(w) < caps.minImageExtent.width ? caps.minImageExtent.width : (uint32_t(w) > caps.maxImageExtent.width ? caps.maxImageExtent.width : uint32_t(w));
+			extent.height = uint32_t(h) < caps.minImageExtent.height ? caps.minImageExtent.height : (uint32_t(h) > caps.maxImageExtent.height ? caps.maxImageExtent.height : uint32_t(h));
+		}
+		sc.width  = extent.width;
+		sc.height = extent.height;
+		if ((extent.width == 0) || (extent.height == 0)) {
+			return true; // Minimized, try again later.
+		}
+
+		uint32_t format_count = 0;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, surface, &format_count, nullptr);
+		VkSurfaceFormatKHR formats[64];
+		if (format_count > 64) {
+			format_count = 64;
+		}
+		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, surface, &format_count, formats);
+		VkSurfaceFormatKHR chosen = formats[0];
+		for (uint32_t i = 0; i < format_count; i++) {
+			// Match the UNORM back buffer: no sRGB conversion when blitting.
+			if ((formats[i].format == VK_FORMAT_B8G8R8A8_UNORM) || (formats[i].format == VK_FORMAT_R8G8B8A8_UNORM)) {
+				chosen = formats[i];
+				break;
+			}
+		}
+
+		// Flip 1 is FIFO, which is always available and makes the program wait for the display. Flip 0 shows at once (tearing).
+		// Flip 2 syncs the picture with the display without making the program wait: MAILBOX replaces a picture that was
+		// not shown yet with the newer one. Without MAILBOX it falls back to FIFO, which is synced but can make the program wait.
+		// A window with a thread of its own (graphics_presenter.cpp) uses MAILBOX, or else IMMEDIATE: a present that never waits for the
+		// display, so that the lock of its queue is held only for the call itself; the thread paces itself to the display instead.
+		VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
+		if ((d.vsync != 1) || d.own_thread) {
+			uint32_t        mode_count = 0;
+			VkPresentModeKHR modes[16];
+			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, surface, &mode_count, nullptr);
+			if (mode_count > 16) {
+				mode_count = 16;
+			}
+			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, surface, &mode_count, modes);
+			VkPresentModeKHR wanted = ((d.vsync == 2) || d.own_thread) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+			for (uint32_t i = 0; i < mode_count; i++) {
+				if (modes[i] == wanted) {
+					mode = modes[i];
+				}
+			}
+			if (d.own_thread && (mode == VK_PRESENT_MODE_FIFO_KHR)) {
+				for (uint32_t i = 0; i < mode_count; i++) {
+					if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+						mode = modes[i];
+					}
+				}
+			}
+		}
+
+		// MAILBOX needs a spare image: the display and the window system may each hold one, and the program must still find one to draw to.
+		uint32_t count = caps.minImageCount + ((mode == VK_PRESENT_MODE_MAILBOX_KHR) ? 3 : 1);
+		if ((caps.maxImageCount > 0) && (count > caps.maxImageCount)) {
+			count = caps.maxImageCount;
+		}
+		if (count > max_swapchain_images) {
+			count = max_swapchain_images;
+		}
+
+		VkSwapchainCreateInfoKHR info = { VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR };
+		info.surface                  = surface;
+		info.minImageCount            = count;
+		info.imageFormat              = chosen.format;
+		info.imageColorSpace          = chosen.colorSpace;
+		info.imageExtent              = extent;
+		info.imageArrayLayers         = 1;
+		info.imageUsage               = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		info.imageSharingMode         = VK_SHARING_MODE_EXCLUSIVE;
+		info.preTransform             = caps.currentTransform;
+		info.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		info.presentMode              = mode;
+		info.clipped                  = VK_TRUE;
+		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		check(vkCreateSwapchainKHR(g.device, &info, nullptr, &swapchain), "vkCreateSwapchainKHR");
+		sc.handle = uint64_t(swapchain);
+		if (!swapchain) {
+			return true; // The device is lost.
+		}
+
+		VkImage  images[max_swapchain_images] = {};
+		uint32_t image_count                  = max_swapchain_images;
+		check(vkGetSwapchainImagesKHR(g.device, swapchain, &image_count, images), "vkGetSwapchainImagesKHR");
+		sc.count = image_count;
+		for (uint32_t i = 0; i < image_count; i++) {
+			sc.images[i] = uint64_t(images[i]);
+			VkSemaphoreCreateInfo sem  = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+			VkSemaphore           done = VK_NULL_HANDLE;
+			check(vkCreateSemaphore(g.device, &sem, nullptr, &done), "vkCreateSemaphore");
+			sc.done[i] = uint64_t(done);
+		}
+		return true;
+	}
+
+	void destroy_swapchain(swapchain& sc)
+	{
+		for (uint32_t i = 0; i < sc.count; i++) {
+			vkDestroySemaphore(gfx::g.device, VkSemaphore(sc.done[i]), nullptr);
+			sc.images[i] = 0;
+			sc.done[i]   = 0;
+		}
+		sc.count = 0;
+		if (sc.handle) {
+			vkDestroySwapchainKHR(gfx::g.device, VkSwapchainKHR(sc.handle), nullptr);
+			sc.handle = 0;
+		}
+	}
+
 }

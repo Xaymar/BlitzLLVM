@@ -269,7 +269,7 @@ namespace bb::gfx {
 	};
 
 
-	constexpr uint32_t max_swapchain_images = 8;
+	constexpr uint32_t max_swapchain_images = bb::rhi::max_swapchain_images;
 
 	constexpr uint32_t max_vertices         = 1 << 18;
 
@@ -308,11 +308,7 @@ namespace bb::gfx {
 		bool         fullscreen = false; // A borderless window over the display, the buffer is shown with its aspect ratio kept.
 		bool         suspended  = false; // Whether the window is not in front (or is minimized).
 
-		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-		VkImage        swap_images[max_swapchain_images];
-		VkSemaphore    swap_done[max_swapchain_images];
-		uint32_t       swap_count = 0;
-		VkExtent2D     swap_extent = {};
+		bb::rhi::swapchain chain; // The pictures of the window: handle, images, semaphores and size.
 		VkSemaphore    acquired = VK_NULL_HANDLE;
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).

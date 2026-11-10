@@ -580,7 +580,7 @@ namespace bb::gfx {
 		profile_submits++;
 		frame_slot& slot = frames[current_slot];
 		slot.flush_id    = int64_t(flush_number) - 1;
-		slot.job         = { wait, signal, timeline, timeline_value, present, surface().swapchain, index };
+		slot.job         = { wait, signal, timeline, timeline_value, present, VkSwapchainKHR(surface().chain.handle), index };
 		SDL_LockMutex(gpu_mutex);
 		slot.state = 1;
 		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
@@ -757,7 +757,7 @@ namespace bb::gfx {
 		VkResult result = VK_NOT_READY;
 		for (int retry = 0; (result == VK_NOT_READY) || (result == VK_TIMEOUT); retry++) {
 			SDL_LockMutex(swapchain_mutex);
-			result = vkAcquireNextImageKHR(g.device, surface().swapchain, 1000000, surface().acquired, VK_NULL_HANDLE, &index);
+			result = vkAcquireNextImageKHR(g.device, VkSwapchainKHR(surface().chain.handle), 1000000, surface().acquired, VK_NULL_HANDLE, &index);
 			SDL_UnlockMutex(swapchain_mutex);
 			if (result == VK_NOT_READY) {
 				// Returned at once instead of after the timeout, give the present a chance to take the lock.
@@ -800,13 +800,13 @@ namespace bb::gfx {
 		// The gamma tables change what the window shows, not the buffer.
 		gpu_image& shown = *apply_gamma(front);
 
-		barrier(surface().swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-		buffer_rect area = fit_buffer(float(surface().swap_extent.width), float(surface().swap_extent.height));
+		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		buffer_rect area = fit_buffer(float(surface().chain.width), float(surface().chain.height));
 		bb::rhi::filter filter = bb::rhi::filter::nearest;
 		if (surface().fullscreen) {
 			// Black around the buffer. Whole-number sizes stay sharp, others are smoothed.
 			const float black[4] = { 0, 0, 0, 0 };
-			bb::rhi::clear_image(uint64_t(surface().swap_images[index]), black, 1, 1);
+			bb::rhi::clear_image(uint64_t(surface().chain.images[index]), black, 1, 1);
 			const char* rule = bb_env("BLITZLLVM_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
 			if (rule && (strcmp(rule, "linear") == 0)) {
 				filter = bb::rhi::filter::linear;
@@ -821,12 +821,12 @@ namespace bb::gfx {
 		blit.dst[1] = int32_t(area.y);
 		blit.dst[2] = int32_t(area.x + area.w);
 		blit.dst[3] = int32_t(area.y + area.h);
-		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().swap_images[index]), &blit, 1, filter);
-		barrier(surface().swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().chain.images[index]), &blit, 1, filter);
+		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 
 		profile_gpu_mark(3);
-		submit_async(surface().acquired, surface().swap_done[index], true, index);
+		submit_async(surface().acquired, VkSemaphore(surface().chain.done[index]), true, index);
 		gamma_after_present();
 	}
 
@@ -863,7 +863,7 @@ namespace bb::gfx {
 			g.front_touched = false;
 			// Drawing to the front buffer is visible immediately.
 			poll_resized(); // To know whether the present wants a new swapchain.
-			if (surface().resized || (surface().swapchain == VK_NULL_HANDLE)) {
+			if (surface().resized || (surface().chain.handle == 0)) {
 				submit_commands();
 				if (surface().resized) {
 					destroy_swapchain();

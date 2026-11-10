@@ -153,7 +153,7 @@ namespace bb::gfx {
 				p.busy  = true;
 				int            showing   = p.showing;
 				uint64_t       number    = p.showing_number;
-				VkSwapchainKHR swapchain = p.s->swapchain;
+				VkSwapchainKHR swapchain = VkSwapchainKHR(p.s->chain.handle);
 				VkImage        frame     = p.frame_images[showing]; // Taken under the lock: presenter_resize replaces the pictures while the thread is not busy.
 				uint32_t       frame_w   = p.frame_w, frame_h = p.frame_h;
 				SDL_UnlockMutex(p.mutex);
@@ -181,15 +181,15 @@ namespace bb::gfx {
 				begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 				vkResetCommandBuffer(p.cmd, 0);
 				vkBeginCommandBuffer(p.cmd, &begin);
-				thread_barrier(p.cmd, p.s->swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+				thread_barrier(p.cmd, VkImage(p.s->chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
 				VkImageBlit blit    = {};
 				blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 				blit.srcOffsets[1]  = { int32_t(frame_w), int32_t(frame_h), 1 };
 				blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				blit.dstOffsets[1]  = { int32_t(p.s->swap_extent.width), int32_t(p.s->swap_extent.height), 1 };
-				vkCmdBlitImage(p.cmd, frame, vk_layout_of(bb::rhi::image_state::copy_src), p.s->swap_images[index], vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
-				thread_barrier(p.cmd, p.s->swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+				blit.dstOffsets[1]  = { int32_t(p.s->chain.width), int32_t(p.s->chain.height), 1 };
+				vkCmdBlitImage(p.cmd, frame, vk_layout_of(bb::rhi::image_state::copy_src), VkImage(p.s->chain.images[index]), vk_layout_of(bb::rhi::image_state::copy_dst), 1, &blit, VK_FILTER_NEAREST);
+				thread_barrier(p.cmd, VkImage(p.s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 				vkEndCommandBuffer(p.cmd);
 
 				VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -200,10 +200,11 @@ namespace bb::gfx {
 				info.commandBufferCount    = 1;
 				info.pCommandBuffers       = &p.cmd;
 				info.signalSemaphoreCount  = 1;
-				info.pSignalSemaphores     = &p.s->swap_done[index];
+				VkSemaphore done_semaphore = VkSemaphore(p.s->chain.done[index]);
+				info.pSignalSemaphores     = &done_semaphore;
 				VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
 				present.waitSemaphoreCount = 1;
-				present.pWaitSemaphores    = &p.s->swap_done[index];
+				present.pWaitSemaphores    = &done_semaphore;
 				present.swapchainCount     = 1;
 				present.pSwapchains        = &swapchain;
 				present.pImageIndices      = &index;
@@ -551,11 +552,11 @@ namespace bb::gfx {
 			presenter_service();
 			presenter_counts(*A, &handed_a, &shown_number, &presents_resized, &shows_resized);
 			SDL_Delay(1);
-		} while ((SDL_GetTicks() - resize_start < 3000) && ((A->swap_extent.width != 300) || (presents_resized == presents_a)));
+		} while ((SDL_GetTicks() - resize_start < 3000) && ((A->chain.width != 300) || (presents_resized == presents_a)));
 		int shown_resized = (presents_resized > presents_a) ? 1 : 0;
 
 		if (FILE* file = fopen(path, "w")) {
-			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n", (unsigned long long)frames_a, shows_a, (unsigned long long)frames_b, shows_b, idle_shows, waited, A->swap_extent.width, shown_resized);
+			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n", (unsigned long long)frames_a, shows_a, (unsigned long long)frames_b, shows_b, idle_shows, waited, A->chain.width, shown_resized);
 			fclose(file);
 		}
 		destroy_extra_surface(a);
