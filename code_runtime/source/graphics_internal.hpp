@@ -576,7 +576,7 @@ namespace bb::gfx {
 		VkSemaphore    timeline = VK_NULL_HANDLE; // Also signaled, with timeline_value: the handover of a picture to the thread of a window.
 		uint64_t       timeline_value = 0;
 		bool           present = false;
-		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		uint64_t       swapchain = 0; // bb::rhi::swapchain::handle
 		uint32_t       index = 0;
 	};
 	struct frame_slot {
@@ -1119,6 +1119,8 @@ namespace bb::gfx {
 	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
 	 * that have no queue of their own; the others each by one window's thread. Waiting for the whole device takes all of them. */
 	void       queue_lock(uint32_t queue = 0);
+	void       swapchain_lock();   // The program's thread and the submission thread take turns at acquiring and presenting.
+	void       swapchain_unlock();
 	void       queue_unlock(uint32_t queue = 0);
 	void       queue_lock_all();
 	void       queue_unlock_all();

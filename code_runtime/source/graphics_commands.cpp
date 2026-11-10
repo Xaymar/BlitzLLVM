@@ -92,6 +92,19 @@ namespace bb::gfx {
 		SDL_LockMutex(queue_mutex[queue]);
 	}
 
+	void swapchain_lock()
+	{
+		if (!swapchain_mutex) {
+			swapchain_mutex = SDL_CreateMutex(); // The first call is the program's thread, before the submission thread.
+		}
+		SDL_LockMutex(swapchain_mutex);
+	}
+
+	void swapchain_unlock()
+	{
+		SDL_UnlockMutex(swapchain_mutex);
+	}
+
 	void queue_unlock(uint32_t queue)
 	{
 		SDL_UnlockMutex(queue_mutex[queue]);
@@ -189,24 +202,16 @@ namespace bb::gfx {
 			SDL_UnlockMutex(gpu_mutex);
 
 			if (job.present && (result == VK_SUCCESS)) {
-				VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-				present.waitSemaphoreCount = 1;
-				present.pWaitSemaphores    = &job.signal;
-				present.swapchainCount     = 1;
-				present.pSwapchains        = &job.swapchain;
-				present.pImageIndices      = &job.index;
+				bb::rhi::swapchain chain;
+				chain.handle               = job.swapchain;
 				Uint64 present_start       = BB_PROFILE_NOW();
-				SDL_LockMutex(swapchain_mutex); // Acquiring an image on the program's thread uses the swapchain too.
-				queue_lock();
-				result                     = vkQueuePresentKHR(queue, &present);
-				queue_unlock();
-				SDL_UnlockMutex(swapchain_mutex);
+				bb::rhi::present_result shown = bb::rhi::present_image(chain, uint64_t(queue), uint64_t(job.signal), job.index, true, false);
 				SDL_LockMutex(gpu_mutex);
 				profile_gpu_present += BB_PROFILE_NOW() - present_start;
-				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
+				if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {
 					gpu_resized = true;
 				} else {
-					gpu_fail(result, "vkQueuePresentKHR");
+					gpu_fail(VkResult(shown.native), "vkQueuePresentKHR");
 				}
 				SDL_UnlockMutex(gpu_mutex);
 			}
@@ -580,7 +585,7 @@ namespace bb::gfx {
 		profile_submits++;
 		frame_slot& slot = frames[current_slot];
 		slot.flush_id    = int64_t(flush_number) - 1;
-		slot.job         = { wait, signal, timeline, timeline_value, present, VkSwapchainKHR(surface().chain.handle), index };
+		slot.job         = { wait, signal, timeline, timeline_value, present, surface().chain.handle, index };
 		SDL_LockMutex(gpu_mutex);
 		slot.state = 1;
 		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
@@ -747,34 +752,29 @@ namespace bb::gfx {
 			return;
 		}
 		uint32_t index = 0;
-		if (!swapchain_mutex) {
-			swapchain_mutex = SDL_CreateMutex();
-		}
 		// The present of the frame before runs in the GPU thread and uses the swapchain, so the acquire can't wait for an image
 		// while holding it (the present may be what frees one): it asks for one for a millisecond at a time instead. Drivers
 		// are also known to answer VK_NOT_READY or VK_TIMEOUT even when asked to wait, nothing was acquired then and the
 		// semaphore is not signaled, so asking again is correct.
-		VkResult result = VK_NOT_READY;
-		for (int retry = 0; (result == VK_NOT_READY) || (result == VK_TIMEOUT); retry++) {
-			SDL_LockMutex(swapchain_mutex);
-			result = vkAcquireNextImageKHR(g.device, VkSwapchainKHR(surface().chain.handle), 1000000, surface().acquired, VK_NULL_HANDLE, &index);
-			SDL_UnlockMutex(swapchain_mutex);
-			if (result == VK_NOT_READY) {
+		bb::rhi::present_result acquired = { bb::rhi::present_status::not_ready, int32_t(VK_NOT_READY) };
+		for (int retry = 0; acquired.status == bb::rhi::present_status::not_ready; retry++) {
+			acquired = bb::rhi::acquire_image(surface().chain, uint64_t(surface().acquired), 1000000, true, index);
+			if (acquired.native == int32_t(VK_NOT_READY)) {
 				// Returned at once instead of after the timeout, give the present a chance to take the lock.
 				fprintf(stderr, "vkAcquireNextImageKHR returned VK_NOT_READY (try %d), retrying.\n", retry + 1);
 				SDL_Delay(1);
 			}
-			if ((result == VK_NOT_READY) || (result == VK_TIMEOUT)) {
+			if (acquired.status == bb::rhi::present_status::not_ready) {
 				gpu_check(); // A failed present would never free an image.
 			}
 		}
-		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		if (acquired.status == bb::rhi::present_status::out_of_date) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
 			submit_commands();
 			surface().resized = true;
 			return;
-		} else if (result != VK_SUBOPTIMAL_KHR) {
-			check(result, "vkAcquireNextImageKHR");
+		} else if (acquired.status != bb::rhi::present_status::suboptimal) {
+			check(VkResult(acquired.native), "vkAcquireNextImageKHR");
 			if (device_lost()) {
 				check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer"); // No image was acquired.
 				return;

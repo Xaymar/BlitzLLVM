@@ -441,4 +441,19 @@ namespace bb::rhi {
 
 	/** Frees the images' semaphores and the swapchain. The caller has waited for the GPU. */
 	void destroy_swapchain(swapchain& chain);
+
+	enum class present_status { ok, suboptimal, out_of_date, not_ready, error };
+
+	/** What acquire_image and present_image found. native is the backend's own code (a VkResult), for the error message and nothing else. */
+	struct present_result {
+		present_status status = present_status::ok;
+		int32_t        native = 0;
+	};
+
+	/** Takes the next image of the swapchain, to be drawn into once the semaphore is signalled; its number is index. Waits up to timeout_ns for one, and says not_ready if there is none yet (nothing was acquired then). serialize: the
+	    swapchain is also used by the submission thread's present, so the two take turns. out_of_date: the swapchain has to be made again, nothing was acquired. suboptimal: it was acquired, but the swapchain should be made again soon. */
+	present_result acquire_image(swapchain& chain, uint64_t signal_semaphore, uint64_t timeout_ns, bool serialize, uint32_t& index);
+
+	/** Shows the image once the semaphore is signalled. serialize as for acquire_image. wait_queue: wait for the queue to go idle afterwards (windows that show one colour for a test). */
+	present_result present_image(swapchain& chain, uint64_t wait_semaphore, uint32_t index, bool serialize, bool wait_queue);
 } // namespace bb::rhi

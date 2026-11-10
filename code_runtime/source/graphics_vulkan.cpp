@@ -2530,3 +2530,61 @@ namespace bb::rhi {
 	}
 
 }
+
+namespace bb::rhi {
+	namespace {
+		present_result vk_present_result(VkResult result)
+		{
+			switch (result) {
+			case VK_SUCCESS:
+				return { present_status::ok, int32_t(result) };
+			case VK_SUBOPTIMAL_KHR:
+				return { present_status::suboptimal, int32_t(result) };
+			case VK_ERROR_OUT_OF_DATE_KHR:
+				return { present_status::out_of_date, int32_t(result) };
+			case VK_NOT_READY:
+			case VK_TIMEOUT:
+				return { present_status::not_ready, int32_t(result) };
+			default:
+				return { present_status::error, int32_t(result) };
+			}
+		}
+	} // namespace
+
+	present_result acquire_image(swapchain& chain, uint64_t signal_semaphore, uint64_t timeout_ns, bool serialize, uint32_t& index)
+	{
+		if (serialize) {
+			gfx::swapchain_lock();
+		}
+		VkResult result = vkAcquireNextImageKHR(gfx::g.device, VkSwapchainKHR(chain.handle), timeout_ns, VkSemaphore(signal_semaphore), VK_NULL_HANDLE, &index);
+		if (serialize) {
+			gfx::swapchain_unlock();
+		}
+		return vk_present_result(result);
+	}
+
+	present_result present_image(swapchain& chain, uint64_t queue_handle, uint64_t wait_semaphore, uint32_t index, bool serialize, bool wait_queue)
+	{
+		VkSemaphore      wait    = VkSemaphore(wait_semaphore);
+		VkSwapchainKHR   handle  = VkSwapchainKHR(chain.handle);
+		VkPresentInfoKHR present = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+		present.waitSemaphoreCount = 1;
+		present.pWaitSemaphores    = &wait;
+		present.swapchainCount     = 1;
+		present.pSwapchains        = &handle;
+		present.pImageIndices      = &index;
+		if (serialize) {
+			gfx::swapchain_lock(); // Acquiring an image on the program's thread uses the swapchain too.
+		}
+		gfx::queue_lock();
+		VkResult result = vkQueuePresentKHR(VkQueue(queue_handle), &present);
+		if (wait_queue && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))) {
+			vkQueueWaitIdle(VkQueue(queue_handle));
+		}
+		gfx::queue_unlock();
+		if (serialize) {
+			gfx::swapchain_unlock();
+		}
+		return vk_present_result(result);
+	}
+} // namespace bb::rhi
