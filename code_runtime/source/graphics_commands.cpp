@@ -154,7 +154,8 @@ namespace bb::gfx {
 			info.pWaitSemaphores       = &job.wait;
 			info.pWaitDstStageMask     = &stage;
 			info.commandBufferCount    = 1;
-			info.pCommandBuffers       = &slot.cmd;
+			VkCommandBuffer slot_cmd = VkCommandBuffer(slot.sync.cmd);
+			info.pCommandBuffers       = &slot_cmd;
 			// The binary semaphore of the present and the timeline semaphore of a handover; the value of a binary one is ignored.
 			VkSemaphore signals[2];
 			uint64_t    values[2];
@@ -177,7 +178,7 @@ namespace bb::gfx {
 			}
 			Uint64   submit_start      = BB_PROFILE_NOW();
 			queue_lock();
-			VkResult result            = vkQueueSubmit(queue, 1, &info, slot.fence);
+			VkResult result            = vkQueueSubmit(queue, 1, &info, VkFence(slot.sync.fence));
 			queue_unlock();
 			Uint64   submit_time       = BB_PROFILE_NOW() - submit_start;
 			SDL_LockMutex(gpu_mutex);
@@ -327,8 +328,7 @@ namespace bb::gfx {
 			return;
 		}
 		Uint64 wait_start = BB_PROFILE_NOW();
-		check(vkWaitForFences(g.device, 1, &slot.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		check(vkResetFences(g.device, 1, &slot.fence), "vkResetFences");
+		bb::rhi::wait_frame_sync(slot.sync);
 		profile_wait += BB_PROFILE_NOW() - wait_start;
 		slot.state = 0;
 		for (VkDescriptorPool pool : slot.layer_pools) {
@@ -449,9 +449,9 @@ namespace bb::gfx {
 	// The fields of the state that belong to the slot that is used now are copied from and to the slots.
 	static void store_slot(frame_slot& s)
 	{
-		s.cmd = g.cmd;
-		s.fence = g.fence;
-		s.acquired = surface().acquired;
+		s.sync.cmd      = uint64_t(g.cmd);
+		s.sync.fence    = uint64_t(g.fence);
+		s.sync.acquired = uint64_t(surface().acquired);
 		s.entity_buffer = g.entity_buffer;
 		s.entity_capacity = g.entity_capacity;
 		s.entity_set = g.entity_set;
@@ -465,9 +465,9 @@ namespace bb::gfx {
 
 	static void load_slot(frame_slot const& s)
 	{
-		g.cmd = s.cmd;
-		g.fence = s.fence;
-		surface().acquired = s.acquired;
+		g.cmd              = VkCommandBuffer(s.sync.cmd);
+		g.fence            = VkFence(s.sync.fence);
+		surface().acquired = VkSemaphore(s.sync.acquired);
 		g.entity_buffer = s.entity_buffer;
 		g.entity_capacity = s.entity_capacity;
 		g.entity_set = s.entity_set;
@@ -493,17 +493,9 @@ namespace bb::gfx {
 		current_slot    = 0;
 		slot_acquired   = false;
 		completed_flush = int64_t(flush_number) - 1;
-		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-		cmd_info.commandPool                 = g.pool;
-		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmd_info.commandBufferCount          = 1;
 		for (frame_slot& slot : frames) {
-			slot = frame_slot();
-			check(vkAllocateCommandBuffers(g.device, &cmd_info, &slot.cmd), "vkAllocateCommandBuffers");
-			VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-			check(vkCreateFence(g.device, &fence_info, nullptr, &slot.fence), "vkCreateFence");
-			VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-			check(vkCreateSemaphore(g.device, &sem_info, nullptr, &slot.acquired), "vkCreateSemaphore");
+			slot      = frame_slot();
+			slot.sync = bb::rhi::create_frame_sync();
 		}
 		load_slot(frames[0]);
 	}
@@ -532,8 +524,7 @@ namespace bb::gfx {
 			for (VkDescriptorPool pool : slot.layer_pools) {
 				vkDestroyDescriptorPool(g.device, pool, nullptr);
 			}
-			vkDestroySemaphore(g.device, slot.acquired, nullptr);
-			vkDestroyFence(g.device, slot.fence, nullptr);
+			bb::rhi::destroy_frame_sync(slot.sync);
 			slot = frame_slot();
 		}
 		current_slot  = 0;

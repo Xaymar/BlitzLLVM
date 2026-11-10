@@ -584,9 +584,7 @@ namespace bb::gfx {
 		uint32_t       index = 0;
 	};
 	struct frame_slot {
-		VkCommandBuffer cmd      = VK_NULL_HANDLE;
-		VkFence         fence    = VK_NULL_HANDLE;
-		VkSemaphore     acquired = VK_NULL_HANDLE;
+		bb::rhi::frame_sync sync; // Command buffer, fence and the acquire semaphore (see rhi.hpp).
 		rhi::gpu_buffer entity_buffer;
 		uint32_t        entity_capacity   = 0;
 		bb::rhi::binding_group entity_set;

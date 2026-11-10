@@ -334,6 +334,15 @@ namespace bb::rhi {
 	/** Ends the open command buffer, sends it and waits until the GPU is done with it (the one-shot work of uploads and readbacks). wait / signal are backend semaphores of presentation (0 for none). False if the device is lost: nothing is sent. */
 	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore);
 
+	/** What a frame slot needs to record, send and wait for its work: a command buffer, a fence that tells when the GPU is done, and a semaphore for the acquired window image. Backend handles for now. */
+	struct frame_sync {
+		uint64_t cmd = 0, fence = 0, acquired = 0;
+	};
+	frame_sync create_frame_sync();
+	void       destroy_frame_sync(frame_sync& sync); // Leaves it empty.
+	/** Waits until the GPU is done with what was sent with the slot, and readies the fence for the next send. */
+	void wait_frame_sync(const frame_sync& sync);
+
 	/** What a pass does with an attachment when it starts. */
 	enum class load_op : uint8_t { load, clear, dont_care };
 
