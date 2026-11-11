@@ -1354,11 +1354,6 @@ namespace bb::gfx {
 	}
 	/** The set layout that a kind of group has on Vulkan. */
 	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind);
-	inline void bind_group(VkPipelineBindPoint point, bb::rhi::pipeline_layout layout, uint32_t index, bb::rhi::binding_group group, uint32_t dynamic_count, const uint32_t* dynamic_offsets)
-	{
-		VkDescriptorSet set = vk_set(group);
-		vkCmdBindDescriptorSets(g.cmd, point, vk_layout(layout), index, 1, &set, dynamic_count, dynamic_offsets);
-	}
 	inline void free_group(bb::rhi::binding_group group)
 	{
 		VkDescriptorSet set = vk_set(group);

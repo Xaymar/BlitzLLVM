@@ -401,10 +401,10 @@ namespace bb::gfx {
 		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
 		bb::rhi::bind_pipeline(palettized ? palette_pipeline : pipeline, 0);
 		uint32_t offset = 0;
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, front_set, 0, nullptr);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, table_set, 1, &offset);
+		bb::rhi::bind_group(used, 0, front_set);
+		bb::rhi::bind_group_at(used, 1, table_set, offset);
 		if (palettized) {
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 2, palette_set, 0, nullptr);
+			bb::rhi::bind_group(used, 2, palette_set);
 		}
 		// The noise moves every frame (and repeats after 64): the same offset is added to x and y. It stays with DitherTemporal 0.
 		float push[5] = { dither_shift(), 0, 0, 0, float(bayer) }; // Then the steps and levels of the Bayer pattern.
