@@ -394,6 +394,9 @@ namespace bb::rhi {
 	void bind_pipeline(pipeline p, uint32_t target_format);
 	/** Binds a pipeline that is not an rhi::pipeline yet (SMAA, gamma, transparency composites, the compute passes). Goes away when they are. */
 	void bind_raw_pipeline(uint64_t native, bool compute);
+	/** Makes the draws that follow read the group as number index of the layout. bind_group_at: a group whose uniform block is read from that offset of its buffer (the kind scene). */
+	void bind_group(pipeline_layout layout, uint32_t index, binding_group group);
+	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset);
 	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data);
 	void bind_vertex_buffer(uint64_t buffer);
 	void bind_index_buffer(uint64_t buffer); // 32-bit indices.

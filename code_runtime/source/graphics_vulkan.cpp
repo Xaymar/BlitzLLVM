@@ -2182,6 +2182,18 @@ namespace bb::rhi {
 		vkCmdBindPipeline(gfx::g.cmd, compute ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(native));
 	}
 
+	void bind_group(pipeline_layout layout, uint32_t index, binding_group group)
+	{
+		VkDescriptorSet set = gfx::vk_set(group);
+		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
+	}
+
+	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset)
+	{
+		VkDescriptorSet set = gfx::vk_set(group);
+		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 1, &offset);
+	}
+
 	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data)
 	{
 		VkShaderStageFlags flags = 0;

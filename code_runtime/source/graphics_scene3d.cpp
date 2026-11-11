@@ -1313,10 +1313,10 @@ namespace bb::gfx {
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
+		bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
 
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
+		bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
+		bb::rhi::bind_group(g.layout3d, 3, g.sets[TEXTURE_WHITE]); // Nothing to read the depth of yet.
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -1400,10 +1400,10 @@ namespace bb::gfx {
 			oit_composite(target.image->format, oit_w, oit_h, oit_modes);
 			bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 			// The pass over the picture had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
+			bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
+			bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
 			bb::rhi::binding_group depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_bound, 0, nullptr);
+			bb::rhi::bind_group(g.layout3d, 3, depth_bound);
 			bound_pipeline = bb::rhi::pipeline();
 			bound_set      = bb::rhi::binding_group();
 			bound_cull = bound_test = bound_write = -1;
@@ -1438,7 +1438,7 @@ namespace bb::gfx {
 				texture_entry*  tex = texture_of(k.texture);
 				bb::rhi::binding_group set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
 				if (set != bound_set) {
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 0, set);
 					bound_set = set;
 					stats3d.textures++;
 				}
@@ -1486,9 +1486,9 @@ namespace bb::gfx {
 					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					// The pass over the layer had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, before, 0, nullptr);
+					bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
+					bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
+					bb::rhi::bind_group(g.layout3d, 3, before);
 					bound_set = bb::rhi::binding_group();
 					i = oit_begin;
 					continue;
@@ -1539,7 +1539,7 @@ namespace bb::gfx {
 				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, moment_set, 0, nullptr);
+				bb::rhi::bind_group(oit_layout3d(), 4, moment_set);
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 2;
@@ -1558,7 +1558,7 @@ namespace bb::gfx {
 				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+				bb::rhi::bind_group(g.layout3d, 3, depth_set);
 				read_only = true;
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
@@ -1604,7 +1604,7 @@ namespace bb::gfx {
 					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, scene_set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 3, scene_set);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_slots()) {
@@ -1621,7 +1621,7 @@ namespace bb::gfx {
 						read_only         = true;
 					}
 					bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 3, depth_set);
 					slot_info             = info;
 					slot_info.color_count = 2;
 					oit_attachments_slots(oit_w, oit_h, slot_info.colors, &slot_info.depth);
@@ -1645,7 +1645,7 @@ namespace bb::gfx {
 						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.read_only = true;
 						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-						bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+						bb::rhi::bind_group(g.layout3d, 3, depth_set);
 						read_only = true;
 					}
 					moment_info             = info;
@@ -1708,7 +1708,7 @@ namespace bb::gfx {
 			}
 			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
 			if (set != bound_set) {
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
+				bb::rhi::bind_group(g.layout3d, 0, set);
 				bound_set = set;
 				stats3d.textures++;
 			}

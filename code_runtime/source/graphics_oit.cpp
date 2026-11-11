@@ -263,7 +263,7 @@ namespace bb::gfx {
 	{
 		bb::rhi::pipeline* pipelines = composites_for(VK_FORMAT_R32G32B32A32_SFLOAT);
 		image_set&  entry     = images_for(width, height);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
+		bb::rhi::bind_group(layout, 0, entry.set);
 		bb::rhi::bind_pipeline(pipelines[5], 0);
 		bb::rhi::draw(3, 1, 0, 0);
 	}
@@ -278,7 +278,7 @@ namespace bb::gfx {
 	{
 		bb::rhi::pipeline* pipelines = composites_for(format);
 		image_set&  entry     = images_for(width, height);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
+		bb::rhi::bind_group(layout, 0, entry.set);
 		bb::rhi::bind_pipeline(pipelines[6], 0);
 		bb::rhi::draw(3, 1, 0, 0);
 	}
@@ -367,7 +367,7 @@ namespace bb::gfx {
 	{
 		bb::rhi::pipeline* pipelines = composites_for(format);
 		image_set&  entry     = images_for(width, height);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, entry.set, 0, nullptr);
+		bb::rhi::bind_group(layout, 0, entry.set);
 		for (int mode = 0; mode < 3; mode++) {
 			if (modes & (1u << mode)) {
 				bb::rhi::bind_pipeline(pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode], 0);
