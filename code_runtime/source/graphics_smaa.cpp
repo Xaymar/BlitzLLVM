@@ -70,10 +70,10 @@ namespace {
 	VkDescriptorPool      pool = VK_NULL_HANDLE;
 	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
 	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
-	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
+	bb::rhi::pipeline     edges_pipeline, weights_pipeline;
 	struct format_pipelines {
 		VkFormat   format = VK_FORMAT_UNDEFINED;
-		VkPipeline blend = VK_NULL_HANDLE, resolve = VK_NULL_HANDLE;
+		bb::rhi::pipeline blend, resolve;
 	};
 	format_pipelines pipelines[8];
 	gpu_image        area_texture, search_texture;
@@ -239,8 +239,8 @@ namespace {
 		fragment_modules[1] = create_shader(bb_shader_smaa_fragment_weights, sizeof(bb_shader_smaa_fragment_weights));
 		fragment_modules[2] = create_shader(bb_shader_smaa_fragment_blend, sizeof(bb_shader_smaa_fragment_blend));
 		fragment_modules[3] = create_shader(bb_shader_smaa_fragment_resolve, sizeof(bb_shader_smaa_fragment_resolve));
-		edges_pipeline      = create_fullscreen_pipeline(vertex_modules[0], fragment_modules[0], layout, VK_FORMAT_R8G8_UNORM);
-		weights_pipeline    = create_fullscreen_pipeline(vertex_modules[1], fragment_modules[1], layout, VK_FORMAT_R8G8B8A8_UNORM);
+		edges_pipeline      = create_fullscreen_pipeline(vertex_modules[0], fragment_modules[0], layout, bb::rhi::format::rg8);
+		weights_pipeline    = create_fullscreen_pipeline(vertex_modules[1], fragment_modules[1], layout, bb::rhi::format::rgba8);
 
 		area_texture   = upload_lookup(VK_FORMAT_R8G8_UNORM, 160, 560, bb_smaa_area_texture, sizeof(bb_smaa_area_texture), area_staging);
 		search_texture = upload_lookup(VK_FORMAT_R8_UNORM, 64, 16, bb_smaa_search_texture, sizeof(bb_smaa_search_texture), search_staging);
@@ -261,13 +261,13 @@ namespace {
 		if (free_index < 0) {
 			free_index = 0; // More formats than there can be: not reached, the targets of 3D have a few.
 			bb::rhi::wait_idle();
-			vkDestroyPipeline(g.device, pipelines[0].blend, nullptr);
-			vkDestroyPipeline(g.device, pipelines[0].resolve, nullptr);
+			bb::rhi::destroy_pipeline(pipelines[0].blend);
+			bb::rhi::destroy_pipeline(pipelines[0].resolve);
 		}
 		format_pipelines& p = pipelines[free_index];
 		p.format            = format;
-		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, format);
-		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, format);
+		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, rhi_format(format));
+		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, rhi_format(format));
 		return p;
 	}
 
@@ -373,9 +373,9 @@ namespace {
 		bb::rhi::begin_pass(pass);
 	}
 
-	void draw_pass(VkPipeline pipeline, bb::rhi::binding_group set, constants const& c)
+	void draw_pass(bb::rhi::pipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
-		bb::rhi::bind_raw_pipeline(uint64_t(pipeline), false);
+		bb::rhi::bind_pipeline(pipeline, 0);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
 		bb::rhi::push_constants(layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(c), &c);
 		bb::rhi::draw(3, 1, 0, 0);
@@ -595,13 +595,14 @@ namespace bb::gfx {
 		}
 		for (format_pipelines& p : pipelines) {
 			if (p.blend) {
-				vkDestroyPipeline(g.device, p.blend, nullptr);
-				vkDestroyPipeline(g.device, p.resolve, nullptr);
+				bb::rhi::destroy_pipeline(p.blend);
+				bb::rhi::destroy_pipeline(p.resolve);
 			}
 			p = format_pipelines();
 		}
-		vkDestroyPipeline(g.device, edges_pipeline, nullptr);
-		vkDestroyPipeline(g.device, weights_pipeline, nullptr);
+		bb::rhi::destroy_pipeline(edges_pipeline);
+		bb::rhi::destroy_pipeline(weights_pipeline);
+		edges_pipeline = weights_pipeline = bb::rhi::pipeline();
 		for (int i = 0; i < 4; i++) {
 			destroy_shader(vertex_modules[i]);
 			destroy_shader(fragment_modules[i]);

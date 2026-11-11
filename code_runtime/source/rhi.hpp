@@ -205,6 +205,7 @@ namespace bb::rhi {
 		vertex_layout    vertices   = vertex_layout::none;
 		bool             wire       = false;
 		bool             depth      = false; // A 3D pipeline: depth tested, culling and depth state set on the command.
+		bool             depth_unused = false; // Not a 3D pipeline, but the pass it draws in has a depth attachment (of depth_format) that it neither tests nor writes.
 		compare          depth_compare = compare::greater_equal;
 		uint32_t         samples    = 1;
 		uint32_t         attachment_count = 1;
@@ -228,6 +229,8 @@ namespace bb::rhi {
 		bool operator<(pipeline const& o) const { return id < o.id; }
 	};
 	pipeline create_pipeline(pipeline_recipe recipe);
+	/** A pipeline of one description, whose target format is the one of the description whatever it is bound with (the passes over a picture: SMAA, gamma, the transparency composites). Built at once. */
+	pipeline create_fixed_pipeline(const pipeline_desc& desc);
 	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
 	void     destroy_pipeline(pipeline p);
 	void     destroy_pipelines();

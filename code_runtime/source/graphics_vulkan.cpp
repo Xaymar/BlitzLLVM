@@ -465,6 +465,7 @@ namespace bb::gfx {
 			bb::rhi::pipeline_recipe                                 recipe;
 			std::unordered_map<bb::rhi::format, VkPipeline>          built;
 			bool                                                     alive = false;
+			bool                                                     fixed = false; // One description for whatever format it is bound with.
 		};
 		std::vector<pipeline_object> pipeline_objects;
 	} // namespace
@@ -473,7 +474,7 @@ namespace bb::gfx {
 	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format)
 	{
 		pipeline_object& object = pipeline_objects[pipeline.id - 1];
-		bb::rhi::format  key    = ((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8;
+		bb::rhi::format  key    = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8);
 		auto             found  = object.built.find(key);
 		if (found != object.built.end()) {
 			return found->second;
@@ -627,7 +628,7 @@ namespace bb::gfx {
 		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 		rendering.colorAttachmentCount          = desc.attachment_count;
 		rendering.pColorAttachmentFormats       = formats;
-		rendering.depthAttachmentFormat         = desc.depth ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
+		rendering.depthAttachmentFormat         = (desc.depth || desc.depth_unused) ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -638,7 +639,8 @@ namespace bb::gfx {
 		info.pViewportState               = &viewport;
 		info.pRasterizationState          = &raster;
 		info.pMultisampleState            = &multisample;
-		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
+		VkPipelineDepthStencilStateCreateInfo no_depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO }; // Neither tested nor written.
+		info.pDepthStencilState           = desc.depth ? &depth : (desc.depth_unused ? &no_depth : nullptr);
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
 		info.layout                       = vk_layout(desc.layout);
@@ -661,11 +663,6 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices)
-	{
-		return build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
-	}
-
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
@@ -676,9 +673,9 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format)
+	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format)
 	{
-		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
+		return bb::rhi::create_fixed_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, vk_format(format)));
 	}
 
 	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler)
@@ -1979,6 +1976,14 @@ namespace bb::rhi {
 		objects.back().recipe = std::move(recipe);
 		objects.back().alive  = true;
 		return pipeline{ objects.size() };
+	}
+
+	pipeline create_fixed_pipeline(const pipeline_desc& desc)
+	{
+		pipeline made = create_pipeline([desc](format) { return desc; });
+		gfx::pipeline_objects[made.id - 1].fixed = true;
+		gfx::vk_pipeline(made, VK_FORMAT_UNDEFINED); // Built now, so that nothing is compiled in the middle of a frame.
+		return made;
 	}
 
 	void destroy_pipeline(pipeline p)
