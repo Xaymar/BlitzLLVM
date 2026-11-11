@@ -269,7 +269,7 @@ namespace bb::gfx {
 	};
 
 
-	constexpr uint32_t max_swapchain_images = 8;
+	constexpr uint32_t max_swapchain_images = bb::rhi::max_swapchain_images;
 
 	constexpr uint32_t max_vertices         = 1 << 18;
 
@@ -308,11 +308,7 @@ namespace bb::gfx {
 		bool         fullscreen = false; // A borderless window over the display, the buffer is shown with its aspect ratio kept.
 		bool         suspended  = false; // Whether the window is not in front (or is minimized).
 
-		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-		VkImage        swap_images[max_swapchain_images];
-		VkSemaphore    swap_done[max_swapchain_images];
-		uint32_t       swap_count = 0;
-		VkExtent2D     swap_extent = {};
+		bb::rhi::swapchain chain; // The pictures of the window: handle, images, semaphores and size.
 		VkSemaphore    acquired = VK_NULL_HANDLE;
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
@@ -580,7 +576,7 @@ namespace bb::gfx {
 		VkSemaphore    timeline = VK_NULL_HANDLE; // Also signaled, with timeline_value: the handover of a picture to the thread of a window.
 		uint64_t       timeline_value = 0;
 		bool           present = false;
-		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		uint64_t       swapchain = 0; // bb::rhi::swapchain::handle
 		uint32_t       index = 0;
 	};
 	struct frame_slot {
@@ -1123,6 +1119,8 @@ namespace bb::gfx {
 	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
 	 * that have no queue of their own; the others each by one window's thread. Waiting for the whole device takes all of them. */
 	void       queue_lock(uint32_t queue = 0);
+	void       swapchain_lock();   // The program's thread and the submission thread take turns at acquiring and presenting.
+	void       swapchain_unlock();
 	void       queue_unlock(uint32_t queue = 0);
 	void       queue_lock_all();
 	void       queue_unlock_all();

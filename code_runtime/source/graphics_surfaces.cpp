@@ -147,47 +147,37 @@ namespace bb::gfx {
 		}
 		flush();
 		gpu_idle();
-		if (s->resized || (s->swapchain == VK_NULL_HANDLE)) {
+		if (s->resized || (s->chain.handle == 0)) {
 			destroy_swapchain(*s);
 			create_swapchain(*s);
 		}
-		if (s->swapchain == VK_NULL_HANDLE) {
+		if (s->chain.handle == 0) {
 			return false;
 		}
 		uint32_t index  = 0;
-		VkResult result = vkAcquireNextImageKHR(g.device, s->swapchain, UINT64_MAX, s->acquired, VK_NULL_HANDLE, &index);
-		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
+		bb::rhi::present_result acquired = bb::rhi::acquire_image(s->chain, uint64_t(s->acquired), UINT64_MAX, false, index);
+		if ((acquired.status == bb::rhi::present_status::out_of_date) || (acquired.status == bb::rhi::present_status::suboptimal)) {
 			s->resized = true;
-			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+			if (acquired.status == bb::rhi::present_status::out_of_date) {
 				return false;
 			}
 		} else {
-			check(result, "vkAcquireNextImageKHR");
+			check(VkResult(acquired.native), "vkAcquireNextImageKHR");
 		}
 
 		begin_commands();
-		barrier(s->swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		barrier(VkImage(s->chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		const float color[4] = { r, gr, b, 1.0f };
-		bb::rhi::clear_image(uint64_t(s->swap_images[index]), color, 1, 1);
-		barrier(s->swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
-		submit_commands(s->acquired, s->swap_done[index]);
+		bb::rhi::clear_image(uint64_t(s->chain.images[index]), color, 1, 1);
+		barrier(VkImage(s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		VkSemaphore done_semaphore = VkSemaphore(s->chain.done[index]);
+		submit_commands(s->acquired, done_semaphore);
 
-		VkPresentInfoKHR present = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-		present.waitSemaphoreCount = 1;
-		present.pWaitSemaphores    = &s->swap_done[index];
-		present.swapchainCount     = 1;
-		present.pSwapchains        = &s->swapchain;
-		present.pImageIndices      = &index;
-		queue_lock();
-		result = vkQueuePresentKHR(g.queue, &present);
-		if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)) {
-			vkQueueWaitIdle(g.queue);
-		}
-		queue_unlock();
-		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
+		bb::rhi::present_result shown = bb::rhi::present_image(s->chain, uint64_t(g.queue), uint64_t(s->chain.done[index]), index, false, true);
+		if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {
 			s->resized = true;
 		} else {
-			check(result, "vkQueuePresentKHR");
+			check(VkResult(shown.native), "vkQueuePresentKHR");
 		}
 		return true;
 	}
@@ -205,8 +195,8 @@ namespace bb::gfx {
 			opened += handles[i] ? 1 : 0;
 		}
 		if (surface_state* s = extra_surface(handles[0])) {
-			first_w = int(s->swap_extent.width);
-			first_h = int(s->swap_extent.height);
+			first_w = int(s->chain.width);
+			first_h = int(s->chain.height);
 		}
 		for (int i = 0; i < 4; i++) {
 			shown += show_color_in_extra_surface(handles[i], 0.2f * float(i + 1), 0.5f, 0.1f) ? 1 : 0;

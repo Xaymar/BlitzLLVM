@@ -415,4 +415,81 @@ namespace bb::rhi {
 	/** How much video memory is in use and how much there is for this program, in bytes (0 and 0 without a device). On Vulkan this is the memory budget of the driver, or the pretended size of BLITZLLVM_VRAM_LIMIT_MB; Direct3D 11 answers from DXGI,
 	    OpenGL can't and says 0 and 0. */
 	void memory_budget(uint64_t& used, uint64_t& total);
+
+	constexpr uint32_t max_swapchain_images = 8;
+
+	/** The pictures a window shows, as the backend made them. The handles are the backend's, passed as numbers. */
+	struct swapchain {
+		uint64_t handle = 0;                   // Zero while there is none (minimized, or the device is lost).
+		uint32_t count  = 0;                   // How many images there are.
+		uint64_t images[max_swapchain_images] = {};
+		uint64_t done[max_swapchain_images]   = {}; // Signalled when the work on an image is done and it can be shown.
+		uint32_t width  = 0;                   // The size of the images in pixels.
+		uint32_t height = 0;
+	};
+
+	struct swapchain_desc {
+		uint64_t surface    = 0; // The window surface.
+		uint32_t width      = 0; // The size of the window in pixels, which the surface may overrule.
+		uint32_t height     = 0;
+		int      vsync      = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
+		bool     own_thread = false; // A thread of its own shows the pictures, so a present must never wait for the display.
+	};
+
+	/** Makes the swapchain (replacing nothing: destroy_swapchain it first). Sets the size even if no images are made because the window is minimized (size 0). False if the device is lost, with nothing set. */
+	bool create_swapchain(swapchain& chain, const swapchain_desc& desc);
+
+	/** Frees the images' semaphores and the swapchain. The caller has waited for the GPU. */
+	void destroy_swapchain(swapchain& chain);
+
+	enum class present_status { ok, suboptimal, out_of_date, not_ready, error };
+
+	/** What acquire_image and present_image found. native is the backend's own code (a VkResult), for the error message and nothing else. */
+	struct present_result {
+		present_status status = present_status::ok;
+		int32_t        native = 0;
+	};
+
+	/** Takes the next image of the swapchain, to be drawn into once the semaphore is signalled; its number is index. Waits up to timeout_ns for one, and says not_ready if there is none yet (nothing was acquired then). serialize: the
+	    swapchain is also used by the submission thread's present, so the two take turns. out_of_date: the swapchain has to be made again, nothing was acquired. suboptimal: it was acquired, but the swapchain should be made again soon. */
+	present_result acquire_image(swapchain& chain, uint64_t signal_semaphore, uint64_t timeout_ns, bool serialize, uint32_t& index);
+
+	/** Shows the image once the semaphore is signalled, on the queue (the backend's own handle of queue 0, which the thread that calls this was given: the graphics state belongs to the program's thread and is not there to look at). serialize as for
+	    acquire_image. wait_queue: wait for the queue to go idle afterwards (windows that show one colour for a test). */
+	present_result present_image(swapchain& chain, uint64_t queue, uint64_t wait_semaphore, uint32_t index, bool serialize, bool wait_queue);
+
+	/** What a window with a thread of its own shows pictures with: a recording of its own, a fence, the semaphores, and a queue. The thread uses these and nothing of the program's frame. */
+	struct window_presenter {
+		uint64_t device       = 0; // The thread has no graphics state to look at, so it has these copies.
+		uint64_t pool         = 0;
+		uint64_t cmd          = 0;
+		uint64_t fence        = 0;
+		uint64_t acquired     = 0; // The swapchain image is ours.
+		uint64_t timeline     = 0; // Reaches the number of a handover once its drawing is done on the GPU (a timeline semaphore); the thread waits for it with wait_timeline.
+		uint64_t queue        = 0;
+		uint32_t queue_index  = 0; // Which queue of the device: its own where there are enough, else 0, which it shares under the lock.
+		bool     present_wait = false; // The device can wait for a present to be shown (wait_present).
+		uint64_t present_id   = 0;     // Of the last present, which grows with every one.
+	};
+
+	/** Makes the objects of the presenter on the queue with that index. */
+	void create_window_presenter(window_presenter& presenter, uint32_t queue_index);
+	void destroy_window_presenter(window_presenter& presenter);
+
+	enum class wait_status { reached, timeout, failed };
+
+	/** Waits up to timeout_ns for the timeline to reach the value. */
+	wait_status wait_timeline(const window_presenter& presenter, uint64_t value, uint64_t timeout_ns);
+
+	struct show_result {
+		enum class stage { acquire_failed, submit_failed, submitted } stage = stage::acquire_failed; // acquire_failed: nothing was done, the swapchain needs to be made again (or the device is lost).
+		present_status presented = present_status::ok;                                              // How the present went, once submitted.
+	};
+
+	/** Shows the picture (an image, w by h pixels) in the window: takes an image of the swapchain, stretches the picture over it, submits and presents, and waits for the blit to be done, so the picture can be drawn into again. Neither
+	    call waits for the display: the swapchain of such a window never does. The queue lock is held for the submit and the present only. */
+	show_result show_picture(window_presenter& presenter, swapchain& chain, uint64_t picture, uint32_t w, uint32_t h);
+
+	/** Waits up to timeout_ns for the last present to be shown by the display. False without doing so if the device cannot. */
+	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns);
 } // namespace bb::rhi

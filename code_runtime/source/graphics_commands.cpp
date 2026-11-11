@@ -92,6 +92,19 @@ namespace bb::gfx {
 		SDL_LockMutex(queue_mutex[queue]);
 	}
 
+	void swapchain_lock()
+	{
+		if (!swapchain_mutex) {
+			swapchain_mutex = SDL_CreateMutex(); // The first call is the program's thread, before the submission thread.
+		}
+		SDL_LockMutex(swapchain_mutex);
+	}
+
+	void swapchain_unlock()
+	{
+		SDL_UnlockMutex(swapchain_mutex);
+	}
+
 	void queue_unlock(uint32_t queue)
 	{
 		SDL_UnlockMutex(queue_mutex[queue]);
@@ -189,24 +202,16 @@ namespace bb::gfx {
 			SDL_UnlockMutex(gpu_mutex);
 
 			if (job.present && (result == VK_SUCCESS)) {
-				VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-				present.waitSemaphoreCount = 1;
-				present.pWaitSemaphores    = &job.signal;
-				present.swapchainCount     = 1;
-				present.pSwapchains        = &job.swapchain;
-				present.pImageIndices      = &job.index;
+				bb::rhi::swapchain chain;
+				chain.handle               = job.swapchain;
 				Uint64 present_start       = BB_PROFILE_NOW();
-				SDL_LockMutex(swapchain_mutex); // Acquiring an image on the program's thread uses the swapchain too.
-				queue_lock();
-				result                     = vkQueuePresentKHR(queue, &present);
-				queue_unlock();
-				SDL_UnlockMutex(swapchain_mutex);
+				bb::rhi::present_result shown = bb::rhi::present_image(chain, uint64_t(queue), uint64_t(job.signal), job.index, true, false);
 				SDL_LockMutex(gpu_mutex);
 				profile_gpu_present += BB_PROFILE_NOW() - present_start;
-				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
+				if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {
 					gpu_resized = true;
 				} else {
-					gpu_fail(result, "vkQueuePresentKHR");
+					gpu_fail(VkResult(shown.native), "vkQueuePresentKHR");
 				}
 				SDL_UnlockMutex(gpu_mutex);
 			}
@@ -580,7 +585,7 @@ namespace bb::gfx {
 		profile_submits++;
 		frame_slot& slot = frames[current_slot];
 		slot.flush_id    = int64_t(flush_number) - 1;
-		slot.job         = { wait, signal, timeline, timeline_value, present, surface().swapchain, index };
+		slot.job         = { wait, signal, timeline, timeline_value, present, surface().chain.handle, index };
 		SDL_LockMutex(gpu_mutex);
 		slot.state = 1;
 		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
@@ -747,34 +752,29 @@ namespace bb::gfx {
 			return;
 		}
 		uint32_t index = 0;
-		if (!swapchain_mutex) {
-			swapchain_mutex = SDL_CreateMutex();
-		}
 		// The present of the frame before runs in the GPU thread and uses the swapchain, so the acquire can't wait for an image
 		// while holding it (the present may be what frees one): it asks for one for a millisecond at a time instead. Drivers
 		// are also known to answer VK_NOT_READY or VK_TIMEOUT even when asked to wait, nothing was acquired then and the
 		// semaphore is not signaled, so asking again is correct.
-		VkResult result = VK_NOT_READY;
-		for (int retry = 0; (result == VK_NOT_READY) || (result == VK_TIMEOUT); retry++) {
-			SDL_LockMutex(swapchain_mutex);
-			result = vkAcquireNextImageKHR(g.device, surface().swapchain, 1000000, surface().acquired, VK_NULL_HANDLE, &index);
-			SDL_UnlockMutex(swapchain_mutex);
-			if (result == VK_NOT_READY) {
+		bb::rhi::present_result acquired = { bb::rhi::present_status::not_ready, int32_t(VK_NOT_READY) };
+		for (int retry = 0; acquired.status == bb::rhi::present_status::not_ready; retry++) {
+			acquired = bb::rhi::acquire_image(surface().chain, uint64_t(surface().acquired), 1000000, true, index);
+			if (acquired.native == int32_t(VK_NOT_READY)) {
 				// Returned at once instead of after the timeout, give the present a chance to take the lock.
 				fprintf(stderr, "vkAcquireNextImageKHR returned VK_NOT_READY (try %d), retrying.\n", retry + 1);
 				SDL_Delay(1);
 			}
-			if ((result == VK_NOT_READY) || (result == VK_TIMEOUT)) {
+			if (acquired.status == bb::rhi::present_status::not_ready) {
 				gpu_check(); // A failed present would never free an image.
 			}
 		}
-		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		if (acquired.status == bb::rhi::present_status::out_of_date) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
 			submit_commands();
 			surface().resized = true;
 			return;
-		} else if (result != VK_SUBOPTIMAL_KHR) {
-			check(result, "vkAcquireNextImageKHR");
+		} else if (acquired.status != bb::rhi::present_status::suboptimal) {
+			check(VkResult(acquired.native), "vkAcquireNextImageKHR");
 			if (device_lost()) {
 				check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer"); // No image was acquired.
 				return;
@@ -800,13 +800,13 @@ namespace bb::gfx {
 		// The gamma tables change what the window shows, not the buffer.
 		gpu_image& shown = *apply_gamma(front);
 
-		barrier(surface().swap_images[index], bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-		buffer_rect area = fit_buffer(float(surface().swap_extent.width), float(surface().swap_extent.height));
+		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		buffer_rect area = fit_buffer(float(surface().chain.width), float(surface().chain.height));
 		bb::rhi::filter filter = bb::rhi::filter::nearest;
 		if (surface().fullscreen) {
 			// Black around the buffer. Whole-number sizes stay sharp, others are smoothed.
 			const float black[4] = { 0, 0, 0, 0 };
-			bb::rhi::clear_image(uint64_t(surface().swap_images[index]), black, 1, 1);
+			bb::rhi::clear_image(uint64_t(surface().chain.images[index]), black, 1, 1);
 			const char* rule = bb_env("BLITZLLVM_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
 			if (rule && (strcmp(rule, "linear") == 0)) {
 				filter = bb::rhi::filter::linear;
@@ -821,12 +821,12 @@ namespace bb::gfx {
 		blit.dst[1] = int32_t(area.y);
 		blit.dst[2] = int32_t(area.x + area.w);
 		blit.dst[3] = int32_t(area.y + area.h);
-		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().swap_images[index]), &blit, 1, filter);
-		barrier(surface().swap_images[index], bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().chain.images[index]), &blit, 1, filter);
+		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 
 		profile_gpu_mark(3);
-		submit_async(surface().acquired, surface().swap_done[index], true, index);
+		submit_async(surface().acquired, VkSemaphore(surface().chain.done[index]), true, index);
 		gamma_after_present();
 	}
 
@@ -863,7 +863,7 @@ namespace bb::gfx {
 			g.front_touched = false;
 			// Drawing to the front buffer is visible immediately.
 			poll_resized(); // To know whether the present wants a new swapchain.
-			if (surface().resized || (surface().swapchain == VK_NULL_HANDLE)) {
+			if (surface().resized || (surface().chain.handle == 0)) {
 				submit_commands();
 				if (surface().resized) {
 					destroy_swapchain();

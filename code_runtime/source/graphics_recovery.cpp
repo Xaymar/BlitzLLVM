@@ -112,13 +112,7 @@ namespace {
 		g.pool     = VK_NULL_HANDLE;
 		g.cmd      = VK_NULL_HANDLE;
 		g.fence    = VK_NULL_HANDLE;
-		surface().swapchain = VK_NULL_HANDLE;
-		for (uint32_t i = 0; i < max_swapchain_images; i++) {
-			surface().swap_images[i] = VK_NULL_HANDLE;
-			surface().swap_done[i]   = VK_NULL_HANDLE;
-		}
-		surface().swap_count  = 0;
-		surface().swap_extent = {};
+		surface().chain = {};
 		surface().acquired    = VK_NULL_HANDLE;
 
 		g.set_layout = VK_NULL_HANDLE;
