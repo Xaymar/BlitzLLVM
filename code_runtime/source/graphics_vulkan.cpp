@@ -391,6 +391,22 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
+	// The layout of a group of count sampled images that fragment shaders read, made when it is first asked for.
+	static VkDescriptorSetLayout images_layout(VkDescriptorSetLayout& layout, uint32_t count)
+	{
+		if (!layout) {
+			VkDescriptorSetLayoutBinding bindings[8];
+			for (uint32_t i = 0; i < count; i++) {
+				bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+			}
+			VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+			info.bindingCount                    = count;
+			info.pBindings                       = bindings;
+			check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &layout), "vkCreateDescriptorSetLayout");
+		}
+		return layout;
+	}
+
 	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind)
 	{
 		switch (kind) {
@@ -403,9 +419,9 @@ namespace bb::gfx {
 		case bb::rhi::group_kind::cull:
 			return g.cull_layout;
 		case bb::rhi::group_kind::images3:
-			return g.images3_layout;
+			return images_layout(g.images3_layout, 3);
 		case bb::rhi::group_kind::images8:
-			return g.images8_layout;
+			return images_layout(g.images8_layout, 8);
 		}
 		return VK_NULL_HANDLE;
 	}
@@ -1838,10 +1854,11 @@ namespace bb::gfx {
 		set_info.pBindings                       = binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
+		// Next to the textures: the groups of SMAA (5 of 3 images for each of 8 cameras) and of the transparency (one of 8 images for each of 4 sizes).
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings + 8 * 5 * 3 + 4 * 8 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		dpool_info.maxSets                    = 8195 + 4 * frame_slots;
+		dpool_info.maxSets                    = 8195 + 4 * frame_slots + 8 * 5 + 4;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
@@ -1953,11 +1970,19 @@ namespace bb::rhi {
 			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
 		}
 		made_layouts.clear();
+		// The layouts of the groups of images, which vk_set_layout made when they were first asked for.
+		for (VkDescriptorSetLayout* layout : { &bb::gfx::g.images3_layout, &bb::gfx::g.images8_layout }) {
+			if (*layout) {
+				vkDestroyDescriptorSetLayout(bb::gfx::g.device, *layout, nullptr);
+				*layout = VK_NULL_HANDLE;
+			}
+		}
 	}
 
 	void forget_layouts()
 	{
 		made_layouts.clear();
+		bb::gfx::g.images3_layout = bb::gfx::g.images8_layout = VK_NULL_HANDLE;
 	}
 }
 
@@ -2027,6 +2052,25 @@ namespace bb::rhi {
 		VkDescriptorSet set;
 		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
 		return binding_group{ uint64_t(set) };
+	}
+
+	void destroy_group(binding_group group)
+	{
+		if (group) {
+			gfx::free_group(group);
+		}
+	}
+
+	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
+	{
+		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), gfx::vk_layout_of(depth_read ? image_state::depth_read : image_state::sampled) };
+		VkWriteDescriptorSet  write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                = gfx::vk_set(group);
+		write.dstBinding            = place;
+		write.descriptorCount       = 1;
+		write.descriptorType        = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo            = &info;
+		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
 	}
 }
 

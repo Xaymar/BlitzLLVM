@@ -40,26 +40,14 @@ namespace {
 	constexpr uint32_t max_sizes = 4;
 	image_set        cache[max_sizes];
 	bb::rhi::pipeline_layout layout;
-	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	std::map<VkFormat, bb::rhi::pipeline[7]> composites;
 	bb::rhi::pipeline_layout layout3d_moments;
 
 	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
 
+	// The layout of the passes over the picture: they read the group of the sums.
 	void create_set_layout()
 	{
-		if (set_layout) {
-			return;
-		}
-		VkDescriptorSetLayoutBinding bindings[8];
-		for (uint32_t i = 0; i < 8; i++) {
-			bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
-		}
-		VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		info.bindingCount                    = 8;
-		info.pBindings                       = bindings;
-		check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
-		g.images8_layout = set_layout;
 		bb::rhi::layout_desc desc;
 		desc.sets[0]   = bb::rhi::group_kind::images8;
 		desc.set_count = 1;
@@ -79,56 +67,26 @@ namespace {
 			}
 			create_set_layout();
 			entry.set = bb::rhi::create_group(bb::rhi::group_kind::images8);
-			VkDescriptorImageInfo infos[5];
-			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
 				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : rhi_format(formats[i]));
-				infos[i]        = { vk_sampler(g.sampler_point_clamp), entry.images[i].view, vk_layout_of(bb::rhi::image_state::sampled) };
-				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-				writes[i].dstSet          = vk_set(entry.set);
-				writes[i].dstBinding      = i;
-				writes[i].descriptorCount = 1;
-				writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				writes[i].pImageInfo      = &infos[i];
+				bb::rhi::set_group_image(entry.set, i, uint64_t(entry.images[i].view), g.sampler_point_clamp);
 			}
-			vkUpdateDescriptorSets(g.device, 5, writes, 0, nullptr);
 			if (uint32_t slots = oit_slots()) {
 				entry.slot_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
 				entry.slot_depth = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f, nullptr, 1, 1, slots);
 				entry.slot_weight = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f, nullptr, 1, 1, slots);
-				VkDescriptorImageInfo slot_infos[3] = { { vk_sampler(g.sampler_point_clamp), entry.slot_color.view, vk_layout_of(bb::rhi::image_state::sampled) }, { vk_sampler(g.sampler_point_clamp), entry.slot_depth.view, vk_layout_of(bb::rhi::image_state::depth_read) }, { vk_sampler(g.sampler_point_clamp), entry.slot_weight.view, vk_layout_of(bb::rhi::image_state::sampled) } };
-				VkWriteDescriptorSet  slot_writes[3];
-				for (uint32_t i = 0; i < 3; i++) {
-					slot_writes[i]                 = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-					slot_writes[i].dstSet          = vk_set(entry.set);
-					slot_writes[i].dstBinding      = 5 + i;
-					slot_writes[i].descriptorCount = 1;
-					slot_writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-					slot_writes[i].pImageInfo      = &slot_infos[i];
-				}
-				vkUpdateDescriptorSets(g.device, 3, slot_writes, 0, nullptr);
+				bb::rhi::set_group_image(entry.set, 5, uint64_t(entry.slot_color.view), g.sampler_point_clamp);
+				bb::rhi::set_group_image(entry.set, 6, uint64_t(entry.slot_depth.view), g.sampler_point_clamp, true);
+				bb::rhi::set_group_image(entry.set, 7, uint64_t(entry.slot_weight.view), g.sampler_point_clamp);
 			}
 			if (asked == 5) {
 				entry.peel_color = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, bb::rhi::format::rgba16f);
-				VkDescriptorImageInfo layer_info  = { vk_sampler(g.sampler_point_clamp), entry.peel_color.view, vk_layout_of(bb::rhi::image_state::sampled) };
-				VkWriteDescriptorSet  layer_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-				layer_write.dstSet          = vk_set(entry.set);
-				layer_write.dstBinding      = 5;
-				layer_write.descriptorCount = 1;
-				layer_write.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				layer_write.pImageInfo      = &layer_info;
-				vkUpdateDescriptorSets(g.device, 1, &layer_write, 0, nullptr);
+				bb::rhi::set_group_image(entry.set, 5, uint64_t(entry.peel_color.view), g.sampler_point_clamp);
 				for (int i = 0; i < 2; i++) {
 					entry.peel_depth[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, bb::rhi::format::d32f);
 					entry.peel_depth_set[i] = bb::rhi::create_group(bb::rhi::group_kind::texture);
-					VkDescriptorImageInfo depth_info  = { vk_sampler(g.sampler_clamp), entry.peel_depth[i].view, vk_layout_of(bb::rhi::image_state::depth_read) };
-					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-					depth_write.dstSet          = vk_set(entry.peel_depth_set[i]);
-					depth_write.descriptorCount = 1;
-					depth_write.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-					depth_write.pImageInfo      = &depth_info;
-					vkUpdateDescriptorSets(g.device, 1, &depth_write, 0, nullptr);
+					bb::rhi::set_group_image(entry.peel_depth_set[i], 0, uint64_t(entry.peel_depth[i].view), g.sampler_clamp, true);
 				}
 			}
 			entry.width  = width;
@@ -436,8 +394,10 @@ namespace bb::gfx {
 				}
 				entry.slot_depth_layout = bb::rhi::image_state::undefined;
 				entry.peel_depth_layout[0] = entry.peel_depth_layout[1] = bb::rhi::image_state::undefined;
-				entry.peel_depth_set[0] = entry.peel_depth_set[1] = bb::rhi::binding_group();
-				entry.set = bb::rhi::binding_group(); // The pool takes the set.
+				for (bb::rhi::binding_group* set : { &entry.peel_depth_set[0], &entry.peel_depth_set[1], &entry.set }) {
+					bb::rhi::destroy_group(*set);
+					*set = bb::rhi::binding_group();
+				}
 				entry.width = entry.height = 0;
 			}
 			for (auto& entry : composites) {

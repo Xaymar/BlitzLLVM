@@ -276,6 +276,10 @@ namespace bb::rhi {
 
 	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
 	binding_group create_group(group_kind kind);
+	/** Gives a group back. The GPU must be done with it. */
+	void          destroy_group(binding_group group);
+	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
+	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
 
 	/** How an image is used next. The backend turns a change of use into whatever the API needs (a layout change and barrier on Vulkan, nothing on Direct3D 11 and OpenGL). */
 	enum class image_state : uint8_t {

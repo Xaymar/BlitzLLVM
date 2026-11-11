@@ -65,9 +65,7 @@ namespace {
 	uint32_t slot_used[max_slots];
 
 	bool                  ready = false;
-	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	bb::rhi::pipeline_layout layout;
-	VkDescriptorPool      pool = VK_NULL_HANDLE;
 	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
 	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	bb::rhi::pipeline     edges_pipeline, weights_pipeline;
@@ -201,32 +199,12 @@ namespace {
 
 	void create_resources()
 	{
-		VkDescriptorSetLayoutBinding bindings[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			bindings[i].binding         = i;
-			bindings[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			bindings[i].descriptorCount = 1;
-			bindings[i].stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
-		}
-		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 3;
-		set_info.pBindings                       = bindings;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
-
-		g.images3_layout = set_layout;
 		bb::rhi::layout_desc desc;
 		desc.sets[0]     = bb::rhi::group_kind::images3;
 		desc.set_count   = 1;
 		desc.push_size   = sizeof(constants);
 		desc.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
 		layout           = bb::rhi::get_layout(desc);
-
-		VkDescriptorPoolSize size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, max_slots * 5 * 3 };
-		VkDescriptorPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
-		pool_info.maxSets                    = max_slots * 5;
-		pool_info.poolSizeCount              = 1;
-		pool_info.pPoolSizes                 = &size;
-		check(vkCreateDescriptorPool(g.device, &pool_info, nullptr, &pool), "vkCreateDescriptorPool");
 
 		linear  = make_sampler(bb::rhi::filter::linear);
 		nearest = make_sampler(bb::rhi::filter::nearest);
@@ -273,30 +251,14 @@ namespace {
 
 	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
 	{
-		VkDescriptorImageInfo infos[3] = {
-			{ vk_sampler(sa), a->view, vk_layout_of(bb::rhi::image_state::sampled) },
-			{ vk_sampler(sb), b->view, vk_layout_of(bb::rhi::image_state::sampled) },
-			{ vk_sampler(sc), c, vk_layout_of(bb::rhi::image_state::sampled) },
-		};
-		VkWriteDescriptorSet writes[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = vk_set(set);
-			writes[i].dstBinding      = i;
-			writes[i].descriptorCount = 1;
-			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			writes[i].pImageInfo      = &infos[i];
-		}
-		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+		bb::rhi::set_group_image(set, 0, uint64_t(a->view), sa);
+		bb::rhi::set_group_image(set, 1, uint64_t(b->view), sb);
+		bb::rhi::set_group_image(set, 2, uint64_t(c), sc);
 	}
 
 	void allocate_set(bb::rhi::binding_group& set)
 	{
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &set_layout;
-		allocate_group(alloc, set, "vkAllocateDescriptorSets");
+		set = bb::rhi::create_group(bb::rhi::group_kind::images3);
 	}
 
 	void release_slot(slot& s)
@@ -306,9 +268,8 @@ namespace {
 		destroy_image(s.blend);
 		destroy_image(s.out[0]);
 		destroy_image(s.out[1]);
-		if (s.edges_set) {
-			VkDescriptorSet sets[5] = { vk_set(s.edges_set), vk_set(s.weights_set), vk_set(s.blend_set), vk_set(s.resolve_set[0]), vk_set(s.resolve_set[1]) };
-			vkFreeDescriptorSets(g.device, pool, 5, sets);
+		for (bb::rhi::binding_group set : { s.edges_set, s.weights_set, s.blend_set, s.resolve_set[0], s.resolve_set[1] }) {
+			bb::rhi::destroy_group(set);
 		}
 		s.edges_set = s.weights_set = s.blend_set = s.resolve_set[0] = s.resolve_set[1] = bb::rhi::binding_group();
 		s.owner = 0;
@@ -608,10 +569,7 @@ namespace bb::gfx {
 			destroy_shader(fragment_modules[i]);
 		}
 		linear = nearest = bb::rhi::sampler();
-		vkDestroyDescriptorPool(g.device, pool, nullptr);
 		layout = bb::rhi::pipeline_layout();
-		vkDestroyDescriptorSetLayout(g.device, set_layout, nullptr);
-		g.images3_layout = VK_NULL_HANDLE;
 		destroy_image(area_texture);
 		destroy_image(search_texture);
 		bb::rhi::destroy_buffer(area_staging);
