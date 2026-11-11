@@ -101,23 +101,10 @@ namespace {
 	// buffers' size, drawing state, input) stays.
 	void reset_device_state()
 	{
-		g.instance = VK_NULL_HANDLE;
-		surface().surface  = VK_NULL_HANDLE;
-		g.physical = VK_NULL_HANDLE;
-		g.device   = VK_NULL_HANDLE;
-		g.allocator = VK_NULL_HANDLE;
-		g.queue    = VK_NULL_HANDLE;
-		g.family   = 0;
-		g.memory   = {};
-		g.pool     = VK_NULL_HANDLE;
-		g.cmd      = VK_NULL_HANDLE;
-		g.fence    = VK_NULL_HANDLE;
+		bb::rhi::forget_device(); // The handles of the device, the instance and the surface, and the layouts and pipelines that hang from it.
 		surface().chain = {};
 		surface().acquired    = VK_NULL_HANDLE;
 
-		g.set_layout = VK_NULL_HANDLE;
-		g.images3_layout = g.images8_layout = VK_NULL_HANDLE;
-		g.set_pool   = VK_NULL_HANDLE;
 		g.layout     = bb::rhi::pipeline_layout();
 		g.triangles  = bb::rhi::pipeline();
 		g.lines      = bb::rhi::pipeline();
@@ -138,23 +125,18 @@ namespace {
 		g.buffers[0]    = gpu_image();
 		g.buffers[1]    = gpu_image();
 
-		g.scene_layout = VK_NULL_HANDLE;
 		g.scene_set    = bb::rhi::binding_group();
 		g.layout3d     = bb::rhi::pipeline_layout();
-		g.entity_layout = VK_NULL_HANDLE;
 		g.entity_set    = bb::rhi::binding_group();
 		g.entity_buffer = bb::rhi::gpu_buffer();
 		g.entity_capacity = 0;
 		g.layer_buffer   = bb::rhi::gpu_buffer();
 		g.layer_capacity = 0;
 		g.can_gpu_cull    = false;
-		g.cull_layout = VK_NULL_HANDLE;
 		g.cull_pipeline_layout = bb::rhi::pipeline_layout();
-		g.cull_pipeline = VK_NULL_HANDLE;
 		g.cull          = cull_buffers();
 		g.statics       = static_buffers();
 		g.static_pipeline_layout = bb::rhi::pipeline_layout();
-		g.static_pipeline        = VK_NULL_HANDLE;
 		forget_layered_pipelines();
 		bb::rhi::forget_pipelines();
 		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = bb::rhi::pipeline();
@@ -205,7 +187,7 @@ namespace {
 	// Makes everything again, on a device that is back (or that is fine, for the test hook).
 	void create_graphics()
 	{
-		create_vulkan();
+		bb::rhi::create_device();
 		create_buffers(g.width, g.height);
 		create_swapchain();
 		textures_rebuild();

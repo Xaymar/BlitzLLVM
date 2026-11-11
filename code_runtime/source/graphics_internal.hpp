@@ -1074,7 +1074,6 @@ namespace bb::gfx {
 	void create_device(VkSurfaceKHR present_to);
 	extern uint32_t devices_made; // How many devices create_device made so far, to tell a device from one that took its place.
 	/** Both, with the surface of the window of Graphics in between. */
-	void create_vulkan();
 	/** A device while there is no window of Graphics, picked with a hidden window that goes away again. True once there is a device, false without a display (headless). */
 	bool ensure_device();
 	/** What a program without Graphics needs to make images and textures and draw to them: the machinery of Graphics with a hidden window that is never shown. True where

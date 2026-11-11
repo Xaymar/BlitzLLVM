@@ -498,4 +498,13 @@ namespace bb::rhi {
 
 	/** The name of a result code, for messages. */
 	const char* native_result_name(int32_t native);
+
+	/** Makes the instance, the surface of the window of Graphics and a device that shows pictures in that window (what the first Graphics, and every recovery of a lost device, starts with). */
+	void create_device();
+
+	/** The last frees of the device, once everything made with it is gone: the command pool, the allocator, the device, the window surface and the instance. */
+	void destroy_device();
+
+	/** Clears every handle of the device and of what hangs directly from it without freeing anything, for a device that is gone (lost) and whose objects were freed or are forgotten. */
+	void forget_device();
 } // namespace bb::rhi

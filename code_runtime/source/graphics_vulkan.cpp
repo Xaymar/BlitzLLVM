@@ -1910,14 +1910,6 @@ namespace bb::gfx {
 	}
 
 	// The instance, the surface of the window of Graphics and a device that shows pictures in that window.
-	void create_vulkan()
-	{
-		create_instance();
-		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
-			fail(SDL_GetError());
-		}
-		create_device(surface().surface);
-	}
 } // namespace bb::gfx
 
 namespace bb::rhi {
@@ -2761,5 +2753,53 @@ namespace bb::rhi {
 		}
 		vkWaitForPresentKHR(VkDevice(presenter.device), VkSwapchainKHR(chain.handle), presenter.present_id, timeout_ns);
 		return true;
+	}
+} // namespace bb::rhi
+
+namespace bb::rhi {
+	void create_device()
+	{
+		using namespace gfx;
+		create_instance();
+		if (!SDL_Vulkan_CreateSurface(gfx::surface().window, g.instance, nullptr, &gfx::surface().surface)) {
+			fail(SDL_GetError());
+		}
+		gfx::create_device(gfx::surface().surface);
+	}
+
+	void destroy_device()
+	{
+		using namespace gfx;
+		vkDestroyCommandPool(g.device, g.pool, nullptr);
+		destroy_allocator();
+		vkDestroyDevice(g.device, nullptr);
+		if (gfx::surface().surface) {
+			SDL_Vulkan_DestroySurface(g.instance, gfx::surface().surface, nullptr);
+		}
+		vkDestroyInstance(g.instance, nullptr);
+	}
+
+	void forget_device()
+	{
+		using namespace gfx;
+		g.instance = VK_NULL_HANDLE;
+		gfx::surface().surface = VK_NULL_HANDLE;
+		g.physical = VK_NULL_HANDLE;
+		g.device   = VK_NULL_HANDLE;
+		g.allocator = VK_NULL_HANDLE;
+		g.queue    = VK_NULL_HANDLE;
+		g.family   = 0;
+		g.memory   = {};
+		g.pool     = VK_NULL_HANDLE;
+		g.cmd      = VK_NULL_HANDLE;
+		g.fence    = VK_NULL_HANDLE;
+		g.set_layout = VK_NULL_HANDLE;
+		g.images3_layout = g.images8_layout = VK_NULL_HANDLE;
+		g.set_pool   = VK_NULL_HANDLE;
+		g.scene_layout  = VK_NULL_HANDLE;
+		g.entity_layout = VK_NULL_HANDLE;
+		g.cull_layout   = VK_NULL_HANDLE;
+		g.cull_pipeline = VK_NULL_HANDLE;
+		g.static_pipeline = VK_NULL_HANDLE;
 	}
 } // namespace bb::rhi

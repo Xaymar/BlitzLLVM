@@ -208,7 +208,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 			fail("The graphics device that was picked before the window cannot show pictures in it.");
 		}
 	} else {
-		create_vulkan();
+		bb::rhi::create_device();
 	}
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
@@ -296,13 +296,7 @@ void bb::gfx::destroy_device_objects()
 		profile_mark_state = -1;
 	}
 	destroy_frame_slots();
-	vkDestroyCommandPool(g.device, g.pool, nullptr);
-	destroy_allocator();
-	vkDestroyDevice(g.device, nullptr);
-	if (surface().surface) {
-		SDL_Vulkan_DestroySurface(g.instance, surface().surface, nullptr);
-	}
-	vkDestroyInstance(g.instance, nullptr);
+	bb::rhi::destroy_device();
 }
 
 // A device while there is no window of Graphics, for windows of their own (see graphics_surfaces.cpp). The GPU is picked by
@@ -383,7 +377,7 @@ bool bb::gfx::ensure_offscreen()
 			fail(SDL_GetError());
 		}
 	} else {
-		create_vulkan();
+		bb::rhi::create_device();
 	}
 	create_buffers(uint32_t(offscreen_size), uint32_t(offscreen_size));
 	return true;
