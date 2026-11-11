@@ -903,16 +903,14 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
 	// A lost device (graphics_recovery.cpp)
-	const char* result_name(VkResult result);
-	/** VK_ERROR_DEVICE_LOST and VK_ERROR_SURFACE_LOST_KHR, which the graphics are made again after. */
-	bool is_device_loss(VkResult result);
 	/** Whether a lost device is made good again (BLITZLLVM_DEVICE_RECOVERY=0 turns it off, then the program ends with an error). */
 	bool recovery_enabled();
 	/** A loss was noted and the graphics are not made again yet, so Vulkan calls fail meanwhile. */
 	bool device_lost();
 	/** The graphics are being made again: errors say so. */
 	bool restoring_graphics();
-	void note_device_loss(VkResult result, const char* what);
+	/** native: the backend's own result code (see rhi::is_device_loss). */
+	void note_device_loss(int32_t native, const char* what);
 	/** Zeroed memory that stands in for the mapping of a buffer that could not be made because the device is lost; it goes when the graphics are made again. */
 	void* lost_dummy_memory(size_t size);
 	/** Makes the graphics again if the device was lost. Only where no call of the program is half done: Flip, GraphicsLost. */

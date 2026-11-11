@@ -104,13 +104,13 @@ namespace bb::gfx {
 	void check(VkResult result, const char* what)
 	{
 		if (result != VK_SUCCESS) {
-			if (is_device_loss(result) && recovery_enabled()) {
-				note_device_loss(result, what); // The graphics are made again where a frame begins.
+			if (bb::rhi::is_device_loss(int32_t(result)) && recovery_enabled()) {
+				note_device_loss(int32_t(result), what); // The graphics are made again where a frame begins.
 				return;
 			}
 			char buffer[256];
-			if (is_device_loss(result)) {
-				snprintf(buffer, sizeof(buffer), "the graphics device was lost (%s in %s) and making the graphics again is turned off.", result_name(result), what);
+			if (bb::rhi::is_device_loss(int32_t(result))) {
+				snprintf(buffer, sizeof(buffer), "the graphics device was lost (%s in %s) and making the graphics again is turned off.", bb::rhi::native_result_name(int32_t(result)), what);
 			} else {
 				snprintf(buffer, sizeof(buffer), "%s failed (VkResult %d).", what, int(result));
 			}

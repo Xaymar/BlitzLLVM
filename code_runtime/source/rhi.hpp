@@ -492,4 +492,10 @@ namespace bb::rhi {
 
 	/** Waits up to timeout_ns for the last present to be shown by the display. False without doing so if the device cannot. */
 	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns);
+
+	/** Whether the backend's own result code (a VkResult, from a call or from present_result::native) says the device is lost, which the graphics are made again after. */
+	bool is_device_loss(int32_t native);
+
+	/** The name of a result code, for messages. */
+	const char* native_result_name(int32_t native);
 } // namespace bb::rhi
