@@ -41,7 +41,7 @@ namespace {
 	constexpr long long default_cooldown_ms = 5 * 60 * 1000; // Without a loss for this long, the count starts again.
 
 	bool        lost          = false;       // A loss was noted, the graphics are made again at the next safe point.
-	VkResult    lost_result   = VK_SUCCESS;
+	int32_t     lost_result   = 0;          // The backend's own result code.
 	const char* lost_what     = "";
 	bool        simulated     = false;       // The note is from the test hook.
 	int         recoveries    = 0;           // How often the graphics were made again since the cooldown.
@@ -101,23 +101,10 @@ namespace {
 	// buffers' size, drawing state, input) stays.
 	void reset_device_state()
 	{
-		g.instance = VK_NULL_HANDLE;
-		surface().surface  = VK_NULL_HANDLE;
-		g.physical = VK_NULL_HANDLE;
-		g.device   = VK_NULL_HANDLE;
-		g.allocator = VK_NULL_HANDLE;
-		g.queue    = VK_NULL_HANDLE;
-		g.family   = 0;
-		g.memory   = {};
-		g.pool     = VK_NULL_HANDLE;
-		g.cmd      = VK_NULL_HANDLE;
-		g.fence    = VK_NULL_HANDLE;
+		bb::rhi::forget_device(); // The handles of the device, the instance and the surface, and the layouts and pipelines that hang from it.
 		surface().chain = {};
 		surface().acquired    = VK_NULL_HANDLE;
 
-		g.set_layout = VK_NULL_HANDLE;
-		g.images3_layout = g.images8_layout = VK_NULL_HANDLE;
-		g.set_pool   = VK_NULL_HANDLE;
 		g.layout     = bb::rhi::pipeline_layout();
 		g.triangles  = bb::rhi::pipeline();
 		g.lines      = bb::rhi::pipeline();
@@ -138,23 +125,18 @@ namespace {
 		g.buffers[0]    = gpu_image();
 		g.buffers[1]    = gpu_image();
 
-		g.scene_layout = VK_NULL_HANDLE;
 		g.scene_set    = bb::rhi::binding_group();
 		g.layout3d     = bb::rhi::pipeline_layout();
-		g.entity_layout = VK_NULL_HANDLE;
 		g.entity_set    = bb::rhi::binding_group();
 		g.entity_buffer = bb::rhi::gpu_buffer();
 		g.entity_capacity = 0;
 		g.layer_buffer   = bb::rhi::gpu_buffer();
 		g.layer_capacity = 0;
 		g.can_gpu_cull    = false;
-		g.cull_layout = VK_NULL_HANDLE;
 		g.cull_pipeline_layout = bb::rhi::pipeline_layout();
-		g.cull_pipeline = VK_NULL_HANDLE;
 		g.cull          = cull_buffers();
 		g.statics       = static_buffers();
 		g.static_pipeline_layout = bb::rhi::pipeline_layout();
-		g.static_pipeline        = VK_NULL_HANDLE;
 		forget_layered_pipelines();
 		bb::rhi::forget_pipelines();
 		g.opaque3d = g.solid3d = g.blend3d = g.mul3d = g.mul2x3d = g.add3d = bb::rhi::pipeline();
@@ -205,7 +187,7 @@ namespace {
 	// Makes everything again, on a device that is back (or that is fine, for the test hook).
 	void create_graphics()
 	{
-		create_vulkan();
+		bb::rhi::create_device();
 		create_buffers(g.width, g.height);
 		create_swapchain();
 		textures_rebuild();
@@ -214,24 +196,6 @@ namespace {
 } // namespace
 
 namespace bb::gfx {
-	const char* result_name(VkResult result)
-	{
-		switch (result) {
-		case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
-		case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
-		case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
-		case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
-		case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
-		case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
-		default: return "an unknown error";
-		}
-	}
-
-	bool is_device_loss(VkResult result)
-	{
-		return (result == VK_ERROR_DEVICE_LOST) || (result == VK_ERROR_SURFACE_LOST_KHR);
-	}
-
 	bool recovery_enabled()
 	{
 		static int enabled = -1;
@@ -251,11 +215,11 @@ namespace bb::gfx {
 		return recovering;
 	}
 
-	void note_device_loss(VkResult result, const char* what)
+	void note_device_loss(int32_t native, const char* what)
 	{
 		if (!lost) {
 			lost        = true;
-			lost_result = result;
+			lost_result = native;
 			lost_what   = what;
 			simulated   = false;
 		}
@@ -286,7 +250,7 @@ namespace bb::gfx {
 		if (simulated) {
 			snprintf(why, sizeof(why), "simulated by BLITZLLVM_SIMULATE_DEVICE_LOSS");
 		} else {
-			snprintf(why, sizeof(why), "%s in %s", result_name(lost_result), lost_what);
+			snprintf(why, sizeof(why), "%s in %s", bb::rhi::native_result_name(lost_result), lost_what);
 		}
 		auto now = std::chrono::steady_clock::now();
 		if (had_loss && recoveries > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(now - last_loss).count() >= cooldown_ms()) {
@@ -346,3 +310,23 @@ int32_t bb_graphics_lost(void)
 	return 0;
 }
 }
+
+namespace bb::rhi {
+	bool is_device_loss(int32_t native)
+	{
+		return (native == int32_t(VK_ERROR_DEVICE_LOST)) || (native == int32_t(VK_ERROR_SURFACE_LOST_KHR));
+	}
+
+	const char* native_result_name(int32_t native)
+	{
+		switch (VkResult(native)) {
+		case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
+		case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
+		case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
+		case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
+		case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
+		case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
+		default: return "an unknown error";
+		}
+	}
+} // namespace bb::rhi

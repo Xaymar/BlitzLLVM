@@ -492,4 +492,19 @@ namespace bb::rhi {
 
 	/** Waits up to timeout_ns for the last present to be shown by the display. False without doing so if the device cannot. */
 	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns);
+
+	/** Whether the backend's own result code (a VkResult, from a call or from present_result::native) says the device is lost, which the graphics are made again after. */
+	bool is_device_loss(int32_t native);
+
+	/** The name of a result code, for messages. */
+	const char* native_result_name(int32_t native);
+
+	/** Makes the instance, the surface of the window of Graphics and a device that shows pictures in that window (what the first Graphics, and every recovery of a lost device, starts with). */
+	void create_device();
+
+	/** The last frees of the device, once everything made with it is gone: the command pool, the allocator, the device, the window surface and the instance. */
+	void destroy_device();
+
+	/** Clears every handle of the device and of what hangs directly from it without freeing anything, for a device that is gone (lost) and whose objects were freed or are forgotten. */
+	void forget_device();
 } // namespace bb::rhi

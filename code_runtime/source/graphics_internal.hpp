@@ -903,16 +903,14 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
 	// A lost device (graphics_recovery.cpp)
-	const char* result_name(VkResult result);
-	/** VK_ERROR_DEVICE_LOST and VK_ERROR_SURFACE_LOST_KHR, which the graphics are made again after. */
-	bool is_device_loss(VkResult result);
 	/** Whether a lost device is made good again (BLITZLLVM_DEVICE_RECOVERY=0 turns it off, then the program ends with an error). */
 	bool recovery_enabled();
 	/** A loss was noted and the graphics are not made again yet, so Vulkan calls fail meanwhile. */
 	bool device_lost();
 	/** The graphics are being made again: errors say so. */
 	bool restoring_graphics();
-	void note_device_loss(VkResult result, const char* what);
+	/** native: the backend's own result code (see rhi::is_device_loss). */
+	void note_device_loss(int32_t native, const char* what);
 	/** Zeroed memory that stands in for the mapping of a buffer that could not be made because the device is lost; it goes when the graphics are made again. */
 	void* lost_dummy_memory(size_t size);
 	/** Makes the graphics again if the device was lost. Only where no call of the program is half done: Flip, GraphicsLost. */
@@ -1076,7 +1074,6 @@ namespace bb::gfx {
 	void create_device(VkSurfaceKHR present_to);
 	extern uint32_t devices_made; // How many devices create_device made so far, to tell a device from one that took its place.
 	/** Both, with the surface of the window of Graphics in between. */
-	void create_vulkan();
 	/** A device while there is no window of Graphics, picked with a hidden window that goes away again. True once there is a device, false without a display (headless). */
 	bool ensure_device();
 	/** What a program without Graphics needs to make images and textures and draw to them: the machinery of Graphics with a hidden window that is never shown. True where
