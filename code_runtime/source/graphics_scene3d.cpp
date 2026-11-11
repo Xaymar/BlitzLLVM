@@ -516,13 +516,7 @@ namespace bb::gfx {
 		rhi::create_buffer(g.entity_buffer, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
 		g.entity_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.entity_buffer.vk, 0, VK_WHOLE_SIZE };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = vk_set(g.entity_set);
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_buffer(g.entity_set, 0, uint64_t(g.entity_buffer.vk), 0, false);
 	}
 
 	// Makes room in the buffer of what the texture layers need, like ensure_entities does for the draws. Written when the draws are recorded.
@@ -542,14 +536,7 @@ namespace bb::gfx {
 		rhi::create_buffer(g.layer_buffer, VkDeviceSize(capacity) * sizeof(layer_data), rhi::storage_data, rhi::memory::mapped);
 		g.layer_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.layer_buffer.vk, 0, VK_WHOLE_SIZE };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = vk_set(g.entity_set);
-		write.dstBinding                   = 1;
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_buffer(g.entity_set, 1, uint64_t(g.layer_buffer.vk), 0, false);
 	}
 
 	// How much of the buffers for culling on the GPU the draws that wait use: what is filled in when the draws are collected, and what is
@@ -594,17 +581,9 @@ namespace bb::gfx {
 		if (!changed) {
 			return;
 		}
-		VkDescriptorBufferInfo infos[3]  = { { c.clusters.vk, 0, VK_WHOLE_SIZE }, { c.groups.vk, 0, VK_WHOLE_SIZE }, { c.commands.vk, 0, VK_WHOLE_SIZE } };
-		VkWriteDescriptorSet   writes[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = vk_set(c.set);
-			writes[i].dstBinding      = i;
-			writes[i].descriptorCount = 1;
-			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			writes[i].pBufferInfo     = &infos[i];
-		}
-		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+		bb::rhi::set_group_buffer(c.set, 0, uint64_t(c.clusters.vk), 0, false);
+		bb::rhi::set_group_buffer(c.set, 1, uint64_t(c.groups.vk), 0, false);
+		bb::rhi::set_group_buffer(c.set, 2, uint64_t(c.commands.vk), 0, false);
 	}
 
 	// A draw of that many clusters needs groups for the shader and room for the commands it writes.
@@ -852,19 +831,8 @@ namespace bb::gfx {
 			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
 
-			VkDescriptorBufferInfo buffer_info = { g.scene_buffer.vk, 0, sizeof(scene_data) };
-			VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                       = vk_set(g.scene_set);
-			write.descriptorCount              = 1;
-			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-			write.pBufferInfo                  = &buffer_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), vk_layout_of(bb::rhi::image_state::sampled) };
-			write.dstBinding                  = 1;
-			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			write.pBufferInfo                 = nullptr;
-			write.pImageInfo                  = &lookup_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+			bb::rhi::set_group_buffer(g.scene_set, 0, uint64_t(g.scene_buffer.vk), sizeof(scene_data), true);
+			bb::rhi::set_group_image(g.scene_set, 1, uint64_t(palette_lookup_view()), g.sampler_point_clamp);
 
 			g.entity_set = bb::rhi::create_group(bb::rhi::group_kind::entities);
 			ensure_entities(1024);
@@ -1016,13 +984,7 @@ namespace bb::gfx {
 		bb::rhi::binding_group& set = depth_sets[&depth - depth_cache];
 		if (!set) {
 			allocate_descriptor(set);
-			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, vk_layout_of(bb::rhi::image_state::depth_read) };
-			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                     = vk_set(set);
-			write.descriptorCount            = 1;
-			write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			write.pImageInfo                 = &image_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+			bb::rhi::set_group_image(set, 0, uint64_t(depth.view), g.sampler_clamp, true);
 		}
 		return set;
 	}
@@ -1220,17 +1182,9 @@ namespace bb::gfx {
 			}
 		}
 		if (rewrite || (s.commands_bound != g.cull.commands.vk)) {
-			VkDescriptorBufferInfo infos_[3]  = { { s.table.vk, 0, VK_WHOLE_SIZE }, { s.infos.vk, 0, VK_WHOLE_SIZE }, { g.cull.commands.vk, 0, VK_WHOLE_SIZE } };
-			VkWriteDescriptorSet   writes[3] = {};
-			for (uint32_t i = 0; i < 3; i++) {
-				writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writes[i].dstSet          = vk_set(s.set);
-				writes[i].dstBinding      = i;
-				writes[i].descriptorCount = 1;
-				writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-				writes[i].pBufferInfo     = &infos_[i];
-			}
-			vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+			bb::rhi::set_group_buffer(s.set, 0, uint64_t(s.table.vk), 0, false);
+			bb::rhi::set_group_buffer(s.set, 1, uint64_t(s.infos.vk), 0, false);
+			bb::rhi::set_group_buffer(s.set, 2, uint64_t(g.cull.commands.vk), 0, false);
 			s.commands_bound = g.cull.commands.vk;
 		}
 	}
