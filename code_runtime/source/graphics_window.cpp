@@ -276,8 +276,6 @@ void bb::gfx::destroy_device_objects()
 	if (g.static_pipeline) {
 		vkDestroyPipeline(g.device, g.static_pipeline, nullptr);
 	}
-	vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
-	vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 	for (int i = 0; i < TEXTURES; i++) {
 		destroy_image(g.textures[i]);
 	}

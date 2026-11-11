@@ -349,8 +349,6 @@ namespace bb::gfx {
 
 		// Pipelines
 		VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
-		VkDescriptorSetLayout images3_layout = VK_NULL_HANDLE; // The kinds of group that are made by SMAA and the transparency code, see vk_set_layout.
-		VkDescriptorSetLayout images8_layout = VK_NULL_HANDLE;
 		VkDescriptorPool      set_pool   = VK_NULL_HANDLE;
 		bb::rhi::pipeline_layout layout;
 		bb::rhi::pipeline     triangles;
@@ -381,11 +379,9 @@ namespace bb::gfx {
 		gpu_image buffers[2]; // [0] front, [1] back
 
 		// 3D
-		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
 		bb::rhi::binding_group       scene_set;
 		bb::rhi::pipeline_layout layout3d;
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
-		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
 		bb::rhi::binding_group       entity_set;
 		rhi::gpu_buffer       entity_buffer;
 		rhi::gpu_buffer       layer_buffer; // The layer_data of the draws that wait, see frame_slot.
@@ -393,7 +389,6 @@ namespace bb::gfx {
 		uint32_t              entity_capacity = 0;
 		// Culling of clusters of big surfaces on the GPU, if it can draw the commands that come out of it.
 		bool                  can_gpu_cull   = false;
-		VkDescriptorSetLayout cull_layout    = VK_NULL_HANDLE;
 		bb::rhi::pipeline_layout cull_pipeline_layout;
 		VkPipeline            cull_pipeline  = VK_NULL_HANDLE;
 		cull_buffers          cull;

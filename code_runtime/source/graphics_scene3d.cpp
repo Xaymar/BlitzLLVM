@@ -790,39 +790,6 @@ namespace bb::gfx {
 		// Scene uniform buffer, with its descriptor set.
 		// Binding 1 is the lookup texture of the palette of a Graphics of depth 8 (the white texture when there is none).
 		ensure_palette_lookup();
-		VkDescriptorSetLayoutBinding bindings[2] = {
-			{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-			{ 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-		};
-		VkDescriptorSetLayoutBinding& binding = bindings[0];
-		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 2;
-		set_info.pBindings                       = bindings;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
-
-		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
-		// Binding 1 holds what the texture layers after the first of the draws need (layer_data), which only the fragment shader reads.
-		VkDescriptorSetLayoutBinding entity_binding[2] = {
-			{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-			{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-		};
-		set_info.bindingCount                       = 2;
-		set_info.pBindings                          = entity_binding;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
-
-		if (g.can_gpu_cull) {
-			// The clusters, the runs of them for each draw and the commands that come out: see compute_shader_cull in generate_shaders.py.
-			VkDescriptorSetLayoutBinding cull_bindings[3] = {
-				{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-				{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-				{ 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-			};
-			VkDescriptorSetLayoutCreateInfo cull_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-			cull_info.bindingCount                    = 3;
-			cull_info.pBindings                       = cull_bindings;
-			check(vkCreateDescriptorSetLayout(g.device, &cull_info, nullptr, &g.cull_layout), "vkCreateDescriptorSetLayout");
-		}
-
 		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
 		for (uint32_t slot = 0; slot < frame_slots; slot++) {
 			select_frame_slot(slot);
