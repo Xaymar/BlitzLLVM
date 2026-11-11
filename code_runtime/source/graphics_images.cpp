@@ -843,13 +843,7 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		gpu_idle();
 		destroy_image(e->image);
 		e->image = target;
-		VkDescriptorImageInfo image_info = { vk_sampler(g.sampler), e->image.view, vk_layout_of(bb::rhi::image_state::sampled) };
-		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = vk_set(e->set);
-		write.descriptorCount            = 1;
-		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		write.pImageInfo                 = &image_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_image(e->set, 0, uint64_t(e->image.view), g.sampler);
 	}
 	e->handle_x = e->handle_x * width / e->frame_w;
 	e->handle_y = e->handle_y * height / e->frame_h;

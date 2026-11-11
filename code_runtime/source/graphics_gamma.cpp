@@ -233,13 +233,7 @@ namespace {
 		table_mapped = static_cast<float*>(mapped);
 
 		table_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
-		VkDescriptorBufferInfo buffer_info = { table_buffer.vk, 0, VK_WHOLE_SIZE };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = vk_set(table_set);
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_buffer(table_set, 0, uint64_t(table_buffer.vk), 0, true);
 
 		allocate_descriptor(front_set);
 	}

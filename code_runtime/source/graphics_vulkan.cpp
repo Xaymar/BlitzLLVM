@@ -2061,6 +2061,18 @@ namespace bb::rhi {
 		}
 	}
 
+	void set_group_buffer(binding_group group, uint32_t place, uint64_t buffer, uint64_t size, bool uniform)
+	{
+		VkDescriptorBufferInfo info  = { VkBuffer(buffer), 0, size ? size : VK_WHOLE_SIZE };
+		VkWriteDescriptorSet   write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                 = gfx::vk_set(group);
+		write.dstBinding             = place;
+		write.descriptorCount        = 1;
+		write.descriptorType         = uniform ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		write.pBufferInfo            = &info;
+		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
+	}
+
 	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
 	{
 		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), gfx::vk_layout_of(depth_read ? image_state::depth_read : image_state::sampled) };

@@ -280,6 +280,9 @@ namespace bb::rhi {
 	void          destroy_group(binding_group group);
 	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
 	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
+	/** Puts a buffer (a backend handle for now) at a place of a group. uniform: the shader reads size bytes of it as a uniform block, from the offset the group is bound with (size 0: all of it); otherwise it is storage that the shader reads or
+	    writes all of. The GPU must be done with what was there. */
+	void          set_group_buffer(binding_group group, uint32_t place, uint64_t buffer, uint64_t size, bool uniform);
 
 	/** How an image is used next. The backend turns a change of use into whatever the API needs (a layout change and barrier on Vulkan, nothing on Direct3D 11 and OpenGL). */
 	enum class image_state : uint8_t {
