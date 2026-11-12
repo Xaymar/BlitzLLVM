@@ -8,8 +8,7 @@
 
 Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
 
-* Linux: there is no zip, because the libraries a program needs differ between systems. Install the package for your system: `blitzllvm-<version>-<commit>-ubuntu24.04-x64.deb` or `-ubuntu26.04-x64.deb` (Ubuntu: `sudo apt install ./blitzllvm-*.deb`; use the one for your release), `blitzllvm-<version>-<commit>-fedora-x64.rpm` (Fedora) or `blitzllvm-<version>-<commit>-arch-x64.pkg.tar.zst` (Arch). It installs to `/usr` and pulls in `clang`.
-* Linux with snap: `sudo snap install --classic --dangerous blitzllvm-<version>-<commit>-ubuntu24.04-x64.snap`. Classic confinement is needed because the compiler reads your files wherever they are and runs programs outside of the snap.
+* Linux: install the two Flatpaks, `blitzllvm-<version>-<commit>-linux-x64-runtime.flatpak` first and then `blitzllvm-<version>-<commit>-linux-x64.flatpak` (`-linux-arm64` on ARM), with `flatpak install --user --bundle <file>`. There is no zip, and no deb, rpm, Arch or snap package. The first holds the shared libraries that every program made by BlitzLLVM uses, the second the compiler and tools; see [[Flatpak]].
 * macOS: install `blitzllvm-<version>-<commit>-macos-universal.pkg`.
 * Windows: run `blitzllvm-<version>-<commit>-windows-x64-setup.exe` (or `-windows-arm64-setup.exe`). It looks for LLVM (clang and lld) on `PATH` and in `C:\Program Files\LLVM\bin`, offers to install it with `winget install -e --id LLVM.LLVM` when it is missing, can add BlitzLLVM to `PATH`, and comes with an uninstaller. Silent installs (`/VERYSILENT`) install only BlitzLLVM, add `/INSTALLLLVM=yes` to install LLVM too. Or download `blitzllvm-<version>-<commit>-windows-x64.zip` (or `-windows-arm64.zip`) and extract it yourself.
 
@@ -22,7 +21,7 @@ For the zip:
    bin/blitz-format     formats source code, see [[blitz-format]]
    lib/blitzllvm/runtime/  the runtime sources (inline/) and the libraries per architecture (x86_64/, arm64/; macOS has them directly), keep lib next to bin
    userlibs/            user libraries
-   help/                the HTML help in the layout of the Blitz3D help: open help/index.html (the .deb, .rpm and Arch packages install it to /usr/share/doc/blitzllvm/help)
+   help/                the HTML help in the layout of the Blitz3D help: open help/index.html (the Flatpak has it in /app/share/doc/blitzllvm/help)
    samples/             the samples and games of the original Blitz3D (blitz3d/) and BlitzPlus (blitzplus/) with their media; share/blitzllvm/samples in the deb, rpm and pkg packages
    ```
 

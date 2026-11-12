@@ -78,7 +78,7 @@ On Linux the dependencies can come from the distribution instead of the submodul
 | `BLITZ_SYSTEM_AUDIO_CODECS` | opusfile (with libopus and libogg) | loaded when a program plays an Opus file, and libopus when a movie has Opus sound |
 | `BLITZ_SYSTEM_FFMPEG` | FFmpeg, but only if it is LGPL and has the decoders listed in `dependencies.cmake` | loaded when a program opens a movie |
 
-The libraries that programs link to are written to `runtime/system-libraries.txt` next to the runtime, which `blitzcc` adds to the link. On Debian and Ubuntu the `.deb` depends on (or, for the libraries that are loaded when needed, recommends) the packages that own them, at least in the version that the package was built with. The distributions ship FFmpeg with GPL parts (check with `avcodec_license()`), so the bundled LGPL build is used there. Windows and macOS always build the submodules.
+The libraries that programs link to are written to `runtime/system-libraries.txt` next to the runtime, which `blitzcc` adds to the link. The distributions ship FFmpeg with GPL parts (check with `avcodec_license()`), so the bundled LGPL build is used there. The released Linux Flatpaks are built with every `BLITZ_SYSTEM_*` option `OFF`, see [[Flatpak]]. Windows and macOS always build the submodules.
 
 ## Install
 
