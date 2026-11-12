@@ -229,7 +229,8 @@ jobs:
           retention-days: 1
           compression-level: 0
       - name: Package
-        # Linux ships only the deb, rpm and Arch packages (see below), no archive.
+        # Linux ships only the deb, rpm and Arch packages (see below), no archive. Windows is packed once for both architectures by the
+        # job 'package-windows', so here it only installs, checks and uploads the install tree of its own architecture.
         if: runner.os != 'Linux' && inputs.packages
         shell: bash
         env:
@@ -263,7 +264,7 @@ jobs:
             "$RUNNER_TEMP/packaged_plain.exe" | grep -q "packaged ok"
           fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
-          if [ "$LOOSE" = true ]; then
+          if [ "$LOOSE" = true ] && [ "$RUNNER_OS" != Windows ]; then
             # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
             (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
             NAME="${ARTIFACT}.zip"
@@ -275,60 +276,25 @@ jobs:
           list | .github/scripts/check-licenses.sh "$NAME" build/required-licenses.txt
           list | .github/scripts/check-help.sh "$NAME"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: runner.os != 'Linux' && inputs.packages && !inputs.loose
+        if: runner.os == 'macOS' && inputs.packages && !inputs.loose
         with:
           name: ${{ env.ARTIFACT }}
           path: dist
       # With 'loose' every file is uploaded on its own with 'archive: false', so it is a separate entry that is not zipped. The
       # artifact is named after the file.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: runner.os != 'Linux' && inputs.packages && inputs.loose
+        if: runner.os == 'macOS' && inputs.packages && inputs.loose
         with:
           path: ${{ env.ARTIFACT }}.zip
           archive: false
-      - name: Build the installer (Windows)
-        # Inno Setup (free, also for programs that are not) builds one setup.exe from the same directory as the zip, see installer/blitzllvm.iss.
-        if: runner.os == 'Windows' && inputs.packages
-        shell: pwsh
-        run: |
-          # The runner images ship Inno Setup; it is installed only when an image does not.
-          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
-          $arch = if ('${{ matrix.platform }}' -eq 'ARM64') { 'arm64' } else { 'x64' }
-          New-Item -ItemType Directory -Force packages | Out-Null
-          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DArch=$arch" "/DSourceDir=$PWD\dist" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
-          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
-          Get-ChildItem packages | Format-Table Name, Length
-      - name: Test the installer (Windows)
-        # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
-        if: runner.os == 'Windows' && inputs.packages && matrix.platform != 'ARM64'
-        shell: pwsh
-        run: |
-          $dir = Join-Path $env:RUNNER_TEMP 'blitzllvm-installed'
-          $log = Join-Path $env:RUNNER_TEMP 'setup.log'
-          $setup = (Get-Item "packages\$env:ARTIFACT-setup.exe").FullName
-          $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
-          $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
-          if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
-          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'LICENSE.adoc', 'unins000.exe') {
-            if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
-          }
-          if (-not ((& $machinePath) -split ';' -contains "$dir\bin")) { throw 'PATH was not changed' }
-          $p = Start-Process (Join-Path $dir 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
-          if ($p.ExitCode -ne 0) { throw "Uninstall failed ($($p.ExitCode))" }
-          Start-Sleep -Seconds 3
-          if (Test-Path (Join-Path $dir 'bin')) { throw 'The uninstaller left bin behind' }
-          if ((& $machinePath) -split ';' -contains "$dir\bin") { throw 'The uninstaller left PATH changed' }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: runner.os == 'Windows' && inputs.packages && !inputs.loose
+        if: runner.os == 'Windows' && inputs.packages
         with:
-          name: ${{ env.ARTIFACT }}-packages
-          path: packages
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: runner.os == 'Windows' && inputs.packages && inputs.loose
-        with:
-          path: packages/${{ env.ARTIFACT }}-setup.exe
-          archive: false
+          # Not a package: the job 'package-windows' merges the install trees of both architectures into the zip and the installer. The
+          # Nightly and Release workflows skip the names that end in -install.
+          name: ${{ matrix.name }}-install
+          path: dist
+          retention-days: 1
       - name: Build the deb (Linux)
         if: inputs.packages && matrix.kind == 'deb'
         run: |
@@ -415,6 +381,125 @@ jobs:
         if: inputs.packages && inputs.loose && runner.os == 'macOS'
         with:
           path: packages/${{ env.ARTIFACT }}.pkg
+          archive: false
+
+
+  package-windows:
+    name: package (windows)
+    # One zip and one installer for Windows that hold both architectures (x64 and arm64), so that blitzcc on either one can build programs for
+    # either one: bin/ is the x64 tools, bin-arm64/ the arm64 tools, and the runtime libraries and the MinGW sysroot have a folder per architecture.
+    needs: build
+    if: inputs.packages
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Check out the submodule for the version
+        run: git submodule update --init --depth 1 cmake/version
+      - name: Determine the version
+        # The same one as in the builds (see there).
+        run: |
+          VERSION="$(cmake -P cmake/project_version.cmake)"
+          {
+            echo "VERSION=$VERSION"
+            echo "ARTIFACT=blitzllvm-${VERSION}-${GITHUB_SHA::7}-windows"
+          } >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-x64-install
+          path: install/x64
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-arm64-install
+          path: install/arm64
+      - name: Merge the architectures
+        run: |
+          cp -r install/x64 dist
+          # The tools of the other architecture, and its folders in the runtime and the sysroot. Everything else (inline sources, licenses, userlibs,
+          # help) is the same in both and stays as it is; 'cp -n' makes sure that a file only the arm64 build has is not lost.
+          cp -r install/arm64/bin dist/bin-arm64
+          cp -r install/arm64/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/runtime/arm64
+          cp -r install/arm64/lib/blitzllvm/mingw/arm64 dist/lib/blitzllvm/mingw/arm64
+          cp -rn install/arm64/. dist/
+          for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64 dist/lib/blitzllvm/mingw/arm64 dist/bin dist/bin-arm64; do
+            test -d "$d" || { echo "The merged package has no $d"; exit 1; }
+          done
+          find dist -type f | wc -l
+      - name: Set up llvm-mingw
+        uses: ./.github/actions/setup-mingw
+      - name: Build for both architectures from the merged package
+        # blitzcc of the x64 tools builds a program for each architecture. The arm64 one can not run on this runner, so its machine type is checked.
+        run: |
+          printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
+          for target in x86_64-w64-mingw32 aarch64-w64-mingw32; do
+            dist/bin/blitzcc --target "$target" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged-$target.exe" 2>&1 | tee "$RUNNER_TEMP/packaged-$target.log"
+            ! grep -qi "error" "$RUNNER_TEMP/packaged-$target.log"
+          done
+          "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "packaged ok"
+          llvm-objdump -f "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "file format coff-x86-64"
+          llvm-objdump -f "$RUNNER_TEMP/packaged-aarch64-w64-mingw32.exe" | grep -q "file format coff-arm64"
+          # The tools of the arm64 folder are arm64 programs.
+          llvm-objdump -f dist/bin-arm64/blitzcc.exe | grep -q "file format coff-arm64"
+      - name: Zip
+        run: |
+          (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
+          # The licenses and the help were checked in the install tree of each architecture, which this merges without changing.
+      - name: Build the installer
+        # Inno Setup (free, also for programs that are not) builds one setup.exe from the same directory as the zip, see installer/blitzllvm.iss. It
+        # installs the tools of the architecture of the computer (arm64 or x64) and the runtimes of both.
+        shell: pwsh
+        run: |
+          # The runner images ship Inno Setup; it is installed only when an image does not.
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
+          New-Item -ItemType Directory -Force packages | Out-Null
+          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DSourceDir=$PWD\dist" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+          Get-ChildItem packages | Format-Table Name, Length
+      - name: Test the installer
+        # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
+        # The runner is x64, so it gets the x64 tools in bin; both runtimes must be there.
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'blitzllvm-installed'
+          $log = Join-Path $env:RUNNER_TEMP 'setup.log'
+          $setup = (Get-Item "packages\$env:ARTIFACT-setup.exe").FullName
+          $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
+          $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
+          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64', 'lib\blitzllvm\mingw\arm64', 'LICENSE.adoc', 'unins000.exe') {
+            if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
+          }
+          if (Test-Path (Join-Path $dir 'bin-arm64')) { throw 'bin-arm64 must not be installed, bin has the tools of this computer' }
+          if (-not ((& $machinePath) -split ';' -contains "$dir\bin")) { throw 'PATH was not changed' }
+          $p = Start-Process (Join-Path $dir 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Uninstall failed ($($p.ExitCode))" }
+          Start-Sleep -Seconds 3
+          if (Test-Path (Join-Path $dir 'bin')) { throw 'The uninstaller left bin behind' }
+          if ((& $machinePath) -split ';' -contains "$dir\bin") { throw 'The uninstaller left PATH changed' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: '!inputs.loose'
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: '!inputs.loose'
+        with:
+          name: ${{ env.ARTIFACT }}-packages
+          path: packages
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: inputs.loose
+        with:
+          path: ${{ env.ARTIFACT }}.zip
+          archive: false
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: inputs.loose
+        with:
+          path: packages/${{ env.ARTIFACT }}-setup.exe
           archive: false
 
 
