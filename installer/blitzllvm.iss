@@ -4,9 +4,13 @@
 ; Windows installer of BlitzLLVM, built with Inno Setup 6 (https://jrsoftware.org/isinfo.php) from the directory that
 ; "cmake --install build --prefix dist" produces:
 ;
-;   ISCC.exe /DAppVersion=2026.11.1.30475 /DArch=x64 /DSourceDir=C:\path\to\dist /DOutputDir=C:\path\to\packages /DOutputName=blitzllvm-setup installer\blitzllvm.iss
+;   ISCC.exe /DAppVersion=2026.11.1.30475 /DSourceDir=C:\path\to\dist /DOutputDir=C:\path\to\packages /DOutputName=blitzllvm-setup installer\blitzllvm.iss
 ;
-; Defines: AppVersion (numeric A.B.C.D), Arch (x64 or arm64), SourceDir, OutputDir (both absolute: relative paths are taken from this script), OutputName (without .exe).
+; Defines: AppVersion (numeric A.B.C.D), SourceDir, OutputDir (both absolute: relative paths are taken from this script), OutputName (without .exe).
+;
+; SourceDir holds both architectures: bin\ (the x64 tools), bin-arm64\ (the arm64 tools) and, per architecture, the runtime libraries and the MinGW
+; sysroot under lib\blitzllvm. The installer puts the tools of the computer's architecture into {app}\bin and the libraries of both next to
+; them, so that blitzcc can build programs for either architecture.
 ;
 ; BlitzLLVM needs a clang with lld (LLVM 23 or newer) to build programs. The installer looks for one on PATH and in the places the LLVM installer
 ; uses (its registry key and C:\Program Files\LLVM\bin). If there is none it offers to run "winget install -e --id LLVM.LLVM".
@@ -14,9 +18,6 @@
 
 #ifndef AppVersion
 #error AppVersion is not defined.
-#endif
-#ifndef Arch
-#define Arch "x64"
 #endif
 #ifndef SourceDir
 #define SourceDir "dist"
@@ -52,13 +53,8 @@ WizardStyle=modern
 PrivilegesRequired=lowest
 ChangesEnvironment=yes
 UninstallDisplayName=BlitzLLVM
-#if Arch == "arm64"
-ArchitecturesAllowed=arm64
-ArchitecturesInstallIn64BitMode=arm64
-#else
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
-#endif
+ArchitecturesAllowed=x64compatible or arm64
+ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -67,7 +63,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "addtopath"; Description: "Add BlitzLLVM to the &PATH (so that blitzcc, blitz-format and blitz-tidy can be run from any terminal)"
 
 [Files]
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+; Everything but the tools, which exist twice: arm64 Windows gets the arm64 ones, everything else the x64 ones. Both end up in {app}\bin.
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "bin\*,bin-arm64\*"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\bin-arm64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: IsArm64
+Source: "{#SourceDir}\bin\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: not IsArm64
 
 [Icons]
 Name: "{group}\BlitzLLVM Help"; Filename: "{app}\help\index.html"; Check: DirExists(ExpandConstant('{app}\help'))
