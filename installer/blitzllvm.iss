@@ -64,7 +64,7 @@ Name: "addtopath"; Description: "Add BlitzLLVM to the &PATH (so that blitzcc, bl
 
 [Files]
 ; Everything but the tools, which exist twice: arm64 Windows gets the arm64 ones, everything else the x64 ones. Both end up in {app}\bin.
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "bin\*,bin-arm64\*"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "\bin\*,\bin-arm64\*"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "{#SourceDir}\bin-arm64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: IsArm64
 Source: "{#SourceDir}\bin\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: not IsArm64
 
