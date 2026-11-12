@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="console-application">
+  <id>io.github.xaymar.BlitzLLVM</id>
+  <name>BlitzLLVM</name>
+  <summary>BlitzBasic, Blitz3D and BlitzPlus compiler built on LLVM</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>BSD-3-Clause</project_license>
+  <description>
+    <p>BlitzLLVM compiles BlitzBasic, Blitz3D and BlitzPlus programs to native executables with LLVM, using Vulkan and SDL3.</p>
+    <p>The Flatpak holds the compiler (blitzcc), the formatter and the runtime with the shared libraries of the programs, and takes clang from the freedesktop SDK.</p>
+  </description>
+  <url type="homepage">https://github.com/Xaymar/BlitzLLVM</url>
+  <url type="bugtracker">https://github.com/Xaymar/BlitzLLVM/issues</url>
+  <provides>
+    <binary>blitzcc</binary>
+    <binary>blitz-format</binary>
+    <binary>blitz-tidy</binary>
+  </provides>
+  <releases>
+    <release version="@VERSION@" date="@DATE@"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>
