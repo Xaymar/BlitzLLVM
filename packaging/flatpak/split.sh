@@ -21,5 +21,9 @@ n=$(find "$out/lib" -type f -o -type l | wc -l)
 [ "$n" -gt 0 ] || { echo "no shared libraries found to move into the runtime extension" >&2; exit 1; }
 # The licenses are shipped with the libraries that need them (the LGPL ones above all).
 cp -a "$stage/app/share/licenses" "$out/share/licenses" 2>/dev/null || cp -a "$stage/app/licenses" "$out/share/licenses"
-printf '#system ffmpeg\n#system image-codecs\n#system audio-codecs\n' >> "$runtime/system-libraries.txt"
+# blitzcc reads system-libraries.txt from the folder of the architecture (runtime/<arch>/), or from runtime/ when it has no such folders.
+for d in "$runtime"/x86_64 "$runtime"/arm64 "$runtime"/x86; do
+	if [ -d "$d" ]; then printf '#system ffmpeg\n#system image-codecs\n#system audio-codecs\n' >> "$d/system-libraries.txt"; fi
+done
+[ -d "$runtime/x86_64" ] || [ -d "$runtime/arm64" ] || [ -d "$runtime/x86" ] || printf '#system ffmpeg\n#system image-codecs\n#system audio-codecs\n' >> "$runtime/system-libraries.txt"
 echo "Moved $n files to $out/lib"
