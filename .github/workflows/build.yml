@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       packages:
-        description: 'Package the build (archives, deb, rpm, Arch package, snap, macOS package) and upload them. Without it only the build is made'
+        description: 'Package the build (archives, the Flatpaks, the Windows installer, macOS package) and upload them. Without it only the build is made'
         type: boolean
         default: true
       all-tests:
@@ -45,29 +45,19 @@ jobs:
       # time, so that other pull requests can run too. The platforms that run the tests are first in the list, so they start first.
       max-parallel: 3
       matrix:
-        # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
-        # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
-        # is made from the 24.04 build (core24). "test" is the name of the platform in the test comment, and marks the ones that are
-        # built without packages, and tested by the Test workflow.
+        # Linux is released as a Flatpak only (packaging/flatpak), built on Ubuntu 24.04 with every library bundled, as the freedesktop runtime has none
+        # of the ones that a distribution has. "test" is the name of the platform in the test comment, and marks the ones that are
+        # built without packages, and tested by the Test workflow (the Linux tests run the very build that is packaged).
         # This is the list of all of them; the entries with "test" are repeated in the shorter lists for builds without packages (all test
         # platforms, or Linux alone with 'all-tests' off),
         # because a matrix can only be cut down by an expression on the inputs (an 'exclude' does not apply to entries of 'include').
-        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"ubuntu26.04-x64","os":"ubuntu-26.04","kind":"deb"},{"name":"fedora-x64","os":"ubuntu-latest","container":"fedora:latest","kind":"rpm"},{"name":"arch-x64","os":"ubuntu-latest","container":"archlinux:latest","kind":"pacman"},{"name":"ubuntu24.04-arm64","os":"ubuntu-24.04-arm","kind":"deb","snap":true},{"name":"ubuntu26.04-arm64","os":"ubuntu-26.04-arm","kind":"deb"},{"name":"fedora-arm64","os":"ubuntu-24.04-arm","container":"fedora:latest","kind":"rpm"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"ubuntu24.04-x64","os":"ubuntu-24.04","kind":"deb","snap":true,"test":"Linux"}]')) }}
+        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"linux-arm64","os":"ubuntu-24.04-arm","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"}]')) }}
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
     steps:
       # Containers have no git yet when checkout runs, so it is installed first.
-      - name: Install git for checkout
-        if: matrix.container
-        run: |
-          if command -v dnf >/dev/null; then dnf install -y git tar; else pacman -Syu --noconfirm git tar; fi
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ inputs.ref }}
-      - name: Trust the checkout
-        # The container user is not the owner of the workspace, and git refuses to work in it otherwise.
-        if: matrix.container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Check out the submodules
         # All of the top-level ones, shallow, whatever the checked out commit has: a release can be built from an old tag, which has fewer submodules than the current root, so none are listed by name.
         run: git submodule update --init --depth 1 --jobs 8
@@ -76,12 +66,6 @@ jobs:
         shell: bash
         # The recorded commits of third_party/, so that updating a submodule changes the cache key.
         run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-      - name: Install Fedora dependencies
-        if: matrix.kind == 'rpm'
-        run: dnf install -y --setopt=install_weak_deps=False gcc gcc-c++ make git tar zstd which findutils diffutils perl python3-pip pipx ninja-build nasm clang lld zlib-ng-compat-static libX11-devel libXext-devel libXcursor-devel libXi-devel libXrandr-devel libXScrnSaver-devel libXtst-devel libXfixes-devel wayland-devel wayland-protocols-devel libxkbcommon-devel libdecor-devel alsa-lib-devel pulseaudio-libs-devel systemd-devel libdrm-devel mesa-libgbm-devel mesa-libEGL-devel rpm-build
-      - name: Install Arch dependencies
-        if: matrix.kind == 'pacman'
-        run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
       - name: Pin Python (Windows)
         if: runner.os == 'Windows' && runner.arch == 'X64'
         # CMake records the path of the Python it was configured with, and the tests run on this runner right after the build, so the
@@ -103,7 +87,7 @@ jobs:
         # its own in front of the builds. The names of the packages and artifacts also carry the short commit, so a file can be
         # traced back to its source: <version>-<commit>. That is not '+<commit>' (semver build metadata) because GitHub rewrites
         # '+' in the names of release assets, which would make the files of a release differ from the ones that were built. The
-        # version inside of the binaries and packages stays numeric (A.B.C.D), as VERSIONINFO, deb and rpm require.
+        # version inside of the binaries and packages stays numeric (A.B.C.D), as VERSIONINFO requires.
         shell: bash
         run: |
           VERSION="$(cmake -P cmake/project_version.cmake)"
@@ -115,22 +99,22 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Date the package cache
         id: month
-        if: (matrix.kind == 'deb' || runner.os == 'Windows') && !inputs.clean
+        if: (matrix.kind == 'flatpak' || runner.os == 'Windows') && !inputs.clean
         # Ubuntu and MSYS2 publish updates to these packages, so the caches are replaced every month and never serve old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install Linux dependencies for SDL (clean)
-        if: matrix.kind == 'deb' && inputs.clean
+        if: matrix.kind == 'flatpak' && inputs.clean
         # No package cache: apt installs the current packages.
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
+          sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev  zstd
       - name: Install Linux dependencies for SDL
-        if: matrix.kind == 'deb' && !inputs.clean
+        if: matrix.kind == 'flatpak' && !inputs.clean
         uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
-          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev  zstd
           version: 1-${{ runner.arch }}-${{ steps.month.outputs.month }}
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -190,12 +174,14 @@ jobs:
           ARCHITECTURES: ${{ matrix.architectures }}
           # Registers the tests that need a window and a GPU, which the test steps below run (it does not change what is built).
           GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
+          # Options of one platform (Linux bundles every library).
+          EXTRA_CONFIGURE: ${{ matrix.configure }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
             TRIPLE=x86_64-w64-mingw32; [ "${{ matrix.platform }}" != ARM64 ] || TRIPLE=aarch64-w64-mingw32
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$TRIPLE-clang -DCMAKE_CXX_COMPILER=$TRIPLE-clang++ -DCMAKE_LINKER_TYPE=LLD -DCMAKE_RC_COMPILER=$TRIPLE-windres -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS $EXTRA_CONFIGURE
           fi
       - name: Build
         run: cmake --build build --config Release
@@ -229,7 +215,7 @@ jobs:
           retention-days: 1
           compression-level: 0
       - name: Package
-        # Linux ships only the deb, rpm and Arch packages (see below), no archive.
+        # Linux ships only the Flatpaks (see below), no archive.
         if: runner.os != 'Linux' && inputs.packages
         shell: bash
         env:
@@ -329,52 +315,45 @@ jobs:
         with:
           path: packages/${{ env.ARTIFACT }}-setup.exe
           archive: false
-      - name: Build the deb (Linux)
-        if: inputs.packages && matrix.kind == 'deb'
+      - name: Build the Flatpaks (Linux)
+        if: inputs.packages && matrix.kind == 'flatpak'
         run: |
-          mkdir packages
-          (cd build && cpack -G DEB -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
-          rm -rf packages/_CPack_Packages
-          mv packages/*.deb "packages/${ARTIFACT}.deb"
-          # Every package has to list the licenses
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb" build/required-licenses.txt
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
-          ls -l packages
-      - name: Build the rpm (Linux)
-        if: inputs.packages && matrix.kind == 'rpm'
-        run: |
-          mkdir packages
-          (cd build && cpack -G RPM -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
-          rm -rf packages/_CPack_Packages
-          mv packages/*.rpm "packages/${ARTIFACT}.rpm"
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm" build/required-licenses.txt
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
-          ls -l packages
-      - name: Build the Arch package (Linux)
-        if: inputs.packages && matrix.kind == 'pacman'
-        run: |
-          mkdir packages
-          gem install --no-document fpm -v 1.18.0
-          # Arch installs gems into the user's directory, which is not on the PATH.
-          export PATH="$(gem env gemdir)/bin:$(ruby -e 'print Gem.user_dir')/bin:$PATH"
-          DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
-          fpm -s dir -t pacman -n blitzllvm -v "$VERSION" --description "BlitzBasic compiler built on LLVM" \
-            --url https://github.com/Xaymar/BlitzLLVM --license BSD-3-Clause --depends clang --depends vulkan-icd-loader \
-            -p "packages/${ARTIFACT}.pkg.tar.zst" -C stage usr
-          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst" build/required-licenses.txt
-          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
-          ls -l packages
-      - name: Build the snap (Linux)
-        if: inputs.packages && matrix.snap
-        run: |
-          # The files of the deb are packed again as a classic snap, see snap/snapcraft.yaml. ubuntu-24.04 matches its base, core24.
-          mkdir -p snap-stage
-          DESTDIR="$PWD/snap-stage" cmake --install build --config Release --component system --prefix /usr
-          sed -i "s/@VERSION@/$VERSION/" snap/snapcraft.yaml
-          sudo snap install snapcraft --classic --channel=latest/stable
-          sudo snapcraft pack --destructive-mode --output "packages/${ARTIFACT}.snap"
-          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.snap" build/required-licenses.txt
-          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
+          # The install of the build, packed as two Flatpaks (see packaging/flatpak): the compiler, and the extension with the shared libraries that
+          # programs load, which the compiler and every game share. The build was configured without system libraries.
+          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder appstream elfutils
+          # Ubuntu 24.04 stops flatpak-builder from making the namespaces of its sandbox otherwise.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          # clang for the compiler's own smoke test below; users get it as a dependency of the compiler (add-extensions).
+          flatpak install --user --noninteractive flathub org.freedesktop.Sdk.Extension.llvm21//25.08
+          mkdir -p packages flatpak-stage
+          DESTDIR="$PWD/flatpak-stage" cmake --install build --config Release --component system --prefix /app
+          packaging/flatpak/split.sh flatpak-stage flatpak-runtime
+          sed -i "s/@VERSION@/$VERSION/;s/@DATE@/$(date -u +%Y-%m-%d)/" packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
+          appstreamcli validate --no-net --pedantic packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
+          # The compiler first, and installed: it declares the extension point that the extension is built against.
+          flatpak-builder --user --install --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-build packaging/flatpak/io.github.xaymar.BlitzLLVM.yml
+          flatpak-builder --user --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-runtime-build packaging/flatpak/io.github.xaymar.BlitzLLVM.Runtime.yml
+          flatpak build-bundle --runtime --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}-runtime.flatpak" io.github.xaymar.BlitzLLVM.Runtime 25.08
+          flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}.flatpak" io.github.xaymar.BlitzLLVM
+          # Licenses and help are in the two together; the shared libraries are in the extension alone.
+          (cd flatpak-build/files && find . -type f; cd ../../flatpak-runtime-build/files && find . -type f) | .github/scripts/check-licenses.sh "${ARTIFACT}.flatpak" build/required-licenses.txt
+          (cd flatpak-build/files && find . -type f) | .github/scripts/check-help.sh "${ARTIFACT}.flatpak"
+          # The compiler must not carry the libraries that the extension has.
+          ! (cd flatpak-build/files && find . -name 'libavcodec*' -o -name 'libjxl*' -o -name 'libopus*' | grep .)
+          # Install them like a user does, compile a program in the sandbox and run it.
+          flatpak uninstall --user --noninteractive io.github.xaymar.BlitzLLVM
+          flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}-runtime.flatpak"
+          flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}.flatpak"
+          mkdir -p "$HOME/flatpak-smoke"
+          echo 'Print "Hello from the Flatpak"' > "$HOME/flatpak-smoke/hello.bb"
+          flatpak run --env=BLITZLLVM_HEADLESS=1 io.github.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb"
+          # blitzcc copied no shared library next to the program: the extension has them.
+          ! ls "$HOME/flatpak-smoke" | grep -E '\.so'
+          "$HOME/flatpak-smoke/hello" | tee smoke.txt
+          grep -q "Hello from the Flatpak" smoke.txt
+          # The loader finds the libraries of the extension.
+          flatpak run --command=sh io.github.xaymar.BlitzLLVM -c 'ls /app/lib/blitzllvm-shared/lib*avcodec*'
           ls -l packages
       - name: Build packages (macOS)
         if: inputs.packages && runner.os == 'macOS'
@@ -392,24 +371,14 @@ jobs:
           name: ${{ env.ARTIFACT }}-packages
           path: packages
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.packages && inputs.loose && matrix.kind == 'deb'
+        if: inputs.packages && inputs.loose && matrix.kind == 'flatpak'
         with:
-          path: packages/${{ env.ARTIFACT }}.deb
+          path: packages/${{ env.ARTIFACT }}.flatpak
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.packages && inputs.loose && matrix.kind == 'rpm'
+        if: inputs.packages && inputs.loose && matrix.kind == 'flatpak'
         with:
-          path: packages/${{ env.ARTIFACT }}.rpm
-          archive: false
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.packages && inputs.loose && matrix.kind == 'pacman'
-        with:
-          path: packages/${{ env.ARTIFACT }}.pkg.tar.zst
-          archive: false
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.packages && inputs.loose && matrix.snap
-        with:
-          path: packages/${{ env.ARTIFACT }}.snap
+          path: packages/${{ env.ARTIFACT }}-runtime.flatpak
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: inputs.packages && inputs.loose && runner.os == 'macOS'
