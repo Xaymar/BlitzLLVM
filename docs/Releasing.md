@@ -25,7 +25,7 @@ To build and release a tag that exists already (a failed run, or to replace the 
 
 ## What is published
 
-* The assets are the packages of the clean build, named like the nightly release: `blitzllvm-<version>-<commit>-windows-x64.zip` for Windows, and the packages `.deb`, `.rpm`, `.pkg.tar.zst`, `.snap` (Linux) and `.pkg` (macOS). Linux has no zip. The `<version>` in the file names is the timestamp version of the tagged commit (see `cmake/project_version.cmake`), not the tag name, and `<commit>` is its 7 character hash.
+* The assets are the packages of the clean build, named like the nightly release: `blitzllvm-<version>-<commit>-windows.zip` and `-windows-setup.exe` for Windows (one package for x64 and arm64), and the packages `.deb`, `.rpm`, `.pkg.tar.zst`, `.snap` (Linux) and `.pkg` (macOS). Linux has no zip. The `<version>` in the file names is the timestamp version of the tagged commit (see `cmake/project_version.cmake`), not the tag name, and `<commit>` is its 7 character hash.
 * The description lists the commit subjects since the previous release tag, grouped into Added, Fixed, Documentation and Changed by the first word of the subject, and ends with a compare link. Merge commits, bot commits and `Update copyright headers` are left out. Write commit subjects accordingly.
 * The previous release tag is the highest lower version tag, ignoring `nightly`. A stable release compares against the last stable release, a pre-release against the last tag of any kind. The first release lists the whole history.
 
