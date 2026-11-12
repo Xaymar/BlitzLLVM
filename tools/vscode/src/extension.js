@@ -146,11 +146,18 @@ function compilerArguments(action, mode, file, extra) {
   return args;
 }
 
+/** Where a task lives: a workspace task needs a folder, so a single file without a folder gets a global task. */
+function taskScope(file, folder) {
+  if (folder) return folder;
+  if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders.length) return vscode.TaskScope.Global;
+  return vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file)) || vscode.TaskScope.Workspace;
+}
+
 function makeTask(action, mode, file, folder) {
   const definition = { type: 'blitz', action, mode, file };
   const title = { build: 'Build', run: 'Run', check: 'Check' }[action] + (action === 'check' ? '' : ` (${mode})`);
   const execution = new vscode.ProcessExecution(findProgram('compiler.path', 'blitzcc'), compilerArguments(action, mode, file), { cwd: path.dirname(file) });
-  const task = new vscode.Task(definition, folder || vscode.TaskScope.Workspace, `${title}: ${path.basename(file)}`, 'blitz', execution, ['$blitzcc', '$blitzcc-notice']); // Errors and warnings, and notices as information (VS Code has no notice)
+  const task = new vscode.Task(definition, taskScope(file, folder), `${title}: ${path.basename(file)}`, 'blitz', execution, ['$blitzcc', '$blitzcc-notice']); // Errors and warnings, and notices as information (VS Code has no notice)
   if (action === 'build') task.group = mode === 'release' ? vscode.TaskGroup.Build : undefined;
   task.presentationOptions = { reveal: vscode.TaskRevealKind.Always, panel: vscode.TaskPanelKind.Dedicated, clear: true };
   return task;
