@@ -456,9 +456,15 @@ jobs:
           # The runner images ship Inno Setup; it is installed only when an image does not.
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
-          New-Item -ItemType Directory -Force packages | Out-Null
-          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DSourceDir=$PWD\dist" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
+          New-Item -ItemType Directory -Force packages, tools | Out-Null
+          # The zip is made already. The tools leave the directory, so that the installer takes the ones of the computer's architecture.
+          Move-Item dist\bin tools\x64
+          Move-Item dist\bin-arm64 tools\arm64
+          & $iscc /Qp "/DAppVersion=$env:VERSION" "/DSourceDir=$PWD\dist" "/DToolsDir=$PWD\tools" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+          # Back in place, as the artifact is the whole package.
+          Move-Item tools\x64 dist\bin
+          Move-Item tools\arm64 dist\bin-arm64
           Get-ChildItem packages | Format-Table Name, Length
       - name: Test the installer
         # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
