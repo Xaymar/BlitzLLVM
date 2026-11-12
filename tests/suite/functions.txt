@@ -114,6 +114,10 @@ createcone	blitz3d	done	%CreateCone%segments=8%solid=1%parent=0
 createcube	blitz3d	done	%CreateCube%parent=0
 createcylinder	blitz3d	done	%CreateCylinder%segments=8%solid=1%parent=0
 createlight	blitz3d	done	%CreateLight%type=1%parent=0
+setfalloff	blitz3d	done	SetFalloff%mode
+getfalloff	blitz3d	done	%GetFalloff
+setchannelfalloff	blitz3d	done	SetChannelFalloff%channel%mode
+getchannelfalloff	blitz3d	done	%GetChannelFalloff%channel
 createlistener	blitz3d	done	%CreateListener%parent#rolloff_factor=1#doppler_scale=1#distance_scale=1
 createmesh	blitz3d	done	%CreateMesh%parent=0
 createmirror	blitz3d	done	%CreateMirror%parent=0
