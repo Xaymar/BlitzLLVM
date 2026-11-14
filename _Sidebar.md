@@ -614,11 +614,15 @@
 <details><summary><b>Blitz3D</b></summary>
 <ul>
 <li><a href="Blitz3D">Overview</a></li>
-<li><details><summary>3D Sound (2)</summary>
+<li><details><summary>3D Sound (6)</summary>
 <ul>
 <li><a href="Blitz3D-3D-Sound">Overview</a></li>
 <li><a href="CreateListener">CreateListener</a></li>
 <li><a href="EmitSound">EmitSound</a></li>
+<li><a href="GetChannelFalloff">GetChannelFalloff</a></li>
+<li><a href="GetFalloff">GetFalloff</a></li>
+<li><a href="SetChannelFalloff">SetChannelFalloff</a></li>
+<li><a href="SetFalloff">SetFalloff</a></li>
 </ul>
 </details></li>
 <li><details><summary>Animation (16)</summary>
@@ -1356,7 +1360,7 @@
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (443)</summary>
+<li><details><summary>Commands (445)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1728,8 +1732,10 @@
 <li><a href="SendUDPMsg#differences">SendUDPMsg</a></li>
 <li><a href="SendUDPMsgTo#differences">SendUDPMsgTo</a></li>
 <li><a href="SetBuffer#differences">SetBuffer</a></li>
+<li><a href="SetChannelFalloff#differences">SetChannelFalloff</a></li>
 <li><a href="SetCubeFace#differences">SetCubeFace</a></li>
 <li><a href="SetCubeMode#differences">SetCubeMode</a></li>
+<li><a href="SetFalloff#differences">SetFalloff</a></li>
 <li><a href="SetFont#differences">SetFont</a></li>
 <li><a href="SetGadgetFont#differences">SetGadgetFont</a></li>
 <li><a href="SetGamma#differences">SetGamma</a></li>

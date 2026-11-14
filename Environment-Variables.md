@@ -34,7 +34,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_FULLSCREEN_FILTER` | by size | `nearest` or `linear` for the picture of a fullscreen program, see [Full screen](Graphics#full-screen). |
 | `BLITZLLVM_GUI_SCALE` | the scale of the display | How many pixels a unit of the windows of BlitzPlus is, see [[CreateWindow]]: `0` (or `1`) makes every unit one pixel, as the original has it; `1.5` or `2` scales the windows as a display of that scale would, see [Windows of BlitzPlus](Windows-of-BlitzPlus). |
 | `BLITZLLVM_FULLSCREEN_SCALE` | smooth | `integer` only enlarges the picture by whole numbers, see [Full screen](Graphics#full-screen). |
-| `BLITZLLVM_VOLUME_FALLOFF` | `new` | The curve that the volume of 3D sounds falls off by: `new`, `legacy` (the curve of the original) or `soloud` (the curve of SoLoud), see [[CreateListener]]. |
+| `BLITZLLVM_VOLUME_FALLOFF` | `new` | The curve that the volume of 3D sounds falls off by: `new`, `legacy` (the curve of the original) or `soloud` (the curve of SoLoud), see [[CreateListener]]. Only the start value: [[SetFalloff]] and [[SetChannelFalloff]] override it. |
 | `BLITZLLVM_ENTITY_LIGHTING` | `0` | The `EntityLighting` mode of entities that were not given one: `1` lights every pixel instead of every vertex. |
 | `BLITZLLVM_NET_IPV6` | `1` | `0` makes the network commands use IPv4 only, see [[IPv6]]. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |

@@ -11,3 +11,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [CreateListener](CreateListener)
 * [EmitSound](EmitSound)
+* [GetChannelFalloff](GetChannelFalloff)
+* [GetFalloff](GetFalloff)
+* [SetChannelFalloff](SetChannelFalloff)
+* [SetFalloff](SetFalloff)

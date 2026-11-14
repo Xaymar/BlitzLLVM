@@ -418,8 +418,10 @@ Commands that differ from the original or are not finished, with the first of th
 * [SendUDPMsg](SendUDPMsg#differences): Only IPv4 addresses fit in a number, use [SendUDPMsgTo](SendUDPMsgTo) for IPv6.
 * [SendUDPMsgTo](SendUDPMsgTo#differences): Not in the original.
 * [SetBuffer](SetBuffer#differences): A debug build (`-d`) stops with an error when the buffer is the `TextureBuffer` of a texture that was not made with flag 4096 (render target), see CreateTexture.
+* [SetChannelFalloff](SetChannelFalloff#differences): A channel starts with the curve that [SetFalloff](SetFalloff) has set, so this is only needed for sounds that differ from the default.
 * [SetCubeFace](SetCubeFace#differences): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
 * [SetCubeMode](SetCubeMode#differences): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
+* [SetFalloff](SetFalloff#differences): Without a call the default is `0`, or what the environment variable `BLITZLLVM_VOLUME_FALLOFF` says, see [Environment variables](Environment-Variables).
 * [SetFont](SetFont#differences): A font that does not exist stops the program with an error message.
 * [SetGadgetFont](SetGadgetFont#differences): The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font.
 * [SetGamma](SetGamma#differences): The original changed the gamma of the whole display, and left it that way until the program was done.
