@@ -96,6 +96,8 @@ jobs:
           for d in artifacts/*; do
             case "$d" in
               # Packages are already named after their version and platform.
+              # The install trees that the Windows packages are made from.
+              *-install) ;;
               *-packages) mv "$d"/* release/ ;;
               *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
             esac
