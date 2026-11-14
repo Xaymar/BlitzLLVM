@@ -16,19 +16,15 @@ flatpak run com.xaymar.BlitzLLVM hello.bb
 
 Run the other tools with `flatpak run --command=blitz-format com.xaymar.BlitzLLVM file.bb`. The compiler gets your home folder (`flatpak override --user --filesystem=host com.xaymar.BlitzLLVM` for more), the network, sound, a window (Wayland or X11) and the GPU and controllers. Programs that `blitzcc` runs for you run inside the sandbox too.
 
-## Programs for both architectures
+## Programs for the other architecture
 
-Each compiler Flatpak holds the runtime of x86-64 and of arm64, so either one makes programs for both. The shared libraries of the other architecture are not in the extension: the program runs where the extension of its own architecture is installed, which is how a game Flatpak works on both.
-
-The C library and the GCC files of the other architecture are not part of the compiler. Give clang the SDK of that architecture as the sysroot, like with any cross compile:
+Each compiler Flatpak holds the runtime of x86-64 and of arm64, but its clang does not: the one from `org.freedesktop.Sdk.Extension.llvm21` only has the target of its own CPU. So the Flatpak makes programs for its own architecture. For the other one, give `blitzcc` a clang that has both targets (a distribution's `clang`, for instance) and the C library of the target as the sysroot, like with any cross compile:
 
 ```sh
-flatpak install --user --arch=aarch64 flathub org.freedesktop.Sdk//25.08
-sysroot="$(flatpak info --user --arch=aarch64 --show-location org.freedesktop.Sdk//25.08)/files"
-flatpak run --filesystem="$sysroot":ro io.github.xaymar.BlitzLLVM --target aarch64-linux-gnu --llvm-flag --sysroot="$sysroot" --llvm-flag -fuse-ld=lld -o game-arm64 game.bb
+flatpak run --env=BLITZLLVM_CC=/usr/bin/clang --filesystem=/usr:ro com.xaymar.BlitzLLVM --target aarch64-linux-gnu --llvm-flag --sysroot=/path/to/sysroot -o game-arm64 game.bb
 ```
 
-Use `--target x86_64-linux-gnu` and `--arch=x86_64` on an arm64 machine. A game Flatpak for the other architecture is built with `flatpak-builder --arch=aarch64` (it needs `qemu-user` binfmt on the build machine).
+The shared libraries of the other architecture are not in the extension: the program runs where the extension of its own architecture is installed, which is how a game Flatpak works on both. A game Flatpak for the other architecture is built with `flatpak-builder --arch=aarch64` (it needs `qemu-user` binfmt on the build machine).
 
 ## Shipping your game
 

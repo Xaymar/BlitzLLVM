@@ -366,16 +366,10 @@ jobs:
             other: arm64
             name: linux-x64
             os: ubuntu-24.04
-            triple: aarch64-linux-gnu
-            flatpak_other: aarch64
-            machine: 183
           - arch: arm64
             other: x86_64
             name: linux-arm64
             os: ubuntu-24.04-arm
-            triple: x86_64-linux-gnu
-            flatpak_other: x86_64
-            machine: 62
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -431,15 +425,15 @@ jobs:
           # The loader finds the libraries of the extension.
           flatpak run --command=sh com.xaymar.BlitzLLVM -c 'ls /app/lib/blitzllvm-shared/lib*avcodec*'
           ls -l packages
-      - name: Make a program for the other architecture
+      - name: Check that the runtimes of both architectures are in the compiler
         run: |
-          # The compiler Flatpak makes programs for both architectures. The C library and the GCC files of the other one come from the SDK of
-          # that architecture, given to clang as the sysroot (the user's job, as with every cross compile).
-          flatpak install --user --noninteractive --arch=${{ matrix.flatpak_other }} flathub org.freedesktop.Sdk//25.08
-          sysroot="$(flatpak info --user --arch=${{ matrix.flatpak_other }} --show-location org.freedesktop.Sdk//25.08)/files"
-          flatpak run --env=BLITZLLVM_HEADLESS=1 --filesystem="$sysroot":ro com.xaymar.BlitzLLVM --target ${{ matrix.triple }} --llvm-flag --sysroot="$sysroot" --llvm-flag -fuse-ld=lld -o "$HOME/flatpak-smoke/hello-other" "$HOME/flatpak-smoke/hello.bb"
-          ! ls "$HOME/flatpak-smoke" | grep -E '\.so'
-          python3 -I -c "import struct,sys; d=open(sys.argv[1],'rb').read(20); assert d[:4]==b'\x7fELF' and struct.unpack('<H',d[18:20])[0]==int(sys.argv[2]), 'wrong architecture'" "$HOME/flatpak-smoke/hello-other" ${{ matrix.machine }}
+          # The clang of the SDK extension only has the target of its own CPU, so this Flatpak outputs programs for its own architecture
+          # unless BLITZLLVM_CC points at a clang with both. The runtime of the other architecture is shipped for that (see docs/wiki/Flatpak.md).
+          for arch in x86_64 arm64; do
+            flatpak run --command=sh com.xaymar.BlitzLLVM -c "ls /app/lib/blitzllvm/runtime/$arch/system-libraries.txt && grep -q '#system ffmpeg' /app/lib/blitzllvm/runtime/$arch/system-libraries.txt"
+          done
+          # Only the libraries of this architecture are in the extension.
+          ! flatpak run --command=sh com.xaymar.BlitzLLVM -c 'ls /app/lib/blitzllvm/runtime/${{ matrix.other }}/*.so* | grep -v blitzphysics'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: '!inputs.loose'
         with:
