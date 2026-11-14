@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=My Game
+Exec=mygame
+Icon=com.example.MyGame
+Categories=Game;

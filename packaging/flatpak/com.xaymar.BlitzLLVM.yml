@@ -1,0 +1,54 @@
+# The Flatpak of BlitzLLVM (the compiler and the SDK, see docs/wiki/Flatpak.md).
+#
+# Like the snap (snap/snapcraft.yaml) it does not build BlitzLLVM again: CI installs the build with
+#   DESTDIR=flatpak-stage cmake --install build --component system --prefix /app
+# and flatpak-builder only copies that into the app, so the Flatpak has the very files of the deb. The build has to be configured with
+# every BLITZ_SYSTEM_* option OFF, as the runtime of a Flatpak does not have the libraries that a distribution's package takes from the system.
+#
+# blitzcc hands the program to clang, so the runtime is the freedesktop SDK (it has the C library, its headers, the C++ library and
+# the linker), and clang itself comes from the LLVM extension of that SDK, mounted at /app/sdk/llvm21. The libraries that programs load when
+# they run are not in this app but in the extension com.xaymar.BlitzLLVM.Runtime, which games ask for as well (packaging/flatpak/split.sh).
+app-id: com.xaymar.BlitzLLVM
+runtime: org.freedesktop.Sdk
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: blitzcc
+
+add-extensions:
+  org.freedesktop.Sdk.Extension.llvm21:
+    # Downloaded with the app (flatpak install pulls it in as a dependency), and found by blitzcc through BLITZLLVM_CC below.
+    directory: sdk/llvm21
+    version: '25.08'
+
+  com.xaymar.BlitzLLVM.Runtime:
+    # The shared libraries of the programs, which are installed once for the compiler and all games. Found by the loader through add-ld-path.
+    directory: lib/blitzllvm-shared
+    version: '25.08'
+    add-ld-path: .
+
+finish-args:
+  # Programs run inside the sandbox when blitzcc runs them, and need a window, a GPU, sound and controllers.
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=all
+  # Network games (TCP, UDP, IPv6) need no portal, only the network.
+  - --share=network
+  # blitzcc reads source files and writes programs. Widen with 'flatpak override --user --filesystem=host com.xaymar.BlitzLLVM'.
+  - --filesystem=home
+  - --env=BLITZLLVM_CC=/app/sdk/llvm21/bin/clang
+
+modules:
+  - name: blitzllvm
+    buildsystem: simple
+    build-commands:
+      # The staged tree has the prefix /app inside it (DESTDIR).
+      - mkdir -p /app/sdk/llvm21 /app/lib/blitzllvm-shared
+      - cp -a app/. /app/
+      - install -Dm644 com.xaymar.BlitzLLVM.metainfo.xml -t /app/share/metainfo
+    sources:
+      - type: dir
+        path: ../../flatpak-stage
+      - type: file
+        path: com.xaymar.BlitzLLVM.metainfo.xml

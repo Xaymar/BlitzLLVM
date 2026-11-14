@@ -160,7 +160,7 @@ jobs:
       max-parallel: 3
       matrix:
         # Only Linux for a partial selection: the entries to leave out are named in an expression, as 'exclude' needs the matrix values.
-        include: ${{ fromJSON(needs.changes.outputs.mode == 'all' && '[{"label":"Linux","os":"ubuntu-24.04","platform":"ubuntu24.04-x64","python":"python3"},{"label":"Windows","os":"windows-latest","platform":"windows-x64","python":"python"},{"label":"macOS","os":"macos-latest","platform":"macos-universal","python":"python3"}]' || '[{"label":"Linux","os":"ubuntu-24.04","platform":"ubuntu24.04-x64","python":"python3"}]') }}
+        include: ${{ fromJSON(needs.changes.outputs.mode == 'all' && '[{"label":"Linux","os":"ubuntu-24.04","platform":"linux-x64","python":"python3"},{"label":"Windows","os":"windows-latest","platform":"windows-x64","python":"python"},{"label":"macOS","os":"macos-latest","platform":"macos-universal","python":"python3"}]' || '[{"label":"Linux","os":"ubuntu-24.04","platform":"linux-x64","python":"python3"}]') }}
     defaults:
       run:
         shell: bash

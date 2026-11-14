@@ -80,8 +80,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*ubuntu24.04-x64*.deb' --dir nightly
-          dpkg-deb -x nightly/*.deb nightly/x
+          # Linux is released as Flatpaks only: the compiler and its runtime extension.
+          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*linux-x64*.flatpak' --dir nightly
+          sudo apt-get install -y --no-install-recommends flatpak
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub org.freedesktop.Sdk//25.08 org.freedesktop.Sdk.Extension.llvm21//25.08
+          flatpak install --user --noninteractive --bundle nightly/*-runtime.flatpak
+          flatpak install --user --noninteractive --bundle $(ls nightly/*.flatpak | grep -v -- -runtime)
+          mkdir -p nightly/x/usr/bin
+          printf '#!/bin/sh\nexec flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM "$@"\n' > nightly/x/usr/bin/blitzcc
+          chmod +x nightly/x/usr/bin/blitzcc
           nightly/x/usr/bin/blitzcc --help | head -n 3 || true
       - name: Compile and run the examples
         env:
