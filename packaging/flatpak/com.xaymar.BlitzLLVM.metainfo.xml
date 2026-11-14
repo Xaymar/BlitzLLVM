@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="console-application">
-  <id>io.github.xaymar.BlitzLLVM</id>
+  <id>com.xaymar.BlitzLLVM</id>
   <name>BlitzLLVM</name>
   <summary>BlitzBasic, Blitz3D and BlitzPlus compiler built on LLVM</summary>
   <metadata_license>CC0-1.0</metadata_license>

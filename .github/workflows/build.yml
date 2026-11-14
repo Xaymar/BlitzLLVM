@@ -329,31 +329,31 @@ jobs:
           mkdir -p packages flatpak-stage
           DESTDIR="$PWD/flatpak-stage" cmake --install build --config Release --component system --prefix /app
           packaging/flatpak/split.sh flatpak-stage flatpak-runtime
-          sed -i "s/@VERSION@/$VERSION/;s/@DATE@/$(date -u +%Y-%m-%d)/" packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
-          appstreamcli validate --no-net --pedantic packaging/flatpak/io.github.xaymar.BlitzLLVM.metainfo.xml
+          sed -i "s/@VERSION@/$VERSION/;s/@DATE@/$(date -u +%Y-%m-%d)/" packaging/flatpak/com.xaymar.BlitzLLVM.metainfo.xml
+          appstreamcli validate --no-net --pedantic packaging/flatpak/com.xaymar.BlitzLLVM.metainfo.xml
           # The compiler first, and installed: it declares the extension point that the extension is built against.
-          flatpak-builder --user --install --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-build packaging/flatpak/io.github.xaymar.BlitzLLVM.yml
-          flatpak-builder --user --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-runtime-build packaging/flatpak/io.github.xaymar.BlitzLLVM.Runtime.yml
-          flatpak build-bundle --runtime --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}-runtime.flatpak" io.github.xaymar.BlitzLLVM.Runtime 25.08
-          flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}.flatpak" io.github.xaymar.BlitzLLVM
+          flatpak-builder --user --install --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-build packaging/flatpak/com.xaymar.BlitzLLVM.yml
+          flatpak-builder --user --force-clean --disable-rofiles-fuse --install-deps-from=flathub --repo=flatpak-repo flatpak-runtime-build packaging/flatpak/com.xaymar.BlitzLLVM.Runtime.yml
+          flatpak build-bundle --runtime --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}-runtime.flatpak" com.xaymar.BlitzLLVM.Runtime 25.08
+          flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}.flatpak" com.xaymar.BlitzLLVM
           # Licenses and help are in the two together; the shared libraries are in the extension alone.
           (cd flatpak-build/files && find . -type f; cd ../../flatpak-runtime-build/files && find . -type f) | .github/scripts/check-licenses.sh "${ARTIFACT}.flatpak" build/required-licenses.txt
           (cd flatpak-build/files && find . -type f) | .github/scripts/check-help.sh "${ARTIFACT}.flatpak"
           # The compiler must not carry the libraries that the extension has.
           ! (cd flatpak-build/files && find . -name 'libavcodec*' -o -name 'libjxl*' -o -name 'libopus*' | grep .)
           # Install them like a user does, compile a program in the sandbox and run it.
-          flatpak uninstall --user --noninteractive io.github.xaymar.BlitzLLVM
+          flatpak uninstall --user --noninteractive com.xaymar.BlitzLLVM
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}-runtime.flatpak"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}.flatpak"
           mkdir -p "$HOME/flatpak-smoke"
           echo 'Print "Hello from the Flatpak"' > "$HOME/flatpak-smoke/hello.bb"
-          flatpak run --env=BLITZLLVM_HEADLESS=1 io.github.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb"
+          flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb"
           # blitzcc copied no shared library next to the program: the extension has them.
           ! ls "$HOME/flatpak-smoke" | grep -E '\.so'
           "$HOME/flatpak-smoke/hello" | tee smoke.txt
           grep -q "Hello from the Flatpak" smoke.txt
           # The loader finds the libraries of the extension.
-          flatpak run --command=sh io.github.xaymar.BlitzLLVM -c 'ls /app/lib/blitzllvm-shared/lib*avcodec*'
+          flatpak run --command=sh com.xaymar.BlitzLLVM -c 'ls /app/lib/blitzllvm-shared/lib*avcodec*'
           ls -l packages
       - name: Build packages (macOS)
         if: inputs.packages && runner.os == 'macOS'

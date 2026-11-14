@@ -1,7 +1,7 @@
 # Template: release a game compiled with BlitzLLVM as a Flatpak. Copy this folder, rename com.example.MyGame everywhere (the file names,
 # app-id, the desktop file and the metainfo) to an id you own (reverse domain, io.github.<you>.<Game> works), then run build.sh.
 #
-# The game runs on org.freedesktop.Platform, the runtime that the BlitzLLVM Flatpak (io.github.xaymar.BlitzLLVM) is based on, so a game
+# The game runs on org.freedesktop.Platform, the runtime that the BlitzLLVM Flatpak (com.xaymar.BlitzLLVM) is based on, so a game
 # compiled with it links against exactly the libraries that the Platform has. No compiler is shipped to the players.
 app-id: com.example.MyGame
 runtime: org.freedesktop.Platform
@@ -10,7 +10,7 @@ sdk: org.freedesktop.Sdk
 command: mygame
 
 add-extensions:
-  io.github.xaymar.BlitzLLVM.Runtime:
+  com.xaymar.BlitzLLVM.Runtime:
     # FFmpeg, the image codecs and Opus, shared by every game made with BlitzLLVM: Flatpak installs them once, so the game itself is only its
     # executable and its media. Installed together with the game (autodownload), and found through add-ld-path.
     directory: lib/blitzllvm-shared

@@ -5,16 +5,16 @@
 
 The Flatpak is the only Linux release format (there are no deb, rpm, Arch or snap packages). There are two parts, both built by the `Build` workflow (`flatpak-x64`, `flatpak-arm64`):
 
-* `io.github.xaymar.BlitzLLVM`: the compiler and the tools (`blitzcc`, `blitz-format`, `blitz-tidy`), on the freedesktop SDK because `blitzcc` hands programs to clang (which comes from the SDK extension `org.freedesktop.Sdk.Extension.llvm21`).
-* `io.github.xaymar.BlitzLLVM.Runtime`: the shared libraries that programs load when they run (FFmpeg for movies, the AVIF, JPEG XL, TIFF and WebP codecs, Opus and Ogg), with their licenses. The compiler and every game ask for it as an extension, so Flatpak installs it once, however many games are installed.
+* `com.xaymar.BlitzLLVM`: the compiler and the tools (`blitzcc`, `blitz-format`, `blitz-tidy`), on the freedesktop SDK because `blitzcc` hands programs to clang (which comes from the SDK extension `org.freedesktop.Sdk.Extension.llvm21`).
+* `com.xaymar.BlitzLLVM.Runtime`: the shared libraries that programs load when they run (FFmpeg for movies, the AVIF, JPEG XL, TIFF and WebP codecs, Opus and Ogg), with their licenses. The compiler and every game ask for it as an extension, so Flatpak installs it once, however many games are installed.
 
 ```sh
 flatpak install --user --bundle blitzllvm-<version>-flatpak-x64-runtime.flatpak
 flatpak install --user --bundle blitzllvm-<version>-flatpak-x64.flatpak
-flatpak run io.github.xaymar.BlitzLLVM hello.bb
+flatpak run com.xaymar.BlitzLLVM hello.bb
 ```
 
-Run the other tools with `flatpak run --command=blitz-format io.github.xaymar.BlitzLLVM file.bb`. The compiler gets your home folder (`flatpak override --user --filesystem=host io.github.xaymar.BlitzLLVM` for more), the network, sound, a window (Wayland or X11) and the GPU and controllers. Programs that `blitzcc` runs for you run inside the sandbox too.
+Run the other tools with `flatpak run --command=blitz-format com.xaymar.BlitzLLVM file.bb`. The compiler gets your home folder (`flatpak override --user --filesystem=host com.xaymar.BlitzLLVM` for more), the network, sound, a window (Wayland or X11) and the GPU and controllers. Programs that `blitzcc` runs for you run inside the sandbox too.
 
 ## Shipping your game
 

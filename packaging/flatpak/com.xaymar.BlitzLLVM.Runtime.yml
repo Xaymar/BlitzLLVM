@@ -1,11 +1,11 @@
 # The shared libraries that programs made by BlitzLLVM load when they run (FFmpeg for movies, the image codecs, Opus). It is one extension that the
 # compiler Flatpak and every game Flatpak ask for (add-extensions), so Flatpak installs it once, however many games are installed, and a game
 # carries only its executable and its media. The files come from the same staged install as the compiler (packaging/flatpak/split.sh).
-id: io.github.xaymar.BlitzLLVM.Runtime
+id: com.xaymar.BlitzLLVM.Runtime
 branch: '25.08'
 # Built against the compiler app, which declares the extension point (an extension point is declared by an app or a runtime, and a game
 # declares the same name and version again); the app has to be installed first. Its branch is master, as the manifest names no other.
-runtime: io.github.xaymar.BlitzLLVM
+runtime: com.xaymar.BlitzLLVM
 runtime-version: master
 sdk: org.freedesktop.Sdk//25.08
 build-extension: true

@@ -12,7 +12,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 rm -rf "$here/game"; mkdir -p "$here/game"
 # Compiled inside the Flatpak, so the program links against the same C library as the Platform runtime that the game runs on.
 # Static libstdc++/libgcc: nothing of the compiler's runtime is needed beyond the Platform.
-flatpak run --filesystem="$here" io.github.xaymar.BlitzLLVM --llvm-flag -static-libstdc++ --llvm-flag -static-libgcc -o "$here/game/mygame" "$src"
+flatpak run --filesystem="$here" com.xaymar.BlitzLLVM --llvm-flag -static-libstdc++ --llvm-flag -static-libgcc -o "$here/game/mygame" "$src"
 [ -z "$media" ] || cp -a "$media"/. "$here/game/"
 flatpak-builder --user --force-clean --install-deps-from=flathub --repo="$here/repo" "$here/build" "$here/com.example.MyGame.yml"
 flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo "$here/repo" "$here/com.example.MyGame.flatpak" com.example.MyGame

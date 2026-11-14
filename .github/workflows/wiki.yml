@@ -88,7 +88,7 @@ jobs:
           flatpak install --user --noninteractive --bundle nightly/*-runtime.flatpak
           flatpak install --user --noninteractive --bundle $(ls nightly/*.flatpak | grep -v -- -runtime)
           mkdir -p nightly/x/usr/bin
-          printf '#!/bin/sh\nexec flatpak run --env=BLITZLLVM_HEADLESS=1 io.github.xaymar.BlitzLLVM "$@"\n' > nightly/x/usr/bin/blitzcc
+          printf '#!/bin/sh\nexec flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM "$@"\n' > nightly/x/usr/bin/blitzcc
           chmod +x nightly/x/usr/bin/blitzcc
           nightly/x/usr/bin/blitzcc --help | head -n 3 || true
       - name: Compile and run the examples
