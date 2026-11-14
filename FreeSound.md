@@ -27,7 +27,7 @@ Throws a loaded sound away and frees its memory. Channels that are playing this 
 
 ## Differences
 
-* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
+* FreeSound with a handle that was freed already, or with 0, is ignored. A program compiled with `-d` stops with an error message instead, see [Debug-Handle-Checks](Debug-Handle-Checks).
 
 ## Examples
 

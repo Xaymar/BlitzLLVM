@@ -148,7 +148,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [FreeFont](FreeFont#differences): A font that does not exist stops the program with an error message.
 * [FreeImage](FreeImage#differences): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
 * [FreePhysicsWorld](FreePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
-* [FreeSound](FreeSound#differences): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
+* [FreeSound](FreeSound#differences): FreeSound with a handle that was freed already, or with 0, is ignored.
 * [FreeTexture](FreeTexture#differences): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 * [FrontBuffer](FrontBuffer#differences): The front buffer holds what the last Flip showed.
 * [GammaBlue](GammaBlue#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
