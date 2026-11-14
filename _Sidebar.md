@@ -1811,3 +1811,8 @@
 </details></li>
 </ul>
 </details>
+
+<b>More</b>
+<ul>
+<li><a href="Flatpak">Flatpak</a></li>
+</ul>
