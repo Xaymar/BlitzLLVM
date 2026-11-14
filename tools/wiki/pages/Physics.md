@@ -28,3 +28,9 @@ Moving a body entity with `PositionEntity` or `RotateEntity` teleports the body 
 [CreatePhysicsWorld](CreatePhysicsWorld) makes another world that has its own gravity, settings and bodies, and every command that takes a world has a trailing `world` argument, where 0 is the default world.
 
 Turning commands such as [PhysicsApplyTorque](PhysicsApplyTorque) use degrees and the turning sense of `TurnEntity`; vectors are in the space of the body unless `global` is true.
+
+## Queries and contacts
+
+[PhysicsRayCast](PhysicsRayCast) finds the closest body on a line, [PhysicsPointInside](PhysicsPointInside) the body that holds a point, and [PhysicsOverlapSphere](PhysicsOverlapSphere) and [PhysicsOverlapBox](PhysicsOverlapBox) the bodies that touch a sphere or a box. They look only at the bodies of one physics world (the default one or the one given by the trailing `world` argument), never at colliders or at what `LinePick` sees, and only at the layers named by their masks. Sensors are left out unless the query asks for them, which is how a region that notices what is inside of it is made.
+
+[PhysicsContactReport](PhysicsContactReport) makes a body report what touches it. After each [PhysicsUpdate](PhysicsUpdate), [GetPhysicsContactCount](GetPhysicsContactCount) tells how many pairs touched and the `GetPhysicsContact` commands, such as [GetPhysicsContactEntityA](GetPhysicsContactEntityA), say which, where and how deep.

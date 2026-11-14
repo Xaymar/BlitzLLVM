@@ -10,7 +10,12 @@
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyLock.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -819,5 +824,128 @@ BP_API void bp_sim_contacts_clear(bp_sim* sim)
 	sim->listener.pairs.clear();
 	sim->listener.list.clear();
 	sim->listener.listed = false;
+}
+
+namespace {
+// Lets through the bodies of the layers that a query asks for.
+class query_filter final : public BodyFilter {
+	public:
+	query_filter(const bp_sim* s, uint64_t m, uint32_t f) : sim(s), mask(m), flags(f) {}
+	bool ShouldCollide(const BodyID& id) const override { return ((mask >> sim->infos[id.GetIndex()].layer) & 1) != 0; }
+	bool ShouldCollideLocked(const Body& body) const override { return (flags & BP_QUERY_SENSORS) || !body.IsSensor(); }
+
+	const bp_sim* sim;
+	uint64_t      mask;
+	uint32_t      flags;
+};
+
+void fill_hit(const bp_sim* sim, const Body& body, bp_query_hit* hit)
+{
+	hit->body = body.GetID().GetIndexAndSequenceNumber();
+	hit->user = body.GetUserData();
+	(void)sim;
+}
+
+uint32_t finish_list(const bp_sim* sim, std::vector<uint32_t>& found, uint64_t* out, uint32_t capacity)
+{
+	std::sort(found.begin(), found.end());
+	found.erase(std::unique(found.begin(), found.end()), found.end());
+	for (uint32_t i = 0; out && i < capacity && i < found.size(); i++) {
+		BodyLockRead lock(sim->system.GetBodyLockInterfaceNoLock(), BodyID(found[i]));
+		out[i] = lock.Succeeded() ? lock.GetBody().GetUserData() : 0;
+	}
+	return uint32_t(found.size());
+}
+} // namespace
+
+BP_API int bp_sim_ray_cast(const bp_sim* sim, const float origin[3], const float direction[3], uint64_t mask, uint32_t flags, bp_query_hit* hit)
+{
+	if (!sim || !origin || !direction || !hit) {
+		return 0;
+	}
+	Vec3 dir = to_vec(direction);
+	if (!(dir.LengthSq() > 0.0f) || !finite(dir.LengthSq())) {
+		return 0;
+	}
+	RRayCast       ray(RVec3(to_vec(origin)), dir);
+	RayCastResult  result;
+	query_filter   filter(sim, mask, flags);
+	if (!sim->system.GetNarrowPhaseQueryNoLock().CastRay(ray, result, {}, {}, filter)) {
+		return 0;
+	}
+	BodyLockRead lock(sim->system.GetBodyLockInterfaceNoLock(), result.mBodyID);
+	if (!lock.Succeeded()) {
+		return 0;
+	}
+	const Body& body = lock.GetBody();
+	RVec3       point = ray.GetPointOnRay(result.mFraction);
+	Vec3        normal = body.GetWorldSpaceSurfaceNormal(result.mSubShapeID2, point);
+	fill_hit(sim, body, hit);
+	for (int i = 0; i < 3; i++) {
+		hit->point[i]  = point[i];
+		hit->normal[i] = normal[i];
+	}
+	hit->distance = result.mFraction * dir.Length();
+	return 1;
+}
+
+BP_API int bp_sim_point_inside(const bp_sim* sim, const float point[3], uint64_t mask, uint32_t flags, bp_query_hit* hit)
+{
+	if (!sim || !point || !hit) {
+		return 0;
+	}
+	AllHitCollisionCollector<CollidePointCollector> collector;
+	query_filter                                    filter(sim, mask, flags);
+	sim->system.GetNarrowPhaseQueryNoLock().CollidePoint(RVec3(to_vec(point)), collector, {}, {}, filter);
+	if (collector.mHits.empty()) {
+		return 0;
+	}
+	uint32_t best = ~uint32_t(0);
+	for (const auto& h : collector.mHits) {
+		best = std::min(best, h.mBodyID.GetIndexAndSequenceNumber());
+	}
+	BodyLockRead lock(sim->system.GetBodyLockInterfaceNoLock(), BodyID(best));
+	if (!lock.Succeeded()) {
+		return 0;
+	}
+	fill_hit(sim, lock.GetBody(), hit);
+	for (int i = 0; i < 3; i++) {
+		hit->point[i]  = point[i];
+		hit->normal[i] = 0.0f;
+	}
+	hit->distance = 0.0f;
+	return 1;
+}
+
+static uint32_t overlap(const bp_sim* sim, const Shape* shape, const Vec3& center, const Quat& rotation, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity)
+{
+	AllHitCollisionCollector<CollideShapeCollector> collector;
+	CollideShapeSettings                            settings;
+	query_filter                                    filter(sim, mask, flags);
+	sim->system.GetNarrowPhaseQueryNoLock().CollideShape(shape, Vec3::sReplicate(1.0f), RMat44::sRotationTranslation(rotation, RVec3(center)), settings, RVec3::sZero(), collector, {}, {}, filter);
+	std::vector<uint32_t> found;
+	for (const auto& h : collector.mHits) {
+		found.push_back(h.mBodyID2.GetIndexAndSequenceNumber());
+	}
+	return finish_list(sim, found, out, capacity);
+}
+
+BP_API uint32_t bp_sim_overlap_sphere(const bp_sim* sim, const float center[3], float radius, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity)
+{
+	if (!sim || !center || !(radius > 0.0f) || !finite(radius)) {
+		return 0;
+	}
+	Ref<Shape> shape = new SphereShape(radius);
+	return overlap(sim, shape, to_vec(center), Quat::sIdentity(), mask, flags, out, capacity);
+}
+
+BP_API uint32_t bp_sim_overlap_box(const bp_sim* sim, const float center[3], const float half_extents[3], const float* rotation, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity)
+{
+	if (!sim || !center || !half_extents || !(half_extents[0] > 0.0f) || !(half_extents[1] > 0.0f) || !(half_extents[2] > 0.0f)) {
+		return 0;
+	}
+	float min_half = std::min(half_extents[0], std::min(half_extents[1], half_extents[2]));
+	Ref<Shape> shape = new BoxShape(to_vec(half_extents), std::min(cDefaultConvexRadius, min_half * 0.5f));
+	return overlap(sim, shape, to_vec(center), rotation ? to_quat(rotation) : Quat::sIdentity(), mask, flags, out, capacity);
 }
 } // extern "C"

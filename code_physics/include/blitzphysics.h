@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 // Bumped when the interface changes.
-#define BP_VERSION 4
+#define BP_VERSION 5
 
 typedef struct bp_world bp_world;
 typedef struct bp_mesh  bp_mesh;
@@ -241,6 +241,27 @@ typedef struct bp_contact {
 BP_API uint32_t bp_sim_contact_count(const bp_sim* sim);
 BP_API void     bp_sim_contact_get(const bp_sim* sim, uint32_t index, bp_contact* contact);
 BP_API void     bp_sim_contacts_clear(bp_sim* sim);
+
+// Queries against the bodies of a simulation. They see the bodies where they are now (between steps) and only the layers whose bit
+// is set in mask (bit n = layer n). Sensors are left out unless flags has bit 0 set (BP_QUERY_SENSORS). They must not be called during
+// bp_sim_step.
+#define BP_QUERY_SENSORS 1u
+typedef struct bp_query_hit {
+	bp_body  body;
+	uint64_t user;
+	float    point[3];
+	float    normal[3];  // Of the surface, pointing out of it.
+	float    distance;   // Along the ray, in the units of its direction vector.
+} bp_query_hit;
+
+// The closest body that the ray from origin along direction (its length is how far the ray reaches) hits. Returns 1 and fills hit, or 0.
+BP_API int bp_sim_ray_cast(const bp_sim* sim, const float origin[3], const float direction[3], uint64_t mask, uint32_t flags, bp_query_hit* hit);
+// The body with the lowest number that contains the point. Returns 1 and fills hit (point is the point, distance 0), or 0.
+BP_API int bp_sim_point_inside(const bp_sim* sim, const float point[3], uint64_t mask, uint32_t flags, bp_query_hit* hit);
+// The bodies that touch a sphere or a box (axis aligned when rotation is null), in the order of their numbers. Returns how many there
+// are, which may be more than capacity; out gets the user values (bp_body_desc.user) of the first capacity of them.
+BP_API uint32_t bp_sim_overlap_sphere(const bp_sim* sim, const float center[3], float radius, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity);
+BP_API uint32_t bp_sim_overlap_box(const bp_sim* sim, const float center[3], const float half_extents[3], const float* rotation, uint64_t mask, uint32_t flags, uint64_t* out, uint32_t capacity);
 
 #ifdef __cplusplus
 }

@@ -54,6 +54,13 @@ namespace bb::physics {
 		decltype(&::bp_sim_body_add_impulse)                    sim_body_add_impulse;
 		decltype(&::bp_sim_body_add_angular_impulse)            sim_body_add_angular_impulse;
 		decltype(&::bp_sim_step)                                sim_step;
+		decltype(&::bp_sim_contact_count)                       sim_contact_count;
+		decltype(&::bp_sim_contact_get)                         sim_contact_get;
+		decltype(&::bp_sim_contacts_clear)                      sim_contacts_clear;
+		decltype(&::bp_sim_ray_cast)                            sim_ray_cast;
+		decltype(&::bp_sim_point_inside)                        sim_point_inside;
+		decltype(&::bp_sim_overlap_sphere)                      sim_overlap_sphere;
+		decltype(&::bp_sim_overlap_box)                         sim_overlap_box;
 	};
 
 	// The library, or null if it is not next to the program or is not the version that the runtime is made for. Looked for once.

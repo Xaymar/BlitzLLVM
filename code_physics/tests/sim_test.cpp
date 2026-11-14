@@ -574,6 +574,59 @@ static void test_determinism()
 	CHECK(pile(0, 399) != a); // The hash does depend on the result.
 }
 
+static void test_queries()
+{
+	bp_sim* sim = bp_sim_create(0, 0);
+	bp_body floor = make_floor(sim); // Layer 0, the top is at y = 0.
+	bp_body_desc bd = desc(BP_SHAPE_BOX, BP_STATIC, 1, 1, 1, 5, 1, 0); // From x 4 to 6.
+	bd.layer = 3;
+	bd.user = 100;
+	bp_body box = bp_sim_body_create(sim, &bd);
+	bp_body_desc sd = desc(BP_SHAPE_BOX, BP_STATIC, 1, 1, 1, 10, 1, 0);
+	sd.layer = 4;
+	sd.user = 101;
+	sd.sensor = 1;
+	bp_body sensor = bp_sim_body_create(sim, &sd);
+	const uint64_t all = ~uint64_t(0);
+	bp_query_hit   hit{};
+
+	// Rays.
+	float from[3] = { 0, 5, 0 }, down[3] = { 0, -10, 0 };
+	CHECK(bp_sim_ray_cast(sim, from, down, all, 0, &hit) == 1);
+	CHECK(hit.body == floor && near(hit.point[1], 0.0f, 1e-3f) && near(hit.normal[1], 1.0f, 1e-3f) && near(hit.distance, 5.0f, 1e-3f));
+	float shortened[3] = { 0, -2, 0 };
+	CHECK(bp_sim_ray_cast(sim, from, shortened, all, 0, &hit) == 0); // Does not reach.
+	float side_from[3] = { 0, 1, 0 }, side[3] = { 20, 0, 0 };
+	CHECK(bp_sim_ray_cast(sim, side_from, side, all, 0, &hit) == 1 && hit.body == box && near(hit.point[0], 4.0f, 1e-3f) && near(hit.normal[0], -1.0f, 1e-3f));
+	CHECK(bp_sim_ray_cast(sim, side_from, side, all & ~(uint64_t(1) << 3), 0, &hit) == 0); // The box is on a layer that is left out; the sensor is skipped.
+	CHECK(bp_sim_ray_cast(sim, side_from, side, all & ~(uint64_t(1) << 3), BP_QUERY_SENSORS, &hit) == 1 && hit.body == sensor);
+	float none[3] = { 0, 0, 0 };
+	CHECK(bp_sim_ray_cast(sim, from, none, all, 0, &hit) == 0);
+
+	// Points.
+	float inside[3] = { 5.5f, 1, 0 }, outside[3] = { 7, 1, 0 }, in_sensor[3] = { 10, 1, 0 };
+	CHECK(bp_sim_point_inside(sim, inside, all, 0, &hit) == 1 && hit.body == box);
+	CHECK(bp_sim_point_inside(sim, outside, all, 0, &hit) == 0);
+	CHECK(bp_sim_point_inside(sim, in_sensor, all, 0, &hit) == 0);
+	CHECK(bp_sim_point_inside(sim, in_sensor, all, BP_QUERY_SENSORS, &hit) == 1 && hit.body == sensor);
+
+	// Overlaps.
+	uint64_t found[4] = {};
+	float   c[3] = { 5, 1, 0 };
+	CHECK(bp_sim_overlap_sphere(sim, c, 0.5f, all, 0, found, 4) == 1 && found[0] == 100);
+	float wide[3] = { 7.5f, 1, 0 };
+	const uint64_t no_floor = all & ~uint64_t(1); // The floor is on layer 0, and the sphere reaches it.
+	CHECK(bp_sim_overlap_sphere(sim, wide, 3.0f, all, 0, found, 4) == 2);
+	CHECK(bp_sim_overlap_sphere(sim, wide, 3.0f, no_floor, 0, found, 4) == 1);
+	CHECK(bp_sim_overlap_sphere(sim, wide, 3.0f, no_floor, BP_QUERY_SENSORS, found, 4) == 2 && found[0] == 100 && found[1] == 101);
+	CHECK(bp_sim_overlap_sphere(sim, wide, 3.0f, no_floor, BP_QUERY_SENSORS, found, 1) == 2); // More than fit.
+	float half[3] = { 1, 1, 1 }, at[3] = { 0, 0.5f, 0 };
+	CHECK(bp_sim_overlap_box(sim, at, half, nullptr, all, 0, found, 4) == 1 && found[0] == 0);
+	CHECK(bp_sim_overlap_box(sim, at, half, nullptr, uint64_t(1) << 3, 0, found, 4) == 0);
+	CHECK(bp_sim_overlap_sphere(sim, c, 0.0f, all, 0, found, 4) == 0);
+	bp_sim_destroy(sim);
+}
+
 int main(int argc, char** argv)
 {
 	uint32_t threads = 0;
@@ -605,6 +658,7 @@ int main(int argc, char** argv)
 	test_motion_change();
 	test_shapes();
 	test_interpolation();
+	test_queries();
 	test_determinism();
 	if (failures) {
 		std::printf("%d checks failed\n", failures);
