@@ -65,15 +65,13 @@ namespace {
 	uint32_t slot_used[max_slots];
 
 	bool                  ready = false;
-	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 	bb::rhi::pipeline_layout layout;
-	VkDescriptorPool      pool = VK_NULL_HANDLE;
 	bb::rhi::sampler      linear, nearest; // From the cache of samplers, which frees them.
 	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
-	VkPipeline            edges_pipeline = VK_NULL_HANDLE, weights_pipeline = VK_NULL_HANDLE;
+	bb::rhi::pipeline     edges_pipeline, weights_pipeline;
 	struct format_pipelines {
 		VkFormat   format = VK_FORMAT_UNDEFINED;
-		VkPipeline blend = VK_NULL_HANDLE, resolve = VK_NULL_HANDLE;
+		bb::rhi::pipeline blend, resolve;
 	};
 	format_pipelines pipelines[8];
 	gpu_image        area_texture, search_texture;
@@ -201,32 +199,12 @@ namespace {
 
 	void create_resources()
 	{
-		VkDescriptorSetLayoutBinding bindings[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			bindings[i].binding         = i;
-			bindings[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			bindings[i].descriptorCount = 1;
-			bindings[i].stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
-		}
-		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 3;
-		set_info.pBindings                       = bindings;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
-
-		g.images3_layout = set_layout;
 		bb::rhi::layout_desc desc;
 		desc.sets[0]     = bb::rhi::group_kind::images3;
 		desc.set_count   = 1;
 		desc.push_size   = sizeof(constants);
 		desc.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
 		layout           = bb::rhi::get_layout(desc);
-
-		VkDescriptorPoolSize size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, max_slots * 5 * 3 };
-		VkDescriptorPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
-		pool_info.maxSets                    = max_slots * 5;
-		pool_info.poolSizeCount              = 1;
-		pool_info.pPoolSizes                 = &size;
-		check(vkCreateDescriptorPool(g.device, &pool_info, nullptr, &pool), "vkCreateDescriptorPool");
 
 		linear  = make_sampler(bb::rhi::filter::linear);
 		nearest = make_sampler(bb::rhi::filter::nearest);
@@ -239,8 +217,8 @@ namespace {
 		fragment_modules[1] = create_shader(bb_shader_smaa_fragment_weights, sizeof(bb_shader_smaa_fragment_weights));
 		fragment_modules[2] = create_shader(bb_shader_smaa_fragment_blend, sizeof(bb_shader_smaa_fragment_blend));
 		fragment_modules[3] = create_shader(bb_shader_smaa_fragment_resolve, sizeof(bb_shader_smaa_fragment_resolve));
-		edges_pipeline      = create_fullscreen_pipeline(vertex_modules[0], fragment_modules[0], layout, VK_FORMAT_R8G8_UNORM);
-		weights_pipeline    = create_fullscreen_pipeline(vertex_modules[1], fragment_modules[1], layout, VK_FORMAT_R8G8B8A8_UNORM);
+		edges_pipeline      = create_fullscreen_pipeline(vertex_modules[0], fragment_modules[0], layout, bb::rhi::format::rg8);
+		weights_pipeline    = create_fullscreen_pipeline(vertex_modules[1], fragment_modules[1], layout, bb::rhi::format::rgba8);
 
 		area_texture   = upload_lookup(VK_FORMAT_R8G8_UNORM, 160, 560, bb_smaa_area_texture, sizeof(bb_smaa_area_texture), area_staging);
 		search_texture = upload_lookup(VK_FORMAT_R8_UNORM, 64, 16, bb_smaa_search_texture, sizeof(bb_smaa_search_texture), search_staging);
@@ -261,42 +239,26 @@ namespace {
 		if (free_index < 0) {
 			free_index = 0; // More formats than there can be: not reached, the targets of 3D have a few.
 			bb::rhi::wait_idle();
-			vkDestroyPipeline(g.device, pipelines[0].blend, nullptr);
-			vkDestroyPipeline(g.device, pipelines[0].resolve, nullptr);
+			bb::rhi::destroy_pipeline(pipelines[0].blend);
+			bb::rhi::destroy_pipeline(pipelines[0].resolve);
 		}
 		format_pipelines& p = pipelines[free_index];
 		p.format            = format;
-		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, format);
-		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, format);
+		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, rhi_format(format));
+		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, rhi_format(format));
 		return p;
 	}
 
 	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
 	{
-		VkDescriptorImageInfo infos[3] = {
-			{ vk_sampler(sa), a->view, vk_layout_of(bb::rhi::image_state::sampled) },
-			{ vk_sampler(sb), b->view, vk_layout_of(bb::rhi::image_state::sampled) },
-			{ vk_sampler(sc), c, vk_layout_of(bb::rhi::image_state::sampled) },
-		};
-		VkWriteDescriptorSet writes[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = vk_set(set);
-			writes[i].dstBinding      = i;
-			writes[i].descriptorCount = 1;
-			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			writes[i].pImageInfo      = &infos[i];
-		}
-		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+		bb::rhi::set_group_image(set, 0, uint64_t(a->view), sa);
+		bb::rhi::set_group_image(set, 1, uint64_t(b->view), sb);
+		bb::rhi::set_group_image(set, 2, uint64_t(c), sc);
 	}
 
 	void allocate_set(bb::rhi::binding_group& set)
 	{
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &set_layout;
-		allocate_group(alloc, set, "vkAllocateDescriptorSets");
+		set = bb::rhi::create_group(bb::rhi::group_kind::images3);
 	}
 
 	void release_slot(slot& s)
@@ -306,9 +268,8 @@ namespace {
 		destroy_image(s.blend);
 		destroy_image(s.out[0]);
 		destroy_image(s.out[1]);
-		if (s.edges_set) {
-			VkDescriptorSet sets[5] = { vk_set(s.edges_set), vk_set(s.weights_set), vk_set(s.blend_set), vk_set(s.resolve_set[0]), vk_set(s.resolve_set[1]) };
-			vkFreeDescriptorSets(g.device, pool, 5, sets);
+		for (bb::rhi::binding_group set : { s.edges_set, s.weights_set, s.blend_set, s.resolve_set[0], s.resolve_set[1] }) {
+			bb::rhi::destroy_group(set);
 		}
 		s.edges_set = s.weights_set = s.blend_set = s.resolve_set[0] = s.resolve_set[1] = bb::rhi::binding_group();
 		s.owner = 0;
@@ -373,9 +334,9 @@ namespace {
 		bb::rhi::begin_pass(pass);
 	}
 
-	void draw_pass(VkPipeline pipeline, bb::rhi::binding_group set, constants const& c)
+	void draw_pass(bb::rhi::pipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
-		bb::rhi::bind_raw_pipeline(uint64_t(pipeline), false);
+		bb::rhi::bind_pipeline(pipeline, 0);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
 		bb::rhi::push_constants(layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(c), &c);
 		bb::rhi::draw(3, 1, 0, 0);
@@ -595,22 +556,20 @@ namespace bb::gfx {
 		}
 		for (format_pipelines& p : pipelines) {
 			if (p.blend) {
-				vkDestroyPipeline(g.device, p.blend, nullptr);
-				vkDestroyPipeline(g.device, p.resolve, nullptr);
+				bb::rhi::destroy_pipeline(p.blend);
+				bb::rhi::destroy_pipeline(p.resolve);
 			}
 			p = format_pipelines();
 		}
-		vkDestroyPipeline(g.device, edges_pipeline, nullptr);
-		vkDestroyPipeline(g.device, weights_pipeline, nullptr);
+		bb::rhi::destroy_pipeline(edges_pipeline);
+		bb::rhi::destroy_pipeline(weights_pipeline);
+		edges_pipeline = weights_pipeline = bb::rhi::pipeline();
 		for (int i = 0; i < 4; i++) {
 			destroy_shader(vertex_modules[i]);
 			destroy_shader(fragment_modules[i]);
 		}
 		linear = nearest = bb::rhi::sampler();
-		vkDestroyDescriptorPool(g.device, pool, nullptr);
 		layout = bb::rhi::pipeline_layout();
-		vkDestroyDescriptorSetLayout(g.device, set_layout, nullptr);
-		g.images3_layout = VK_NULL_HANDLE;
 		destroy_image(area_texture);
 		destroy_image(search_texture);
 		bb::rhi::destroy_buffer(area_staging);

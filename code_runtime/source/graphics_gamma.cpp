@@ -39,12 +39,12 @@ namespace {
 	bool            palette_changed = true; // The lookup texture does not have the palette yet.
 	float           palette_steps[3];       // How far apart the colors of a channel are on average, in the 0 to 255 of a color: the noise of Dither.
 	bb::rhi::pipeline_layout palette_layout;
-	VkPipeline       palette_pipeline = VK_NULL_HANDLE;
+	bb::rhi::pipeline palette_pipeline;
 	gpu_image        palette_lookup;
 	bb::rhi::binding_group  palette_set;
 
 	bb::rhi::pipeline_layout layout;
-	VkPipeline       pipeline = VK_NULL_HANDLE;
+	bb::rhi::pipeline pipeline;
 	bb::rhi::gpu_buffer table_buffer;
 	float*           table_mapped = nullptr;
 	bb::rhi::binding_group  table_set;
@@ -206,7 +206,7 @@ namespace {
 
 		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
-		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false);
+		palette_pipeline  = create_fullscreen_pipeline(vs, fs, palette_layout, bb::rhi::format::rgba8);
 		destroy_shader(vs);
 		destroy_shader(fs);
 	}
@@ -223,7 +223,7 @@ namespace {
 
 		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
-		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false);
+		pipeline          = create_fullscreen_pipeline(vs, fs, layout, bb::rhi::format::rgba8);
 		destroy_shader(vs);
 		destroy_shader(fs);
 
@@ -405,7 +405,7 @@ namespace bb::gfx {
 		pass.scissor[3]     = int32_t(shown.height);
 		bb::rhi::begin_pass(pass);
 		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
-		bb::rhi::bind_raw_pipeline(uint64_t(palettized ? palette_pipeline : pipeline), false);
+		bb::rhi::bind_pipeline(palettized ? palette_pipeline : pipeline, 0);
 		uint32_t offset = 0;
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, front_set, 0, nullptr);
 		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, table_set, 1, &offset);
@@ -477,17 +477,17 @@ namespace bb::gfx {
 		}
 		if (palette_pipeline) {
 			wait_gpu();
-			vkDestroyPipeline(g.device, palette_pipeline, nullptr);
+			bb::rhi::destroy_pipeline(palette_pipeline);
 			palette_layout = bb::rhi::pipeline_layout();
-			palette_pipeline = VK_NULL_HANDLE;
+			palette_pipeline = bb::rhi::pipeline();
 			palette_set      = bb::rhi::binding_group();
 			palette_changed  = true;
 		}
 		if (pipeline) {
-			vkDestroyPipeline(g.device, pipeline, nullptr);
+			bb::rhi::destroy_pipeline(pipeline);
 			layout = bb::rhi::pipeline_layout();
 			bb::rhi::destroy_buffer(table_buffer);
-			pipeline   = VK_NULL_HANDLE;
+			pipeline   = bb::rhi::pipeline();
 			front_view = VK_NULL_HANDLE;
 			changed    = true;
 		}

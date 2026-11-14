@@ -391,6 +391,22 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
+	// The layout of a group of count sampled images that fragment shaders read, made when it is first asked for.
+	static VkDescriptorSetLayout images_layout(VkDescriptorSetLayout& layout, uint32_t count)
+	{
+		if (!layout) {
+			VkDescriptorSetLayoutBinding bindings[8];
+			for (uint32_t i = 0; i < count; i++) {
+				bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+			}
+			VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+			info.bindingCount                    = count;
+			info.pBindings                       = bindings;
+			check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &layout), "vkCreateDescriptorSetLayout");
+		}
+		return layout;
+	}
+
 	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind)
 	{
 		switch (kind) {
@@ -403,9 +419,9 @@ namespace bb::gfx {
 		case bb::rhi::group_kind::cull:
 			return g.cull_layout;
 		case bb::rhi::group_kind::images3:
-			return g.images3_layout;
+			return images_layout(g.images3_layout, 3);
 		case bb::rhi::group_kind::images8:
-			return g.images8_layout;
+			return images_layout(g.images8_layout, 8);
 		}
 		return VK_NULL_HANDLE;
 	}
@@ -465,6 +481,7 @@ namespace bb::gfx {
 			bb::rhi::pipeline_recipe                                 recipe;
 			std::unordered_map<bb::rhi::format, VkPipeline>          built;
 			bool                                                     alive = false;
+			bool                                                     fixed = false; // One description for whatever format it is bound with.
 		};
 		std::vector<pipeline_object> pipeline_objects;
 	} // namespace
@@ -473,7 +490,7 @@ namespace bb::gfx {
 	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format)
 	{
 		pipeline_object& object = pipeline_objects[pipeline.id - 1];
-		bb::rhi::format  key    = ((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8;
+		bb::rhi::format  key    = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8);
 		auto             found  = object.built.find(key);
 		if (found != object.built.end()) {
 			return found->second;
@@ -627,7 +644,7 @@ namespace bb::gfx {
 		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 		rendering.colorAttachmentCount          = desc.attachment_count;
 		rendering.pColorAttachmentFormats       = formats;
-		rendering.depthAttachmentFormat         = desc.depth ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
+		rendering.depthAttachmentFormat         = (desc.depth || desc.depth_unused) ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -638,7 +655,8 @@ namespace bb::gfx {
 		info.pViewportState               = &viewport;
 		info.pRasterizationState          = &raster;
 		info.pMultisampleState            = &multisample;
-		info.pDepthStencilState           = desc.depth ? &depth : nullptr;
+		VkPipelineDepthStencilStateCreateInfo no_depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO }; // Neither tested nor written.
+		info.pDepthStencilState           = desc.depth ? &depth : (desc.depth_unused ? &no_depth : nullptr);
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
 		info.layout                       = vk_layout(desc.layout);
@@ -661,11 +679,6 @@ namespace bb::gfx {
 		return desc;
 	}
 
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices)
-	{
-		return build_pipeline(flat_desc(vs, fs, layout, topology, vertices, VK_FORMAT_R8G8B8A8_UNORM));
-	}
-
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
@@ -676,9 +689,9 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format)
+	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format)
 	{
-		return build_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, format));
+		return bb::rhi::create_fixed_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, vk_format(format)));
 	}
 
 	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler)
@@ -1841,10 +1854,11 @@ namespace bb::gfx {
 		set_info.pBindings                       = binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
+		// Next to the textures: the groups of SMAA (5 of 3 images for each of 8 cameras) and of the transparency (one of 8 images for each of 4 sizes).
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings + 8 * 5 * 3 + 4 * 8 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		dpool_info.maxSets                    = 8195 + 4 * frame_slots;
+		dpool_info.maxSets                    = 8195 + 4 * frame_slots + 8 * 5 + 4;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
@@ -1956,11 +1970,19 @@ namespace bb::rhi {
 			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
 		}
 		made_layouts.clear();
+		// The layouts of the groups of images, which vk_set_layout made when they were first asked for.
+		for (VkDescriptorSetLayout* layout : { &bb::gfx::g.images3_layout, &bb::gfx::g.images8_layout }) {
+			if (*layout) {
+				vkDestroyDescriptorSetLayout(bb::gfx::g.device, *layout, nullptr);
+				*layout = VK_NULL_HANDLE;
+			}
+		}
 	}
 
 	void forget_layouts()
 	{
 		made_layouts.clear();
+		bb::gfx::g.images3_layout = bb::gfx::g.images8_layout = VK_NULL_HANDLE;
 	}
 }
 
@@ -1979,6 +2001,14 @@ namespace bb::rhi {
 		objects.back().recipe = std::move(recipe);
 		objects.back().alive  = true;
 		return pipeline{ objects.size() };
+	}
+
+	pipeline create_fixed_pipeline(const pipeline_desc& desc)
+	{
+		pipeline made = create_pipeline([desc](format) { return desc; });
+		gfx::pipeline_objects[made.id - 1].fixed = true;
+		gfx::vk_pipeline(made, VK_FORMAT_UNDEFINED); // Built now, so that nothing is compiled in the middle of a frame.
+		return made;
 	}
 
 	void destroy_pipeline(pipeline p)
@@ -2022,6 +2052,25 @@ namespace bb::rhi {
 		VkDescriptorSet set;
 		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
 		return binding_group{ uint64_t(set) };
+	}
+
+	void destroy_group(binding_group group)
+	{
+		if (group) {
+			gfx::free_group(group);
+		}
+	}
+
+	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
+	{
+		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), gfx::vk_layout_of(depth_read ? image_state::depth_read : image_state::sampled) };
+		VkWriteDescriptorSet  write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                = gfx::vk_set(group);
+		write.dstBinding            = place;
+		write.descriptorCount       = 1;
+		write.descriptorType        = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo            = &info;
+		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
 	}
 }
 

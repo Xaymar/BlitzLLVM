@@ -981,14 +981,12 @@ namespace bb::gfx {
 	bb::rhi::shader create_shader(const unsigned int* words, size_t size);
 	void            destroy_shader(bb::rhi::shader shader);
 	inline VkShaderModule vk_shader(bb::rhi::shader shader) { return VkShaderModule(shader.id); }
-	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
 	VkFormat pick_buffer_format(int depth, int& actual);
-	VkPipeline create_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout, bool vertices = true);
-	/** The pipeline of a pass over a whole image that replaces what is there, drawing to an image of the format. */
 	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
-	VkPipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkFormat format);
+	/** The pipeline of a pass over a whole image that replaces what is there (one triangle that covers the target, no vertices), drawing to an image of the format. */
+	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format);
 	/** The pipeline to draw to an image of that format, built the first time. */
 	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format);
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout);
