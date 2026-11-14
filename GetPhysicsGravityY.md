@@ -35,7 +35,7 @@ The y part of the gravity of a world, see `PhysicsGravity`.
 
 ## Related Commands
 
-[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsGravityScale](GetPhysicsGravityScale) 〔BlitzLLVM〕, [GetPhysicsGravityX](GetPhysicsGravityX) 〔BlitzLLVM〕, [GetPhysicsGravityZ](GetPhysicsGravityZ) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY) 〔BlitzLLVM〕
+[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsContactY](GetPhysicsContactY) 〔BlitzLLVM〕, [GetPhysicsGravityScale](GetPhysicsGravityScale) 〔BlitzLLVM〕, [GetPhysicsGravityX](GetPhysicsGravityX) 〔BlitzLLVM〕, [GetPhysicsGravityZ](GetPhysicsGravityZ) 〔BlitzLLVM〕, [GetPhysicsHitY](GetPhysicsHitY) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY) 〔BlitzLLVM〕
 
 <div align="center">
 

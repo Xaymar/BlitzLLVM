@@ -34,7 +34,7 @@ How far apart two bodies can be and still have a contact made for them, in meter
 
 ## Related Commands
 
-[GetPhysicsSpeculativeDistance](GetPhysicsSpeculativeDistance) 〔BlitzLLVM〕, [PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕
+[GetPhysicsHitDistance](GetPhysicsHitDistance) 〔BlitzLLVM〕, [GetPhysicsSpeculativeDistance](GetPhysicsSpeculativeDistance) 〔BlitzLLVM〕, [PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕
 
 <div align="center">
 

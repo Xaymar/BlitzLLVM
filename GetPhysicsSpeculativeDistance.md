@@ -35,7 +35,7 @@ The value set by `PhysicsSpeculativeDistance`.
 
 ## Related Commands
 
-[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕, [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕, [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕, [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance) 〔BlitzLLVM〕
+[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕, [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕, [GetPhysicsHitDistance](GetPhysicsHitDistance) 〔BlitzLLVM〕, [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -35,7 +35,7 @@ The value set by `PhysicsSensor`.
 
 ## Related Commands
 
-[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕, [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕, [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕, [PhysicsSensor](PhysicsSensor) 〔BlitzLLVM〕
+[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕, [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕, [GetPhysicsContactSensor](GetPhysicsContactSensor) 〔BlitzLLVM〕, [PhysicsSensor](PhysicsSensor) 〔BlitzLLVM〕
 
 <div align="center">
 

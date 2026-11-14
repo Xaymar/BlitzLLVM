@@ -35,7 +35,7 @@ The value set by `PhysicsContactSlop`.
 
 ## Related Commands
 
-[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityY](GetPhysicsAngularVelocityY) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsAwake](GetPhysicsAwake) 〔BlitzLLVM〕, [GetPhysicsBaumgarte](GetPhysicsBaumgarte) 〔BlitzLLVM〕, [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕, [PhysicsContactSlop](PhysicsContactSlop) 〔BlitzLLVM〕
+[GetPhysicsContactCount](GetPhysicsContactCount) 〔BlitzLLVM〕, [GetPhysicsContactDepth](GetPhysicsContactDepth) 〔BlitzLLVM〕, [GetPhysicsContactEntityA](GetPhysicsContactEntityA) 〔BlitzLLVM〕, [GetPhysicsContactEntityB](GetPhysicsContactEntityB) 〔BlitzLLVM〕, [GetPhysicsContactNX](GetPhysicsContactNX) 〔BlitzLLVM〕, [GetPhysicsContactNY](GetPhysicsContactNY) 〔BlitzLLVM〕, [GetPhysicsContactNZ](GetPhysicsContactNZ) 〔BlitzLLVM〕, [PhysicsContactSlop](PhysicsContactSlop) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -36,7 +36,7 @@ The y part of what `PhysicsAngularVelocity` sets.
 
 ## Related Commands
 
-[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsGravityY](GetPhysicsGravityY) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityX](GetPhysicsLinearVelocityX) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityZ](GetPhysicsLinearVelocityZ) 〔BlitzLLVM〕, [GetPhysicsVelocityIterations](GetPhysicsVelocityIterations) 〔BlitzLLVM〕
+[GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕, [GetPhysicsAngularVelocityZ](GetPhysicsAngularVelocityZ) 〔BlitzLLVM〕, [GetPhysicsContactY](GetPhysicsContactY) 〔BlitzLLVM〕, [GetPhysicsGravityY](GetPhysicsGravityY) 〔BlitzLLVM〕, [GetPhysicsHitY](GetPhysicsHitY) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityX](GetPhysicsLinearVelocityX) 〔BlitzLLVM〕, [GetPhysicsLinearVelocityY](GetPhysicsLinearVelocityY) 〔BlitzLLVM〕
 
 <div align="center">
 

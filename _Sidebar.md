@@ -811,7 +811,7 @@
 <li><a href="ScaleMesh">ScaleMesh</a></li>
 </ul>
 </details></li>
-<li><details><summary>Physics (83)</summary>
+<li><details><summary>Physics (109)</summary>
 <ul>
 <li><a href="Blitz3D-Physics">Overview</a></li>
 <li><a href="CreatePhysicsBody">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
@@ -827,7 +827,19 @@
 <li><a href="GetPhysicsBodyMotion">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyShape">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyWorld">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactCount">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactDepth">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactEntityA">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactEntityB">GetPhysicsContactEntityB</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNX">GetPhysicsContactNX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNY">GetPhysicsContactNY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNZ">GetPhysicsContactNZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactReport">GetPhysicsContactReport</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactSensor">GetPhysicsContactSensor</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactSlop">GetPhysicsContactSlop</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactX">GetPhysicsContactX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactY">GetPhysicsContactY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactZ">GetPhysicsContactZ</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContinuous">GetPhysicsContinuous</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContinuousDefault">GetPhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsDeterministic">GetPhysicsDeterministic</a> 〔BlitzLLVM〕</li>
@@ -836,6 +848,14 @@
 <li><a href="GetPhysicsGravityX">GetPhysicsGravityX</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsGravityY">GetPhysicsGravityY</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsGravityZ">GetPhysicsGravityZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitDistance">GetPhysicsHitDistance</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitEntity">GetPhysicsHitEntity</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNX">GetPhysicsHitNX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNY">GetPhysicsHitNY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNZ">GetPhysicsHitNZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitX">GetPhysicsHitX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitY">GetPhysicsHitY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitZ">GetPhysicsHitZ</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLayer">GetPhysicsLayer</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLinearDamping">GetPhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLinearVelocityX">GetPhysicsLinearVelocityX</a> 〔BlitzLLVM〕</li>
@@ -847,6 +867,7 @@
 <li><a href="GetPhysicsMaxDelta">GetPhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsMaxSteps">GetPhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsMode">GetPhysicsMode</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsOverlap">GetPhysicsOverlap</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsPositionIterations">GetPhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsRate">GetPhysicsRate</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsRestitution">GetPhysicsRestitution</a> 〔BlitzLLVM〕</li>
@@ -869,6 +890,7 @@
 <li><a href="PhysicsBaumgarte">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsContactReport">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactSlop">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuous">PhysicsContinuous</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuousDefault">PhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
@@ -883,8 +905,12 @@
 <li><a href="PhysicsMaxDelta">PhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsMaxSteps">PhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsMode">PhysicsMode</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsOverlapBox">PhysicsOverlapBox</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsOverlapSphere">PhysicsOverlapSphere</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsPointInside">PhysicsPointInside</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsPositionIterations">PhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsRate">PhysicsRate</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsRayCast">PhysicsRayCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsRestitution">PhysicsRestitution</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSensor">PhysicsSensor</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSleeping">PhysicsSleeping</a> 〔BlitzLLVM〕</li>
@@ -1330,7 +1356,7 @@
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (417)</summary>
+<li><details><summary>Commands (443)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1453,7 +1479,19 @@
 <li><a href="GetPhysicsBodyMotion#differences">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyShape#differences">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyWorld#differences">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactCount#differences">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactDepth#differences">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactEntityA#differences">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactEntityB#differences">GetPhysicsContactEntityB</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNX#differences">GetPhysicsContactNX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNY#differences">GetPhysicsContactNY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactNZ#differences">GetPhysicsContactNZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactReport#differences">GetPhysicsContactReport</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactSensor#differences">GetPhysicsContactSensor</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactSlop#differences">GetPhysicsContactSlop</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactX#differences">GetPhysicsContactX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactY#differences">GetPhysicsContactY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsContactZ#differences">GetPhysicsContactZ</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContinuous#differences">GetPhysicsContinuous</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContinuousDefault#differences">GetPhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsDeterministic#differences">GetPhysicsDeterministic</a> 〔BlitzLLVM〕</li>
@@ -1462,6 +1500,14 @@
 <li><a href="GetPhysicsGravityX#differences">GetPhysicsGravityX</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsGravityY#differences">GetPhysicsGravityY</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsGravityZ#differences">GetPhysicsGravityZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitDistance#differences">GetPhysicsHitDistance</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitEntity#differences">GetPhysicsHitEntity</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNX#differences">GetPhysicsHitNX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNY#differences">GetPhysicsHitNY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitNZ#differences">GetPhysicsHitNZ</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitX#differences">GetPhysicsHitX</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitY#differences">GetPhysicsHitY</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsHitZ#differences">GetPhysicsHitZ</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLayer#differences">GetPhysicsLayer</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLinearDamping#differences">GetPhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsLinearVelocityX#differences">GetPhysicsLinearVelocityX</a> 〔BlitzLLVM〕</li>
@@ -1473,6 +1519,7 @@
 <li><a href="GetPhysicsMaxDelta#differences">GetPhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsMaxSteps#differences">GetPhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsMode#differences">GetPhysicsMode</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsOverlap#differences">GetPhysicsOverlap</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsPositionIterations#differences">GetPhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsRate#differences">GetPhysicsRate</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsRestitution#differences">GetPhysicsRestitution</a> 〔BlitzLLVM〕</li>
@@ -1593,6 +1640,7 @@
 <li><a href="PhysicsBaumgarte#differences">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion#differences">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld#differences">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsContactReport#differences">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactSlop#differences">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuous#differences">PhysicsContinuous</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuousDefault#differences">PhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
@@ -1607,8 +1655,12 @@
 <li><a href="PhysicsMaxDelta#differences">PhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsMaxSteps#differences">PhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsMode#differences">PhysicsMode</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsOverlapBox#differences">PhysicsOverlapBox</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsOverlapSphere#differences">PhysicsOverlapSphere</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsPointInside#differences">PhysicsPointInside</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsPositionIterations#differences">PhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsRate#differences">PhysicsRate</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsRayCast#differences">PhysicsRayCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsRestitution#differences">PhysicsRestitution</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSensor#differences">PhysicsSensor</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSleeping#differences">PhysicsSleeping</a> 〔BlitzLLVM〕</li>

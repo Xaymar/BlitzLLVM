@@ -34,7 +34,7 @@ Makes a body a sensor, which is a region: other bodies pass through it and do no
 
 ## Related Commands
 
-[GetPhysicsSensor](GetPhysicsSensor) 〔BlitzLLVM〕, [PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕
+[GetPhysicsContactSensor](GetPhysicsContactSensor) 〔BlitzLLVM〕, [GetPhysicsSensor](GetPhysicsSensor) 〔BlitzLLVM〕, [PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕
 
 <div align="center">
 
