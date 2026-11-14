@@ -804,6 +804,10 @@
 		{ "channelvolume", "bb_channel_volume", 'v', "if", 2, {}, false },
 		{ "channelpan", "bb_channel_pan", 'v', "if", 2, {}, false },
 		{ "channelpitch", "bb_channel_pitch", 'v', "ii", 2, {}, false },
+		{ "setfalloff", "bb_set_falloff", 'v', "i", 1, {}, false },
+		{ "getfalloff", "bb_get_falloff", 'i', "", 0, {}, false },
+		{ "setchannelfalloff", "bb_set_channel_falloff", 'v', "ii", 2, {}, false },
+		{ "getchannelfalloff", "bb_get_channel_falloff", 'i', "i", 1, {}, false },
 		{ "createlistener", "bb_create_listener", 'i', "ifff", 1, { 0, 1, 1, 1 }, false },
 		// Images
 		{ "loadimage", "bb_load_image", 'i', "s", 1, {}, false },
