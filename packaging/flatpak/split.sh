@@ -7,16 +7,29 @@
 #   <out>                the runtime extension: the shared libraries that programs load at run time (FFmpeg, the image and audio codecs),
 #                        which every program made by BlitzLLVM shares instead of carrying its own copy
 # blitzcc is told that the system provides those libraries (system-libraries.txt), so it copies none of them next to programs.
-# Usage: split.sh <stage> <out>
+# The stage may hold the runtimes of several architectures (runtime/x86_64, runtime/arm64): the Flatpak of one architecture can make programs
+# for all of them. Only the libraries of the architecture that the Flatpak is built for (<host>) go into the extension; a program for another
+# architecture runs where the extension of that architecture is installed, so the other libraries are dropped.
+# Usage: split.sh <stage> <out> [<host>]   (<host>: x86_64 or arm64, the architecture of the Flatpak; empty when the stage has one runtime folder)
 set -eu
-stage="$1"; out="$2"
+stage="$1"; out="$2"; host="${3:-}"
 runtime="$stage/app/lib/blitzllvm/runtime"
 [ -d "$runtime" ] || { echo "no runtime directory in $stage" >&2; exit 1; }
 rm -rf "$out"; mkdir -p "$out/lib" "$out/share"
 # Every shared library of the runtime except libblitzphysics, which blitzcc still copies next to programs (it is small and found there only).
-find "$runtime" -maxdepth 2 \( -name '*.so' -o -name '*.so.*' \) ! -name '*blitzphysics*' | while read -r f; do
+moveroot="$runtime"; [ -z "$host" ] || moveroot="$runtime/$host"
+[ -d "$moveroot" ] || { echo "no runtime folder $moveroot" >&2; exit 1; }
+find "$moveroot" -maxdepth 2 \( -name '*.so' -o -name '*.so.*' \) ! -name '*blitzphysics*' | while read -r f; do
 	mv "$f" "$out/lib/"
 done
+# The libraries of the other architectures are not needed here.
+if [ -n "$host" ]; then
+	for d in "$runtime"/x86_64 "$runtime"/arm64; do
+		if [ -d "$d" ] && [ "$d" != "$runtime/$host" ]; then
+			find "$d" -maxdepth 2 \( -name '*.so' -o -name '*.so.*' \) ! -name '*blitzphysics*' -delete
+		fi
+	done
+fi
 n=$(find "$out/lib" -type f -o -type l | wc -l)
 [ "$n" -gt 0 ] || { echo "no shared libraries found to move into the runtime extension" >&2; exit 1; }
 # The licenses are shipped with the libraries that need them (the LGPL ones above all).

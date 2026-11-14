@@ -56,6 +56,8 @@ jobs:
             case "$d" in
               # Packages are already named after their version and platform.
               *-packages) mv "$d"/* release/ ;;
+              # The installs that the flatpak job of build.yml packs, only passed between its jobs.
+              */flatpak-stage-*) ;;
               *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
             esac
           done
