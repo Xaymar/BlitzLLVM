@@ -9,7 +9,7 @@
 ; Defines: AppVersion (numeric A.B.C.D), SourceDir, ToolsDir, OutputDir (all absolute: relative paths are taken from this script), OutputName (without .exe).
 ;
 ; The package holds both architectures. SourceDir is everything but the tools: the runtime libraries and the MinGW sysroot under lib\blitzllvm have a
-; folder per architecture. ToolsDir has the tools twice, x64\ and arm64\ (in the package they are bin\ and bin-arm64\). The installer puts the tools
+; folder per architecture. ToolsDir has the tools twice, x86_64\ and arm64\ (in the package they are bin\x86_64\ and bin\arm64\). The installer puts the tools
 ; of the computer's architecture into {app}\bin and the libraries of both next to them, so that blitzcc can build programs for either architecture.
 ;
 ; BlitzLLVM needs a clang with lld (LLVM 23 or newer) to build programs. The installer looks for one on PATH and in the places the LLVM installer
@@ -69,7 +69,7 @@ Name: "addtopath"; Description: "Add BlitzLLVM to the &PATH (so that blitzcc, bl
 ; Everything but the tools, which exist twice: arm64 Windows gets the arm64 ones, everything else the x64 ones. Both end up in {app}\bin.
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "{#ToolsDir}\arm64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: IsArm64
-Source: "{#ToolsDir}\x64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: not IsArm64
+Source: "{#ToolsDir}\x86_64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs createallsubdirs ignoreversion; Check: not IsArm64
 
 [Icons]
 Name: "{group}\BlitzLLVM Help"; Filename: "{app}\help\index.html"; Check: DirExists(ExpandConstant('{app}\help'))

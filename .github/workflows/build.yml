@@ -387,7 +387,7 @@ jobs:
   package-windows:
     name: package (windows)
     # One zip and one installer for Windows that hold both architectures (x64 and arm64), so that blitzcc on either one can build programs for
-    # either one: bin/ is the x64 tools, bin-arm64/ the arm64 tools, and the runtime libraries and the MinGW sysroot have a folder per architecture.
+    # either one: bin/x86_64/ is the x64 tools, bin/arm64/ the arm64 tools, and the runtime libraries and the MinGW sysroot have a folder per architecture.
     needs: build
     if: inputs.packages
     runs-on: windows-latest
@@ -421,11 +421,15 @@ jobs:
           cp -r install/x64 dist
           # The tools of the other architecture, and its folders in the runtime and the sysroot. Everything else (inline sources, licenses, userlibs,
           # help) is the same in both and stays as it is; 'cp -n' makes sure that a file only the arm64 build has is not lost.
-          cp -r install/arm64/bin dist/bin-arm64
+          # The tools of each architecture are in bin/<architecture>, which blitzcc finds the runtime from too.
+          mkdir dist/bin-x86_64
+          mv dist/bin/* dist/bin-x86_64/
+          mv dist/bin-x86_64 dist/bin/x86_64
+          cp -r install/arm64/bin dist/bin/arm64
           cp -r install/arm64/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/runtime/arm64
           cp -r install/arm64/lib/blitzllvm/mingw/arm64 dist/lib/blitzllvm/mingw/arm64
           cp -rn install/arm64/. dist/
-          for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64 dist/lib/blitzllvm/mingw/arm64 dist/bin dist/bin-arm64; do
+          for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64 dist/lib/blitzllvm/mingw/arm64 dist/bin/x86_64 dist/bin/arm64; do
             test -d "$d" || { echo "The merged package has no $d"; exit 1; }
           done
           find dist -type f | wc -l
@@ -436,14 +440,14 @@ jobs:
         run: |
           printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
           for target in x86_64-w64-mingw32 aarch64-w64-mingw32; do
-            dist/bin/blitzcc --target "$target" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged-$target.exe" 2>&1 | tee "$RUNNER_TEMP/packaged-$target.log"
+            dist/bin/x86_64/blitzcc --target "$target" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged-$target.exe" 2>&1 | tee "$RUNNER_TEMP/packaged-$target.log"
             ! grep -qi "error" "$RUNNER_TEMP/packaged-$target.log"
           done
           "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "packaged ok"
           llvm-objdump -f "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "file format coff-x86-64"
           llvm-objdump -f "$RUNNER_TEMP/packaged-aarch64-w64-mingw32.exe" | grep -q "file format coff-arm64"
           # The tools of the arm64 folder are arm64 programs.
-          llvm-objdump -f dist/bin-arm64/blitzcc.exe | grep -q "file format coff-arm64"
+          llvm-objdump -f dist/bin/arm64/blitzcc.exe | grep -q "file format coff-arm64"
       - name: Zip
         run: |
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
@@ -458,13 +462,13 @@ jobs:
           if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y; if ($LASTEXITCODE -ne 0) { throw 'Installing Inno Setup failed' } }
           New-Item -ItemType Directory -Force packages, tools | Out-Null
           # The zip is made already. The tools leave the directory, so that the installer takes the ones of the computer's architecture.
-          Move-Item dist\bin tools\x64
-          Move-Item dist\bin-arm64 tools\arm64
+          Move-Item dist\bin\x86_64 tools\x86_64
+          Move-Item dist\bin\arm64 tools\arm64
           & $iscc /Qp "/DAppVersion=$env:VERSION" "/DSourceDir=$PWD\dist" "/DToolsDir=$PWD\tools" "/DOutputDir=$PWD\packages" "/DOutputName=$env:ARTIFACT-setup" installer\blitzllvm.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
           # Back in place, as the artifact is the whole package.
-          Move-Item tools\x64 dist\bin
-          Move-Item tools\arm64 dist\bin-arm64
+          Move-Item tools\x86_64 dist\bin\x86_64
+          Move-Item tools\arm64 dist\bin\arm64
           Get-ChildItem packages | Format-Table Name, Length
       - name: Test the installer
         # Installs silently (per user, which installs nothing but BlitzLLVM), checks the files and PATH, uninstalls and checks that all of it is gone again.
@@ -480,7 +484,7 @@ jobs:
           foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64', 'lib\blitzllvm\mingw\arm64', 'LICENSE.adoc', 'unins000.exe') {
             if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
           }
-          if (Test-Path (Join-Path $dir 'bin-arm64')) { throw 'bin-arm64 must not be installed, bin has the tools of this computer' }
+          foreach ($f in 'bin\x86_64', 'bin\arm64') { if (Test-Path (Join-Path $dir $f)) { throw "$f must not be installed, bin has the tools of this computer" } }
           if (-not ((& $machinePath) -split ';' -contains "$dir\bin")) { throw 'PATH was not changed' }
           $p = Start-Process (Join-Path $dir 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw "Uninstall failed ($($p.ExitCode))" }
