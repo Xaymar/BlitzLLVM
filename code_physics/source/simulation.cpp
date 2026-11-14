@@ -23,6 +23,12 @@
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/TaperedCapsuleShape.h>
+#include <Jolt/Physics/Constraints/ConeConstraint.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Constraints/FixedConstraint.h>
+#include <Jolt/Physics/Constraints/HingeConstraint.h>
+#include <Jolt/Physics/Constraints/PointConstraint.h>
+#include <Jolt/Physics/Constraints/SliderConstraint.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 
 #include <map>
@@ -180,6 +186,14 @@ struct sim_body {
 EMotionType to_motion(uint32_t motion) { return (motion == BP_DYNAMIC) ? EMotionType::Dynamic : (motion == BP_KINEMATIC) ? EMotionType::Kinematic : EMotionType::Static; }
 } // namespace
 
+struct sim_constraint {
+	Ref<TwoBodyConstraint> constraint;
+	uint32_t               kind = 0;
+	bp_body                a = 0, b = 0;
+	float                  break_force = 0.0f;
+	bool                   broken = false;
+};
+
 struct bp_sim {
 	broad_phase_layers                layers;
 	object_vs_broad_phase             object_vs_broad;
@@ -190,6 +204,8 @@ struct bp_sim {
 	contacts                          listener;
 	std::vector<body_info>            infos;
 	std::map<uint32_t, sim_body>      bodies; // By handle: the order is the same on each run.
+	std::map<uint32_t, sim_constraint> constraints; // By number.
+	uint32_t                          next_constraint = 1;
 	bp_sim_settings                   settings{};
 };
 
@@ -328,6 +344,10 @@ BP_API void bp_sim_destroy(bp_sim* sim)
 	if (!sim) {
 		return;
 	}
+	for (auto& entry : sim->constraints) {
+		sim->system.RemoveConstraint(entry.second.constraint);
+	}
+	sim->constraints.clear();
 	for (auto& entry : sim->bodies) {
 		sim->system.GetBodyInterface().RemoveBody(entry.second.id);
 		sim->system.GetBodyInterface().DestroyBody(entry.second.id);
@@ -504,6 +524,14 @@ BP_API void bp_sim_body_destroy(bp_sim* sim, bp_body body)
 	sim_body* b = sim ? find(sim, body) : nullptr;
 	if (!b) {
 		return;
+	}
+	for (auto it = sim->constraints.begin(); it != sim->constraints.end();) { // A constraint must not outlive its bodies.
+		if (it->second.a == body || it->second.b == body) {
+			sim->system.RemoveConstraint(it->second.constraint);
+			it = sim->constraints.erase(it);
+		} else {
+			++it;
+		}
 	}
 	sim->system.GetBodyInterface().RemoveBody(b->id);
 	sim->system.GetBodyInterface().DestroyBody(b->id);
@@ -759,6 +787,31 @@ BP_API void bp_sim_body_add_angular_impulse(bp_sim* sim, bp_body body, const flo
 	}
 }
 
+static float constraint_force(TwoBodyConstraint* c, uint32_t kind, float dt)
+{
+	float impulse = 0.0f;
+	switch (kind) {
+	case BP_CONSTRAINT_FIXED: impulse = static_cast<FixedConstraint*>(c)->GetTotalLambdaPosition().Length(); break;
+	case BP_CONSTRAINT_POINT: impulse = static_cast<PointConstraint*>(c)->GetTotalLambdaPosition().Length(); break;
+	case BP_CONSTRAINT_HINGE: impulse = static_cast<HingeConstraint*>(c)->GetTotalLambdaPosition().Length(); break;
+	case BP_CONSTRAINT_SLIDER: impulse = static_cast<SliderConstraint*>(c)->GetTotalLambdaPosition().Length(); break;
+	case BP_CONSTRAINT_DISTANCE: impulse = std::fabs(static_cast<DistanceConstraint*>(c)->GetTotalLambdaPosition()); break;
+	case BP_CONSTRAINT_CONE: impulse = static_cast<ConeConstraint*>(c)->GetTotalLambdaPosition().Length(); break;
+	}
+	return impulse / dt;
+}
+
+static void break_constraints(bp_sim* sim, float dt)
+{
+	for (auto& entry : sim->constraints) { // In the order of the numbers.
+		sim_constraint& c = entry.second;
+		if (c.break_force > 0.0f && !c.broken && c.constraint->GetEnabled() && constraint_force(c.constraint.GetPtr(), c.kind, dt) > c.break_force) {
+			c.constraint->SetEnabled(false);
+			c.broken = true;
+		}
+	}
+}
+
 BP_API void bp_sim_step(bp_sim* sim, float dt)
 {
 	if (!sim || !(dt > 0.0f) || !finite(dt)) {
@@ -778,6 +831,7 @@ BP_API void bp_sim_step(bp_sim* sim, float dt)
 		}
 	}
 	sim->system.Update(dt, int(sim->settings.substeps), sim->temp.get(), sim->jobs);
+	break_constraints(sim, dt / float(std::max<uint32_t>(1, sim->settings.substeps)));
 	{
 		std::lock_guard<std::mutex> guard(sim->listener.lock);
 		sim->listener.listed = false;
@@ -947,5 +1001,206 @@ BP_API uint32_t bp_sim_overlap_box(const bp_sim* sim, const float center[3], con
 	float min_half = std::min(half_extents[0], std::min(half_extents[1], half_extents[2]));
 	Ref<Shape> shape = new BoxShape(to_vec(half_extents), std::min(cDefaultConvexRadius, min_half * 0.5f));
 	return overlap(sim, shape, to_vec(center), rotation ? to_quat(rotation) : Quat::sIdentity(), mask, flags, out, capacity);
+}
+
+namespace {
+sim_constraint* find_constraint(const bp_sim* sim, bp_constraint c)
+{
+	auto found = const_cast<bp_sim*>(sim)->constraints.find(c);
+	return (found == sim->constraints.end()) ? nullptr : &found->second;
+}
+} // namespace
+
+BP_API bp_constraint bp_sim_constraint_create(bp_sim* sim, const bp_constraint_desc* d)
+{
+	if (!sim || !d || d->kind < BP_CONSTRAINT_FIXED || d->kind > BP_CONSTRAINT_CONE) {
+		return 0;
+	}
+	sim_body *ba = d->a ? find(sim, d->a) : nullptr, *bb = d->b ? find(sim, d->b) : nullptr;
+	if ((d->a && !ba) || (d->b && !bb) || (d->a == d->b)) {
+		return 0;
+	}
+	if ((!ba || ba->motion != BP_DYNAMIC) && (!bb || bb->motion != BP_DYNAMIC)) {
+		return 0; // Nothing would move.
+	}
+	for (int i = 0; i < 3; i++) {
+		if (!finite(d->point[i]) || !finite(d->point2[i]) || !finite(d->axis[i])) {
+			return 0;
+		}
+	}
+	Vec3 axis = to_vec(d->axis);
+	bool needs_axis = d->kind == BP_CONSTRAINT_HINGE || d->kind == BP_CONSTRAINT_SLIDER || d->kind == BP_CONSTRAINT_CONE;
+	if (needs_axis) {
+		if (!(axis.LengthSq() > 1e-12f)) {
+			return 0;
+		}
+		axis = axis.Normalized();
+	}
+	RVec3 p1 = RVec3(to_vec(d->point)), p2 = RVec3(to_vec(d->point2));
+	Ref<TwoBodyConstraintSettings> settings;
+	switch (d->kind) {
+	case BP_CONSTRAINT_FIXED: {
+		auto* f = new FixedConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mAutoDetectPoint = true;
+		settings = f;
+		break;
+	}
+	case BP_CONSTRAINT_POINT: {
+		auto* f = new PointConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mPoint1 = f->mPoint2 = p1;
+		settings = f;
+		break;
+	}
+	case BP_CONSTRAINT_HINGE: {
+		auto* f = new HingeConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mPoint1 = f->mPoint2 = p1;
+		f->mHingeAxis1 = f->mHingeAxis2 = axis;
+		f->mNormalAxis1 = f->mNormalAxis2 = axis.GetNormalizedPerpendicular();
+		settings = f;
+		break;
+	}
+	case BP_CONSTRAINT_SLIDER: {
+		auto* f = new SliderConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mAutoDetectPoint = true;
+		f->SetSliderAxis(axis);
+		settings = f;
+		break;
+	}
+	case BP_CONSTRAINT_DISTANCE: {
+		auto* f = new DistanceConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mPoint1 = p2; // Jolt body 1 is b, body 2 is a: motors, limits and angles are those of a relative to b.
+		f->mPoint2 = p1;
+		float lo = std::max(0.0f, d->min), hi = std::max(lo, d->max);
+		f->mMinDistance = lo;
+		f->mMaxDistance = hi;
+		settings = f;
+		break;
+	}
+	default: {
+		auto* f = new ConeConstraintSettings();
+		f->mSpace = EConstraintSpace::WorldSpace;
+		f->mPoint1 = f->mPoint2 = p1;
+		f->mTwistAxis1 = f->mTwistAxis2 = axis;
+		f->mHalfConeAngle = std::min(std::max(d->max, 0.0f), JPH_PI);
+		settings = f;
+		break;
+	}
+	}
+	TwoBodyConstraint* made = sim->system.GetBodyInterface().CreateConstraint(settings, bb ? bb->id : BodyID(), ba ? ba->id : BodyID());
+	if (!made) {
+		return 0;
+	}
+	sim->system.AddConstraint(made);
+	uint32_t number = sim->next_constraint++;
+	sim_constraint c;
+	c.constraint = made;
+	c.kind       = d->kind;
+	c.a          = d->a;
+	c.b          = d->b;
+	sim->constraints.emplace(number, std::move(c));
+	return number;
+}
+
+BP_API void bp_sim_constraint_destroy(bp_sim* sim, bp_constraint constraint)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	if (c) {
+		sim->system.RemoveConstraint(c->constraint);
+		sim->constraints.erase(constraint);
+	}
+}
+
+BP_API int bp_sim_constraint_set_limits(bp_sim* sim, bp_constraint constraint, float lo, float hi)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	if (!c || !finite(lo) || !finite(hi) || lo > hi) {
+		return 0;
+	}
+	switch (c->kind) {
+	case BP_CONSTRAINT_HINGE:
+		static_cast<HingeConstraint*>(c->constraint.GetPtr())->SetLimits(std::max(lo, -JPH_PI), std::min(hi, JPH_PI));
+		return 1;
+	case BP_CONSTRAINT_SLIDER:
+		static_cast<SliderConstraint*>(c->constraint.GetPtr())->SetLimits(lo, hi);
+		return 1;
+	case BP_CONSTRAINT_DISTANCE:
+		static_cast<DistanceConstraint*>(c->constraint.GetPtr())->SetDistance(std::max(0.0f, lo), std::max(std::max(0.0f, lo), hi));
+		return 1;
+	case BP_CONSTRAINT_CONE:
+		static_cast<ConeConstraint*>(c->constraint.GetPtr())->SetHalfConeAngle(std::min(std::max(hi, 0.0f), JPH_PI));
+		return 1;
+	}
+	return 0;
+}
+
+BP_API int bp_sim_constraint_set_motor(bp_sim* sim, bp_constraint constraint, uint32_t mode, float target, float max_force)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	if (!c || mode > 2 || !finite(target) || !finite(max_force) || max_force < 0.0f) {
+		return 0;
+	}
+	EMotorState state = (mode == 0) ? EMotorState::Off : (mode == 1) ? EMotorState::Velocity : EMotorState::Position;
+	if (c->kind == BP_CONSTRAINT_HINGE) {
+		auto* h = static_cast<HingeConstraint*>(c->constraint.GetPtr());
+		h->GetMotorSettings().SetTorqueLimit(max_force);
+		if (mode == 1) {
+			h->SetTargetAngularVelocity(target);
+		} else if (mode == 2) {
+			h->SetTargetAngle(std::min(std::max(target, h->GetLimitsMin()), h->GetLimitsMax()));
+		}
+		h->SetMotorState(state);
+		return 1;
+	}
+	if (c->kind == BP_CONSTRAINT_SLIDER) {
+		auto* h = static_cast<SliderConstraint*>(c->constraint.GetPtr());
+		h->GetMotorSettings().SetForceLimit(max_force);
+		if (mode == 1) {
+			h->SetTargetVelocity(target);
+		} else if (mode == 2) {
+			h->SetTargetPosition(std::min(std::max(target, h->GetLimitsMin()), h->GetLimitsMax()));
+		}
+		h->SetMotorState(state);
+		return 1;
+	}
+	return 0;
+}
+
+BP_API int bp_sim_constraint_set_spring(bp_sim* sim, bp_constraint constraint, float frequency, float damping)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	if (!c || !finite(frequency) || !finite(damping) || frequency < 0.0f || damping < 0.0f) {
+		return 0;
+	}
+	SpringSettings spring(ESpringMode::FrequencyAndDamping, frequency, damping);
+	if (c->kind == BP_CONSTRAINT_DISTANCE) {
+		static_cast<DistanceConstraint*>(c->constraint.GetPtr())->SetLimitsSpringSettings(spring);
+		return 1;
+	}
+	if (c->kind == BP_CONSTRAINT_SLIDER) {
+		static_cast<SliderConstraint*>(c->constraint.GetPtr())->SetLimitsSpringSettings(spring);
+		return 1;
+	}
+	return 0;
+}
+
+BP_API int bp_sim_constraint_set_break_force(bp_sim* sim, bp_constraint constraint, float force)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	if (!c || !finite(force) || force < 0.0f) {
+		return 0;
+	}
+	c->break_force = force;
+	return 1;
+}
+
+BP_API uint32_t bp_sim_constraint_state(const bp_sim* sim, bp_constraint constraint)
+{
+	sim_constraint* c = sim ? find_constraint(sim, constraint) : nullptr;
+	return !c ? 0 : (c->broken ? 2 : 1);
 }
 } // extern "C"
