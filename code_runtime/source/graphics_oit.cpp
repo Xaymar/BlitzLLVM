@@ -40,10 +40,10 @@ namespace {
 	constexpr uint32_t max_sizes = 4;
 	image_set        cache[max_sizes];
 	bb::rhi::pipeline_layout layout;
-	std::map<VkFormat, bb::rhi::pipeline[7]> composites;
+	std::map<bb::rhi::format, bb::rhi::pipeline[7]> composites;
 	bb::rhi::pipeline_layout layout3d_moments;
 
-	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
+	constexpr bb::rhi::format formats[5] = { bb::rhi::format::rgba16f, bb::rhi::format::r32f, bb::rhi::format::rgba16f, bb::rhi::format::rgba16f, bb::rhi::format::rgba32f };
 
 	// The layout of the passes over the picture: they read the group of the sums.
 	void create_set_layout()
@@ -69,7 +69,7 @@ namespace {
 			entry.set = bb::rhi::create_group(bb::rhi::group_kind::images8);
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
-				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : rhi_format(formats[i]));
+				entry.images[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_sampled, ((i == 0) && (oit_slots() || (asked == 5))) ? bb::rhi::format::rgba32f : (formats[i]));
 				bb::rhi::set_group_image(entry.set, i, uint64_t(entry.images[i].view), g.sampler_point_clamp);
 			}
 			if (uint32_t slots = oit_slots()) {
@@ -97,7 +97,7 @@ namespace {
 	}
 
 	// The passes over the picture for a target of the format: blend state is what makes each put its sums on it.
-	bb::rhi::pipeline* composites_for(VkFormat format)
+	bb::rhi::pipeline* composites_for(bb::rhi::format format)
 	{
 		auto found = composites.find(format);
 		if (found != composites.end()) {
@@ -119,7 +119,7 @@ namespace {
 			desc.fs                  = fs;
 			desc.layout              = layout;
 			desc.depth_unused        = true; // The pass of the scene has a depth attachment; it is not used here.
-			desc.attachments[0].fmt  = rhi_format(format);
+			desc.attachments[0].fmt  = (format);
 
 			// Alpha: the average color with the opacity as alpha. Multiply: what is there times the product. Add: what is there plus the sum.
 			bb::rhi::blend_state& blend = desc.attachments[0].blend;
@@ -259,10 +259,10 @@ namespace bb::gfx {
 	// Blends the layer into the accumulated layers: inside a pass that draws to them.
 	void oit_composite_layer(uint32_t width, uint32_t height)
 	{
-		bb::rhi::pipeline* pipelines = composites_for(VK_FORMAT_R32G32B32A32_SFLOAT);
+		bb::rhi::pipeline* pipelines = composites_for(bb::rhi::format::rgba32f);
 		image_set&  entry     = images_for(width, height);
 		bb::rhi::bind_group(layout, 0, entry.set);
-		bb::rhi::bind_pipeline(pipelines[5], 0);
+		bb::rhi::bind_pipeline(pipelines[5], bb::rhi::format::undefined);
 		bb::rhi::draw(3, 1, 0, 0);
 	}
 
@@ -272,12 +272,12 @@ namespace bb::gfx {
 	}
 
 	// Puts the accumulated layers on the picture, once: inside a pass that draws to a target of the format.
-	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height)
+	void oit_composite_accumulated(bb::rhi::format format, uint32_t width, uint32_t height)
 	{
 		bb::rhi::pipeline* pipelines = composites_for(format);
 		image_set&  entry     = images_for(width, height);
 		bb::rhi::bind_group(layout, 0, entry.set);
-		bb::rhi::bind_pipeline(pipelines[6], 0);
+		bb::rhi::bind_pipeline(pipelines[6], bb::rhi::format::undefined);
 		bb::rhi::draw(3, 1, 0, 0);
 	}
 
@@ -361,14 +361,14 @@ namespace bb::gfx {
 
 	// Puts the sums on the picture: inside a pass that draws to a target of the format, with the viewport and scissor of the scene.
 	// modes: the bits 0 (alpha), 1 (multiply) and 2 (add) of what was drawn.
-	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes)
+	void oit_composite(bb::rhi::format format, uint32_t width, uint32_t height, uint32_t modes)
 	{
 		bb::rhi::pipeline* pipelines = composites_for(format);
 		image_set&  entry     = images_for(width, height);
 		bb::rhi::bind_group(layout, 0, entry.set);
 		for (int mode = 0; mode < 3; mode++) {
 			if (modes & (1u << mode)) {
-				bb::rhi::bind_pipeline(pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode], 0);
+				bb::rhi::bind_pipeline(pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode], bb::rhi::format::undefined);
 				bb::rhi::draw(3, 1, 0, 0);
 			}
 		}

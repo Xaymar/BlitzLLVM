@@ -65,9 +65,9 @@ namespace bb::gfx {
 	//    precision floats of R16G16B16A16 are clamped to 0 to 1 and rounded to the nearest 16 bit value, and back to the nearest half).
 	//  - The Int has the alpha on top, then red, green and blue: 8 bits for each for RGBA8 and for R16G16B16A16 (which loses the
 	//    lower 8), and A2R10G10B10 for R10G10B10A2, which is the stored word with red and blue swapped.
-	static bool is_deep(VkFormat format)
+	static bool is_deep(bb::rhi::format format)
 	{
-		return (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) || (format == VK_FORMAT_R16G16B16A16_SFLOAT);
+		return (format == bb::rhi::format::a2bgr10) || (format == bb::rhi::format::rgba16f);
 	}
 
 	static uint64_t make_canonical(uint64_t a, uint64_t r, uint64_t g, uint64_t b)
@@ -85,14 +85,14 @@ namespace bb::gfx {
 		return uint64_t((x << 6) | (x >> 4));
 	}
 
-	static uint64_t raw_to_canonical(VkFormat format, const uint8_t* p)
+	static uint64_t raw_to_canonical(bb::rhi::format format, const uint8_t* p)
 	{
-		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		if (format == bb::rhi::format::a2bgr10) {
 			uint32_t v;
 			memcpy(&v, p, 4);
 			return make_canonical(uint64_t(v >> 30) * 21845, widen10(v & 1023), widen10((v >> 10) & 1023), widen10((v >> 20) & 1023));
 		}
-		if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+		if (format == bb::rhi::format::rgba16f) {
 			uint16_t w[4];
 			memcpy(w, p, 8);
 			return make_canonical(half_to_unorm16(w[3]), half_to_unorm16(w[0]), half_to_unorm16(w[1]), half_to_unorm16(w[2]));
@@ -100,12 +100,12 @@ namespace bb::gfx {
 		return make_canonical(uint64_t(p[3]) * 257, uint64_t(p[0]) * 257, uint64_t(p[1]) * 257, uint64_t(p[2]) * 257);
 	}
 
-	static void canonical_to_raw(VkFormat format, uint8_t* p, uint64_t c)
+	static void canonical_to_raw(bb::rhi::format format, uint8_t* p, uint64_t c)
 	{
-		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		if (format == bb::rhi::format::a2bgr10) {
 			uint32_t v = narrow(c, 32, 1023) | (narrow(c, 16, 1023) << 10) | (narrow(c, 0, 1023) << 20) | (narrow(c, 48, 3) << 30);
 			memcpy(p, &v, 4);
-		} else if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+		} else if (format == bb::rhi::format::rgba16f) {
 			uint16_t w[4] = { unorm16_to_half(uint16_t(c >> 32)), unorm16_to_half(uint16_t(c >> 16)), unorm16_to_half(uint16_t(c)), unorm16_to_half(uint16_t(c >> 48)) };
 			memcpy(p, w, 8);
 		} else {
@@ -116,18 +116,18 @@ namespace bb::gfx {
 		}
 	}
 
-	static int32_t canonical_to_int(VkFormat format, uint64_t c)
+	static int32_t canonical_to_int(bb::rhi::format format, uint64_t c)
 	{
-		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		if (format == bb::rhi::format::a2bgr10) {
 			return int32_t((narrow(c, 48, 3) << 30) | (narrow(c, 32, 1023) << 20) | (narrow(c, 16, 1023) << 10) | narrow(c, 0, 1023));
 		}
 		return int32_t((narrow(c, 48, 255) << 24) | (narrow(c, 32, 255) << 16) | (narrow(c, 16, 255) << 8) | narrow(c, 0, 255));
 	}
 
-	static uint64_t int_to_canonical(VkFormat format, int32_t value)
+	static uint64_t int_to_canonical(bb::rhi::format format, int32_t value)
 	{
 		uint32_t v = uint32_t(value);
-		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		if (format == bb::rhi::format::a2bgr10) {
 			return make_canonical(uint64_t(v >> 30) * 21845, widen10((v >> 20) & 1023), widen10((v >> 10) & 1023), widen10(v & 1023));
 		}
 		return make_canonical(uint64_t(v >> 24) * 257, uint64_t((v >> 16) & 255) * 257, uint64_t((v >> 8) & 255) * 257, uint64_t(v & 255) * 257);
@@ -172,7 +172,7 @@ void bb_lock_buffer(int32_t buffer)
 	slot->used    = true;
 	slot->buffer  = buffer;
 	slot->region  = target;
-	slot->format  = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	slot->format  = is_deep(target.image->format) ? target.image->format : bb::rhi::format::rgba8;
 	slot->pixels  = read_pixels(*target.image, target.x, target.y, target.w, target.h, is_deep(slot->format), target.layer);
 	slot->changed = false;
 }
@@ -197,7 +197,7 @@ void bb_unlock_buffer(int32_t buffer)
 		}
 		for (size_t i = 0; is_deep(l->format) && i < count && ((i + 1) * bytes <= size_t(size)); i++) {
 			uint64_t canonical;
-			if (l->format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+			if (l->format == bb::rhi::format::rgba16f) {
 				// The half floats are what the buffer stores, so the bank is the memory of the buffer (R, G, B, A).
 				uint8_t* pixel = l->pixels + i * bytes;
 				memcpy(pixel, data + i * 8, 8);
@@ -250,7 +250,7 @@ static int32_t fast_without_lock(const char* command)
 }
 
 // The pixel as the canonical 16 bits per channel value, from a locked buffer or a buffer that is not locked. Not there is 0.
-static bool fetch_canonical(int32_t x, int32_t y, int32_t buffer, uint64_t& out, VkFormat& format)
+static bool fetch_canonical(int32_t x, int32_t y, int32_t buffer, uint64_t& out, bb::rhi::format& format)
 {
 	out    = 0;
 	buffer = buffer_or_current(buffer);
@@ -266,7 +266,7 @@ static bool fetch_canonical(int32_t x, int32_t y, int32_t buffer, uint64_t& out,
 	if (!target.image) {
 		return false;
 	}
-	format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	format = is_deep(target.image->format) ? target.image->format : bb::rhi::format::rgba8;
 	if ((x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
 		return false;
 	}
@@ -296,7 +296,7 @@ static void store_canonical(int32_t x, int32_t y, int32_t buffer, uint64_t canon
 		return;
 	}
 	flush();
-	VkFormat format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	bb::rhi::format format = is_deep(target.image->format) ? target.image->format : bb::rhi::format::rgba8;
 	uint8_t  pixel[8];
 	canonical_to_raw(format, pixel, canonical);
 	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel, is_deep(format), true, target.layer);
@@ -315,7 +315,7 @@ int32_t bb_read_pixel_fast(int32_t x, int32_t y, int32_t buffer)
 	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
 		return 0;
 	}
-	if (l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+	if (l->format == bb::rhi::format::a2bgr10) {
 		uint32_t word;
 		memcpy(&word, l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4, 4);
 		return int32_t(swap_red_blue10(word));
@@ -339,7 +339,7 @@ void bb_write_pixel_fast(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
 		return;
 	}
-	if (l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+	if (l->format == bb::rhi::format::a2bgr10) {
 		uint32_t word = swap_red_blue10(uint32_t(argb));
 		if (!buffer_has_alpha(l->buffer)) {
 			word |= 3u << 30;
@@ -367,7 +367,7 @@ int32_t bb_read_pixel(int32_t x, int32_t y, int32_t buffer)
 		return 0;
 	}
 	uint64_t canonical;
-	VkFormat format;
+	bb::rhi::format format;
 	if (!fetch_canonical(x, y, buffer, canonical, format)) {
 		return 0;
 	}
@@ -408,7 +408,7 @@ void bb_write_pixel(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 // the pixel (R in the lowest bits), and the channels are half precision floats: for the depth 64 exactly what is stored, for the other depths the
 // value from 0 to 1 that the stored bits mean. WritePixel64 and WritePixelFast64 take the channels, which are clamped to 0 to 1 for the depths
 // that are not made of floats.
-static bool fetch_raw(int32_t x, int32_t y, int32_t buffer, uint8_t (&raw)[8], VkFormat& format)
+static bool fetch_raw(int32_t x, int32_t y, int32_t buffer, uint8_t (&raw)[8], bb::rhi::format& format)
 {
 	memset(raw, 0, sizeof(raw));
 	buffer = buffer_or_current(buffer);
@@ -424,7 +424,7 @@ static bool fetch_raw(int32_t x, int32_t y, int32_t buffer, uint8_t (&raw)[8], V
 	if (!target.image) {
 		return false;
 	}
-	format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	format = is_deep(target.image->format) ? target.image->format : bb::rhi::format::rgba8;
 	if ((x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
 		return false;
 	}
@@ -435,9 +435,9 @@ static bool fetch_raw(int32_t x, int32_t y, int32_t buffer, uint8_t (&raw)[8], V
 	return true;
 }
 
-static void raw_to_halves(VkFormat format, const uint8_t* raw, uint16_t (&halves)[4])
+static void raw_to_halves(bb::rhi::format format, const uint8_t* raw, uint16_t (&halves)[4])
 {
-	if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+	if (format == bb::rhi::format::rgba16f) {
 		memcpy(halves, raw, 8);
 		return;
 	}
@@ -448,9 +448,9 @@ static void raw_to_halves(VkFormat format, const uint8_t* raw, uint16_t (&halves
 	halves[3]          = unorm16_to_half(uint16_t(canonical >> 48));
 }
 
-static void halves_to_raw(VkFormat format, uint8_t* raw, const uint16_t (&halves)[4])
+static void halves_to_raw(bb::rhi::format format, uint8_t* raw, const uint16_t (&halves)[4])
 {
-	if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+	if (format == bb::rhi::format::rgba16f) {
 		memcpy(raw, halves, 8);
 		return;
 	}
@@ -477,7 +477,7 @@ static void store_halves(int32_t x, int32_t y, int32_t buffer, uint16_t (&halves
 		return;
 	}
 	flush();
-	VkFormat format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	bb::rhi::format format = is_deep(target.image->format) ? target.image->format : bb::rhi::format::rgba8;
 	uint8_t  pixel[8];
 	halves_to_raw(format, pixel, halves);
 	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel, is_deep(format), true, target.layer);
@@ -486,7 +486,7 @@ static void store_halves(int32_t x, int32_t y, int32_t buffer, uint16_t (&halves
 static int64_t read_halves(int32_t x, int32_t y, int32_t buffer, uint16_t* red, uint16_t* green, uint16_t* blue, uint16_t* alpha)
 {
 	uint8_t  raw[8];
-	VkFormat format;
+	bb::rhi::format format;
 	if (!fetch_raw(x, y, buffer, raw, format)) {
 		return 0;
 	}
@@ -553,7 +553,7 @@ void bb_write_pixel_fast64(int32_t x, int32_t y, int32_t buffer, uint32_t red, u
 static void copy_one_pixel(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t dy, int32_t destination)
 {
 	uint8_t  raw[8];
-	VkFormat format;
+	bb::rhi::format format;
 	if (fetch_raw(sx, sy, source, raw, format)) {
 		uint16_t halves[4];
 		raw_to_halves(format, raw, halves);
@@ -633,7 +633,7 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 void bb_get_color(int32_t x, int32_t y)
 {
 	uint64_t canonical;
-	VkFormat format;
+	bb::rhi::format format;
 	if (!active() || !fetch_canonical(x, y, 0, canonical, format)) {
 		return;
 	}
@@ -677,7 +677,7 @@ int32_t bb_locked_pixels(int32_t buffer)
 		for (size_t i = 0; is_deep(l->format) && (i < count); i++) {
 			// What a program reads is the Int of the pixel for 30 bits, and the 64 bits (A, R, G, B from the top) for 64.
 			uint64_t canonical = raw_to_canonical(l->format, l->pixels + i * bytes);
-			if (l->format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+			if (l->format == bb::rhi::format::rgba16f) {
 				memcpy(data + i * 8, l->pixels + i * bytes, 8); // The memory of the buffer: R, G, B, A as half floats.
 			} else {
 				int32_t word = canonical_to_int(l->format, canonical);
@@ -715,6 +715,6 @@ int32_t bb_locked_format(int32_t buffer)
 	if (!l) {
 		bb_runtime_error("Buffer is not locked");
 	}
-	return l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 ? 5 : (l->format == VK_FORMAT_R16G16B16A16_SFLOAT ? 6 : 4);
+	return l->format == bb::rhi::format::a2bgr10 ? 5 : (l->format == bb::rhi::format::rgba16f ? 6 : 4);
 }
 }

@@ -258,7 +258,7 @@ namespace bb::gfx {
 		if (!g.device || !t.set || t.pending || t.cube || t.atlas || (t.frames < 2) || (t.frame_w <= 0) || (t.frame_h <= 0) || !t.image.image) {
 			return;
 		}
-		if ((t.image.block != block_format::none) || t.image.ten || (t.image.format != VK_FORMAT_R8G8B8A8_UNORM && t.image.format != VK_FORMAT_R8G8B8A8_SRGB)) {
+		if ((t.image.block != block_format::none) || t.image.ten || (t.image.format != bb::rhi::format::rgba8 && t.image.format != bb::rhi::format::rgba8_srgb)) {
 			return;
 		}
 		flush();
