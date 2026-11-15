@@ -34,6 +34,15 @@ display = x11.XOpenDisplay(None)
 if not display:
     sys.exit("no X display")
 
+# Other tests open and close windows on the same display while this one walks the tree. A window that closes between the list of its
+# parent and the question for its name answers with BadWindow, and the default handler of Xlib ends the process for that. Such a
+# window is not the one this test looks for, so the error is ignored and the walk goes on.
+ERROR_HANDLER = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
+ignore_x_error = ERROR_HANDLER(lambda _display, _event: 0)
+x11.XSetErrorHandler.argtypes = [ERROR_HANDLER]
+x11.XSetErrorHandler.restype = ctypes.c_void_p
+x11.XSetErrorHandler(ignore_x_error)
+
 
 def names(window, out):
     name = ctypes.c_char_p()
