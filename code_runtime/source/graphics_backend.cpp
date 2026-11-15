@@ -12,7 +12,8 @@
 
 // Which backend of the rendering hardware interface draws: BLITZLLVM_RENDERER asks for one, and without it (or with "auto") the first
 // one that this build has is taken. Only Vulkan is built so far, so asking for another one ends the program with a message.
-#include "graphics_internal.hpp"
+// The calls of the backends go through a table (rhi_backend.hpp); the functions at the end of this file call through it.
+#include "rhi_backend.hpp"
 #include "environment.h"
 
 namespace bb::rhi {
@@ -44,9 +45,20 @@ namespace bb::rhi {
 		}
 	} // namespace
 
+	namespace {
+		// The table of a backend, null for one that this build does not have.
+		const backend_table* table_of(backend which)
+		{
+			switch (which) {
+			case backend::vulkan: return &vulkan_backend;
+			default: return nullptr;
+			}
+		}
+	} // namespace
+
 	bool backend_built(backend which)
 	{
-		return which == backend::vulkan;
+		return table_of(which) != nullptr;
 	}
 
 	backend selected_backend()
@@ -54,13 +66,14 @@ namespace bb::rhi {
 		static const backend selected = [] {
 			backend asked = asked_backend();
 			if (asked == backend::none) {
-				return backend::vulkan; // The order of auto, as far as it goes yet.
+				asked = backend::vulkan; // The order of auto, as far as it goes yet.
 			}
 			if (!backend_built(asked)) {
 				char message[160];
 				snprintf(message, sizeof(message), "BLITZLLVM_RENDERER=%s: this build of the runtime has no %s renderer.", name_of(asked), name_of(asked));
 				bb::gfx::fail(message);
 			}
+			active_backend = table_of(asked); // From here on every call of rhi_backend.inc goes to it.
 			return asked;
 		}();
 		return selected;
@@ -84,3 +97,24 @@ extern "C" const char* bb_renderer_name(void)
 {
 	return bb::rhi::backend_name();
 }
+
+// Every call of the list goes to the backend that draws.
+namespace bb::rhi {
+	const backend_table* active_backend = &vulkan_backend;
+
+#define BB_RHI_CALL(result, name, parameters, arguments) \
+	result name parameters { return active_backend->name arguments; }
+#define BB_GFX_CALL(result, name, parameters, arguments)
+#include "rhi_backend.inc"
+#undef BB_RHI_CALL
+#undef BB_GFX_CALL
+} // namespace bb::rhi
+
+namespace bb::gfx {
+#define BB_RHI_CALL(result, name, parameters, arguments)
+#define BB_GFX_CALL(result, name, parameters, arguments) \
+	result name parameters { return bb::rhi::active_backend->gfx_##name arguments; }
+#include "rhi_backend.inc"
+#undef BB_RHI_CALL
+#undef BB_GFX_CALL
+} // namespace bb::gfx

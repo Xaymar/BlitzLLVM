@@ -14,6 +14,8 @@
 // Only the Vulkan answer exists so far (graphics_vulkan.cpp, graphics_vulkan_memory.cpp, with graphics_vulkan.hpp for what they share).
 // The handles below are numbers that only the backend gives a meaning to. Code outside the backend does not include the headers of a
 // GPU API and makes or frees nothing of the GPU itself, only through the functions here.
+// A function here that a backend answers is listed in rhi_backend.inc and calls through the table of the backend that draws
+// (rhi_backend.hpp, graphics_backend.cpp); a new one has to be added to that list as well.
 #pragma once
 #include <stdint.h>
 #include <functional>
