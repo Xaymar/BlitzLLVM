@@ -215,13 +215,14 @@ jobs:
       - name: Check that the shaders translate to GLSL and HLSL (Linux)
         if: env.RUN == 'true' && matrix.label == 'Linux'
         # The SPIR-V of the runtime has to keep feeding the Direct3D 11 and OpenGL backends: every module has to validate, translate and (GLSL) compile.
-        # The HLSL that the repository keeps (the Windows build compiles it to bytecode) has to be what the SPIR-V translates to.
+        # The HLSL that the repository keeps (the Windows build compiles it to bytecode) and the GLSL that it keeps (the OpenGL backend compiles
+        # it when the program runs) have to be what the SPIR-V translates to.
         run: |
-          python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11
-          if [ -n "$(git status --porcelain -- code_runtime/source/d3d11)" ]; then
-            git status --short -- code_runtime/source/d3d11
-            git diff --stat -- code_runtime/source/d3d11
-            echo "::error::code_runtime/source/d3d11 does not match the shaders. Run: python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11"
+          python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11 --opengl code_runtime/source/shaders_opengl.inc
+          if [ -n "$(git status --porcelain -- code_runtime/source/d3d11 code_runtime/source/shaders_opengl.inc)" ]; then
+            git status --short -- code_runtime/source/d3d11 code_runtime/source/shaders_opengl.inc
+            git diff --stat -- code_runtime/source/d3d11 code_runtime/source/shaders_opengl.inc
+            echo "::error::code_runtime/source/d3d11 or shaders_opengl.inc does not match the shaders. Run: python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11 --opengl code_runtime/source/shaders_opengl.inc"
             exit 1
           fi
       - name: Run the tests (Linux)
