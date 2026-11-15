@@ -179,11 +179,9 @@ namespace bb::gfx {
 		if (!oit_active() || (asked < 3) || (asked > 4)) {
 			return 0;
 		}
-		VkPhysicalDeviceProperties props;
-		vkGetPhysicalDeviceProperties(g.physical, &props);
-		VkSampleCountFlags have = props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts & props.limits.sampledImageColorSampleCounts & props.limits.sampledImageDepthSampleCounts;
-		uint32_t           want = (asked == 4) ? 8 : 4;
-		if ((want == 8) && !(have & VK_SAMPLE_COUNT_8_BIT)) {
+		uint32_t have = bb::rhi::sample_counts();
+		uint32_t want = (asked == 4) ? 8 : 4;
+		if ((want == 8) && !(have & 8)) {
 			want = 4;
 		}
 		return (have & want) ? want : 0;

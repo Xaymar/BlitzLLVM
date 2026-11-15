@@ -2042,6 +2042,22 @@ namespace bb::rhi {
 		return made;
 	}
 
+	pipeline create_compute_pipeline(shader compute, pipeline_layout layout)
+	{
+		pipeline made = create_pipeline(nullptr);
+		gfx::pipeline_objects[made.id - 1].fixed = true;
+		VkComputePipelineCreateInfo info = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+		info.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		info.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
+		info.stage.module                = gfx::vk_shader(compute);
+		info.stage.pName                 = "main";
+		info.layout                      = gfx::vk_layout(layout);
+		VkPipeline built                 = VK_NULL_HANDLE;
+		gfx::check(vkCreateComputePipelines(gfx::g.device, VK_NULL_HANDLE, 1, &info, nullptr, &built), "vkCreateComputePipelines");
+		gfx::pipeline_objects[made.id - 1].built[format::undefined] = built;
+		return made;
+	}
+
 	void destroy_pipeline(pipeline p)
 	{
 		if (!p) {
@@ -2083,6 +2099,57 @@ namespace bb::rhi {
 		VkDescriptorSet set;
 		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
 		return binding_group{ uint64_t(set) };
+	}
+
+	binding_group combine_texture_groups(frame_groups& groups, const binding_group* sources, uint32_t count)
+	{
+		constexpr uint32_t sets_per_pool = 64;
+		if (groups.pools.empty() || (groups.used == sets_per_pool)) {
+			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, sets_per_pool * gfx::texture_layer_bindings };
+			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+			info.maxSets                    = sets_per_pool;
+			info.poolSizeCount              = 1;
+			info.pPoolSizes                 = &size;
+			VkDescriptorPool pool;
+			gfx::check(vkCreateDescriptorPool(gfx::g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
+			groups.pools.push_back(uint64_t(pool));
+			groups.used = 0;
+		}
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = VkDescriptorPool(groups.pools.back());
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &gfx::g.set_layout;
+		VkDescriptorSet set;
+		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		groups.used++;
+
+		VkCopyDescriptorSet copies[gfx::texture_layer_bindings];
+		for (uint32_t k = 0; k < count; k++) {
+			copies[k]                 = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+			copies[k].srcSet          = gfx::vk_set(sources[k]);
+			copies[k].srcBinding      = 0;
+			copies[k].dstSet          = set;
+			copies[k].dstBinding      = k;
+			copies[k].descriptorCount = 1;
+		}
+		vkUpdateDescriptorSets(gfx::g.device, 0, nullptr, count, copies);
+		return binding_group{ uint64_t(set) };
+	}
+
+	void reset_frame_groups(frame_groups& groups)
+	{
+		for (uint64_t pool : groups.pools) {
+			vkResetDescriptorPool(gfx::g.device, VkDescriptorPool(pool), 0);
+		}
+		groups.used = 0;
+	}
+
+	void destroy_frame_groups(frame_groups& groups)
+	{
+		for (uint64_t pool : groups.pools) {
+			vkDestroyDescriptorPool(gfx::g.device, VkDescriptorPool(pool), nullptr);
+		}
+		groups = frame_groups();
 	}
 
 	void destroy_group(binding_group group)
@@ -2177,9 +2244,23 @@ namespace bb::rhi {
 		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, VkFormat(target_format)));
 	}
 
-	void bind_raw_pipeline(uint64_t native, bool compute)
+	uint32_t sample_counts()
 	{
-		vkCmdBindPipeline(gfx::g.cmd, compute ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(native));
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(gfx::g.physical, &props);
+		// A VkSampleCountFlagBits has the value of its count.
+		return props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts & props.limits.sampledImageColorSampleCounts & props.limits.sampledImageDepthSampleCounts;
+	}
+
+	void bind_compute_pipeline(pipeline p)
+	{
+		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[format::undefined]);
+	}
+
+	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group)
+	{
+		VkDescriptorSet set = gfx::vk_set(group);
+		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
 	}
 
 	void bind_group(pipeline_layout layout, uint32_t index, binding_group group)
@@ -2266,6 +2347,36 @@ namespace bb::rhi {
 	void dispatch(uint32_t x, uint32_t y, uint32_t z)
 	{
 		vkCmdDispatch(gfx::g.cmd, x, y, z);
+	}
+
+	void sync_compute_writes(bool shaders_read)
+	{
+		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+		written.dstStageMask     = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
+		written.dstAccessMask    = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+		if (shaders_read) {
+			written.dstStageMask  |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+			written.dstAccessMask |= VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
+		}
+		VkDependencyInfo dependency   = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dependency.memoryBarrierCount = 1;
+		dependency.pMemoryBarriers    = &written;
+		vkCmdPipelineBarrier2(gfx::g.cmd, &dependency);
+	}
+
+	void sync_copy_writes()
+	{
+		VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+		memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		memory.dstStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memory.dstAccessMask    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+		VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dep.memoryBarrierCount  = 1;
+		dep.pMemoryBarriers     = &memory;
+		vkCmdPipelineBarrier2(gfx::g.cmd, &dep);
 	}
 }
 
@@ -2903,7 +3014,7 @@ namespace bb::rhi {
 		kind_layouts.scene  = VK_NULL_HANDLE;
 		kind_layouts.entity = VK_NULL_HANDLE;
 		kind_layouts.cull   = VK_NULL_HANDLE;
-		g.cull_pipeline = VK_NULL_HANDLE;
-		g.static_pipeline = VK_NULL_HANDLE;
+		g.cull_pipeline   = {};
+		g.static_pipeline = {};
 	}
 } // namespace bb::rhi

@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <functional>
+#include <vector>
 
 namespace bb::rhi {
 	/** What a buffer is used for, any of them together. */
@@ -231,6 +232,8 @@ namespace bb::rhi {
 	pipeline create_pipeline(pipeline_recipe recipe);
 	/** A pipeline of one description, whose target format is the one of the description whatever it is bound with (the passes over a picture: SMAA, gamma, the transparency composites). Built at once. */
 	pipeline create_fixed_pipeline(const pipeline_desc& desc);
+	/** A pipeline of one compute shader, for dispatch. Built at once. Bound with bind_compute_pipeline, not bind_pipeline. */
+	pipeline create_compute_pipeline(shader compute, pipeline_layout layout);
 	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
 	void     destroy_pipeline(pipeline p);
 	void     destroy_pipelines();
@@ -238,6 +241,9 @@ namespace bb::rhi {
 	void     forget_pipelines();
 
 	enum class filter : uint8_t { nearest, linear };
+
+	/** The counts of samples per pixel that the device can both draw to and sample, for colour and for depth: the sum of the counts (1, 2, 4, 8, ...), so (sample_counts() & 8) says whether 8 works. */
+	uint32_t sample_counts();
 	enum class wrap : uint8_t { repeat, mirror, clamp, border };
 
 	/** How an image is read by a shader. Equal descriptions give the same sampler. */
@@ -278,6 +284,17 @@ namespace bb::rhi {
 	binding_group create_group(group_kind kind);
 	/** Gives a group back. The GPU must be done with it. */
 	void          destroy_group(binding_group group);
+	/** Groups that are only used by the draws of one frame. They are all given back at once with reset_frame_groups when the GPU is done with the frame. */
+	struct frame_groups {
+		std::vector<uint64_t> pools;    // Of the backend.
+		uint32_t              used = 0; // Groups taken from the last pool.
+	};
+	/** Makes a group of the kind texture in the frame's groups: its place k holds what place 0 of sources[k] holds. count is the number of places of the kind. */
+	binding_group combine_texture_groups(frame_groups& groups, const binding_group* sources, uint32_t count);
+	/** Gives every group of the frame back. The GPU must be done with them. */
+	void          reset_frame_groups(frame_groups& groups);
+	/** Frees what the groups of a frame were made from, and leaves them empty. */
+	void          destroy_frame_groups(frame_groups& groups);
 	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
 	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
 	/** Puts a buffer (a backend handle for now) at a place of a group. uniform: the shader reads size bytes of it as a uniform block, from the offset the group is bound with (size 0: all of it); otherwise it is storage that the shader reads or
@@ -392,8 +409,9 @@ namespace bb::rhi {
 
 	/** Binds the pipeline built for the format of the target (the backend format code of the image, a VkFormat on Vulkan, until images have an rhi::format). */
 	void bind_pipeline(pipeline p, uint32_t target_format);
-	/** Binds a pipeline that is not an rhi::pipeline yet (SMAA, gamma, transparency composites, the compute passes). Goes away when they are. */
-	void bind_raw_pipeline(uint64_t native, bool compute);
+	/** Binds a pipeline of create_compute_pipeline for the dispatches that follow, and a group for them (outside a pass). */
+	void bind_compute_pipeline(pipeline p);
+	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group);
 	/** Makes the draws that follow read the group as number index of the layout. bind_group_at: a group whose uniform block is read from that offset of its buffer (the kind scene). */
 	void bind_group(pipeline_layout layout, uint32_t index, binding_group group);
 	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset);
@@ -413,6 +431,10 @@ namespace bb::rhi {
 	/** count commands of the given stride in the buffer, starting at offset. */
 	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride);
 	void dispatch(uint32_t x, uint32_t y, uint32_t z);
+	/** After dispatches: what they wrote to buffers is there for the indirect draws that follow, and with shaders_read for the shaders of those draws too. */
+	void sync_compute_writes(bool shaders_read);
+	/** Between copies: what a copy wrote to a buffer is there for the copies that follow. */
+	void sync_copy_writes();
 
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);
