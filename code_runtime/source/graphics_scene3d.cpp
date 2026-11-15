@@ -829,22 +829,14 @@ namespace bb::gfx {
 			cull_desc.push_stages = bb::rhi::stage_compute;
 			g.cull_pipeline_layout = bb::rhi::get_layout(cull_desc);
 			bb::rhi::shader cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
-			VkComputePipelineCreateInfo cull_pipeline = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
-			cull_pipeline.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			cull_pipeline.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
-			cull_pipeline.stage.module                = vk_shader(cs);
-			cull_pipeline.stage.pName                 = "main";
-			cull_pipeline.layout                      = vk_layout(g.cull_pipeline_layout);
-			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
+			g.cull_pipeline    = bb::rhi::create_compute_pipeline(cs, g.cull_pipeline_layout);
 			destroy_shader(cs);
 
 			// The draws that the GPU drives: the same sets, and the planes, where the camera is and where to write.
 			cull_desc.push_size    = 6 * 16 + 16 + 16;
 			g.static_pipeline_layout = bb::rhi::get_layout(cull_desc);
 			bb::rhi::shader ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
-			cull_pipeline.stage.module = vk_shader(ss);
-			cull_pipeline.layout       = vk_layout(g.static_pipeline_layout);
-			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.static_pipeline), "vkCreateComputePipelines");
+			g.static_pipeline  = bb::rhi::create_compute_pipeline(ss, g.static_pipeline_layout);
 			destroy_shader(ss);
 		}
 
@@ -1101,20 +1093,12 @@ namespace bb::gfx {
 		} push = {};
 		memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
 		push.first_group[0] = int32_t(first);
-		bb::rhi::bind_raw_pipeline(uint64_t(g.cull_pipeline), true);
-		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.cull.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.cull_pipeline_layout), 0, 2, sets, 0, nullptr);
+		bb::rhi::bind_compute_pipeline(g.cull_pipeline);
+		bb::rhi::bind_compute_group(g.cull_pipeline_layout, 0, g.entity_set);
+		bb::rhi::bind_compute_group(g.cull_pipeline_layout, 1, g.cull.set);
 		bb::rhi::push_constants(g.cull_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
 		bb::rhi::dispatch(cull_recorded_groups - first, 1, 1);
-		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
-		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
-		written.dstStageMask     = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
-		written.dstAccessMask    = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
-		VkDependencyInfo dependency = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-		dependency.memoryBarrierCount = 1;
-		dependency.pMemoryBarriers    = &written;
-		vkCmdPipelineBarrier2(g.cmd, &dependency);
+		bb::rhi::sync_compute_writes(false);
 	}
 
 	// Brings the copy of the table that this frame uses up to date, and points its descriptors at the buffers.
@@ -1178,20 +1162,12 @@ namespace bb::gfx {
 		memcpy(push.origin, scene.origin, sizeof(scene.origin));
 		push.base[0] = int32_t(scene.static_entities);
 		push.base[1] = int32_t(scene.static_commands);
-		bb::rhi::bind_raw_pipeline(uint64_t(g.static_pipeline), true);
-		VkDescriptorSet sets[2] = { vk_set(g.entity_set), vk_set(g.statics.set) };
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, vk_layout(g.static_pipeline_layout), 0, 2, sets, 0, nullptr);
+		bb::rhi::bind_compute_pipeline(g.static_pipeline);
+		bb::rhi::bind_compute_group(g.static_pipeline_layout, 0, g.entity_set);
+		bb::rhi::bind_compute_group(g.static_pipeline_layout, 1, g.statics.set);
 		bb::rhi::push_constants(g.static_pipeline_layout, bb::rhi::stage_compute, 0, sizeof(push), &push);
 		bb::rhi::dispatch(scene.static_count / gpu_static::lanes, 1, 1);
-		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
-		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
-		written.dstStageMask     = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
-		written.dstAccessMask    = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
-		VkDependencyInfo dependency   = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-		dependency.memoryBarrierCount = 1;
-		dependency.pMemoryBarriers    = &written;
-		vkCmdPipelineBarrier2(g.cmd, &dependency);
+		bb::rhi::sync_compute_writes(true);
 	}
 
 	// Draws what a camera had waiting.
@@ -1759,16 +1735,8 @@ namespace bb::gfx {
 			part.h           = uint32_t(c.h);
 			transition(*from.image, bb::rhi::image_state::copy_src);
 			bb::rhi::copy_image_to_buffer(uint64_t(from.image->image), uint64_t(scratch.vk), &part, 1);
-			VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
-			memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-			memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
-			memory.dstStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-			memory.dstAccessMask    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-			VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-			dep.memoryBarrierCount  = 1;
-			dep.pMemoryBarriers     = &memory;
 			transition(*to.image, bb::rhi::image_state::copy_dst);
-			vkCmdPipelineBarrier2(g.cmd, &dep);
+			bb::rhi::sync_copy_writes();
 			part.image.layer = to.layer;
 			part.image.x     = to.x + c.dx;
 			part.image.y     = to.y + c.dy;

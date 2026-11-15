@@ -390,11 +390,11 @@ namespace bb::gfx {
 		// Culling of clusters of big surfaces on the GPU, if it can draw the commands that come out of it.
 		bool                  can_gpu_cull   = false;
 		bb::rhi::pipeline_layout cull_pipeline_layout;
-		VkPipeline            cull_pipeline  = VK_NULL_HANDLE;
+		bb::rhi::pipeline     cull_pipeline;
 		cull_buffers          cull;
 		static_buffers        statics;
 		bb::rhi::pipeline_layout static_pipeline_layout;
-		VkPipeline            static_pipeline = VK_NULL_HANDLE;
+		bb::rhi::pipeline     static_pipeline;
 		bb::rhi::pipeline            opaque3d       ;
 		bb::rhi::pipeline            solid3d        ; // The same without the discard, so that depth is tested before the shader runs.
 		bb::rhi::pipeline            oit3d[4]; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.

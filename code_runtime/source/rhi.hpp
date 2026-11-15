@@ -231,6 +231,8 @@ namespace bb::rhi {
 	pipeline create_pipeline(pipeline_recipe recipe);
 	/** A pipeline of one description, whose target format is the one of the description whatever it is bound with (the passes over a picture: SMAA, gamma, the transparency composites). Built at once. */
 	pipeline create_fixed_pipeline(const pipeline_desc& desc);
+	/** A pipeline of one compute shader, for dispatch. Built at once. Bound with bind_compute_pipeline, not bind_pipeline. */
+	pipeline create_compute_pipeline(shader compute, pipeline_layout layout);
 	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
 	void     destroy_pipeline(pipeline p);
 	void     destroy_pipelines();
@@ -392,8 +394,9 @@ namespace bb::rhi {
 
 	/** Binds the pipeline built for the format of the target (the backend format code of the image, a VkFormat on Vulkan, until images have an rhi::format). */
 	void bind_pipeline(pipeline p, uint32_t target_format);
-	/** Binds a pipeline that is not an rhi::pipeline yet (SMAA, gamma, transparency composites, the compute passes). Goes away when they are. */
-	void bind_raw_pipeline(uint64_t native, bool compute);
+	/** Binds a pipeline of create_compute_pipeline for the dispatches that follow, and a group for them (outside a pass). */
+	void bind_compute_pipeline(pipeline p);
+	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group);
 	/** Makes the draws that follow read the group as number index of the layout. bind_group_at: a group whose uniform block is read from that offset of its buffer (the kind scene). */
 	void bind_group(pipeline_layout layout, uint32_t index, binding_group group);
 	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset);
@@ -413,6 +416,10 @@ namespace bb::rhi {
 	/** count commands of the given stride in the buffer, starting at offset. */
 	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride);
 	void dispatch(uint32_t x, uint32_t y, uint32_t z);
+	/** After dispatches: what they wrote to buffers is there for the indirect draws that follow, and with shaders_read for the shaders of those draws too. */
+	void sync_compute_writes(bool shaders_read);
+	/** Between copies: what a copy wrote to a buffer is there for the copies that follow. */
+	void sync_copy_writes();
 
 	/** Makes the buffer; what it held before is forgotten, not freed (the caller has handed it to the graveyard, or it was empty). Fails with a runtime error if memory is out; the buffer is empty (but mapped points to dummy memory) if the device is lost. */
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where);

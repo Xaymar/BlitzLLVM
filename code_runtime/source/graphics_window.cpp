@@ -270,12 +270,9 @@ void bb::gfx::destroy_device_objects()
 	destroy_frame_slot_buffers();
 	oit_destroy();
 	destroy_pipelines_3d();
-	if (g.cull_pipeline) {
-		vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
-	}
-	if (g.static_pipeline) {
-		vkDestroyPipeline(g.device, g.static_pipeline, nullptr);
-	}
+	bb::rhi::destroy_pipeline(g.cull_pipeline);
+	bb::rhi::destroy_pipeline(g.static_pipeline);
+	g.cull_pipeline = g.static_pipeline = {};
 	for (int i = 0; i < TEXTURES; i++) {
 		destroy_image(g.textures[i]);
 	}
