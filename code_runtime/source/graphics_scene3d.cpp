@@ -1238,13 +1238,13 @@ namespace bb::gfx {
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == bb::rhi::image_state::undefined;
 		if (fresh_depth) {
-			barrier(depth_image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth_image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::depth_target, true);
 			depth_image.layout = bb::rhi::image_state::depth_target;
 		}
 
 		// Direct3D 7 has the centers of its pixels on whole numbers and Vulkan half a pixel further, so the picture moves by that to land where Blitz3D puts it.
-		VkViewport viewport = { float(scene.x) + 0.5f, float(scene.y) + 0.5f, float(scene.w), float(scene.h), 0, 1 };
-		VkRect2D   scissor  = { { scene.x, scene.y }, { uint32_t(scene.w), uint32_t(scene.h) } };
+		bb::rhi::viewport viewport = { float(scene.x) + 0.5f, float(scene.y) + 0.5f, float(scene.w), float(scene.h) };
+		bb::rhi::rect   scissor  = { scene.x, scene.y, scene.w, scene.h };
 
 		// The depth is shared by the passes of the scene: its state (loaded or cleared, read only) follows what has happened so far.
 		bb::rhi::pass_attachment depth;
@@ -1260,8 +1260,8 @@ namespace bb::gfx {
 		info.height         = target.image->height;
 		info.viewport[0]    = viewport.x;
 		info.viewport[1]    = viewport.y;
-		info.viewport[2]    = viewport.width;
-		info.viewport[3]    = viewport.height;
+		info.viewport[2]    = viewport.w;
+		info.viewport[3]    = viewport.h;
 		info.scissor[0]     = scene.x;
 		info.scissor[1]     = scene.y;
 		info.scissor[2]     = scene.w;
@@ -1370,11 +1370,11 @@ namespace bb::gfx {
 			oit_mode   = false;
 			oit_phase  = 0;
 			begin_shared(info);
-			VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
-			bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
-			bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+			bb::rhi::viewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h) };
+			bb::rhi::set_viewport(whole.x, whole.y, whole.w, whole.h);
+			bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 			oit_composite(target.image->format, oit_w, oit_h, oit_modes);
-			bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+			bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
 			// The pass over the picture had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
 			bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
 			bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
@@ -1397,7 +1397,7 @@ namespace bb::gfx {
 					bound_pipeline = k.pipeline;
 					stats3d.pipelines++;
 				}
-				int cull = k.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
+				int cull = k.cull ? int(scene.reflected ? bb::rhi::cull_mode::front : bb::rhi::cull_mode::back) : int(bb::rhi::cull_mode::none);
 				if (cull != bound_cull) {
 					bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 					bound_cull = cull;
@@ -1438,7 +1438,7 @@ namespace bb::gfx {
 		for (uint32_t i = 0; (i < scene.draw_count) || (oit_phase == 1) || (oit_phase == 3) || (oit_phase == 5);) {
 			if ((oit_phase == 5) && (i >= oit_end)) {
 				// This layer is drawn: it goes into the accumulated layers, and the next one is peeled off, or the accumulated layers go on the picture.
-				VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
+				bb::rhi::viewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h) };
 				bb::rhi::end_pass();
 				oit_peel_to_sampled(oit_w, oit_h, peel_layer);
 				accumulate_info             = info;
@@ -1446,8 +1446,8 @@ namespace bb::gfx {
 				oit_accumulate_begin(oit_w, oit_h, peel_layer, &accumulate_info.colors[0]);
 				depth.load = bb::rhi::load_op::load;
 				begin_shared(accumulate_info);
-				bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
-				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+				bb::rhi::set_viewport(whole.x, whole.y, whole.w, whole.h);
+				bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 				oit_composite_layer(oit_w, oit_h);
 				bb::rhi::end_pass();
 				peel_layer++;
@@ -1459,8 +1459,8 @@ namespace bb::gfx {
 					peel_info.has_depth   = true;
 					bb::rhi::binding_group before = oit_peel_begin(oit_w, oit_h, peel_layer, &peel_info.colors[0], &peel_info.depth);
 					bb::rhi::begin_pass(peel_info);
-					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+					bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 					// The pass over the layer had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
 					bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
 					bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
@@ -1471,10 +1471,10 @@ namespace bb::gfx {
 				}
 				oit_accumulated_to_sampled(oit_w, oit_h);
 				begin_shared(info);
-				bb::rhi::set_viewport(whole.x, whole.y, whole.width, whole.height);
-				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+				bb::rhi::set_viewport(whole.x, whole.y, whole.w, whole.h);
+				bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 				oit_composite_accumulated(target.image->format, oit_w, oit_h);
-				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
 				oit_modes = 0; // The draws of the layers added their blend modes; nothing is left for leave_oit to put on the picture.
 				oit_phase = 0; // The pass that is open is the one of the scene, and leave_oit closes it when the next draw is not see-through.
 				i         = oit_end;
@@ -1492,8 +1492,8 @@ namespace bb::gfx {
 				for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
 					attachment.load = bb::rhi::load_op::load;
 				}
-				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+				bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 4;
@@ -1512,8 +1512,8 @@ namespace bb::gfx {
 				for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
 					attachment.load = bb::rhi::load_op::load;
 				}
-				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+				bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
 				bb::rhi::bind_group(oit_layout3d(), 4, moment_set);
 				bound_pipeline = bb::rhi::pipeline();
@@ -1527,12 +1527,12 @@ namespace bb::gfx {
 			}
 			if ((i == soft_first) && !read_only) {
 				bb::rhi::end_pass();
-				barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+				barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, true);
 				depth.read_only = true;
 				depth.load      = bb::rhi::load_op::load;
 				begin_shared(oit_mode ? oit_info : info);
-				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+				bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 				bb::rhi::bind_group(g.layout3d, 3, depth_set);
 				read_only = true;
@@ -1564,7 +1564,7 @@ namespace bb::gfx {
 					}
 					if (!read_only) {
 						// The first layer tests against the depth of the scene in the shader, so it is only read from here on.
-						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, true);
 						depth.read_only = true;
 						read_only         = true;
 					}
@@ -1577,8 +1577,8 @@ namespace bb::gfx {
 					oit_modes                      = 0;
 					oit_phase                      = 5;
 					bb::rhi::begin_pass(peel_info);
-					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+					bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
 					bb::rhi::bind_group(g.layout3d, 3, scene_set);
 					bound_pipeline = bb::rhi::pipeline();
@@ -1592,7 +1592,7 @@ namespace bb::gfx {
 					}
 					if (!read_only) {
 						// The slots test against the depth of the scene in the shader, so it is only read from here on (as with a depth fade).
-						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, true);
 						depth.read_only = true;
 						read_only         = true;
 					}
@@ -1605,8 +1605,8 @@ namespace bb::gfx {
 					oit_modes                      = 0;
 					oit_phase                      = 3;
 					bb::rhi::begin_pass(slot_info);
-					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+					bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_moments()) {
@@ -1618,7 +1618,7 @@ namespace bb::gfx {
 					}
 					if ((soft_first < oit_end) && !read_only) {
 						// The sprites with a depth fade read the depth buffer, in both passes: it is only read from here on.
-						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, true);
 						depth.read_only = true;
 						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
 						bb::rhi::bind_group(g.layout3d, 3, depth_set);
@@ -1632,8 +1632,8 @@ namespace bb::gfx {
 					oit_modes                         = 0;
 					oit_phase                         = 1;
 					begin_shared(moment_info);
-					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+					bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit) {
@@ -1648,8 +1648,8 @@ namespace bb::gfx {
 					for (bb::rhi::pass_attachment& attachment : oit_info.colors) {
 						attachment.load = bb::rhi::load_op::load; // For when a depth fade restarts the pass.
 					}
-					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
+					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.w, viewport.h);
+					bb::rhi::set_scissor(scissor.x, scissor.y, scissor.w, scissor.h);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else {
@@ -1666,7 +1666,7 @@ namespace bb::gfx {
 				bound_pipeline = wanted;
 				stats3d.pipelines++;
 			}
-			int cull = d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
+			int cull = d.cull ? int(scene.reflected ? bb::rhi::cull_mode::front : bb::rhi::cull_mode::back) : int(bb::rhi::cull_mode::none);
 			if (cull != bound_cull) {
 				bb::rhi::set_cull(bb::rhi::cull_mode(cull));
 				bound_cull = cull;
@@ -1711,7 +1711,7 @@ namespace bb::gfx {
 		}
 		bb::rhi::end_pass();
 		if (read_only) {
-			barrier(depth_image.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth_image.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, true);
 		}
 	}
 

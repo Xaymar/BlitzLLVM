@@ -315,7 +315,7 @@ namespace {
 		}
 	}
 
-	void begin_pass(gpu_image& image, VkRect2D area, bool clear, bool load = false)
+	void begin_pass(gpu_image& image, bb::rhi::rect area, bool clear, bool load = false)
 	{
 		bb::rhi::pass_desc pass;
 		pass.colors[0].view = uint64_t(image.view);
@@ -323,14 +323,14 @@ namespace {
 		pass.color_count    = 1;
 		pass.width          = image.width;
 		pass.height         = image.height;
-		pass.viewport[0]    = float(area.offset.x);
-		pass.viewport[1]    = float(area.offset.y);
-		pass.viewport[2]    = float(area.extent.width);
-		pass.viewport[3]    = float(area.extent.height);
-		pass.scissor[0]     = area.offset.x;
-		pass.scissor[1]     = area.offset.y;
-		pass.scissor[2]     = int32_t(area.extent.width);
-		pass.scissor[3]     = int32_t(area.extent.height);
+		pass.viewport[0]    = float(area.x);
+		pass.viewport[1]    = float(area.y);
+		pass.viewport[2]    = float(area.w);
+		pass.viewport[3]    = float(area.h);
+		pass.scissor[0]     = area.x;
+		pass.scissor[1]     = area.y;
+		pass.scissor[2]     = area.w;
+		pass.scissor[3]     = area.h;
 		bb::rhi::begin_pass(pass);
 	}
 
@@ -460,7 +460,7 @@ namespace bb::gfx {
 			c.subsample[0] = c.subsample[1] = c.subsample[2] = r.phase ? 2.0f : 1.0f;
 			memcpy(c.reproject, r.reproject, sizeof(c.reproject));
 		}
-		VkRect2D whole = { { 0, 0 }, { uint32_t(r.w), uint32_t(r.h) } };
+		bb::rhi::rect whole = { 0, 0, r.w, r.h };
 
 		// Edges, then the weights of the blend along them.
 		transition(s.edges, bb::rhi::image_state::color_target);
@@ -487,10 +487,10 @@ namespace bb::gfx {
 		c.subsample[3] = float(bayer_levels());
 		c.resolve[2]   = r.temporal ? 0.0f : dither_for_pass;
 		if (reads_depth) {
-			barrier(depth.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, true);
 		}
 		format_pipelines& p = pipelines_for(target.image->format);
-		VkRect2D          area = { { r.x, r.y }, { uint32_t(r.w), uint32_t(r.h) } };
+		bb::rhi::rect          area = { r.x, r.y, r.w, r.h };
 		if (!r.temporal) {
 			transition(*target.image, bb::rhi::image_state::color_target);
 			bb::rhi::pass_desc pass;
@@ -538,7 +538,7 @@ namespace bb::gfx {
 			s.history = true;
 		}
 		if (reads_depth) {
-			barrier(depth.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+			barrier(depth.image, bb::rhi::image_state::depth_read, bb::rhi::image_state::depth_target, true);
 		}
 		target.image->mips_stale = target.image->mips > 1;
 	}
