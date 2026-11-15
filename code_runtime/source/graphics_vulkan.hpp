@@ -208,7 +208,6 @@ namespace bb::gfx {
 	void create_device(VkSurfaceKHR present_to);
 	/** The same with the Vulkan types, for what still has them (the recipe of an image). */
 	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples);
-	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout);
 	inline VkDescriptorSet vk_set(bb::rhi::binding_group g)
 	{
 		return VkDescriptorSet(g.id);
