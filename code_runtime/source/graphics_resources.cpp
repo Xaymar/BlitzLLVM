@@ -785,6 +785,76 @@ namespace bb::gfx {
 	bool image_evict_allowed() { return evict_allowed; }
 	bool image_system_forced() { return force_system; }
 
+	// Set while images are evicted or moved to make room, so that what that makes does not start it again.
+	static thread_local bool evicting = false;
+	bool image_evicting() { return evicting; }
+	void set_image_evicting(bool on) { evicting = on; }
+
+	void video_memory_exhausted(const char* what, uint64_t size)
+	{
+		uint64_t used, total;
+		bb::rhi::memory_budget(used, total);
+		double mb = 1.0 / (1024.0 * 1024.0);
+		char   message[256];
+		snprintf(message, sizeof(message), "out of video memory: %s needs %.1f MB, but only %.1f of %.1f MB are free. Use fewer or smaller textures, or a lower resolution.", what, double(size) * mb, double(total > used ? total - used : 0) * mb, double(total) * mb);
+		fail(message);
+	}
+
+	bool make_room(uint64_t needed)
+	{
+		if (evicting) {
+			return false;
+		}
+		auto free_bytes = []() {
+			uint64_t used, total;
+			bb::rhi::memory_budget(used, total);
+			return total > used ? total - used : uint64_t(0);
+		};
+		if (free_bytes() >= needed) {
+			return true;
+		}
+		evicting = true;
+		bool moved = defragment_images();
+		if (free_bytes() < needed) {
+			moved |= textures_evict(needed - free_bytes());
+		}
+		evicting = false;
+		return free_bytes() >= needed;
+	}
+
+	void reserve_internal_buffers()
+	{
+		static uint64_t last_size = 0;
+		static int      last_oit = -1, last_aa = -1;
+		if (!bb::rhi::has_device() || evicting || g.headless || !g.width || !g.height) {
+			return;
+		}
+		uint64_t pixels = uint64_t(g.width) * g.height;
+		int      oit    = oit_mode();
+		int      aa     = antialias_mode();
+		if ((pixels == last_size) && (oit == last_oit) && (aa == last_aa)) {
+			return;
+		}
+		last_size = pixels;
+		last_oit  = oit;
+		last_aa   = aa;
+		// Bytes per pixel of what each of them makes: depth and the picture to draw to, OIT (five images, the slots of samples, the layers of the reference), SMAA (and its two pictures for T2x).
+		uint64_t per_pixel = 8;
+		if (oit > 0) {
+			per_pixel += 48 + (oit_slots() * 20ull) + ((oit == 5) ? 16 : 0);
+		}
+		if (aa > 0) {
+			per_pixel += 10 + ((aa == 2) ? 8 : 0);
+		}
+		make_room(pixels * per_pixel);
+	}
+
+	bool mesh_buffers_write_only()
+	{
+		static const bool write_only = bb_env_bool("BLITZLLVM_MESH_WRITE_ONLY", true) != 0;
+		return write_only;
+	}
+
 	void create_device_resources()
 	{
 		// Descriptors, sampler and pipelines

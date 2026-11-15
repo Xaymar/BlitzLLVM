@@ -800,8 +800,9 @@ namespace bb::gfx {
 	bool image_spill_allowed();
 	bool image_evict_allowed();
 	bool image_system_forced();
-	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
-	void video_memory_budget(uint64_t& used, uint64_t& total);
+	/** Whether images are being evicted or moved to make room right now (on this thread), and the backend saying so around what it starts itself. */
+	bool image_evicting();
+	void set_image_evicting(bool on);
 	/** Ends the program with a message that says what did not fit into video memory. */
 	[[noreturn]] void video_memory_exhausted(const char* what, uint64_t size);
 	/** Makes an image. The aspect follows from the format. */

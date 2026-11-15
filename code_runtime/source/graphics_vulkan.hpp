@@ -205,6 +205,8 @@ namespace bb::gfx {
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
 	/** The pipeline to draw to an image of that format, built the first time. */
 	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format);
+	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
+	void video_memory_budget(uint64_t& used, uint64_t& total);
 	void create_device(VkSurfaceKHR present_to);
 	/** The same with the Vulkan types, for what still has them (the recipe of an image). */
 	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples);
