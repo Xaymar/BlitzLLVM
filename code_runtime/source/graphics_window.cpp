@@ -159,7 +159,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		fail(SDL_GetError());
 	}
-	SDL_WindowFlags flags = SDL_WINDOW_VULKAN;
+	SDL_WindowFlags flags = bb::rhi::window_flags();
 	if (mode == 1) {
 		// Borderless over the whole display with no change of its video mode; the buffer is shown with its aspect ratio kept.
 		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
@@ -310,7 +310,7 @@ bool bb::gfx::ensure_device()
 	g.requested_depth = 32;
 	g.buffer_depth    = 32;
 	g.buffer_format   = bb::rhi::format::rgba8;
-	SDL_Window* probe = SDL_CreateWindow("", 1, 1, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
+	SDL_Window* probe = SDL_CreateWindow("", 1, 1, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
 	if (!probe) {
 		fail(SDL_GetError());
 	}
@@ -342,7 +342,7 @@ bool bb::gfx::ensure_offscreen()
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		return false; // No window system, as in a program that runs on a server.
 	}
-	surface().window = SDL_CreateWindow("BlitzLLVM", offscreen_size, offscreen_size, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
+	surface().window = SDL_CreateWindow("BlitzLLVM", offscreen_size, offscreen_size, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
 	if (!surface().window) {
 		SDL_Quit();
 		return false;

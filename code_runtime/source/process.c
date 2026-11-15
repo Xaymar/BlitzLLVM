@@ -275,7 +275,9 @@ static const char* bb_ram_size(void)
 	return bb_copy(buffer, (size_t)n);
 }
 
-// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir, cpu, os and ram for the machine, and runtime and timestamp for the build. Off Windows there is no such thing as the Windows
+const char* bb_renderer_name(void); // graphics_backend.cpp
+
+// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir, cpu, os and ram for the machine, runtime and timestamp for the build, and renderer for what draws. Off Windows there is no such thing as the Windows
 // folder, so windowsdir is where the system keeps its configuration (/etc/ or /System/ on macOS) and systemdir is
 // where it keeps its libraries (/usr/lib/ or /System/Library/ on macOS). Anything else is an empty string.
 const char* bb_system_property(const char* name)
@@ -302,6 +304,8 @@ const char* bb_system_property(const char* name)
 		return bb_runtime_version();
 	} else if (!strcmp(wanted, "timestamp") || !strcmp(wanted, "TIMESTAMP")) {
 		return bb_build_timestamp();
+	} else if (!strcmp(wanted, "renderer") || !strcmp(wanted, "RENDERER")) {
+		value = bb_renderer_name();
 	} else if (!strcmp(wanted, "windowsdir") || !strcmp(wanted, "WINDOWSDIR")) {
 #if defined(_WIN32)
 		value = getenv("SystemRoot");
