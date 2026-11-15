@@ -2193,6 +2193,14 @@ namespace bb::rhi {
 		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, VkFormat(target_format)));
 	}
 
+	uint32_t sample_counts()
+	{
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(gfx::g.physical, &props);
+		// A VkSampleCountFlagBits has the value of its count.
+		return props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts & props.limits.sampledImageColorSampleCounts & props.limits.sampledImageDepthSampleCounts;
+	}
+
 	void bind_compute_pipeline(pipeline p)
 	{
 		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[format::undefined]);

@@ -240,6 +240,9 @@ namespace bb::rhi {
 	void     forget_pipelines();
 
 	enum class filter : uint8_t { nearest, linear };
+
+	/** The counts of samples per pixel that the device can both draw to and sample, for colour and for depth: the sum of the counts (1, 2, 4, 8, ...), so (sample_counts() & 8) says whether 8 works. */
+	uint32_t sample_counts();
 	enum class wrap : uint8_t { repeat, mirror, clamp, border };
 
 	/** How an image is read by a shader. Equal descriptions give the same sampler. */
