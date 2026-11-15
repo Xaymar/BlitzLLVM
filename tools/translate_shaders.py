@@ -7,8 +7,10 @@
 # The HLSL is made for bytecode that is compiled ahead of time (see d3d11_hlsl): registers are numbered for each kind over all sets, and
 # specialization constants are members of a constant buffer. It is not compiled with the compiler of Direct3D here, which only Windows has.
 #
-#   python3 tools/translate_shaders.py [--out DIR] [--keep-going]
+#   python3 tools/translate_shaders.py [--out DIR] [--d3d11 DIR] [--keep-going]
 #
+# With --d3d11 code_runtime/source/d3d11 the HLSL that the repository keeps is made again. The Windows build compiles those files to
+# bytecode (code_runtime/CMakeLists.txt), and CI checks that they match the SPIR-V. Run it after every change of the shaders.
 # With --out the translated sources are written there (<name>.glsl, <name>.hlsl), and <name>.d3d11.json with the registers and constants of
 # the HLSL. Exit status is 1 if a module that is not on the list of known gaps fails any step.
 import argparse
@@ -149,6 +151,7 @@ def run(args, **kw):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", help="write the translated sources here")
+    parser.add_argument("--d3d11", help="write only the HLSL and its descriptions here, replacing what is there (code_runtime/source/d3d11)")
     parser.add_argument("--keep-going", action="store_true", help="always exit 0")
     options = parser.parse_args()
     for tool in ("spirv-cross", "spirv-val", "glslangValidator"):
@@ -157,6 +160,11 @@ def main():
             return 2
     if options.out:
         os.makedirs(options.out, exist_ok=True)
+    if options.d3d11:
+        os.makedirs(options.d3d11, exist_ok=True)
+        for old in os.listdir(options.d3d11):
+            if old.endswith((".hlsl", ".d3d11.json")):
+                os.remove(os.path.join(options.d3d11, old))
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:
         for name, binary in modules():
@@ -199,6 +207,9 @@ def main():
                 for ext, path in (("glsl", glsl_path), ("hlsl", hlsl_path), ("d3d11.json", map_path)):
                     if os.path.exists(path):
                         shutil.copy(path, os.path.join(options.out, name + "." + ext))
+            if options.d3d11 and results.get("hlsl") is None:
+                shutil.copy(hlsl_path, os.path.join(options.d3d11, name + ".hlsl"))
+                shutil.copy(map_path, os.path.join(options.d3d11, name + ".d3d11.json"))
             status = []
             for step in ("valid", "glsl", "hlsl"):
                 problem = results[step]

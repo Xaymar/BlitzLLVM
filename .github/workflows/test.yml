@@ -215,7 +215,15 @@ jobs:
       - name: Check that the shaders translate to GLSL and HLSL (Linux)
         if: env.RUN == 'true' && matrix.label == 'Linux'
         # The SPIR-V of the runtime has to keep feeding the Direct3D 11 and OpenGL backends: every module has to validate, translate and (GLSL) compile.
-        run: python3 tools/translate_shaders.py
+        # The HLSL that the repository keeps (the Windows build compiles it to bytecode) has to be what the SPIR-V translates to.
+        run: |
+          python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11
+          if [ -n "$(git status --porcelain -- code_runtime/source/d3d11)" ]; then
+            git status --short -- code_runtime/source/d3d11
+            git diff --stat -- code_runtime/source/d3d11
+            echo "::error::code_runtime/source/d3d11 does not match the shaders. Run: python3 tools/translate_shaders.py --d3d11 code_runtime/source/d3d11"
+            exit 1
+          fi
       - name: Run the tests (Linux)
         if: env.RUN == 'true' && matrix.label == 'Linux'
         working-directory: build/code_compiler

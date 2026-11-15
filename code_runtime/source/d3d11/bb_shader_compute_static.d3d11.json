@@ -1,0 +1,31 @@
+{
+ "registers": [
+  {
+   "set": 0,
+   "binding": 0,
+   "kind": "u",
+   "register": 0
+  },
+  {
+   "set": 1,
+   "binding": 0,
+   "kind": "t",
+   "register": 0
+  },
+  {
+   "set": 1,
+   "binding": 1,
+   "kind": "t",
+   "register": 1
+  },
+  {
+   "set": 1,
+   "binding": 2,
+   "kind": "u",
+   "register": 1
+  }
+ ],
+ "constants": [],
+ "constants_register": null,
+ "push_register": 0
+}
