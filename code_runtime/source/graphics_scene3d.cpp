@@ -428,7 +428,7 @@ namespace bb::gfx {
 			bb::rhi::pipeline pipeline;
 			int          texture; // The handle that the draw was made with.
 			uintptr_t    texture_set;
-			VkBuffer     vertex_buffer, index_buffer;
+			uint64_t     vertex_buffer, index_buffer;
 			surface_gpu* gpu;
 			bool         cull, depth_test, depth_write;
 		};
@@ -1330,7 +1330,7 @@ namespace bb::gfx {
 
 		bb::rhi::pipeline bound_pipeline;
 		bb::rhi::binding_group bound_set;
-		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
+		uint64_t        bound_vertices = 0, bound_indices = 0;
 		int             bound_cull = -1, bound_test = -1, bound_write = -1;
 
 		// Sprites with a depth fade read the depth of what is behind them. Everything that writes depth comes before the first of

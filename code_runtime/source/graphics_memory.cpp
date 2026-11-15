@@ -420,15 +420,15 @@ namespace bb::rhi {
 		buffer.mapped = nullptr;
 		buffer.size   = size;
 		if (where == memory::mesh) {
-			bb::gfx::create_vk_mesh_buffer(size, flags, buffer.vk, buffer.allocation, &buffer.mapped);
+			bb::gfx::create_vk_mesh_buffer(size, flags, bb::gfx::vk_out<VkBuffer>{ buffer.vk }, bb::gfx::vk_out<VmaAllocation>{ buffer.allocation }, &buffer.mapped);
 		} else {
-			bb::gfx::create_vk_buffer(size, flags, where == memory::mapped, buffer.vk, buffer.allocation, (where == memory::mapped) ? &buffer.mapped : nullptr);
+			bb::gfx::create_vk_buffer(size, flags, where == memory::mapped, bb::gfx::vk_out<VkBuffer>{ buffer.vk }, bb::gfx::vk_out<VmaAllocation>{ buffer.allocation }, (where == memory::mapped) ? &buffer.mapped : nullptr);
 		}
 	}
 
 	void destroy_buffer(gpu_buffer& buffer)
 	{
-		bb::gfx::destroy_vk_buffer(buffer.vk, buffer.allocation);
+		bb::gfx::destroy_vk_buffer(bb::gfx::vk_out<VkBuffer>{ buffer.vk }, bb::gfx::vk_out<VmaAllocation>{ buffer.allocation });
 		buffer.mapped = nullptr;
 		buffer.size   = 0;
 	}
@@ -448,9 +448,9 @@ namespace bb::rhi {
 		info.size               = size;
 		info.usage              = ((usage & vertex_data) ? VK_BUFFER_USAGE_VERTEX_BUFFER_BIT : 0) | ((usage & index_data) ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : 0);
 		VmaAllocationInfo result;
-		if (vmaCreateBuffer(allocator, &info, &alloc, &buffer.vk, &buffer.allocation, &result) != VK_SUCCESS) {
-			buffer.vk         = VK_NULL_HANDLE;
-			buffer.allocation = VK_NULL_HANDLE;
+		if (vmaCreateBuffer(allocator, &info, &alloc, bb::gfx::vk_out<VkBuffer>{ buffer.vk }, bb::gfx::vk_out<VmaAllocation>{ buffer.allocation }, &result) != VK_SUCCESS) {
+			buffer.vk         = 0;
+			buffer.allocation = 0;
 			return false;
 		}
 		buffer.mapped = result.pMappedData;
@@ -462,7 +462,7 @@ namespace bb::rhi {
 	{
 		std::shared_lock<std::shared_mutex> gate(bb::gfx::prebuild_gate);
 		if (buffer.vk && bb::gfx::prebuild_allocator) {
-			vmaDestroyBuffer(bb::gfx::prebuild_allocator, buffer.vk, buffer.allocation);
+			vmaDestroyBuffer(bb::gfx::prebuild_allocator, VkBuffer(buffer.vk), VmaAllocation(buffer.allocation));
 		}
 		buffer = gpu_buffer();
 	}

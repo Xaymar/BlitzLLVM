@@ -50,12 +50,12 @@ namespace bb::rhi {
 	/** A buffer. The Vulkan objects are visible for now, see the top of the file. If creating it failed because the device is lost, vk is null and
 	    mapped points to memory that is no buffer, so that the code that goes on writing has somewhere to write. */
 	struct gpu_buffer {
-		VkBuffer      vk         = VK_NULL_HANDLE;
-		VmaAllocation allocation = VK_NULL_HANDLE;
+		uint64_t      vk         = 0;       // The buffer of the backend (a VkBuffer on Vulkan).
+		uint64_t      allocation = 0;       // Its memory, as the backend knows it.
 		void*         mapped     = nullptr; // For memory::mapped and memory::mesh: where the CPU reads and writes.
 		uint64_t      size       = 0;
 
-		explicit operator bool() const { return vk != VK_NULL_HANDLE; }
+		explicit operator bool() const { return vk != 0; }
 	};
 
 

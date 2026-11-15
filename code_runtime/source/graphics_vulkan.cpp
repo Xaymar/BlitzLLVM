@@ -124,7 +124,7 @@ namespace bb::gfx {
 		uint32_t mips = info.mipLevels, layers = info.arrayLayers;
 		bool     srgb_rgba = (info.format == VK_FORMAT_R8G8B8A8_SRGB);
 		VkImageViewCreateInfo view         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
-		view.image                         = img.image;
+		view.image                         = VkImage(img.image);
 		view.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
 		view.format                        = info.format;
 		if (components) {
@@ -133,12 +133,12 @@ namespace bb::gfx {
 		view.subresourceRange.aspectMask   = aspect;
 		view.subresourceRange.levelCount   = mips;
 		view.subresourceRange.layerCount   = 1;
-		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
+		check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.view }), "vkCreateImageView");
 		// Textures are sampled as arrays, with a layer for each frame of an animated one.
 		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (info.usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (info.samples == VK_SAMPLE_COUNT_1_BIT)) {
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 			view.subresourceRange.layerCount = layers;
-			check(vkCreateImageView(g.device, &view, nullptr, &img.array_view), "vkCreateImageView");
+			check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.array_view }), "vkCreateImageView");
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
 			view.subresourceRange.layerCount = 1;
 		}
@@ -148,13 +148,13 @@ namespace bb::gfx {
 			if (srgb_rgba) {
 				view.format = VK_FORMAT_R8G8B8A8_UNORM;
 			}
-			check(vkCreateImageView(g.device, &view, nullptr, &img.target_view), "vkCreateImageView");
+			check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.target_view }), "vkCreateImageView");
 			if (layers > 1) {
-				img.layer_targets    = static_cast<VkImageView*>(bb_calloc(layers, sizeof(VkImageView)));
+				img.layer_targets    = static_cast<uint64_t*>(bb_calloc(layers, sizeof(uint64_t)));
 				img.layer_targets[0] = img.target_view;
 				for (uint32_t layer = 1; layer < layers; layer++) {
 					view.subresourceRange.baseArrayLayer = layer;
-					check(vkCreateImageView(g.device, &view, nullptr, &img.layer_targets[layer]), "vkCreateImageView");
+					check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.layer_targets[layer] }), "vkCreateImageView");
 				}
 			}
 		}
@@ -283,12 +283,12 @@ namespace bb::gfx {
 		}
 
 		img.recipe->may_spill = image_spill_allowed();
-		VkResult created = create_image_memory(info, img.image, img.allocation);
+		VkResult created = create_image_memory(info, vk_out<VkImage>{ img.image }, vk_out<VmaAllocation>{ img.allocation });
 		check(created, "vmaCreateImage");
 		if (created != VK_SUCCESS) {
 			// Only a lost device gets here. The image stays without its GPU objects, and is made again by rebuild_image.
-			img.image = VK_NULL_HANDLE;
-			img.allocation = VK_NULL_HANDLE;
+			img.image = 0;
+			img.allocation = 0;
 			return img;
 		}
 
@@ -302,7 +302,7 @@ namespace bb::gfx {
 		write_descriptor(set, img.array_sets && img.array_view ? img.array_view : img.view, sampler);
 	}
 
-	VkImageView target_view_of(gpu_image const& img, uint32_t layer)
+	uint64_t target_view_of(gpu_image const& img, uint32_t layer)
 	{
 		if ((layer > 0) && (layer < img.layers) && img.layer_targets) {
 			return img.layer_targets[layer];
@@ -314,33 +314,33 @@ namespace bb::gfx {
 	static void destroy_views(gpu_image& img)
 	{
 		for (uint32_t layer = 1; img.layer_targets && (layer < img.layers); layer++) {
-			vkDestroyImageView(g.device, img.layer_targets[layer], nullptr);
+			vkDestroyImageView(g.device, VkImageView(img.layer_targets[layer]), nullptr);
 		}
 		bb_free(img.layer_targets);
 		img.layer_targets = nullptr;
 		if (img.array_view) {
-			vkDestroyImageView(g.device, img.array_view, nullptr);
-			img.array_view = VK_NULL_HANDLE;
+			vkDestroyImageView(g.device, VkImageView(img.array_view), nullptr);
+			img.array_view = 0;
 		}
 		if (img.view) {
-			vkDestroyImageView(g.device, img.view, nullptr);
+			vkDestroyImageView(g.device, VkImageView(img.view), nullptr);
 		}
 		if (img.target_view) {
-			vkDestroyImageView(g.device, img.target_view, nullptr);
+			vkDestroyImageView(g.device, VkImageView(img.target_view), nullptr);
 		}
-		img.view        = VK_NULL_HANDLE;
-		img.target_view = VK_NULL_HANDLE;
+		img.view        = 0;
+		img.target_view = 0;
 	}
 
 	void release_image(gpu_image& img)
 	{
 		destroy_views(img);
 		if (img.image) {
-			forget_system_allocation(img.allocation);
-			vmaDestroyImage(g.allocator, img.image, img.allocation);
+			forget_system_allocation(VmaAllocation(img.allocation));
+			vmaDestroyImage(g.allocator, VkImage(img.image), VmaAllocation(img.allocation));
 		}
-		img.image       = VK_NULL_HANDLE;
-		img.allocation  = VK_NULL_HANDLE;
+		img.image       = 0;
+		img.allocation  = 0;
 	}
 
 	bool move_image(gpu_image& img, VmaAllocation destination)
@@ -360,7 +360,7 @@ namespace bb::gfx {
 			// What the image holds goes over on the GPU: every level and layer.
 			begin_commands();
 			barrier(img.image, img.layout, bb::rhi::image_state::copy_src, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
-			barrier(fresh, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
+			barrier(uint64_t(fresh), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 			std::vector<bb::rhi::image_copy> regions(info.mipLevels);
 			for (uint32_t level = 0; level < info.mipLevels; level++) {
 				regions[level].src.mip    = level;
@@ -371,12 +371,12 @@ namespace bb::gfx {
 				regions[level].h          = (info.extent.height >> level) ? (info.extent.height >> level) : 1;
 			}
 			bb::rhi::copy_image(uint64_t(img.image), uint64_t(fresh), regions.data(), info.mipLevels);
-			barrier(fresh, bb::rhi::image_state::copy_dst, img.layout, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
+			barrier(uint64_t(fresh), bb::rhi::image_state::copy_dst, img.layout, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 			submit_commands();
 		}
 		destroy_views(img);
-		vkDestroyImage(g.device, img.image, nullptr); // The allocation stays: the allocator hands the image's handle over to the memory it was moved to.
-		img.image = fresh;
+		vkDestroyImage(g.device, VkImage(img.image), nullptr); // The allocation stays: the allocator hands the image's handle over to the memory it was moved to.
+		img.image = uint64_t(fresh);
 		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &img.recipe->mapping : nullptr);
 		return true;
 	}
@@ -725,9 +725,9 @@ namespace bb::gfx {
 		return bb::rhi::create_fixed_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, vk_format(format)));
 	}
 
-	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler)
+	void write_descriptor(bb::rhi::binding_group set, uint64_t view, bb::rhi::sampler sampler)
 	{
-		VkDescriptorImageInfo image_info = { vk_sampler(sampler), view, vk_layout_of(bb::rhi::image_state::sampled) };
+		VkDescriptorImageInfo image_info = { vk_sampler(sampler), VkImageView(view), vk_layout_of(bb::rhi::image_state::sampled) };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = vk_set(set);
 		write.descriptorCount            = 1;
@@ -795,9 +795,9 @@ namespace bb::gfx {
 	// levels are expected to be in the layout, and are in the shader read layout afterwards. Expects an open command buffer.
 	static void generate_mips(gpu_image& image, bb::rhi::image_state from)
 	{
-		level_barrier(image.image, 0, 1, from, bb::rhi::image_state::copy_src);
+		level_barrier(VkImage(image.image), 0, 1, from, bb::rhi::image_state::copy_src);
 		if (from != bb::rhi::image_state::copy_dst) {
-			level_barrier(image.image, 1, image.mips - 1, from, bb::rhi::image_state::copy_dst);
+			level_barrier(VkImage(image.image), 1, image.mips - 1, from, bb::rhi::image_state::copy_dst);
 		}
 		int32_t w = int32_t(image.width), h = int32_t(image.height);
 		for (uint32_t level = 1; level < image.mips; level++) {
@@ -811,11 +811,11 @@ namespace bb::gfx {
 			blit.dst[2]  = next_w;
 			blit.dst[3]  = next_h;
 			bb::rhi::blit_image(uint64_t(image.image), uint64_t(image.image), &blit, 1, bb::rhi::filter::linear);
-			level_barrier(image.image, level, 1, bb::rhi::image_state::copy_dst, bb::rhi::image_state::copy_src);
+			level_barrier(VkImage(image.image), level, 1, bb::rhi::image_state::copy_dst, bb::rhi::image_state::copy_src);
 			w = next_w;
 			h = next_h;
 		}
-		level_barrier(image.image, 0, image.mips, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
+		level_barrier(VkImage(image.image), 0, image.mips, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
 		image.layout     = bb::rhi::image_state::sampled;
 		image.mips_stale = false;
 	}

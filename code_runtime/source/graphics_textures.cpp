@@ -1418,12 +1418,12 @@ namespace bb::gfx {
 	// The handles of a copy of an image (an atlas view has one, the image of a cube map has one of its face) that belongs to another.
 	static void forget_handles(gpu_image& image)
 	{
-		image.image      = VK_NULL_HANDLE;
-		image.view       = VK_NULL_HANDLE;
-		image.target_view = VK_NULL_HANDLE;
-		image.array_view  = VK_NULL_HANDLE;
+		image.image      = 0;
+		image.view       = 0;
+		image.target_view = 0;
+		image.array_view  = 0;
 		image.layer_targets = nullptr; // Owned by the image that these were copied from.
-		image.allocation = VK_NULL_HANDLE;
+		image.allocation = 0;
 	}
 
 	// Lets go of everything the textures have on the GPU. Each keeps the recipe of its images; a texture has a descriptor set
@@ -1473,13 +1473,13 @@ namespace bb::gfx {
 			texture_entry& t = texture_table[i];
 			// Atlas views and cube map faces hold copies of the handles of another image.
 			if (t.used && !t.atlas && !t.is_atlas && !t.cube && !t.pending && t.set && !t.alias && movable(t.image)) {
-				owners[t.image.allocation] = { &t.image, &t.set, t.sampler ? sampler_vk(sampler_table[uint32_t(t.sampler) - 1]) : texture_sampler(t.flags) };
+				owners[VmaAllocation(t.image.allocation)] = { &t.image, &t.set, t.sampler ? sampler_vk(sampler_table[uint32_t(t.sampler) - 1]) : texture_sampler(t.flags) };
 			}
 		}
 		for (uint32_t i = 0; i < image_table.size; i++) {
 			image_entry& e = image_table[i];
 			if (e.used && !e.pending && e.set && movable(e.image)) {
-				owners[e.image.allocation] = { &e.image, &e.set, g.sampler };
+				owners[VmaAllocation(e.image.allocation)] = { &e.image, &e.set, g.sampler };
 			}
 		}
 
