@@ -64,7 +64,7 @@ namespace bb::gfx {
 			}
 			if (a.image.view != t->image.view) {
 				t->image = a.image;
-				if (g.device && t->set) {
+				if (bb::rhi::has_device() && t->set) {
 					set_descriptor_sampler(t->image, t->set, view_sampler(*t));
 				}
 			}
@@ -148,7 +148,7 @@ namespace bb::gfx {
 			async_discard(e.pending);
 			e.pending = nullptr;
 		}
-		if (g.device && e.set) {
+		if (bb::rhi::has_device() && e.set) {
 			flush(); // What was asked to be drawn with it comes first.
 			gpu_idle();
 			free_group(e.set);
@@ -166,7 +166,7 @@ namespace bb::gfx {
 			async_discard(t.pending);
 			t.pending = nullptr;
 		}
-		if (g.device && t.set) {
+		if (bb::rhi::has_device() && t.set) {
 			flush(); // What was asked to be drawn with it comes first.
 			gpu_idle();
 			free_group(t.set);
@@ -255,7 +255,7 @@ namespace bb::gfx {
 	// compressed pictures and the ones with more than 8 bits.
 	void texture_into_layers(texture_entry& t)
 	{
-		if (!g.device || !t.set || t.pending || t.cube || t.atlas || (t.frames < 2) || (t.frame_w <= 0) || (t.frame_h <= 0) || !t.image.image) {
+		if (!bb::rhi::has_device() || !t.set || t.pending || t.cube || t.atlas || (t.frames < 2) || (t.frame_w <= 0) || (t.frame_h <= 0) || !t.image.image) {
 			return;
 		}
 		if ((t.image.block != block_format::none) || t.image.ten || (t.image.format != bb::rhi::format::rgba8 && t.image.format != bb::rhi::format::rgba8_srgb)) {
@@ -1243,7 +1243,7 @@ namespace {
 	void apply_sampler(int32_t handle)
 	{
 		sampler_entry& s = sampler_table[uint32_t(handle) - 1];
-		if (!g.device) {
+		if (!bb::rhi::has_device()) {
 			return;
 		}
 		for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -1288,7 +1288,7 @@ void bb_free_sampler(int32_t handle)
 		texture_entry& t = texture_table[i];
 		if (t.used && (t.sampler == handle)) {
 			t.sampler = 0;
-			if (g.device && t.set) {
+			if (bb::rhi::has_device() && t.set) {
 				set_descriptor_sampler(t.image, t.set, texture_sampler(t.flags));
 			}
 		}
@@ -1378,7 +1378,7 @@ void bb_set_texture_sampler(int32_t texture, int32_t handle)
 		need_sampler(handle, "SetTextureSampler");
 	}
 	t->sampler = handle;
-	if (g.device && t->set) {
+	if (bb::rhi::has_device() && t->set) {
 		set_descriptor_sampler(t->image, t->set, handle ? sampler_vk(sampler_table[uint32_t(handle) - 1]) : texture_sampler(t->flags));
 	}
 }

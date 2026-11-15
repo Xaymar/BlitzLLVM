@@ -105,6 +105,7 @@ static void release_for_new_graphics()
 	bb_free(g.ops);
 	forget_recorded();
 	g = state();
+	bb::rhi::forget_backend_state();
 }
 
 // Graphics width, height, depth, mode. Graphics3D is this same function: there is no 2D-only mode, so the 3D commands work
@@ -296,7 +297,7 @@ void bb::gfx::destroy_device_objects()
 // device draws with a depth of 32 until Graphics asks for another one, which makes it again.
 bool bb::gfx::ensure_device()
 {
-	if (g.device) {
+	if (bb::rhi::has_device()) {
 		return true;
 	}
 	if (g.headless || bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
@@ -374,10 +375,10 @@ extern "C" {
 // Takes down the window of Graphics and the device, also a device that was made without a window (ensure_device).
 void bb_end_graphics(void)
 {
-	if (!g.created && !g.device) {
+	if (!g.created && !bb::rhi::has_device()) {
 		return;
 	}
-	if (!g.headless && !g.device) {
+	if (!g.headless && !bb::rhi::has_device()) {
 		// Graphics failed before there was a device (no Vulkan driver, or no GPU that does Vulkan 1.3): nothing was made on a GPU, and the
 		// Vulkan functions were not loaded, so only the window goes away. Calling them would crash while the error is being reported.
 		if (surface().window) {
@@ -409,6 +410,7 @@ void bb_end_graphics(void)
 	bb_free(g.ops);
 	forget_recorded();
 	g = state();
+	bb::rhi::forget_backend_state();
 }
 
 // The window of the program as the system knows it (HWND on Windows, the window number on X11), 0 where there is none.
