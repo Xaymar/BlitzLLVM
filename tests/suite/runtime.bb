@@ -61,6 +61,9 @@ CheckTrue "SystemProperty$ runtime starts with a year", Int(Left$(SystemProperty
 stamp$ = SystemProperty$("timestamp")
 CheckTrue "SystemProperty$ timestamp format", Len(stamp) = 20 And Mid$(stamp, 5, 1) = "-" And Mid$(stamp, 11, 1) = "T" And Right$(stamp, 1) = "Z"
 CheckTrue "SystemProperty$ timestamp year", Int(Left$(stamp, 4)) >= 2026
+; renderer is what draws: vulkan, d3d11 or opengl. It is known without Graphics.
+renderer$ = SystemProperty$("renderer")
+CheckTrue "SystemProperty$ renderer", renderer = "vulkan" Or renderer = "d3d11" Or renderer = "opengl"
 CheckS "SystemProperty$ names are not case sensitive", SystemProperty$("RAM"), ram
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 

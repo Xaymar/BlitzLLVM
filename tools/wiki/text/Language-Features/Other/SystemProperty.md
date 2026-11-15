@@ -8,6 +8,7 @@ Asks for the path of a system folder, or for a few facts about the machine and t
 Print "Temporary files go to " + SystemProperty$("tempdir")
 Print "Running on " + SystemProperty$("os") + " with " + SystemProperty$("cpu")
 Print "Installed memory: " + SystemProperty$("ram") + " bytes"
+Print "Drawing with " + SystemProperty$("renderer")
 Print "Runtime " + SystemProperty$("runtime") + ", program compiled " + SystemProperty$("timestamp")
 ```
 | Property | Windows | Elsewhere |
@@ -21,11 +22,14 @@ Print "Runtime " + SystemProperty$("runtime") + ", program compiled " + SystemPr
 | `ram` | The installed memory in bytes. | The installed memory in bytes. |
 | `runtime` | The version and commit of the runtime, such as `2026.11.4.27883-b49e213`. | The same. |
 | `timestamp` | When the program was compiled, in UTC, such as `2026-11-05T11:00:05Z`. | The same. |
+| `renderer` | What draws the graphics: `vulkan`. | The same. |
 
 Folders end with a separator, except for the ones of Windows, which are as the system gives them.
 
 `ram` is a string of digits, because the amount does not fit into an `Int`. It is the physical memory of the machine, not what is free, and `0` if the system does not say. `runtime` has no commit (`2026.11.4.27883`) if the runtime was not built from a git checkout. `timestamp` is the time `blitzcc` compiled the program, not the time of the runtime build, and follows `SOURCE_DATE_EPOCH` if that is set, so builds can be reproduced. `cpu` and `os` are empty or only a short name if the system does not say more.
 
-@param property  One of `tempdir`, `appdir`, `windowsdir`, `systemdir`, `cpu`, `os`, `ram`, `runtime` or `timestamp`.
+`renderer` is known before `Graphics`. The environment variable `BLITZLLVM_RENDERER` picks the renderer: `auto` (the default) or `vulkan`. Vulkan is the only renderer so far. Asking for one that the runtime does not have (`d3d11`, `opengl`) ends the program with an error.
+
+@param property  One of `tempdir`, `appdir`, `windowsdir`, `systemdir`, `cpu`, `os`, `ram`, `runtime`, `timestamp` or `renderer`.
 @returns The path or the text, or an empty string for a name that is not known.
 @gap Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.

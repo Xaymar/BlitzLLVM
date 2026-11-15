@@ -564,6 +564,15 @@ namespace bb::rhi {
 	/** The name of a result code, for messages. */
 	const char* native_result_name(int32_t native);
 
+	/** The backends there are. Which one draws is decided once, the first time it is asked: the one that BLITZLLVM_RENDERER names, or with "auto" (and without the variable) the first that this build has. Asking for one that the build does not have ends the program with a message. */
+	enum class backend { none, vulkan, d3d11, opengl };
+	backend selected_backend();
+	bool    backend_built(backend which);
+	/** "vulkan", "d3d11" or "opengl": what SystemProperty$("renderer") answers. */
+	const char* backend_name();
+	/** The flags that a window (SDL_CreateWindow) needs for the backend to show pictures in it. */
+	uint64_t window_flags();
+
 	/** The result code that stands for a lost device, for the test hook that pretends to lose it. */
 	int32_t device_lost_result();
 

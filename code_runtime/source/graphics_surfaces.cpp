@@ -102,7 +102,7 @@ namespace bb::gfx {
 		if (!handle) {
 			return 0;
 		}
-		SDL_WindowFlags flags = SDL_WINDOW_VULKAN;
+		SDL_WindowFlags flags = bb::rhi::window_flags();
 		if (resizable) {
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
