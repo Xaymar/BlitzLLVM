@@ -103,7 +103,7 @@ namespace {
 	{
 		bb::rhi::forget_device(); // The handles of the device, the instance and the surface, and the layouts and pipelines that hang from it.
 		surface().chain = {};
-		surface().acquired    = VK_NULL_HANDLE;
+		surface().acquired    = 0;
 
 		g.layout     = bb::rhi::pipeline_layout();
 		g.triangles  = bb::rhi::pipeline();

@@ -2566,6 +2566,78 @@ namespace bb::rhi {
 }
 
 namespace bb::rhi {
+	void begin_commands()
+	{
+		vkResetCommandBuffer(gfx::g.cmd, 0);
+		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		gfx::check(vkBeginCommandBuffer(gfx::g.cmd, &info), "vkBeginCommandBuffer");
+	}
+
+	void end_commands()
+	{
+		gfx::check(vkEndCommandBuffer(gfx::g.cmd), "vkEndCommandBuffer");
+	}
+
+	void check_result(int32_t native, const char* what)
+	{
+		gfx::check(VkResult(native), what);
+	}
+
+	void use_frame_sync(const frame_sync& sync)
+	{
+		gfx::g.cmd   = VkCommandBuffer(sync.cmd);
+		gfx::g.fence = VkFence(sync.fence);
+	}
+
+	void store_frame_sync(frame_sync& sync)
+	{
+		sync.cmd   = uint64_t(gfx::g.cmd);
+		sync.fence = uint64_t(gfx::g.fence);
+	}
+
+	uint64_t main_queue()
+	{
+		return uint64_t(gfx::g.queue);
+	}
+
+	int32_t submit_frame(uint64_t queue, const frame_sync& sync, const submission& what)
+	{
+		VkSemaphore          wait  = VkSemaphore(what.wait);
+		VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+		info.waitSemaphoreCount    = wait ? 1 : 0;
+		info.pWaitSemaphores       = &wait;
+		info.pWaitDstStageMask     = &stage;
+		info.commandBufferCount    = 1;
+		VkCommandBuffer cmd        = VkCommandBuffer(sync.cmd);
+		info.pCommandBuffers       = &cmd;
+		// The binary semaphore of the present and the timeline semaphore of a handover; the value of a binary one is ignored.
+		VkSemaphore signals[2];
+		uint64_t    values[2];
+		uint32_t    signal_count = 0;
+		if (what.signal) {
+			signals[signal_count]  = VkSemaphore(what.signal);
+			values[signal_count++] = 0;
+		}
+		if (what.timeline) {
+			signals[signal_count]  = VkSemaphore(what.timeline);
+			values[signal_count++] = what.timeline_value;
+		}
+		VkTimelineSemaphoreSubmitInfo timeline = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+		timeline.signalSemaphoreValueCount     = signal_count;
+		timeline.pSignalSemaphoreValues        = values;
+		info.signalSemaphoreCount              = signal_count;
+		info.pSignalSemaphores                 = signals;
+		if (what.timeline) {
+			info.pNext = &timeline;
+		}
+		gfx::queue_lock();
+		VkResult result = vkQueueSubmit(VkQueue(queue), 1, &info, VkFence(sync.fence));
+		gfx::queue_unlock();
+		return int32_t(result);
+	}
+
 	frame_sync create_frame_sync()
 	{
 		frame_sync                  sync;
@@ -2750,6 +2822,7 @@ namespace bb::rhi {
 			case VK_ERROR_OUT_OF_DATE_KHR:
 				return { present_status::out_of_date, int32_t(result) };
 			case VK_NOT_READY:
+				return { present_status::not_ready, int32_t(result), true };
 			case VK_TIMEOUT:
 				return { present_status::not_ready, int32_t(result) };
 			default:
