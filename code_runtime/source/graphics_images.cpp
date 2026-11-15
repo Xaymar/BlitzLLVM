@@ -33,20 +33,20 @@ namespace bb::gfx {
 	static bool transform_filter = true; // TFormFilter: whether TFormImage and the others blend neighbouring pixels.
 
 	// The bytes a pixel takes in an image that programs read and write as RGBA8: the buffers can be deeper than that.
-	uint32_t pixel_bytes(VkFormat format)
+	uint32_t pixel_bytes(bb::rhi::format format)
 	{
-		return (format == VK_FORMAT_R16G16B16A16_SFLOAT) ? 8 : 4;
+		return (format == bb::rhi::format::rgba16f) ? 8 : 4;
 	}
 
 	// The buffers of Graphics with a depth of 16, 15 and 12 hold 16 bit words; the order of the fields is the one of the Vulkan format.
-	const packed_layout* packed_layout_of(VkFormat format)
+	const packed_layout* packed_layout_of(bb::rhi::format format)
 	{
 		static const packed_layout layouts[] = {
-			{ VK_FORMAT_R5G6B5_UNORM_PACK16, { 11, 5, 0, 0 }, { 5, 6, 5, 0 } },
-			{ VK_FORMAT_A1R5G5B5_UNORM_PACK16, { 10, 5, 0, 15 }, { 5, 5, 5, 1 } },
-			{ VK_FORMAT_R5G5B5A1_UNORM_PACK16, { 11, 6, 1, 0 }, { 5, 5, 5, 1 } },
-			{ VK_FORMAT_R4G4B4A4_UNORM_PACK16, { 12, 8, 4, 0 }, { 4, 4, 4, 4 } },
-			{ VK_FORMAT_B4G4R4A4_UNORM_PACK16, { 4, 8, 12, 0 }, { 4, 4, 4, 4 } },
+			{ bb::rhi::format::r5g6b5, { 11, 5, 0, 0 }, { 5, 6, 5, 0 } },
+			{ bb::rhi::format::a1r5g5b5, { 10, 5, 0, 15 }, { 5, 5, 5, 1 } },
+			{ bb::rhi::format::r5g5b5a1, { 11, 6, 1, 0 }, { 5, 5, 5, 1 } },
+			{ bb::rhi::format::r4g4b4a4, { 12, 8, 4, 0 }, { 4, 4, 4, 4 } },
+			{ bb::rhi::format::b4g4r4a4, { 4, 8, 12, 0 }, { 4, 4, 4, 4 } },
 		};
 		for (const packed_layout& l : layouts) {
 			if (l.format == format) {
@@ -98,7 +98,7 @@ namespace bb::gfx {
 		uint8_t* out   = static_cast<uint8_t*>(bb_malloc(count * (native ? pixel_bytes(img.format) : 4)));
 		if (native) {
 			memcpy(out, mapped, count * pixel_bytes(img.format));
-		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		} else if (img.format == bb::rhi::format::a2bgr10) {
 			const uint32_t* packed = static_cast<const uint32_t*>(mapped);
 			for (size_t i = 0; i < count; i++) {
 				uint32_t v     = packed[i];
@@ -114,7 +114,7 @@ namespace bb::gfx {
 					out[i * 4 + c] = l->bits[c] ? expand_field((packed[i] >> l->shift[c]) & ((1u << l->bits[c]) - 1u), l->bits[c]) : 255;
 				}
 			}
-		} else if (img.format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+		} else if (img.format == bb::rhi::format::rgba16f) {
 			const uint16_t* wide = static_cast<const uint16_t*>(mapped);
 			for (size_t i = 0; i < count * 4; i++) {
 				out[i] = uint8_t((uint32_t(half_to_unorm16(wide[i])) * 255 + 32767) / 65535);
@@ -132,7 +132,7 @@ namespace bb::gfx {
 	// What the program wrote is part of the recipe of the image, so that the image has it again after the device was lost.
 	static void remember_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native, uint32_t layer)
 	{
-		if (!img.recipe || native || img.ten || (&img == &g.buffers[0]) || (&img == &g.buffers[1]) || (img.format != VK_FORMAT_R8G8B8A8_UNORM && img.format != VK_FORMAT_R8G8B8A8_SRGB)) {
+		if (!img.recipe || native || img.ten || (&img == &g.buffers[0]) || (&img == &g.buffers[1]) || (img.format != bb::rhi::format::rgba8 && img.format != bb::rhi::format::rgba8_srgb)) {
 			return;
 		}
 		image_recipe& recipe = *img.recipe;
@@ -187,7 +187,7 @@ namespace bb::gfx {
 		size_t count = size_t(w) * size_t(h);
 		if (native) {
 			memcpy(mapped, rgba, count * pixel_bytes(img.format));
-		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		} else if (img.format == bb::rhi::format::a2bgr10) {
 			uint32_t* packed = static_cast<uint32_t*>(mapped);
 			for (size_t i = 0; i < count; i++) {
 				uint32_t a = (uint32_t(rgba[i * 4 + 3]) + 42) / 85;
@@ -202,7 +202,7 @@ namespace bb::gfx {
 				}
 				packed[i] = uint16_t(word);
 			}
-		} else if (img.format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+		} else if (img.format == bb::rhi::format::rgba16f) {
 			uint16_t* wide = static_cast<uint16_t*>(mapped);
 			for (size_t i = 0; i < count * 4; i++) {
 				wide[i] = unorm16_to_half(uint16_t(rgba[i] * 257)); // 255 * 257 = 65535.

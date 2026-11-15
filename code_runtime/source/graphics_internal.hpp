@@ -190,7 +190,7 @@ namespace bb::gfx {
 		uint32_t           width = 0, height = 0, mips = 1, layers = 1; // pixels: all layers one after the other.
 		uint32_t           samples = 1;                                // Samples per pixel, for the images of order-independent transparency.
 		VkImageUsageFlags  usage = 0;
-		VkFormat           format = VK_FORMAT_R8G8B8A8_UNORM;
+		bb::rhi::format           format = bb::rhi::format::rgba8;
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		VkComponentMapping mapping = {};
 		bool               has_mapping = false;
@@ -219,7 +219,7 @@ namespace bb::gfx {
 		bool           ten     = false;              // Holds A2B10G10R10 instead of RGBA8: a texture with more than 8 bits per channel and no partial alpha. Drawing to it turns it into RGBA8 first.
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		bb::rhi::sampler      sampler;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
-		VkFormat       format = VK_FORMAT_R8G8B8A8_UNORM; // What the image was created with.
+		bb::rhi::format       format = bb::rhi::format::rgba8; // What the image was created with.
 		VkImage        image  = VK_NULL_HANDLE;
 		VmaAllocation  allocation = VK_NULL_HANDLE;
 		VkImageView    view   = VK_NULL_HANDLE;   // All mip levels, for sampling.
@@ -324,7 +324,7 @@ namespace bb::gfx {
 		bool offscreen = false; // Made by ensure_offscreen, not by Graphics: there is no window to show anything in, so Print and Input stay on the console.
 		int      requested_depth = 32;                           // The depth that Graphics was asked for.
 		int      buffer_depth    = 32;                           // The depth that the buffers have: 24, 30, 32 or 64.
-		VkFormat buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;     // What the front and back buffer are made of, which the depth of Graphics decides.
+		bb::rhi::format buffer_format   = bb::rhi::format::rgba8;     // What the front and back buffer are made of, which the depth of Graphics decides.
 		char close_prompt[256] = ""; // What AppTitle asks before the window is closed, empty to close without asking.
 
 		// Window
@@ -619,7 +619,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// 3D
 	////////////////////////////////////////////////////////////////////////////
-	constexpr VkFormat depth_format = VK_FORMAT_D32_SFLOAT;
+	constexpr bb::rhi::format depth_format = bb::rhi::format::d32f;
 
 	// The lights a camera knows of, which each draw picks eight of (the last place is a light that is off, for what is
 	// left over). Matches MAX_LIGHTS in tools/generate_shaders.py.
@@ -859,7 +859,7 @@ namespace bb::gfx {
 		uint8_t*   pixels  = nullptr;
 		bool       changed = false;
 		int        bank    = 0; // The bank that LockedPixels made, which has the pixels the way BlitzPlus has them.
-		VkFormat   format  = VK_FORMAT_R8G8B8A8_UNORM; // What the pixels are: RGBA8 (4 bytes), or as the buffer has them if it is deeper (4 or 8 bytes).
+		bb::rhi::format   format  = bb::rhi::format::rgba8; // What the pixels are: RGBA8 (4 bytes), or as the buffer has them if it is deeper (4 or 8 bytes).
 	};
 
 	// Shared state
@@ -976,13 +976,13 @@ namespace bb::gfx {
 	void            destroy_shader(bb::rhi::shader shader);
 	inline VkShaderModule vk_shader(bb::rhi::shader shader) { return VkShaderModule(shader.id); }
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
-	VkFormat pick_buffer_format(int depth, int& actual);
+	bb::rhi::format pick_buffer_format(int depth, int& actual);
 	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
 	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
 	/** The pipeline of a pass over a whole image that replaces what is there (one triangle that covers the target, no vertices), drawing to an image of the format. */
 	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format);
 	/** The pipeline to draw to an image of that format, built the first time. */
-	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format);
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format);
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
 	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer = 0, uint32_t to_layer = 0);
@@ -1032,7 +1032,7 @@ namespace bb::gfx {
 	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, bb::rhi::pass_attachment* out);
 	void oit_composite_layer(uint32_t width, uint32_t height);
 	void oit_accumulated_to_sampled(uint32_t width, uint32_t height);
-	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height);
+	void oit_composite_accumulated(bb::rhi::format format, uint32_t width, uint32_t height);
 	bb::rhi::pipeline_layout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
 	void oit_attachments_moments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);
@@ -1040,7 +1040,7 @@ namespace bb::gfx {
 	bb::rhi::binding_group oit_moment_set(uint32_t width, uint32_t height);
 	void oit_attachments(uint32_t width, uint32_t height, bb::rhi::pass_attachment out[4]);
 	void oit_to_sampled(uint32_t width, uint32_t height);
-	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
+	void oit_composite(bb::rhi::format format, uint32_t width, uint32_t height, uint32_t modes);
 	void oit_destroy();
 	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
@@ -1255,14 +1255,14 @@ namespace bb::gfx {
 	}
 
 	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16 (half precision floats). */
-	uint32_t pixel_bytes(VkFormat format);
+	uint32_t pixel_bytes(bb::rhi::format format);
 	/** How a buffer of 16, 15 or 12 bits keeps a pixel: the first bit and the number of bits of red, green, blue and alpha (0 bits is no alpha). Null for any other format. */
 	struct packed_layout {
-		VkFormat format;
+		bb::rhi::format format;
 		uint8_t  shift[4];
 		uint8_t  bits[4];
 	};
-	const packed_layout* packed_layout_of(VkFormat format);
+	const packed_layout* packed_layout_of(bb::rhi::format format);
 	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false, uint32_t layer = 0);
 	/** With remember the pixels also go into the recipe of the image, to be there after a lost device; what is rewritten every frame (a movie) does not need that. */

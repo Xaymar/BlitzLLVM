@@ -238,7 +238,7 @@ namespace bb::gfx {
 	static bb::rhi::pipeline_desc describe_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bool wire, bb::rhi::format target, int oit = 0, bool layers = true)
 	{
 		using namespace bb::rhi;
-		const VkFormat color_format = vk_format(target);
+		const bb::rhi::format color_format = target;
 		pipeline_desc desc;
 		desc.vs       = vs;
 		desc.fs       = fs;
@@ -253,11 +253,11 @@ namespace bb::gfx {
 		static const float factors[6][5] = { { 1, 0, 1, 0, 0 }, { 1, 0, 1, -1, 0 }, { 0, 1, 0, 0, 0 }, { 1, 0, 1, 0, 0 }, { 0, 1, 0, 0, 1 }, { 0, 1, 0, 0, 0 } };
 		// A target of half precision floats keeps colors below 0 (negative lights) and above 1, so nothing limits them for it: the limits
 		// are constants of the vertex shader (0 and 1) and of the fragment shader (6 and 7), and the largest half float for such a target.
-		const bool  wide    = (color_format == VK_FORMAT_R16G16B16A16_SFLOAT);
+		const bool  wide    = (color_format == bb::rhi::format::rgba16f);
 		const float limits[2] = { wide ? -65504.0f : 0.0f, wide ? 65504.0f : 1.0f };
 		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
 		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
-		k.dither = (dither_code() > 0.0f) && ((color_format == VK_FORMAT_R8G8B8A8_UNORM) || packed_layout_of(color_format));
+		k.dither = (dither_code() > 0.0f) && ((color_format == bb::rhi::format::rgba8) || packed_layout_of(color_format));
 		// With a Graphics of depth 8 the shader makes the color into the nearest of the palette once it has lit, fogged, dithered (and blended, if it does).
 		k.palette      = (g.buffer_depth == 8);
 		k.bayer_levels = float(bayer_levels());
@@ -274,7 +274,7 @@ namespace bb::gfx {
 		// Modes: 0 = no blending, 1 = by alpha, 2 = multiply with what is there, 3 = add to what is there, 4 = multiply by two, 5 = dot product with what is there.
 		// The dot product has no fixed-function blend, so it multiplies.
 		attachment_desc& main = desc.attachments[0];
-		main.fmt              = rhi_format(color_format);
+		main.fmt              = (color_format);
 		main.blend.enable     = (mode != 0);
 		if (mode == 2 || mode == 5) {
 			main.blend.src_color = blend_factor::dst_color;
@@ -365,8 +365,8 @@ namespace bb::gfx {
 	/** Builds a pipeline for the targets that are drawn to before the first draw, so that nothing is compiled in the middle of a frame. */
 	static bb::rhi::pipeline prebuilt(bb::rhi::pipeline pipeline)
 	{
-		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM);
-		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+		vk_pipeline(pipeline, bb::rhi::format::rgba8);
+		if (g.buffer_format != bb::rhi::format::rgba8) {
 			vk_pipeline(pipeline, g.buffer_format);
 		}
 		return pipeline;
@@ -385,7 +385,7 @@ namespace bb::gfx {
 	static bb::rhi::pipeline create_oit_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bb::rhi::format target, int oit)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format) { return describe_3d(vs, fs, mode, false, target, oit, true); });
-		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM);
+		vk_pipeline(pipeline, bb::rhi::format::rgba8);
 		return pipeline;
 	}
 

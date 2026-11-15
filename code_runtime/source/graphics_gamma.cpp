@@ -350,7 +350,7 @@ namespace bb::gfx {
 		bool identity = is_identity();
 		// A buffer of more than 8 bits per channel is always converted here, so that the picture is RGBA8 and Dither has something to hide.
 		bool palettized = palette_mode();
-		if (identity && (dither == 0) && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM) && !palettized) {
+		if (identity && (dither == 0) && !dump_path() && (front.format == bb::rhi::format::rgba8) && !palettized) {
 			return &front;
 		}
 		if (!pipeline) {
@@ -399,7 +399,7 @@ namespace bb::gfx {
 		pass.scissor[3]     = int32_t(shown.height);
 		bb::rhi::begin_pass(pass);
 		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
-		bb::rhi::bind_pipeline(palettized ? palette_pipeline : pipeline, 0);
+		bb::rhi::bind_pipeline(palettized ? palette_pipeline : pipeline, bb::rhi::format::undefined);
 		uint32_t offset = 0;
 		bb::rhi::bind_group(used, 0, front_set);
 		bb::rhi::bind_group_at(used, 1, table_set, offset);

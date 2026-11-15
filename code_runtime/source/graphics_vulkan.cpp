@@ -246,7 +246,7 @@ namespace bb::gfx {
 	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
 		gpu_image img;
-		img.format = format;
+		img.format = rhi_format(format);
 		img.mips = mips;
 		img.layers = layers;
 		img.width  = width;
@@ -258,7 +258,7 @@ namespace bb::gfx {
 		img.recipe->layers = layers;
 		img.recipe->samples = samples;
 		img.recipe->usage  = usage;
-		img.recipe->format = format;
+		img.recipe->format = rhi_format(format);
 		img.recipe->aspect = aspect;
 		if (components) {
 			img.recipe->mapping     = *components;
@@ -480,7 +480,7 @@ namespace bb::gfx {
 
 	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer, uint32_t to_layer)
 	{
-		if (copy_class(from.format) == copy_class(to.format)) {
+		if (copy_class(vk_format(from.format)) == copy_class(vk_format(to.format))) {
 			bb::rhi::image_copy copy;
 			copy.src.layer = from_layer;
 			copy.src.x     = sx;
@@ -518,10 +518,10 @@ namespace bb::gfx {
 	} // namespace
 
 	/** The Vulkan pipeline to draw to an image of that format. A target that is not the format of the buffers (when those are not RGBA8) gets the one made for RGBA8. */
-	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, VkFormat format)
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format)
 	{
 		pipeline_object& object = pipeline_objects[pipeline.id - 1];
-		bb::rhi::format  key    = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != VK_FORMAT_R8G8B8A8_UNORM)) ? rhi_format(format) : bb::rhi::format::rgba8);
+		bb::rhi::format  key    = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != bb::rhi::format::rgba8)) ? format : bb::rhi::format::rgba8);
 		auto             found  = object.built.find(key);
 		if (found != object.built.end()) {
 			return found->second;
@@ -713,8 +713,8 @@ namespace bb::gfx {
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
-		vk_pipeline(pipeline, VK_FORMAT_R8G8B8A8_UNORM); // Both versions are made now, so that nothing is compiled in the middle of a frame.
-		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+		vk_pipeline(pipeline, bb::rhi::format::rgba8); // Both versions are made now, so that nothing is compiled in the middle of a frame.
+		if (g.buffer_format != bb::rhi::format::rgba8) {
 			vk_pipeline(pipeline, g.buffer_format);
 		}
 		return pipeline;
@@ -1169,7 +1169,7 @@ namespace bb::gfx {
 			break;
 		}
 		case image_recipe::content::blank:
-			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
+			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, vk_format(recipe->format), recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
 			if (fresh.image && (layout != bb::rhi::image_state::undefined)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();
@@ -1319,7 +1319,7 @@ namespace bb::gfx {
 	// precision floats. 16 is R5G6B5, 15 is A1R5G5B5 and 12 is R4G4B4A4, which 3D drawing and 2D drawing fill with the precision they have.
 	// 8 is a palette of 256 colors (GraphicsPalette): the buffer is RGBA8 as it is drawn to, and what is shown and read is the nearest color
 	// of the palette. 0 is what the original takes to be the best the display has, which is 32.
-	VkFormat pick_buffer_format(int depth, int& actual)
+	bb::rhi::format pick_buffer_format(int depth, int& actual)
 	{
 		struct choice {
 			int      depth;
@@ -1340,7 +1340,7 @@ namespace bb::gfx {
 			wanted = 32;
 		} else if (depth == 8) {
 			actual = 8;
-			return VK_FORMAT_R8G8B8A8_UNORM;
+			return bb::rhi::format::rgba8;
 		} else if ((depth != 12) && (depth != 15) && (depth != 16) && (depth != 24) && (depth != 30) && (depth != 32) && (depth != 64)) {
 			fprintf(stderr, "warning: Graphics: the depth %d is not 8, 12, 15, 16, 24, 30, 32 or 64, so 32 is used.\n", depth);
 			wanted = 32;
@@ -1360,12 +1360,12 @@ namespace bb::gfx {
 					fprintf(stderr, "warning: Graphics: this device can't draw with a depth of %d, so %d is used.\n", wanted, c.depth);
 				}
 				actual = (depth == 24) ? 24 : c.depth;
-				return c.format;
+				return rhi_format(c.format);
 			}
 		}
 		fprintf(stderr, "warning: Graphics: this device can't draw with a depth of %d, so 32 is used.\n", wanted);
 		actual = 32;
-		return VK_FORMAT_R8G8B8A8_UNORM;
+		return bb::rhi::format::rgba8;
 	}
 
 	void create_buffers(uint32_t width, uint32_t height)
@@ -1374,7 +1374,7 @@ namespace bb::gfx {
 		g.height = height;
 		image_spill_scope strict(false, true); // The buffers of the window come before textures: those without flag 256 make room if they have to.
 		for (int i = 0; i < 2; i++) {
-			g.buffers[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_copy_destination | bb::rhi::image_sampled, rhi_format(g.buffer_format)); // Sampled for the gamma pass.
+			g.buffers[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_copy_destination | bb::rhi::image_sampled, g.buffer_format); // Sampled for the gamma pass.
 		}
 
 		// Both buffers start out black, and stay in the attachment layout between uses.
@@ -2038,7 +2038,7 @@ namespace bb::rhi {
 	{
 		pipeline made = create_pipeline([desc](format) { return desc; });
 		gfx::pipeline_objects[made.id - 1].fixed = true;
-		gfx::vk_pipeline(made, VK_FORMAT_UNDEFINED); // Built now, so that nothing is compiled in the middle of a frame.
+		gfx::vk_pipeline(made, format::undefined); // Built now, so that nothing is compiled in the middle of a frame.
 		return made;
 	}
 
@@ -2239,9 +2239,9 @@ namespace bb::rhi {
 }
 
 namespace bb::rhi {
-	void bind_pipeline(pipeline p, uint32_t target_format)
+	void bind_pipeline(pipeline p, format target)
 	{
-		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, VkFormat(target_format)));
+		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, target));
 	}
 
 	uint32_t sample_counts()

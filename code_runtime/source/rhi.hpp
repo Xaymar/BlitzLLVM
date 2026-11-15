@@ -407,8 +407,8 @@ namespace bb::rhi {
 	/** Draw state, recorded inside a pass (or, for dispatch, outside one). Buffers are backend handles for now (a VkBuffer on Vulkan, 0 for none). */
 	enum class cull_mode : uint8_t { none = 0, front = 1, back = 2 };
 
-	/** Binds the pipeline built for the format of the target (the backend format code of the image, a VkFormat on Vulkan, until images have an rhi::format). */
-	void bind_pipeline(pipeline p, uint32_t target_format);
+	/** Binds the pipeline built for the format of the target that the pass draws to. */
+	void bind_pipeline(pipeline p, format target);
 	/** Binds a pipeline of create_compute_pipeline for the dispatches that follow, and a group for them (outside a pass). */
 	void bind_compute_pipeline(pipeline p);
 	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group);

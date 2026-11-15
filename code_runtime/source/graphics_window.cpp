@@ -62,7 +62,7 @@ static void keep_pixels(gpu_image& image, bb::rhi::binding_group set)
 		return;
 	}
 	image_recipe& recipe = *image.recipe;
-	if ((recipe.kind == image_recipe::content::blocks) || (recipe.format != VK_FORMAT_R8G8B8A8_UNORM) || recipe.ten || recipe.srgb) {
+	if ((recipe.kind == image_recipe::content::blocks) || (recipe.format != bb::rhi::format::rgba8) || recipe.ten || recipe.srgb) {
 		return; // Kept as it was made.
 	}
 	ensure_color_image(image, set);
@@ -144,7 +144,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		g.buffer_depth = actual_depth; // The format stays, create_device would pick the same.
 	} else {
 		g.buffer_depth  = (depth == 8 || depth == 12 || depth == 15 || depth == 16 || depth == 24 || depth == 30 || depth == 64) ? depth : 32;
-		g.buffer_format = VK_FORMAT_R8G8B8A8_UNORM;
+		g.buffer_format = bb::rhi::format::rgba8;
 	}
 	g.headless = bb_env_bool("BLITZLLVM_HEADLESS", 0) != 0;
 	g.width    = uint32_t(width);
@@ -311,7 +311,7 @@ bool bb::gfx::ensure_device()
 	bb_on_exit(bb_end_graphics);
 	g.requested_depth = 32;
 	g.buffer_depth    = 32;
-	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
+	g.buffer_format   = bb::rhi::format::rgba8;
 	create_instance();
 	SDL_Window* probe = SDL_CreateWindow("", 1, 1, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
 	if (!probe) {
@@ -360,7 +360,7 @@ bool bb::gfx::ensure_offscreen()
 	const bool keep_device = g.device != VK_NULL_HANDLE; // From ensure_device, which made it for depth 32 as well.
 	g.requested_depth      = 32;
 	g.buffer_depth         = 32;
-	g.buffer_format        = VK_FORMAT_R8G8B8A8_UNORM;
+	g.buffer_format        = bb::rhi::format::rgba8;
 	g.headless             = false;
 	g.width                = uint32_t(offscreen_size);
 	g.height               = uint32_t(offscreen_size);

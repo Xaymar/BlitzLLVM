@@ -49,7 +49,7 @@ namespace {
 		// On the GPU, made when it is first recorded.
 		int          owner = 0;      // The camera that the images are for.
 		uint32_t     width = 0, height = 0;
-		VkFormat     format = VK_FORMAT_UNDEFINED;
+		bb::rhi::format     format = bb::rhi::format::undefined;
 		bool         temporal = false;
 		gpu_image    src, edges, blend, out[2];
 		bb::rhi::binding_group edges_set, weights_set, blend_set, resolve_set[2];
@@ -70,7 +70,7 @@ namespace {
 	bb::rhi::shader        vertex_modules[4], fragment_modules[4]; // Edges, weights, blend, resolve.
 	bb::rhi::pipeline     edges_pipeline, weights_pipeline;
 	struct format_pipelines {
-		VkFormat   format = VK_FORMAT_UNDEFINED;
+		bb::rhi::format   format = bb::rhi::format::undefined;
 		bb::rhi::pipeline blend, resolve;
 	};
 	format_pipelines pipelines[8];
@@ -181,13 +181,13 @@ namespace {
 		return bb::rhi::get_sampler(d);
 	}
 
-	gpu_image upload_lookup(VkFormat format, uint32_t width, uint32_t height, const unsigned char* data, size_t size, bb::rhi::gpu_buffer& staging)
+	gpu_image upload_lookup(bb::rhi::format format, uint32_t width, uint32_t height, const unsigned char* data, size_t size, bb::rhi::gpu_buffer& staging)
 	{
 		void* mapped;
 		bb::rhi::create_buffer(staging, size, bb::rhi::transfer_source, bb::rhi::memory::mapped);
 		mapped = staging.mapped;
 		memcpy(mapped, data, size);
-		gpu_image image = create_image(width, height, bb::rhi::image_sampled | bb::rhi::image_copy_destination, rhi_format(format));
+		gpu_image image = create_image(width, height, bb::rhi::image_sampled | bb::rhi::image_copy_destination, (format));
 		transition(image, bb::rhi::image_state::copy_dst);
 		bb::rhi::buffer_image_copy copy;
 		copy.w = width;
@@ -220,19 +220,19 @@ namespace {
 		edges_pipeline      = create_fullscreen_pipeline(vertex_modules[0], fragment_modules[0], layout, bb::rhi::format::rg8);
 		weights_pipeline    = create_fullscreen_pipeline(vertex_modules[1], fragment_modules[1], layout, bb::rhi::format::rgba8);
 
-		area_texture   = upload_lookup(VK_FORMAT_R8G8_UNORM, 160, 560, bb_smaa_area_texture, sizeof(bb_smaa_area_texture), area_staging);
-		search_texture = upload_lookup(VK_FORMAT_R8_UNORM, 64, 16, bb_smaa_search_texture, sizeof(bb_smaa_search_texture), search_staging);
+		area_texture   = upload_lookup(bb::rhi::format::rg8, 160, 560, bb_smaa_area_texture, sizeof(bb_smaa_area_texture), area_staging);
+		search_texture = upload_lookup(bb::rhi::format::r8, 64, 16, bb_smaa_search_texture, sizeof(bb_smaa_search_texture), search_staging);
 		ready          = true;
 	}
 
-	format_pipelines& pipelines_for(VkFormat format)
+	format_pipelines& pipelines_for(bb::rhi::format format)
 	{
 		int free_index = -1;
 		for (int i = 0; i < 8; i++) {
 			if (pipelines[i].format == format) {
 				return pipelines[i];
 			}
-			if ((free_index < 0) && (pipelines[i].format == VK_FORMAT_UNDEFINED)) {
+			if ((free_index < 0) && (pipelines[i].format == bb::rhi::format::undefined)) {
 				free_index = i;
 			}
 		}
@@ -244,8 +244,8 @@ namespace {
 		}
 		format_pipelines& p = pipelines[free_index];
 		p.format            = format;
-		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, rhi_format(format));
-		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, rhi_format(format));
+		p.blend             = create_fullscreen_pipeline(vertex_modules[2], fragment_modules[2], layout, (format));
+		p.resolve           = create_fullscreen_pipeline(vertex_modules[3], fragment_modules[3], layout, (format));
 		return p;
 	}
 
@@ -279,18 +279,18 @@ namespace {
 	}
 
 	// Makes what a camera needs on the GPU, if it has not got it or has the wrong size.
-	void prepare_slot(slot& s, int camera, uint32_t width, uint32_t height, VkFormat format, bool temporal, gpu_image& depth)
+	void prepare_slot(slot& s, int camera, uint32_t width, uint32_t height, bb::rhi::format format, bool temporal, gpu_image& depth)
 	{
 		if ((s.owner != camera) || (s.width != width) || (s.height != height) || (s.format != format) || (s.temporal != temporal)) {
 			wait_gpu(); // The frame before may still use them.
 			release_slot(s);
 			bb::rhi::image_usage attachment = bb::rhi::image_color_target | bb::rhi::image_sampled;
-			s.src   = create_image(width, height, bb::rhi::image_copy_destination | bb::rhi::image_sampled, rhi_format(format));
+			s.src   = create_image(width, height, bb::rhi::image_copy_destination | bb::rhi::image_sampled, (format));
 			s.edges = create_image(width, height, attachment, bb::rhi::format::rg8);
 			s.blend = create_image(width, height, attachment, bb::rhi::format::rgba8);
 			if (temporal) {
-				s.out[0] = create_image(width, height, attachment, rhi_format(format));
-				s.out[1] = create_image(width, height, attachment, rhi_format(format));
+				s.out[0] = create_image(width, height, attachment, (format));
+				s.out[1] = create_image(width, height, attachment, (format));
 			}
 			allocate_set(s.edges_set);
 			allocate_set(s.weights_set);
@@ -336,7 +336,7 @@ namespace {
 
 	void draw_pass(bb::rhi::pipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
-		bb::rhi::bind_pipeline(pipeline, 0);
+		bb::rhi::bind_pipeline(pipeline, bb::rhi::format::undefined);
 		bb::rhi::bind_group(layout, 0, set);
 		bb::rhi::push_constants(layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(c), &c);
 		bb::rhi::draw(3, 1, 0, 0);
@@ -478,7 +478,7 @@ namespace bb::gfx {
 		// What 3D drew was dithered before it was smoothed, and smoothing makes colors between the steps of 8 bits that rounding would flatten
 		// again, so the last pass dithers what it makes (only a target of 8 bits per channel, the others are dithered when they are shown).
 		// The blend of T2x only makes the picture that the resolve then mixes, so that one is not rounded with noise.
-		float dither_for_pass = (target.image->format == VK_FORMAT_R8G8B8A8_UNORM) ? dither_code() : 0.0f;
+		float dither_for_pass = (target.image->format == bb::rhi::format::rgba8) ? dither_code() : 0.0f;
 		float steps[3]        = { 0, 0, 0 };
 		dither_steps(steps);
 		c.subsample[0] = steps[0];
