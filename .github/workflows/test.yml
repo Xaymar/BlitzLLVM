@@ -248,6 +248,8 @@ jobs:
         # tests that draw (label gpu) and the suite: the others do not reach a renderer.
         run: |
           EXCLUDE="^($(grep -v '^#' "$GITHUB_WORKSPACE/tests/vulkan_only.txt" | grep . | paste -sd'|'))\$"
+          # The tests of this pass, for the test comment, which lists the pass like a platform of its own.
+          ctest -C Release --show-only=json-v1 -L "gpu|suite" -E "$EXCLUDE" > "$RUNNER_TEMP/tests-opengl.json"
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
           xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 -L "gpu|suite" -E "$EXCLUDE" --output-junit "$RUNNER_TEMP/junit-opengl.xml" "${SELECTED[@]}"
       - name: Run the tests (Windows)
@@ -294,6 +296,8 @@ jobs:
             ${{ runner.temp }}/tests.json
             ${{ runner.temp }}/junit.xml
             ${{ runner.temp }}/skipped.json
+            ${{ runner.temp }}/tests-opengl.json
+            ${{ runner.temp }}/junit-opengl.xml
           retention-days: 1
           if-no-files-found: ignore
       - name: List the skipped tests
@@ -357,6 +361,8 @@ jobs:
           for P in "${PLATFORMS[@]}"; do
             ARGS+=(--platform "$P=results/test-results-$P/tests.json,results/test-results-$P/junit.xml,results/test-results-$P/skipped.json")
           done
+          # The second pass of Linux, with the OpenGL renderer, is listed like a platform of its own.
+          [ -f results/test-results-Linux/junit-opengl.xml ] && ARGS+=(--platform "Linux (OpenGL)=results/test-results-Linux/tests-opengl.json,results/test-results-Linux/junit-opengl.xml,results/test-results-Linux/skipped.json")
           # A platform that did not write its results failed before (or while) running the tests.
           if [ "$STATE" = done ]; then
             for P in "${PLATFORMS[@]}"; do [ -f "results/test-results-$P/junit.xml" ] || STATE=failed; done
