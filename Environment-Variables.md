@@ -43,6 +43,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
 | `BLITZLLVM_OIT_LAYERS` | `128` | Most layers of `BLITZLLVM_OIT=5`: one pass over the see-through things for each. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[CPU-Optimizations]]. |
+| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto` or `vulkan`. Vulkan is the only renderer so far; `d3d11` and `opengl` end the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
 
 ## Features that can be turned off
 
