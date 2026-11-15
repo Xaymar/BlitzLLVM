@@ -1,0 +1,55 @@
+{
+ "registers": [
+  {
+   "set": 0,
+   "binding": 0,
+   "kind": "t",
+   "register": 0
+  },
+  {
+   "set": 0,
+   "binding": 0,
+   "kind": "s",
+   "register": 0
+  },
+  {
+   "set": 0,
+   "binding": 1,
+   "kind": "t",
+   "register": 1
+  },
+  {
+   "set": 0,
+   "binding": 1,
+   "kind": "s",
+   "register": 1
+  },
+  {
+   "set": 0,
+   "binding": 2,
+   "kind": "t",
+   "register": 2
+  },
+  {
+   "set": 0,
+   "binding": 2,
+   "kind": "s",
+   "register": 2
+  },
+  {
+   "set": 0,
+   "binding": 3,
+   "kind": "t",
+   "register": 3
+  },
+  {
+   "set": 0,
+   "binding": 3,
+   "kind": "s",
+   "register": 3
+  }
+ ],
+ "constants": [],
+ "constants_register": null,
+ "push_register": null
+}

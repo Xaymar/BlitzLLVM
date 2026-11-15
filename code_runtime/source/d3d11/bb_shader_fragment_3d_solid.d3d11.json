@@ -1,0 +1,194 @@
+{
+ "registers": [
+  {
+   "set": 0,
+   "binding": 0,
+   "kind": "t",
+   "register": 0
+  },
+  {
+   "set": 0,
+   "binding": 0,
+   "kind": "s",
+   "register": 0
+  },
+  {
+   "set": 0,
+   "binding": 1,
+   "kind": "t",
+   "register": 1
+  },
+  {
+   "set": 0,
+   "binding": 1,
+   "kind": "s",
+   "register": 1
+  },
+  {
+   "set": 0,
+   "binding": 2,
+   "kind": "t",
+   "register": 2
+  },
+  {
+   "set": 0,
+   "binding": 2,
+   "kind": "s",
+   "register": 2
+  },
+  {
+   "set": 0,
+   "binding": 3,
+   "kind": "t",
+   "register": 3
+  },
+  {
+   "set": 0,
+   "binding": 3,
+   "kind": "s",
+   "register": 3
+  },
+  {
+   "set": 0,
+   "binding": 4,
+   "kind": "t",
+   "register": 4
+  },
+  {
+   "set": 0,
+   "binding": 4,
+   "kind": "s",
+   "register": 4
+  },
+  {
+   "set": 0,
+   "binding": 5,
+   "kind": "t",
+   "register": 5
+  },
+  {
+   "set": 0,
+   "binding": 5,
+   "kind": "s",
+   "register": 5
+  },
+  {
+   "set": 0,
+   "binding": 6,
+   "kind": "t",
+   "register": 6
+  },
+  {
+   "set": 0,
+   "binding": 6,
+   "kind": "s",
+   "register": 6
+  },
+  {
+   "set": 0,
+   "binding": 7,
+   "kind": "t",
+   "register": 7
+  },
+  {
+   "set": 0,
+   "binding": 7,
+   "kind": "s",
+   "register": 7
+  },
+  {
+   "set": 1,
+   "binding": 0,
+   "kind": "b",
+   "register": 0
+  },
+  {
+   "set": 1,
+   "binding": 1,
+   "kind": "t",
+   "register": 8
+  },
+  {
+   "set": 1,
+   "binding": 1,
+   "kind": "s",
+   "register": 8
+  },
+  {
+   "set": 2,
+   "binding": 1,
+   "kind": "t",
+   "register": 9
+  },
+  {
+   "set": 3,
+   "binding": 0,
+   "kind": "t",
+   "register": 10
+  },
+  {
+   "set": 3,
+   "binding": 0,
+   "kind": "s",
+   "register": 9
+  }
+ ],
+ "constants": [
+  {
+   "id": 0,
+   "type": "bool",
+   "offset": 0,
+   "default": "true"
+  },
+  {
+   "id": 6,
+   "type": "float",
+   "offset": 4,
+   "default": "0.0f"
+  },
+  {
+   "id": 7,
+   "type": "float",
+   "offset": 8,
+   "default": "1.0f"
+  },
+  {
+   "id": 8,
+   "type": "float",
+   "offset": 12,
+   "default": "1.0f"
+  },
+  {
+   "id": 9,
+   "type": "float",
+   "offset": 16,
+   "default": "1.0f"
+  },
+  {
+   "id": 10,
+   "type": "float",
+   "offset": 20,
+   "default": "1.0f"
+  },
+  {
+   "id": 11,
+   "type": "bool",
+   "offset": 24,
+   "default": "false"
+  },
+  {
+   "id": 12,
+   "type": "float",
+   "offset": 28,
+   "default": "0.0f"
+  },
+  {
+   "id": 21,
+   "type": "bool",
+   "offset": 32,
+   "default": "true"
+  }
+ ],
+ "constants_register": 1,
+ "push_register": null
+}

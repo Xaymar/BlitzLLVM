@@ -1,0 +1,163 @@
+Texture2D<float4> _11 : register(t0);
+SamplerState __11_sampler : register(s0);
+Texture2D<float4> _13 : register(t1);
+SamplerState __13_sampler : register(s1);
+Texture2DMS<float4> _14 : register(t2);
+SamplerState __14_sampler : register(s2);
+Texture2DMS<float4> _16 : register(t3);
+SamplerState __16_sampler : register(s3);
+Texture2DMS<float4> _17 : register(t4);
+SamplerState __17_sampler : register(s4);
+
+static float4 gl_FragCoord;
+static float4 _18;
+
+struct SPIRV_Cross_Input
+{
+    float4 gl_FragCoord : SV_Position;
+};
+
+struct SPIRV_Cross_Output
+{
+    float4 _18 : SV_Target0;
+};
+
+void frag_main()
+{
+    int2 _31 = int2(int(gl_FragCoord.x), int(gl_FragCoord.y));
+    float4 _39 = _14.Load(_31, 0);
+    float4 _40 = _16.Load(_31, 0);
+    float _41 = _40.x;
+    float4 _42 = _17.Load(_31, 0);
+    float _43 = _42.x;
+    float _44 = _39.x;
+    float _45 = _39.y;
+    float _46 = _39.z;
+    float _47 = _39.w;
+    float4 _49 = _14.Load(_31, 1);
+    float4 _50 = _16.Load(_31, 1);
+    float _51 = _50.x;
+    float4 _52 = _17.Load(_31, 1);
+    float _53 = _52.x;
+    float _54 = _49.x;
+    float _55 = _49.y;
+    float _56 = _49.z;
+    float _57 = _49.w;
+    float4 _59 = _14.Load(_31, 2);
+    float4 _60 = _16.Load(_31, 2);
+    float _61 = _60.x;
+    float4 _62 = _17.Load(_31, 2);
+    float _63 = _62.x;
+    float _64 = _59.x;
+    float _65 = _59.y;
+    float _66 = _59.z;
+    float _67 = _59.w;
+    float4 _69 = _14.Load(_31, 3);
+    float4 _70 = _16.Load(_31, 3);
+    float _71 = _70.x;
+    float4 _72 = _17.Load(_31, 3);
+    float _73 = _72.x;
+    float _74 = _69.x;
+    float _75 = _69.y;
+    float _76 = _69.z;
+    float _77 = _69.w;
+    bool _78 = _41 < _51;
+    float _79 = _78 ? _51 : _41;
+    float _80 = _78 ? _54 : _44;
+    float _81 = _78 ? _55 : _45;
+    float _82 = _78 ? _56 : _46;
+    float _83 = _78 ? _57 : _47;
+    float _84 = _78 ? _53 : _43;
+    float _85 = _78 ? _41 : _51;
+    float _86 = _78 ? _44 : _54;
+    float _87 = _78 ? _45 : _55;
+    float _88 = _78 ? _46 : _56;
+    float _89 = _78 ? _47 : _57;
+    float _90 = _78 ? _43 : _53;
+    bool _91 = _85 < _61;
+    float _92 = _91 ? _61 : _85;
+    float _93 = _91 ? _64 : _86;
+    float _94 = _91 ? _65 : _87;
+    float _95 = _91 ? _66 : _88;
+    float _96 = _91 ? _67 : _89;
+    float _97 = _91 ? _63 : _90;
+    float _98 = _91 ? _85 : _61;
+    float _99 = _91 ? _86 : _64;
+    float _100 = _91 ? _87 : _65;
+    float _101 = _91 ? _88 : _66;
+    float _102 = _91 ? _89 : _67;
+    float _103 = _91 ? _90 : _63;
+    bool _104 = _98 < _71;
+    float _105 = _104 ? _71 : _98;
+    float _106 = _104 ? _74 : _99;
+    float _107 = _104 ? _75 : _100;
+    float _108 = _104 ? _76 : _101;
+    float _109 = _104 ? _77 : _102;
+    float _110 = _104 ? _73 : _103;
+    float _112 = _104 ? _99 : _74;
+    float _113 = _104 ? _100 : _75;
+    float _114 = _104 ? _101 : _76;
+    float _115 = _104 ? _102 : _77;
+    bool _117 = _79 < _92;
+    float _118 = _117 ? _92 : _79;
+    float _119 = _117 ? _93 : _80;
+    float _120 = _117 ? _94 : _81;
+    float _121 = _117 ? _95 : _82;
+    float _122 = _117 ? _96 : _83;
+    float _123 = _117 ? _97 : _84;
+    float _124 = _117 ? _79 : _92;
+    float _125 = _117 ? _80 : _93;
+    float _126 = _117 ? _81 : _94;
+    float _127 = _117 ? _82 : _95;
+    float _128 = _117 ? _83 : _96;
+    float _129 = _117 ? _84 : _97;
+    bool _130 = _124 < _105;
+    float _131 = _130 ? _105 : _124;
+    float _132 = _130 ? _106 : _125;
+    float _133 = _130 ? _107 : _126;
+    float _134 = _130 ? _108 : _127;
+    float _135 = _130 ? _109 : _128;
+    float _136 = _130 ? _110 : _129;
+    float _138 = _130 ? _125 : _106;
+    float _139 = _130 ? _126 : _107;
+    float _140 = _130 ? _127 : _108;
+    float _141 = _130 ? _128 : _109;
+    bool _143 = _118 < _131;
+    float _145 = _143 ? _132 : _119;
+    float _146 = _143 ? _133 : _120;
+    float _147 = _143 ? _134 : _121;
+    float _148 = _143 ? _135 : _122;
+    float _151 = _143 ? _119 : _132;
+    float _152 = _143 ? _120 : _133;
+    float _153 = _143 ? _121 : _134;
+    float _154 = _143 ? _122 : _135;
+    float _160 = _148 * (_143 ? _136 : _123);
+    float _170 = _154 * (_143 ? _123 : _136);
+    float _180 = _141 * (_130 ? _129 : _110);
+    float _190 = _115 * (_104 ? _103 : _73);
+    float4 _200 = _11.Load(int3(_31, 0));
+    float _220 = clamp(_13.Load(int3(_31, 0)).x / max((((1.0f * (1.0f - _148)) * (1.0f - _154)) * (1.0f - _141)) * (1.0f - _115), 9.9999997473787516355514526367188e-06f), 0.0f, 1.0f);
+    float _223 = 1.0f / max(max(_200.w - ((((0.0f + _160) + _170) + _180) + _190), 0.0f), 9.9999999747524270787835121154785e-07f);
+    float _227 = 1.0f * _148;
+    float _235 = 1.0f * (1.0f - _148);
+    float _237 = _235 * (1.0f - _220);
+    float _244 = _235 * _220;
+    float _245 = _244 * _154;
+    float _253 = _244 * (1.0f - _154);
+    float _254 = _253 * _141;
+    float _262 = _253 * (1.0f - _141);
+    float _263 = _262 * _115;
+    float _272 = 1.0f - (_262 * (1.0f - _115));
+    float _274 = 1.0f / max(_272, 9.9999997473787516355514526367188e-06f);
+    _18 = float4((((((0.0f + (_227 * _145)) + (_237 * (max(_200.x - ((((0.0f + (_160 * _145)) + (_170 * _151)) + (_180 * _138)) + (_190 * _112)), 0.0f) * _223))) + (_245 * _151)) + (_254 * _138)) + (_263 * _112)) * _274, (((((0.0f + (_227 * _146)) + (_237 * (max(_200.y - ((((0.0f + (_160 * _146)) + (_170 * _152)) + (_180 * _139)) + (_190 * _113)), 0.0f) * _223))) + (_245 * _152)) + (_254 * _139)) + (_263 * _113)) * _274, (((((0.0f + (_227 * _147)) + (_237 * (max(_200.z - ((((0.0f + (_160 * _147)) + (_170 * _153)) + (_180 * _140)) + (_190 * _114)), 0.0f) * _223))) + (_245 * _153)) + (_254 * _140)) + (_263 * _114)) * _274, _272);
+}
+
+SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
+{
+    gl_FragCoord = stage_input.gl_FragCoord;
+    gl_FragCoord.w = 1.0 / gl_FragCoord.w;
+    frag_main();
+    SPIRV_Cross_Output stage_output;
+    stage_output._18 = _18;
+    return stage_output;
+}
