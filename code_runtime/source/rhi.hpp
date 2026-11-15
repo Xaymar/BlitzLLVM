@@ -205,6 +205,7 @@ namespace bb::rhi {
 		vertex_layout    vertices   = vertex_layout::none;
 		bool             wire       = false;
 		bool             depth      = false; // A 3D pipeline: depth tested, culling and depth state set on the command.
+		bool             depth_unused = false; // Not a 3D pipeline, but the pass it draws in has a depth attachment (of depth_format) that it neither tests nor writes.
 		compare          depth_compare = compare::greater_equal;
 		uint32_t         samples    = 1;
 		uint32_t         attachment_count = 1;
@@ -228,6 +229,8 @@ namespace bb::rhi {
 		bool operator<(pipeline const& o) const { return id < o.id; }
 	};
 	pipeline create_pipeline(pipeline_recipe recipe);
+	/** A pipeline of one description, whose target format is the one of the description whatever it is bound with (the passes over a picture: SMAA, gamma, the transparency composites). Built at once. */
+	pipeline create_fixed_pipeline(const pipeline_desc& desc);
 	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
 	void     destroy_pipeline(pipeline p);
 	void     destroy_pipelines();
@@ -273,6 +276,10 @@ namespace bb::rhi {
 
 	/** Makes an empty group of a kind. What it holds is written to it afterwards. */
 	binding_group create_group(group_kind kind);
+	/** Gives a group back. The GPU must be done with it. */
+	void          destroy_group(binding_group group);
+	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
+	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
 
 	/** How an image is used next. The backend turns a change of use into whatever the API needs (a layout change and barrier on Vulkan, nothing on Direct3D 11 and OpenGL). */
 	enum class image_state : uint8_t {
