@@ -585,8 +585,7 @@ namespace bb::gfx {
 		bb::rhi::binding_group scene_set;
 		cull_buffers    cull;
 		static_buffers  statics;
-		std::vector<VkDescriptorPool> layer_pools; // Sets of draws with texture layers (see layered_texture_set), given out until the frame is done.
-		uint32_t        layer_sets_used   = 0;     // Sets taken from the last of the pools.
+		bb::rhi::frame_groups layer_groups; // Groups of draws with texture layers (see layered_texture_set), given out until the frame is done.
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
 		int64_t         flush_id = -1; // The last flush that is in it.
 		submit_job      job;

@@ -336,10 +336,7 @@ namespace bb::gfx {
 		bb::rhi::wait_frame_sync(slot.sync);
 		profile_wait += BB_PROFILE_NOW() - wait_start;
 		slot.state = 0;
-		for (VkDescriptorPool pool : slot.layer_pools) {
-			vkResetDescriptorPool(g.device, pool, 0);
-		}
-		slot.layer_sets_used = 0;
+		bb::rhi::reset_frame_groups(slot.layer_groups);
 		if (slot.flush_id > completed_flush) {
 			completed_flush = slot.flush_id;
 		}
@@ -366,39 +363,12 @@ namespace bb::gfx {
 	// They come from pools that are emptied once the frame that used them is done, like the sets that read targets.
 	bb::rhi::binding_group layered_texture_set(bb::rhi::binding_group first, bb::rhi::binding_group const* layers, uint32_t count)
 	{
-		constexpr uint32_t sets_per_pool = 64;
-		constexpr uint32_t bindings      = 8;
-		frame_slot&        slot          = frames[current_slot];
-		if (slot.layer_pools.empty() || (slot.layer_sets_used == sets_per_pool)) {
-			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, sets_per_pool * bindings };
-			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
-			info.maxSets                    = sets_per_pool;
-			info.poolSizeCount              = 1;
-			info.pPoolSizes                 = &size;
-			VkDescriptorPool pool;
-			check(vkCreateDescriptorPool(g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
-			slot.layer_pools.push_back(pool);
-			slot.layer_sets_used = 0;
+		bb::rhi::binding_group sources[texture_layer_bindings];
+		sources[0] = first;
+		for (uint32_t k = 1; k < texture_layer_bindings; k++) {
+			sources[k] = ((k - 1 < count) && layers[k - 1]) ? layers[k - 1] : g.sets[TEXTURE_WHITE_3D];
 		}
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = slot.layer_pools.back();
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.set_layout;
-		VkDescriptorSet set;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets");
-		slot.layer_sets_used++;
-
-		VkCopyDescriptorSet copies[bindings];
-		for (uint32_t k = 0; k < bindings; k++) {
-			copies[k]                 = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copies[k].srcSet          = vk_set((k == 0) ? first : ((k - 1 < count && layers[k - 1]) ? layers[k - 1] : g.sets[TEXTURE_WHITE_3D]));
-			copies[k].srcBinding      = 0;
-			copies[k].dstSet          = set;
-			copies[k].dstBinding      = k;
-			copies[k].descriptorCount = 1;
-		}
-		vkUpdateDescriptorSets(g.device, 0, nullptr, bindings, copies);
-		return make_group(set);
+		return bb::rhi::combine_texture_groups(frames[current_slot].layer_groups, sources, texture_layer_bindings);
 	}
 
 	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
@@ -524,9 +494,7 @@ namespace bb::gfx {
 	void destroy_frame_slots()
 	{
 		for (frame_slot& slot : frames) {
-			for (VkDescriptorPool pool : slot.layer_pools) {
-				vkDestroyDescriptorPool(g.device, pool, nullptr);
-			}
+			bb::rhi::destroy_frame_groups(slot.layer_groups);
 			bb::rhi::destroy_frame_sync(slot.sync);
 			slot = frame_slot();
 		}

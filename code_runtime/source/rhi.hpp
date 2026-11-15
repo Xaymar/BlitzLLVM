@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <functional>
+#include <vector>
 
 namespace bb::rhi {
 	/** What a buffer is used for, any of them together. */
@@ -283,6 +284,17 @@ namespace bb::rhi {
 	binding_group create_group(group_kind kind);
 	/** Gives a group back. The GPU must be done with it. */
 	void          destroy_group(binding_group group);
+	/** Groups that are only used by the draws of one frame. They are all given back at once with reset_frame_groups when the GPU is done with the frame. */
+	struct frame_groups {
+		std::vector<uint64_t> pools;    // Of the backend.
+		uint32_t              used = 0; // Groups taken from the last pool.
+	};
+	/** Makes a group of the kind texture in the frame's groups: its place k holds what place 0 of sources[k] holds. count is the number of places of the kind. */
+	binding_group combine_texture_groups(frame_groups& groups, const binding_group* sources, uint32_t count);
+	/** Gives every group of the frame back. The GPU must be done with them. */
+	void          reset_frame_groups(frame_groups& groups);
+	/** Frees what the groups of a frame were made from, and leaves them empty. */
+	void          destroy_frame_groups(frame_groups& groups);
 	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
 	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
 	/** Puts a buffer (a backend handle for now) at a place of a group. uniform: the shader reads size bytes of it as a uniform block, from the offset the group is bound with (size 0: all of it); otherwise it is storage that the shader reads or

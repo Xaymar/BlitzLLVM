@@ -2101,6 +2101,57 @@ namespace bb::rhi {
 		return binding_group{ uint64_t(set) };
 	}
 
+	binding_group combine_texture_groups(frame_groups& groups, const binding_group* sources, uint32_t count)
+	{
+		constexpr uint32_t sets_per_pool = 64;
+		if (groups.pools.empty() || (groups.used == sets_per_pool)) {
+			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, sets_per_pool * gfx::texture_layer_bindings };
+			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+			info.maxSets                    = sets_per_pool;
+			info.poolSizeCount              = 1;
+			info.pPoolSizes                 = &size;
+			VkDescriptorPool pool;
+			gfx::check(vkCreateDescriptorPool(gfx::g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
+			groups.pools.push_back(uint64_t(pool));
+			groups.used = 0;
+		}
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = VkDescriptorPool(groups.pools.back());
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &gfx::g.set_layout;
+		VkDescriptorSet set;
+		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		groups.used++;
+
+		VkCopyDescriptorSet copies[gfx::texture_layer_bindings];
+		for (uint32_t k = 0; k < count; k++) {
+			copies[k]                 = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+			copies[k].srcSet          = gfx::vk_set(sources[k]);
+			copies[k].srcBinding      = 0;
+			copies[k].dstSet          = set;
+			copies[k].dstBinding      = k;
+			copies[k].descriptorCount = 1;
+		}
+		vkUpdateDescriptorSets(gfx::g.device, 0, nullptr, count, copies);
+		return binding_group{ uint64_t(set) };
+	}
+
+	void reset_frame_groups(frame_groups& groups)
+	{
+		for (uint64_t pool : groups.pools) {
+			vkResetDescriptorPool(gfx::g.device, VkDescriptorPool(pool), 0);
+		}
+		groups.used = 0;
+	}
+
+	void destroy_frame_groups(frame_groups& groups)
+	{
+		for (uint64_t pool : groups.pools) {
+			vkDestroyDescriptorPool(gfx::g.device, VkDescriptorPool(pool), nullptr);
+		}
+		groups = frame_groups();
+	}
+
 	void destroy_group(binding_group group)
 	{
 		if (group) {
