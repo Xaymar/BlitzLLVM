@@ -193,7 +193,7 @@ namespace bb::gfx {
 		image_set& entry = images_for(width, height);
 		color_attachment(color[0], entry.slot_color, 0, 0, 0, 0);
 		color_attachment(color[1], entry.slot_weight, 0, 0, 0, 0);
-		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_target, true);
 		entry.slot_depth_layout = bb::rhi::image_state::depth_target;
 		*depth                  = bb::rhi::pass_attachment();
 		depth->view             = uint64_t(entry.slot_depth.view);
@@ -206,7 +206,7 @@ namespace bb::gfx {
 		image_set& entry = images_for(width, height);
 		transition(entry.slot_color, bb::rhi::image_state::sampled);
 		transition(entry.slot_weight, bb::rhi::image_state::sampled);
-		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, bb::rhi::image_state::depth_read, true);
 		entry.slot_depth_layout = bb::rhi::image_state::depth_read;
 	}
 
@@ -228,7 +228,7 @@ namespace bb::gfx {
 		image_set&     entry = images_for(width, height);
 		const uint32_t now   = layer & 1;
 		color_attachment(*color, entry.peel_color, 0, 0, 0, 0);
-		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_target, VK_IMAGE_ASPECT_DEPTH_BIT);
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_target, true);
 		entry.peel_depth_layout[now]   = bb::rhi::image_state::depth_target;
 		*depth                         = bb::rhi::pass_attachment();
 		depth->view                    = uint64_t(entry.peel_depth[now].view);
@@ -242,7 +242,7 @@ namespace bb::gfx {
 		image_set&     entry = images_for(width, height);
 		const uint32_t now   = layer & 1;
 		transition(entry.peel_color, bb::rhi::image_state::sampled);
-		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], bb::rhi::image_state::depth_read, true);
 		entry.peel_depth_layout[now] = bb::rhi::image_state::depth_read;
 	}
 

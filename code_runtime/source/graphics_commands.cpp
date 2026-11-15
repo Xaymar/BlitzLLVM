@@ -572,9 +572,9 @@ namespace bb::gfx {
 		}
 	}
 
-	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, VkImageAspectFlags aspect)
+	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth)
 	{
-		bb::rhi::transition_image(uint64_t(img), from, to, (aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
+		bb::rhi::transition_image(uint64_t(img), from, to, depth);
 	}
 
 	// Moves the image to the layout, from the one it is in.
@@ -607,7 +607,7 @@ namespace bb::gfx {
 		target.image->mips_stale = target.image->mips > 1;
 
 		// Drawing is limited to the part of the image that this buffer is.
-		VkRect2D scissor = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
+		bb::rhi::rect scissor = { target.x, target.y, target.w, target.h };
 		bb::rhi::pass_desc pass;
 		pass.colors[0].view = uint64_t(target_view_of(*target.image, target.layer));
 		pass.color_count    = 1;
@@ -627,26 +627,26 @@ namespace bb::gfx {
 		bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(scale), scale);
 		bb::rhi::bind_vertex_buffer(uint64_t(g.vertex_buffer.vk));
 
-		VkRect2D  current  = scissor;
+		bb::rhi::rect  current  = scissor;
 		for (uint32_t i = first; i < end; i++) {
 			operation& op = g.ops[i];
 
 			// Only the viewport of the buffer is drawn to.
-			VkRect2D wanted = scissor;
+			bb::rhi::rect wanted = scissor;
 			if (op.clip[2] >= 0) {
 				int x0 = op.clip[0] < 0 ? 0 : op.clip[0], y0 = op.clip[1] < 0 ? 0 : op.clip[1];
 				int x1 = op.clip[0] + op.clip[2], y1 = op.clip[1] + op.clip[3];
 				x1     = x1 > target.w ? target.w : x1;
 				y1     = y1 > target.h ? target.h : y1;
-				wanted = { { target.x + x0, target.y + y0 }, { uint32_t(x1 > x0 ? x1 - x0 : 0), uint32_t(y1 > y0 ? y1 - y0 : 0) } };
+				wanted = { target.x + x0, target.y + y0, (x1 > x0) ? x1 - x0 : 0, (y1 > y0) ? y1 - y0 : 0 };
 			}
 			if (memcmp(&wanted, &current, sizeof(wanted)) != 0) {
-				bb::rhi::set_scissor(wanted.offset.x, wanted.offset.y, int32_t(wanted.extent.width), int32_t(wanted.extent.height));
+				bb::rhi::set_scissor(wanted.x, wanted.y, wanted.w, wanted.h);
 				current = wanted;
 			}
 
 			if (op.kind == OP_CLEAR) {
-				bb::rhi::clear_color(op.color, current.offset.x, current.offset.y, int32_t(current.extent.width), int32_t(current.extent.height));
+				bb::rhi::clear_color(op.color, current.x, current.y, current.w, current.h);
 				continue;
 			}
 

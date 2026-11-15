@@ -1148,7 +1148,7 @@ namespace bb::gfx {
 	void stop_gpu_thread();
 	void begin_commands();
 	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
-	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);
+	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth = false);
 	void transition(gpu_image& img, bb::rhi::image_state to);
 	void record_operations();
 	void present_front(bool copy_back);

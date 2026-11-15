@@ -400,6 +400,14 @@ namespace bb::rhi {
 	void begin_pass(const pass_desc& desc);
 	void end_pass();
 
+	/** A rectangle of pixels, and one of a viewport. */
+	struct rect {
+		int32_t x = 0, y = 0, w = 0, h = 0;
+	};
+	struct viewport {
+		float x = 0, y = 0, w = 0, h = 0;
+	};
+
 	/** Changes the viewport / scissor inside a pass. */
 	void set_viewport(float x, float y, float w, float h);
 	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h);

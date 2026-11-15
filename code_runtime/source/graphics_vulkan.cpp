@@ -359,8 +359,8 @@ namespace bb::gfx {
 		if (img.layout != bb::rhi::image_state::undefined) {
 			// What the image holds goes over on the GPU: every level and layer.
 			begin_commands();
-			barrier(img.image, img.layout, bb::rhi::image_state::copy_src, img.recipe->aspect);
-			barrier(fresh, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, img.recipe->aspect);
+			barrier(img.image, img.layout, bb::rhi::image_state::copy_src, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
+			barrier(fresh, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 			std::vector<bb::rhi::image_copy> regions(info.mipLevels);
 			for (uint32_t level = 0; level < info.mipLevels; level++) {
 				regions[level].src.mip    = level;
@@ -371,7 +371,7 @@ namespace bb::gfx {
 				regions[level].h          = (info.extent.height >> level) ? (info.extent.height >> level) : 1;
 			}
 			bb::rhi::copy_image(uint64_t(img.image), uint64_t(fresh), regions.data(), info.mipLevels);
-			barrier(fresh, bb::rhi::image_state::copy_dst, img.layout, img.recipe->aspect);
+			barrier(fresh, bb::rhi::image_state::copy_dst, img.layout, (img.recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 			submit_commands();
 		}
 		destroy_views(img);
@@ -1173,12 +1173,12 @@ namespace bb::gfx {
 			if (fresh.image && (layout != bb::rhi::image_state::undefined)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();
-				barrier(fresh.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, recipe->aspect);
+				barrier(fresh.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, (recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 				if (recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT) {
 					const float clear[4] = { 0, 0, 0, 0 };
 					bb::rhi::clear_image(uint64_t(fresh.image), clear, recipe->mips, recipe->layers);
 				}
-				barrier(fresh.image, bb::rhi::image_state::copy_dst, layout, recipe->aspect);
+				barrier(fresh.image, bb::rhi::image_state::copy_dst, layout, (recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
 				fresh.layout = layout;
 				submit_commands();
 			}
