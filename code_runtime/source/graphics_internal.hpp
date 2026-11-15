@@ -322,7 +322,7 @@ namespace bb::gfx {
 		bool         suspended  = false; // Whether the window is not in front (or is minimized).
 
 		bb::rhi::swapchain chain; // The pictures of the window: handle, images, semaphores and size.
-		VkSemaphore    acquired = VK_NULL_HANDLE;
+		uint64_t       acquired = 0; // A backend semaphore.
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
 		bool           gui = false;       // A window of the BlitzPlus GUI: its events go to the gadgets (bb_gui_event, bb_gui_window_event).
@@ -580,9 +580,7 @@ namespace bb::gfx {
 	// and the GPU reads, and every command buffer, exists once for each of the frames that can be in flight.
 	constexpr uint32_t frame_slots = 2;
 	struct submit_job {
-		VkSemaphore    wait = VK_NULL_HANDLE, signal = VK_NULL_HANDLE;
-		VkSemaphore    timeline = VK_NULL_HANDLE; // Also signaled, with timeline_value: the handover of a picture to the thread of a window.
-		uint64_t       timeline_value = 0;
+		bb::rhi::submission what; // The semaphores; signal is also what the present waits for.
 		bool           present = false;
 		uint64_t       swapchain = 0; // bb::rhi::swapchain::handle
 		uint32_t       index = 0;
@@ -887,7 +885,7 @@ namespace bb::gfx {
 	extern bb::buffer<image_entry> image_table;
 	extern bb::buffer<sampler_entry> sampler_table;
 	extern rhi::gpu_buffer scratch;
-	extern VkDeviceSize   scratch_size;
+	extern uint64_t       scratch_size;
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
 	extern Uint64 profile_wait;
@@ -1160,14 +1158,14 @@ namespace bb::gfx {
 	void gpu_idle();
 	void stop_gpu_thread();
 	void begin_commands();
-	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
+	void submit_commands(uint64_t wait = 0, uint64_t signal = 0);
 	void barrier(uint64_t img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth = false);
 	void transition(gpu_image& img, bb::rhi::image_state to);
 	void record_operations();
 	void present_front(bool copy_back);
 	/** Records and sends everything that was asked for, puts the picture into the layout the thread of its window blits from, and
 	 * signals the timeline semaphore with the value once the GPU is done with all of it. The program's thread does not wait. */
-	void flush_handover(gpu_image& picture, VkSemaphore timeline, uint64_t value);
+	void flush_handover(gpu_image& picture, uint64_t timeline, uint64_t value);
 
 	// Where the buffer is shown in an area of the given size: all of it in a window, in a fullscreen window the largest
 	// part with the aspect ratio of the buffer, centered. The rest is black.

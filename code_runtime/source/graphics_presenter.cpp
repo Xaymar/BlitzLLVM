@@ -265,7 +265,7 @@ namespace bb::gfx {
 	{
 		presenter& p      = *s.show;
 		uint64_t   number = p.handovers + 1; // Only this thread changes handovers.
-		flush_handover(image_of(p.frames[p.drawing])->image, VkSemaphore(p.wp.timeline), number);
+		flush_handover(image_of(p.frames[p.drawing])->image, p.wp.timeline, number);
 		SDL_LockMutex(p.mutex);
 		p.ready        = p.drawing;
 		p.handovers    = number;

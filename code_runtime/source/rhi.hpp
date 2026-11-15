@@ -361,6 +361,13 @@ namespace bb::rhi {
 	/** Ends the open command buffer, sends it and waits until the GPU is done with it (the one-shot work of uploads and readbacks). wait / signal are backend semaphores of presentation (0 for none). False if the device is lost: nothing is sent. */
 	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore);
 
+	/** Starts the recording of the frame slot that is in use (see use_frame_sync), and ends it without sending it. */
+	void begin_commands();
+	void end_commands();
+
+	/** Reports a result code of the backend that is not 0 the way a failed call of the backend is reported: a lost device is noted, so that the graphics are made again, and everything else ends the program with what as the name of the call. */
+	void check_result(int32_t native, const char* what);
+
 	/** What a frame slot needs to record, send and wait for its work: a command buffer, a fence that tells when the GPU is done, and a semaphore for the acquired window image. Backend handles for now. */
 	struct frame_sync {
 		uint64_t cmd = 0, fence = 0, acquired = 0;
@@ -369,6 +376,19 @@ namespace bb::rhi {
 	void       destroy_frame_sync(frame_sync& sync); // Leaves it empty.
 	/** Waits until the GPU is done with what was sent with the slot, and readies the fence for the next send. */
 	void wait_frame_sync(const frame_sync& sync);
+	/** Makes the command buffer and the fence of the slot the ones that are recorded into and sent, and writes the ones in use back to a slot. An empty slot stands for none. */
+	void use_frame_sync(const frame_sync& sync);
+	void store_frame_sync(frame_sync& sync);
+
+	/** What goes along with the commands of a slot when they are sent: backend semaphores, 0 for none. timeline is signaled with timeline_value (the handover of a picture to the thread of a window). */
+	struct submission {
+		uint64_t wait = 0, signal = 0;
+		uint64_t timeline = 0, timeline_value = 0;
+	};
+	/** The backend's own handle of queue 0, for the submission thread: the graphics state belongs to the program's thread and is not there to look at. */
+	uint64_t main_queue();
+	/** Sends the commands of the slot to the queue and returns at once; the fence of the slot tells when the GPU is done. For the submission thread: uses nothing of the graphics state. Answers the backend's result code, 0 when they were sent. */
+	int32_t submit_frame(uint64_t queue, const frame_sync& sync, const submission& what);
 
 	/** Waits until the GPU has finished everything that was sent, from any thread (takes every queue for itself while it waits). */
 	void wait_idle();
@@ -449,6 +469,8 @@ namespace bb::rhi {
 
 	/** Frees the buffer, if there is one, and leaves it empty. */
 	void destroy_buffer(gpu_buffer& buffer);
+	/** Frees a buffer that the graveyard kept the handles of (gpu_buffer::vk and ::allocation) until the GPU was done with it. */
+	void destroy_retired_buffer(uint64_t buffer, uint64_t allocation);
 
 	/** The same for any thread (the loaders of models), for memory::mesh buffers only. False if the device is gone or there is no memory left, with nothing made. These wait
 	    for each other and for close_prebuild, which the thread of the program calls before the device goes. */
@@ -491,6 +513,7 @@ namespace bb::rhi {
 	struct present_result {
 		present_status status = present_status::ok;
 		int32_t        native = 0;
+		bool           immediate = false; // not_ready was answered at once and not after the timeout (drivers are known to).
 	};
 
 	/** Takes the next image of the swapchain, to be drawn into once the semaphore is signalled; its number is index. Waits up to timeout_ns for one, and says not_ready if there is none yet (nothing was acquired then). serialize: the

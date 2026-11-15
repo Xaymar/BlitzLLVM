@@ -71,7 +71,7 @@ namespace bb::gfx {
 			stop_presenter(*s);
 			destroy_swapchain(*s); // Waits for the GPU.
 			if (s->acquired) {
-				vkDestroySemaphore(g.device, s->acquired, nullptr);
+				vkDestroySemaphore(g.device, VkSemaphore(s->acquired), nullptr);
 			}
 		}
 		if (s->surface) {
@@ -132,7 +132,7 @@ namespace bb::gfx {
 		}
 		s->vsync = 1;
 		VkSemaphoreCreateInfo sem = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-		check(vkCreateSemaphore(g.device, &sem, nullptr, &s->acquired), "vkCreateSemaphore");
+		check(vkCreateSemaphore(g.device, &sem, nullptr, vk_out<VkSemaphore>(s->acquired)), "vkCreateSemaphore");
 		create_swapchain(*s);
 		return handle;
 	}
@@ -155,7 +155,7 @@ namespace bb::gfx {
 			return false;
 		}
 		uint32_t index  = 0;
-		bb::rhi::present_result acquired = bb::rhi::acquire_image(s->chain, uint64_t(s->acquired), UINT64_MAX, false, index);
+		bb::rhi::present_result acquired = bb::rhi::acquire_image(s->chain, s->acquired, UINT64_MAX, false, index);
 		if ((acquired.status == bb::rhi::present_status::out_of_date) || (acquired.status == bb::rhi::present_status::suboptimal)) {
 			s->resized = true;
 			if (acquired.status == bb::rhi::present_status::out_of_date) {
@@ -170,8 +170,7 @@ namespace bb::gfx {
 		const float color[4] = { r, gr, b, 1.0f };
 		bb::rhi::clear_image(uint64_t(s->chain.images[index]), color, 1, 1);
 		barrier(uint64_t(s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
-		VkSemaphore done_semaphore = VkSemaphore(s->chain.done[index]);
-		submit_commands(s->acquired, done_semaphore);
+		submit_commands(s->acquired, uint64_t(s->chain.done[index]));
 
 		bb::rhi::present_result shown = bb::rhi::present_image(s->chain, uint64_t(g.queue), uint64_t(s->chain.done[index]), index, false, true);
 		if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {

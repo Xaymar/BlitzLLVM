@@ -29,7 +29,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Between rectangles of the same image, the pixels take a detour through this buffer.
 	rhi::gpu_buffer scratch;
-	VkDeviceSize   scratch_size   = 0;
+	uint64_t       scratch_size   = 0;
 	bb::buffer<graveyard_entry> graveyard;
 	frame_slot                  frames[frame_slots];
 	static uint32_t             current_slot  = 0;
@@ -42,7 +42,7 @@ namespace bb::gfx {
 		uint32_t kept = 0;
 		for (uint32_t i = 0; i < graveyard.size; i++) {
 			if (all || (graveyard[i].flush <= completed_flush)) {
-				vmaDestroyBuffer(g.allocator, VkBuffer(graveyard[i].buffer), VmaAllocation(graveyard[i].allocation));
+				bb::rhi::destroy_retired_buffer(graveyard[i].buffer, graveyard[i].allocation);
 			} else {
 				graveyard[kept++] = graveyard[i];
 			}
@@ -77,7 +77,7 @@ namespace bb::gfx {
 	static bool           gpu_quit       = false;
 	static SDL_Mutex*     swapchain_mutex = nullptr; // vkAcquireNextImageKHR and vkQueuePresentKHR need the swapchain to be externally synchronized.
 	static bool           gpu_resized    = false; // The present asked for a new swapchain.
-	static VkResult       gpu_error      = VK_SUCCESS;
+	static int32_t        gpu_error      = 0; // The backend's result code of what failed in the thread, 0 for nothing.
 	static SDL_Mutex*     queue_mutex[8] = {};      // One for each queue: vkQueueSubmit and vkQueuePresentKHR on it, from whichever thread, one at a time.
 	static const char*    gpu_error_what = "";
 	Uint64                profile_gpu_submit  = 0; // Time that vkQueueSubmit took in the thread.
@@ -126,9 +126,9 @@ namespace bb::gfx {
 		}
 	}
 
-	static void gpu_fail(VkResult result, const char* what)
+	static void gpu_fail(int32_t result, const char* what)
 	{
-		if (result != VK_SUCCESS && gpu_error == VK_SUCCESS) {
+		if (result != 0 && gpu_error == 0) {
 			gpu_error      = result;
 			gpu_error_what = what;
 		}
@@ -137,14 +137,14 @@ namespace bb::gfx {
 	// What the submission thread is given when it starts. It works with these and not with the graphics state, which belongs to
 	// the thread that runs the program.
 	struct gpu_context {
-		VkQueue queue;
+		uint64_t queue; // bb::rhi::main_queue
 	};
 	static gpu_context gpu_start;
 
 	static int SDLCALL gpu_main(void* argument)
 	{
 		bb_affinity_helper(2);
-		VkQueue queue = static_cast<gpu_context*>(argument)->queue;
+		uint64_t queue = static_cast<gpu_context*>(argument)->queue;
 		for (;;) {
 			SDL_LockMutex(gpu_mutex);
 			while (!gpu_queue_count && !gpu_quit) {
@@ -161,57 +161,27 @@ namespace bb::gfx {
 			submit_job job   = slot.job;
 			SDL_UnlockMutex(gpu_mutex);
 
-			VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-			info.waitSemaphoreCount    = job.wait ? 1 : 0;
-			info.pWaitSemaphores       = &job.wait;
-			info.pWaitDstStageMask     = &stage;
-			info.commandBufferCount    = 1;
-			VkCommandBuffer slot_cmd = VkCommandBuffer(slot.sync.cmd);
-			info.pCommandBuffers       = &slot_cmd;
-			// The binary semaphore of the present and the timeline semaphore of a handover; the value of a binary one is ignored.
-			VkSemaphore signals[2];
-			uint64_t    values[2];
-			uint32_t    signal_count = 0;
-			if (job.signal) {
-				signals[signal_count] = job.signal;
-				values[signal_count++] = 0;
-			}
-			if (job.timeline) {
-				signals[signal_count] = job.timeline;
-				values[signal_count++] = job.timeline_value;
-			}
-			VkTimelineSemaphoreSubmitInfo timeline = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
-			timeline.signalSemaphoreValueCount     = signal_count;
-			timeline.pSignalSemaphoreValues        = values;
-			info.signalSemaphoreCount  = signal_count;
-			info.pSignalSemaphores     = signals;
-			if (job.timeline) {
-				info.pNext = &timeline;
-			}
-			Uint64   submit_start      = BB_PROFILE_NOW();
-			queue_lock();
-			VkResult result            = vkQueueSubmit(queue, 1, &info, VkFence(slot.sync.fence));
-			queue_unlock();
-			Uint64   submit_time       = BB_PROFILE_NOW() - submit_start;
+			Uint64  submit_start = BB_PROFILE_NOW();
+			int32_t result       = bb::rhi::submit_frame(queue, slot.sync, job.what); // Takes the lock of the queue for the call.
+			Uint64  submit_time  = BB_PROFILE_NOW() - submit_start;
 			SDL_LockMutex(gpu_mutex);
 			profile_gpu_submit += submit_time;
 			gpu_fail(result, "vkQueueSubmit");
-			slot.state = (result == VK_SUCCESS) ? 2 : 0; // A fence of a submission that failed never gets signaled.
+			slot.state = (result == 0) ? 2 : 0; // A fence of a submission that failed never gets signaled.
 			SDL_BroadcastCondition(gpu_cond);
 			SDL_UnlockMutex(gpu_mutex);
 
-			if (job.present && (result == VK_SUCCESS)) {
+			if (job.present && (result == 0)) {
 				bb::rhi::swapchain chain;
 				chain.handle               = job.swapchain;
 				Uint64 present_start       = BB_PROFILE_NOW();
-				bb::rhi::present_result shown = bb::rhi::present_image(chain, uint64_t(queue), uint64_t(job.signal), job.index, true, false);
+				bb::rhi::present_result shown = bb::rhi::present_image(chain, queue, job.what.signal, job.index, true, false);
 				SDL_LockMutex(gpu_mutex);
 				profile_gpu_present += BB_PROFILE_NOW() - present_start;
 				if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {
 					gpu_resized = true;
 				} else {
-					gpu_fail(VkResult(shown.native), "vkQueuePresentKHR");
+					gpu_fail(shown.native, "vkQueuePresentKHR");
 				}
 				SDL_UnlockMutex(gpu_mutex);
 			}
@@ -232,21 +202,21 @@ namespace bb::gfx {
 			return;
 		}
 		SDL_LockMutex(gpu_mutex);
-		VkResult    error = gpu_error;
+		int32_t     error = gpu_error;
 		const char* what  = gpu_error_what;
-		gpu_error         = VK_SUCCESS;
+		gpu_error         = 0;
 		SDL_UnlockMutex(gpu_mutex);
-		check(error, what);
+		bb::rhi::check_result(error, what);
 	}
 
 	void gpu_clear_error()
 	{
 		if (!gpu_mutex) {
-			gpu_error = VK_SUCCESS;
+			gpu_error = 0;
 			return;
 		}
 		SDL_LockMutex(gpu_mutex);
-		gpu_error   = VK_SUCCESS;
+		gpu_error   = 0;
 		gpu_resized = false;
 		SDL_UnlockMutex(gpu_mutex);
 	}
@@ -422,9 +392,8 @@ namespace bb::gfx {
 	// The fields of the state that belong to the slot that is used now are copied from and to the slots.
 	static void store_slot(frame_slot& s)
 	{
-		s.sync.cmd      = uint64_t(g.cmd);
-		s.sync.fence    = uint64_t(g.fence);
-		s.sync.acquired = uint64_t(surface().acquired);
+		bb::rhi::store_frame_sync(s.sync);
+		s.sync.acquired = surface().acquired;
 		s.entity_buffer = g.entity_buffer;
 		s.entity_capacity = g.entity_capacity;
 		s.entity_set = g.entity_set;
@@ -438,9 +407,8 @@ namespace bb::gfx {
 
 	static void load_slot(frame_slot const& s)
 	{
-		g.cmd              = VkCommandBuffer(s.sync.cmd);
-		g.fence            = VkFence(s.sync.fence);
-		surface().acquired = VkSemaphore(s.sync.acquired);
+		bb::rhi::use_frame_sync(s.sync);
+		surface().acquired = s.sync.acquired;
 		g.entity_buffer = s.entity_buffer;
 		g.entity_capacity = s.entity_capacity;
 		g.entity_set = s.entity_set;
@@ -500,27 +468,23 @@ namespace bb::gfx {
 		}
 		current_slot  = 0;
 		slot_acquired = false;
-		g.cmd = VK_NULL_HANDLE;
-		g.fence = VK_NULL_HANDLE;
-		surface().acquired = VK_NULL_HANDLE;
+		bb::rhi::use_frame_sync(bb::rhi::frame_sync());
+		surface().acquired = 0;
 	}
 
 	void begin_commands()
 	{
 		acquire_frame();
-		vkResetCommandBuffer(g.cmd, 0);
-		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
+		bb::rhi::begin_commands();
 		profile_gpu_begin();
 	}
 
 	// Sends the command buffer and waits for it to be done. Used when the program needs the result.
-	void submit_commands(VkSemaphore wait, VkSemaphore signal)
+	void submit_commands(uint64_t wait, uint64_t signal)
 	{
 		wait_gpu();
 		Uint64 wait_start = BB_PROFILE_NOW();
-		if (!bb::rhi::submit_and_wait(uint64_t(wait), uint64_t(signal))) {
+		if (!bb::rhi::submit_and_wait(wait, signal)) {
 			// Nothing can be sent to a device that is lost. The graphics are made again where the next frame begins.
 			completed_flush = int64_t(flush_number) - 1;
 			retire_graveyard(false);
@@ -535,16 +499,16 @@ namespace bb::gfx {
 
 	// Sends the command buffer and returns at once, the present follows if asked for. The program can not use the command
 	// buffer or anything it records until acquire_frame has the slot again, nor the swapchain until wait_gpu.
-	static void submit_async(VkSemaphore wait, VkSemaphore signal, bool present, uint32_t index, VkSemaphore timeline = VK_NULL_HANDLE, uint64_t timeline_value = 0)
+	static void submit_async(uint64_t wait, uint64_t signal, bool present, uint32_t index, uint64_t timeline = 0, uint64_t timeline_value = 0)
 	{
-		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
+		bb::rhi::end_commands();
 		if (device_lost()) {
 			return; // See submit_commands.
 		}
 		if (!gpu_thread) {
 			gpu_mutex  = SDL_CreateMutex();
 			gpu_cond   = SDL_CreateCondition();
-			gpu_start.queue = g.queue;
+			gpu_start.queue = bb::rhi::main_queue();
 			gpu_thread      = SDL_CreateThread(gpu_main, "BlitzLLVM GPU", &gpu_start);
 			if (!gpu_thread) {
 				fail("The submission thread could not be started.");
@@ -553,7 +517,7 @@ namespace bb::gfx {
 		profile_submits++;
 		frame_slot& slot = frames[current_slot];
 		slot.flush_id    = int64_t(flush_number) - 1;
-		slot.job         = { wait, signal, timeline, timeline_value, present, surface().chain.handle, index };
+		slot.job         = { { wait, signal, timeline, timeline_value }, present, surface().chain.handle, index };
 		SDL_LockMutex(gpu_mutex);
 		slot.state = 1;
 		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
@@ -716,7 +680,7 @@ namespace bb::gfx {
 	void present_front(bool copy_back)
 	{
 		if (device_lost()) {
-			check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
+			bb::rhi::end_commands();
 			return;
 		}
 		uint32_t index = 0;
@@ -724,10 +688,10 @@ namespace bb::gfx {
 		// while holding it (the present may be what frees one): it asks for one for a millisecond at a time instead. Drivers
 		// are also known to answer VK_NOT_READY or VK_TIMEOUT even when asked to wait, nothing was acquired then and the
 		// semaphore is not signaled, so asking again is correct.
-		bb::rhi::present_result acquired = { bb::rhi::present_status::not_ready, int32_t(VK_NOT_READY) };
+		bb::rhi::present_result acquired = { bb::rhi::present_status::not_ready, 0, false };
 		for (int retry = 0; acquired.status == bb::rhi::present_status::not_ready; retry++) {
-			acquired = bb::rhi::acquire_image(surface().chain, uint64_t(surface().acquired), 1000000, true, index);
-			if (acquired.native == int32_t(VK_NOT_READY)) {
+			acquired = bb::rhi::acquire_image(surface().chain, surface().acquired, 1000000, true, index);
+			if (acquired.immediate) {
 				// Returned at once instead of after the timeout, give the present a chance to take the lock.
 				fprintf(stderr, "vkAcquireNextImageKHR returned VK_NOT_READY (try %d), retrying.\n", retry + 1);
 				SDL_Delay(1);
@@ -742,9 +706,9 @@ namespace bb::gfx {
 			surface().resized = true;
 			return;
 		} else if (acquired.status != bb::rhi::present_status::suboptimal) {
-			check(VkResult(acquired.native), "vkAcquireNextImageKHR");
+			bb::rhi::check_result(acquired.native, "vkAcquireNextImageKHR");
 			if (device_lost()) {
-				check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer"); // No image was acquired.
+				bb::rhi::end_commands(); // No image was acquired.
 				return;
 			}
 		}
@@ -794,11 +758,11 @@ namespace bb::gfx {
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 
 		profile_gpu_mark(3);
-		submit_async(surface().acquired, VkSemaphore(surface().chain.done[index]), true, index);
+		submit_async(surface().acquired, uint64_t(surface().chain.done[index]), true, index);
 		gamma_after_present();
 	}
 
-	void flush_handover(gpu_image& picture, VkSemaphore timeline, uint64_t value)
+	void flush_handover(gpu_image& picture, uint64_t timeline, uint64_t value)
 	{
 		if (g.headless || !g.created) {
 			return;
@@ -811,7 +775,7 @@ namespace bb::gfx {
 		record_operations();
 		// The barrier comes after everything sent before on the queue, so the signal that follows it means all drawing into the picture is done.
 		transition(picture, bb::rhi::image_state::copy_src);
-		submit_async(VK_NULL_HANDLE, VK_NULL_HANDLE, false, 0, timeline, value);
+		submit_async(0, 0, false, 0, timeline, value);
 	}
 
 	// Records and sends everything that has been asked for.
@@ -841,7 +805,7 @@ namespace bb::gfx {
 			}
 			present_front(false);
 		} else {
-			submit_async(VK_NULL_HANDLE, VK_NULL_HANDLE, false, 0);
+			submit_async(0, 0, false, 0);
 		}
 	}
 
