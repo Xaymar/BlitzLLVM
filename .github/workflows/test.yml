@@ -182,7 +182,7 @@ jobs:
         # and the shader tools of tools/translate_shaders.py. The downloaded packages are cached.
         uses: ./.github/actions/apt-install
         with:
-          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils spirv-cross spirv-tools glslang-tools
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev libgl1 libglx-mesa0 libegl-mesa0 libgl1-mesa-dri mesa-vulkan-drivers xvfb xdotool x11-utils spirv-cross spirv-tools glslang-tools
       - name: Install a software Vulkan driver (Windows)
         # The Vulkan loader (vulkan-1.dll) and Mesa's lavapipe (Vulkan on the CPU, like llvmpipe on Linux), which the action registers as a driver.
         if: env.RUN == 'true' && matrix.label == 'Windows'
@@ -238,6 +238,18 @@ jobs:
           mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
           xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
+      - name: Run the GPU tests with OpenGL (Linux)
+        if: env.RUN == 'true' && matrix.label == 'Linux'
+        working-directory: build/code_compiler
+        env:
+          XDG_RUNTIME_DIR: /tmp/xdg
+          BLITZLLVM_RENDERER: opengl
+        # The same tests once more with the OpenGL renderer (Mesa's llvmpipe again), without the ones of tests/vulkan_only.txt. Only the
+        # tests that draw (label gpu) and the suite: the others do not reach a renderer.
+        run: |
+          EXCLUDE="^($(grep -v '^#' "$GITHUB_WORKSPACE/tests/vulkan_only.txt" | grep . | paste -sd'|'))\$"
+          SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
+          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 -L "gpu|suite" -E "$EXCLUDE" --output-junit "$RUNNER_TEMP/junit-opengl.xml" "${SELECTED[@]}"
       - name: Run the tests (Windows)
         if: env.RUN == 'true' && matrix.label == 'Windows'
         working-directory: build/code_compiler

@@ -1,0 +1,6 @@
+# Tests that are left out of the pass that runs the GPU tests with the OpenGL renderer (BLITZLLVM_RENDERER=opengl, see
+# .github/workflows/test.yml), one name of a test per line. They test something that only the Vulkan renderer has.
+
+# Full video memory: BLITZLLVM_VRAM_LIMIT_MB, textures that go to system memory or make room, and moving images together are the work
+# of the allocator of the Vulkan renderer. OpenGL leaves video memory to the driver.
+vram_pixels
