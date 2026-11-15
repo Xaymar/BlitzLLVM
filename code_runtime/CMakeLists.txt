@@ -64,7 +64,7 @@ target_sources(blitzrt PRIVATE
 	"source/path.h"
 	"source/graphics_window.cpp"
 	"source/graphics_vulkan.cpp"
-	"source/graphics_memory.cpp"
+	"source/graphics_vulkan_memory.cpp"
 	"source/graphics_commands.cpp"
 	"source/graphics_draw2d.cpp"
 	"source/graphics_dds.cpp"
