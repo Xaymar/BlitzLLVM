@@ -166,10 +166,10 @@ namespace bb::gfx {
 		}
 
 		begin_commands();
-		barrier(VkImage(s->chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		barrier(uint64_t(s->chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		const float color[4] = { r, gr, b, 1.0f };
 		bb::rhi::clear_image(uint64_t(s->chain.images[index]), color, 1, 1);
-		barrier(VkImage(s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		barrier(uint64_t(s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		VkSemaphore done_semaphore = VkSemaphore(s->chain.done[index]);
 		submit_commands(s->acquired, done_semaphore);
 

@@ -42,7 +42,7 @@ namespace bb::gfx {
 		uint32_t kept = 0;
 		for (uint32_t i = 0; i < graveyard.size; i++) {
 			if (all || (graveyard[i].flush <= completed_flush)) {
-				vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
+				vmaDestroyBuffer(g.allocator, VkBuffer(graveyard[i].buffer), VmaAllocation(graveyard[i].allocation));
 			} else {
 				graveyard[kept++] = graveyard[i];
 			}
@@ -572,9 +572,9 @@ namespace bb::gfx {
 		}
 	}
 
-	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth)
+	void barrier(uint64_t img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth)
 	{
-		bb::rhi::transition_image(uint64_t(img), from, to, depth);
+		bb::rhi::transition_image(img, from, to, depth);
 	}
 
 	// Moves the image to the layout, from the one it is in.
@@ -768,7 +768,7 @@ namespace bb::gfx {
 		// The gamma tables change what the window shows, not the buffer.
 		gpu_image& shown = *apply_gamma(front);
 
-		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
+		barrier(uint64_t(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		buffer_rect area = fit_buffer(float(surface().chain.width), float(surface().chain.height));
 		bb::rhi::filter filter = bb::rhi::filter::nearest;
 		if (surface().fullscreen) {
@@ -790,7 +790,7 @@ namespace bb::gfx {
 		blit.dst[2] = int32_t(area.x + area.w);
 		blit.dst[3] = int32_t(area.y + area.h);
 		bb::rhi::blit_image(uint64_t(shown.image), uint64_t(surface().chain.images[index]), &blit, 1, filter);
-		barrier(VkImage(surface().chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
+		barrier(uint64_t(surface().chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::color_target);
 
 		profile_gpu_mark(3);

@@ -220,20 +220,33 @@ namespace bb::gfx {
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		bb::rhi::sampler      sampler;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		bb::rhi::format       format = bb::rhi::format::rgba8; // What the image was created with.
-		VkImage        image  = VK_NULL_HANDLE;
-		VmaAllocation  allocation = VK_NULL_HANDLE;
-		VkImageView    view   = VK_NULL_HANDLE;   // All mip levels, for sampling.
-		VkImageView    target_view = VK_NULL_HANDLE; // The first level only, for drawing to an image that has more. Null if there is just one.
+		// The handles of the backend (on Vulkan a VkImage, a VmaAllocation and VkImageViews). 0 is none.
+		uint64_t       image  = 0;
+		uint64_t       allocation = 0;
+		uint64_t       view   = 0;   // All mip levels, for sampling.
+		uint64_t       target_view = 0; // The first level only, for drawing to an image that has more. Null if there is just one.
 		uint32_t       mips = 1;                  // How many levels the image has.
 		uint32_t       layers = 1;                // How many layers: the frames of an animated texture, each with its own levels. view and target_view are the first.
-		VkImageView    array_view = VK_NULL_HANDLE; // All layers and levels as an array, which is what the descriptor sets of textures sample (the shaders of 3D take the frame as the layer).
+		uint64_t       array_view = 0; // All layers and levels as an array, which is what the descriptor sets of textures sample (the shaders of 3D take the frame as the layer).
 		bool           array_sets = false;          // Its descriptor sets sample array_view instead of view: it is a texture, not an image of 2D drawing.
-		VkImageView*   layer_targets = nullptr;      // With more than one layer: a view of each layer to draw to (layers of them). Owned like the recipe.
+		uint64_t*      layer_targets = nullptr;      // With more than one layer: a view of each layer to draw to (layers of them). Owned like the recipe.
 		bool           mips_stale = false;        // Something was drawn to the first level, so the others are out of date.
 		uint32_t       width = 0, height = 0;
 		bb::rhi::image_state layout = bb::rhi::image_state::undefined; // What it was last transitioned to.
 	};
 
+
+	/** Lets a Vulkan call write a handle into a field that keeps it as a number: vkCreateX(..., vk_out<VkX>{ field }). The field has the handle once the statement is over. */
+	template<typename T>
+	struct vk_out {
+		uint64_t& field;
+		T         handle;
+		explicit vk_out(uint64_t& f) : field(f), handle(T(f)) {}
+		vk_out(const vk_out&) = delete;
+		~vk_out() { field = uint64_t(handle); }
+		operator T*() { return &handle; }
+		operator T&() { return handle; }
+	};
 
 	/** The Vulkan layout that an image is in while it has the use. */
 	inline VkImageLayout vk_layout_of(bb::rhi::image_state usage)
@@ -296,7 +309,7 @@ namespace bb::gfx {
 		uint32_t        capacity = 0;     // Entries.
 		uint64_t        version = 0;      // Of the table that it holds a copy of, 0 for none.
 		uint32_t        log_position = 0; // How much of the list of entries that were switched off since is done in the copy.
-		VkBuffer        commands_bound = VK_NULL_HANDLE; // The buffer of commands that the set points at.
+		uint64_t        commands_bound = 0; // The buffer of commands that the set points at.
 	};
 
 	// Everything that belongs to one window that the picture is shown in, as opposed to the device that draws it.
@@ -558,8 +571,8 @@ namespace bb::gfx {
 	// Buffers of geometry that was replaced or freed, which can only be destroyed once what was recorded has run.
 	extern uint32_t flush_number; // Counts flushes (of what was asked for), to know whether something that waits to be drawn uses a buffer.
 	struct graveyard_entry {
-		VkBuffer      buffer;
-		VmaAllocation allocation;
+		uint64_t      buffer;     // Handles of the backend, as in bb::rhi::gpu_buffer.
+		uint64_t      allocation;
 		int64_t       flush = int64_t(flush_number); // Destroyed once the flushes up to this one are done on the GPU.
 	};
 
@@ -732,8 +745,8 @@ namespace bb::gfx {
 	// A model that waits to be drawn: everything that is needed to draw it later.
 	struct draw_record {
 		uint32_t    push_index; // Where its data is, in the order the draws were made.
-		VkBuffer    vertex_buffer;
-		VkBuffer    index_buffer;
+		uint64_t    vertex_buffer; // Handles of the backend.
+		uint64_t    index_buffer;
 		uint32_t    index_count;
 		int         texture; // Handle, 0 for none.
 		uintptr_t   texture_set; // What the handle is bound as (its descriptor set), which is what draws are grouped by: handles that share one are the same state.
@@ -965,7 +978,7 @@ namespace bb::gfx {
 	/** The internal buffers (depth, OIT, SMAA) come before the textures of the program that have no flag 256: when what they need changes (size, OIT, AntiAlias), room is made for them before the frame is recorded. */
 	void reserve_internal_buffers();
 	/** The view that is drawn to for a layer of an image; layer 0, and any layer of an image with just one, is the first. */
-	VkImageView target_view_of(gpu_image const& img, uint32_t layer);
+	uint64_t target_view_of(gpu_image const& img, uint32_t layer);
 	/** Points a descriptor set at the view that the image is sampled through, with the sampler. */
 	void describe_image(bb::rhi::binding_group set, gpu_image const& img, bb::rhi::sampler sampler);
 	/** Makes an image that release_image let go of again, with what it held. The layout is the one it had; an image that was only created is cleared. */
@@ -986,7 +999,7 @@ namespace bb::gfx {
 	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
 	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer = 0, uint32_t to_layer = 0);
-	void write_descriptor(bb::rhi::binding_group set, VkImageView view, bb::rhi::sampler sampler);
+	void write_descriptor(bb::rhi::binding_group set, uint64_t view, bb::rhi::sampler sampler);
 	void allocate_descriptor(bb::rhi::binding_group& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
@@ -1003,7 +1016,7 @@ namespace bb::gfx {
 	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
 	bool palette_mode();
 	void ensure_palette_lookup();
-	VkImageView palette_lookup_view();
+	uint64_t palette_lookup_view();
 	/** Puts the palette in the lookup texture that the present of a Graphics with a depth of 8 uses, if it changed. Needs no open command buffer. */
 	void prepare_palette();
 	/** The number of the color of the palette that is nearest to a color. */
@@ -1148,7 +1161,7 @@ namespace bb::gfx {
 	void stop_gpu_thread();
 	void begin_commands();
 	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
-	void barrier(VkImage img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth = false);
+	void barrier(uint64_t img, bb::rhi::image_state from, bb::rhi::image_state to, bool depth = false);
 	void transition(gpu_image& img, bb::rhi::image_state to);
 	void record_operations();
 	void present_front(bool copy_back);

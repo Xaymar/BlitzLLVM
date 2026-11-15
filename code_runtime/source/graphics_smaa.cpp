@@ -53,7 +53,7 @@ namespace {
 		bool         temporal = false;
 		gpu_image    src, edges, blend, out[2];
 		bb::rhi::binding_group edges_set, weights_set, blend_set, resolve_set[2];
-		VkImageView  depth_view = VK_NULL_HANDLE;
+		uint64_t     depth_view = 0;
 		int          current = 0;    // The one of out that this picture goes to.
 		bool         history = false; // The other one has the picture before.
 	};
@@ -249,7 +249,7 @@ namespace {
 		return p;
 	}
 
-	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, VkImageView c, bb::rhi::sampler sc)
+	void write_set(bb::rhi::binding_group set, gpu_image const* a, bb::rhi::sampler sa, gpu_image const* b, bb::rhi::sampler sb, uint64_t c, bb::rhi::sampler sc)
 	{
 		bb::rhi::set_group_image(set, 0, uint64_t(a->view), sa);
 		bb::rhi::set_group_image(set, 1, uint64_t(b->view), sb);
@@ -274,7 +274,7 @@ namespace {
 		s.edges_set = s.weights_set = s.blend_set = s.resolve_set[0] = s.resolve_set[1] = bb::rhi::binding_group();
 		s.owner = 0;
 		s.width = s.height = 0;
-		s.depth_view = VK_NULL_HANDLE;
+		s.depth_view = 0;
 		s.history = false;
 	}
 
@@ -302,7 +302,7 @@ namespace {
 				allocate_set(s.resolve_set[1]);
 			}
 			s.owner = camera, s.width = width, s.height = height, s.format = format, s.temporal = temporal;
-			s.depth_view = VK_NULL_HANDLE;
+			s.depth_view = 0;
 		}
 		if (s.depth_view != depth.view) {
 			wait_gpu();

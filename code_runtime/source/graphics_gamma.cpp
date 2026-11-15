@@ -49,7 +49,7 @@ namespace {
 	float*           table_mapped = nullptr;
 	bb::rhi::binding_group  table_set;
 	bb::rhi::binding_group  front_set;
-	VkImageView      front_view   = VK_NULL_HANDLE; // What front_set samples.
+	uint64_t         front_view   = 0; // What front_set samples.
 	gpu_image        shown;                         // The front buffer through the tables.
 
 	bb::rhi::gpu_buffer dump_buffer;
@@ -289,7 +289,7 @@ namespace bb::gfx {
 	}
 
 	// The lookup texture, or the white one where there is no palette (the shaders of 3D still read it, but only use it with a palette).
-	VkImageView palette_lookup_view()
+	uint64_t palette_lookup_view()
 	{
 		return palette_lookup.image ? palette_lookup.view : g.textures[TEXTURE_WHITE].view;
 	}
@@ -482,7 +482,7 @@ namespace bb::gfx {
 			layout = bb::rhi::pipeline_layout();
 			bb::rhi::destroy_buffer(table_buffer);
 			pipeline   = bb::rhi::pipeline();
-			front_view = VK_NULL_HANDLE;
+			front_view = 0;
 			changed    = true;
 		}
 	}
