@@ -67,7 +67,7 @@ namespace bb::gfx {
 		if (!s) {
 			return;
 		}
-		if (g.device) {
+		if (bb::rhi::has_device()) {
 			stop_presenter(*s);
 			destroy_swapchain(*s); // Waits for the GPU.
 			bb::rhi::destroy_semaphore(s->acquired);
@@ -89,7 +89,7 @@ namespace bb::gfx {
 
 	int create_extra_surface(const char* title, int width, int height, int resizable, int borderless, int high_density)
 	{
-		if (g.headless || !g.device || (width < 1) || (height < 1)) {
+		if (g.headless || !bb::rhi::has_device() || (width < 1) || (height < 1)) {
 			return 0;
 		}
 		int handle = 0;

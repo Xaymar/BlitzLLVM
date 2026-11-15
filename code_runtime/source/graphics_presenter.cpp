@@ -171,7 +171,7 @@ namespace bb::gfx {
 
 	bool start_presenter(surface_state& s)
 	{
-		if (s.show || !s.window || g.headless || !g.device) {
+		if (s.show || !s.window || g.headless || !bb::rhi::has_device()) {
 			return false;
 		}
 		static uint32_t presenters_made = 0;

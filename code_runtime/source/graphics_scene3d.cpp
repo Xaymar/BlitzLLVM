@@ -365,9 +365,9 @@ namespace bb::gfx {
 	/** Builds a pipeline for the targets that are drawn to before the first draw, so that nothing is compiled in the middle of a frame. */
 	static bb::rhi::pipeline prebuilt(bb::rhi::pipeline pipeline)
 	{
-		vk_pipeline(pipeline, bb::rhi::format::rgba8);
+		bb::rhi::prebuild_pipeline(pipeline, bb::rhi::format::rgba8);
 		if (g.buffer_format != bb::rhi::format::rgba8) {
-			vk_pipeline(pipeline, g.buffer_format);
+			bb::rhi::prebuild_pipeline(pipeline, g.buffer_format);
 		}
 		return pipeline;
 	}
@@ -385,7 +385,7 @@ namespace bb::gfx {
 	static bb::rhi::pipeline create_oit_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bb::rhi::format target, int oit)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format) { return describe_3d(vs, fs, mode, false, target, oit, true); });
-		vk_pipeline(pipeline, bb::rhi::format::rgba8);
+		bb::rhi::prebuild_pipeline(pipeline, bb::rhi::format::rgba8);
 		return pipeline;
 	}
 
@@ -4416,7 +4416,7 @@ void bb_render_world(float tween)
 // The scene lets go of a surface: its GPU buffers go with it.
 void bb_release_surface_gpu(void* gpu)
 {
-	if (gpu && g.device) {
+	if (gpu && bb::rhi::has_device()) {
 		release_surface_gpu(static_cast<surface_gpu*>(gpu));
 	}
 }

@@ -13,7 +13,7 @@
 
 // Vulkan: the device, the swapchain, pipelines, and the images and buffers on the GPU.
 
-#include "graphics_internal.hpp"
+#include "graphics_vulkan.hpp"
 #include "scene.hpp"
 #include "memory.h"
 
@@ -34,6 +34,13 @@ using namespace bb::gfx;
 namespace bb::gfx {
 
 	constinit thread_local state g{};
+	constinit thread_local vk_state vkd{};
+
+	void free_group(bb::rhi::binding_group group)
+	{
+		VkDescriptorSet set = vk_set(group);
+		vkFreeDescriptorSets(vkd.device, vkd.set_pool, 1, &set);
+	}
 	bb::buffer<texture_entry> texture_table;
 	bb::buffer<image_entry> image_table;
 	bb::buffer<sampler_entry> sampler_table;
@@ -133,12 +140,12 @@ namespace bb::gfx {
 		view.subresourceRange.aspectMask   = aspect;
 		view.subresourceRange.levelCount   = mips;
 		view.subresourceRange.layerCount   = 1;
-		check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.view }), "vkCreateImageView");
+		check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.view }), "vkCreateImageView");
 		// Textures are sampled as arrays, with a layer for each frame of an animated one.
 		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (info.usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (info.samples == VK_SAMPLE_COUNT_1_BIT)) {
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 			view.subresourceRange.layerCount = layers;
-			check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.array_view }), "vkCreateImageView");
+			check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.array_view }), "vkCreateImageView");
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D;
 			view.subresourceRange.layerCount = 1;
 		}
@@ -148,13 +155,13 @@ namespace bb::gfx {
 			if (srgb_rgba) {
 				view.format = VK_FORMAT_R8G8B8A8_UNORM;
 			}
-			check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.target_view }), "vkCreateImageView");
+			check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.target_view }), "vkCreateImageView");
 			if (layers > 1) {
 				img.layer_targets    = static_cast<uint64_t*>(bb_calloc(layers, sizeof(uint64_t)));
 				img.layer_targets[0] = img.target_view;
 				for (uint32_t layer = 1; layer < layers; layer++) {
 					view.subresourceRange.baseArrayLayer = layer;
-					check(vkCreateImageView(g.device, &view, nullptr, vk_out<VkImageView>{ img.layer_targets[layer] }), "vkCreateImageView");
+					check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.layer_targets[layer] }), "vkCreateImageView");
 				}
 			}
 		}
@@ -261,7 +268,7 @@ namespace bb::gfx {
 		img.recipe->format = rhi_format(format);
 		img.recipe->aspect = aspect;
 		if (components) {
-			img.recipe->mapping     = *components;
+			memcpy(img.recipe->mapping, components, sizeof(*components));
 			img.recipe->has_mapping = true;
 		}
 
@@ -292,7 +299,7 @@ namespace bb::gfx {
 			return img;
 		}
 
-		img.recipe->create_info = info;
+		set_vk_create_info(*img.recipe, info);
 		create_views(img, info, aspect, components);
 		return img;
 	}
@@ -314,19 +321,19 @@ namespace bb::gfx {
 	static void destroy_views(gpu_image& img)
 	{
 		for (uint32_t layer = 1; img.layer_targets && (layer < img.layers); layer++) {
-			vkDestroyImageView(g.device, VkImageView(img.layer_targets[layer]), nullptr);
+			vkDestroyImageView(vkd.device, VkImageView(img.layer_targets[layer]), nullptr);
 		}
 		bb_free(img.layer_targets);
 		img.layer_targets = nullptr;
 		if (img.array_view) {
-			vkDestroyImageView(g.device, VkImageView(img.array_view), nullptr);
+			vkDestroyImageView(vkd.device, VkImageView(img.array_view), nullptr);
 			img.array_view = 0;
 		}
 		if (img.view) {
-			vkDestroyImageView(g.device, VkImageView(img.view), nullptr);
+			vkDestroyImageView(vkd.device, VkImageView(img.view), nullptr);
 		}
 		if (img.target_view) {
-			vkDestroyImageView(g.device, VkImageView(img.target_view), nullptr);
+			vkDestroyImageView(vkd.device, VkImageView(img.target_view), nullptr);
 		}
 		img.view        = 0;
 		img.target_view = 0;
@@ -337,7 +344,7 @@ namespace bb::gfx {
 		destroy_views(img);
 		if (img.image) {
 			forget_system_allocation(VmaAllocation(img.allocation));
-			vmaDestroyImage(g.allocator, VkImage(img.image), VmaAllocation(img.allocation));
+			vmaDestroyImage(vkd.allocator, VkImage(img.image), VmaAllocation(img.allocation));
 		}
 		img.image       = 0;
 		img.allocation  = 0;
@@ -345,7 +352,7 @@ namespace bb::gfx {
 
 	bool image_can_move(const gpu_image& img)
 	{
-		return img.image && img.allocation && img.recipe && img.recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT && img.recipe->create_info.samples == VK_SAMPLE_COUNT_1_BIT;
+		return img.image && img.allocation && img.recipe && img.recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT && vk_create_info(*img.recipe).samples == VK_SAMPLE_COUNT_1_BIT;
 	}
 
 	bool move_image(gpu_image& img, uint64_t destination_handle)
@@ -354,11 +361,11 @@ namespace bb::gfx {
 		if (!img.image || !img.recipe) {
 			return false;
 		}
-		VkImageCreateInfo info = img.recipe->create_info;
+		VkImageCreateInfo info = vk_create_info(*img.recipe);
 		VkImage           fresh = VK_NULL_HANDLE;
-		if ((vkCreateImage(g.device, &info, nullptr, &fresh) != VK_SUCCESS) || (vmaBindImageMemory(g.allocator, destination, fresh) != VK_SUCCESS)) {
+		if ((vkCreateImage(vkd.device, &info, nullptr, &fresh) != VK_SUCCESS) || (vmaBindImageMemory(vkd.allocator, destination, fresh) != VK_SUCCESS)) {
 			if (fresh) {
-				vkDestroyImage(g.device, fresh, nullptr);
+				vkDestroyImage(vkd.device, fresh, nullptr);
 			}
 			return false;
 		}
@@ -381,9 +388,10 @@ namespace bb::gfx {
 			submit_commands();
 		}
 		destroy_views(img);
-		vkDestroyImage(g.device, VkImage(img.image), nullptr); // The allocation stays: the allocator hands the image's handle over to the memory it was moved to.
+		vkDestroyImage(vkd.device, VkImage(img.image), nullptr); // The allocation stays: the allocator hands the image's handle over to the memory it was moved to.
 		img.image = uint64_t(fresh);
-		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &img.recipe->mapping : nullptr);
+		VkComponentMapping mapping = vk_mapping(*img.recipe);
+		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &mapping : nullptr);
 		return true;
 	}
 
@@ -409,7 +417,7 @@ namespace bb::gfx {
 			VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 			info.bindingCount                    = count;
 			info.pBindings                       = bindings;
-			check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &layout), "vkCreateDescriptorSetLayout");
+			check(vkCreateDescriptorSetLayout(vkd.device, &info, nullptr, &layout), "vkCreateDescriptorSetLayout");
 		}
 		return layout;
 	}
@@ -428,7 +436,7 @@ namespace bb::gfx {
 	{
 		switch (kind) {
 		case bb::rhi::group_kind::texture:
-			return g.set_layout;
+			return vkd.set_layout;
 		case bb::rhi::group_kind::scene: {
 			// The uniform buffer of the scene, and the lookup texture of the palette of a Graphics of depth 8 (the white texture when there is none).
 			const VkDescriptorSetLayoutBinding bindings[2] = {
@@ -469,13 +477,13 @@ namespace bb::gfx {
 		info.codeSize                 = size;
 		info.pCode                    = words;
 		VkShaderModule module;
-		check(vkCreateShaderModule(g.device, &info, nullptr, &module), "vkCreateShaderModule");
+		check(vkCreateShaderModule(vkd.device, &info, nullptr, &module), "vkCreateShaderModule");
 		return bb::rhi::shader{ uint64_t(module) };
 	}
 
 	void destroy_shader(bb::rhi::shader shader)
 	{
-		vkDestroyShaderModule(g.device, vk_shader(shader), nullptr);
+		vkDestroyShaderModule(vkd.device, vk_shader(shader), nullptr);
 	}
 
 	// An image of RGBA8 stored as sRGB is copied as the bytes it has, so it counts as the same as one stored linear.
@@ -699,7 +707,7 @@ namespace bb::gfx {
 		info.layout                       = vk_layout(desc.layout);
 
 		VkPipeline pipeline;
-		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
+		check(vkCreateGraphicsPipelines(vkd.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
@@ -739,7 +747,7 @@ namespace bb::gfx {
 		write.descriptorCount            = 1;
 		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		write.pImageInfo                 = &image_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		vkUpdateDescriptorSets(vkd.device, 1, &write, 0, nullptr);
 	}
 
 	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler)
@@ -762,7 +770,7 @@ namespace bb::gfx {
 			copy.dstSet              = vk_set(set);
 			copy.dstBinding          = 1;
 			copy.descriptorCount     = texture_layer_bindings - 1;
-			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);
+			vkUpdateDescriptorSets(vkd.device, 0, nullptr, 1, &copy);
 		}
 	}
 
@@ -794,7 +802,7 @@ namespace bb::gfx {
 		VkDependencyInfo dep          = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 		dep.imageMemoryBarrierCount   = 1;
 		dep.pImageMemoryBarriers      = &b;
-		vkCmdPipelineBarrier2(g.cmd, &dep);
+		vkCmdPipelineBarrier2(vkd.cmd, &dep);
 	}
 
 	// Fills every level below the first by halving the one above it with a linear filter, which averages 2 by 2 pixels. All
@@ -980,7 +988,7 @@ namespace bb::rhi {
 		static const VkFilter      filters[2]   = { VK_FILTER_NEAREST, VK_FILTER_LINEAR };
 		static const VkSamplerAddressMode modes[4] = { VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER };
 		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(g.physical, &properties);
+		vkGetPhysicalDeviceProperties(vkd.physical, &properties);
 
 		VkSamplerCreateInfo info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
 		info.minFilter           = filters[int(s.min)];
@@ -1013,7 +1021,7 @@ namespace bb::rhi {
 			info.borderColor = (s.border[0] + s.border[1] + s.border[2] > 1.5f) ? VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE : VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 		}
 		VkSampler vk;
-		check(vkCreateSampler(g.device, &info, nullptr, &vk), "vkCreateSampler");
+		check(vkCreateSampler(vkd.device, &info, nullptr, &vk), "vkCreateSampler");
 		sampler_cache.push_back({ s, vk });
 		return sampler{ uint64_t(vk) };
 	}
@@ -1021,7 +1029,7 @@ namespace bb::rhi {
 	void destroy_samplers()
 	{
 		for (const sampler_cache_entry& e : sampler_cache) {
-			vkDestroySampler(bb::gfx::g.device, e.vk, nullptr);
+			vkDestroySampler(bb::gfx::vkd.device, e.vk, nullptr);
 		}
 		sampler_cache.clear();
 	}
@@ -1058,11 +1066,11 @@ namespace bb::gfx {
 
 	bool compressed_supported(block_format format)
 	{
-		if ((format == block_format::none) || !g.device || !g.physical) {
+		if ((format == block_format::none) || !vkd.device || !vkd.physical) {
 			return false;
 		}
 		VkFormatProperties properties;
-		vkGetPhysicalDeviceFormatProperties(g.physical, vulkan_format(format), &properties);
+		vkGetPhysicalDeviceFormatProperties(vkd.physical, vulkan_format(format), &properties);
 		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
 		return (properties.optimalTilingFeatures & needed) == needed;
 	}
@@ -1175,7 +1183,9 @@ namespace bb::gfx {
 			break;
 		}
 		case image_recipe::content::blank:
-			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, vk_format(recipe->format), recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
+		{
+			VkComponentMapping mapping = vk_mapping(*recipe);
+			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, vk_format(recipe->format), recipe->aspect, recipe->has_mapping ? &mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
 			if (fresh.image && (layout != bb::rhi::image_state::undefined)) {
 				// Nothing is in it, so it starts out clear.
 				begin_commands();
@@ -1189,6 +1199,7 @@ namespace bb::gfx {
 				submit_commands();
 			}
 			break;
+		}
 		}
 		if (read_again) {
 			recipe->data.clear(); // The file has it.
@@ -1214,9 +1225,9 @@ namespace bb::gfx {
 		static int known = -1;
 		if (known < 0) {
 			known = 0;
-			if (g.device && g.physical) {
+			if (vkd.device && vkd.physical) {
 				VkFormatProperties properties;
-				vkGetPhysicalDeviceFormatProperties(g.physical, VK_FORMAT_A2B10G10R10_UNORM_PACK32, &properties);
+				vkGetPhysicalDeviceFormatProperties(vkd.physical, VK_FORMAT_A2B10G10R10_UNORM_PACK32, &properties);
 				VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
 				known                       = ((properties.optimalTilingFeatures & needed) == needed) ? 1 : 0;
 			}
@@ -1360,7 +1371,7 @@ namespace bb::gfx {
 				continue; // A smaller depth is what is left when the larger ones are not available.
 			}
 			VkFormatProperties properties;
-			vkGetPhysicalDeviceFormatProperties(g.physical, c.format, &properties);
+			vkGetPhysicalDeviceFormatProperties(vkd.physical, c.format, &properties);
 			if ((properties.optimalTilingFeatures & needed) == needed) {
 				if (c.depth != wanted) {
 					fprintf(stderr, "warning: Graphics: this device can't draw with a depth of %d, so %d is used.\n", wanted, c.depth);
@@ -1656,10 +1667,10 @@ namespace bb::gfx {
 		if (!instance_proc) {
 			fail("No Vulkan driver found.");
 		}
-		check(make_instance(g.instance), "vkCreateInstance (is Vulkan 1.3 installed?)");
+		check(make_instance(vkd.instance), "vkCreateInstance (is Vulkan 1.3 installed?)");
 
 #undef BB_VK_LOAD_INSTANCE
-#define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(instance_proc(g.instance, #name));
+#define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(instance_proc(vkd.instance, #name));
 		BB_VK_INSTANCE(BB_VK_LOAD_INSTANCE)
 	}
 
@@ -1668,7 +1679,7 @@ namespace bb::gfx {
 		// Pick the GPU that SetGfxDriver chose, or else the first one that can draw to the surface and does Vulkan 1.3,
 		// preferring a discrete one.
 		uint32_t device_count = 0;
-		vkEnumeratePhysicalDevices(g.instance, &device_count, nullptr);
+		vkEnumeratePhysicalDevices(vkd.instance, &device_count, nullptr);
 		if (device_count == 0) {
 			fail("No GPU with Vulkan support found.");
 		}
@@ -1676,11 +1687,11 @@ namespace bb::gfx {
 		if (device_count > 16) {
 			device_count = 16;
 		}
-		vkEnumeratePhysicalDevices(g.instance, &device_count, devices);
+		vkEnumeratePhysicalDevices(vkd.instance, &device_count, devices);
 
 		bool forced    = (driver_choice > 0) && !gpus[0].fallback;
 		int  best_score = -1;
-		g.physical      = VK_NULL_HANDLE;
+		vkd.physical      = VK_NULL_HANDLE;
 		uint32_t family_queues = 1;
 		for (uint32_t d = 0; d < device_count; d++) {
 			VkPhysicalDeviceProperties props;
@@ -1706,7 +1717,7 @@ namespace bb::gfx {
 					int score = (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) ? 2 : 1;
 					if (score > best_score) {
 						best_score    = score;
-						g.physical    = devices[d];
+						vkd.physical    = devices[d];
 						g.family      = f;
 						g.driver_used = driver + 1;
 						family_queues = families[f].queueCount;
@@ -1715,24 +1726,24 @@ namespace bb::gfx {
 				}
 			}
 		}
-		if (!g.physical) {
+		if (!vkd.physical) {
 			if (forced) {
 				fail("The graphics driver chosen with SetGfxDriver cannot draw to the window.");
 			}
 			fail("No GPU supporting Vulkan 1.3 and presenting to the window found.");
 		}
-		vkGetPhysicalDeviceMemoryProperties(g.physical, &g.memory);
+		vkGetPhysicalDeviceMemoryProperties(vkd.physical, &vkd.memory);
 
 		// Queue 0 is the one of Graphics. Where the family has more, the threads of windows get queues of their own, so that a present
 		// of one window that waits inside the driver holds up neither the other windows nor Graphics (graphics_presenter.cpp).
 		g.queue_count = family_queues;
-		if (g.queue_count > uint32_t(std::size(g.queues))) {
-			g.queue_count = uint32_t(std::size(g.queues));
+		if (g.queue_count > uint32_t(std::size(vkd.queues))) {
+			g.queue_count = uint32_t(std::size(vkd.queues));
 		}
 		if (g.queue_count < 1) {
 			g.queue_count = 1;
 		}
-		float                   priorities[std::size(g.queues)];
+		float                   priorities[std::size(vkd.queues)];
 		for (float& priority : priorities) {
 			priority = 1.0f;
 		}
@@ -1743,7 +1754,7 @@ namespace bb::gfx {
 
 		// Drawing edges only is an optional feature.
 		VkPhysicalDeviceFeatures supported = {}, enabled = {};
-		vkGetPhysicalDeviceFeatures(g.physical, &supported);
+		vkGetPhysicalDeviceFeatures(vkd.physical, &supported);
 		g.can_wireframe        = supported.fillModeNonSolid == VK_TRUE;
 		enabled.fillModeNonSolid = supported.fillModeNonSolid;
 		g.can_anisotropy         = supported.samplerAnisotropy == VK_TRUE;
@@ -1755,9 +1766,9 @@ namespace bb::gfx {
 
 		// Border colors that are not black or white need an extension.
 		uint32_t device_extension_count = 0;
-		vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &device_extension_count, nullptr);
+		vkEnumerateDeviceExtensionProperties(vkd.physical, nullptr, &device_extension_count, nullptr);
 		std::vector<VkExtensionProperties> available(device_extension_count);
-		vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &device_extension_count, available.data());
+		vkEnumerateDeviceExtensionProperties(vkd.physical, nullptr, &device_extension_count, available.data());
 		VkPhysicalDeviceCustomBorderColorFeaturesEXT border_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
 		bool has_present_id = false, has_present_wait = false;
 		g.can_memory_budget = false;
@@ -1769,7 +1780,7 @@ namespace bb::gfx {
 				VkPhysicalDeviceCustomBorderColorFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
 				VkPhysicalDeviceFeatures2 query2 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
 				query2.pNext = &query;
-				vkGetPhysicalDeviceFeatures2(g.physical, &query2);
+				vkGetPhysicalDeviceFeatures2(vkd.physical, &query2);
 				if (query.customBorderColors && query.customBorderColorWithoutFormat) {
 					g.can_custom_border = true;
 					border_features.customBorderColors = border_features.customBorderColorWithoutFormat = VK_TRUE;
@@ -1787,7 +1798,7 @@ namespace bb::gfx {
 			VkPhysicalDeviceFeatures2              query2     = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
 			query_id.pNext   = &query_wait;
 			query2.pNext     = &query_id;
-			vkGetPhysicalDeviceFeatures2(g.physical, &query2);
+			vkGetPhysicalDeviceFeatures2(vkd.physical, &query2);
 			if (query_id.presentId && query_wait.presentWait) {
 				g.can_present_wait                 = true;
 				present_id_features.presentId      = VK_TRUE;
@@ -1832,21 +1843,21 @@ namespace bb::gfx {
 		device_info.pQueueCreateInfos          = &queue_info;
 		device_info.enabledExtensionCount      = device_extension_total;
 		device_info.ppEnabledExtensionNames    = device_extensions;
-		check(vkCreateDevice(g.physical, &device_info, nullptr, &g.device), "vkCreateDevice");
+		check(vkCreateDevice(vkd.physical, &device_info, nullptr, &vkd.device), "vkCreateDevice");
 		devices_made++;
 
-#define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(g.device, #name));
+#define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(vkd.device, #name));
 		BB_VK_DEVICE(BB_VK_LOAD_DEVICE)
 		for (uint32_t i = 0; i < g.queue_count; i++) {
-			vkGetDeviceQueue(g.device, g.family, i, &g.queues[i]);
+			vkGetDeviceQueue(vkd.device, g.family, i, &vkd.queues[i]);
 		}
-		g.queue = g.queues[0];
+		vkd.queue = vkd.queues[0];
 		create_allocator(instance_proc);
 
 		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
 		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		pool_info.queueFamilyIndex        = g.family;
-		check(vkCreateCommandPool(g.device, &pool_info, nullptr, &g.pool), "vkCreateCommandPool");
+		check(vkCreateCommandPool(vkd.device, &pool_info, nullptr, &vkd.pool), "vkCreateCommandPool");
 		create_frame_slots();
 
 		// Descriptors, sampler and pipelines
@@ -1889,7 +1900,7 @@ namespace bb::gfx {
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 		set_info.bindingCount                    = texture_layer_bindings;
 		set_info.pBindings                       = binding;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
+		check(vkCreateDescriptorSetLayout(vkd.device, &set_info, nullptr, &vkd.set_layout), "vkCreateDescriptorSetLayout");
 
 		// Next to the textures: the groups of SMAA (5 of 3 images for each of 8 cameras) and of the transparency (one of 8 images for each of 4 sizes).
 		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 * texture_layer_bindings + 8 * 5 * 3 + 4 * 8 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 7 * frame_slots } };
@@ -1898,7 +1909,7 @@ namespace bb::gfx {
 		dpool_info.maxSets                    = 8195 + 4 * frame_slots + 8 * 5 + 4;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
-		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
+		check(vkCreateDescriptorPool(vkd.device, &dpool_info, nullptr, &vkd.set_pool), "vkCreateDescriptorPool");
 
 		// Scale for the vertices, mask color for the fragments.
 		bb::rhi::layout_desc flat;
@@ -1929,7 +1940,7 @@ namespace bb::gfx {
 			copy.dstSet              = vk_set(g.sets[TEXTURE_WHITE_3D]);
 			copy.dstBinding          = k;
 			copy.descriptorCount     = 1;
-			vkUpdateDescriptorSets(g.device, 0, nullptr, 1, &copy);
+			vkUpdateDescriptorSets(vkd.device, 0, nullptr, 1, &copy);
 		}
 
 		uint8_t* atlas = static_cast<uint8_t*>(bb_calloc(font_columns * 8 * font_rows * 8 * 4, 1));
@@ -1995,7 +2006,7 @@ namespace bb::rhi {
 		info.pushConstantRangeCount     = desc.push_size ? 1 : 0;
 		info.pPushConstantRanges        = &range;
 		VkPipelineLayout layout;
-		bb::gfx::check(vkCreatePipelineLayout(bb::gfx::g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
+		bb::gfx::check(vkCreatePipelineLayout(bb::gfx::vkd.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
 		pipeline_layout made{ uint64_t(layout) };
 		made_layouts.push_back({ desc, made });
 		return made;
@@ -2004,13 +2015,13 @@ namespace bb::rhi {
 	void destroy_layouts()
 	{
 		for (auto const& entry : made_layouts) {
-			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
+			vkDestroyPipelineLayout(bb::gfx::vkd.device, bb::gfx::vk_layout(entry.second), nullptr);
 		}
 		made_layouts.clear();
 		// The layouts of the kinds of group, which vk_set_layout made when they were first asked for.
 		for (VkDescriptorSetLayout* layout : { &bb::gfx::kind_layouts.scene, &bb::gfx::kind_layouts.entity, &bb::gfx::kind_layouts.cull, &bb::gfx::kind_layouts.images3, &bb::gfx::kind_layouts.images8 }) {
 			if (*layout) {
-				vkDestroyDescriptorSetLayout(bb::gfx::g.device, *layout, nullptr);
+				vkDestroyDescriptorSetLayout(bb::gfx::vkd.device, *layout, nullptr);
 				*layout = VK_NULL_HANDLE;
 			}
 		}
@@ -2059,7 +2070,7 @@ namespace bb::rhi {
 		info.stage.pName                 = "main";
 		info.layout                      = gfx::vk_layout(layout);
 		VkPipeline built                 = VK_NULL_HANDLE;
-		gfx::check(vkCreateComputePipelines(gfx::g.device, VK_NULL_HANDLE, 1, &info, nullptr, &built), "vkCreateComputePipelines");
+		gfx::check(vkCreateComputePipelines(gfx::vkd.device, VK_NULL_HANDLE, 1, &info, nullptr, &built), "vkCreateComputePipelines");
 		gfx::pipeline_objects[made.id - 1].built[format::undefined] = built;
 		return made;
 	}
@@ -2071,7 +2082,7 @@ namespace bb::rhi {
 		}
 		auto& object = gfx::pipeline_objects[p.id - 1];
 		for (auto& built : object.built) {
-			vkDestroyPipeline(gfx::g.device, built.second, nullptr);
+			vkDestroyPipeline(gfx::vkd.device, built.second, nullptr);
 		}
 		object.built.clear();
 		object.recipe = nullptr;
@@ -2099,11 +2110,11 @@ namespace bb::rhi {
 	{
 		VkDescriptorSetLayout       layout = gfx::vk_set_layout(kind);
 		VkDescriptorSetAllocateInfo alloc  = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool               = gfx::g.set_pool;
+		alloc.descriptorPool               = gfx::vkd.set_pool;
 		alloc.descriptorSetCount           = 1;
 		alloc.pSetLayouts                  = &layout;
 		VkDescriptorSet set;
-		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
+		gfx::check(vkAllocateDescriptorSets(gfx::vkd.device, &alloc, &set), (kind == group_kind::texture) ? "vkAllocateDescriptorSets (too many textures?)" : "vkAllocateDescriptorSets");
 		return binding_group{ uint64_t(set) };
 	}
 
@@ -2117,16 +2128,16 @@ namespace bb::rhi {
 			info.poolSizeCount              = 1;
 			info.pPoolSizes                 = &size;
 			VkDescriptorPool pool;
-			gfx::check(vkCreateDescriptorPool(gfx::g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
+			gfx::check(vkCreateDescriptorPool(gfx::vkd.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
 			groups.pools.push_back(uint64_t(pool));
 			groups.used = 0;
 		}
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		alloc.descriptorPool              = VkDescriptorPool(groups.pools.back());
 		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &gfx::g.set_layout;
+		alloc.pSetLayouts                 = &gfx::vkd.set_layout;
 		VkDescriptorSet set;
-		gfx::check(vkAllocateDescriptorSets(gfx::g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		gfx::check(vkAllocateDescriptorSets(gfx::vkd.device, &alloc, &set), "vkAllocateDescriptorSets");
 		groups.used++;
 
 		VkCopyDescriptorSet copies[gfx::texture_layer_bindings];
@@ -2138,14 +2149,14 @@ namespace bb::rhi {
 			copies[k].dstBinding      = k;
 			copies[k].descriptorCount = 1;
 		}
-		vkUpdateDescriptorSets(gfx::g.device, 0, nullptr, count, copies);
+		vkUpdateDescriptorSets(gfx::vkd.device, 0, nullptr, count, copies);
 		return binding_group{ uint64_t(set) };
 	}
 
 	void reset_frame_groups(frame_groups& groups)
 	{
 		for (uint64_t pool : groups.pools) {
-			vkResetDescriptorPool(gfx::g.device, VkDescriptorPool(pool), 0);
+			vkResetDescriptorPool(gfx::vkd.device, VkDescriptorPool(pool), 0);
 		}
 		groups.used = 0;
 	}
@@ -2153,7 +2164,7 @@ namespace bb::rhi {
 	void destroy_frame_groups(frame_groups& groups)
 	{
 		for (uint64_t pool : groups.pools) {
-			vkDestroyDescriptorPool(gfx::g.device, VkDescriptorPool(pool), nullptr);
+			vkDestroyDescriptorPool(gfx::vkd.device, VkDescriptorPool(pool), nullptr);
 		}
 		groups = frame_groups();
 	}
@@ -2174,7 +2185,7 @@ namespace bb::rhi {
 		write.descriptorCount        = 1;
 		write.descriptorType         = uniform ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		write.pBufferInfo            = &info;
-		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
+		vkUpdateDescriptorSets(gfx::vkd.device, 1, &write, 0, nullptr);
 	}
 
 	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
@@ -2186,7 +2197,7 @@ namespace bb::rhi {
 		write.descriptorCount       = 1;
 		write.descriptorType        = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		write.pImageInfo            = &info;
-		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
+		vkUpdateDescriptorSets(gfx::vkd.device, 1, &write, 0, nullptr);
 	}
 }
 
@@ -2221,64 +2232,64 @@ namespace bb::rhi {
 			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
 			info.pDepthAttachment         = &depth;
 		}
-		vkCmdBeginRendering(gfx::g.cmd, &info);
+		vkCmdBeginRendering(gfx::vkd.cmd, &info);
 		set_viewport(desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3]);
 		set_scissor(desc.scissor[0], desc.scissor[1], desc.scissor[2], desc.scissor[3]);
 	}
 
 	void end_pass()
 	{
-		vkCmdEndRendering(gfx::g.cmd);
+		vkCmdEndRendering(gfx::vkd.cmd);
 	}
 
 	void set_viewport(float x, float y, float w, float h)
 	{
 		VkViewport viewport = { x, y, w, h, 0, 1 };
-		vkCmdSetViewport(gfx::g.cmd, 0, 1, &viewport);
+		vkCmdSetViewport(gfx::vkd.cmd, 0, 1, &viewport);
 	}
 
 	void set_scissor(int32_t x, int32_t y, int32_t w, int32_t h)
 	{
 		VkRect2D scissor = { { x, y }, { uint32_t(w), uint32_t(h) } };
-		vkCmdSetScissor(gfx::g.cmd, 0, 1, &scissor);
+		vkCmdSetScissor(gfx::vkd.cmd, 0, 1, &scissor);
 	}
 }
 
 namespace bb::rhi {
 	void bind_pipeline(pipeline p, format target)
 	{
-		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, target));
+		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, target));
 	}
 
 	uint32_t sample_counts()
 	{
 		VkPhysicalDeviceProperties props;
-		vkGetPhysicalDeviceProperties(gfx::g.physical, &props);
+		vkGetPhysicalDeviceProperties(gfx::vkd.physical, &props);
 		// A VkSampleCountFlagBits has the value of its count.
 		return props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts & props.limits.sampledImageColorSampleCounts & props.limits.sampledImageDepthSampleCounts;
 	}
 
 	void bind_compute_pipeline(pipeline p)
 	{
-		vkCmdBindPipeline(gfx::g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[format::undefined]);
+		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[format::undefined]);
 	}
 
 	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group)
 	{
 		VkDescriptorSet set = gfx::vk_set(group);
-		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
+		vkCmdBindDescriptorSets(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
 	}
 
 	void bind_group(pipeline_layout layout, uint32_t index, binding_group group)
 	{
 		VkDescriptorSet set = gfx::vk_set(group);
-		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
+		vkCmdBindDescriptorSets(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
 	}
 
 	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset)
 	{
 		VkDescriptorSet set = gfx::vk_set(group);
-		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 1, &offset);
+		vkCmdBindDescriptorSets(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 1, &offset);
 	}
 
 	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data)
@@ -2287,34 +2298,34 @@ namespace bb::rhi {
 		flags |= (stages & stage_vertex) ? VK_SHADER_STAGE_VERTEX_BIT : 0;
 		flags |= (stages & stage_fragment) ? VK_SHADER_STAGE_FRAGMENT_BIT : 0;
 		flags |= (stages & stage_compute) ? VK_SHADER_STAGE_COMPUTE_BIT : 0;
-		vkCmdPushConstants(gfx::g.cmd, gfx::vk_layout(layout), flags, offset, size, data);
+		vkCmdPushConstants(gfx::vkd.cmd, gfx::vk_layout(layout), flags, offset, size, data);
 	}
 
 	void bind_vertex_buffer(uint64_t buffer)
 	{
 		VkBuffer     vk     = VkBuffer(buffer);
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(gfx::g.cmd, 0, 1, &vk, &offset);
+		vkCmdBindVertexBuffers(gfx::vkd.cmd, 0, 1, &vk, &offset);
 	}
 
 	void bind_index_buffer(uint64_t buffer)
 	{
-		vkCmdBindIndexBuffer(gfx::g.cmd, VkBuffer(buffer), 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(gfx::vkd.cmd, VkBuffer(buffer), 0, VK_INDEX_TYPE_UINT32);
 	}
 
 	void set_cull(cull_mode mode)
 	{
-		vkCmdSetCullMode(gfx::g.cmd, mode == cull_mode::front ? VK_CULL_MODE_FRONT_BIT : (mode == cull_mode::back ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE));
+		vkCmdSetCullMode(gfx::vkd.cmd, mode == cull_mode::front ? VK_CULL_MODE_FRONT_BIT : (mode == cull_mode::back ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE));
 	}
 
 	void set_depth_test(bool enable)
 	{
-		vkCmdSetDepthTestEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+		vkCmdSetDepthTestEnable(gfx::vkd.cmd, enable ? VK_TRUE : VK_FALSE);
 	}
 
 	void set_depth_write(bool enable)
 	{
-		vkCmdSetDepthWriteEnable(gfx::g.cmd, enable ? VK_TRUE : VK_FALSE);
+		vkCmdSetDepthWriteEnable(gfx::vkd.cmd, enable ? VK_TRUE : VK_FALSE);
 	}
 
 	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
@@ -2323,7 +2334,7 @@ namespace bb::rhi {
 		clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
 		memcpy(clear.clearValue.color.float32, rgba, 4 * sizeof(float));
 		VkClearRect rect = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
-		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+		vkCmdClearAttachments(gfx::vkd.cmd, 1, &clear, 1, &rect);
 	}
 
 	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h)
@@ -2332,27 +2343,27 @@ namespace bb::rhi {
 		clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
 		clear.clearValue.depthStencil = { depth, 0 };
 		VkClearRect rect              = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
-		vkCmdClearAttachments(gfx::g.cmd, 1, &clear, 1, &rect);
+		vkCmdClearAttachments(gfx::vkd.cmd, 1, &clear, 1, &rect);
 	}
 
 	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
 	{
-		vkCmdDraw(gfx::g.cmd, vertices, instances, first_vertex, first_instance);
+		vkCmdDraw(gfx::vkd.cmd, vertices, instances, first_vertex, first_instance);
 	}
 
 	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance)
 	{
-		vkCmdDrawIndexed(gfx::g.cmd, indices, instances, first_index, base_vertex, first_instance);
+		vkCmdDrawIndexed(gfx::vkd.cmd, indices, instances, first_index, base_vertex, first_instance);
 	}
 
 	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride)
 	{
-		vkCmdDrawIndexedIndirect(gfx::g.cmd, VkBuffer(buffer), offset, count, stride);
+		vkCmdDrawIndexedIndirect(gfx::vkd.cmd, VkBuffer(buffer), offset, count, stride);
 	}
 
 	void dispatch(uint32_t x, uint32_t y, uint32_t z)
 	{
-		vkCmdDispatch(gfx::g.cmd, x, y, z);
+		vkCmdDispatch(gfx::vkd.cmd, x, y, z);
 	}
 
 	void sync_compute_writes(bool shaders_read)
@@ -2369,7 +2380,7 @@ namespace bb::rhi {
 		VkDependencyInfo dependency   = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 		dependency.memoryBarrierCount = 1;
 		dependency.pMemoryBarriers    = &written;
-		vkCmdPipelineBarrier2(gfx::g.cmd, &dependency);
+		vkCmdPipelineBarrier2(gfx::vkd.cmd, &dependency);
 	}
 
 	void sync_copy_writes()
@@ -2382,7 +2393,7 @@ namespace bb::rhi {
 		VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 		dep.memoryBarrierCount  = 1;
 		dep.pMemoryBarriers     = &memory;
-		vkCmdPipelineBarrier2(gfx::g.cmd, &dep);
+		vkCmdPipelineBarrier2(gfx::vkd.cmd, &dep);
 	}
 }
 
@@ -2406,7 +2417,7 @@ namespace bb::rhi {
 		VkDependencyInfo dep        = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
 		dep.imageMemoryBarrierCount = 1;
 		dep.pImageMemoryBarriers    = &b;
-		vkCmdPipelineBarrier2(gfx::g.cmd, &dep);
+		vkCmdPipelineBarrier2(gfx::vkd.cmd, &dep);
 	}
 }
 
@@ -2427,7 +2438,7 @@ namespace bb::rhi {
 			copies[i].dstOffset      = { regions[i].dst.x, regions[i].dst.y, 0 };
 			copies[i].extent         = { regions[i].w, regions[i].h, 1 };
 		}
-		vkCmdCopyImage(gfx::g.cmd, VkImage(src), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkImage(dst), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copies.data());
+		vkCmdCopyImage(gfx::vkd.cmd, VkImage(src), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkImage(dst), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copies.data());
 	}
 
 	void blit_image(uint64_t src, uint64_t dst, const image_blit* regions, uint32_t count, filter mode)
@@ -2443,14 +2454,14 @@ namespace bb::rhi {
 			blits[i].dstOffsets[0]  = { r.dst[0], r.dst[1], 0 };
 			blits[i].dstOffsets[1]  = { r.dst[2], r.dst[3], 1 };
 		}
-		vkCmdBlitImage(gfx::g.cmd, VkImage(src), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkImage(dst), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, blits.data(), mode == filter::linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
+		vkCmdBlitImage(gfx::vkd.cmd, VkImage(src), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkImage(dst), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, blits.data(), mode == filter::linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST);
 	}
 
 	void clear_image(uint64_t image, const float rgba[4], uint32_t mips, uint32_t layers)
 	{
 		VkClearColorValue       color = { { rgba[0], rgba[1], rgba[2], rgba[3] } };
 		VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, mips, 0, layers };
-		vkCmdClearColorImage(gfx::g.cmd, VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
+		vkCmdClearColorImage(gfx::vkd.cmd, VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
 	}
 
 	static std::vector<VkBufferImageCopy> vk_buffer_copies(const buffer_image_copy* regions, uint32_t count)
@@ -2470,13 +2481,13 @@ namespace bb::rhi {
 	void copy_buffer_to_image(uint64_t buffer, uint64_t image, const buffer_image_copy* regions, uint32_t count)
 	{
 		std::vector<VkBufferImageCopy> copies = vk_buffer_copies(regions, count);
-		vkCmdCopyBufferToImage(gfx::g.cmd, VkBuffer(buffer), VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copies.data());
+		vkCmdCopyBufferToImage(gfx::vkd.cmd, VkBuffer(buffer), VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copies.data());
 	}
 
 	void copy_image_to_buffer(uint64_t image, uint64_t buffer, const buffer_image_copy* regions, uint32_t count)
 	{
 		std::vector<VkBufferImageCopy> copies = vk_buffer_copies(regions, count);
-		vkCmdCopyImageToBuffer(gfx::g.cmd, VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkBuffer(buffer), count, copies.data());
+		vkCmdCopyImageToBuffer(gfx::vkd.cmd, VkImage(image), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VkBuffer(buffer), count, copies.data());
 	}
 }
 
@@ -2489,21 +2500,21 @@ namespace bb::rhi {
 	bool create_timestamps(uint32_t count)
 	{
 		uint32_t family_count = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(gfx::g.physical, &family_count, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(gfx::vkd.physical, &family_count, nullptr);
 		VkQueueFamilyProperties families[32];
 		if (family_count > 32) {
 			family_count = 32;
 		}
-		vkGetPhysicalDeviceQueueFamilyProperties(gfx::g.physical, &family_count, families);
+		vkGetPhysicalDeviceQueueFamilyProperties(gfx::vkd.physical, &family_count, families);
 		VkPhysicalDeviceProperties props;
-		vkGetPhysicalDeviceProperties(gfx::g.physical, &props);
+		vkGetPhysicalDeviceProperties(gfx::vkd.physical, &props);
 		if ((gfx::g.family >= family_count) || !families[gfx::g.family].timestampValidBits) {
 			return false;
 		}
 		VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
 		info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
 		info.queryCount            = count;
-		if (vkCreateQueryPool(gfx::g.device, &info, nullptr, &timestamp_pool) != VK_SUCCESS) {
+		if (vkCreateQueryPool(gfx::vkd.device, &info, nullptr, &timestamp_pool) != VK_SUCCESS) {
 			timestamp_pool = VK_NULL_HANDLE;
 			return false;
 		}
@@ -2514,25 +2525,25 @@ namespace bb::rhi {
 	void destroy_timestamps()
 	{
 		if (timestamp_pool) {
-			vkDestroyQueryPool(gfx::g.device, timestamp_pool, nullptr);
+			vkDestroyQueryPool(gfx::vkd.device, timestamp_pool, nullptr);
 			timestamp_pool = VK_NULL_HANDLE;
 		}
 	}
 
 	void reset_timestamps(uint32_t first, uint32_t count)
 	{
-		vkCmdResetQueryPool(gfx::g.cmd, timestamp_pool, first, count);
+		vkCmdResetQueryPool(gfx::vkd.cmd, timestamp_pool, first, count);
 	}
 
 	void write_timestamp(uint32_t index)
 	{
-		vkCmdWriteTimestamp(gfx::g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, timestamp_pool, index);
+		vkCmdWriteTimestamp(gfx::vkd.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, timestamp_pool, index);
 	}
 
 	bool read_timestamps(uint32_t first, uint32_t count, double* nanoseconds)
 	{
 		uint64_t ticks[256];
-		if ((count > 256) || (vkGetQueryPoolResults(gfx::g.device, timestamp_pool, first, count, sizeof(uint64_t) * count, ticks, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) != VK_SUCCESS)) {
+		if ((count > 256) || (vkGetQueryPoolResults(gfx::vkd.device, timestamp_pool, first, count, sizeof(uint64_t) * count, ticks, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) != VK_SUCCESS)) {
 			return false;
 		}
 		for (uint32_t i = 0; i < count; i++) {
@@ -2545,7 +2556,7 @@ namespace bb::rhi {
 namespace bb::rhi {
 	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore)
 	{
-		gfx::check(vkEndCommandBuffer(gfx::g.cmd), "vkEndCommandBuffer");
+		gfx::check(vkEndCommandBuffer(gfx::vkd.cmd), "vkEndCommandBuffer");
 		if (gfx::device_lost()) {
 			return false;
 		}
@@ -2557,16 +2568,16 @@ namespace bb::rhi {
 		info.pWaitSemaphores        = &wait;
 		info.pWaitDstStageMask      = &stage;
 		info.commandBufferCount     = 1;
-		info.pCommandBuffers        = &gfx::g.cmd;
+		info.pCommandBuffers        = &gfx::vkd.cmd;
 		info.signalSemaphoreCount   = signal ? 1 : 0;
 		info.pSignalSemaphores      = &signal;
-		vkResetFences(gfx::g.device, 1, &gfx::g.fence);
+		vkResetFences(gfx::vkd.device, 1, &gfx::vkd.fence);
 		gfx::queue_lock();
-		VkResult submitted = vkQueueSubmit(gfx::g.queue, 1, &info, gfx::g.fence);
+		VkResult submitted = vkQueueSubmit(gfx::vkd.queue, 1, &info, gfx::vkd.fence);
 		gfx::queue_unlock();
 		gfx::check(submitted, "vkQueueSubmit");
-		gfx::check(vkWaitForFences(gfx::g.device, 1, &gfx::g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		gfx::check(vkResetFences(gfx::g.device, 1, &gfx::g.fence), "vkResetFences");
+		gfx::check(vkWaitForFences(gfx::vkd.device, 1, &gfx::vkd.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		gfx::check(vkResetFences(gfx::vkd.device, 1, &gfx::vkd.fence), "vkResetFences");
 		return true;
 	}
 }
@@ -2574,15 +2585,15 @@ namespace bb::rhi {
 namespace bb::rhi {
 	void begin_commands()
 	{
-		vkResetCommandBuffer(gfx::g.cmd, 0);
+		vkResetCommandBuffer(gfx::vkd.cmd, 0);
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		gfx::check(vkBeginCommandBuffer(gfx::g.cmd, &info), "vkBeginCommandBuffer");
+		gfx::check(vkBeginCommandBuffer(gfx::vkd.cmd, &info), "vkBeginCommandBuffer");
 	}
 
 	void end_commands()
 	{
-		gfx::check(vkEndCommandBuffer(gfx::g.cmd), "vkEndCommandBuffer");
+		gfx::check(vkEndCommandBuffer(gfx::vkd.cmd), "vkEndCommandBuffer");
 	}
 
 	void check_result(int32_t native, const char* what)
@@ -2592,19 +2603,19 @@ namespace bb::rhi {
 
 	void use_frame_sync(const frame_sync& sync)
 	{
-		gfx::g.cmd   = VkCommandBuffer(sync.cmd);
-		gfx::g.fence = VkFence(sync.fence);
+		gfx::vkd.cmd   = VkCommandBuffer(sync.cmd);
+		gfx::vkd.fence = VkFence(sync.fence);
 	}
 
 	void store_frame_sync(frame_sync& sync)
 	{
-		sync.cmd   = uint64_t(gfx::g.cmd);
-		sync.fence = uint64_t(gfx::g.fence);
+		sync.cmd   = uint64_t(gfx::vkd.cmd);
+		sync.fence = uint64_t(gfx::vkd.fence);
 	}
 
 	uint64_t main_queue()
 	{
-		return uint64_t(gfx::g.queue);
+		return uint64_t(gfx::vkd.queue);
 	}
 
 	int32_t submit_frame(uint64_t queue, const frame_sync& sync, const submission& what)
@@ -2648,17 +2659,17 @@ namespace bb::rhi {
 	{
 		frame_sync                  sync;
 		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-		cmd_info.commandPool                 = gfx::g.pool;
+		cmd_info.commandPool                 = gfx::vkd.pool;
 		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmd_info.commandBufferCount          = 1;
 		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
-		gfx::check(vkAllocateCommandBuffers(gfx::g.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
+		gfx::check(vkAllocateCommandBuffers(gfx::vkd.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
 		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 		VkFence           fence      = VK_NULL_HANDLE;
-		gfx::check(vkCreateFence(gfx::g.device, &fence_info, nullptr, &fence), "vkCreateFence");
+		gfx::check(vkCreateFence(gfx::vkd.device, &fence_info, nullptr, &fence), "vkCreateFence");
 		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkSemaphore           acquired = VK_NULL_HANDLE;
-		gfx::check(vkCreateSemaphore(gfx::g.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
+		gfx::check(vkCreateSemaphore(gfx::vkd.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
 		sync.cmd      = uint64_t(cmd);
 		sync.fence    = uint64_t(fence);
 		sync.acquired = uint64_t(acquired);
@@ -2667,16 +2678,16 @@ namespace bb::rhi {
 
 	void destroy_frame_sync(frame_sync& sync)
 	{
-		vkDestroySemaphore(gfx::g.device, VkSemaphore(sync.acquired), nullptr);
-		vkDestroyFence(gfx::g.device, VkFence(sync.fence), nullptr);
+		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(sync.acquired), nullptr);
+		vkDestroyFence(gfx::vkd.device, VkFence(sync.fence), nullptr);
 		sync = frame_sync(); // The command buffer goes with its pool.
 	}
 
 	void wait_frame_sync(const frame_sync& sync)
 	{
 		VkFence fence = VkFence(sync.fence);
-		gfx::check(vkWaitForFences(gfx::g.device, 1, &fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		gfx::check(vkResetFences(gfx::g.device, 1, &fence), "vkResetFences");
+		gfx::check(vkWaitForFences(gfx::vkd.device, 1, &fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		gfx::check(vkResetFences(gfx::vkd.device, 1, &fence), "vkResetFences");
 	}
 }
 
@@ -2684,7 +2695,7 @@ namespace bb::rhi {
 	void wait_idle()
 	{
 		gfx::queue_lock_all();
-		vkDeviceWaitIdle(gfx::g.device);
+		vkDeviceWaitIdle(gfx::vkd.device);
 		gfx::queue_unlock_all();
 	}
 }
@@ -2695,7 +2706,7 @@ namespace bb::rhi {
 		using namespace gfx;
 		const VkSurfaceKHR surface = VkSurfaceKHR(d.surface);
 		VkSurfaceCapabilitiesKHR caps;
-		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(g.physical, surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkd.physical, surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
 		if (device_lost()) {
 			return false; // Made again with the rest of the graphics.
 		}
@@ -2713,12 +2724,12 @@ namespace bb::rhi {
 		}
 
 		uint32_t format_count = 0;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, surface, &format_count, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(vkd.physical, surface, &format_count, nullptr);
 		VkSurfaceFormatKHR formats[64];
 		if (format_count > 64) {
 			format_count = 64;
 		}
-		vkGetPhysicalDeviceSurfaceFormatsKHR(g.physical, surface, &format_count, formats);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(vkd.physical, surface, &format_count, formats);
 		VkSurfaceFormatKHR chosen = formats[0];
 		for (uint32_t i = 0; i < format_count; i++) {
 			// Match the UNORM back buffer: no sRGB conversion when blitting.
@@ -2737,11 +2748,11 @@ namespace bb::rhi {
 		if ((d.vsync != 1) || d.own_thread) {
 			uint32_t        mode_count = 0;
 			VkPresentModeKHR modes[16];
-			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, surface, &mode_count, nullptr);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &mode_count, nullptr);
 			if (mode_count > 16) {
 				mode_count = 16;
 			}
-			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, surface, &mode_count, modes);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &mode_count, modes);
 			VkPresentModeKHR wanted = ((d.vsync == 2) || d.own_thread) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
 			for (uint32_t i = 0; i < mode_count; i++) {
 				if (modes[i] == wanted) {
@@ -2780,7 +2791,7 @@ namespace bb::rhi {
 		info.presentMode              = mode;
 		info.clipped                  = VK_TRUE;
 		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-		check(vkCreateSwapchainKHR(g.device, &info, nullptr, &swapchain), "vkCreateSwapchainKHR");
+		check(vkCreateSwapchainKHR(vkd.device, &info, nullptr, &swapchain), "vkCreateSwapchainKHR");
 		sc.handle = uint64_t(swapchain);
 		if (!swapchain) {
 			return true; // The device is lost.
@@ -2788,13 +2799,13 @@ namespace bb::rhi {
 
 		VkImage  images[max_swapchain_images] = {};
 		uint32_t image_count                  = max_swapchain_images;
-		check(vkGetSwapchainImagesKHR(g.device, swapchain, &image_count, images), "vkGetSwapchainImagesKHR");
+		check(vkGetSwapchainImagesKHR(vkd.device, swapchain, &image_count, images), "vkGetSwapchainImagesKHR");
 		sc.count = image_count;
 		for (uint32_t i = 0; i < image_count; i++) {
 			sc.images[i] = uint64_t(images[i]);
 			VkSemaphoreCreateInfo sem  = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 			VkSemaphore           done = VK_NULL_HANDLE;
-			check(vkCreateSemaphore(g.device, &sem, nullptr, &done), "vkCreateSemaphore");
+			check(vkCreateSemaphore(vkd.device, &sem, nullptr, &done), "vkCreateSemaphore");
 			sc.done[i] = uint64_t(done);
 		}
 		return true;
@@ -2803,13 +2814,13 @@ namespace bb::rhi {
 	void destroy_swapchain(swapchain& sc)
 	{
 		for (uint32_t i = 0; i < sc.count; i++) {
-			vkDestroySemaphore(gfx::g.device, VkSemaphore(sc.done[i]), nullptr);
+			vkDestroySemaphore(gfx::vkd.device, VkSemaphore(sc.done[i]), nullptr);
 			sc.images[i] = 0;
 			sc.done[i]   = 0;
 		}
 		sc.count = 0;
 		if (sc.handle) {
-			vkDestroySwapchainKHR(gfx::g.device, VkSwapchainKHR(sc.handle), nullptr);
+			vkDestroySwapchainKHR(gfx::vkd.device, VkSwapchainKHR(sc.handle), nullptr);
 			sc.handle = 0;
 		}
 	}
@@ -2842,7 +2853,7 @@ namespace bb::rhi {
 		if (serialize) {
 			gfx::swapchain_lock();
 		}
-		VkResult result = vkAcquireNextImageKHR(gfx::g.device, VkSwapchainKHR(chain.handle), timeout_ns, VkSemaphore(signal_semaphore), VK_NULL_HANDLE, &index);
+		VkResult result = vkAcquireNextImageKHR(gfx::vkd.device, VkSwapchainKHR(chain.handle), timeout_ns, VkSemaphore(signal_semaphore), VK_NULL_HANDLE, &index);
 		if (serialize) {
 			gfx::swapchain_unlock();
 		}
@@ -2903,9 +2914,9 @@ namespace bb::rhi {
 	void create_window_presenter(window_presenter& presenter, uint32_t queue_index)
 	{
 		using namespace gfx;
-		presenter.device       = uint64_t(g.device);
+		presenter.device       = uint64_t(vkd.device);
 		presenter.queue_index  = queue_index;
-		presenter.queue        = uint64_t(g.queues[queue_index]);
+		presenter.queue        = uint64_t(vkd.queues[queue_index]);
 		presenter.present_wait = g.can_present_wait;
 
 		// The pictures are blitted from once they were handed over, which puts them in the layout for that; nothing is shown before.
@@ -2915,38 +2926,38 @@ namespace bb::rhi {
 		VkSemaphoreCreateInfo timeline_create   = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		timeline_create.pNext                   = &timeline_info;
 		VkSemaphore timeline                    = VK_NULL_HANDLE;
-		check(vkCreateSemaphore(g.device, &timeline_create, nullptr, &timeline), "vkCreateSemaphore");
+		check(vkCreateSemaphore(vkd.device, &timeline_create, nullptr, &timeline), "vkCreateSemaphore");
 		presenter.timeline = uint64_t(timeline);
 
 		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
 		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		pool_info.queueFamilyIndex        = g.family;
 		VkCommandPool pool                = VK_NULL_HANDLE; // Its own: a command pool belongs to one thread.
-		check(vkCreateCommandPool(g.device, &pool_info, nullptr, &pool), "vkCreateCommandPool");
+		check(vkCreateCommandPool(vkd.device, &pool_info, nullptr, &pool), "vkCreateCommandPool");
 		presenter.pool = uint64_t(pool);
 		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
 		cmd_info.commandPool                 = pool;
 		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmd_info.commandBufferCount          = 1;
 		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
-		check(vkAllocateCommandBuffers(g.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
+		check(vkAllocateCommandBuffers(vkd.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
 		presenter.cmd = uint64_t(cmd);
 		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
 		VkFence           fence      = VK_NULL_HANDLE;
-		check(vkCreateFence(g.device, &fence_info, nullptr, &fence), "vkCreateFence");
+		check(vkCreateFence(vkd.device, &fence_info, nullptr, &fence), "vkCreateFence");
 		presenter.fence = uint64_t(fence);
 		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkSemaphore           acquired = VK_NULL_HANDLE;
-		check(vkCreateSemaphore(g.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
+		check(vkCreateSemaphore(vkd.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
 		presenter.acquired = uint64_t(acquired);
 	}
 
 	void destroy_window_presenter(window_presenter& presenter)
 	{
-		vkDestroySemaphore(gfx::g.device, VkSemaphore(presenter.timeline), nullptr);
-		vkDestroySemaphore(gfx::g.device, VkSemaphore(presenter.acquired), nullptr);
-		vkDestroyFence(gfx::g.device, VkFence(presenter.fence), nullptr);
-		vkDestroyCommandPool(gfx::g.device, VkCommandPool(presenter.pool), nullptr);
+		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(presenter.timeline), nullptr);
+		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(presenter.acquired), nullptr);
+		vkDestroyFence(gfx::vkd.device, VkFence(presenter.fence), nullptr);
+		vkDestroyCommandPool(gfx::vkd.device, VkCommandPool(presenter.pool), nullptr);
 		presenter = {};
 	}
 
@@ -3073,20 +3084,30 @@ namespace bb::rhi {
 		destroy_surface(probe);
 	}
 
+	void prebuild_pipeline(pipeline p, format target)
+	{
+		gfx::vk_pipeline(p, target);
+	}
+
+	void forget_backend_state()
+	{
+		gfx::vkd = gfx::vk_state();
+	}
+
 	bool has_device()
 	{
-		return gfx::g.device != VK_NULL_HANDLE;
+		return gfx::vkd.device != VK_NULL_HANDLE;
 	}
 
 	bool create_surface(void* window, uint64_t& surface)
 	{
-		return SDL_Vulkan_CreateSurface(static_cast<SDL_Window*>(window), gfx::g.instance, nullptr, gfx::vk_out<VkSurfaceKHR>(surface));
+		return SDL_Vulkan_CreateSurface(static_cast<SDL_Window*>(window), gfx::vkd.instance, nullptr, gfx::vk_out<VkSurfaceKHR>(surface));
 	}
 
 	void destroy_surface(uint64_t& surface)
 	{
 		if (surface) {
-			SDL_Vulkan_DestroySurface(gfx::g.instance, VkSurfaceKHR(surface), nullptr);
+			SDL_Vulkan_DestroySurface(gfx::vkd.instance, VkSurfaceKHR(surface), nullptr);
 		}
 		surface = 0;
 	}
@@ -3094,7 +3115,7 @@ namespace bb::rhi {
 	bool can_present_to(uint64_t surface)
 	{
 		VkBool32 present = VK_FALSE;
-		vkGetPhysicalDeviceSurfaceSupportKHR(gfx::g.physical, gfx::g.family, VkSurfaceKHR(surface), &present);
+		vkGetPhysicalDeviceSurfaceSupportKHR(gfx::vkd.physical, gfx::g.family, VkSurfaceKHR(surface), &present);
 		return present != VK_FALSE;
 	}
 
@@ -3102,30 +3123,30 @@ namespace bb::rhi {
 	{
 		VkSemaphoreCreateInfo info      = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkSemaphore           semaphore = VK_NULL_HANDLE;
-		gfx::check(vkCreateSemaphore(gfx::g.device, &info, nullptr, &semaphore), "vkCreateSemaphore");
+		gfx::check(vkCreateSemaphore(gfx::vkd.device, &info, nullptr, &semaphore), "vkCreateSemaphore");
 		return uint64_t(semaphore);
 	}
 
 	void destroy_semaphore(uint64_t& semaphore)
 	{
 		if (semaphore) {
-			vkDestroySemaphore(gfx::g.device, VkSemaphore(semaphore), nullptr);
+			vkDestroySemaphore(gfx::vkd.device, VkSemaphore(semaphore), nullptr);
 		}
 		semaphore = 0;
 	}
 
 	void destroy_group_pool()
 	{
-		vkDestroyDescriptorPool(gfx::g.device, gfx::g.set_pool, nullptr);
-		vkDestroyDescriptorSetLayout(gfx::g.device, gfx::g.set_layout, nullptr);
+		vkDestroyDescriptorPool(gfx::vkd.device, gfx::vkd.set_pool, nullptr);
+		vkDestroyDescriptorSetLayout(gfx::vkd.device, gfx::vkd.set_layout, nullptr);
 	}
 
 	uint64_t total_video_memory()
 	{
 		uint64_t total = 0;
-		for (uint32_t i = 0; i < gfx::g.memory.memoryHeapCount; i++) {
-			if (gfx::g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-				total += gfx::g.memory.memoryHeaps[i].size;
+		for (uint32_t i = 0; i < gfx::vkd.memory.memoryHeapCount; i++) {
+			if (gfx::vkd.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+				total += gfx::vkd.memory.memoryHeaps[i].size;
 			}
 		}
 		return total;
@@ -3157,32 +3178,32 @@ namespace bb::rhi {
 	void destroy_device()
 	{
 		using namespace gfx;
-		vkDestroyCommandPool(g.device, g.pool, nullptr);
+		vkDestroyCommandPool(vkd.device, vkd.pool, nullptr);
 		destroy_allocator();
-		vkDestroyDevice(g.device, nullptr);
+		vkDestroyDevice(vkd.device, nullptr);
 		if (gfx::surface().surface) {
-			SDL_Vulkan_DestroySurface(g.instance, VkSurfaceKHR(gfx::surface().surface), nullptr);
+			SDL_Vulkan_DestroySurface(vkd.instance, VkSurfaceKHR(gfx::surface().surface), nullptr);
 		}
-		vkDestroyInstance(g.instance, nullptr);
+		vkDestroyInstance(vkd.instance, nullptr);
 	}
 
 	void forget_device()
 	{
 		using namespace gfx;
-		g.instance = VK_NULL_HANDLE;
+		vkd.instance = VK_NULL_HANDLE;
 		gfx::surface().surface = 0;
-		g.physical = VK_NULL_HANDLE;
-		g.device   = VK_NULL_HANDLE;
-		g.allocator = VK_NULL_HANDLE;
-		g.queue    = VK_NULL_HANDLE;
+		vkd.physical = VK_NULL_HANDLE;
+		vkd.device   = VK_NULL_HANDLE;
+		vkd.allocator = VK_NULL_HANDLE;
+		vkd.queue    = VK_NULL_HANDLE;
 		g.family   = 0;
-		g.memory   = {};
-		g.pool     = VK_NULL_HANDLE;
-		g.cmd      = VK_NULL_HANDLE;
-		g.fence    = VK_NULL_HANDLE;
-		g.set_layout = VK_NULL_HANDLE;
+		vkd.memory   = {};
+		vkd.pool     = VK_NULL_HANDLE;
+		vkd.cmd      = VK_NULL_HANDLE;
+		vkd.fence    = VK_NULL_HANDLE;
+		vkd.set_layout = VK_NULL_HANDLE;
 		kind_layouts.images3 = kind_layouts.images8 = VK_NULL_HANDLE;
-		g.set_pool   = VK_NULL_HANDLE;
+		vkd.set_pool   = VK_NULL_HANDLE;
 		kind_layouts.scene  = VK_NULL_HANDLE;
 		kind_layouts.entity = VK_NULL_HANDLE;
 		kind_layouts.cull   = VK_NULL_HANDLE;

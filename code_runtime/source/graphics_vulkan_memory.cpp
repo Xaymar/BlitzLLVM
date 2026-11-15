@@ -21,7 +21,7 @@
 // A program must not stop because of what the allocator checks: allocations that were not freed are reported when profiling (see
 // destroy_allocator), and the checks of its own use of Vulkan are for its developers.
 #define VMA_ASSERT(expr)
-#include "graphics_internal.hpp"
+#include "graphics_vulkan.hpp"
 #include "environment.h"
 #include <atomic>
 #include <mutex>
@@ -48,34 +48,34 @@ namespace bb::gfx {
 
 		VmaAllocatorCreateInfo info = {};
 		info.vulkanApiVersion       = VK_API_VERSION_1_3;
-		info.instance               = g.instance;
-		info.physicalDevice         = g.physical;
-		info.device                 = g.device;
+		info.instance               = vkd.instance;
+		info.physicalDevice         = vkd.physical;
+		info.device                 = vkd.device;
 		info.pVulkanFunctions       = &functions;
 		if (g.can_memory_budget) {
 			info.flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT; // Usage and budget come from the driver, which sees the other programs too.
 		}
-		check(vmaCreateAllocator(&info, &g.allocator), "vmaCreateAllocator");
+		check(vmaCreateAllocator(&info, &vkd.allocator), "vmaCreateAllocator");
 		std::unique_lock<std::shared_mutex> guard(prebuild_gate);
-		prebuild_allocator = g.allocator;
+		prebuild_allocator = vkd.allocator;
 	}
 
 	void destroy_allocator()
 	{
 		close_prebuild();
-		if (!g.allocator) {
+		if (!vkd.allocator) {
 			return;
 		}
 		if (profile_compiled) {
 			// Everything is destroyed by now, so what is left was never given back.
 			VmaTotalStatistics stats;
-			vmaCalculateStatistics(g.allocator, &stats);
+			vmaCalculateStatistics(vkd.allocator, &stats);
 			if (stats.total.statistics.allocationCount) {
 				fprintf(stderr, "GPU memory leak: %u allocations (%llu bytes) were not freed.\n", unsigned(stats.total.statistics.allocationCount), static_cast<unsigned long long>(stats.total.statistics.allocationBytes));
 			}
 		}
-		vmaDestroyAllocator(g.allocator);
-		g.allocator = VK_NULL_HANDLE;
+		vmaDestroyAllocator(vkd.allocator);
+		vkd.allocator = VK_NULL_HANDLE;
 	}
 
 
@@ -130,13 +130,13 @@ namespace bb::gfx {
 	{
 		used  = 0;
 		total = 0;
-		if (!g.allocator) {
+		if (!vkd.allocator) {
 			return;
 		}
 		VmaBudget budgets[VK_MAX_MEMORY_HEAPS] = {};
-		vmaGetHeapBudgets(g.allocator, budgets);
-		for (uint32_t i = 0; i < g.memory.memoryHeapCount; i++) {
-			if (g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+		vmaGetHeapBudgets(vkd.allocator, budgets);
+		for (uint32_t i = 0; i < vkd.memory.memoryHeapCount; i++) {
+			if (vkd.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
 				// With a limit pretended, only what was given out counts: the blocks the allocator took from the driver are mostly empty.
 				used += vram_limit() ? budgets[i].statistics.allocationBytes : budgets[i].usage;
 				total += budgets[i].budget;
@@ -194,7 +194,7 @@ namespace bb::gfx {
 		if (force_system) {
 			// Moved out of video memory to make room: it is read from system memory from now on.
 			alloc.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
-			created     = vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			created     = vmaCreateImage(vkd.allocator, &info, &alloc, &image, &allocation, nullptr);
 			if (created == VK_SUCCESS) {
 				note_system_allocation(allocation, size);
 			}
@@ -209,7 +209,7 @@ namespace bb::gfx {
 			evicting = false;
 		}
 		for (;;) {
-			created = over_vram_limit(size) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			created = over_vram_limit(size) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(vkd.allocator, &info, &alloc, &image, &allocation, nullptr);
 			if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && evict_allowed && !evicting && !defragmented) {
 				// The video memory may be in pieces that are too small: the allocator moves the images of textures together first.
 				defragmented = true;
@@ -235,7 +235,7 @@ namespace bb::gfx {
 			// Only what the program allowed (no flag 256): system memory does it, slower.
 			alloc.requiredFlags  = 0;
 			alloc.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			created              = vmaCreateImage(g.allocator, &info, &alloc, &image, &allocation, nullptr);
+			created              = vmaCreateImage(vkd.allocator, &info, &alloc, &image, &allocation, nullptr);
 			if (created == VK_SUCCESS) {
 				note_spill();
 				if (vram_limit()) {
@@ -276,7 +276,7 @@ namespace bb::gfx {
 	{
 		static uint64_t last_size = 0;
 		static int      last_oit = -1, last_aa = -1;
-		if (!g.allocator || evicting || g.headless || !g.width || !g.height) {
+		if (!vkd.allocator || evicting || g.headless || !g.width || !g.height) {
 			return;
 		}
 		uint64_t pixels = uint64_t(g.width) * g.height;
@@ -316,12 +316,12 @@ namespace bb::gfx {
 			alloc.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		}
 		VmaAllocationInfo result;
-		VkResult created = (!host && over_vram_limit(size)) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		VkResult created = (!host && over_vram_limit(size)) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateBuffer(vkd.allocator, &info, &alloc, &buffer, &allocation, &result);
 		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && !host) {
 			// The GPU reads buffers in system memory too, over PCIe.
 			alloc.requiredFlags  = 0;
 			alloc.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			created              = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+			created              = vmaCreateBuffer(vkd.allocator, &info, &alloc, &buffer, &allocation, &result);
 			if (created == VK_SUCCESS) {
 				note_spill();
 			}
@@ -374,7 +374,7 @@ namespace bb::gfx {
 		VmaAllocationCreateInfo alloc;
 		mesh_allocation_info(alloc);
 		VmaAllocationInfo result;
-		VkResult          created = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		VkResult          created = vmaCreateBuffer(vkd.allocator, &info, &alloc, &buffer, &allocation, &result);
 		if (is_out_of_memory(created)) {
 			video_memory_exhausted("a mesh buffer", size);
 		}
@@ -389,7 +389,7 @@ namespace bb::gfx {
 			static int reports = 0;
 			if (reports++ < 4) {
 				VkMemoryPropertyFlags flags = 0;
-				vmaGetAllocationMemoryProperties(g.allocator, allocation, &flags);
+				vmaGetAllocationMemoryProperties(vkd.allocator, allocation, &flags);
 				fprintf(stderr, "mesh buffer %llu bytes: memory flags 0x%x (device local %d, host cached %d)\n", static_cast<unsigned long long>(size), unsigned(flags), (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0, (flags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != 0);
 			}
 		}
@@ -399,7 +399,7 @@ namespace bb::gfx {
 	static void destroy_vk_buffer(VkBuffer& buffer, VmaAllocation& allocation)
 	{
 		if (buffer) {
-			vmaDestroyBuffer(g.allocator, buffer, allocation);
+			vmaDestroyBuffer(vkd.allocator, buffer, allocation);
 		}
 		buffer     = VK_NULL_HANDLE;
 		allocation = VK_NULL_HANDLE;
@@ -435,12 +435,12 @@ namespace bb::rhi {
 
 	bool can_defragment()
 	{
-		return bb::gfx::g.allocator != VK_NULL_HANDLE;
+		return bb::gfx::vkd.allocator != VK_NULL_HANDLE;
 	}
 
 	bool defragment_memory(const std::function<bool(uint64_t allocation, uint64_t destination)>& move_one)
 	{
-		VmaAllocator              allocator = bb::gfx::g.allocator;
+		VmaAllocator              allocator = bb::gfx::vkd.allocator;
 		VmaDefragmentationInfo    info      = {};
 		VmaDefragmentationContext context;
 		if (vmaBeginDefragmentation(allocator, &info, &context) != VK_SUCCESS) {
@@ -467,7 +467,7 @@ namespace bb::rhi {
 
 	void destroy_retired_buffer(uint64_t buffer, uint64_t allocation)
 	{
-		vmaDestroyBuffer(bb::gfx::g.allocator, VkBuffer(buffer), VmaAllocation(allocation));
+		vmaDestroyBuffer(bb::gfx::vkd.allocator, VkBuffer(buffer), VmaAllocation(allocation));
 	}
 
 	bool create_buffer_any_thread(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where)

@@ -376,7 +376,7 @@ namespace bb::gfx {
 
 	void oit_destroy()
 	{
-		if (g.device) {
+		if (bb::rhi::has_device()) {
 			for (image_set& entry : cache) {
 				for (gpu_image& image : entry.images) {
 					if (image.image) {
