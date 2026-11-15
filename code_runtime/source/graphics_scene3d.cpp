@@ -516,13 +516,7 @@ namespace bb::gfx {
 		rhi::create_buffer(g.entity_buffer, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
 		g.entity_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.entity_buffer.vk, 0, VK_WHOLE_SIZE };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = vk_set(g.entity_set);
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_buffer(g.entity_set, 0, uint64_t(g.entity_buffer.vk), 0, false);
 	}
 
 	// Makes room in the buffer of what the texture layers need, like ensure_entities does for the draws. Written when the draws are recorded.
@@ -542,14 +536,7 @@ namespace bb::gfx {
 		rhi::create_buffer(g.layer_buffer, VkDeviceSize(capacity) * sizeof(layer_data), rhi::storage_data, rhi::memory::mapped);
 		g.layer_capacity = capacity;
 
-		VkDescriptorBufferInfo buffer_info = { g.layer_buffer.vk, 0, VK_WHOLE_SIZE };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = vk_set(g.entity_set);
-		write.dstBinding                   = 1;
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		bb::rhi::set_group_buffer(g.entity_set, 1, uint64_t(g.layer_buffer.vk), 0, false);
 	}
 
 	// How much of the buffers for culling on the GPU the draws that wait use: what is filled in when the draws are collected, and what is
@@ -594,17 +581,9 @@ namespace bb::gfx {
 		if (!changed) {
 			return;
 		}
-		VkDescriptorBufferInfo infos[3]  = { { c.clusters.vk, 0, VK_WHOLE_SIZE }, { c.groups.vk, 0, VK_WHOLE_SIZE }, { c.commands.vk, 0, VK_WHOLE_SIZE } };
-		VkWriteDescriptorSet   writes[3] = {};
-		for (uint32_t i = 0; i < 3; i++) {
-			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writes[i].dstSet          = vk_set(c.set);
-			writes[i].dstBinding      = i;
-			writes[i].descriptorCount = 1;
-			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			writes[i].pBufferInfo     = &infos[i];
-		}
-		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+		bb::rhi::set_group_buffer(c.set, 0, uint64_t(c.clusters.vk), 0, false);
+		bb::rhi::set_group_buffer(c.set, 1, uint64_t(c.groups.vk), 0, false);
+		bb::rhi::set_group_buffer(c.set, 2, uint64_t(c.commands.vk), 0, false);
 	}
 
 	// A draw of that many clusters needs groups for the shader and room for the commands it writes.
@@ -811,39 +790,6 @@ namespace bb::gfx {
 		// Scene uniform buffer, with its descriptor set.
 		// Binding 1 is the lookup texture of the palette of a Graphics of depth 8 (the white texture when there is none).
 		ensure_palette_lookup();
-		VkDescriptorSetLayoutBinding bindings[2] = {
-			{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-			{ 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-		};
-		VkDescriptorSetLayoutBinding& binding = bindings[0];
-		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 2;
-		set_info.pBindings                       = bindings;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
-
-		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
-		// Binding 1 holds what the texture layers after the first of the draws need (layer_data), which only the fragment shader reads.
-		VkDescriptorSetLayoutBinding entity_binding[2] = {
-			{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-			{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
-		};
-		set_info.bindingCount                       = 2;
-		set_info.pBindings                          = entity_binding;
-		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
-
-		if (g.can_gpu_cull) {
-			// The clusters, the runs of them for each draw and the commands that come out: see compute_shader_cull in generate_shaders.py.
-			VkDescriptorSetLayoutBinding cull_bindings[3] = {
-				{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-				{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-				{ 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
-			};
-			VkDescriptorSetLayoutCreateInfo cull_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-			cull_info.bindingCount                    = 3;
-			cull_info.pBindings                       = cull_bindings;
-			check(vkCreateDescriptorSetLayout(g.device, &cull_info, nullptr, &g.cull_layout), "vkCreateDescriptorSetLayout");
-		}
-
 		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
 		for (uint32_t slot = 0; slot < frame_slots; slot++) {
 			select_frame_slot(slot);
@@ -852,19 +798,8 @@ namespace bb::gfx {
 			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
 
-			VkDescriptorBufferInfo buffer_info = { g.scene_buffer.vk, 0, sizeof(scene_data) };
-			VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                       = vk_set(g.scene_set);
-			write.descriptorCount              = 1;
-			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-			write.pBufferInfo                  = &buffer_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-			VkDescriptorImageInfo lookup_info = { vk_sampler(g.sampler_point_clamp), palette_lookup_view(), vk_layout_of(bb::rhi::image_state::sampled) };
-			write.dstBinding                  = 1;
-			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			write.pBufferInfo                 = nullptr;
-			write.pImageInfo                  = &lookup_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+			bb::rhi::set_group_buffer(g.scene_set, 0, uint64_t(g.scene_buffer.vk), sizeof(scene_data), true);
+			bb::rhi::set_group_image(g.scene_set, 1, uint64_t(palette_lookup_view()), g.sampler_point_clamp);
 
 			g.entity_set = bb::rhi::create_group(bb::rhi::group_kind::entities);
 			ensure_entities(1024);
@@ -1016,13 +951,7 @@ namespace bb::gfx {
 		bb::rhi::binding_group& set = depth_sets[&depth - depth_cache];
 		if (!set) {
 			allocate_descriptor(set);
-			VkDescriptorImageInfo image_info = { vk_sampler(g.sampler_clamp), depth.view, vk_layout_of(bb::rhi::image_state::depth_read) };
-			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-			write.dstSet                     = vk_set(set);
-			write.descriptorCount            = 1;
-			write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			write.pImageInfo                 = &image_info;
-			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+			bb::rhi::set_group_image(set, 0, uint64_t(depth.view), g.sampler_clamp, true);
 		}
 		return set;
 	}
@@ -1220,17 +1149,9 @@ namespace bb::gfx {
 			}
 		}
 		if (rewrite || (s.commands_bound != g.cull.commands.vk)) {
-			VkDescriptorBufferInfo infos_[3]  = { { s.table.vk, 0, VK_WHOLE_SIZE }, { s.infos.vk, 0, VK_WHOLE_SIZE }, { g.cull.commands.vk, 0, VK_WHOLE_SIZE } };
-			VkWriteDescriptorSet   writes[3] = {};
-			for (uint32_t i = 0; i < 3; i++) {
-				writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writes[i].dstSet          = vk_set(s.set);
-				writes[i].dstBinding      = i;
-				writes[i].descriptorCount = 1;
-				writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-				writes[i].pBufferInfo     = &infos_[i];
-			}
-			vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+			bb::rhi::set_group_buffer(s.set, 0, uint64_t(s.table.vk), 0, false);
+			bb::rhi::set_group_buffer(s.set, 1, uint64_t(s.infos.vk), 0, false);
+			bb::rhi::set_group_buffer(s.set, 2, uint64_t(g.cull.commands.vk), 0, false);
 			s.commands_bound = g.cull.commands.vk;
 		}
 	}
@@ -1392,10 +1313,10 @@ namespace bb::gfx {
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
+		bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
 
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
+		bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
+		bb::rhi::bind_group(g.layout3d, 3, g.sets[TEXTURE_WHITE]); // Nothing to read the depth of yet.
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -1479,10 +1400,10 @@ namespace bb::gfx {
 			oit_composite(target.image->format, oit_w, oit_h, oit_modes);
 			bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 			// The pass over the picture had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
+			bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
+			bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
 			bb::rhi::binding_group depth_bound = read_only ? depth_set_for(depth_image) : g.sets[TEXTURE_WHITE];
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_bound, 0, nullptr);
+			bb::rhi::bind_group(g.layout3d, 3, depth_bound);
 			bound_pipeline = bb::rhi::pipeline();
 			bound_set      = bb::rhi::binding_group();
 			bound_cull = bound_test = bound_write = -1;
@@ -1517,7 +1438,7 @@ namespace bb::gfx {
 				texture_entry*  tex = texture_of(k.texture);
 				bb::rhi::binding_group set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
 				if (set != bound_set) {
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 0, set);
 					bound_set = set;
 					stats3d.textures++;
 				}
@@ -1565,9 +1486,9 @@ namespace bb::gfx {
 					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					// The pass over the layer had a pipeline layout of its own, so what the 3D pipelines read has to be bound again.
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, g.scene_set, 1, &scene_offset);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, g.entity_set, 0, nullptr);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, before, 0, nullptr);
+					bb::rhi::bind_group_at(g.layout3d, 1, g.scene_set, scene_offset);
+					bb::rhi::bind_group(g.layout3d, 2, g.entity_set);
+					bb::rhi::bind_group(g.layout3d, 3, before);
 					bound_set = bb::rhi::binding_group();
 					i = oit_begin;
 					continue;
@@ -1618,7 +1539,7 @@ namespace bb::gfx {
 				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group moment_set = oit_moment_set(oit_w, oit_h);
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, moment_set, 0, nullptr);
+				bb::rhi::bind_group(oit_layout3d(), 4, moment_set);
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
 				oit_phase = 2;
@@ -1637,7 +1558,7 @@ namespace bb::gfx {
 				bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 				bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 				bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+				bb::rhi::bind_group(g.layout3d, 3, depth_set);
 				read_only = true;
 				bound_pipeline = bb::rhi::pipeline();
 				bound_cull = bound_test = bound_write = -1;
@@ -1683,7 +1604,7 @@ namespace bb::gfx {
 					bb::rhi::set_viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 					bb::rhi::set_scissor(scissor.offset.x, scissor.offset.y, int32_t(scissor.extent.width), int32_t(scissor.extent.height));
 					bb::rhi::binding_group scene_set = depth_set_for(depth_image);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, scene_set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 3, scene_set);
 					bound_pipeline = bb::rhi::pipeline();
 					bound_cull = bound_test = bound_write = -1;
 				} else if (d.oit && oit_slots()) {
@@ -1700,7 +1621,7 @@ namespace bb::gfx {
 						read_only         = true;
 					}
 					bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-					bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+					bb::rhi::bind_group(g.layout3d, 3, depth_set);
 					slot_info             = info;
 					slot_info.color_count = 2;
 					oit_attachments_slots(oit_w, oit_h, slot_info.colors, &slot_info.depth);
@@ -1724,7 +1645,7 @@ namespace bb::gfx {
 						barrier(depth_image.image, bb::rhi::image_state::depth_target, bb::rhi::image_state::depth_read, VK_IMAGE_ASPECT_DEPTH_BIT);
 						depth.read_only = true;
 						bb::rhi::binding_group depth_set = depth_set_for(depth_image);
-						bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, depth_set, 0, nullptr);
+						bb::rhi::bind_group(g.layout3d, 3, depth_set);
 						read_only = true;
 					}
 					moment_info             = info;
@@ -1787,7 +1708,7 @@ namespace bb::gfx {
 			}
 			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
 			if (set != bound_set) {
-				bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, set, 0, nullptr);
+				bb::rhi::bind_group(g.layout3d, 0, set);
 				bound_set = set;
 				stats3d.textures++;
 			}

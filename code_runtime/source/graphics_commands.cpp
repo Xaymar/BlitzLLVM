@@ -691,7 +691,7 @@ namespace bb::gfx {
 				set = e->set;
 			}
 			bb::rhi::bind_pipeline(op.kind == OP_LINES ? g.lines : g.triangles, target.image->format);
-			bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, set, 0, nullptr);
+			bb::rhi::bind_group(g.layout, 0, set);
 			bb::rhi::push_constants(g.layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 16, sizeof(op.mask), op.mask);
 			bb::rhi::draw(op.count, 1, op.first, 0);
 		}

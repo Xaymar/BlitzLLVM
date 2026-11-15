@@ -391,14 +391,15 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
 	////////////////////////////////////////////////////////////////////////////
-	// The layout of a group of count sampled images that fragment shaders read, made when it is first asked for.
-	static VkDescriptorSetLayout images_layout(VkDescriptorSetLayout& layout, uint32_t count)
+	// The layouts of the kinds of group, apart from the one of the textures. Null until first asked for.
+	static struct {
+		VkDescriptorSetLayout scene = VK_NULL_HANDLE, entity = VK_NULL_HANDLE, cull = VK_NULL_HANDLE, images3 = VK_NULL_HANDLE, images8 = VK_NULL_HANDLE;
+	} kind_layouts;
+
+	// The layout of a kind of group, made when it is first asked for. (The one of the textures is made with the device.)
+	static VkDescriptorSetLayout made_set_layout(VkDescriptorSetLayout& layout, const VkDescriptorSetLayoutBinding* bindings, uint32_t count)
 	{
 		if (!layout) {
-			VkDescriptorSetLayoutBinding bindings[8];
-			for (uint32_t i = 0; i < count; i++) {
-				bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
-			}
 			VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 			info.bindingCount                    = count;
 			info.pBindings                       = bindings;
@@ -407,21 +408,51 @@ namespace bb::gfx {
 		return layout;
 	}
 
+	// A group of count sampled images that fragment shaders read.
+	static VkDescriptorSetLayout images_layout(VkDescriptorSetLayout& layout, uint32_t count)
+	{
+		VkDescriptorSetLayoutBinding bindings[8];
+		for (uint32_t i = 0; i < count; i++) {
+			bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		}
+		return made_set_layout(layout, bindings, count);
+	}
+
 	VkDescriptorSetLayout vk_set_layout(bb::rhi::group_kind kind)
 	{
 		switch (kind) {
 		case bb::rhi::group_kind::texture:
 			return g.set_layout;
-		case bb::rhi::group_kind::scene:
-			return g.scene_layout;
-		case bb::rhi::group_kind::entities:
-			return g.entity_layout;
-		case bb::rhi::group_kind::cull:
-			return g.cull_layout;
+		case bb::rhi::group_kind::scene: {
+			// The uniform buffer of the scene, and the lookup texture of the palette of a Graphics of depth 8 (the white texture when there is none).
+			const VkDescriptorSetLayoutBinding bindings[2] = {
+				{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+				{ 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+			};
+			return made_set_layout(kind_layouts.scene, bindings, 2);
+		}
+		case bb::rhi::group_kind::entities: {
+			// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
+			// Binding 1 holds what the texture layers after the first of the draws need (layer_data), which only the fragment shader reads.
+			const VkDescriptorSetLayoutBinding bindings[2] = {
+				{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+				{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+			};
+			return made_set_layout(kind_layouts.entity, bindings, 2);
+		}
+		case bb::rhi::group_kind::cull: {
+			// The clusters, the runs of them for each draw and the commands that come out: see compute_shader_cull in generate_shaders.py.
+			const VkDescriptorSetLayoutBinding bindings[3] = {
+				{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+				{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+				{ 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+			};
+			return made_set_layout(kind_layouts.cull, bindings, 3);
+		}
 		case bb::rhi::group_kind::images3:
-			return images_layout(g.images3_layout, 3);
+			return images_layout(kind_layouts.images3, 3);
 		case bb::rhi::group_kind::images8:
-			return images_layout(g.images8_layout, 8);
+			return images_layout(kind_layouts.images8, 8);
 		}
 		return VK_NULL_HANDLE;
 	}
@@ -1970,8 +2001,8 @@ namespace bb::rhi {
 			vkDestroyPipelineLayout(bb::gfx::g.device, bb::gfx::vk_layout(entry.second), nullptr);
 		}
 		made_layouts.clear();
-		// The layouts of the groups of images, which vk_set_layout made when they were first asked for.
-		for (VkDescriptorSetLayout* layout : { &bb::gfx::g.images3_layout, &bb::gfx::g.images8_layout }) {
+		// The layouts of the kinds of group, which vk_set_layout made when they were first asked for.
+		for (VkDescriptorSetLayout* layout : { &bb::gfx::kind_layouts.scene, &bb::gfx::kind_layouts.entity, &bb::gfx::kind_layouts.cull, &bb::gfx::kind_layouts.images3, &bb::gfx::kind_layouts.images8 }) {
 			if (*layout) {
 				vkDestroyDescriptorSetLayout(bb::gfx::g.device, *layout, nullptr);
 				*layout = VK_NULL_HANDLE;
@@ -1982,7 +2013,7 @@ namespace bb::rhi {
 	void forget_layouts()
 	{
 		made_layouts.clear();
-		bb::gfx::g.images3_layout = bb::gfx::g.images8_layout = VK_NULL_HANDLE;
+		bb::gfx::kind_layouts.scene = bb::gfx::kind_layouts.entity = bb::gfx::kind_layouts.cull = bb::gfx::kind_layouts.images3 = bb::gfx::kind_layouts.images8 = VK_NULL_HANDLE;
 	}
 }
 
@@ -2061,6 +2092,18 @@ namespace bb::rhi {
 		}
 	}
 
+	void set_group_buffer(binding_group group, uint32_t place, uint64_t buffer, uint64_t size, bool uniform)
+	{
+		VkDescriptorBufferInfo info  = { VkBuffer(buffer), 0, size ? size : VK_WHOLE_SIZE };
+		VkWriteDescriptorSet   write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                 = gfx::vk_set(group);
+		write.dstBinding             = place;
+		write.descriptorCount        = 1;
+		write.descriptorType         = uniform ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		write.pBufferInfo            = &info;
+		vkUpdateDescriptorSets(gfx::g.device, 1, &write, 0, nullptr);
+	}
+
 	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
 	{
 		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), gfx::vk_layout_of(depth_read ? image_state::depth_read : image_state::sampled) };
@@ -2137,6 +2180,18 @@ namespace bb::rhi {
 	void bind_raw_pipeline(uint64_t native, bool compute)
 	{
 		vkCmdBindPipeline(gfx::g.cmd, compute ? VK_PIPELINE_BIND_POINT_COMPUTE : VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(native));
+	}
+
+	void bind_group(pipeline_layout layout, uint32_t index, binding_group group)
+	{
+		VkDescriptorSet set = gfx::vk_set(group);
+		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 0, nullptr);
+	}
+
+	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset)
+	{
+		VkDescriptorSet set = gfx::vk_set(group);
+		vkCmdBindDescriptorSets(gfx::g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_layout(layout), index, 1, &set, 1, &offset);
 	}
 
 	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data)
@@ -2843,11 +2898,11 @@ namespace bb::rhi {
 		g.cmd      = VK_NULL_HANDLE;
 		g.fence    = VK_NULL_HANDLE;
 		g.set_layout = VK_NULL_HANDLE;
-		g.images3_layout = g.images8_layout = VK_NULL_HANDLE;
+		kind_layouts.images3 = kind_layouts.images8 = VK_NULL_HANDLE;
 		g.set_pool   = VK_NULL_HANDLE;
-		g.scene_layout  = VK_NULL_HANDLE;
-		g.entity_layout = VK_NULL_HANDLE;
-		g.cull_layout   = VK_NULL_HANDLE;
+		kind_layouts.scene  = VK_NULL_HANDLE;
+		kind_layouts.entity = VK_NULL_HANDLE;
+		kind_layouts.cull   = VK_NULL_HANDLE;
 		g.cull_pipeline = VK_NULL_HANDLE;
 		g.static_pipeline = VK_NULL_HANDLE;
 	}

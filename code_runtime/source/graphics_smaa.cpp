@@ -337,7 +337,7 @@ namespace {
 	void draw_pass(bb::rhi::pipeline pipeline, bb::rhi::binding_group set, constants const& c)
 	{
 		bb::rhi::bind_pipeline(pipeline, 0);
-		bind_group(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, set, 0, nullptr);
+		bb::rhi::bind_group(layout, 0, set);
 		bb::rhi::push_constants(layout, bb::rhi::stage_vertex | bb::rhi::stage_fragment, 0, sizeof(c), &c);
 		bb::rhi::draw(3, 1, 0, 0);
 		bb::rhi::end_pass();
