@@ -813,6 +813,14 @@ namespace bb::gfx {
 		if (free_bytes() >= needed) {
 			return true;
 		}
+		{
+			// A backend that does not know how much video memory there is (OpenGL without an extension for it) says 0 of 0. Nothing is evicted on a guess.
+			uint64_t used, total;
+			bb::rhi::memory_budget(used, total);
+			if (!total) {
+				return true;
+			}
+		}
 		evicting = true;
 		bool moved = defragment_images();
 		if (free_bytes() < needed) {
