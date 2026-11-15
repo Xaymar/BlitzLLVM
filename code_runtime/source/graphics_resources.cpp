@@ -767,6 +767,24 @@ namespace bb::gfx {
 	}
 
 
+	// What the backend found (list_gpus) and what the program chose. They outlive the device.
+	gpu_entry gpus[max_gpus];
+	uint32_t  gpu_total = 0;
+	int       driver_choice = 0;
+	uint32_t devices_made = 0;
+
+	// Whether an image that is being made may go to system memory when video memory is full, may make room by evicting others, or has to go to system memory.
+	static thread_local bool spill_allowed = false;
+	static thread_local bool evict_allowed = false;
+	static thread_local bool force_system  = false;
+	image_spill_scope::image_spill_scope(bool allow, bool evict) : previous(spill_allowed), previous_evict(evict_allowed) { spill_allowed = allow; evict_allowed = evict; }
+	image_spill_scope::~image_spill_scope() { spill_allowed = previous; evict_allowed = previous_evict; }
+	image_system_scope::image_system_scope() : previous(force_system) { force_system = true; }
+	image_system_scope::~image_system_scope() { force_system = previous; }
+	bool image_spill_allowed() { return spill_allowed; }
+	bool image_evict_allowed() { return evict_allowed; }
+	bool image_system_forced() { return force_system; }
+
 	void create_device_resources()
 	{
 		// Descriptors, sampler and pipelines
@@ -854,3 +872,11 @@ namespace bb::gfx {
 		create_3d();
 	}
 } // namespace bb::gfx
+
+namespace bb::rhi {
+	bool sampler_desc::operator==(const sampler_desc& o) const
+	{
+		return (min == o.min) && (mag == o.mag) && (mip == o.mip) && (address[0] == o.address[0]) && (address[1] == o.address[1]) && (address[2] == o.address[2])
+		       && (anisotropy == o.anisotropy) && (memcmp(border, o.border, sizeof(border)) == 0) && (lod_bias == o.lod_bias) && (lod_min == o.lod_min) && (lod_max == o.lod_max);
+	}
+} // namespace bb::rhi

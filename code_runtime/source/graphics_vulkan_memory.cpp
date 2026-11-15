@@ -34,11 +34,13 @@ namespace bb::gfx {
 	std::shared_mutex prebuild_gate;                      // Not for use outside this file: the buffers made on any thread (rhi::create_buffer_any_thread) hold it.
 	VmaAllocator      prebuild_allocator = VK_NULL_HANDLE;
 
+	namespace vulkan {
 	void close_prebuild()
 	{
 		std::unique_lock<std::shared_mutex> guard(prebuild_gate);
 		prebuild_allocator = VK_NULL_HANDLE;
 	}
+	} // namespace vulkan
 
 	void create_allocator(PFN_vkGetInstanceProcAddr get_instance_proc)
 	{
@@ -79,15 +81,8 @@ namespace bb::gfx {
 	}
 
 
-	static thread_local bool spill_allowed = false;
-	static thread_local bool evict_allowed = false;
-	static thread_local bool force_system  = false;
 	static thread_local bool evicting      = false;
 
-	image_spill_scope::image_spill_scope(bool allow, bool evict) : previous(spill_allowed), previous_evict(evict_allowed) { spill_allowed = allow; evict_allowed = evict; }
-	image_spill_scope::~image_spill_scope() { spill_allowed = previous; evict_allowed = previous_evict; }
-	image_system_scope::image_system_scope() : previous(force_system) { force_system = true; }
-	image_system_scope::~image_system_scope() { force_system = previous; }
 
 	// With a limit pretended, the images in system memory are only known by this list, as the memory of the GPU is one heap.
 	static std::mutex                                 system_mutex;
@@ -111,7 +106,6 @@ namespace bb::gfx {
 		}
 		return total;
 	}
-	bool image_spill_allowed() { return spill_allowed; }
 
 	bool is_out_of_memory(VkResult result)
 	{
@@ -191,7 +185,7 @@ namespace bb::gfx {
 		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
 		VkDeviceSize size             = image_size_estimate(info);
 		VkResult     created;
-		if (force_system) {
+		if (image_system_forced()) {
 			// Moved out of video memory to make room: it is read from system memory from now on.
 			alloc.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
 			created     = vmaCreateImage(vkd.allocator, &info, &alloc, &image, &allocation, nullptr);
@@ -202,7 +196,7 @@ namespace bb::gfx {
 		}
 		alloc.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		bool defragmented = false;
-		if (evict_allowed && !evicting && bb_env_bool("BLITZLLVM_DEFRAG_TEST", false)) {
+		if (image_evict_allowed() && !evicting && bb_env_bool("BLITZLLVM_DEFRAG_TEST", false)) {
 			// For tests: every texture is made after the allocator moved what it can.
 			evicting = true;
 			defragment_images();
@@ -210,7 +204,7 @@ namespace bb::gfx {
 		}
 		for (;;) {
 			created = over_vram_limit(size) ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vmaCreateImage(vkd.allocator, &info, &alloc, &image, &allocation, nullptr);
-			if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && evict_allowed && !evicting && !defragmented) {
+			if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && image_evict_allowed() && !evicting && !defragmented) {
 				// The video memory may be in pieces that are too small: the allocator moves the images of textures together first.
 				defragmented = true;
 				evicting     = true;
@@ -220,7 +214,7 @@ namespace bb::gfx {
 					continue;
 				}
 			}
-			if ((created != VK_ERROR_OUT_OF_DEVICE_MEMORY) || spill_allowed || !evict_allowed || evicting) {
+			if ((created != VK_ERROR_OUT_OF_DEVICE_MEMORY) || image_spill_allowed() || !image_evict_allowed() || evicting) {
 				break;
 			}
 			// It has to be in video memory (flag 256): textures that may use system memory make room.
@@ -231,7 +225,7 @@ namespace bb::gfx {
 				break;
 			}
 		}
-		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && spill_allowed) {
+		if ((created == VK_ERROR_OUT_OF_DEVICE_MEMORY) && image_spill_allowed()) {
 			// Only what the program allowed (no flag 256): system memory does it, slower.
 			alloc.requiredFlags  = 0;
 			alloc.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -272,6 +266,7 @@ namespace bb::gfx {
 		return free_bytes() >= needed;
 	}
 
+	namespace vulkan {
 	void reserve_internal_buffers()
 	{
 		static uint64_t last_size = 0;
@@ -298,6 +293,7 @@ namespace bb::gfx {
 		}
 		make_room(pixels * per_pixel);
 	}
+	} // namespace vulkan
 
 	static void create_vk_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
 	{
@@ -406,7 +402,7 @@ namespace bb::gfx {
 	}
 } // namespace bb::gfx
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void create_buffer(gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where)
 	{
 		VkBufferUsageFlags flags = 0;
@@ -508,4 +504,4 @@ namespace bb::rhi {
 	{
 		gfx::video_memory_budget(used, total);
 	}
-} // namespace bb::rhi
+} // namespace bb::rhi::vulkan

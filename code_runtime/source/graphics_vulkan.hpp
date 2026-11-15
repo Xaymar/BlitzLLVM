@@ -14,7 +14,7 @@
 // speak in Vulkan types. The shared graphics code does not include this.
 #pragma once
 #define VK_NO_PROTOTYPES
-#include "graphics_internal.hpp"
+#include "rhi_backend.hpp"
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <SDL3/SDL_vulkan.h>
@@ -233,3 +233,19 @@ namespace bb::gfx {
 		return VkSampler(s.id);
 	}
 } // namespace bb::gfx
+
+// The calls of rhi_backend.inc as this backend defines them.
+namespace bb::rhi::vulkan {
+#define BB_RHI_CALL(result, name, parameters, arguments) result name parameters;
+#define BB_GFX_CALL(result, name, parameters, arguments)
+#include "rhi_backend.inc"
+#undef BB_RHI_CALL
+#undef BB_GFX_CALL
+} // namespace bb::rhi::vulkan
+namespace bb::gfx::vulkan {
+#define BB_RHI_CALL(result, name, parameters, arguments)
+#define BB_GFX_CALL(result, name, parameters, arguments) result name parameters;
+#include "rhi_backend.inc"
+#undef BB_RHI_CALL
+#undef BB_GFX_CALL
+} // namespace bb::gfx::vulkan

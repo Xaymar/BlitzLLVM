@@ -34,11 +34,13 @@ namespace bb::gfx {
 
 	constinit thread_local vk_state vkd{};
 
+	namespace vulkan {
 	void free_group(bb::rhi::binding_group group)
 	{
 		VkDescriptorSet set = vk_set(group);
 		vkFreeDescriptorSets(vkd.device, vkd.set_pool, 1, &set);
 	}
+	} // namespace vulkan
 	void check(VkResult result, const char* what)
 	{
 		if (result != VK_SUCCESS) {
@@ -162,6 +164,7 @@ namespace bb::gfx {
 		}
 	}
 
+	namespace vulkan {
 	gpu_image create_image(uint32_t width, uint32_t height, bb::rhi::image_usage usage, bb::rhi::format format, const bb::rhi::swizzle* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
 		if (vk_format(format) == VK_FORMAT_UNDEFINED) {
@@ -180,6 +183,7 @@ namespace bb::gfx {
 		}
 		return create_image_vk(width, height, flags, vk_format(format), aspect, components ? &mapping : nullptr, mips, layers, samples);
 	}
+	} // namespace vulkan
 
 	gpu_image create_image_vk(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips, uint32_t layers, uint32_t samples)
 	{
@@ -257,6 +261,7 @@ namespace bb::gfx {
 		img.target_view = 0;
 	}
 
+	namespace vulkan {
 	void release_image(gpu_image& img)
 	{
 		destroy_views(img);
@@ -267,18 +272,24 @@ namespace bb::gfx {
 		img.image       = 0;
 		img.allocation  = 0;
 	}
+	} // namespace vulkan
 
+	namespace vulkan {
 	gpu_image create_image_again(const image_recipe& recipe)
 	{
 		VkComponentMapping mapping = vk_mapping(recipe);
 		return create_image_vk(recipe.width, recipe.height, recipe.usage, vk_format(recipe.format), recipe.aspect, recipe.has_mapping ? &mapping : nullptr, recipe.mips, recipe.layers, recipe.samples);
 	}
+	} // namespace vulkan
 
+	namespace vulkan {
 	bool image_can_move(const gpu_image& img)
 	{
 		return img.image && img.allocation && img.recipe && img.recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT && vk_create_info(*img.recipe).samples == VK_SAMPLE_COUNT_1_BIT;
 	}
+	} // namespace vulkan
 
+	namespace vulkan {
 	bool move_image(gpu_image& img, uint64_t destination_handle)
 	{
 		VmaAllocation destination = VmaAllocation(destination_handle);
@@ -318,6 +329,7 @@ namespace bb::gfx {
 		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &mapping : nullptr);
 		return true;
 	}
+	} // namespace vulkan
 
 	////////////////////////////////////////////////////////////////////////////
 	// Setup
@@ -388,6 +400,7 @@ namespace bb::gfx {
 		return VK_NULL_HANDLE;
 	}
 
+	namespace vulkan {
 	bb::rhi::shader create_shader(const unsigned int* words, size_t size)
 	{
 		VkShaderModuleCreateInfo info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
@@ -397,11 +410,14 @@ namespace bb::gfx {
 		check(vkCreateShaderModule(vkd.device, &info, nullptr, &module), "vkCreateShaderModule");
 		return bb::rhi::shader{ uint64_t(module) };
 	}
+	} // namespace vulkan
 
+	namespace vulkan {
 	void destroy_shader(bb::rhi::shader shader)
 	{
 		vkDestroyShaderModule(vkd.device, vk_shader(shader), nullptr);
 	}
+	} // namespace vulkan
 
 	namespace {
 		struct pipeline_object {
@@ -617,6 +633,7 @@ namespace bb::gfx {
 
 	// Fills every level below the first by halving the one above it with a linear filter, which averages 2 by 2 pixels. All
 	// levels are expected to be in the layout, and are in the shader read layout afterwards. Expects an open command buffer.
+	namespace vulkan {
 	void generate_mips(gpu_image& image, bb::rhi::image_state from)
 	{
 		level_barrier(VkImage(image.image), 0, 1, from, bb::rhi::image_state::copy_src);
@@ -643,16 +660,11 @@ namespace bb::gfx {
 		image.layout     = bb::rhi::image_state::sampled;
 		image.mips_stale = false;
 	}
+	} // namespace vulkan
 
 }
 
-namespace bb::rhi {
-	bool sampler_desc::operator==(const sampler_desc& o) const
-	{
-		return (min == o.min) && (mag == o.mag) && (mip == o.mip) && (address[0] == o.address[0]) && (address[1] == o.address[1]) && (address[2] == o.address[2])
-		       && (anisotropy == o.anisotropy) && (memcmp(border, o.border, sizeof(border)) == 0) && (lod_bias == o.lod_bias) && (lod_min == o.lod_min) && (lod_max == o.lod_max);
-	}
-
+namespace bb::rhi::vulkan {
 	namespace {
 		struct sampler_cache_entry {
 			sampler_desc desc;
@@ -722,9 +734,10 @@ namespace bb::rhi {
 	{
 		sampler_cache.clear();
 	}
-} // namespace bb::rhi
+} // namespace bb::rhi::vulkan
 
 namespace bb::gfx {
+	namespace vulkan {
 	bool compressed_supported(block_format format)
 	{
 		if ((format == block_format::none) || !vkd.device || !vkd.physical) {
@@ -735,8 +748,10 @@ namespace bb::gfx {
 		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
 		return (properties.optimalTilingFeatures & needed) == needed;
 	}
+	} // namespace vulkan
 
 	// Whether images of A2B10G10R10 can be sampled and filtered, which is all they need: their mip maps are made on the CPU.
+	namespace vulkan {
 	bool ten_bit_supported()
 	{
 		static int known = -1;
@@ -751,6 +766,7 @@ namespace bb::gfx {
 		}
 		return known == 1;
 	}
+	} // namespace vulkan
 
 	// Loads the Vulkan library and the functions that need no instance. Null without a Vulkan driver.
 	PFN_vkGetInstanceProcAddr load_vulkan()
@@ -818,13 +834,11 @@ namespace bb::gfx {
 		return twin;
 	}
 
-	gpu_entry gpus[max_gpus];
-	uint32_t  gpu_total = 0;
-	int       driver_choice = 0;
 
 	// The graphics drivers are the GPUs that Vulkan knows, with the best one first: usable discrete GPUs, then integrated,
 	// virtual and software ones, then those that cannot be used. That way driver 1 is the one that is picked without
 	// SetGfxDriver. Without a display or a Vulkan driver (like in the tests without a window) there is one, "Default".
+	namespace vulkan {
 	void list_gpus()
 	{
 		static bool listed = false;
@@ -888,6 +902,7 @@ namespace bb::gfx {
 			gpus[j] = entry;
 		}
 	}
+	} // namespace vulkan
 
 	// The number of the driver (from 0) that the GPU is in the list, or -1.
 	int driver_of(VkPhysicalDevice* devices, uint32_t d)
@@ -906,7 +921,6 @@ namespace bb::gfx {
 	namespace {
 		PFN_vkGetInstanceProcAddr instance_proc = nullptr; // Of the instance that create_instance made, which the allocator needs.
 	} // namespace
-	uint32_t devices_made = 0;
 
 	void create_instance()
 	{
@@ -1133,7 +1147,7 @@ namespace bb::gfx {
 	// The instance, the surface of the window of Graphics and a device that shows pictures in that window.
 } // namespace bb::gfx
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	// The layouts that were made, so that equal descriptions share one.
 	static std::vector<std::pair<layout_desc, pipeline_layout>> made_layouts;
 
@@ -1193,7 +1207,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	pipeline create_pipeline(pipeline_recipe recipe)
 	{
 		auto& objects = gfx::pipeline_objects;
@@ -1252,7 +1266,7 @@ namespace bb::rhi {
 	{
 		for (size_t i = 0; i < gfx::pipeline_objects.size(); i++) {
 			if (gfx::pipeline_objects[i].alive) {
-				destroy_pipeline(pipeline{ i + 1 });
+				vulkan::destroy_pipeline(pipeline{ i + 1 });
 			}
 		}
 		gfx::pipeline_objects.clear();
@@ -1264,7 +1278,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	binding_group create_group(group_kind kind)
 	{
 		VkDescriptorSetLayout       layout = gfx::vk_set_layout(kind);
@@ -1360,7 +1374,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	static VkRenderingAttachmentInfo vk_attachment(const pass_attachment& a, image_state usage)
 	{
 		VkRenderingAttachmentInfo out = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
@@ -1414,7 +1428,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void bind_pipeline(pipeline p, format target)
 	{
 		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, target));
@@ -1556,7 +1570,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void transition_image(uint64_t image, image_state from, image_state to, bool depth)
 	{
 		VkImageMemoryBarrier2 b            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
@@ -1580,7 +1594,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	static VkImageSubresourceLayers vk_layers(const image_region& r)
 	{
 		return { r.depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, r.mip, r.layer, r.layers };
@@ -1650,7 +1664,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	namespace {
 		VkQueryPool timestamp_pool   = VK_NULL_HANDLE;
 		float       timestamp_period = 1.0f;
@@ -1712,7 +1726,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore)
 	{
 		gfx::check(vkEndCommandBuffer(gfx::vkd.cmd), "vkEndCommandBuffer");
@@ -1741,7 +1755,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void begin_commands()
 	{
 		vkResetCommandBuffer(gfx::vkd.cmd, 0);
@@ -1850,7 +1864,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void wait_idle()
 	{
 		gfx::queue_lock_all();
@@ -1859,7 +1873,7 @@ namespace bb::rhi {
 	}
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	bool create_swapchain(swapchain& sc, const swapchain_desc& d)
 	{
 		using namespace gfx;
@@ -1986,7 +2000,7 @@ namespace bb::rhi {
 
 }
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	namespace {
 		present_result vk_present_result(VkResult result)
 		{
@@ -2043,9 +2057,9 @@ namespace bb::rhi {
 		}
 		return vk_present_result(result);
 	}
-} // namespace bb::rhi
+} // namespace bb::rhi::vulkan
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	namespace {
 		// The barrier of graphics_commands.cpp records into the program's command buffer; the thread of a window has its own.
 		void presenter_barrier(VkCommandBuffer cmd, VkImage image, image_state from, image_state to)
@@ -2218,9 +2232,9 @@ namespace bb::rhi {
 		vkWaitForPresentKHR(VkDevice(presenter.device), VkSwapchainKHR(chain.handle), presenter.present_id, timeout_ns);
 		return true;
 	}
-} // namespace bb::rhi
+} // namespace bb::rhi::vulkan
 
-namespace bb::rhi {
+namespace bb::rhi::vulkan {
 	void create_device()
 	{
 		using namespace gfx;
@@ -2389,4 +2403,12 @@ namespace bb::rhi {
 		g.cull_pipeline   = {};
 		g.static_pipeline = {};
 	}
-} // namespace bb::rhi
+} // namespace bb::rhi::vulkan
+
+const bb::rhi::backend_table bb::rhi::vulkan_backend = {
+#define BB_RHI_CALL(result, name, parameters, arguments) &bb::rhi::vulkan::name,
+#define BB_GFX_CALL(result, name, parameters, arguments) &bb::gfx::vulkan::name,
+#include "rhi_backend.inc"
+#undef BB_RHI_CALL
+#undef BB_GFX_CALL
+};

@@ -798,6 +798,8 @@ namespace bb::gfx {
 	/** Moves textures that may use system memory (no flag 256) out of video memory, biggest first, until 'needed' bytes are free or none is left. False if nothing was moved. */
 	bool textures_evict(uint64_t needed);
 	bool image_spill_allowed();
+	bool image_evict_allowed();
+	bool image_system_forced();
 	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
 	void video_memory_budget(uint64_t& used, uint64_t& total);
 	/** Ends the program with a message that says what did not fit into video memory. */
