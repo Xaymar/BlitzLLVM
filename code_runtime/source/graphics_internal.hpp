@@ -830,6 +830,7 @@ namespace bb::gfx {
 	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
 	bb::rhi::format pick_buffer_format(int depth, int& actual);
 	/** The pipeline of a pass over a whole image that replaces what is there (one triangle that covers the target, no vertices), drawing to an image of the format. */
+	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::topology topology, bb::rhi::pipeline_layout layout);
 	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format);
 	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
 	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer = 0, uint32_t to_layer = 0);
@@ -1178,6 +1179,8 @@ namespace bb::gfx {
 	uint32_t mip_count(uint32_t width, uint32_t height);
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
+	/** The format of an image of blocks. */
+	bb::rhi::format block_image_format(block_format format, bool srgb);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
 	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
@@ -1192,6 +1195,12 @@ namespace bb::gfx {
 	bb::rhi::sampler atlas_sampler(bool point, int max_lod);
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
+	/** Backend: fills every level below the first from the one above it. All levels are in the state from, and can be sampled afterwards. Expects open commands. */
+	void generate_mips(gpu_image& image, bb::rhi::image_state from);
+	/** Backend: an image as its recipe describes it, with nothing in it (for images that are made again after a lost device). */
+	gpu_image create_image_again(const image_recipe& recipe);
+	/** What a new device starts out with, whatever the backend: samplers, the 2D pipelines, the white and font textures, the 2D vertex buffers and the 3D parts. The backend calls it once its device is made. */
+	void create_device_resources();
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
 	bool ten_bit_supported();
 	void ensure_color_image(gpu_image& image, bb::rhi::binding_group set);

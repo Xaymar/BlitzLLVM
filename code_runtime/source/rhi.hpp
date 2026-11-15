@@ -231,6 +231,8 @@ namespace bb::rhi {
 	/** A pipeline of one compute shader, for dispatch. Built at once. Bound with bind_compute_pipeline, not bind_pipeline. */
 	/** Builds the version of the pipeline for targets of the format now and not at the first draw, so that nothing is compiled in the middle of a frame. */
 	void prebuild_pipeline(pipeline p, format target);
+	/** Whether images of the format can be the buffers of Graphics: drawn to with blending, sampled with a linear filter, copied and scaled from and to. */
+	bool format_fits_buffers(format f);
 
 	pipeline create_compute_pipeline(shader compute, pipeline_layout layout);
 	/** Frees a pipeline and what was built for it. The GPU must be done with it. */
@@ -296,6 +298,8 @@ namespace bb::rhi {
 	void          destroy_frame_groups(frame_groups& groups);
 	/** Puts an image with a sampler at a place of a group (the image is a view, a backend handle for now). depth_read: a depth image that the pass reads while the shader samples it. The GPU must be done with what was there. */
 	void          set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read = false);
+	/** Makes count places of a group of images hold what places of another one (or of the same one) hold. */
+	void          copy_group_images(binding_group from, uint32_t from_place, binding_group to, uint32_t to_place, uint32_t count);
 	/** Puts a buffer (a backend handle for now) at a place of a group. uniform: the shader reads size bytes of it as a uniform block, from the offset the group is bound with (size 0: all of it); otherwise it is storage that the shader reads or
 	    writes all of. The GPU must be done with what was there. */
 	void          set_group_buffer(binding_group group, uint32_t place, uint64_t buffer, uint64_t size, bool uniform);

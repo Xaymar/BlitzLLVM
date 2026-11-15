@@ -26,14 +26,12 @@ BB_VK_GLOBAL(BB_VK_DEFINE)
 BB_VK_INSTANCE(BB_VK_DEFINE)
 BB_VK_DEVICE(BB_VK_DEFINE)
 
-#include "shaders.inc"
 #include "environment.h"
 
 using namespace bb::gfx;
 
 namespace bb::gfx {
 
-	constinit thread_local state g{};
 	constinit thread_local vk_state vkd{};
 
 	void free_group(bb::rhi::binding_group group)
@@ -41,73 +39,6 @@ namespace bb::gfx {
 		VkDescriptorSet set = vk_set(group);
 		vkFreeDescriptorSets(vkd.device, vkd.set_pool, 1, &set);
 	}
-	bb::buffer<texture_entry> texture_table;
-	bb::buffer<image_entry> image_table;
-	bb::buffer<sampler_entry> sampler_table;
-
-	image_entry* image_of(int handle)
-	{
-		if ((handle < 1) || (uint32_t(handle) > image_table.size) || !image_table[uint32_t(handle) - 1].used) {
-			return nullptr;
-		}
-		image_entry* e = &image_table[uint32_t(handle) - 1];
-		if (e->pending) {
-			resolve_image(*e);
-		}
-		return e;
-	}
-
-	// Where the pixels of a frame are in the sheet of its image.
-	void frame_position(image_entry const& e, int frame, int& x, int& y)
-	{
-		int cells = e.sheet_w / (e.frame_w > 0 ? e.frame_w : 1);
-		cells     = cells > 0 ? cells : 1;
-		int index = e.first + frame;
-		x         = (index % cells) * e.frame_w;
-		y         = (index / cells) * e.frame_h;
-	}
-
-	target_ref resolve_target(int handle)
-	{
-		target_ref t;
-		if ((handle == front_buffer) || (handle == back_buffer)) {
-			t.image = &g.buffers[handle == front_buffer ? 0 : 1];
-			t.w     = int(t.image->width);
-			t.h     = int(t.image->height);
-		} else if (handle >= texture_buffer_base) {
-			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
-			if (tex && tex->set && texture_frame_rect(*tex, (handle - texture_buffer_base) & 1023, t.x, t.y, t.w, t.h, &t.layer)) {
-				ensure_color_image(tex->image, tex->set);
-				sprite_hull_drop(tex->hull); // Whatever is drawn to it can show outside of the hull; LockBuffer and UnlockBuffer make one again.
-				t.image = &tex->image;
-			}
-		} else if (handle >= image_buffer_base) {
-			int          id    = (handle - image_buffer_base) >> 10;
-			int          frame = (handle - image_buffer_base) & 1023;
-			image_entry* e     = image_of(id);
-			if (e && e->set && (frame < e->frames)) {
-				ensure_color_image(e->image, e->set);
-				t.image = &e->image;
-				frame_position(*e, frame, t.x, t.y);
-				t.w = e->frame_w;
-				t.h = e->frame_h;
-			}
-		}
-		return t;
-	}
-
-	[[noreturn]] void fail(const char* what)
-	{
-		char buffer[256];
-		if (restoring_graphics()) {
-			snprintf(buffer, sizeof(buffer), "Graphics: the graphics device was lost and could not be made again: %s", what);
-		} else {
-			snprintf(buffer, sizeof(buffer), "Graphics: %s", what);
-		}
-		bb_runtime_error(buffer);
-		exit(1);
-	}
-
 	void check(VkResult result, const char* what)
 	{
 		if (result != VK_SUCCESS) {
@@ -304,19 +235,6 @@ namespace bb::gfx {
 		return img;
 	}
 
-	void describe_image(bb::rhi::binding_group set, gpu_image const& img, bb::rhi::sampler sampler)
-	{
-		write_descriptor(set, img.array_sets && img.array_view ? img.array_view : img.view, sampler);
-	}
-
-	uint64_t target_view_of(gpu_image const& img, uint32_t layer)
-	{
-		if ((layer > 0) && (layer < img.layers) && img.layer_targets) {
-			return img.layer_targets[layer];
-		}
-		return img.target_view ? img.target_view : img.view;
-	}
-
 	// Destroys the views of an image, and nothing else.
 	static void destroy_views(gpu_image& img)
 	{
@@ -348,6 +266,12 @@ namespace bb::gfx {
 		}
 		img.image       = 0;
 		img.allocation  = 0;
+	}
+
+	gpu_image create_image_again(const image_recipe& recipe)
+	{
+		VkComponentMapping mapping = vk_mapping(recipe);
+		return create_image_vk(recipe.width, recipe.height, recipe.usage, vk_format(recipe.format), recipe.aspect, recipe.has_mapping ? &mapping : nullptr, recipe.mips, recipe.layers, recipe.samples);
 	}
 
 	bool image_can_move(const gpu_image& img)
@@ -393,13 +317,6 @@ namespace bb::gfx {
 		VkComponentMapping mapping = vk_mapping(*img.recipe);
 		create_views(img, info, img.recipe->aspect, img.recipe->has_mapping ? &mapping : nullptr);
 		return true;
-	}
-
-	void destroy_image(gpu_image& img)
-	{
-		release_image(img);
-		delete img.recipe;
-		img = gpu_image();
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -484,41 +401,6 @@ namespace bb::gfx {
 	void destroy_shader(bb::rhi::shader shader)
 	{
 		vkDestroyShaderModule(vkd.device, vk_shader(shader), nullptr);
-	}
-
-	// An image of RGBA8 stored as sRGB is copied as the bytes it has, so it counts as the same as one stored linear.
-	static VkFormat copy_class(VkFormat format)
-	{
-		return (format == VK_FORMAT_R8G8B8A8_SRGB) ? VK_FORMAT_R8G8B8A8_UNORM : format;
-	}
-
-	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h, uint32_t from_layer, uint32_t to_layer)
-	{
-		if (copy_class(vk_format(from.format)) == copy_class(vk_format(to.format))) {
-			bb::rhi::image_copy copy;
-			copy.src.layer = from_layer;
-			copy.src.x     = sx;
-			copy.src.y     = sy;
-			copy.dst.layer = to_layer;
-			copy.dst.x     = dx;
-			copy.dst.y     = dy;
-			copy.w         = uint32_t(w);
-			copy.h         = uint32_t(h);
-			bb::rhi::copy_image(uint64_t(from.image), uint64_t(to.image), &copy, 1);
-			return;
-		}
-		bb::rhi::image_blit blit;
-		blit.layer_src = from_layer;
-		blit.layer_dst = to_layer;
-		blit.src[0]    = sx;
-		blit.src[1]    = sy;
-		blit.src[2]    = sx + w;
-		blit.src[3]    = sy + h;
-		blit.dst[0]    = dx;
-		blit.dst[1]    = dy;
-		blit.dst[2]    = dx + w;
-		blit.dst[3]    = dy + h;
-		bb::rhi::blit_image(uint64_t(from.image), uint64_t(to.image), &blit, 1, bb::rhi::filter::nearest);
 	}
 
 	namespace {
@@ -711,78 +593,6 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	static bb::rhi::pipeline_desc flat_desc(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, VkPrimitiveTopology topology, bool vertices, VkFormat format)
-	{
-		bb::rhi::pipeline_desc desc;
-		desc.vs                      = vs;
-		desc.fs                      = fs;
-		desc.layout                  = layout;
-		desc.primitives              = (topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST) ? bb::rhi::topology::lines : bb::rhi::topology::triangles;
-		desc.vertices                = vertices ? bb::rhi::vertex_layout::flat : bb::rhi::vertex_layout::none;
-		desc.attachments[0].fmt      = rhi_format(format);
-		desc.attachments[0].blend.enable = vertices; // Passes over an image replace it.
-		return desc;
-	}
-
-	bb::rhi::pipeline create_flat_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, VkPrimitiveTopology topology, bb::rhi::pipeline_layout layout)
-	{
-		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format target) { return flat_desc(vs, fs, layout, topology, true, vk_format(target)); });
-		vk_pipeline(pipeline, bb::rhi::format::rgba8); // Both versions are made now, so that nothing is compiled in the middle of a frame.
-		if (g.buffer_format != bb::rhi::format::rgba8) {
-			vk_pipeline(pipeline, g.buffer_format);
-		}
-		return pipeline;
-	}
-
-	bb::rhi::pipeline create_fullscreen_pipeline(bb::rhi::shader vs, bb::rhi::shader fs, bb::rhi::pipeline_layout layout, bb::rhi::format format)
-	{
-		return bb::rhi::create_fixed_pipeline(flat_desc(vs, fs, layout, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, false, vk_format(format)));
-	}
-
-	void write_descriptor(bb::rhi::binding_group set, uint64_t view, bb::rhi::sampler sampler)
-	{
-		VkDescriptorImageInfo image_info = { vk_sampler(sampler), VkImageView(view), vk_layout_of(bb::rhi::image_state::sampled) };
-		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = vk_set(set);
-		write.descriptorCount            = 1;
-		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		write.pImageInfo                 = &image_info;
-		vkUpdateDescriptorSets(vkd.device, 1, &write, 0, nullptr);
-	}
-
-	void set_descriptor_sampler(gpu_image& image, bb::rhi::binding_group set, bb::rhi::sampler sampler)
-	{
-		flush(); // What was recorded may use the old sampler.
-		bb::rhi::wait_idle();
-		describe_image(set, image, sampler);
-		image.sampler = sampler;
-	}
-
-	void allocate_descriptor(bb::rhi::binding_group& set)
-	{
-		set = bb::rhi::create_group(bb::rhi::group_kind::texture);
-		// The bindings of the layers hold white (every shader that reads them needs something in them), until the white texture itself is made.
-		bb::rhi::binding_group white = g.sets[TEXTURE_WHITE_3D];
-		if (white && (white != set)) {
-			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copy.srcSet              = vk_set(white);
-			copy.srcBinding          = 1;
-			copy.dstSet              = vk_set(set);
-			copy.dstBinding          = 1;
-			copy.descriptorCount     = texture_layer_bindings - 1;
-			vkUpdateDescriptorSets(vkd.device, 0, nullptr, 1, &copy);
-		}
-	}
-
-	uint32_t mip_count(uint32_t width, uint32_t height)
-	{
-		uint32_t levels = 1;
-		for (uint32_t size = width > height ? width : height; size > 1; size >>= 1) {
-			levels++;
-		}
-		return levels;
-	}
-
 	static void level_barrier(VkImage image, uint32_t first, uint32_t count, bb::rhi::image_state from, bb::rhi::image_state to)
 	{
 		VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
@@ -807,7 +617,7 @@ namespace bb::gfx {
 
 	// Fills every level below the first by halving the one above it with a linear filter, which averages 2 by 2 pixels. All
 	// levels are expected to be in the layout, and are in the shader read layout afterwards. Expects an open command buffer.
-	static void generate_mips(gpu_image& image, bb::rhi::image_state from)
+	void generate_mips(gpu_image& image, bb::rhi::image_state from)
 	{
 		level_barrier(VkImage(image.image), 0, 1, from, bb::rhi::image_state::copy_src);
 		if (from != bb::rhi::image_state::copy_dst) {
@@ -832,132 +642,6 @@ namespace bb::gfx {
 		level_barrier(VkImage(image.image), 0, image.mips, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
 		image.layout     = bb::rhi::image_state::sampled;
 		image.mips_stale = false;
-	}
-
-	void refresh_mips(gpu_image& image)
-	{
-		if ((image.mips > 1) && image.mips_stale) {
-			generate_mips(image, image.layout);
-		}
-	}
-
-	// Uploads RGBA pixels into a new image that can be sampled and drawn to, with all of its mip levels if asked for.
-	// With remember the recipe of the image keeps the pixels, so that the image can be made again (rebuild_image does not want that: it has the pixels).
-	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false, bool remember = true, uint32_t layers = 1)
-	{
-		// Pixels of 10 bits hold every mip level one after the other, as the picture was made on the CPU (see mip_chain_ten).
-		uint32_t     levels = (ten && mipmaps) ? mip_count(width, height) : 1;
-		VkDeviceSize size   = 0;
-		for (uint32_t level = 0; level < levels; level++) {
-			size += VkDeviceSize((width >> level) ? (width >> level) : 1) * ((height >> level) ? (height >> level) : 1) * 4;
-		}
-		size *= layers; // The layers one after the other.
-		rhi::gpu_buffer staging;
-		void* mapped;
-		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
-		mapped = staging.mapped;
-		memcpy(mapped, pixels, size_t(size));
-
-		// Pixels of 10 bits per channel are never drawn to as they are, so they are not a color attachment.
-		bb::rhi::image_usage usage = bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source | (ten ? bb::rhi::image_usage(0) : bb::rhi::image_color_target);
-		bool arrays             = image.array_sets;
-		image                   = create_image(width, height, usage, ten ? bb::rhi::format::a2bgr10 : (srgb ? bb::rhi::format::rgba8_srgb : bb::rhi::format::rgba8), nullptr, mipmaps ? mip_count(width, height) : 1, layers);
-		image.array_sets        = arrays;
-		image.ten               = ten;
-		image.srgb              = srgb;
-		if (remember && recovery_enabled()) {
-			image_recipe& recipe = *image.recipe;
-			recipe.kind          = image_recipe::content::pixels;
-			recipe.mipmaps       = mipmaps;
-			recipe.srgb          = srgb;
-			recipe.ten           = ten;
-			recipe.data.assign(pixels, pixels + size);
-		}
-		if (!image.image) {
-			rhi::destroy_buffer(staging); // The device is lost, the recipe is all there is until it is back.
-			return;
-		}
-
-		begin_commands();
-		barrier(image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-		bb::rhi::buffer_image_copy copy;
-		copy.image.layers = layers;
-		copy.w            = width;
-		copy.h            = height;
-		bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(image.image), &copy, 1);
-		if (ten && (image.mips > 1)) {
-			std::vector<bb::rhi::buffer_image_copy> copies(levels);
-			VkDeviceSize                            offset = 0;
-			for (uint32_t level = 0; level < levels; level++) {
-				uint32_t w = (width >> level) ? (width >> level) : 1, h = (height >> level) ? (height >> level) : 1;
-				copies[level].buffer_offset = offset;
-				copies[level].image.mip     = level;
-				copies[level].w             = w;
-				copies[level].h             = h;
-				offset += VkDeviceSize(w) * h * 4;
-			}
-			// The first copy above only covered level 0; the others come from the rest of the buffer.
-			bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(image.image), copies.data() + 1, levels - 1);
-			barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
-			image.layout = bb::rhi::image_state::sampled;
-		} else if (image.mips > 1) {
-			generate_mips(image, bb::rhi::image_state::copy_dst);
-		} else {
-			barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
-			image.layout = bb::rhi::image_state::sampled;
-		}
-		submit_commands();
-
-		rhi::destroy_buffer(staging);
-	}
-
-	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
-	{
-		upload_pixels(image, width, height, pixels, false);
-	}
-
-	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
-	{
-		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten, true, layers);
-		image.sampler = sampler;
-		allocate_descriptor(set);
-		describe_image(set, image, sampler);
-	}
-
-	bb::rhi::sampler texture_sampler(int flags)
-	{
-		bool clamp = (flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V);
-		if (flags & TEXTURE_POINT) {
-			if (flags & TEXTURE_MIPMAPS) {
-				return clamp ? g.sampler_point_clamp_mips : g.sampler_point_repeat_mips;
-			}
-			return clamp ? g.sampler_point_clamp : g.sampler_point_repeat;
-		}
-		if (flags & TEXTURE_MIPMAPS) {
-			return clamp ? g.sampler_clamp_mips : g.sampler_repeat_mips;
-		}
-		return clamp ? g.sampler_clamp : g.sampler_repeat;
-	}
-
-	bb::rhi::sampler_desc sampler_desc_of(sampler_entry const& s)
-	{
-		using namespace bb::rhi;
-		static const filter filters[2] = { filter::nearest, filter::linear };
-		static const wrap   modes[4]   = { wrap::repeat, wrap::mirror, wrap::clamp, wrap::border };
-		sampler_desc        d;
-		d.min = filters[s.filter_min];
-		d.mag = filters[s.filter_mag];
-		d.mip = filters[s.filter_mip];
-		for (int i = 0; i < 3; i++) {
-			d.address[i] = modes[s.address[i]];
-		}
-		d.anisotropy = s.anisotropy;
-		memcpy(d.border, s.border, sizeof(d.border));
-		d.lod_bias = s.lod_bias;
-		d.lod_min  = s.lod_min;
-		d.lod_max  = s.lod_max;
-		return d;
 	}
 
 }
@@ -1041,182 +725,15 @@ namespace bb::rhi {
 } // namespace bb::rhi
 
 namespace bb::gfx {
-	// The sampler of a tile of an atlas with a gutter: clamped, and not going further down the mip levels than the gutter keeps clean.
-	bb::rhi::sampler atlas_sampler(bool point, int max_lod)
-	{
-		max_lod = max_lod < 0 ? 0 : (max_lod > 15 ? 15 : max_lod);
-		bb::rhi::sampler_desc d;
-		d.min = d.mag = d.mip = point ? bb::rhi::filter::nearest : bb::rhi::filter::linear;
-		d.lod_max     = float(max_lod);
-		return bb::rhi::get_sampler(d);
-	}
-
-	// BC4 and BC5 hold data other than colors, so they have no sRGB variant.
-	static VkFormat vulkan_format(block_format format, bool srgb = false)
-	{
-		switch (format) {
-		case block_format::bc1: return srgb ? VK_FORMAT_BC1_RGBA_SRGB_BLOCK : VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-		case block_format::bc2: return srgb ? VK_FORMAT_BC2_SRGB_BLOCK : VK_FORMAT_BC2_UNORM_BLOCK;
-		case block_format::bc3: return srgb ? VK_FORMAT_BC3_SRGB_BLOCK : VK_FORMAT_BC3_UNORM_BLOCK;
-		case block_format::bc4: return VK_FORMAT_BC4_UNORM_BLOCK;
-		case block_format::bc5: return VK_FORMAT_BC5_UNORM_BLOCK;
-		default: return srgb ? VK_FORMAT_BC7_SRGB_BLOCK : VK_FORMAT_BC7_UNORM_BLOCK;
-		}
-	}
-
 	bool compressed_supported(block_format format)
 	{
 		if ((format == block_format::none) || !vkd.device || !vkd.physical) {
 			return false;
 		}
 		VkFormatProperties properties;
-		vkGetPhysicalDeviceFormatProperties(vkd.physical, vulkan_format(format), &properties);
+		vkGetPhysicalDeviceFormatProperties(vkd.physical, vk_format(block_image_format(format, false)), &properties);
 		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
 		return (properties.optimalTilingFeatures & needed) == needed;
-	}
-
-	static void upload_blocks(gpu_image& image, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember)
-	{
-		srgb = srgb && (p.block != block_format::bc4) && (p.block != block_format::bc5);
-		// The levels the file has are used as they are, when mip maps are wanted.
-		uint32_t       levels = mipmaps ? uint32_t(p.mips) : 1;
-		VkDeviceSize   size   = p.size;
-		rhi::gpu_buffer staging;
-		void* mapped;
-		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
-		mapped = staging.mapped;
-		memcpy(mapped, p.blocks, p.size);
-
-		// One channel is shown as grey, and alpha is 1 where the file has none to use.
-		bb::rhi::swizzle mapping;
-		if (p.block == block_format::bc4) {
-			mapping.g = mapping.b = bb::rhi::channel::r;
-			opaque = true;
-		}
-		if (opaque) {
-			mapping.a = bb::rhi::channel::one;
-		}
-		bool arrays = image.array_sets;
-		image = create_image(uint32_t(p.width), uint32_t(p.height), bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source, rhi_format(vulkan_format(p.block, srgb)), &mapping, levels);
-		image.array_sets = arrays;
-		image.srgb    = srgb;
-		image.block   = p.block;
-		image.opaque  = opaque;
-		image.sampler = sampler;
-		if (remember && recovery_enabled()) {
-			image_recipe& recipe = *image.recipe;
-			recipe.kind          = image_recipe::content::blocks;
-			recipe.mipmaps       = mipmaps;
-			recipe.srgb          = srgb;
-			recipe.opaque        = opaque;
-			recipe.block         = p.block;
-			recipe.block_mips    = p.mips;
-			recipe.data.assign(p.blocks, p.blocks + p.size);
-		}
-		if (!image.image) {
-			rhi::destroy_buffer(staging);
-			return;
-		}
-
-		begin_commands();
-		barrier(image.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
-		std::vector<bb::rhi::buffer_image_copy> copies(levels);
-		VkDeviceSize                            offset = 0;
-		for (uint32_t level = 0; level < levels; level++) {
-			uint32_t w = p.width >> level, h = p.height >> level;
-			w = w ? w : 1;
-			h = h ? h : 1;
-			bb::rhi::buffer_image_copy& copy = copies[level];
-			copy.buffer_offset               = offset;
-			copy.row_length                  = (w + 3) / 4 * 4;
-			copy.image.mip                   = level;
-			copy.w                           = w;
-			copy.h                           = h;
-			offset += block_bytes(p.block, int(w), int(h));
-		}
-		bb::rhi::copy_buffer_to_image(uint64_t(staging.vk), uint64_t(image.image), copies.data(), levels);
-		barrier(image.image, bb::rhi::image_state::copy_dst, bb::rhi::image_state::sampled);
-		image.layout = bb::rhi::image_state::sampled;
-		submit_commands();
-
-		rhi::destroy_buffer(staging);
-	}
-
-	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb)
-	{
-		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true);
-		allocate_descriptor(set);
-		describe_image(set, image, sampler);
-	}
-
-	void rebuild_image(gpu_image& img)
-	{
-		if (img.image || !img.recipe) {
-			return;
-		}
-		image_recipe*                 recipe = img.recipe;
-		image_spill_scope             spill(recipe->may_spill); // As it was made the first time.
-		bb::rhi::image_state layout = img.layout;
-		bb::rhi::sampler                     sampler = img.sampler;
-		uint32_t                      width = img.width, height = img.height;
-		gpu_image                     fresh;
-		bool read_again  = recipe->from_file && recipe->kind != image_recipe::content::blank;
-		bool placeholder = false;
-		if (read_again) {
-			reload_recipe_file(*recipe);
-			placeholder = !recipe->from_file; // The magenta picture stays as the data of the recipe.
-			read_again  = !placeholder;
-		}
-		switch (recipe->kind) {
-		case image_recipe::content::pixels:
-			upload_pixels(fresh, recipe->width, recipe->height, recipe->data.data(), recipe->mipmaps, recipe->srgb, recipe->ten, false, recipe->layers);
-			break;
-		case image_recipe::content::blocks: {
-			picture p;
-			p.block  = recipe->block;
-			p.width  = int(recipe->width);
-			p.height = int(recipe->height);
-			p.blocks = recipe->data.data();
-			p.size   = recipe->data.size();
-			p.mips   = recipe->block_mips;
-			upload_blocks(fresh, p, sampler, recipe->opaque, recipe->mipmaps, recipe->srgb, false);
-			break;
-		}
-		case image_recipe::content::blank:
-		{
-			VkComponentMapping mapping = vk_mapping(*recipe);
-			fresh = create_image_vk(recipe->width, recipe->height, recipe->usage, vk_format(recipe->format), recipe->aspect, recipe->has_mapping ? &mapping : nullptr, recipe->mips, recipe->layers, recipe->samples);
-			if (fresh.image && (layout != bb::rhi::image_state::undefined)) {
-				// Nothing is in it, so it starts out clear.
-				begin_commands();
-				barrier(fresh.image, bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst, (recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
-				if (recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT) {
-					const float clear[4] = { 0, 0, 0, 0 };
-					bb::rhi::clear_image(uint64_t(fresh.image), clear, recipe->mips, recipe->layers);
-				}
-				barrier(fresh.image, bb::rhi::image_state::copy_dst, layout, (recipe->aspect & VK_IMAGE_ASPECT_DEPTH_BIT) != 0);
-				fresh.layout = layout;
-				submit_commands();
-			}
-			break;
-		}
-		}
-		if (read_again) {
-			recipe->data.clear(); // The file has it.
-			recipe->data.shrink_to_fit();
-		}
-		// What is not in the recipe stays as it was.
-		fresh.block   = placeholder ? block_format::none : img.block;
-		fresh.opaque  = img.opaque;
-		fresh.sampler = sampler;
-		fresh.ten     = placeholder ? false : img.ten;
-		fresh.srgb    = img.srgb;
-		fresh.array_sets = img.array_sets;
-		fresh.width   = width;
-		fresh.height  = height;
-		delete fresh.recipe; // The one that create_image made.
-		fresh.recipe  = recipe;
-		img = fresh;
 	}
 
 	// Whether images of A2B10G10R10 can be sampled and filtered, which is all they need: their mip maps are made on the CPU.
@@ -1233,275 +750,6 @@ namespace bb::gfx {
 			}
 		}
 		return known == 1;
-	}
-
-	// Turns an image of 10 bits per channel into RGBA8, for what draws to it or reads it as bytes.
-	static void ten_to_rgba(gpu_image& image, bb::rhi::binding_group set)
-	{
-		flush();
-		VkDeviceSize  size = VkDeviceSize(image.width) * image.height * 4;
-		rhi::gpu_buffer staging;
-		void* mapped;
-		rhi::create_buffer(staging, size, rhi::transfer_destination, rhi::memory::mapped);
-		mapped = staging.mapped;
-
-		begin_commands();
-		transition(image, bb::rhi::image_state::copy_src);
-		bb::rhi::buffer_image_copy copy;
-		copy.w = image.width;
-		copy.h = image.height;
-		bb::rhi::copy_image_to_buffer(uint64_t(image.image), uint64_t(staging.vk), &copy, 1);
-		submit_commands();
-
-		uint8_t*        pixels = static_cast<uint8_t*>(bb_malloc(size_t(size)));
-		const uint32_t* packed = static_cast<const uint32_t*>(mapped);
-		for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
-			uint32_t v = packed[i];
-			pixels[i * 4 + 0] = uint8_t(((v & 1023) * 255 + 511) / 1023);
-			pixels[i * 4 + 1] = uint8_t((((v >> 10) & 1023) * 255 + 511) / 1023);
-			pixels[i * 4 + 2] = uint8_t((((v >> 20) & 1023) * 255 + 511) / 1023);
-			pixels[i * 4 + 3] = uint8_t((v >> 30) * 85);
-		}
-		rhi::destroy_buffer(staging);
-
-		bb::rhi::sampler sampler = image.sampler;
-		uint32_t  width = image.width, height = image.height;
-		bool      mipmaps = image.mips > 1;
-		gpu_image old     = image;
-		bool      old_array_sets = image.array_sets;
-		gpu_idle();
-		upload_pixels(image, width, height, pixels, mipmaps);
-		destroy_image(old);
-		bb_free(pixels);
-		image.sampler    = sampler;
-		image.array_sets = old_array_sets;
-		describe_image(set, image, sampler);
-	}
-
-	void ensure_color_image(gpu_image& image, bb::rhi::binding_group set)
-	{
-		if (image.ten && image.image) {
-			ten_to_rgba(image, set);
-			return;
-		}
-		if ((image.block == block_format::none) || !image.image) {
-			return;
-		}
-		// What was recorded may use the image as it is.
-		flush();
-		VkDeviceSize   size = block_bytes(image.block, int(image.width), int(image.height));
-		rhi::gpu_buffer staging;
-		void* mapped;
-		rhi::create_buffer(staging, size, rhi::transfer_destination, rhi::memory::mapped);
-		mapped = staging.mapped;
-
-		begin_commands();
-		transition(image, bb::rhi::image_state::copy_src);
-		bb::rhi::buffer_image_copy copy;
-		copy.row_length = (image.width + 3) / 4 * 4;
-		copy.w          = image.width;
-		copy.h          = image.height;
-		bb::rhi::copy_image_to_buffer(uint64_t(image.image), uint64_t(staging.vk), &copy, 1);
-		submit_commands();
-
-		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(image.width) * image.height * 4));
-		decode_blocks(image.block, int(image.width), int(image.height), static_cast<const uint8_t*>(mapped), pixels);
-		rhi::destroy_buffer(staging);
-		if (image.opaque) {
-			for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
-				pixels[i * 4 + 3] = 255;
-			}
-		}
-
-		bb::rhi::sampler sampler = image.sampler;
-		uint32_t  width = image.width, height = image.height;
-		bool      mipmaps = image.mips > 1; // Only the first level was read, the others are made from it.
-		bool      srgb    = image.srgb;     // The bytes were read as they are stored, so they are stored the same way again.
-		bool arrays = image.array_sets;
-		gpu_idle();
-		destroy_image(image);
-		upload_pixels(image, width, height, pixels, mipmaps, srgb);
-		bb_free(pixels);
-		image.array_sets = arrays;
-		describe_image(set, image, sampler);
-	}
-
-	static void create_texture(int slot, uint32_t width, uint32_t height, const uint8_t* pixels)
-	{
-		g.textures[slot].array_sets = (slot == TEXTURE_WHITE_3D);
-		upload_texture(g.textures[slot], g.sets[slot], width, height, pixels, g.sampler);
-	}
-
-	// Depth 24 is R8G8B8X8, which is RGBA8 with the alpha left alone; 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 as half
-	// precision floats. 16 is R5G6B5, 15 is A1R5G5B5 and 12 is R4G4B4A4, which 3D drawing and 2D drawing fill with the precision they have.
-	// 8 is a palette of 256 colors (GraphicsPalette): the buffer is RGBA8 as it is drawn to, and what is shown and read is the nearest color
-	// of the palette. 0 is what the original takes to be the best the display has, which is 32.
-	bb::rhi::format pick_buffer_format(int depth, int& actual)
-	{
-		struct choice {
-			int      depth;
-			VkFormat format;
-		};
-		static const choice choices[] = {
-			{ 64, VK_FORMAT_R16G16B16A16_SFLOAT },
-			{ 32, VK_FORMAT_R8G8B8A8_UNORM },
-			{ 30, VK_FORMAT_A2B10G10R10_UNORM_PACK32 },
-			{ 16, VK_FORMAT_R5G6B5_UNORM_PACK16 },
-			{ 15, VK_FORMAT_A1R5G5B5_UNORM_PACK16 },
-			{ 15, VK_FORMAT_R5G5B5A1_UNORM_PACK16 },
-			{ 12, VK_FORMAT_R4G4B4A4_UNORM_PACK16 },
-			{ 12, VK_FORMAT_B4G4R4A4_UNORM_PACK16 },
-		};
-		int wanted = depth;
-		if (depth == 0) {
-			wanted = 32;
-		} else if (depth == 8) {
-			actual = 8;
-			return bb::rhi::format::rgba8;
-		} else if ((depth != 12) && (depth != 15) && (depth != 16) && (depth != 24) && (depth != 30) && (depth != 32) && (depth != 64)) {
-			fprintf(stderr, "warning: Graphics: the depth %d is not 8, 12, 15, 16, 24, 30, 32 or 64, so 32 is used.\n", depth);
-			wanted = 32;
-		} else if (depth == 24) {
-			wanted = 32;
-		}
-		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT |
-		                              VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT | VK_FORMAT_FEATURE_BLIT_SRC_BIT | VK_FORMAT_FEATURE_BLIT_DST_BIT;
-		for (const choice& c : choices) {
-			if (c.depth > wanted) {
-				continue; // A smaller depth is what is left when the larger ones are not available.
-			}
-			VkFormatProperties properties;
-			vkGetPhysicalDeviceFormatProperties(vkd.physical, c.format, &properties);
-			if ((properties.optimalTilingFeatures & needed) == needed) {
-				if (c.depth != wanted) {
-					fprintf(stderr, "warning: Graphics: this device can't draw with a depth of %d, so %d is used.\n", wanted, c.depth);
-				}
-				actual = (depth == 24) ? 24 : c.depth;
-				return rhi_format(c.format);
-			}
-		}
-		fprintf(stderr, "warning: Graphics: this device can't draw with a depth of %d, so 32 is used.\n", wanted);
-		actual = 32;
-		return bb::rhi::format::rgba8;
-	}
-
-	void create_buffers(uint32_t width, uint32_t height)
-	{
-		g.width  = width;
-		g.height = height;
-		image_spill_scope strict(false, true); // The buffers of the window come before textures: those without flag 256 make room if they have to.
-		for (int i = 0; i < 2; i++) {
-			g.buffers[i] = create_image(width, height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_copy_destination | bb::rhi::image_sampled, g.buffer_format); // Sampled for the gamma pass.
-		}
-
-		// Both buffers start out black, and stay in the attachment layout between uses.
-		begin_commands();
-		for (int i = 0; i < 2; i++) {
-			barrier(g.buffers[i].image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);
-			g.buffers[i].layout = bb::rhi::image_state::color_target;
-		}
-		submit_commands();
-		g.op_count     = 0;
-		g.vertex_count = 0;
-		float black[4] = { 0, 0, 0, 1 };
-		for (int i = 0; i < 2; i++) {
-			g.target                 = i == 0 ? front_buffer : back_buffer;
-			operation& op            = add_operation(OP_CLEAR, 0, 0);
-			memcpy(op.color, black, sizeof(black));
-			begin_commands();
-			record_operations();
-			submit_commands();
-		}
-		g.front_touched = false;
-		g.target = back_buffer;
-	}
-
-	buffer_rect fit_buffer(float area_w, float area_h)
-	{
-		if (!surface().fullscreen) {
-			return { 0, 0, area_w, area_h };
-		}
-		float scale = fminf(area_w / float(g.width), area_h / float(g.height));
-		const char* rule = bb_env("BLITZLLVM_FULLSCREEN_SCALE"); // "integer" only enlarges by whole numbers.
-		if (rule && (strcmp(rule, "integer") == 0) && (scale >= 1.0f)) {
-			scale = floorf(scale);
-		}
-		float w = floorf(float(g.width) * scale + 0.5f), h = floorf(float(g.height) * scale + 0.5f);
-		w       = fminf(fmaxf(w, 1.0f), area_w);
-		h       = fminf(fmaxf(h, 1.0f), area_h);
-		return { floorf((area_w - w) * 0.5f), floorf((area_h - h) * 0.5f), w, h };
-	}
-
-	void window_to_buffer(float wx, float wy, int* x, int* y)
-	{
-		int ww = 1, wh = 1;
-		SDL_GetWindowSize(surface().window, &ww, &wh);
-		buffer_rect r = fit_buffer(float(ww), float(wh));
-		int         bx = int(floorf((wx - r.x) * float(g.width) / r.w)), by = int(floorf((wy - r.y) * float(g.height) / r.h));
-		if (surface().fullscreen) {
-			// The mouse over a black bar is at the edge of the buffer.
-			bx = bx < 0 ? 0 : (bx >= int(g.width) ? int(g.width) - 1 : bx);
-			by = by < 0 ? 0 : (by >= int(g.height) ? int(g.height) - 1 : by);
-		}
-		*x = bx;
-		*y = by;
-	}
-
-	void buffer_to_window(float x, float y, float* wx, float* wy)
-	{
-		int ww = 1, wh = 1;
-		SDL_GetWindowSize(surface().window, &ww, &wh);
-		buffer_rect r = fit_buffer(float(ww), float(wh));
-		*wx           = r.x + x * r.w / float(g.width);
-		*wy           = r.y + y * r.h / float(g.height);
-	}
-
-	void buffer_pixel_size(float* sx, float* sy)
-	{
-		int ww = 1, wh = 1;
-		SDL_GetWindowSize(surface().window, &ww, &wh);
-		buffer_rect r = fit_buffer(float(ww), float(wh));
-		*sx           = r.w / float(g.width);
-		*sy           = r.h / float(g.height);
-	}
-
-	void ensure_swapchain()
-	{
-		if (surface().resized || (surface().chain.handle == 0)) {
-			destroy_swapchain();
-			create_swapchain();
-		}
-	}
-
-	void create_swapchain(surface_state& s)
-	{
-		int w = 0, h = 0;
-		SDL_GetWindowSizeInPixels(s.window, &w, &h);
-		bb::rhi::swapchain_desc desc;
-		desc.surface    = uint64_t(s.surface);
-		desc.width      = uint32_t(w);
-		desc.height     = uint32_t(h);
-		desc.vsync      = s.vsync;
-		desc.own_thread = (s.show != nullptr);
-		if (bb::rhi::create_swapchain(s.chain, desc)) {
-			s.resized = false;
-		}
-	}
-
-	void destroy_swapchain(surface_state& s)
-	{
-		gpu_idle();
-		bb::rhi::destroy_swapchain(s.chain);
-	}
-
-	void create_swapchain()
-	{
-		create_swapchain(surface());
-	}
-
-	void destroy_swapchain()
-	{
-		destroy_swapchain(surface());
 	}
 
 	// Loads the Vulkan library and the functions that need no instance. Null without a Vulkan driver.
@@ -1860,37 +1108,6 @@ namespace bb::gfx {
 		check(vkCreateCommandPool(vkd.device, &pool_info, nullptr, &vkd.pool), "vkCreateCommandPool");
 		create_frame_slots();
 
-		// Descriptors, sampler and pipelines
-		{
-			using namespace bb::rhi;
-			sampler_desc d; // Nearest, clamped, the first level only.
-			g.sampler = get_sampler(d);
-
-			// Textures of 3D objects are filtered, and repeat unless told not to.
-			d.min = d.mag = filter::linear;
-			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
-			g.sampler_repeat = get_sampler(d);
-			d.address[0] = d.address[1] = d.address[2] = wrap::clamp;
-			g.sampler_clamp = get_sampler(d);
-
-			// Textures with mip maps (flag 8) blend between the levels, and use the smaller ones for what is far away.
-			d.mip     = filter::linear;
-			d.lod_max = 1000.0f;
-			g.sampler_clamp_mips = get_sampler(d);
-			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
-			g.sampler_repeat_mips = get_sampler(d);
-
-			// Texture flag 1024 takes the nearest texel of the nearest level.
-			d.min = d.mag = d.mip = filter::nearest;
-			g.sampler_point_repeat_mips = get_sampler(d);
-			d.address[0] = d.address[1] = d.address[2] = wrap::clamp;
-			g.sampler_point_clamp_mips = get_sampler(d);
-			d.lod_max = 0.0f;
-			g.sampler_point_clamp = get_sampler(d);
-			d.address[0] = d.address[1] = d.address[2] = wrap::repeat;
-			g.sampler_point_repeat = get_sampler(d);
-		}
-
 		// Binding 0 is the texture. The 3D shader reads the texture layers after the first at 1 to 7 as well, so every set has them: they are white until
 		// a set is made for a draw that has layers (see layered_texture_set).
 		VkDescriptorSetLayoutBinding binding[texture_layer_bindings];
@@ -1910,65 +1127,7 @@ namespace bb::gfx {
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(vkd.device, &dpool_info, nullptr, &vkd.set_pool), "vkCreateDescriptorPool");
-
-		// Scale for the vertices, mask color for the fragments.
-		bb::rhi::layout_desc flat;
-		flat.sets[0]     = bb::rhi::group_kind::texture;
-		flat.set_count   = 1;
-		flat.push_size   = 32;
-		flat.push_stages = bb::rhi::stage_vertex | bb::rhi::stage_fragment;
-		g.layout         = bb::rhi::get_layout(flat);
-
-		g.buffer_format = pick_buffer_format(g.requested_depth, g.buffer_depth);
-
-		bb::rhi::shader vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
-		bb::rhi::shader fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
-		g.triangles       = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
-		g.lines           = create_flat_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
-		destroy_shader(vs);
-		destroy_shader(fs);
-
-		// Textures: a white pixel for untextured drawing, and the font.
-		const uint8_t white[4] = { 255, 255, 255, 255 };
-		create_texture(TEXTURE_WHITE, 1, 1, white);
-		create_texture(TEXTURE_WHITE_3D, 1, 1, white);
-		for (uint32_t k = 1; k < texture_layer_bindings; k++) {
-			// Every set made from now on takes the bindings of the layers from the white one (see allocate_descriptor), which has them from itself.
-			VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
-			copy.srcSet              = vk_set(g.sets[TEXTURE_WHITE_3D]);
-			copy.srcBinding          = 0;
-			copy.dstSet              = vk_set(g.sets[TEXTURE_WHITE_3D]);
-			copy.dstBinding          = k;
-			copy.descriptorCount     = 1;
-			vkUpdateDescriptorSets(vkd.device, 0, nullptr, 1, &copy);
-		}
-
-		uint8_t* atlas = static_cast<uint8_t*>(bb_calloc(font_columns * 8 * font_rows * 8 * 4, 1));
-		for (uint32_t glyph = 0; glyph < BB_FONT_GLYPHS; glyph++) {
-			uint32_t gx = (glyph % font_columns) * 8, gy = (glyph / font_columns) * 8;
-			for (uint32_t row = 0; row < 8; row++) {
-				for (uint32_t col = 0; col < 8; col++) {
-					uint8_t* px = atlas + ((gy + row) * font_columns * 8 + gx + col) * 4;
-					px[0] = px[1] = px[2] = 255;
-					px[3] = (bb_font_data[glyph * 8 + row] & (1u << col)) ? 255 : 0;
-				}
-			}
-		}
-		create_texture(TEXTURE_FONT, font_columns * 8, font_rows * 8, atlas);
-		bb_free(atlas);
-
-		void* mapped;
-		rhi::create_buffer(g.vertex_buffer, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
-		mapped = g.vertex_buffer.mapped;
-		g.vertices = static_cast<vertex*>(mapped);
-		rhi::create_buffer(g.vertex_buffer_alt, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
-		mapped = g.vertex_buffer_alt.mapped;
-		g.vertices_alt = static_cast<vertex*>(mapped);
-		rhi::create_buffer(g.vertex_buffer_alt2, sizeof(vertex) * max_vertices, rhi::vertex_data, rhi::memory::mapped);
-		mapped = g.vertex_buffer_alt2.mapped;
-		g.vertices_alt2 = static_cast<vertex*>(mapped);
-
-		create_3d();
+		create_device_resources();
 	}
 
 	// The instance, the surface of the window of Graphics and a device that shows pictures in that window.
@@ -3087,6 +2246,26 @@ namespace bb::rhi {
 	void prebuild_pipeline(pipeline p, format target)
 	{
 		gfx::vk_pipeline(p, target);
+	}
+
+	void copy_group_images(binding_group from, uint32_t from_place, binding_group to, uint32_t to_place, uint32_t count)
+	{
+		VkCopyDescriptorSet copy = { VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET };
+		copy.srcSet              = gfx::vk_set(from);
+		copy.srcBinding          = from_place;
+		copy.dstSet              = gfx::vk_set(to);
+		copy.dstBinding          = to_place;
+		copy.descriptorCount     = count;
+		vkUpdateDescriptorSets(gfx::vkd.device, 0, nullptr, 1, &copy);
+	}
+
+	bool format_fits_buffers(format f)
+	{
+		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT |
+		                              VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT | VK_FORMAT_FEATURE_BLIT_SRC_BIT | VK_FORMAT_FEATURE_BLIT_DST_BIT;
+		VkFormatProperties properties;
+		vkGetPhysicalDeviceFormatProperties(gfx::vkd.physical, gfx::vk_format(f), &properties);
+		return (properties.optimalTilingFeatures & needed) == needed;
 	}
 
 	void forget_backend_state()
