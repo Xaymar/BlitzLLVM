@@ -7,8 +7,13 @@
 # The HLSL is made for bytecode that is compiled ahead of time (see d3d11_hlsl): registers are numbered for each kind over all sets, and
 # specialization constants are members of a constant buffer. It is not compiled with the compiler of Direct3D here, which only Windows has.
 #
-#   python3 tools/translate_shaders.py [--out DIR] [--d3d11 DIR] [--keep-going]
+# The GLSL is made for the OpenGL backend (see opengl_glsl): what a shader reads is named after its set and binding, as OpenGL has no sets
+# and the backend gives out the texture units and buffer bindings when it links a program.
 #
+#   python3 tools/translate_shaders.py [--out DIR] [--d3d11 DIR] [--opengl FILE] [--keep-going]
+#
+# With --opengl code_runtime/source/shaders_opengl.inc the GLSL that the repository keeps is made again (one file, which the OpenGL
+# backend includes). CI checks that it matches the SPIR-V. Run it after every change of the shaders.
 # With --d3d11 code_runtime/source/d3d11 the HLSL that the repository keeps is made again. The Windows build compiles those files to
 # bytecode (code_runtime/CMakeLists.txt), and CI checks that they match the SPIR-V. Run it after every change of the shaders.
 # With --out the translated sources are written there (<name>.glsl, <name>.hlsl), and <name>.d3d11.json with the registers and constants of
@@ -45,20 +50,87 @@ def stage_of(name):
     return "frag" if "fragment" in name else "vert"
 
 
-def sort_scene_block(glsl):
+STD140 = {"float": (4, 4), "int": (4, 4), "uint": (4, 4), "vec2": (8, 8), "vec3": (12, 16), "vec4": (16, 16), "ivec4": (16, 16), "uvec4": (16, 16), "mat4": (64, 16)}  # Size and alignment.
+
+
+def pad_uniform_blocks(glsl):
     """
-    The scene block of the 3D shaders declares its members out of order (the table of lights comes last in memory but not in the
-    declaration). GLSL wants offsets to rise, so the declarations are put in the order of their offsets here. The names are by member
-    number and so stay the same, and the offsets are what the layout means, so nothing changes for the shader.
+    The uniform blocks whose members have explicit offsets (the scene block of the 3D shaders declares its members out of order, and a
+    block of push constants may start after the part of another stage) are written without them, as offsets need OpenGL 4.4: the members
+    are put in the order of their offsets, and floats that nothing reads fill the gaps. The names are by member number and so stay the
+    same, and the std140 layout that results is checked against the offsets, so nothing changes for the shader.
     """
-    block = re.search(r"(layout\(binding = \d+, std140\) uniform \w+\n\{\n)((?:    layout\(offset = \d+\)[^\n]*\n)+)(\} \w+;)", glsl)
-    if block is None:
-        return glsl
-    lines = block.group(2).rstrip("\n").split("\n")
-    lines.sort(key=lambda line: int(re.search(r"offset = (\d+)", line).group(1)))
-    lines = [re.sub(r"layout\(offset = \d+\) ", "", line) for line in lines]
-    glsl = glsl[: block.start(2)] + "\n".join(lines) + "\n" + glsl[block.end(2):]
+    def rewrite(block):
+        members = []
+        for line in block.group(2).rstrip("\n").split("\n"):
+            m = re.fullmatch(r"    layout\(offset = (\d+)\) (\w+) (\w+)(?:\[(\d+)\])?;", line)
+            if m is None:
+                raise ValueError("a member of a uniform block is not handled: " + line.strip())
+            members.append((int(m.group(1)), m.group(2), m.group(3), int(m.group(4)) if m.group(4) else 0))
+        members.sort()
+        lines, at, pads = [], 0, 0
+        for offset, kind, name, count in members:
+            if kind not in STD140:
+                raise ValueError("a member of a uniform block has a type that is not handled: " + kind)
+            size, align = STD140[kind]
+            if count:
+                size = align = (size + 15) // 16 * 16
+            while (at + align - 1) // align * align < offset:
+                at = (at + 3) // 4 * 4
+                lines.append("    float bb_pad%d;" % pads)
+                pads += 1
+                at += 4
+            at = (at + align - 1) // align * align
+            if at != offset:
+                raise ValueError("the member %s of a uniform block cannot be put at offset %d" % (name, offset))
+            lines.append("    %s %s%s;" % (kind, name, "[%d]" % count if count else ""))
+            at += size * (count if count else 1)
+        return block.group(1) + "\n".join(lines) + "\n" + block.group(3)
+
+    glsl = re.sub(r"(layout\([^)\n]*std140\) uniform \w+\n\{\n)((?:    layout\(offset = \d+\)[^\n]*\n)+)(\} \w+;)", rewrite, glsl)
+    if "layout(offset" in glsl:
+        raise ValueError("an explicit offset is used in a way that is not handled")
     return glsl.replace("#extension GL_ARB_enhanced_layouts : require\n", "")
+
+
+def opengl_glsl(text, stage, places):
+    """
+    Makes the GLSL of SPIRV-Cross (translated from a module of flatten_bindings, with the push constants as a uniform block) fit the
+    OpenGL backend. OpenGL has no sets and a program has one list of texture units and buffer bindings for all its stages, so the
+    bindings are taken out and everything gets a name that says what it is, which the backend reads when it has linked a program:
+    - bb_t<set>_<binding>_<stage> a sampler, bb_u<set>_<binding>_<stage> a uniform block, bb_b<set>_<binding>_<stage> a storage block,
+    - bb_push_<stage> the block of the push constants.
+    The stage (v, f or c) is in the name because the blocks of two stages need not declare the same members.
+    The specialization constants stay #defines that are only set if nothing set them before: the backend puts its own after #version.
+    """
+    text = pad_uniform_blocks(text)
+    where = {number: (group, binding) for number, group, binding in places}
+    letter = stage[0]
+
+    def sampler(m):
+        return "uniform %s bb_t%d_%d_%s;" % (m.group(2), *where[int(m.group(1))], letter)
+
+    renames = {}
+    for m in re.finditer(r"^layout\(binding = (\d+)\) uniform (\w+) (\w+);$", text, flags=re.M):
+        renames[m.group(3)] = "bb_t%d_%d_%s" % (*where[int(m.group(1))], letter)
+    text = re.sub(r"^layout\(binding = (\d+)\) uniform (\w+) (\w+);$", sampler, text, flags=re.M)
+    for old, new in renames.items():
+        text = re.sub(r"\b%s\b" % re.escape(old), new, text)
+    text = re.sub(r"^layout\(binding = (\d+), std140\) uniform \w+$", lambda m: "layout(std140) uniform bb_u%d_%d_%s" % (*where[int(m.group(1))], letter), text, flags=re.M)
+    text = re.sub(r"^layout\(binding = (\d+), std430\) ((?:readonly |writeonly )?)buffer \w+$", lambda m: "layout(std430) %sbuffer bb_b%d_%d_%s" % (m.group(2), *where[int(m.group(1))], letter), text, flags=re.M)
+    text, pushes = re.subn(r"^layout\(std140\) uniform (?!bb_u)\w+$", "layout(std140) uniform bb_push_%s" % letter, text, flags=re.M)
+    if pushes > 1:
+        raise ValueError("%d uniform blocks without a binding, expected at most the push constants" % pushes)
+    if "binding =" in text:
+        raise ValueError("a binding is used in a way that is not handled")
+    return text
+
+
+def fnv1a(data):
+    value = 0xCBF29CE484222325
+    for byte in data:
+        value = ((value ^ byte) * 0x100000001B3) & 0xFFFFFFFFFFFFFFFF
+    return value
 
 
 def flatten_bindings(binary):
@@ -152,6 +224,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", help="write the translated sources here")
     parser.add_argument("--d3d11", help="write only the HLSL and its descriptions here, replacing what is there (code_runtime/source/d3d11)")
+    parser.add_argument("--opengl", help="write the GLSL of every shader to this one file, replacing it (code_runtime/source/shaders_opengl.inc)")
     parser.add_argument("--keep-going", action="store_true", help="always exit 0")
     options = parser.parse_args()
     for tool in ("spirv-cross", "spirv-val", "glslangValidator"):
@@ -166,6 +239,7 @@ def main():
             if old.endswith((".hlsl", ".d3d11.json")):
                 os.remove(os.path.join(options.d3d11, old))
     failed = 0
+    opengl = []
     with tempfile.TemporaryDirectory() as tmp:
         for name, binary in modules():
             spv = os.path.join(tmp, name + ".spv")
@@ -173,23 +247,28 @@ def main():
             results = {}
             r = run(["spirv-val", "--target-env", "vulkan1.3", spv])
             results["valid"] = None if r.returncode == 0 else (r.stderr.strip().splitlines() or ["failed"])[0]
-            glsl_path = os.path.join(tmp, name + ".glsl")
-            r = run(["spirv-cross", "--version", "430", "--no-es", spv, "--output", glsl_path])
-            if r.returncode != 0:
-                results["glsl"] = (r.stderr.strip().splitlines() or ["failed"])[0]
-            else:
-                text = sort_scene_block(open(glsl_path).read())
-                open(glsl_path, "w").write(text)
-                # The extensions that SPIRV-Cross only asks for if the driver has them (draw parameters) are switched on for the check (which compiles as 4.60, the validator knows the extensions only there): drivers without them get the first instance another way (see the RHI).
-                checked = os.path.join(tmp, name + ".check.glsl")
-                open(checked, "w").write(re.sub(r"#ifdef GL_ARB_\w+\n(#extension [^\n]*\n)#endif\n", r"\1", text).replace("#version 430", "#version 460", 1))
-                r = run(["glslangValidator", "-S", stage_of(name), checked])
-                results["glsl"] = None if r.returncode == 0 else next((l for l in r.stdout.splitlines() if "ERROR" in l), "failed")
-            hlsl_path = os.path.join(tmp, name + ".hlsl")
-            map_path = os.path.join(tmp, name + ".d3d11.json")
             flat, places = flatten_bindings(binary)
             flat_spv = os.path.join(tmp, name + ".flat.spv")
             open(flat_spv, "wb").write(flat)
+            glsl_path = os.path.join(tmp, name + ".glsl")
+            r = run(["spirv-cross", "--version", "430", "--no-es", "--glsl-emit-push-constant-as-ubo", flat_spv, "--output", glsl_path])
+            if r.returncode != 0:
+                results["glsl"] = (r.stderr.strip().splitlines() or ["failed"])[0]
+            else:
+                try:
+                    text = opengl_glsl(open(glsl_path).read(), stage_of(name), places)
+                    open(glsl_path, "w").write(text)
+                    # The extensions that SPIRV-Cross only asks for if the driver has them (draw parameters) are switched on for the check (which compiles as 4.60, the validator knows the extensions only there): drivers without them get the first instance another way (see the RHI).
+                    checked = os.path.join(tmp, name + ".check.glsl")
+                    open(checked, "w").write(re.sub(r"#ifdef GL_ARB_\w+\n(#extension [^\n]*\n)#endif\n", r"\1", text).replace("#version 430", "#version 460", 1))
+                    r = run(["glslangValidator", "-S", stage_of(name), checked])
+                    results["glsl"] = None if r.returncode == 0 else next((l for l in r.stdout.splitlines() if "ERROR" in l), "failed")
+                    if results["glsl"] is None:
+                        opengl.append((name, len(binary) // 4, fnv1a(binary), stage_of(name), text))
+                except ValueError as problem:
+                    results["glsl"] = str(problem)
+            hlsl_path = os.path.join(tmp, name + ".hlsl")
+            map_path = os.path.join(tmp, name + ".d3d11.json")
             r = run(["spirv-cross", "--hlsl", "--shader-model", "50", flat_spv, "--output", hlsl_path])
             if r.returncode != 0:
                 results["hlsl"] = (r.stderr.strip().splitlines() or ["failed"])[-1]
@@ -221,6 +300,14 @@ def main():
                     status.append(step + ": FAILED " + problem)
                     failed += 1
             print("%-44s %s" % (name, " | ".join(status)))
+    if options.opengl:
+        with open(options.opengl, "w") as out:
+            out.write("// Generated by tools/translate_shaders.py --opengl from shaders.inc and smaa.inc, do not edit: the shaders as GLSL 4.30 for the OpenGL backend.\n")
+            out.write("// Each entry: the name, the number of SPIR-V words and their FNV-1a hash (which the backend finds the entry by), the stage, and the source.\n")
+            for name, words, digest, stage, text in opengl:
+                if ')glsl"' in text:
+                    raise SystemExit("the GLSL of %s cannot be written as a raw string" % name)
+                out.write('BB_OPENGL_SHADER(%s, %d, 0x%016Xull, \'%s\', R"glsl(%s)glsl")\n' % (name, words, digest, stage[0], text))
     print("%d unexpected failure(s)" % failed)
     return 0 if (failed == 0 or options.keep_going) else 1
 
