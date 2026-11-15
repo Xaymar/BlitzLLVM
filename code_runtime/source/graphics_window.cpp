@@ -133,7 +133,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	// A device from before there was a window of Graphics (ensure_device) is kept, if it draws with the depth asked for: the
 	// window gets a surface on it. Otherwise the device is made again, for the depth.
-	bool keep_device  = g.device != VK_NULL_HANDLE;
+	bool keep_device  = bb::rhi::has_device();
 	int  actual_depth = 32;
 	if (keep_device && (pick_buffer_format(depth, actual_depth) != g.buffer_format)) {
 		bb_end_graphics();
@@ -197,14 +197,12 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 
 	if (keep_device) {
-		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
+		if (!bb::rhi::create_surface(surface().window, surface().surface)) {
 			fail(SDL_GetError());
 		}
 		// The queue of the device was picked with another window; the window system does not give one that cannot show pictures
 		// in this one, so that is an error of the driver.
-		VkBool32 present = VK_FALSE;
-		vkGetPhysicalDeviceSurfaceSupportKHR(g.physical, g.family, surface().surface, &present);
-		if (!present) {
+		if (!bb::rhi::can_present_to(surface().surface)) {
 			fail("The graphics device that was picked before the window cannot show pictures in it.");
 		}
 	} else {
@@ -283,8 +281,7 @@ void bb::gfx::destroy_device_objects()
 	rhi::destroy_buffer(g.vertex_buffer_alt2);
 	bb::rhi::destroy_pipelines();
 	bb::rhi::destroy_layouts();
-	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
-	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
+	bb::rhi::destroy_group_pool();
 	bb::rhi::destroy_samplers();
 	if (profile_mark_state == 1) {
 		bb::rhi::destroy_timestamps();
@@ -312,17 +309,11 @@ bool bb::gfx::ensure_device()
 	g.requested_depth = 32;
 	g.buffer_depth    = 32;
 	g.buffer_format   = bb::rhi::format::rgba8;
-	create_instance();
 	SDL_Window* probe = SDL_CreateWindow("", 1, 1, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
 	if (!probe) {
 		fail(SDL_GetError());
 	}
-	VkSurfaceKHR probe_surface = VK_NULL_HANDLE;
-	if (!SDL_Vulkan_CreateSurface(probe, g.instance, nullptr, &probe_surface)) {
-		fail(SDL_GetError());
-	}
-	create_device(probe_surface);
-	SDL_Vulkan_DestroySurface(g.instance, probe_surface, nullptr);
+	bb::rhi::create_device_for(probe);
 	SDL_DestroyWindow(probe);
 	return true;
 }
@@ -357,7 +348,7 @@ bool bb::gfx::ensure_offscreen()
 	}
 	bb_on_exit(bb_end_graphics);
 	bb_reset_texture_filters();
-	const bool keep_device = g.device != VK_NULL_HANDLE; // From ensure_device, which made it for depth 32 as well.
+	const bool keep_device = bb::rhi::has_device(); // From ensure_device, which made it for depth 32 as well.
 	g.requested_depth      = 32;
 	g.buffer_depth         = 32;
 	g.buffer_format        = bb::rhi::format::rgba8;
@@ -368,7 +359,7 @@ bool bb::gfx::ensure_offscreen()
 	g.offscreen            = true;
 	g.target               = back_buffer;
 	if (keep_device) {
-		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
+		if (!bb::rhi::create_surface(surface().window, surface().surface)) {
 			fail(SDL_GetError());
 		}
 	} else {
@@ -772,13 +763,7 @@ static uint64_t total_vid_mem()
 	if (!active()) {
 		return 0;
 	}
-	uint64_t total = 0;
-	for (uint32_t i = 0; i < g.memory.memoryHeapCount; i++) {
-		if (g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
-			total += g.memory.memoryHeaps[i].size;
-		}
-	}
-	return total;
+	return bb::rhi::total_video_memory();
 }
 
 static uint64_t avail_vid_mem()

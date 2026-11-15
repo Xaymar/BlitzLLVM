@@ -316,7 +316,7 @@ namespace bb::gfx {
 	// There is one for now (the window of Graphics), the rest of the program reaches it through surface().
 	struct surface_state {
 		SDL_Window*  window  = nullptr;
-		VkSurfaceKHR surface = VK_NULL_HANDLE;
+		uint64_t     surface = 0; // A backend handle (bb::rhi::create_surface).
 		bool         resized = false;
 		bool         fullscreen = false; // A borderless window over the display, the buffer is shown with its aspect ratio kept.
 		bool         suspended  = false; // Whether the window is not in front (or is minimized).
@@ -946,14 +946,14 @@ namespace bb::gfx {
 		~image_system_scope();
 	};
 	/** Moves textures that may use system memory (no flag 256) out of video memory, biggest first, until 'needed' bytes are free or none is left. False if nothing was moved. */
-	bool textures_evict(VkDeviceSize needed);
+	bool textures_evict(uint64_t needed);
 	/** For BLITZLLVM_VRAM_LIMIT_MB: an allocation that is in system memory on a GPU where all memory looks like one heap. */
 	void forget_system_allocation(VmaAllocation allocation);
 	bool image_spill_allowed();
 	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
 	void video_memory_budget(uint64_t& used, uint64_t& total);
 	/** Ends the program with a message that says what did not fit into video memory. */
-	[[noreturn]] void video_memory_exhausted(const char* what, VkDeviceSize size);
+	[[noreturn]] void video_memory_exhausted(const char* what, uint64_t size);
 	/** Whether a result of a Vulkan allocation is a lack of memory. */
 	bool is_out_of_memory(VkResult result);
 	/** The memory of an image: video memory, or system memory when an image_spill_scope allows it and video memory is full. */
@@ -968,11 +968,13 @@ namespace bb::gfx {
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
 	void release_image(gpu_image& img);
 	/** Moves an image to the memory the allocator found for it (defragmentation): copies it over on the GPU and makes its views again. */
-	bool move_image(gpu_image& img, VmaAllocation destination);
+	bool move_image(gpu_image& img, uint64_t destination);
+	/** Whether the image is one that move_image can make again elsewhere: a color image with one sample, made from a recipe. */
+	bool image_can_move(const gpu_image& img);
 	/** Lets the allocator move the allocations of textures and images together, so that a gap that is big enough is made. True if anything moved. */
 	bool defragment_images();
 	/** Makes 'needed' bytes of video memory free if it can: the allocator moves allocations together, then textures that may use system memory go there. Only where the GPU may be waited for. */
-	bool make_room(VkDeviceSize needed);
+	bool make_room(uint64_t needed);
 	/** The internal buffers (depth, OIT, SMAA) come before the textures of the program that have no flag 256: when what they need changes (size, OIT, AntiAlias), room is made for them before the frame is recorded. */
 	void reserve_internal_buffers();
 	/** The view that is drawn to for a layer of an image; layer 0, and any layer of an image with just one, is the first. */

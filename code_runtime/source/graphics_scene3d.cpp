@@ -189,8 +189,8 @@ namespace bb::gfx {
 		}
 
 		// Changing the contents is only fine if nothing that waits to be drawn looks at the buffers, and they are big enough.
-		VkDeviceSize vsize = VkDeviceSize(s.vertices.size) * sizeof(bb::vertex3d);
-		VkDeviceSize isize = VkDeviceSize(s.indices.size) * sizeof(uint32_t);
+		uint64_t vsize = uint64_t(s.vertices.size) * sizeof(bb::vertex3d);
+		uint64_t isize = uint64_t(s.indices.size) * sizeof(uint32_t);
 		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
 		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
 		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
@@ -513,7 +513,7 @@ namespace bb::gfx {
 		if (g.entity_buffer) {
 			graveyard.push({ g.entity_buffer.vk, g.entity_buffer.allocation });
 		}
-		rhi::create_buffer(g.entity_buffer, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
+		rhi::create_buffer(g.entity_buffer, uint64_t(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
 		g.entity_capacity = capacity;
 
 		bb::rhi::set_group_buffer(g.entity_set, 0, uint64_t(g.entity_buffer.vk), 0, false);
@@ -533,7 +533,7 @@ namespace bb::gfx {
 		if (g.layer_buffer) {
 			graveyard.push({ g.layer_buffer.vk, g.layer_buffer.allocation });
 		}
-		rhi::create_buffer(g.layer_buffer, VkDeviceSize(capacity) * sizeof(layer_data), rhi::storage_data, rhi::memory::mapped);
+		rhi::create_buffer(g.layer_buffer, uint64_t(capacity) * sizeof(layer_data), rhi::storage_data, rhi::memory::mapped);
 		g.layer_capacity = capacity;
 
 		bb::rhi::set_group_buffer(g.entity_set, 1, uint64_t(g.layer_buffer.vk), 0, false);
@@ -693,7 +693,7 @@ namespace bb::gfx {
 		}
 
 		rhi::gpu_buffer buffer;
-		rhi::create_buffer(buffer, VkDeviceSize(triangles) * 3 * sizeof(uint32_t), rhi::index_data, rhi::memory::mapped);
+		rhi::create_buffer(buffer, uint64_t(triangles) * 3 * sizeof(uint32_t), rhi::index_data, rhi::memory::mapped);
 		uint32_t* mapped = static_cast<uint32_t*>(buffer.mapped);
 		uint32_t count_clusters = (triangles + cluster_triangles - 1) / cluster_triangles;
 		gpu.clusters.clear();
@@ -795,7 +795,7 @@ namespace bb::gfx {
 			select_frame_slot(slot);
 			g.scene_set = bb::rhi::create_group(bb::rhi::group_kind::scene);
 
-			rhi::create_buffer(g.scene_buffer, VkDeviceSize(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
+			rhi::create_buffer(g.scene_buffer, uint64_t(scene_stride) * max_scenes, rhi::uniform_data, rhi::memory::mapped);
 			g.scene_buffer.mapped = g.scene_buffer.mapped;
 
 			bb::rhi::set_group_buffer(g.scene_set, 0, uint64_t(g.scene_buffer.vk), sizeof(scene_data), true);
@@ -1114,9 +1114,9 @@ namespace bb::gfx {
 				graveyard.push({ s.infos.vk, s.infos.allocation });
 			}
 			uint32_t capacity = (padded + padded / 4 + lanes - 1) / lanes * lanes;
-			rhi::create_buffer(s.table, VkDeviceSize(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
+			rhi::create_buffer(s.table, uint64_t(capacity) * sizeof(entity_push), rhi::storage_data, rhi::memory::mapped);
 			s.table.mapped = s.table.mapped;
-			rhi::create_buffer(s.infos, VkDeviceSize(capacity) * sizeof(gpu_cluster), rhi::storage_data, rhi::memory::mapped);
+			rhi::create_buffer(s.infos, uint64_t(capacity) * sizeof(gpu_cluster), rhi::storage_data, rhi::memory::mapped);
 			s.infos.mapped = s.infos.mapped;
 			s.capacity = capacity;
 			s.version  = 0;
@@ -1427,7 +1427,7 @@ namespace bb::gfx {
 				}
 				constexpr uint32_t most = 1u << 24;
 				for (uint32_t done = 0; done < r.count; done += most) {
-					bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
+					bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), uint64_t(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
 				}
 				stats3d.draws++;
 				if (k.gpu) {
@@ -1696,7 +1696,7 @@ namespace bb::gfx {
 				stats3d.buffers++;
 			}
 			if (d.cluster_count) {
-				bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
+				bb::rhi::draw_indexed_indirect(uint64_t(g.cull.commands.vk), uint64_t(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
 			} else {
 				bb::rhi::draw_indexed(d.index_count, instances, 0, 0, scene.first_draw + i);
 			}

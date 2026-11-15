@@ -280,7 +280,7 @@ namespace bb::gfx {
 	{
 		flips++;
 		if (!lost && simulation_due(flips) && !simulation_state().late) {
-			note_device_loss(VK_ERROR_DEVICE_LOST, "Flip");
+			note_device_loss(bb::rhi::device_lost_result(), "Flip");
 			simulated = true;
 		}
 		recover_if_lost();
@@ -290,7 +290,7 @@ namespace bb::gfx {
 	void recovery_flip_end()
 	{
 		if (!lost && simulation_state().late && simulation_due(flips)) {
-			note_device_loss(VK_ERROR_DEVICE_LOST, "Flip");
+			note_device_loss(bb::rhi::device_lost_result(), "Flip");
 			simulated = true;
 		}
 	}
@@ -310,23 +310,3 @@ int32_t bb_graphics_lost(void)
 	return 0;
 }
 }
-
-namespace bb::rhi {
-	bool is_device_loss(int32_t native)
-	{
-		return (native == int32_t(VK_ERROR_DEVICE_LOST)) || (native == int32_t(VK_ERROR_SURFACE_LOST_KHR));
-	}
-
-	const char* native_result_name(int32_t native)
-	{
-		switch (VkResult(native)) {
-		case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
-		case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
-		case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
-		case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
-		case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
-		case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
-		default: return "an unknown error";
-		}
-	}
-} // namespace bb::rhi

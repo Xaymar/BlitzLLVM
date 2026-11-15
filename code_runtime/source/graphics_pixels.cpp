@@ -615,7 +615,7 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 
 	// The detour for parts of the same image goes through a buffer that is big enough.
 	if (from.image->image == to.image->image) {
-		VkDeviceSize size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+		uint64_t size = uint64_t(w) * uint64_t(h) * 4;
 		if (size > scratch_size) {
 			flush(); // What was recorded may use the old one.
 			gpu_idle();

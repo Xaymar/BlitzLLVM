@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <functional>
+#include <functional>
 #include <vector>
 
 namespace bb::rhi {
@@ -565,8 +566,39 @@ namespace bb::rhi {
 	/** The name of a result code, for messages. */
 	const char* native_result_name(int32_t native);
 
+	/** The result code that stands for a lost device, for the test hook that pretends to lose it. */
+	int32_t device_lost_result();
+
 	/** Makes the instance, the surface of the window of Graphics and a device that shows pictures in that window (what the first Graphics, and every recovery of a lost device, starts with). */
 	void create_device();
+
+	/** Makes the instance and a device that can show pictures in the window (an SDL_Window*), and keeps no surface of the window: the window only stands in for the ones to come. */
+	void create_device_for(void* window);
+
+	/** Whether there is a device. */
+	bool has_device();
+
+	/** Makes the surface of a window (an SDL_Window*) on the instance, a backend handle. False if the window system refuses, SDL_GetError says why. destroy_surface leaves 0. */
+	bool create_surface(void* window, uint64_t& surface);
+	void destroy_surface(uint64_t& surface);
+	/** Whether the queue of the device, which was picked with another window, can show pictures on the surface. */
+	bool can_present_to(uint64_t surface);
+
+	/** A semaphore that an acquired window image signals (frame_sync::acquired is one), for a window that has no frame slots. destroy_semaphore leaves 0. */
+	uint64_t create_semaphore();
+	void     destroy_semaphore(uint64_t& semaphore);
+
+	/** Frees the pool that the groups of pictures come from and its layout, once all of them are gone. */
+	void destroy_group_pool();
+
+	/** How much video memory the GPU says it has, in bytes. */
+	uint64_t total_video_memory();
+
+	/** Whether images get their memory from an allocator that can pack them (see defragment_memory). */
+	bool can_defragment();
+	/** Packs the memory of images. For every allocation that should move, move(allocation, destination) is asked to make the image again at the destination (gfx::move_image); it answers false to leave that one where it is.
+	    False if nothing was started. The caller has waited for the GPU. */
+	bool defragment_memory(const std::function<bool(uint64_t allocation, uint64_t destination)>& move);
 
 	/** The last frees of the device, once everything made with it is gone: the command pool, the allocator, the device, the window surface and the instance. */
 	void destroy_device();

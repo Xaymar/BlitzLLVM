@@ -75,7 +75,7 @@ namespace bb::gfx {
 	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native, uint32_t layer)
 	{
-		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
+		uint64_t   size = uint64_t(w) * uint64_t(h) * pixel_bytes(img.format);
 		rhi::gpu_buffer staging;
 		void* mapped;
 		rhi::create_buffer(staging, size, rhi::transfer_destination, rhi::memory::mapped);
@@ -179,7 +179,7 @@ namespace bb::gfx {
 		if (remember && recovery_enabled()) {
 			remember_pixels(img, x, y, w, h, rgba, native, layer);
 		}
-		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
+		uint64_t   size = uint64_t(w) * uint64_t(h) * pixel_bytes(img.format);
 		rhi::gpu_buffer staging;
 		void* mapped;
 		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
