@@ -433,6 +433,38 @@ namespace bb::rhi {
 		buffer.size   = 0;
 	}
 
+	bool can_defragment()
+	{
+		return bb::gfx::g.allocator != VK_NULL_HANDLE;
+	}
+
+	bool defragment_memory(const std::function<bool(uint64_t allocation, uint64_t destination)>& move_one)
+	{
+		VmaAllocator              allocator = bb::gfx::g.allocator;
+		VmaDefragmentationInfo    info      = {};
+		VmaDefragmentationContext context;
+		if (vmaBeginDefragmentation(allocator, &info, &context) != VK_SUCCESS) {
+			return false;
+		}
+		for (;;) {
+			VmaDefragmentationPassMoveInfo pass = {};
+			if (vmaBeginDefragmentationPass(allocator, context, &pass) != VK_INCOMPLETE) {
+				break;
+			}
+			for (uint32_t i = 0; i < pass.moveCount; i++) {
+				VmaDefragmentationMove& move = pass.pMoves[i];
+				if (!move_one(uint64_t(move.srcAllocation), uint64_t(move.dstTmpAllocation))) {
+					move.operation = VMA_DEFRAGMENTATION_MOVE_OPERATION_IGNORE;
+				}
+			}
+			if (vmaEndDefragmentationPass(allocator, context, &pass) != VK_INCOMPLETE) {
+				break;
+			}
+		}
+		vmaEndDefragmentation(allocator, context, nullptr);
+		return true;
+	}
+
 	void destroy_retired_buffer(uint64_t buffer, uint64_t allocation)
 	{
 		vmaDestroyBuffer(bb::gfx::g.allocator, VkBuffer(buffer), VmaAllocation(allocation));

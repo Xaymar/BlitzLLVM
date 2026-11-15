@@ -343,8 +343,14 @@ namespace bb::gfx {
 		img.allocation  = 0;
 	}
 
-	bool move_image(gpu_image& img, VmaAllocation destination)
+	bool image_can_move(const gpu_image& img)
 	{
+		return img.image && img.allocation && img.recipe && img.recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT && img.recipe->create_info.samples == VK_SAMPLE_COUNT_1_BIT;
+	}
+
+	bool move_image(gpu_image& img, uint64_t destination_handle)
+	{
+		VmaAllocation destination = VmaAllocation(destination_handle);
 		if (!img.image || !img.recipe) {
 			return false;
 		}
@@ -3049,10 +3055,103 @@ namespace bb::rhi {
 	{
 		using namespace gfx;
 		create_instance();
-		if (!SDL_Vulkan_CreateSurface(gfx::surface().window, g.instance, nullptr, &gfx::surface().surface)) {
+		if (!create_surface(gfx::surface().window, gfx::surface().surface)) {
 			fail(SDL_GetError());
 		}
-		gfx::create_device(gfx::surface().surface);
+		gfx::create_device(VkSurfaceKHR(gfx::surface().surface));
+	}
+
+	void create_device_for(void* window)
+	{
+		using namespace gfx;
+		create_instance();
+		uint64_t probe = 0;
+		if (!create_surface(window, probe)) {
+			fail(SDL_GetError());
+		}
+		gfx::create_device(VkSurfaceKHR(probe));
+		destroy_surface(probe);
+	}
+
+	bool has_device()
+	{
+		return gfx::g.device != VK_NULL_HANDLE;
+	}
+
+	bool create_surface(void* window, uint64_t& surface)
+	{
+		return SDL_Vulkan_CreateSurface(static_cast<SDL_Window*>(window), gfx::g.instance, nullptr, gfx::vk_out<VkSurfaceKHR>(surface));
+	}
+
+	void destroy_surface(uint64_t& surface)
+	{
+		if (surface) {
+			SDL_Vulkan_DestroySurface(gfx::g.instance, VkSurfaceKHR(surface), nullptr);
+		}
+		surface = 0;
+	}
+
+	bool can_present_to(uint64_t surface)
+	{
+		VkBool32 present = VK_FALSE;
+		vkGetPhysicalDeviceSurfaceSupportKHR(gfx::g.physical, gfx::g.family, VkSurfaceKHR(surface), &present);
+		return present != VK_FALSE;
+	}
+
+	uint64_t create_semaphore()
+	{
+		VkSemaphoreCreateInfo info      = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		VkSemaphore           semaphore = VK_NULL_HANDLE;
+		gfx::check(vkCreateSemaphore(gfx::g.device, &info, nullptr, &semaphore), "vkCreateSemaphore");
+		return uint64_t(semaphore);
+	}
+
+	void destroy_semaphore(uint64_t& semaphore)
+	{
+		if (semaphore) {
+			vkDestroySemaphore(gfx::g.device, VkSemaphore(semaphore), nullptr);
+		}
+		semaphore = 0;
+	}
+
+	void destroy_group_pool()
+	{
+		vkDestroyDescriptorPool(gfx::g.device, gfx::g.set_pool, nullptr);
+		vkDestroyDescriptorSetLayout(gfx::g.device, gfx::g.set_layout, nullptr);
+	}
+
+	uint64_t total_video_memory()
+	{
+		uint64_t total = 0;
+		for (uint32_t i = 0; i < gfx::g.memory.memoryHeapCount; i++) {
+			if (gfx::g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+				total += gfx::g.memory.memoryHeaps[i].size;
+			}
+		}
+		return total;
+	}
+
+	int32_t device_lost_result()
+	{
+		return int32_t(VK_ERROR_DEVICE_LOST);
+	}
+
+	bool is_device_loss(int32_t native)
+	{
+		return (native == int32_t(VK_ERROR_DEVICE_LOST)) || (native == int32_t(VK_ERROR_SURFACE_LOST_KHR));
+	}
+
+	const char* native_result_name(int32_t native)
+	{
+		switch (VkResult(native)) {
+		case VK_ERROR_DEVICE_LOST: return "VK_ERROR_DEVICE_LOST";
+		case VK_ERROR_SURFACE_LOST_KHR: return "VK_ERROR_SURFACE_LOST_KHR";
+		case VK_ERROR_OUT_OF_HOST_MEMORY: return "VK_ERROR_OUT_OF_HOST_MEMORY";
+		case VK_ERROR_OUT_OF_DEVICE_MEMORY: return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
+		case VK_ERROR_INITIALIZATION_FAILED: return "VK_ERROR_INITIALIZATION_FAILED";
+		case VK_ERROR_OUT_OF_DATE_KHR: return "VK_ERROR_OUT_OF_DATE_KHR";
+		default: return "an unknown error";
+		}
 	}
 
 	void destroy_device()
@@ -3062,7 +3161,7 @@ namespace bb::rhi {
 		destroy_allocator();
 		vkDestroyDevice(g.device, nullptr);
 		if (gfx::surface().surface) {
-			SDL_Vulkan_DestroySurface(g.instance, gfx::surface().surface, nullptr);
+			SDL_Vulkan_DestroySurface(g.instance, VkSurfaceKHR(gfx::surface().surface), nullptr);
 		}
 		vkDestroyInstance(g.instance, nullptr);
 	}
@@ -3071,7 +3170,7 @@ namespace bb::rhi {
 	{
 		using namespace gfx;
 		g.instance = VK_NULL_HANDLE;
-		gfx::surface().surface = VK_NULL_HANDLE;
+		gfx::surface().surface = 0;
 		g.physical = VK_NULL_HANDLE;
 		g.device   = VK_NULL_HANDLE;
 		g.allocator = VK_NULL_HANDLE;

@@ -70,13 +70,9 @@ namespace bb::gfx {
 		if (g.device) {
 			stop_presenter(*s);
 			destroy_swapchain(*s); // Waits for the GPU.
-			if (s->acquired) {
-				vkDestroySemaphore(g.device, VkSemaphore(s->acquired), nullptr);
-			}
+			bb::rhi::destroy_semaphore(s->acquired);
 		}
-		if (s->surface) {
-			SDL_Vulkan_DestroySurface(g.instance, s->surface, nullptr);
-		}
+		bb::rhi::destroy_surface(s->surface);
 		if (s->window) {
 			SDL_DestroyWindow(s->window);
 		}
@@ -119,20 +115,17 @@ namespace bb::gfx {
 		surface_state* s = new surface_state();
 		extras[handle - 1] = s;
 		s->window = SDL_CreateWindow(title ? title : "", width, height, flags);
-		if (!s->window || !SDL_Vulkan_CreateSurface(s->window, g.instance, nullptr, &s->surface)) {
+		if (!s->window || !bb::rhi::create_surface(s->window, s->surface)) {
 			destroy_extra_surface(handle);
 			return 0;
 		}
 		// The queue that was picked for the first window has to be able to show pictures in this one as well.
-		VkBool32 present = VK_FALSE;
-		vkGetPhysicalDeviceSurfaceSupportKHR(g.physical, g.family, s->surface, &present);
-		if (!present) {
+		if (!bb::rhi::can_present_to(s->surface)) {
 			destroy_extra_surface(handle);
 			return 0;
 		}
 		s->vsync = 1;
-		VkSemaphoreCreateInfo sem = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-		check(vkCreateSemaphore(g.device, &sem, nullptr, vk_out<VkSemaphore>(s->acquired)), "vkCreateSemaphore");
+		s->acquired = bb::rhi::create_semaphore();
 		create_swapchain(*s);
 		return handle;
 	}
@@ -162,7 +155,7 @@ namespace bb::gfx {
 				return false;
 			}
 		} else {
-			check(VkResult(acquired.native), "vkAcquireNextImageKHR");
+			bb::rhi::check_result(acquired.native, "vkAcquireNextImageKHR");
 		}
 
 		begin_commands();
@@ -172,11 +165,11 @@ namespace bb::gfx {
 		barrier(uint64_t(s->chain.images[index]), bb::rhi::image_state::copy_dst, bb::rhi::image_state::present);
 		submit_commands(s->acquired, uint64_t(s->chain.done[index]));
 
-		bb::rhi::present_result shown = bb::rhi::present_image(s->chain, uint64_t(g.queue), uint64_t(s->chain.done[index]), index, false, true);
+		bb::rhi::present_result shown = bb::rhi::present_image(s->chain, bb::rhi::main_queue(), uint64_t(s->chain.done[index]), index, false, true);
 		if ((shown.status == bb::rhi::present_status::out_of_date) || (shown.status == bb::rhi::present_status::suboptimal)) {
 			s->resized = true;
 		} else {
-			check(VkResult(shown.native), "vkQueuePresentKHR");
+			bb::rhi::check_result(shown.native, "vkQueuePresentKHR");
 		}
 		return true;
 	}
@@ -250,7 +243,7 @@ namespace bb::gfx {
 	void test_lazy_device_finish(const char* path)
 	{
 		if (FILE* file = fopen(path, "a")) {
-			fprintf(file, "%d\n", ((g.device != VK_NULL_HANDLE) && (devices_made == lazy_device)) ? 1 : 0);
+			fprintf(file, "%d\n", (bb::rhi::has_device() && (devices_made == lazy_device)) ? 1 : 0);
 			fclose(file);
 		}
 	}
