@@ -145,6 +145,12 @@ target_sources(blitzrt PRIVATE
 # with fxc, the compiler of the Windows SDK, into one header per shader (an array named after the shader). Without fxc the runtime is built
 # without them, and so without that backend.
 option(BLITZLLVM_REQUIRE_FXC "Fail instead of building without the Direct3D 11 shaders when fxc is missing on Windows" OFF)
+# The OpenGL backend (BLITZLLVM_RENDERER=opengl). On Linux for now: the SDL of the Windows build is made without OpenGL, and macOS has no OpenGL 4.3.
+if(UNIX AND NOT APPLE)
+	target_sources(blitzrt PRIVATE "source/graphics_opengl.cpp" "source/shaders_opengl.inc")
+	target_compile_definitions(blitzrt PRIVATE BB_OPENGL)
+endif()
+
 if(WIN32)
 	set(_PROGRAM_FILES_X86 "ProgramFiles(x86)")
 	file(GLOB _KITS LIST_DIRECTORIES true "$ENV{${_PROGRAM_FILES_X86}}/Windows Kits/10/bin/10.*")
