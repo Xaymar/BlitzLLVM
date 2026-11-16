@@ -43,7 +43,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
 | `BLITZLLVM_OIT_LAYERS` | `128` | Most layers of `BLITZLLVM_OIT=5`: one pass over the see-through things for each. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[CPU-Optimizations]]. |
-| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto` or `vulkan`. Vulkan is the only renderer so far; `d3d11` and `opengl` end the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
+| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto` (Vulkan), `vulkan` or `opengl`. OpenGL needs version 4.3 and is in the Linux runtime only so far. One that the runtime does not have (`d3d11`, or `opengl` on Windows and macOS) ends the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
 
 ## Features that can be turned off
 
@@ -62,7 +62,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[GPU-Optimizations]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
-| `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. |
+| `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. The Vulkan renderer only. |
 | `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
 | `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
 | `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[CPU-Optimizations]]. |
@@ -93,6 +93,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
+| `BLITZLLVM_DEBUG_OPENGL` | `0` | With the OpenGL renderer: asks for a debug context, prints what the driver reports, and prints the version and the name of the driver at the start. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS` | not set | Flip numbers (`3,8`) at which the graphics device counts as lost, by making all the graphics again on a device that works, see [[Lost-Graphics-Device]]. |
