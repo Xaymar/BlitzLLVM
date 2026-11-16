@@ -93,7 +93,10 @@ namespace bb::gfx {
 			bb::rhi::format  format  = bb::rhi::format::undefined;
 			uint32_t         width = 0, height = 0, mips = 1, layers = 1, samples = 1;
 			bool             depth = false;
-			bool             expanded = false; // A BC4 texture that is shown as grey: it is kept as RGBA8 and the blocks are decoded when they are uploaded (views have no swizzle).
+			bool             expanded = false; // A texture of blocks that is to be shown with its channels changed: it is kept as RGBA8 and the blocks are decoded (and the channels changed) when they are uploaded, as views have no swizzle.
+			bb::gfx::block_format block = bb::gfx::block_format::none; // What the blocks of an expanded image are.
+			std::vector<std::vector<uint8_t>> blocks; // The blocks of an expanded image as they were uploaded, by mip * layers + layer, for the readback that makes a converted texture.
+			bb::rhi::channel swizzle[4] = { bb::rhi::channel::identity, bb::rhi::channel::identity, bb::rhi::channel::identity, bb::rhi::channel::identity };
 			d3d_chain*       chain = nullptr;
 		};
 
@@ -876,10 +879,25 @@ namespace bb::gfx {
 			if (!info->supported) {
 				fail("internal error: an image was asked for in a format that the Direct3D 11 renderer does not have.");
 			}
-			// Direct3D 11 has no swizzle of a view, so one channel shown as grey (BC4 with the mapping g = b = r) is kept as RGBA8 and decoded when it is uploaded.
-			bool expanded = (format == bb::rhi::format::bc4) && components && (components->g == bb::rhi::channel::r) && (components->b == bb::rhi::channel::r);
+			// Direct3D 11 has no swizzle of a view, so a texture of blocks that is to be seen with its channels changed (BC4 as grey, alpha forced to 1 for a texture without alpha) is kept as RGBA8,
+			// decoded when it is uploaded (decode_blocks of the shared code), with the channels changed then.
+			bool expanded = false;
+			bb::gfx::block_format block_kind = bb::gfx::block_format::none;
+			if (info->block && components) {
+				for (bb::rhi::channel c : { components->r, components->g, components->b, components->a }) {
+					expanded = expanded || (c != bb::rhi::channel::identity);
+				}
+			}
 			if (expanded) {
-				info = info_of(bb::rhi::format::rgba8);
+				switch (format) {
+				case bb::rhi::format::bc1: case bb::rhi::format::bc1_srgb: block_kind = bb::gfx::block_format::bc1; break;
+				case bb::rhi::format::bc2: case bb::rhi::format::bc2_srgb: block_kind = bb::gfx::block_format::bc2; break;
+				case bb::rhi::format::bc3: case bb::rhi::format::bc3_srgb: block_kind = bb::gfx::block_format::bc3; break;
+				case bb::rhi::format::bc4: block_kind = bb::gfx::block_format::bc4; break;
+				case bb::rhi::format::bc5: block_kind = bb::gfx::block_format::bc5; break;
+				default: block_kind = bb::gfx::block_format::bc7; break;
+				}
+				info = info_of(is_srgb(format) ? bb::rhi::format::rgba8_srgb : bb::rhi::format::rgba8);
 			}
 			gpu_image img;
 			img.format          = format;
@@ -906,8 +924,15 @@ namespace bb::gfx {
 			img.recipe->may_spill = image_spill_allowed();
 
 			d3d_image* image = new d3d_image();
-			image->format    = expanded ? bb::rhi::format::rgba8 : format;
+			image->format    = expanded ? info->neutral : format;
 			image->expanded  = expanded;
+			image->block     = block_kind;
+			if (expanded) {
+				image->swizzle[0] = components->r;
+				image->swizzle[1] = components->g;
+				image->swizzle[2] = components->b;
+				image->swizzle[3] = components->a;
+			}
 			image->width     = width;
 			image->height    = height;
 			image->mips      = mips;
@@ -1821,46 +1846,6 @@ namespace bb::rhi::d3d11 {
 			}
 		}
 
-		// Decodes the blocks of BC4 (8 bytes for 4 by 4 pixels: two end values and 16 indices of 3 bits) to RGBA8 with the one channel as grey and alpha 1.
-		void decode_bc4(const uint8_t* blocks, uint32_t w, uint32_t h, uint8_t* out, uint32_t out_pitch)
-		{
-			uint32_t blocks_x = (w + 3) / 4, blocks_y = (h + 3) / 4;
-			for (uint32_t by = 0; by < blocks_y; by++) {
-				for (uint32_t bx = 0; bx < blocks_x; bx++) {
-					const uint8_t* b = blocks + (uint64_t(by) * blocks_x + bx) * 8;
-					int            r0 = b[0], r1 = b[1];
-					int            palette[8] = { r0, r1 };
-					if (r0 > r1) {
-						for (int i = 1; i < 7; i++) {
-							palette[1 + i] = ((7 - i) * r0 + i * r1 + 3) / 7;
-						}
-					} else {
-						for (int i = 1; i < 5; i++) {
-							palette[1 + i] = ((5 - i) * r0 + i * r1 + 2) / 5;
-						}
-						palette[6] = 0;
-						palette[7] = 255;
-					}
-					uint64_t bits = 0;
-					for (int i = 0; i < 6; i++) {
-						bits |= uint64_t(b[2 + i]) << (8 * i);
-					}
-					for (uint32_t py = 0; py < 4; py++) {
-						for (uint32_t px = 0; px < 4; px++) {
-							uint32_t x = bx * 4 + px, y = by * 4 + py;
-							if ((x >= w) || (y >= h)) {
-								continue;
-							}
-							uint8_t  v = uint8_t(palette[(bits >> (3 * (py * 4 + px))) & 7]);
-							uint8_t* o = out + uint64_t(y) * out_pitch + uint64_t(x) * 4;
-							o[0] = o[1] = o[2] = v;
-							o[3] = 255;
-						}
-					}
-				}
-			}
-		}
-
 		// The bytes of a staging buffer are in system memory here, so a copy to an image is an update of the texture from that memory.
 		void copy_buffer_to_image(uint64_t buffer, uint64_t image, const buffer_image_copy* regions, uint32_t count)
 		{
@@ -1872,11 +1857,36 @@ namespace bb::rhi::d3d11 {
 				uint32_t                 mip_w = mip_dimension(to->width, r.image.mip), mip_h = mip_dimension(to->height, r.image.mip);
 				uint32_t                 pitch, layer_bytes;
 				if (to->expanded) {
-					// The blocks of the file, decoded to RGBA8.
+					// The blocks of the file, decoded to RGBA8 and with the channels changed as the image was asked to show them.
 					uint32_t blocks_x = (r.w + 3) / 4, blocks_y = (r.h + 3) / 4;
+					size_t   block_bytes = (to->block == bb::gfx::block_format::bc1 || to->block == bb::gfx::block_format::bc4) ? 8 : 16;
 					std::vector<uint8_t> decoded(size_t(r.w) * r.h * 4);
 					for (uint32_t layer = 0; layer < r.image.layers; layer++) {
-						decode_bc4(from->shadow + r.buffer_offset + uint64_t(layer) * blocks_x * blocks_y * 8, r.w, r.h, decoded.data(), r.w * 4);
+						{
+							d3d_image*   kept = const_cast<d3d_image*>(to);
+							size_t       slot = size_t(r.image.mip) * to->layers + r.image.layer + layer;
+							const uint8_t* at = from->shadow + r.buffer_offset + uint64_t(layer) * blocks_x * blocks_y * block_bytes;
+							if (kept->blocks.size() <= slot) {
+								kept->blocks.resize(size_t(to->mips) * to->layers);
+							}
+							kept->blocks[slot].assign(at, at + size_t(blocks_x) * blocks_y * block_bytes);
+						}
+						bb::gfx::decode_blocks(to->block, int(r.w), int(r.h), from->shadow + r.buffer_offset + uint64_t(layer) * blocks_x * blocks_y * block_bytes, decoded.data());
+						for (size_t i = 0; i < size_t(r.w) * r.h; i++) {
+							uint8_t* px = &decoded[i * 4];
+							uint8_t  source[4] = { px[0], px[1], px[2], px[3] };
+							for (int k = 0; k < 4; k++) {
+								switch (to->swizzle[k]) {
+								case bb::rhi::channel::zero: px[k] = 0; break;
+								case bb::rhi::channel::one: px[k] = 255; break;
+								case bb::rhi::channel::r: px[k] = source[0]; break;
+								case bb::rhi::channel::g: px[k] = source[1]; break;
+								case bb::rhi::channel::b: px[k] = source[2]; break;
+								case bb::rhi::channel::a: px[k] = source[3]; break;
+								default: break;
+								}
+							}
+						}
 						D3D11_BOX part = { UINT(r.image.x), UINT(r.image.y), 0, UINT(r.image.x) + r.w, UINT(r.image.y) + r.h, 1 };
 						bool      all  = (r.image.x == 0) && (r.image.y == 0) && (r.w == mip_w) && (r.h == mip_h);
 						dx.context->UpdateSubresource(to->texture, subresource(r.image.mip, r.image.layer + layer, to->mips), all ? nullptr : &part, decoded.data(), r.w * 4, r.w * r.h * 4);
@@ -1905,6 +1915,21 @@ namespace bb::rhi::d3d11 {
 			const d3d_image*   source = image_of(image);
 			const format_info* info   = info_of(source->format);
 			d3d_buffer*        to     = buffer_of(buffer);
+			if (source->expanded) {
+				// The blocks it was made from (a converted texture is made from these).
+				for (uint32_t i = 0; i < count; i++) {
+					const buffer_image_copy& r = regions[i];
+					for (uint32_t layer = 0; layer < r.image.layers; layer++) {
+						size_t slot = size_t(r.image.mip) * source->layers + r.image.layer + layer;
+						if ((slot >= source->blocks.size()) || source->blocks[slot].empty()) {
+							fail("internal error: a texture of blocks was read back before it was written, which the Direct3D 11 backend cannot do.");
+						}
+						size_t bytes = source->blocks[slot].size();
+						memcpy(to->shadow + r.buffer_offset + uint64_t(layer) * bytes, source->blocks[slot].data(), bytes);
+					}
+				}
+				return;
+			}
 			if (source->samples > 1) {
 				fail("internal error: a multisampled image was asked to be read back, which the Direct3D 11 backend cannot do.");
 			}
