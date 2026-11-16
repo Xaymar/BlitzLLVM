@@ -71,7 +71,7 @@ struct SPIRV_Cross_Input
     float2 _30 : TEXCOORD2;
     float4 _32 : TEXCOORD3;
     float2 _34 : TEXCOORD4;
-    uint gl_InstanceIndex : SV_InstanceID;
+    uint gl_InstanceIndex : BBINSTANCE;
 };
 
 struct SPIRV_Cross_Output
@@ -322,7 +322,7 @@ SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
     _34 = stage_input._34;
     vert_main();
     SPIRV_Cross_Output stage_output;
-    stage_output.gl_Position = gl_Position;
+    stage_output.gl_Position = float4(gl_Position.x, -gl_Position.y, gl_Position.z, gl_Position.w);
     stage_output._24 = _24;
     stage_output._26 = _26;
     stage_output._35 = _35;

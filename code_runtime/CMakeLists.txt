@@ -198,6 +198,18 @@ if(WIN32)
 			string(APPEND _INCLUDES "#include \"${_NAME}.h\"\n")
 		endforeach()
 		file(GENERATE OUTPUT "${_BYTECODE_DIR}/shaders_d3d11.inc" CONTENT "${_INCLUDES}")
+		# The table that the backend finds its shaders in: SPIR-V size and hash, bytecode, registers (tools/generate_d3d11_table.py).
+		find_program(BLITZLLVM_PYTHON NAMES python3 python REQUIRED DOC "Python, which makes the table of the Direct3D 11 shaders")
+		file(GLOB _D3D11_MAPS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/source/d3d11/*.d3d11.json")
+		add_custom_command(
+			OUTPUT "${_BYTECODE_DIR}/shaders_d3d11_table.inc"
+			COMMAND "${BLITZLLVM_PYTHON}" "${PROJECT_SOURCE_DIR}/tools/generate_d3d11_table.py" "${_BYTECODE_DIR}/shaders_d3d11_table.inc" "${CMAKE_CURRENT_LIST_DIR}/source"
+			DEPENDS "${PROJECT_SOURCE_DIR}/tools/generate_d3d11_table.py" "${CMAKE_CURRENT_LIST_DIR}/source/shaders.inc" "${CMAKE_CURRENT_LIST_DIR}/source/smaa.inc" ${_D3D11_MAPS}
+			COMMENT "Making the table of the Direct3D 11 shaders"
+			VERBATIM
+		)
+		list(APPEND _BYTECODE "${_BYTECODE_DIR}/shaders_d3d11_table.inc")
+		target_sources(blitzrt PRIVATE "source/graphics_d3d11.cpp")
 		add_custom_target(blitzrt_d3d11_shaders DEPENDS ${_BYTECODE})
 		add_dependencies(blitzrt blitzrt_d3d11_shaders)
 		target_include_directories(blitzrt PRIVATE "${_BYTECODE_DIR}")

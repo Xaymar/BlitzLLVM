@@ -43,7 +43,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
 | `BLITZLLVM_OIT_LAYERS` | `128` | Most layers of `BLITZLLVM_OIT=5`: one pass over the see-through things for each. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[CPU-Optimizations]]. |
-| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto` (Vulkan), `vulkan` or `opengl`. OpenGL needs version 4.3 and is in the Linux runtime only so far. One that the runtime does not have (`d3d11`, or `opengl` on Windows and macOS) ends the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
+| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto` (Vulkan), `vulkan`, `opengl` or `d3d11`. OpenGL needs version 4.3 and is in the Linux runtime only so far. Direct3D 11 is in the Windows runtime only. Only its 2D drawing is tested so far. One that the runtime does not have ends the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
 
 ## Features that can be turned off
 
@@ -94,6 +94,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_OPENGL` | `0` | With the OpenGL renderer: asks for a debug context, prints what the driver reports, and prints the version and the name of the driver at the start. |
+| `BLITZLLVM_DEBUG_D3D11` | `0` | With the Direct3D 11 renderer: asks for a debug device and prints the feature level and the name of the graphics card at the start. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS` | not set | Flip numbers (`3,8`) at which the graphics device counts as lost, by making all the graphics again on a device that works, see [[Lost-Graphics-Device]]. |
