@@ -628,6 +628,19 @@ namespace bb::gfx {
 			dx.context->CSSetShaderResources(0, 16, none);
 		}
 
+		D3D11_BLEND d3d_blend(bb::rhi::blend_factor f);
+		// The factors of the alpha channel may not be the "color" ones in Direct3D 11: the alpha of the source or of the destination is what they mean for alpha anyway.
+		D3D11_BLEND d3d_blend_alpha(bb::rhi::blend_factor f)
+		{
+			switch (f) {
+			case bb::rhi::blend_factor::src_color: return D3D11_BLEND_SRC_ALPHA;
+			case bb::rhi::blend_factor::dst_color: return D3D11_BLEND_DEST_ALPHA;
+			case bb::rhi::blend_factor::one_minus_src_color: return D3D11_BLEND_INV_SRC_ALPHA;
+			default: break;
+			}
+			return d3d_blend(f);
+		}
+
 		D3D11_BLEND d3d_blend(bb::rhi::blend_factor f)
 		{
 			switch (f) {
@@ -745,8 +758,8 @@ namespace bb::gfx {
 					t.SrcBlend              = d3d_blend(b.src_color);
 					t.DestBlend             = d3d_blend(b.dst_color);
 					t.BlendOp               = D3D11_BLEND_OP_ADD;
-					t.SrcBlendAlpha         = d3d_blend(b.src_alpha);
-					t.DestBlendAlpha        = d3d_blend(b.dst_alpha);
+					t.SrcBlendAlpha         = d3d_blend_alpha(b.src_alpha);
+					t.DestBlendAlpha        = d3d_blend_alpha(b.dst_alpha);
 					t.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
 					t.RenderTargetWriteMask = b.write_mask;
 				} else {
