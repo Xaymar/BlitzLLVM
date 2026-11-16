@@ -234,10 +234,12 @@ jobs:
         # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL, the ones that move the mouse take turns
         # (RESOURCE_LOCK mouse). A test that skips itself (77) is reported as skipped and does not fail the run. A partial selection
         # runs the tests that the 'Select the tests' step listed (with the fixtures they need).
+        # -noreset: without it the X server starts over each time its last client leaves, and a program that connects in that moment
+        # is refused (SDL: "No available video device"). With -j that happens between two tests now and then.
         run: |
           mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
-          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
+          xvfb-run -a -s "-screen 0 1280x1024x24 -noreset" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
       - name: Run the GPU tests with OpenGL (Linux)
         if: env.RUN == 'true' && matrix.label == 'Linux'
         working-directory: build/code_compiler
@@ -251,7 +253,7 @@ jobs:
           # The tests of this pass, for the test comment, which lists the pass like a platform of its own.
           ctest -C Release --show-only=json-v1 -L "gpu|suite" -E "$EXCLUDE" > "$RUNNER_TEMP/tests-opengl.json"
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
-          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 -L "gpu|suite" -E "$EXCLUDE" --output-junit "$RUNNER_TEMP/junit-opengl.xml" "${SELECTED[@]}"
+          xvfb-run -a -s "-screen 0 1280x1024x24 -noreset" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 -L "gpu|suite" -E "$EXCLUDE" --output-junit "$RUNNER_TEMP/junit-opengl.xml" "${SELECTED[@]}"
       - name: Run the tests (Windows)
         if: env.RUN == 'true' && matrix.label == 'Windows'
         working-directory: build/code_compiler

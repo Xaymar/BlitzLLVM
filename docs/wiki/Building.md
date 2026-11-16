@@ -110,7 +110,7 @@ The `Test` workflow (`.github/workflows/test.yml`) runs the tests on Linux, Wind
 sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON
 cmake --build build
-cd build/code_compiler && xvfb-run -a ctest -j8 --output-on-failure
+cd build/code_compiler && xvfb-run -a -s "-noreset" ctest -j8 --output-on-failure
 ```
 
 #### Windows and macOS
