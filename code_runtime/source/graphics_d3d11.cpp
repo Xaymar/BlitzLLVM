@@ -186,7 +186,9 @@ namespace bb::gfx {
 			HMODULE                  d3d11_library = nullptr, dxgi_library = nullptr;
 			SDL_ThreadID             thread = 0;
 			uint32_t                 feature_level = 0;
-			bool                     depth_clear_partial = false;
+			ID3D11BlendState*        clear_blend = nullptr; // The states of the draw that clears a part of the depth attachment.
+			ID3D11DepthStencilState* clear_depth_state = nullptr;
+			ID3D11RasterizerState*   clear_raster = nullptr;
 
 			ID3D11Buffer*            push_buffer = nullptr;
 			ID3D11Buffer*            ramp = nullptr;
@@ -1687,7 +1689,55 @@ namespace bb::rhi::d3d11 {
 			if ((x <= 0) && (y <= 0) && (uint32_t(x + w) >= dx.pass_w) && (uint32_t(y + h) >= dx.pass_h)) {
 				dx.context->ClearDepthStencilView(dx.depth_view->dsv, D3D11_CLEAR_DEPTH, depth, 0);
 			} else {
-				fail("internal error: a part of the depth attachment was asked to be cleared (clear_depth with a rectangle), which the Direct3D 11 backend does not do yet.");
+				// A part of the depth attachment: ClearDepthStencilView takes no rectangle, and CopySubresourceRegion may not copy a part of a depth image, so it is drawn:
+				// a triangle over the pass with the fullscreen vertex shader (which writes depth 0 at every vertex), no pixel shader, the depth test always passing, depth writes on and no color written. The viewport
+				// maps that 0 to the clear value (MinDepth = MaxDepth = depth), and the scissor is the rectangle. What a draw sets again is not restored here, only the viewport and scissor of the tape.
+				ID3D11DeviceContext* c = dx.context;
+				if (!dx.clear_blend) {
+					D3D11_BLEND_DESC bd       = {};
+					bd.IndependentBlendEnable = TRUE;
+					for (auto& t : bd.RenderTarget) {
+						t.SrcBlend = t.SrcBlendAlpha = D3D11_BLEND_ONE;
+						t.DestBlend = t.DestBlendAlpha = D3D11_BLEND_ZERO;
+						t.BlendOp = t.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+						t.RenderTargetWriteMask = 0;
+					}
+					check(dx.device->CreateBlendState(&bd, &dx.clear_blend), "CreateBlendState (depth clear)");
+					D3D11_DEPTH_STENCIL_DESC ds = {};
+					ds.DepthEnable    = TRUE;
+					ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+					ds.DepthFunc      = D3D11_COMPARISON_ALWAYS;
+					check(dx.device->CreateDepthStencilState(&ds, &dx.clear_depth_state), "CreateDepthStencilState (depth clear)");
+					D3D11_RASTERIZER_DESC rs = {};
+					rs.FillMode        = D3D11_FILL_SOLID;
+					rs.CullMode        = D3D11_CULL_NONE;
+					rs.DepthClipEnable = FALSE;
+					rs.ScissorEnable   = TRUE;
+					check(dx.device->CreateRasterizerState(&rs, &dx.clear_raster), "CreateRasterizerState (depth clear)");
+				}
+				ID3D11DepthStencilView* dsv = dx.depth_view->dsv;
+				ID3D11RenderTargetView* rtvs[4] = {};
+				for (uint32_t i = 0; i < dx.color_count; i++) {
+					rtvs[i] = dx.colors[i] ? dx.colors[i]->rtv : nullptr;
+				}
+				c->OMSetRenderTargets(dx.color_count, rtvs, dsv); // The pass may have bound its depth read only.
+				D3D11_VIEWPORT viewport = dx.viewport;
+				viewport.MinDepth       = viewport.MaxDepth = depth;
+				D3D11_RECT rect         = { LONG(std::max<int32_t>(x, 0)), LONG(std::max<int32_t>(y, 0)), LONG(x + w), LONG(y + h) };
+				c->RSSetViewports(1, &viewport);
+				c->RSSetScissorRects(1, &rect);
+				c->VSSetShader(static_cast<ID3D11VertexShader*>(shader_object(shader_named("bb_shader_vertex_fullscreen"), stage_kind::vertex)), nullptr, 0);
+				c->PSSetShader(nullptr, nullptr, 0);
+				c->IASetInputLayout(nullptr);
+				c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				static const float factor[4] = { 1, 1, 1, 1 };
+				c->OMSetBlendState(dx.clear_blend, factor, 0xFFFFFFFFu);
+				c->OMSetDepthStencilState(dx.clear_depth_state, 0);
+				c->RSSetState(dx.clear_raster);
+				c->Draw(3, 0);
+				c->RSSetViewports(1, &dx.viewport);
+				c->RSSetScissorRects(1, &dx.scissor);
+				apply_pass_state(); // The render targets of the pass again, with the depth as the pass has it (read only or not).
 			}
 		}
 
@@ -2590,6 +2640,9 @@ namespace bb::rhi::d3d11 {
 		}
 		staging_textures.clear();
 		if (free) {
+			release(dx.clear_blend);
+			release(dx.clear_depth_state);
+			release(dx.clear_raster);
 			release(dx.push_buffer);
 			release(dx.ramp);
 			release(dx.blit_vertices);
