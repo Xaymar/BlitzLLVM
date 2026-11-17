@@ -65,6 +65,10 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. The Vulkan renderer only. |
 | `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
 | `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
+| `BLITZLLVM_TEXTURE_STREAMING` | `0` turns off texture streaming: textures with mip maps (not render targets, cube maps or texture arrays) no longer lose their biggest mip levels when video memory is short, and stay as they are. |
+| `BLITZLLVM_STREAMING_REPORT` | Prints a line whenever streaming drops mip levels of a texture or gives a level back. |
+| `BLITZLLVM_TEXTURE_BUDGET_MB` | Gives textures only this much memory for streaming, on every renderer. For testing; the Vulkan and D3D11 renderers use what the driver says is free, OpenGL has no such number. |
+| `BLITZLLVM_UPLOAD_BUDGET_MB` | How many megabytes of a texture streaming may upload in one frame. The D3D11 and OpenGL renderers default to 4, the Vulkan renderer uploads a texture in one block. |
 | `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[CPU-Optimizations]]. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 

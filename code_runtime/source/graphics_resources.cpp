@@ -63,6 +63,9 @@ namespace bb::gfx {
 			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
 			if (tex && tex->set && texture_frame_rect(*tex, (handle - texture_buffer_base) & 1023, t.x, t.y, t.w, t.h, &t.layer)) {
 				ensure_color_image(tex->image, tex->set);
+				if (tex->image.recipe) {
+					tex->image.recipe->gpu_written = true; // What it holds may be more than the recipe does, so streaming leaves it alone from now on.
+				}
 				sprite_hull_drop(tex->hull); // Whatever is drawn to it can show outside of the hull; LockBuffer and UnlockBuffer make one again.
 				t.image = &tex->image;
 			}
@@ -228,10 +231,48 @@ namespace bb::gfx {
 		}
 	}
 
+	// Halves RGBA8 pictures 'times' times by averaging 2 by 2 pixels (what a linear blit does), for the levels that texture streaming leaves out.
+	std::vector<uint8_t> shrink_pixels(const uint8_t* source, uint32_t width, uint32_t height, uint32_t layers, uint32_t times)
+	{
+		std::vector<uint8_t> current(source, source + size_t(width) * height * 4 * layers);
+		for (uint32_t step = 0; step < times; step++) {
+			uint32_t             nw = width > 1 ? width / 2 : 1, nh = height > 1 ? height / 2 : 1;
+			std::vector<uint8_t> next(size_t(nw) * nh * 4 * layers);
+			for (uint32_t layer = 0; layer < layers; layer++) {
+				const uint8_t* in  = current.data() + size_t(width) * height * 4 * layer;
+				uint8_t*       out = next.data() + size_t(nw) * nh * 4 * layer;
+				for (uint32_t y = 0; y < nh; y++) {
+					uint32_t y0 = (y * 2 < height) ? y * 2 : height - 1, y1 = (y * 2 + 1 < height) ? y * 2 + 1 : y0;
+					for (uint32_t x = 0; x < nw; x++) {
+						uint32_t x0 = (x * 2 < width) ? x * 2 : width - 1, x1 = (x * 2 + 1 < width) ? x * 2 + 1 : x0;
+						for (uint32_t c = 0; c < 4; c++) {
+							uint32_t sum = in[(size_t(y0) * width + x0) * 4 + c] + in[(size_t(y0) * width + x1) * 4 + c] + in[(size_t(y1) * width + x0) * 4 + c] + in[(size_t(y1) * width + x1) * 4 + c];
+							out[(size_t(y) * nw + x) * 4 + c] = uint8_t((sum + 2) / 4);
+						}
+					}
+				}
+			}
+			current = std::move(next);
+			width   = nw;
+			height  = nh;
+		}
+		return current;
+	}
+
 	// Uploads RGBA pixels into a new image that can be sampled and drawn to, with all of its mip levels if asked for.
 	// With remember the recipe of the image keeps the pixels, so that the image can be made again (rebuild_image does not want that: it has the pixels).
-	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false, bool remember = true, uint32_t layers = 1)
+	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false, bool remember = true, uint32_t layers = 1, uint32_t drop = 0)
 	{
+		// Texture streaming: the picture is given whole, but the biggest levels are left out of the image (they are sent later, see graphics_streaming.cpp).
+		const uint32_t whole_width = width, whole_height = height;
+		const uint8_t* whole_pixels = pixels;
+		std::vector<uint8_t> reduced;
+		if (drop > 0) {
+			reduced = shrink_pixels(pixels, width, height, layers, drop);
+			width   = (width >> drop) ? (width >> drop) : 1;
+			height  = (height >> drop) ? (height >> drop) : 1;
+			pixels  = reduced.data();
+		}
 		// Pixels of 10 bits hold every mip level one after the other, as the picture was made on the CPU (see mip_chain_ten).
 		uint32_t     levels = (ten && mipmaps) ? mip_count(width, height) : 1;
 		uint64_t size   = 0;
@@ -258,10 +299,15 @@ namespace bb::gfx {
 			recipe.mipmaps       = mipmaps;
 			recipe.srgb          = srgb;
 			recipe.ten           = ten;
-			recipe.data.assign(pixels, pixels + size);
+			recipe.data.assign(whole_pixels, whole_pixels + (drop ? size_t(whole_width) * whole_height * 4 * layers : size_t(size)));
+			recipe.width         = whole_width;
+			recipe.height        = whole_height;
+			recipe.drop          = drop;
 		}
 		if (!image.image) {
 			rhi::destroy_buffer(staging); // The device is lost, the recipe is all there is until it is back.
+			image.width  = whole_width;
+			image.height = whole_height;
 			return;
 		}
 
@@ -296,6 +342,8 @@ namespace bb::gfx {
 		submit_commands();
 
 		rhi::destroy_buffer(staging);
+		image.width  = whole_width; // The size of the picture, whatever the image holds of it.
+		image.height = whole_height;
 	}
 
 	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
@@ -304,9 +352,11 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers)
+	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps, bool srgb, bool ten, uint32_t layers, bool streamable)
 	{
-		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten, true, layers);
+		// Streaming: where video memory is short, or one frame can not take the whole picture, the biggest levels wait (textures_stream_frame).
+		uint32_t drop = streamable ? streaming_initial_drop(width, height, layers, ten, mipmaps, uint64_t(width) * height * 4 * layers) : 0;
+		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten, true, layers, drop);
 		image.sampler = sampler;
 		allocate_descriptor(set);
 		describe_image(set, image, sampler);
@@ -357,17 +407,26 @@ namespace bb::gfx {
 		return bb::rhi::get_sampler(d);
 	}
 
-	static void upload_blocks(gpu_image& image, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember)
+	static void upload_blocks(gpu_image& image, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember, uint32_t drop = 0)
 	{
 		srgb = srgb && (p.block != block_format::bc4) && (p.block != block_format::bc5);
 		// The levels the file has are used as they are, when mip maps are wanted.
 		uint32_t       levels = mipmaps ? uint32_t(p.mips) : 1;
-		uint64_t   size   = p.size;
+		// Texture streaming: the biggest levels the file has are left out (they are stored, so nothing has to be made).
+		drop = (mipmaps && (drop + 1 < levels)) ? drop : 0;
+		uint64_t skipped = 0;
+		for (uint32_t level = 0; level < drop; level++) {
+			skipped += block_bytes(p.block, int((p.width >> level) ? (p.width >> level) : 1), int((p.height >> level) ? (p.height >> level) : 1));
+		}
+		const uint32_t whole_width = uint32_t(p.width), whole_height = uint32_t(p.height);
+		levels -= drop;
+		const uint32_t first_width = (whole_width >> drop) ? (whole_width >> drop) : 1, first_height = (whole_height >> drop) ? (whole_height >> drop) : 1;
+		uint64_t   size   = p.size - skipped;
 		rhi::gpu_buffer staging;
 		void* mapped;
 		rhi::create_buffer(staging, size, rhi::transfer_source, rhi::memory::mapped);
 		mapped = staging.mapped;
-		memcpy(mapped, p.blocks, p.size);
+		memcpy(mapped, p.blocks + skipped, size_t(size));
 
 		// One channel is shown as grey, and alpha is 1 where the file has none to use.
 		bb::rhi::swizzle mapping;
@@ -379,7 +438,7 @@ namespace bb::gfx {
 			mapping.a = bb::rhi::channel::one;
 		}
 		bool arrays = image.array_sets;
-		image = create_image(uint32_t(p.width), uint32_t(p.height), bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source, block_image_format(p.block, srgb), &mapping, levels);
+		image = create_image(first_width, first_height, bb::rhi::image_sampled | bb::rhi::image_copy_destination | bb::rhi::image_copy_source, block_image_format(p.block, srgb), &mapping, levels);
 		image.array_sets = arrays;
 		image.srgb    = srgb;
 		image.block   = p.block;
@@ -394,9 +453,14 @@ namespace bb::gfx {
 			recipe.block         = p.block;
 			recipe.block_mips    = p.mips;
 			recipe.data.assign(p.blocks, p.blocks + p.size);
+			recipe.width         = whole_width;
+			recipe.height        = whole_height;
+			recipe.drop          = drop;
 		}
 		if (!image.image) {
 			rhi::destroy_buffer(staging);
+			image.width  = whole_width;
+			image.height = whole_height;
 			return;
 		}
 
@@ -405,7 +469,7 @@ namespace bb::gfx {
 		std::vector<bb::rhi::buffer_image_copy> copies(levels);
 		uint64_t                            offset = 0;
 		for (uint32_t level = 0; level < levels; level++) {
-			uint32_t w = p.width >> level, h = p.height >> level;
+			uint32_t w = first_width >> level, h = first_height >> level;
 			w = w ? w : 1;
 			h = h ? h : 1;
 			bb::rhi::buffer_image_copy& copy = copies[level];
@@ -422,11 +486,14 @@ namespace bb::gfx {
 		submit_commands();
 
 		rhi::destroy_buffer(staging);
+		image.width  = whole_width;
+		image.height = whole_height;
 	}
 
-	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb)
+	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb, bool streamable)
 	{
-		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true);
+		uint32_t drop = (streamable && mipmaps && (p.mips > 1)) ? streaming_initial_drop(uint32_t(p.width), uint32_t(p.height), 1, false, true, block_bytes(p.block, p.width, p.height)) : 0;
+		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true, drop);
 		allocate_descriptor(set);
 		describe_image(set, image, sampler);
 	}
@@ -451,7 +518,7 @@ namespace bb::gfx {
 		}
 		switch (recipe->kind) {
 		case image_recipe::content::pixels:
-			upload_pixels(fresh, recipe->width, recipe->height, recipe->data.data(), recipe->mipmaps, recipe->srgb, recipe->ten, false, recipe->layers);
+			upload_pixels(fresh, recipe->width, recipe->height, recipe->data.data(), recipe->mipmaps, recipe->srgb, recipe->ten, false, recipe->layers, recipe->drop);
 			break;
 		case image_recipe::content::blocks: {
 			picture p;
@@ -461,7 +528,7 @@ namespace bb::gfx {
 			p.blocks = recipe->data.data();
 			p.size   = recipe->data.size();
 			p.mips   = recipe->block_mips;
-			upload_blocks(fresh, p, sampler, recipe->opaque, recipe->mipmaps, recipe->srgb, false);
+			upload_blocks(fresh, p, sampler, recipe->opaque, recipe->mipmaps, recipe->srgb, false, recipe->drop);
 			break;
 		}
 		case image_recipe::content::blank:
@@ -496,6 +563,9 @@ namespace bb::gfx {
 		fresh.array_sets = img.array_sets;
 		fresh.width   = width;
 		fresh.height  = height;
+		if (recipe->kind != image_recipe::content::blank) {
+			memcpy(recipe->native_info, fresh.recipe->native_info, sizeof(recipe->native_info)); // What was made, which is smaller with levels that were dropped.
+		}
 		delete fresh.recipe; // The one that create_image made.
 		fresh.recipe  = recipe;
 		img = fresh;
@@ -546,6 +616,9 @@ namespace bb::gfx {
 
 	void ensure_color_image(gpu_image& image, bb::rhi::binding_group set)
 	{
+		if (image.recipe && image.recipe->drop) {
+			restore_resident(image, set); // Streaming left levels out: what reads or draws to the image needs all of it.
+		}
 		if (image.ten && image.image) {
 			ten_to_rgba(image, set);
 			return;
@@ -823,6 +896,9 @@ namespace bb::gfx {
 		}
 		evicting = true;
 		bool moved = defragment_images();
+		if (free_bytes() < needed) {
+			textures_drop_mips(needed - free_bytes());
+		}
 		if (free_bytes() < needed) {
 			moved |= textures_evict(needed - free_bytes());
 		}

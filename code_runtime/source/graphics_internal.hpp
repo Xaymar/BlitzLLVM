@@ -89,6 +89,8 @@ namespace bb::gfx {
 		uint64_t           native_info[12] = {};        // The backend's own description of the image as it was made (with the usage bits added), for moving it to other memory. Only the backend reads it.
 		bool               in_system = false;          // The image was moved to system memory to make room for one that has to be in video memory.
 		bool               may_spill = false;          // The image may live in system memory when video memory is full (see image_spill_scope).
+		uint32_t           drop = 0;                   // Texture streaming: how many of the biggest mip levels are not in video memory. The image holds the smaller ones; the data here is still the whole picture. width and height stay those of the whole picture.
+		bool               gpu_written = false;        // The GPU drew to the image, so the data here is not what it holds: it can not be made smaller (or again).
 		content            kind = content::blank;
 		bool               mipmaps = false, srgb = false, ten = false, opaque = false;
 		block_format       block = block_format::none;
@@ -370,6 +372,7 @@ namespace bb::gfx {
 		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
 		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
+		uint32_t        last_used = 0;          // The streaming frame (see streaming_frame) in which a scene last drew it.
 		gpu_image       image;
 		bb::rhi::binding_group set;
 	};
@@ -797,6 +800,20 @@ namespace bb::gfx {
 	};
 	/** Moves textures that may use system memory (no flag 256) out of video memory, biggest first, until 'needed' bytes are free or none is left. False if nothing was moved. */
 	bool textures_evict(uint64_t needed);
+	/** Texture streaming (graphics_streaming.cpp). Drops the biggest mip level of textures that may use system memory, least recently drawn first, one level of each at a time, until 'needed' bytes are freed or none can be made smaller. Returns what was freed. Cheaper for the picture than textures_evict, so it comes first. */
+	uint64_t textures_drop_mips(uint64_t needed);
+	/** For a texture that is made while video memory is short, or that is bigger than one frame of uploads on a backend that has to send them in pieces: how many of the biggest levels to leave out at first, 0 if it fits or may not be made smaller. */
+	uint32_t streaming_initial_drop(uint32_t width, uint32_t height, uint32_t layers, bool ten, bool mipmaps, uint64_t full_bytes);
+	/** Called once for every Flip: sends the next piece of a level that a drawn texture is getting back, starts that for another texture while there is room to spare, and drops levels where the budget is over. */
+	void textures_stream_frame();
+	/** The number of the current streaming frame, to mark textures as used. */
+	uint32_t streaming_frame();
+	/** Makes an image that has dropped levels whole again, for what reads or draws to it. 'set' is the group that samples it. */
+	void restore_resident(gpu_image& img, bb::rhi::binding_group set);
+	/** Lets go of what streaming holds on the GPU (the level that is being sent): before the textures are released. */
+	void streaming_release();
+	/** Halves RGBA8 pictures 'times' times by averaging 2 by 2 pixels (what a linear blit does). */
+	std::vector<uint8_t> shrink_pixels(const uint8_t* source, uint32_t width, uint32_t height, uint32_t layers, uint32_t times);
 	bool image_spill_allowed();
 	bool image_evict_allowed();
 	bool image_system_forced();
@@ -905,7 +922,7 @@ namespace bb::gfx {
 	void textures_rebuild();
 	void images_release();
 	void images_rebuild();
-	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1);
+	void upload_texture(gpu_image& image, bb::rhi::binding_group& set, uint32_t width, uint32_t height, const uint8_t* pixels, bb::rhi::sampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false, uint32_t layers = 1, bool streamable = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -1185,7 +1202,7 @@ namespace bb::gfx {
 	/** The format of an image of blocks. */
 	bb::rhi::format block_image_format(block_format format, bool srgb);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false);
+	void upload_compressed(gpu_image& image, bb::rhi::binding_group& set, picture const& p, bb::rhi::sampler sampler, bool opaque, bool mipmaps, bool srgb = false, bool streamable = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
 	bb::rhi::sampler texture_sampler(int flags);
 	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */
