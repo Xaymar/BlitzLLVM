@@ -56,6 +56,8 @@ WizardStyle=modern
 PrivilegesRequired=lowest
 ChangesEnvironment=yes
 UninstallDisplayName=BlitzLLVM
+SetupIconFile=..\media\windows\blitzllvm.ico
+UninstallDisplayIcon={app}\bin\blitzcc.exe
 ArchitecturesAllowed=x64compatible or arm64
 ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
