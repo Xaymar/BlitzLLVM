@@ -21,11 +21,11 @@ def main():
     procutil.run([blitzcc, source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
     env = dict(os.environ, BLITZLLVM_TEXTURE_BUDGET_MB="60", BLITZLLVM_UPLOAD_BUDGET_MB="1", BLITZLLVM_STREAMING_REPORT="1")
     result = procutil.run([exe], env=env, cwd=work, capture_output=True, text=True, timeout=300)
-    if result.returncode != 0 or "streaming ok" not in result.stderr or "streaming: dropped" not in result.stderr or "gave a texture a level back" not in result.stderr:
+    if result.returncode != 0 or "streaming ok" not in result.stderr or "levels left out" not in result.stderr or "gave a texture a level back" not in result.stderr:
         print("streaming: textures should drop levels under a small budget, get them back and keep their picture.\n%s" % result.stderr)
         return 1
     result = procutil.run([exe], env=dict(env, BLITZLLVM_TEXTURE_STREAMING="0"), cwd=work, capture_output=True, text=True, timeout=300)
-    if result.returncode != 0 or "streaming ok" not in result.stderr or "streaming: dropped" in result.stderr:
+    if result.returncode != 0 or "streaming ok" not in result.stderr or "left out" in result.stderr:
         print("streaming: with BLITZLLVM_TEXTURE_STREAMING=0 no levels should be dropped.\n%s" % result.stderr)
         return 1
     return 0
