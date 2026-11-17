@@ -741,6 +741,7 @@ namespace bb::gfx {
 		last = now;
 		drain();
 		apply_mouse_lock();
+		bb_apply_pointer();
 		while (g.auto_suspend && surface().suspended && surface().window && !g.offscreen && !extra_surface_focused()) {
 			SDL_WaitEventTimeout(nullptr, 50);
 			drain();
@@ -1015,20 +1016,38 @@ void bb_unlock_mouse(void)
 	}
 }
 
+// HidePointer before Graphics is remembered and applies as soon as the window is made (Blitz3D does the same).
+void bb_apply_pointer(void)
+{
+	static int applied = -1; // -1: nothing passed on yet, else 1 for hidden and 0 for shown.
+	if (!active()) {
+		applied = -1; // A new window may need it again.
+		return;
+	}
+	int want = g.pointer_hidden ? 1 : 0;
+	if (want == applied) {
+		return;
+	}
+	applied = want;
+	if (want) {
+		SDL_HideCursor();
+	} else {
+		SDL_ShowCursor();
+	}
+}
+
 void bb_hide_pointer(int32_t canvas)
 {
 	(void)canvas;
-	if (active()) {
-		SDL_HideCursor();
-	}
+	g.pointer_hidden = true;
+	bb_apply_pointer();
 }
 
 void bb_show_pointer(int32_t canvas)
 {
 	(void)canvas;
-	if (active()) {
-		SDL_ShowCursor();
-	}
+	g.pointer_hidden = false;
+	bb_apply_pointer();
 }
 
 // For the device lists: brings in what happened, and says if there is a window to ask.
@@ -1181,16 +1200,17 @@ int32_t bb_wait_mouse(void)
 void bb_set_pointer(int32_t id, int32_t canvas)
 {
 	(void)canvas;
+	if ((id < 0) || (id > 6)) {
+		bb_runtime_error("SetPointer: there is no such pointer.");
+	}
+	g.pointer_hidden = (id == 0);
 	if (!active()) {
 		return;
 	}
 	static SDL_Cursor* cursors[7];
 	static const SDL_SystemCursor kinds[7] = { SDL_SYSTEM_CURSOR_DEFAULT, SDL_SYSTEM_CURSOR_DEFAULT, SDL_SYSTEM_CURSOR_WAIT, SDL_SYSTEM_CURSOR_EW_RESIZE, SDL_SYSTEM_CURSOR_NS_RESIZE, SDL_SYSTEM_CURSOR_NWSE_RESIZE, SDL_SYSTEM_CURSOR_CROSSHAIR };
-	if ((id < 0) || (id > 6)) {
-		bb_runtime_error("SetPointer: there is no such pointer.");
-	}
 	if (id == 0) {
-		SDL_HideCursor();
+		bb_apply_pointer();
 		return;
 	}
 	if (!cursors[id]) {
@@ -1199,6 +1219,6 @@ void bb_set_pointer(int32_t id, int32_t canvas)
 	if (cursors[id]) {
 		SDL_SetCursor(cursors[id]);
 	}
-	SDL_ShowCursor();
+	bb_apply_pointer();
 }
 }
