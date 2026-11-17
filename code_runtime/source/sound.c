@@ -101,9 +101,10 @@ static _Thread_local bb_audio_state bb_audio = { NULL, 0, NULL, 1, 0, NULL, 1, 0
 // How fast sound moves, in meters per second.
 #define BB_SPEED_OF_SOUND 340.0f
 
-// How long the shift takes to follow a change of the speeds (in seconds), which is what makes a sound that passes by glide down
-// in pitch and not jump.
-#define BB_DOPPLER_SMOOTHING 0.12f
+// How long the shift takes to follow a change of the speeds (in seconds). It is short, so a change of speed is heard right away,
+// but a few frames long, so that the pitch glides instead of stepping once per frame. Because it is a time and not a number of
+// frames, it is the same at every frame rate.
+#define BB_DOPPLER_SMOOTHING 0.01f
 
 // The Opus libraries are next to the program (graphics_dds.cpp), where SDL_mixer does not look for them on its own.
 void bb_open_audio_codecs(void);
