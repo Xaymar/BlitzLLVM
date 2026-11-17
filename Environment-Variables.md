@@ -43,7 +43,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
 | `BLITZLLVM_OIT_LAYERS` | `128` | Most layers of `BLITZLLVM_OIT=5`: one pass over the see-through things for each. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[CPU-Optimizations]]. |
-| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto`, `vulkan`, `opengl` or `d3d11`. `auto` takes Vulkan. If no GPU does Vulkan 1.3, it takes Direct3D 11 on Windows and OpenGL on Linux. OpenGL needs version 4.3 and is in the Linux runtime only so far. Direct3D 11 is in the Windows runtime only. Only its 2D drawing is tested so far. One that the runtime does not have ends the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
+| `BLITZLLVM_RENDERER` | `auto` | What draws the graphics: `auto`, `vulkan`, `opengl` or `d3d11`. `auto` takes Vulkan. If no GPU does Vulkan 1.3, it takes the next one that can start: Direct3D 11 (Windows only), then OpenGL. OpenGL needs version 4.3 and is in the Linux and the Windows runtime. Direct3D 11 is in the Windows runtime only. Only its 2D drawing is tested so far. One that the runtime does not have ends the program with an error. `SystemProperty$("renderer")` tells which one is in use, see [[SystemProperty]]. |
 
 ## Features that can be turned off
 

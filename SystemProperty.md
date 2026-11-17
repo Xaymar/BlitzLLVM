@@ -57,7 +57,7 @@ Folders end with a separator, except for the ones of Windows, which are as the s
 
 `ram` is a string of digits, because the amount does not fit into an `Int`. It is the physical memory of the machine, not what is free, and `0` if the system does not say. `runtime` has no commit (`2026.11.4.27883`) if the runtime was not built from a git checkout. `timestamp` is the time `blitzcc` compiled the program, not the time of the runtime build, and follows `SOURCE_DATE_EPOCH` if that is set, so builds can be reproduced. `cpu` and `os` are empty or only a short name if the system does not say more.
 
-`renderer` is known before `Graphics`. The environment variable `BLITZLLVM_RENDERER` picks the renderer: `auto` (the default), `vulkan`, `opengl` or `d3d11`. `auto` takes Vulkan. If no GPU does Vulkan 1.3, it takes Direct3D 11 on Windows and OpenGL on Linux. OpenGL is in the Linux runtime only so far. Direct3D 11 is in the Windows runtime only. Asking for one that the runtime does not have ends the program with an error.
+`renderer` is known before `Graphics`. The environment variable `BLITZLLVM_RENDERER` picks the renderer: `auto` (the default), `vulkan`, `opengl` or `d3d11`. `auto` takes Vulkan. If no GPU does Vulkan 1.3, it takes the next one that can start: Direct3D 11 (Windows only), then OpenGL. OpenGL is in the Linux and the Windows runtime. Direct3D 11 is in the Windows runtime only. Asking for one that the runtime does not have ends the program with an error.
 
 ## Related Commands
 
