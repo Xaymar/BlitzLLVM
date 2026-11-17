@@ -1874,6 +1874,11 @@ namespace bb::rhi::opengl {
 		return true;
 	}
 
+	void set_hdr_metadata(swapchain&, const hdr_metadata&)
+	{
+		// The swapchain is never HDR here: hdr_offered stays false, so AutoHDR does nothing.
+	}
+
 	void destroy_swapchain(swapchain& sc)
 	{
 		if (gl_chain* chain = reinterpret_cast<gl_chain*>(uintptr_t(sc.handle))) {
