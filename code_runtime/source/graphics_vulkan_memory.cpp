@@ -209,7 +209,11 @@ namespace bb::gfx {
 			}
 			// It has to be in video memory (flag 256): textures that may use system memory make room.
 			set_image_evicting(true);
-			bool moved = textures_evict(size);
+			uint64_t dropped = textures_drop_mips(size); // Smaller pictures first, then whole textures.
+			bool     moved   = dropped > 0;
+			if (dropped < size) {
+				moved |= textures_evict(size - dropped);
+			}
 			set_image_evicting(false);
 			if (!moved) {
 				break;
