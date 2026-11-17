@@ -24,7 +24,9 @@ namespace blitz {
 	// A Win32 resource file (.res) with the manifest as the manifest of the executable (RT_MANIFEST, ID 1) and the icon as the icon
 	// of the executable (RT_GROUP_ICON, ID 1, with one RT_ICON per size). The linkers of LLVM (lld-link, and lld for MinGW) turn it
 	// into the .rsrc section of the program, so no resource compiler is needed.
-	std::string windows_default_resources();
+	// With the bytes of another .ico file (--icon) that icon is used instead of the icon of BlitzLLVM; the result is empty when those
+	// bytes are not an .ico file.
+	std::string windows_default_resources(std::string const& icon = std::string());
 
 	// The RT_GROUP_ICON and RT_ICON entries of an .ico file, to be appended to a resource file (empty when the data is not an .ico file).
 	std::string windows_icon_entries(const unsigned char* ico, unsigned long size);

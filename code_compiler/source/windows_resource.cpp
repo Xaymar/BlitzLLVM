@@ -106,12 +106,20 @@ namespace blitz {
 		return out;
 	}
 
-	std::string windows_default_resources()
+	std::string windows_default_resources(std::string const& icon)
 	{
 		std::string out;
 		put_resource(out, 0, 0, std::string(), 0); // The empty entry that marks the file as a 32-bit resource file.
 		put_resource(out, 24, 1, windows_manifest(), 0x1030); // RT_MANIFEST, CREATEPROCESS_MANIFEST_RESOURCE_ID, moveable, pure, discardable
-		out += windows_icon_entries(windows_icon_data, windows_icon_size);
+		if (icon.empty()) {
+			out += windows_icon_entries(windows_icon_data, windows_icon_size);
+		} else {
+			auto entries = windows_icon_entries(reinterpret_cast<const unsigned char*>(icon.data()), icon.size());
+			if (entries.empty()) {
+				return std::string();
+			}
+			out += entries;
+		}
 		return out;
 	}
 } // namespace blitz
