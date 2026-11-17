@@ -280,6 +280,7 @@ namespace bb::gfx {
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
+		bool                  can_present_timing = false; // VK_EXT_present_timing is on (BLITZLLVM_PRESENT_TIMING=1): a window thread can ask for a frame at a time.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  wireframe      = false;
 		rhi::gpu_buffer       scene_buffer; // One block of scene data for each scene that is waiting.

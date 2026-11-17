@@ -496,6 +496,8 @@ namespace bb::rhi {
 		uint64_t done[max_swapchain_images]   = {}; // Signalled when the work on an image is done and it can be shown.
 		uint32_t width  = 0;                   // The size of the images in pixels.
 		uint32_t height = 0;
+		bool     timing = false;      // Made so that a present can ask for a time (present timing), which needs a mode that waits for the display.
+		uint64_t time_domain = 0;     // The id of the time domain those times are in, as the swapchain says.
 	};
 
 	struct swapchain_desc {
@@ -541,6 +543,7 @@ namespace bb::rhi {
 		uint32_t queue_index  = 0; // Which queue of the device: its own where there are enough, else 0, which it shares under the lock.
 		bool     present_wait = false; // The device can wait for a present to be shown (wait_present).
 		uint64_t present_id   = 0;     // Of the last present, which grows with every one.
+		uint64_t target_ns    = 0;     // With a swapchain that has timing: how long after the last present this one is to be shown (0 asks for no time). Set by the thread before show_picture.
 	};
 
 	/** Makes the objects of the presenter on the queue with that index. */

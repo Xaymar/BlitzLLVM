@@ -133,6 +133,11 @@ namespace bb::gfx {
 				if (!wait_for_drawing(p, number)) {
 					continue; // Asked to quit, or the device is lost.
 				}
+				// With present timing, the display side keeps the pace: a frame is asked for one period of the limit after the one before
+				// (SetGraphicsRefreshRate; 0 asks for no time, so the display's own pace holds, also on a display that varies its refresh rate).
+				const bool timing = p.s->chain.timing;
+				float      limit  = bb_get_graphics_refresh_rate();
+				p.wp.target_ns    = (timing && (limit > 0.0f)) ? uint64_t(1000000000.0 / double(limit)) : 0;
 				bb::rhi::show_result shown = bb::rhi::show_picture(p.wp, p.s->chain, frame, frame_w, frame_h);
 				if (shown.stage == bb::rhi::show_result::stage::acquire_failed) {
 					ask_for_swapchain(p);
@@ -143,7 +148,7 @@ namespace bb::gfx {
 					// Pacing, outside of every lock: the next picture goes out one refresh after this one was shown. With present_wait, that
 					// is when the display has it; without, when the timer says the display should. A handover that waits returns after this.
 					bool ok = (shown.presented == bb::rhi::present_status::ok) || (shown.presented == bb::rhi::present_status::suboptimal);
-					if (!(ok && bb::rhi::wait_present(p.wp, p.s->chain, 1000000000ull))) { // A second: a hidden window may never show it.
+					if (!timing && !(ok && bb::rhi::wait_present(p.wp, p.s->chain, 1000000000ull))) { // A second: a hidden window may never show it.
 						uint64_t now = SDL_GetTicksNS();
 						if (p.next_show_ns > now) {
 							SDL_DelayNS(p.next_show_ns - now);
