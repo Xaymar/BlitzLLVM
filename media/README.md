@@ -6,6 +6,7 @@
 The BlitzLLVM logo: an isometric cube (the 3D world) with a lightning bolt ("Blitz") on one side and a graph of nodes (the compiler's intermediate representation) on the other.
 
 * `icon.svg`: the full logo as a square icon. The pixel-art bolt is an embedded PNG.
+* `icon-128.png`: `icon.svg` rendered at 128x128, for the Flatpak (made from `icon.svg`; render it again when the icon changes).
 * `icon-small.svg`: the logo for 16 to 32 pixels. Same cube, bolt and graph as `icon.svg`, without the background, the shadow and the grid on top, and with a bolder graph.
 * `cover.svg` and `cover.png`: the cover image of the itch.io page, 630x500.
 * `banner.png`: the banner of the itch.io page, 960x320, with the logo (the same cube as `icon.svg`) and two screenshots of the forest example (`benchmarks/images`).
