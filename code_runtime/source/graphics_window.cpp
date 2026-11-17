@@ -198,6 +198,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		disable_rounded_corners(surface().window);
 	}
 	SDL_StartTextInput(surface().window);
+	bb_apply_pointer(); // A HidePointer from before the window.
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
 	if (const char* path = bb_env("BLITZLLVM_TEST_WINDOW_FLAGS")) {
 		// Test hook: the flags SDL gave the window, as a number in the named file.
