@@ -119,8 +119,24 @@ if(MINGW)
 	get_filename_component(_MINGW_ROOT "${_MINGW_BIN}" DIRECTORY)
 	# The C headers are not in the directory of a target but in <root>/include, which clang finds as <sysroot>/include.
 	install(DIRECTORY "${_MINGW_ROOT}/include" DESTINATION lib/blitzllvm/mingw PATTERN "c++" EXCLUDE)
-	# Programs of BlitzBasic need the C headers (the inline C of the runtime) and every library to link, but not the C++ headers, nor DLLs.
-	install(DIRECTORY "${_MINGW_ROOT}/${_MINGW_TRIPLE}" DESTINATION lib/blitzllvm/mingw PATTERN "bin" EXCLUDE PATTERN "c++" EXCLUDE PATTERN "*.dll" EXCLUDE)
+	# Programs of BlitzBasic need the C headers (the inline C of the runtime) and what blitzcc links: the startup objects, the C and C++ runtime
+	# libraries and the import libraries of the Windows DLLs that the runtime uses (the list in main.cpp, SDL3, FFmpeg and what the
+	# runtime libraries and the C++ library ask for on their own). Userlibs are loaded when the program runs and link to nothing in here, so the
+	# other ~900 import libraries of llvm-mingw (DirectX 9, MFC, the print drivers, ...) are not shipped, nor the C++ headers, nor DLLs, nor the
+	# C runtimes of other versions of Visual Studio. A library that is missing here makes the check of the package job fail, as it links programs.
+	set(_MINGW_LIBRARIES
+		# The C and C++ runtime: static libraries.
+		c++ c++abi unwind mingw32 mingwex mingwthrd moldname msvcrt msvcrt-os ucrt ucrtbase pthread winpthread m ssp ssp_nonshared delayimp dloadhelper ntdllcrt
+		# Windows: what main.cpp links, and what the libraries and the toolchain ask for.
+		kernel32 user32 gdi32 winmm imm32 ole32 oleaut32 version uuid advapi32 setupapi shell32 cfgmgr32 ws2_32
+		ntdll bcrypt bcryptprimitives synchronization userenv shlwapi comctl32 comdlg32 dbghelp psapi iphlpapi secur32 crypt32 wsock32 mswsock
+		winspool shcore dwmapi uxtheme hid dxgi d3d11 d3dcompiler_47 xinput xinput1_4 mfplat mf mfuuid strmiids propsys wintrust ncrypt netapi32
+		mincore rpcrt4 normaliz windowsapp dinput8 dsound opengl32 glu32 vulkan-1 msimg32 wtsapi32 wldap32)
+	set(_MINGW_PATTERNS PATTERN "*.o")
+	foreach(_LIBRARY IN LISTS _MINGW_LIBRARIES)
+		list(APPEND _MINGW_PATTERNS PATTERN "lib${_LIBRARY}.a")
+	endforeach()
+	install(DIRECTORY "${_MINGW_ROOT}/${_MINGW_TRIPLE}/lib" DESTINATION lib/blitzllvm/mingw/${_MINGW_TRIPLE} FILES_MATCHING ${_MINGW_PATTERNS})
 	file(GLOB _MINGW_CLANG_VERSIONS LIST_DIRECTORIES true "${_MINGW_ROOT}/lib/clang/*")
 	foreach(_DIR IN LISTS _MINGW_CLANG_VERSIONS)
 		get_filename_component(_VERSION "${_DIR}" NAME)
