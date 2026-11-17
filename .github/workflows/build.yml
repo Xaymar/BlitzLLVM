@@ -361,13 +361,20 @@ jobs:
           mv dist/bin-x86_64 dist/bin/x86_64
           cp -r install/arm64/bin dist/bin/arm64
           cp -r install/arm64/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/runtime/arm64
+          # Not again: the tools of arm64 are in bin/arm64 now, and bin/ itself holds only the folders of the architectures.
+          rm -r install/arm64/bin
           # The MinGW folder is shared: the headers are the same, and the triple of each architecture is a folder of its own.
           cp -rn install/arm64/. dist/
           for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64-w64-mingw32 dist/lib/blitzllvm/mingw/aarch64-w64-mingw32 dist/bin/x86_64 dist/bin/arm64; do
             test -d "$d" || { echo "The merged package has no $d"; exit 1; }
           done
-          # No target that is not offered is in the sysroot.
+          # Nothing else is in bin, and no target that is not offered is in the sysroot.
+          test -z "$(find dist/bin -maxdepth 1 -type f)" || { echo "bin has files of its own, they belong in bin/x86_64 or bin/arm64"; exit 1; }
           test "$(ls dist/lib/blitzllvm/mingw | grep -c -e '-w64-mingw32$')" = 2 || { echo "The sysroot has other triples than x86_64 and aarch64"; ls dist/lib/blitzllvm/mingw; exit 1; }
+          # No file of a megabyte or more is in the package twice (a copy of the same files in two places is what made it twice as large). Not
+          # in the samples (the originals have copies of their own) and the libraries of the sysroot (llvm-mingw makes libmsvcrt.a and libucrt.a the same file on arm64).
+          duplicates=$(find dist -type f -size +1M -not -path 'dist/samples/*' -not -path 'dist/lib/blitzllvm/mingw/*-w64-mingw32/lib/*' -exec sha256sum {} + | sort | uniq -w64 -D)
+          test -z "$duplicates" || { echo "Files of the package that are in it twice:"; echo "$duplicates"; exit 1; }
           find dist -type f | wc -l
       - name: Set up llvm-mingw
         uses: ./.github/actions/setup-mingw
