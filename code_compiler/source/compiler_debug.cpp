@@ -149,6 +149,38 @@ void blitz::compiler::di_finish_objects()
 	}
 }
 
+// What a Dim array is: the address of its elements and how many there are in each dimension. A debugger shows the first element
+// by following Data, the others are Data[1] and so on (Count says where the first dimension ends, and Pitch is how far apart the
+// rows of a 2D array are, in elements).
+std::string blitz::compiler::di_dim_type(type t, std::string const& sname, uint32_t dims)
+{
+	std::string members;
+	auto        id     = md("", true);
+	auto        member = [&](std::string const& field, std::string const& base, uint64_t size, uint64_t offset) {
+        members += (members.empty() ? "" : ", ") + md("!DIDerivedType(tag: DW_TAG_member, name: " + md_string(field) + ", scope: " + id + ", baseType: " + base + ", size: " + std::to_string(size) + ", offset: " + std::to_string(offset) + ")");
+	};
+	auto element = di_type(t, lower(sname), 0);
+	auto int32   = di_type(type::INT32, std::string(), 0);
+	member("Data", md("!DIDerivedType(tag: DW_TAG_pointer_type, baseType: " + element + ", size: 64)"), 64, 0);
+	for (uint32_t dim = 0; dim < dims; dim++) {
+		member("Count" + std::to_string(dim), int32, 32, 64 + 32 * dim);
+	}
+	if (dims > 1) {
+		member("Pitch", int32, 32, 64 + 32 * 4);
+	}
+	std::string name = blitz::types::to_string(t);
+	name[0]          = char(std::toupper((unsigned char)name[0]));
+	if (t == type::STRING) {
+		name = "String";
+	} else if (t == type::STRUCT) {
+		name = sname.empty() ? "Object" : sname; // As it was written, Types are not known yet when the globals are collected.
+	} else if (t == type::FLOAT32) {
+		name = "Float";
+	}
+	_md[std::stoul(id.substr(1))] = "!DICompositeType(tag: DW_TAG_structure_type, name: " + md_string("Array of " + name + ", " + std::to_string(dims) + (dims == 1 ? " dimension" : " dimensions")) + ", size: " + std::to_string(256) + ", elements: " + md("!{" + members + "}") + ")";
+	return id;
+}
+
 std::string blitz::compiler::di_type(type t, std::string const& sname, uint32_t count)
 {
 	std::string base;
@@ -234,6 +266,15 @@ std::string blitz::compiler::di_global(std::string const& name, type t, std::str
 		return std::string();
 	}
 	return di_global_of(name, di_type(t, sname, count), where);
+}
+
+// The same for a Dim array, whose variable is the descriptor of it.
+std::string blitz::compiler::di_global_dim(std::string const& name, type t, std::string const& sname, uint32_t dims, ast::location const& where)
+{
+	if (!debug_info) {
+		return std::string();
+	}
+	return di_global_of(name, di_dim_type(t, sname, dims), where);
 }
 
 std::string blitz::compiler::di_global_of(std::string const& name, std::string const& type_md, ast::location const& where)

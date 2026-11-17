@@ -295,11 +295,13 @@ namespace blitz {
 		std::string di_type(blitz::types::type t, std::string const& sname, uint32_t count);
 		std::string di_string_type();
 		std::string di_object_type(std::string const& sname);
+		std::string di_dim_type(blitz::types::type t, std::string const& sname, uint32_t dims);
 		void        di_finish_objects();
 		std::string di_begin_function(std::string const& name, std::string const& symbol, ast::location const& where, blitz::types::type ret, std::string const& ret_sname, std::vector<ast::parameter> const* params, bool local);
 		void        di_end_function();
 		void        di_declare_local(std::string const& name, std::string const& pointer, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where, uint32_t arg);
 		std::string di_global(std::string const& name, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where);
+		std::string di_global_dim(std::string const& name, blitz::types::type t, std::string const& sname, uint32_t dims, ast::location const& where);
 		std::string di_global_of(std::string const& name, std::string const& type_md, ast::location const& where);
 		void        di_begin_module();
 		std::string di_end_module();

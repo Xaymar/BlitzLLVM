@@ -310,7 +310,10 @@ elseif(CASE STREQUAL "debug_info")
 	blitzcc(-S -d --target x86_64-unknown-linux-gnu "${TESTS}/cli/debug_types.bb" -o "${WORK}/types.ll")
 	expect_ok()
 	file(READ "${WORK}/types.ll" _IR)
-	foreach(_NEEDED IN ITEMS "name: \"String\", baseType:" "name: \"char\", size: 8, encoding: DW_ATE_signed_char" "!DIGlobalVariable(name: \"Title\"" "!DICompositeType(tag: DW_TAG_structure_type, name: \"Monster\", size: 512" "name: \"Health\"" "name: \"Name\"" "name: \"Friend\"" "name: \"__handle\"" "!DILocalVariable(name: \"Boss\"")
+	foreach(_NEEDED IN ITEMS "name: \"String\", baseType:" "name: \"char\", size: 8, encoding: DW_ATE_signed_char"
+		"!DICompositeType(tag: DW_TAG_structure_type, name: \"Monster\", size: 512" "name: \"Health\"" "name: \"Name\"" "name: \"Friend\"" "name: \"__handle\""
+		"!DICompositeType(tag: DW_TAG_array_type, baseType: " "!DIGlobalVariable(name: \"Grid\"" "!DIGlobalVariable(name: \"Words\"" "!DIGlobalVariable(name: \"Title\""
+		"name: \"Array of Int, 2 dimensions\", size: 256" "name: \"Array of String, 1 dimension\"" "name: \"Pitch\"" "!DILocalVariable(name: \"Boss\"")
 		string(FIND "${_IR}" "${_NEEDED}" _AT)
 		if(_AT EQUAL -1)
 			message(FATAL_ERROR "The debug IR of the Type, String and Dim program does not contain '${_NEEDED}'.")
