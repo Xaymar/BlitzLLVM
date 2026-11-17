@@ -78,9 +78,16 @@ namespace {
 		return modes[uint32_t(index) - 1];
 	}
 
+	// The GPUs of the backend that draws. Which backend that is has to be decided first, or the list would be the one of Vulkan.
+	void list_drivers()
+	{
+		bb::rhi::selected_backend();
+		list_gpus();
+	}
+
 	void need_driver(int32_t driver, const char* what)
 	{
-		list_gpus();
+		list_drivers();
 		if ((driver < 1) || (uint32_t(driver) > gpu_total)) {
 			char message[96];
 			snprintf(message, sizeof(message), "%s: the graphics driver does not exist.", what);
@@ -112,7 +119,7 @@ extern "C" {
 
 int32_t bb_count_gfx_drivers(void)
 {
-	list_gpus();
+	list_drivers();
 	return int32_t(gpu_total);
 }
 
@@ -140,7 +147,7 @@ void bb_set_gfx_driver(int32_t driver)
 // A BlitzLLVM extension: the driver that is in use, or the one that will be used if no graphics window is open yet.
 int32_t bb_gfx_driver(void)
 {
-	list_gpus();
+	list_drivers();
 	if (g.created && (g.driver_used > 0)) {
 		return g.driver_used;
 	}
