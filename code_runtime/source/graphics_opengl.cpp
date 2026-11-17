@@ -985,6 +985,13 @@ namespace bb::gfx {
 			gpu_total = 1;
 		}
 
+		// Whether OpenGL 4.3 is there is only known with a window and a context. OpenGL is the last backend that "auto" asks, so it says yes
+		// and gives its own message when the context can not be made.
+		bool can_start()
+		{
+			return true;
+		}
+
 		void close_prebuild()
 		{
 			// Buffers are only made by the thread of the context, so there is no other thread to wait for.

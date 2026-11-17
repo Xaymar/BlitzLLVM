@@ -117,4 +117,7 @@ BB_GFX_CALL(void, generate_mips, (bb::gfx::gpu_image& image, bb::rhi::image_stat
 BB_GFX_CALL(bool, compressed_supported, (bb::gfx::block_format format), (format))
 BB_GFX_CALL(bool, ten_bit_supported, (), ())
 BB_GFX_CALL(void, list_gpus, (), ())
+// Whether the backend finds what it needs to draw on this machine (a driver and a GPU that it can use), which "auto" asks before it takes
+// the backend. It is asked before the backend is chosen, so it may only use what list_gpus uses.
+BB_GFX_CALL(bool, can_start, (), ())
 BB_GFX_CALL(void, close_prebuild, (), ())

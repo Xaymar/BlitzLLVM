@@ -904,6 +904,24 @@ namespace bb::gfx {
 	}
 	} // namespace vulkan
 
+	namespace vulkan {
+	// Whether there is a GPU that does Vulkan 1.3 and can draw. Without a display nothing is drawn by any backend, so the answer is yes
+	// there, and the program goes on as it did before there were other backends.
+	bool can_start()
+	{
+		if (bb_env_bool("BLITZLLVM_HEADLESS", 0) || !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+			return true;
+		}
+		list_gpus();
+		for (uint32_t i = 0; i < gpu_total; i++) {
+			if (!gpus[i].fallback && gpus[i].usable) {
+				return true;
+			}
+		}
+		return false;
+	}
+	} // namespace vulkan
+
 	// The number of the driver (from 0) that the GPU is in the list, or -1.
 	int driver_of(VkPhysicalDevice* devices, uint32_t d)
 	{

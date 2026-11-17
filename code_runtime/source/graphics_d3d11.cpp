@@ -1144,7 +1144,8 @@ namespace bb::gfx {
 			if (listed) {
 				return;
 			}
-			listed = true;
+			listed    = true;
+			gpu_total = 0; // "auto" may have listed the GPUs of another backend before.
 			auto none = [] {
 				gpus[0]          = {};
 				gpus[0].fallback = true;
@@ -1202,6 +1203,27 @@ namespace bb::gfx {
 				gpus[j]           = entry;
 				adapter_of_gpu[j] = adapter;
 			}
+		}
+
+		// Whether d3d11.dll is there and DXGI lists an adapter (which may be the software one, WARP). Whether the adapter does feature level
+		// 11_0 is only known when the device is made.
+		bool can_start()
+		{
+			if (bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
+				return true;
+			}
+			HMODULE library = LoadLibraryA("d3d11.dll");
+			if (!library) {
+				return false;
+			}
+			FreeLibrary(library);
+			list_gpus();
+			for (uint32_t i = 0; i < gpu_total; i++) {
+				if (!gpus[i].fallback) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		void close_prebuild()
