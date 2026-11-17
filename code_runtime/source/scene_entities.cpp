@@ -854,7 +854,9 @@ void bb_entity_static(int32_t handle, int32_t is_static)
 
 void bb_entity_blend(int32_t handle, int32_t blend)
 {
-	need(handle, "EntityBlend")->blend = (blend < 1 || blend > 3) ? 1 : blend;
+	entity* e   = need(handle, "EntityBlend");
+	e->blend     = (blend < 1 || blend > 3) ? 1 : blend;
+	e->blend_set = true;
 }
 
 void bb_entity_shininess(int32_t handle, float shininess)

@@ -1806,6 +1806,23 @@ namespace bb::gfx {
 		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
 		texture_entry* texture        = texture_of(texture_handle);
 		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
+		// The original looks at the textures of a brush by how many there are: without BrushBlend or EntityBlend of 1 only a lone
+		// texture makes the surface see-through, with it any of them does. So four layers of textures with alpha that were made
+		// for a sprite (bumpyfun) are drawn solid and not blended with what is behind them.
+		bool explicit_alpha = (s.painted && s.paint.blend == 1) || e.blend_set;
+		int  top_layer      = texture_handle ? 0 : -1;
+		bool any_alpha      = see_through;
+		for (int layer = 1; layer < 8; layer++) {
+			int            handle = (s.painted && s.paint.layers[layer - 1]) ? s.paint.layers[layer - 1] : e.layers[layer - 1];
+			texture_entry* extra  = texture_of(handle);
+			if (handle && extra) {
+				top_layer = layer;
+				any_alpha = any_alpha || ((extra->flags & TEXTURE_ALPHA) && !(extra->flags & TEXTURE_MASKED));
+			}
+		}
+		if (top_layer > 0) {
+			see_through = explicit_alpha ? any_alpha : false;
+		}
 		bool vertex_alpha  = ((e.fx | (s.painted ? s.paint.fx : 0)) & 32) != 0;
 		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
 	}
