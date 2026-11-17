@@ -461,7 +461,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TerrainShading](TerrainShading#differences): The terrain is always lit with normals that follow the height, whatever this is set to.
 * [Text](Text#differences): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
 * [TextureBlend](TextureBlend#differences): Layers that have no texture or a blend of 0 are left out, and the layers after them move up, so the first of the others is blended with the surface like the original does.
-* [TextureBuffer](TextureBuffer#differences): SetBuffer on a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
+* [TextureBuffer](TextureBuffer#differences): RenderWorld into a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
 * [TextureCoords](TextureCoords#differences): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
 * [TextureHeight](TextureHeight#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
 * [TextureName](TextureName#differences): The original turns the path into lower case.
