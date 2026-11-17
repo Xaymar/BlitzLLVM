@@ -1153,13 +1153,19 @@ namespace bb::collision {
 		}
 		drop_stale_broad_phases();
 
+		// All of the lists are emptied before anything is collided, as what one entity hits is also told to the one it hit, which
+		// may be an entity further down that would otherwise empty its list afterwards.
+		for (int handle = 1; handle <= entity_count() && handle <= int(contact_lists.size); handle++) {
+			entity* e = get_entity(handle);
+			if (e && (e->coll_type != 0)) {
+				contact_lists[uint32_t(handle) - 1].contacts.clear();
+			}
+		}
+
 		for (int handle = 1; handle <= entity_count(); handle++) {
 			entity* e = get_entity(handle);
 			if (!e || (e->coll_type == 0)) {
 				continue;
-			}
-			if (handle <= int(contact_lists.size)) {
-				contact_lists[uint32_t(handle) - 1].contacts.clear();
 			}
 			if (!is_enabled(handle)) {
 				continue;
