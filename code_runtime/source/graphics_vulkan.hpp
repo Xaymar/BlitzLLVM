@@ -38,6 +38,7 @@
 	X(vkGetPhysicalDeviceMemoryProperties) \
 	X(vkGetPhysicalDeviceSurfaceSupportKHR) \
 	X(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) \
+	X(vkGetPhysicalDeviceSurfaceCapabilities2KHR) \
 	X(vkGetPhysicalDeviceSurfaceFormatsKHR) \
 	X(vkGetPhysicalDeviceSurfacePresentModesKHR) \
 	X(vkEnumerateDeviceExtensionProperties) \
@@ -53,6 +54,8 @@
 	X(vkQueuePresentKHR) \
 	X(vkWaitForPresentKHR) \
 	X(vkSetHdrMetadataEXT) \
+	X(vkSetSwapchainPresentTimingQueueSizeEXT) \
+	X(vkGetSwapchainTimeDomainPropertiesEXT) \
 	X(vkWaitSemaphores) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \

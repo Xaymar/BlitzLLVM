@@ -547,6 +547,8 @@ namespace bb::rhi {
 		uint32_t height = 0;
 		bool     hdr_offered = false;          // The window system offers scRGB (linear, 1.0 = 80 nits) in 16-bit floats, and the images can be blitted to.
 		bool     hdr         = false;          // The images are scRGB: the picture shown has to be linear, in 16-bit floats.
+		bool     timing = false;      // Made so that a present can ask for a time (present timing), which needs a mode that waits for the display.
+		uint64_t time_domain = 0;     // The id of the time domain those times are in, as the swapchain says.
 		uint64_t device = 0;                   // The device it was made with, which destroys it (on any thread).
 	};
 
@@ -608,6 +610,7 @@ namespace bb::rhi {
 		uint32_t queue_index  = 0; // Which queue of the device: its own where there are enough, else 0, which it shares under the lock.
 		bool     present_wait = false; // The device can wait for a present to be shown (wait_present).
 		uint64_t present_id   = 0;     // Of the last present, which grows with every one.
+		uint64_t target_ns    = 0;     // With a swapchain that has timing: how long after the last present this one is to be shown (0 asks for no time). Set by the thread before show_picture.
 	};
 
 	/** Makes the objects of the presenter on the queue with that index. */
