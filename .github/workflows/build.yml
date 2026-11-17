@@ -325,6 +325,9 @@ jobs:
     needs: build
     if: inputs.packages
     runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: write
     defaults:
       run:
         shell: bash
@@ -454,6 +457,21 @@ jobs:
         with:
           path: packages/${{ env.ARTIFACT }}-setup.exe
           archive: false
+      - name: Delete the installs of the architectures
+        # They only carried the builds to this job. Left behind they are listed with the build results, under names that are not the packages'
+        # (the zip and the installer are made from them above). Not being able to delete them (a pull request from a fork has a read-only
+        # token) leaves them to expire after their day.
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for name in windows-x64-install windows-arm64-install; do
+            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=${name}" --jq '.artifacts[].id' | while read -r id; do
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}"
+            done
+          done
 
 
   flatpak:

@@ -26,6 +26,10 @@ concurrency:
 
 jobs:
   build:
+    # The Windows package job deletes the installs that it merges (actions: write), so they are not listed with the results.
+    permissions:
+      contents: read
+      actions: write
     # The platforms, packages and their checks are in build.yml, which the Test workflow uses as well.
     uses: ./.github/workflows/build.yml
 

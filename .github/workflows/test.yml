@@ -138,6 +138,10 @@ jobs:
     name: Build
     needs: changes
     if: needs.changes.outputs.mode != 'none'
+    # The Windows package job deletes the installs that it merges (actions: write), so they are not listed with the results.
+    permissions:
+      contents: read
+      actions: write
     uses: ./.github/workflows/build.yml
     with:
       packages: ${{ needs.changes.outputs.packages == 'true' }}

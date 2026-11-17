@@ -67,6 +67,10 @@ jobs:
   build:
     name: Build
     needs: tag
+    # The Windows package job deletes the installs that it merges (actions: write), so they are not listed with the results.
+    permissions:
+      contents: read
+      actions: write
     # The platforms, packages and their checks are in build.yml, which the Nightly and Test workflows use as well.
     uses: ./.github/workflows/build.yml
     with:
