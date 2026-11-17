@@ -80,6 +80,16 @@ static void keep_pixels(gpu_image& image, bb::rhi::binding_group set)
 	recipe.from_file = false;
 }
 
+// Forgets the state of the window and what was drawn in it. The close prompt of AppTitle belongs to the program, not to the window,
+// so it stays: a program may call AppTitle once, then Graphics, EndGraphics and Graphics again (the samples of Blitz3D do).
+static void reset_state()
+{
+	char close_prompt[sizeof(g.close_prompt)];
+	memcpy(close_prompt, g.close_prompt, sizeof(close_prompt));
+	g = state();
+	memcpy(g.close_prompt, close_prompt, sizeof(close_prompt));
+}
+
 static void release_for_new_graphics()
 {
 	flush(); // What was asked for is drawn first, as it can be in an image.
@@ -104,7 +114,7 @@ static void release_for_new_graphics()
 	}
 	bb_free(g.ops);
 	forget_recorded();
-	g = state();
+	reset_state(); // Keeps what belongs to the program.
 	bb::rhi::forget_backend_state();
 }
 
@@ -409,7 +419,7 @@ void bb_end_graphics(void)
 	}
 	bb_free(g.ops);
 	forget_recorded();
-	g = state();
+	reset_state(); // Keeps what belongs to the program.
 	bb::rhi::forget_backend_state();
 }
 
