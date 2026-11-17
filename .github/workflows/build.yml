@@ -361,11 +361,13 @@ jobs:
           mv dist/bin-x86_64 dist/bin/x86_64
           cp -r install/arm64/bin dist/bin/arm64
           cp -r install/arm64/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/runtime/arm64
-          cp -r install/arm64/lib/blitzllvm/mingw/arm64 dist/lib/blitzllvm/mingw/arm64
+          # The MinGW folder is shared: the headers are the same, and the triple of each architecture is a folder of its own.
           cp -rn install/arm64/. dist/
-          for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64 dist/lib/blitzllvm/mingw/arm64 dist/bin/x86_64 dist/bin/arm64; do
+          for d in dist/lib/blitzllvm/runtime/x86_64 dist/lib/blitzllvm/runtime/arm64 dist/lib/blitzllvm/mingw/x86_64-w64-mingw32 dist/lib/blitzllvm/mingw/aarch64-w64-mingw32 dist/bin/x86_64 dist/bin/arm64; do
             test -d "$d" || { echo "The merged package has no $d"; exit 1; }
           done
+          # No target that is not offered is in the sysroot.
+          test "$(ls dist/lib/blitzllvm/mingw | grep -c -e '-w64-mingw32$')" = 2 || { echo "The sysroot has other triples than x86_64 and aarch64"; ls dist/lib/blitzllvm/mingw; exit 1; }
           find dist -type f | wc -l
       - name: Set up llvm-mingw
         uses: ./.github/actions/setup-mingw
@@ -415,7 +417,7 @@ jobs:
           $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
           $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
           if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
-          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64', 'lib\blitzllvm\mingw\arm64', 'LICENSE.adoc', 'unins000.exe') {
+          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64-w64-mingw32', 'lib\blitzllvm\mingw\aarch64-w64-mingw32', 'LICENSE.adoc', 'unins000.exe') {
             if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
           }
           foreach ($f in 'bin\x86_64', 'bin\arm64') { if (Test-Path (Join-Path $dir $f)) { throw "$f must not be installed, bin has the tools of this computer" } }
