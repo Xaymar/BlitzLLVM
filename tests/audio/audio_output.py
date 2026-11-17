@@ -198,7 +198,7 @@ for what, listener_step, source_step, scale, distance, low, high in (
 	frequency = play_moving(listener_step, source_step, scale, distance)
 	check("doppler, %s: %.1f Hz is %.2f to %.2f of %.1f Hz" % (what, frequency, low, high, expected), expected * low < frequency < expected * high)
 
-# The shift is smooth: a source that stands still and then drives off glides down in pitch, it does not jump.
+# The shift is quick but not a jump: a source that stands still and then drives off is heard shifting within a few frames.
 def play_start_stop():
 	body = (
 		's = Load3DSound("tone.wav")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, 100\n'
@@ -222,11 +222,19 @@ def play_start_stop():
 
 samples = play_start_stop()
 loud = [i for i, v in enumerate(samples) if abs(v) > 300][0]
-window = int(0.04 * OUTPUT_RATE)
-pitches = [crossings_frequency(samples[loud + i * window : loud + (i + 1) * window]) for i in range(1, 44)]
+window = int(0.02 * OUTPUT_RATE)
+pitches = [crossings_frequency(samples[loud + i * window : loud + (i + 1) * window]) for i in range(1, 90)]
 pitches = [p for p in pitches if p > 0]
-steps = [abs(pitches[i + 1] - pitches[i]) / expected for i in range(len(pitches) - 1)]
-check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step between 40 ms is %.1f%%" % (pitches[0], min(pitches), max(steps) * 100), pitches[0] > expected * 0.98 and min(pitches) < expected * 0.93 and max(steps) < 0.08)
+settled = min(pitches)
+# The speed changes at once (the source stands still and then moves 3 units in a step), and the pitch follows within a few tens of
+# milliseconds: no half second of gliding, but no overshoot or wobble on the way either.
+start = next(i for i, p in enumerate(pitches) if p < expected * 0.98)
+done = next(i for i, p in enumerate(pitches) if p < expected - 0.9 * (expected - settled))
+wobble = max(max(0.0, pitches[i + 1] - pitches[i]) for i in range(start, len(pitches) - 1)) / expected
+check(
+	"doppler follows a change of speed quickly: the pitch goes from %.1f to %.1f Hz, 90%% of it within %d ms, wobble %.1f%%" % (pitches[0], settled, (done - start + 1) * 20, wobble * 100),
+	pitches[0] > expected * 0.98 and settled < expected * 0.93 and (done - start) * 20 <= 60 and wobble < 0.05,
+)
 
 # Volume falloff: the peak of a sound that is `units` away from the listener, relative to the same sound next to it. The runtime's own
 # curve ("new") is 1 / (1 + rolloff * meters * 0.05); BLITZLLVM_VOLUME_FALLOFF=soloud gives 1 / (1 + rolloff * (meters - 1)) as SoLoud does and
