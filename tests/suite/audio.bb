@@ -52,6 +52,16 @@ SoundPan sound, 0
 SoundPan sound, 1
 suite_checks = suite_checks + 7
 
+; The 0 of a sound that failed to load does nothing, in every build. PlaySound gives no channel for it.
+bad = LoadSound(folder + "/missing.wav")
+LoopSound bad
+SoundPitch bad, 44100
+SoundVolume bad, 0.5
+SoundPan bad, 0.5
+Check "PlaySound without a sound", PlaySound(bad), 0
+FreeSound bad
+suite_checks = suite_checks + 1
+
 ; Playing gives a channel, 0 if there is no sound device.
 channel = PlaySound(sound)
 If channel <> 0 Then

@@ -221,9 +221,8 @@ static float bb_clamp(float v, float lo, float hi)
 
 static bb_sound* bb_sound_get(int32_t handle, const char* what)
 {
-	static bb_sound none; // Programs pass the 0 of a sound that failed to load, which Blitz ignores.
+	static bb_sound none; // Programs pass the 0 of a sound that failed to load, which Blitz ignores (also in a debug build).
 	if (handle == 0) {
-		BB_DEBUG_HANDLE_MISSING(what, "sound", handle);
 		memset(&none, 0, sizeof(none));
 		return &none;
 	}
