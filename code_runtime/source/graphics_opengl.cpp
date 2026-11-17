@@ -31,6 +31,10 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL3/SDL_opengl.h>
+// windows.h, which the header above includes on Windows, has a macro of the name of an OpenGL function (glMemoryBarrier).
+#ifdef MemoryBarrier
+#undef MemoryBarrier
+#endif
 
 #include <atomic>
 #include <condition_variable>
