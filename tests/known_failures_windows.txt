@@ -116,7 +116,6 @@ suite-debug-compile-fail-delete_null
 suite-debug-compile-fail-dim_overflow
 suite-debug-compile-fail-entitytexture_freed
 suite-debug-compile-fail-freeimage_twice
-suite-debug-compile-fail-freesound_zero
 suite-debug-compile-fail-freetexture_twice
 suite-debug-compile-fail-freetexture_zero
 suite-debug-compile-fail-graphics_device_lost_repeated_pixels
@@ -128,7 +127,6 @@ suite-debug-compile-fail-pixel_fast_writepixelfast64_unlocked_pixels
 suite-debug-compile-fail-pixel_fast_writepixelfast_unlocked_pixels
 suite-debug-compile-fail-object_deleted_field
 suite-debug-compile-fail-object_deleted_insert
-suite-debug-compile-fail-playsound_zero
 suite-debug-compile-fail-runtimeerror
 suite-debug-compile-fail-renderworld_not_target
 suite-debug-compile-fail-stopchannel_never
@@ -308,7 +306,6 @@ suite-debug-run-fail-delete_null
 suite-debug-run-fail-dim_overflow
 suite-debug-run-fail-entitytexture_freed
 suite-debug-run-fail-freeimage_twice
-suite-debug-run-fail-freesound_zero
 suite-debug-run-fail-freetexture_twice
 suite-debug-run-fail-freetexture_zero
 suite-debug-run-fail-graphics_device_lost_repeated_pixels
@@ -320,7 +317,6 @@ suite-debug-run-fail-pixel_fast_writepixelfast64_unlocked_pixels
 suite-debug-run-fail-pixel_fast_writepixelfast_unlocked_pixels
 suite-debug-run-fail-object_deleted_field
 suite-debug-run-fail-object_deleted_insert
-suite-debug-run-fail-playsound_zero
 suite-debug-run-fail-runtimeerror
 suite-debug-run-fail-renderworld_not_target
 suite-debug-run-fail-stopchannel_never
