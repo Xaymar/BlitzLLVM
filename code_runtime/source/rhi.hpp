@@ -543,6 +543,16 @@ namespace bb::rhi {
 		uint64_t done[max_swapchain_images]   = {}; // Signalled when the work on an image is done and it can be shown.
 		uint32_t width  = 0;                   // The size of the images in pixels.
 		uint32_t height = 0;
+		bool     hdr_offered = false;          // The window system offers scRGB (linear, 1.0 = 80 nits) in 16-bit floats, and the images can be blitted to.
+		bool     hdr         = false;          // The images are scRGB: the picture shown has to be linear, in 16-bit floats.
+	};
+
+	/** The luminance of the display, in nits, for the window system's tone mapping. */
+	struct hdr_metadata {
+		float max_luminance = 0.0f;
+		float min_luminance = 0.0f;
+		float max_content_light = 0.0f;
+		float max_frame_average = 0.0f;
 	};
 
 	struct swapchain_desc {
@@ -551,10 +561,14 @@ namespace bb::rhi {
 		uint32_t height     = 0;
 		int      vsync      = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		bool     own_thread = false; // A thread of its own shows the pictures, so a present must never wait for the display.
+		bool     hdr        = false; // Wants scRGB images (see swapchain::hdr), used if hdr_offered comes back true.
 	};
 
 	/** Makes the swapchain (replacing nothing: destroy_swapchain it first). Sets the size even if no images are made because the window is minimized (size 0). False if the device is lost, with nothing set. */
 	bool create_swapchain(swapchain& chain, const swapchain_desc& desc);
+
+	/** Tells the window system the luminance range of the picture (the primaries are those of sRGB). Does nothing if the swapchain is not scRGB or the backend cannot. */
+	void set_hdr_metadata(swapchain& chain, const hdr_metadata& metadata);
 
 	/** Frees the images' semaphores and the swapchain. The caller has waited for the GPU. */
 	void destroy_swapchain(swapchain& chain);

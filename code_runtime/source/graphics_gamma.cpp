@@ -344,6 +344,12 @@ namespace bb::gfx {
 		}
 	}
 
+	bool gamma_plain()
+	{
+		need_gamma();
+		return is_identity() && !palette_mode(); // Dither is no matter: its noise is for the rounding to 8 bits, which the HDR picture does not have.
+	}
+
 	gpu_image* apply_gamma(gpu_image& front)
 	{
 		need_gamma();
@@ -381,7 +387,7 @@ namespace bb::gfx {
 		if ((shown.width != front.width) || (shown.height != front.height)) {
 			wait_gpu(); // The frame before may still read it.
 			destroy_image(shown);
-			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source);
+			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_sampled); // The HDR pass samples it.
 		}
 
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
