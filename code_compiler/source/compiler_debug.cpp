@@ -102,6 +102,53 @@ std::string blitz::compiler::di_string_type()
 	return md("!DIDerivedType(tag: DW_TAG_typedef, name: \"String\", baseType: " + ptr + ")");
 }
 
+// An object is a pointer to the fields of its Type. The fields are described at the end of the module, as Types are known by then
+// and can refer to each other (and to themselves).
+std::string blitz::compiler::di_object_type(std::string const& sname)
+{
+	auto it = _di_objects.find(sname);
+	if (it == _di_objects.end()) {
+		it = _di_objects.emplace(sname, md("", true)).first;
+		_di_pending.push_back(sname);
+	}
+	return md("!DIDerivedType(tag: DW_TAG_pointer_type, baseType: " + it->second + ", size: 64)");
+}
+
+void blitz::compiler::di_finish_objects()
+{
+	// Describing one Type can ask for others, which are added to the end.
+	for (size_t at = 0; at < _di_pending.size(); at++) {
+		auto const  sname = _di_pending[at];
+		auto const  id    = _di_objects[sname];
+		auto        known = _types.find(sname);
+		std::string name  = (known != _types.end()) ? known->second.name : sname;
+
+		std::string members;
+		auto        member = [&](std::string const& field, std::string const& base, uint64_t size, uint64_t offset) {
+            members += (members.empty() ? "" : ", ") + md("!DIDerivedType(tag: DW_TAG_member, name: " + md_string(field) + ", scope: " + id + ", baseType: " + base + ", size: " + std::to_string(size) + ", offset: " + std::to_string(offset) + ")");
+		};
+		// The header every object starts with, see bb_object in the runtime.
+		auto self = md("!DIDerivedType(tag: DW_TAG_pointer_type, baseType: " + id + ", size: 64)");
+		auto int32 = di_type(type::INT32, std::string(), 0);
+		member("__next", self, 64, 0);
+		member("__previous", self, 64, 64);
+		member("__handle", int32, 32, 128);
+		member("__flags", int32, 32, 160);
+		uint64_t offset = 192, align = 64;
+		if (known != _types.end()) {
+			for (auto const& field : known->second.fields) {
+				uint64_t unit  = di_bits(field.type);
+				uint64_t size  = unit * (field.count ? field.count : 1);
+				offset         = (offset + unit - 1) / unit * unit; // Naturally aligned, like in the structure of the IR.
+				member(field.name, di_type(field.type, field.sname, field.count), size, offset);
+				offset += size;
+			}
+		}
+		offset = (offset + align - 1) / align * align;
+		_md[std::stoul(id.substr(1))] = "!DICompositeType(tag: DW_TAG_structure_type, name: " + md_string(name) + ", size: " + std::to_string(offset) + ", elements: " + md("!{" + members + "}") + ")";
+	}
+}
+
 std::string blitz::compiler::di_type(type t, std::string const& sname, uint32_t count)
 {
 	std::string base;
@@ -112,10 +159,7 @@ std::string blitz::compiler::di_type(type t, std::string const& sname, uint32_t 
 		base = di_string_type();
 		break;
 	case type::STRUCT:
-		{
-		auto known = _types.find(sname);
-		base       = md("!DIDerivedType(tag: DW_TAG_pointer_type, name: " + md_string(known != _types.end() ? known->second.name : (sname.empty() ? "Object" : sname)) + ", baseType: null, size: 64)");
-	}
+		base = sname.empty() ? md("!DIDerivedType(tag: DW_TAG_pointer_type, name: \"Object\", baseType: null, size: 64)") : di_object_type(sname);
 		break;
 	default: {
 		std::string name = blitz::types::to_string(t);
@@ -215,6 +259,7 @@ std::string blitz::compiler::di_end_module()
 	if (!debug_info) {
 		return std::string();
 	}
+	di_finish_objects();
 	std::string flags = codeview ? md("!{i32 2, !\"CodeView\", i32 1}") : md("!{i32 7, !\"Dwarf Version\", i32 4}");
 	flags += ", " + md("!{i32 2, !\"Debug Info Version\", i32 3}");
 

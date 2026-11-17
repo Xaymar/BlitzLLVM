@@ -191,6 +191,8 @@ namespace blitz {
 		std::map<std::string, std::string>           _di_blocks; // Per file other than the function's own: the block for it.
 		std::string                                  _di_cu;
 		std::vector<std::string>                     _di_globals;
+		std::map<std::string, std::string>           _di_objects; // Per Type: the metadata that describes its fields.
+		std::vector<std::string>                     _di_pending; // The Types in it that are not described yet.
 		std::string                                  _di_scope;
 		std::filesystem::path                        _di_sp_file;
 		ast::location                                _loc;       // Where the instructions that are emitted come from.
@@ -292,6 +294,8 @@ namespace blitz {
 		std::string di_location(ast::location const& where);
 		std::string di_type(blitz::types::type t, std::string const& sname, uint32_t count);
 		std::string di_string_type();
+		std::string di_object_type(std::string const& sname);
+		void        di_finish_objects();
 		std::string di_begin_function(std::string const& name, std::string const& symbol, ast::location const& where, blitz::types::type ret, std::string const& ret_sname, std::vector<ast::parameter> const* params, bool local);
 		void        di_end_function();
 		void        di_declare_local(std::string const& name, std::string const& pointer, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where, uint32_t arg);
