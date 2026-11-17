@@ -61,6 +61,13 @@ namespace bb::physics {
 		decltype(&::bp_sim_point_inside)                        sim_point_inside;
 		decltype(&::bp_sim_overlap_sphere)                      sim_overlap_sphere;
 		decltype(&::bp_sim_overlap_box)                         sim_overlap_box;
+		decltype(&::bp_sim_constraint_create)                   sim_constraint_create;
+		decltype(&::bp_sim_constraint_destroy)                  sim_constraint_destroy;
+		decltype(&::bp_sim_constraint_set_limits)               sim_constraint_set_limits;
+		decltype(&::bp_sim_constraint_set_motor)                sim_constraint_set_motor;
+		decltype(&::bp_sim_constraint_set_spring)               sim_constraint_set_spring;
+		decltype(&::bp_sim_constraint_set_break_force)          sim_constraint_set_break_force;
+		decltype(&::bp_sim_constraint_state)                    sim_constraint_state;
 	};
 
 	// The library, or null if it is not next to the program or is not the version that the runtime is made for. Looked for once.

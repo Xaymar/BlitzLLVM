@@ -71,6 +71,13 @@ struct world_rec {
 };
 
 std::unordered_map<int, body_rec> body_table;
+struct constraint_rec {
+	int           world = 0;
+	bp_constraint handle = 0;
+	uint32_t      kind = 0;
+};
+std::unordered_map<int, constraint_rec> constraint_table;
+int                                     next_constraint_handle = 1;
 world_rec*                        default_world = nullptr;
 std::vector<world_rec*>           user_worlds; // Number n is at n - 1, nullptr once freed.
 int                               thread_setting = 0;
@@ -626,6 +633,9 @@ void bb_free_physics_world(int32_t world)
 			e->captured    = false;
 		}
 		body_table.erase(handle);
+	}
+	for (auto it = constraint_table.begin(); it != constraint_table.end();) { // They go with their world.
+		it = (it->second.world == world) ? constraint_table.erase(it) : std::next(it);
 	}
 	l.sim_destroy(w.sim);
 	user_worlds[size_t(world) - 1] = nullptr;
@@ -1253,4 +1263,194 @@ float   bb_get_physics_contact_ny(int32_t index, int32_t world) { return contact
 float   bb_get_physics_contact_nz(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactNZ").normal[2]; }
 float   bb_get_physics_contact_depth(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactDepth").depth; }
 int32_t bb_get_physics_contact_sensor(int32_t index, int32_t world) { return contact_at(index, world, "GetPhysicsContactSensor").sensor; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Constraints
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static constraint_rec& constraint_of(int handle, const char* what)
+{
+	auto found = constraint_table.find(handle);
+	if (found == constraint_table.end()) {
+		die(what, "Object does not exist.");
+	}
+	world_rec* w = nullptr;
+	if (found->second.world == 0) {
+		w = default_world;
+	} else if (size_t(found->second.world) <= user_worlds.size()) {
+		w = user_worlds[size_t(found->second.world) - 1];
+	}
+	// Gone with one of its bodies, or with its world.
+	if (!w || lib(what).sim_constraint_state(w->sim, found->second.handle) == 0) {
+		constraint_table.erase(found);
+		die(what, "Object does not exist.");
+	}
+	return found->second;
+}
+
+static world_rec& constraint_world(constraint_rec const& c, const char* what) { return world_of(c.world, what); }
+
+static int32_t make_constraint(const char* what, int32_t a, int32_t b, bp_constraint_desc& d)
+{
+	body_rec& ra = body_of(a, what);
+	int       world = ra.world;
+	if (b) {
+		body_rec& rb = body_of(b, what);
+		if (rb.world != world) {
+			die(what, "the two bodies are in different physics worlds.");
+		}
+		d.b = rb.body;
+	}
+	if (a == b) {
+		die(what, "a constraint needs two different bodies.");
+	}
+	d.a = ra.body;
+	world_rec& w = world_of(world, what);
+	sync_poses(w, lib(what));
+	bp_constraint made = lib(what).sim_constraint_create(w.sim, &d);
+	if (!made) {
+		die(what, "the constraint could not be made (an axis of length 0, or neither body is dynamic).");
+	}
+	int handle = next_constraint_handle++;
+	constraint_table[handle] = constraint_rec{ world, made, d.kind };
+	return handle;
+}
+
+static void world_pos(int32_t entity, float* p)
+{
+	world_pose(entity, p, nullptr, nullptr);
+}
+
+int32_t bb_create_physics_fixed_constraint(int32_t a, int32_t b)
+{
+	bp_constraint_desc d{};
+	d.kind = BP_CONSTRAINT_FIXED;
+	return make_constraint("CreatePhysicsFixedConstraint", a, b, d);
+}
+
+int32_t bb_create_physics_point_constraint(int32_t a, int32_t b, float x, float y, float z)
+{
+	bp_constraint_desc d{};
+	d.kind     = BP_CONSTRAINT_POINT;
+	d.point[0] = x;
+	d.point[1] = y;
+	d.point[2] = z;
+	return make_constraint("CreatePhysicsPointConstraint", a, b, d);
+}
+
+int32_t bb_create_physics_hinge_constraint(int32_t a, int32_t b, float x, float y, float z, float ax, float ay, float az)
+{
+	bp_constraint_desc d{};
+	d.kind     = BP_CONSTRAINT_HINGE;
+	d.point[0] = x;
+	d.point[1] = y;
+	d.point[2] = z;
+	d.axis[0]  = ax;
+	d.axis[1]  = ay;
+	d.axis[2]  = az;
+	return make_constraint("CreatePhysicsHingeConstraint", a, b, d);
+}
+
+int32_t bb_create_physics_slider_constraint(int32_t a, int32_t b, float ax, float ay, float az)
+{
+	bp_constraint_desc d{};
+	d.kind    = BP_CONSTRAINT_SLIDER;
+	d.axis[0] = ax;
+	d.axis[1] = ay;
+	d.axis[2] = az;
+	return make_constraint("CreatePhysicsSliderConstraint", a, b, d);
+}
+
+int32_t bb_create_physics_distance_constraint(int32_t a, int32_t b, float x, float y, float z, float min, float max)
+{
+	bp_constraint_desc d{};
+	d.kind = BP_CONSTRAINT_DISTANCE;
+	body_of(a, "CreatePhysicsDistanceConstraint");
+	world_pos(a, d.point);
+	d.point2[0] = x;
+	d.point2[1] = y;
+	d.point2[2] = z;
+	d.min       = min;
+	d.max       = max;
+	if (min < 0 || max < min) {
+		die("CreatePhysicsDistanceConstraint", "the distances have to be 0 or more, and the maximum at least the minimum.");
+	}
+	return make_constraint("CreatePhysicsDistanceConstraint", a, b, d);
+}
+
+int32_t bb_create_physics_cone_constraint(int32_t a, int32_t b, float x, float y, float z, float ax, float ay, float az, float half_angle)
+{
+	bp_constraint_desc d{};
+	d.kind     = BP_CONSTRAINT_CONE;
+	d.point[0] = x;
+	d.point[1] = y;
+	d.point[2] = z;
+	d.axis[0]  = ax;
+	d.axis[1]  = ay;
+	d.axis[2]  = az;
+	if (half_angle < 0 || half_angle > 180) {
+		die("CreatePhysicsConeConstraint", "the half angle has to be from 0 to 180 degrees.");
+	}
+	d.max = half_angle * deg_to_rad;
+	return make_constraint("CreatePhysicsConeConstraint", a, b, d);
+}
+
+void bb_free_physics_constraint(int32_t constraint)
+{
+	constraint_rec& c = constraint_of(constraint, "FreePhysicsConstraint");
+	lib("FreePhysicsConstraint").sim_constraint_destroy(constraint_world(c, "FreePhysicsConstraint").sim, c.handle);
+	constraint_table.erase(constraint);
+}
+
+void bb_physics_constraint_limits(int32_t constraint, float lo, float hi)
+{
+	constraint_rec& c = constraint_of(constraint, "PhysicsConstraintLimits");
+	if (lo > hi) {
+		die("PhysicsConstraintLimits", "the lower limit is more than the upper limit.");
+	}
+	bool turns = c.kind == BP_CONSTRAINT_HINGE || c.kind == BP_CONSTRAINT_CONE;
+	if (!lib("PhysicsConstraintLimits").sim_constraint_set_limits(constraint_world(c, "PhysicsConstraintLimits").sim, c.handle, turns ? lo * deg_to_rad : lo, turns ? hi * deg_to_rad : hi)) {
+		die("PhysicsConstraintLimits", "this kind of constraint has no limits.");
+	}
+}
+
+void bb_physics_constraint_motor(int32_t constraint, int32_t mode, float target, float max_force)
+{
+	constraint_rec& c = constraint_of(constraint, "PhysicsConstraintMotor");
+	if (mode < 0 || mode > 2) {
+		die("PhysicsConstraintMotor", "the mode has to be 0 (off), 1 (speed) or 2 (position).");
+	}
+	if (max_force < 0) {
+		die("PhysicsConstraintMotor", "the largest force can not be negative.");
+	}
+	bool turns = c.kind == BP_CONSTRAINT_HINGE;
+	if (!lib("PhysicsConstraintMotor").sim_constraint_set_motor(constraint_world(c, "PhysicsConstraintMotor").sim, c.handle, uint32_t(mode), turns ? target * deg_to_rad : target, max_force)) {
+		die("PhysicsConstraintMotor", "only hinge and slider constraints have a motor.");
+	}
+}
+
+void bb_physics_constraint_spring(int32_t constraint, float frequency, float damping)
+{
+	constraint_rec& c = constraint_of(constraint, "PhysicsConstraintSpring");
+	if (frequency < 0 || damping < 0) {
+		die("PhysicsConstraintSpring", "the frequency and the damping can not be negative.");
+	}
+	if (!lib("PhysicsConstraintSpring").sim_constraint_set_spring(constraint_world(c, "PhysicsConstraintSpring").sim, c.handle, frequency, damping)) {
+		die("PhysicsConstraintSpring", "only distance and slider constraints can be soft.");
+	}
+}
+
+void bb_physics_constraint_break_force(int32_t constraint, float force)
+{
+	constraint_rec& c = constraint_of(constraint, "PhysicsConstraintBreakForce");
+	if (force < 0) {
+		die("PhysicsConstraintBreakForce", "the force can not be negative.");
+	}
+	lib("PhysicsConstraintBreakForce").sim_constraint_set_break_force(constraint_world(c, "PhysicsConstraintBreakForce").sim, c.handle, force);
+}
+
+int32_t bb_get_physics_constraint_broken(int32_t constraint)
+{
+	constraint_rec& c = constraint_of(constraint, "GetPhysicsConstraintBroken");
+	return lib("GetPhysicsConstraintBroken").sim_constraint_state(constraint_world(c, "GetPhysicsConstraintBroken").sim, c.handle) == 2 ? 1 : 0;
+}
 } // extern "C"

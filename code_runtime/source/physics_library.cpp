@@ -99,6 +99,13 @@ api const* library()
 	BB_BP(sim_point_inside);
 	BB_BP(sim_overlap_sphere);
 	BB_BP(sim_overlap_box);
+	BB_BP(sim_constraint_create);
+	BB_BP(sim_constraint_destroy);
+	BB_BP(sim_constraint_set_limits);
+	BB_BP(sim_constraint_set_motor);
+	BB_BP(sim_constraint_set_spring);
+	BB_BP(sim_constraint_set_break_force);
+	BB_BP(sim_constraint_state);
 #undef BB_BP
 	loaded = functions.world_create && functions.world_destroy && functions.mesh_create && functions.mesh_destroy && functions.mesh_query_box && functions.body_add_mesh && functions.body_remove
 	         && functions.body_set_transform && functions.world_update && functions.cast_closest && functions.cast_closest_batch;
