@@ -263,7 +263,8 @@ elseif(CASE STREQUAL "profile")
 elseif(CASE STREQUAL "debug_info")
 	# -d and -g describe the program to debuggers, in the files, lines and columns of the source.
 	set(DEBUG_PROGRAM "${TESTS}/cli/debug.bb")
-	blitzcc(-S -d "${DEBUG_PROGRAM}" -o "${WORK}/debug.ll")
+	# DWARF is for every target but Windows, so the host (which may be Windows) is not left to decide.
+	blitzcc(-S -d --target x86_64-unknown-linux-gnu "${DEBUG_PROGRAM}" -o "${WORK}/debug.ll")
 	expect_ok()
 	file(READ "${WORK}/debug.ll" _IR)
 	foreach(_NEEDED IN ITEMS "!DICompileUnit(" "emissionKind: FullDebug" "\"Debug Info Version\"" "\"Dwarf Version\""
@@ -279,7 +280,7 @@ elseif(CASE STREQUAL "debug_info")
 	if(NOT _AT EQUAL -1)
 		message(FATAL_ERROR "A DWARF target got CodeView.")
 	endif()
-	# Windows with MSVC uses CodeView.
+	# Windows uses CodeView.
 	blitzcc(-S -d --target x86_64-pc-windows-msvc "${DEBUG_PROGRAM}" -o "${WORK}/codeview.ll")
 	expect_ok()
 	file(READ "${WORK}/codeview.ll" _IR)
@@ -330,7 +331,7 @@ elseif(CASE STREQUAL "debug_info")
 	expect_ok()
 	expect_contains(" -O3 ")
 	expect_contains(" -g ")
-	blitzcc(-S -g "${DEBUG_PROGRAM}" -o "${WORK}/g.ll")
+	blitzcc(-S -g --target x86_64-unknown-linux-gnu "${DEBUG_PROGRAM}" -o "${WORK}/g.ll")
 	expect_ok()
 	file(READ "${WORK}/g.ll" _IR)
 	string(FIND "${_IR}" "DICompileUnit" _AT)
