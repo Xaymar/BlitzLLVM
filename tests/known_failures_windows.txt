@@ -130,7 +130,7 @@ suite-debug-compile-fail-object_deleted_field
 suite-debug-compile-fail-object_deleted_insert
 suite-debug-compile-fail-playsound_zero
 suite-debug-compile-fail-runtimeerror
-suite-debug-compile-fail-settexturebuffer_not_target
+suite-debug-compile-fail-renderworld_not_target
 suite-debug-compile-fail-stopchannel_never
 suite-debug-compile-fail-texturewidth_freed
 suite-debug-compile-files
@@ -322,7 +322,7 @@ suite-debug-run-fail-object_deleted_field
 suite-debug-run-fail-object_deleted_insert
 suite-debug-run-fail-playsound_zero
 suite-debug-run-fail-runtimeerror
-suite-debug-run-fail-settexturebuffer_not_target
+suite-debug-run-fail-renderworld_not_target
 suite-debug-run-fail-stopchannel_never
 suite-debug-run-fail-texturewidth_freed
 suite-debug-run-files

@@ -16,7 +16,7 @@ Flag 256 keeps the texture in video memory only: when video memory is full, a te
 
 Flag 2048 says that the file is sRGB, which almost every picture is, and makes the texture hold linear values. The graphics card converts each texel from sRGB to linear when it samples the texture. With flag 8, the mip maps are averaged in linear values.
 
-The bytes of the texture stay the ones of the file. `ReadPixel`, `ReadPixelFast` and drawing on the [TextureBuffer](TextureBuffer) (with flag 4096) read and write sRGB bytes, and the texture is converted only when a scene or an image samples it. Alpha is not converted.
+The bytes of the texture stay the ones of the file. `ReadPixel`, `ReadPixelFast` and drawing on the [TextureBuffer](TextureBuffer) read and write sRGB bytes, and the texture is converted only when a scene or an image samples it. Alpha is not converted.
 
 Block compressed DDS files (BC1, BC2, BC3 and BC7) are stored in the sRGB variant of their format. BC4, BC5 and cube maps (flag 128) are not converted.
 
@@ -26,7 +26,7 @@ The picture shows a gradient file loaded without the flag (top) and with it (bot
 
 ![sRGB conversion](media/textures/loadtexture_srgb.png)
 
-A texture can be drawn to only if it was loaded with flag 4096 (render target), see [CreateTexture](CreateTexture). Reading and writing its pixels needs no flag.
+2D drawing and reading and writing pixels need no flag. Rendering the world into the texture needs flag 4096 (render target), see [CreateTexture](CreateTexture).
 
 Textures that [TextureFilter](TextureFilter) matches by file name get extra flags added.
 
@@ -64,7 +64,7 @@ WaitKey
 @param file   Picture file to load.
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
+@gap Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when `RenderWorld` draws into a texture without 4096.
 @gap A glTF file (`.glb` or `.gltf`) gives the pictures inside it: `"model.glb"` is the first and `"model.glb#2"` the third, see [Model formats](Model-Formats#gltf-gltf-glb).
 @gap JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 @gap The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
