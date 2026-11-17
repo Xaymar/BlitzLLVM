@@ -617,6 +617,8 @@ namespace {
 				t.flags = 1 | 8 | ((in.map_flags & 0x11) ? 16 | 32 : 0); // Color and mip maps, and no tiling if the map says so.
 				b.texture = int(m.textures.size);
 				m.textures.push(t);
+				// A material with a texture is not tinted by its diffuse colour: like Blitz3D, the texture shows as it is.
+				b.color[0] = b.color[1] = b.color[2] = 1;
 			}
 			m.brushes.push(b);
 		}

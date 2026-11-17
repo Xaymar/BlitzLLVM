@@ -6,6 +6,7 @@
 
 quad.3ds        One 2 by 2 square on the ground (z = 0 in 3D Studio, which is up), red, with its picture mapped from corner to corner.
 textured.3ds    The same square with the 8 by 4 DDS picture of tests/suite/images (red on the left, blue on the right), tiled twice across.
+textured_green.3ds  The same, but the material is green: a picture is shown as it is, and not tinted by the color of its material.
 smooth.3ds      Two folds of paper: in "smooth" the two triangles are in one smoothing group, in "hard" they are in two.
 materials.3ds   Four squares in a row for the pixel test: red, half see-through blue, two-sided green, and a self-lit orange.
 anim.3ds        An arm that moves and turns (90 degrees, and then 90 degrees on top of that), a node below it, and a node that grows
@@ -144,6 +145,11 @@ def main():
     )
     files["textured.3ds"] = file(
         material("Picture", (255, 255, 255), texture="../images/dxt1.dds", tile=(2, 1)),
+        mesh("quad", square(), SQUARE_FACES, UVS, {"Picture": [0, 1]}, [1, 1]),
+    )
+
+    files["textured_green.3ds"] = file(
+        material("Picture", (0, 255, 0), texture="../images/dxt1.dds", tile=(2, 1)),
         mesh("quad", square(), SQUARE_FACES, UVS, {"Picture": [0, 1]}, [1, 1]),
     )
 
