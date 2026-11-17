@@ -646,32 +646,32 @@ void frag_main()
     }
     float4 _2653 = float4(_2648, _922.w);
     float4 _2660 = float4(_2653.xyz + ((_32 + ((_34 - _32) * _35.z)) + _804), _2653.w);
-    if (_2660.w < _35.x)
+    if (_2660.w < ((_35.x < 0.0f) ? ((frac(frac(((floor(gl_FragCoord.x) + _28_m12.w) * 0.067110560834407806396484375f) + ((floor(gl_FragCoord.y) + _28_m12.w) * 0.005837149918079376220703125f)) * 52.98291778564453125f) * 0.999000012874603271484375f) + 0.0005000000237487256526947021484375f) : _35.x))
     {
         discard;
     }
-    float _2711;
+    float _2738;
     if (_37.x > 9.9999997473787516355514526367188e-05f)
     {
-        float4 _2680 = _58.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0));
-        float _2681 = _2680.x;
-        float _2688 = _28_m11.y - _28_m11.x;
-        float _2692 = (_28_m11.y * _28_m11.x) / ((_2688 * _2681) + _28_m11.x);
-        float _2702 = (_28_m11.y * _28_m11.x) / ((_2688 * gl_FragCoord.z) + _28_m11.x);
-        _2711 = clamp(((_2692 + (((_28_m11.y - (_2681 * _2688)) - _2692) * _28_m11.z)) - (_2702 + (((_28_m11.y - (gl_FragCoord.z * _2688)) - _2702) * _28_m11.z))) / _37.x, 0.0f, 1.0f);
+        float4 _2707 = _58.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0));
+        float _2708 = _2707.x;
+        float _2715 = _28_m11.y - _28_m11.x;
+        float _2719 = (_28_m11.y * _28_m11.x) / ((_2715 * _2708) + _28_m11.x);
+        float _2729 = (_28_m11.y * _28_m11.x) / ((_2715 * gl_FragCoord.z) + _28_m11.x);
+        _2738 = clamp(((_2719 + (((_28_m11.y - (_2708 * _2715)) - _2719) * _28_m11.z)) - (_2729 + (((_28_m11.y - (gl_FragCoord.z * _2715)) - _2729) * _28_m11.z))) / _37.x, 0.0f, 1.0f);
     }
     else
     {
-        _2711 = 1.0f;
+        _2738 = 1.0f;
     }
-    float4 _2717 = float4(_2660.xyz, _2660.w * _2711);
-    float3 _2744 = _2717.xyz;
-    float4 _2752 = float4(_2744 + ((_28_m5.xyz - _2744) * ((clamp(((_30.x + ((length(_30.yzw) - _30.x) * _28_m4.w)) - _28_m4.x) / max(_28_m4.y - _28_m4.x, 9.9999997473787516355514526367188e-05f), 0.0f, 1.0f) * _28_m4.z) * (1.0f - _35.y))), _2717.w);
+    float4 _2744 = float4(_2660.xyz, _2660.w * _2738);
+    float3 _2771 = _2744.xyz;
+    float4 _2779 = float4(_2771 + ((_28_m5.xyz - _2771) * ((clamp(((_30.x + ((length(_30.yzw) - _30.x) * _28_m4.w)) - _28_m4.x) / max(_28_m4.y - _28_m4.x, 9.9999997473787516355514526367188e-05f), 0.0f, 1.0f) * _28_m4.z) * (1.0f - _35.y))), _2744.w);
     if (!(gl_FragCoord.z > _58.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0)).x))
     {
         discard;
     }
-    _21 = float4(clamp(_2752.xyz, 0.0f.xxx, 1.0f.xxx), clamp(_2752.w, 0.0f, 1.0f));
+    _21 = float4(clamp(_2779.xyz, 0.0f.xxx, 1.0f.xxx), clamp(_2779.w, 0.0f, 1.0f));
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

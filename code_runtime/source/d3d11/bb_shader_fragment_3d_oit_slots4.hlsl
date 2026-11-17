@@ -650,35 +650,35 @@ void frag_main()
     }
     float4 _2657 = float4(_2652, _926.w);
     float4 _2664 = float4(_2657.xyz + ((_37 + ((_39 - _37) * _40.z)) + _808), _2657.w);
-    if (_2664.w < _40.x)
+    if (_2664.w < ((_40.x < 0.0f) ? ((frac(frac(((floor(gl_FragCoord.x) + _33_m12.w) * 0.067110560834407806396484375f) + ((floor(gl_FragCoord.y) + _33_m12.w) * 0.005837149918079376220703125f)) * 52.98291778564453125f) * 0.999000012874603271484375f) + 0.0005000000237487256526947021484375f) : _40.x))
     {
         discard;
     }
-    float _2715;
+    float _2742;
     if (_42.x > 9.9999997473787516355514526367188e-05f)
     {
-        float4 _2684 = _63.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0));
-        float _2685 = _2684.x;
-        float _2692 = _33_m11.y - _33_m11.x;
-        float _2696 = (_33_m11.y * _33_m11.x) / ((_2692 * _2685) + _33_m11.x);
-        float _2706 = (_33_m11.y * _33_m11.x) / ((_2692 * gl_FragCoord.z) + _33_m11.x);
-        _2715 = clamp(((_2696 + (((_33_m11.y - (_2685 * _2692)) - _2696) * _33_m11.z)) - (_2706 + (((_33_m11.y - (gl_FragCoord.z * _2692)) - _2706) * _33_m11.z))) / _42.x, 0.0f, 1.0f);
+        float4 _2711 = _63.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0));
+        float _2712 = _2711.x;
+        float _2719 = _33_m11.y - _33_m11.x;
+        float _2723 = (_33_m11.y * _33_m11.x) / ((_2719 * _2712) + _33_m11.x);
+        float _2733 = (_33_m11.y * _33_m11.x) / ((_2719 * gl_FragCoord.z) + _33_m11.x);
+        _2742 = clamp(((_2723 + (((_33_m11.y - (_2712 * _2719)) - _2723) * _33_m11.z)) - (_2733 + (((_33_m11.y - (gl_FragCoord.z * _2719)) - _2733) * _33_m11.z))) / _42.x, 0.0f, 1.0f);
     }
     else
     {
-        _2715 = 1.0f;
+        _2742 = 1.0f;
     }
-    float4 _2721 = float4(_2664.xyz, _2664.w * _2715);
-    float3 _2748 = _2721.xyz;
-    float4 _2756 = float4(_2748 + ((_33_m5.xyz - _2748) * ((clamp(((_35.x + ((length(_35.yzw) - _35.x) * _33_m4.w)) - _33_m4.x) / max(_33_m4.y - _33_m4.x, 9.9999997473787516355514526367188e-05f), 0.0f, 1.0f) * _33_m4.z) * (1.0f - _40.y))), _2721.w);
+    float4 _2748 = float4(_2664.xyz, _2664.w * _2742);
+    float3 _2775 = _2748.xyz;
+    float4 _2783 = float4(_2775 + ((_33_m5.xyz - _2775) * ((clamp(((_35.x + ((length(_35.yzw) - _35.x) * _33_m4.w)) - _33_m4.x) / max(_33_m4.y - _33_m4.x, 9.9999997473787516355514526367188e-05f), 0.0f, 1.0f) * _33_m4.z) * (1.0f - _40.y))), _2748.w);
     if (gl_FragCoord.z < _63.Load(int3(int2(int(gl_FragCoord.x), int(gl_FragCoord.y)), 0)).x)
     {
         discard;
     }
-    float _2788 = _42.z - (_42.w * _35.x);
-    gl_SampleMask = 1 << int(floor(frac(frac(52.98291778564453125f * frac((gl_FragCoord.x * 0.067110560834407806396484375f) + (gl_FragCoord.y * 0.005837149918079376220703125f))) + (_2788 * 271.29998779296875f)) * 4.0f));
-    _21 = float4(clamp(_2756.xyz, 0.0f.xxx, 1.0f.xxx), clamp(_2756.w, 0.0f, 1.0f));
-    _28 = exp2((min(_2788, 1.10000002384185791015625f) - 1.0f) * 11.0f).xxxx;
+    float _2812 = _42.z - (_42.w * _35.x);
+    gl_SampleMask = 1 << int(floor(frac(frac(52.98291778564453125f * frac((gl_FragCoord.x * 0.067110560834407806396484375f) + (gl_FragCoord.y * 0.005837149918079376220703125f))) + (_2812 * 271.29998779296875f)) * 4.0f));
+    _21 = float4(clamp(_2783.xyz, 0.0f.xxx, 1.0f.xxx), clamp(_2783.w, 0.0f, 1.0f));
+    _28 = exp2((min(_2812, 1.10000002384185791015625f) - 1.0f) * 11.0f).xxxx;
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
