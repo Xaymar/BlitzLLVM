@@ -172,6 +172,10 @@ namespace bb::gfx {
 	{
 		uint64_t limit = texture_budget();
 		if (!limit) {
+			if (bb::rhi::selected_backend() == bb::rhi::backend::opengl) {
+				used = total = 0; // What OpenGL says is not the room that textures have (it is a guess from an extension, and is 0 on the wrong thread): only a budget that is set counts.
+				return;
+			}
 			bb::rhi::memory_budget(used, total);
 			return;
 		}
@@ -261,6 +265,9 @@ namespace bb::gfx {
 	{
 		if (!enabled() || !bb::rhi::has_device()) {
 			return 0;
+		}
+		if (!texture_budget() && (bb::rhi::selected_backend() == bb::rhi::backend::opengl)) {
+			return 0; // OpenGL does not know how much room there is, so nothing is made smaller on a guess.
 		}
 		std::vector<uint32_t> order;
 		for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -468,10 +475,7 @@ namespace bb::gfx {
 		}
 		uint64_t used, total;
 		budget_totals(used, total);
-		if (!total) {
-			return;
-		}
-		if (used > total) {
+		if (total && (used > total)) {
 			// Over the budget: the biggest levels of what is not drawn go.
 			textures_drop_mips(used - total);
 			return;
@@ -490,7 +494,7 @@ namespace bb::gfx {
 		texture_entry& t = texture_table[best];
 		uint32_t       drop = t.image.recipe->drop;
 		uint64_t       cost = resident_bytes(*t.image.recipe, drop - 1);
-		if (used + cost + total / 8 > total) {
+		if (total && (used + cost + total / 8 > total)) {
 			return; // Not enough to spare: the new image is made next to the old one.
 		}
 		if (t.image.recipe->kind == image_recipe::content::pixels) {
