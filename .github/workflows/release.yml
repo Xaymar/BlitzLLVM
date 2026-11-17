@@ -99,6 +99,8 @@ jobs:
               *-packages) mv "$d"/* release/ ;;
               # The installs that the flatpak job of build.yml packs, only passed between its jobs.
               */flatpak-stage-*) ;;
+              # The installs that the Windows packages are made from.
+              *-install) ;;
               *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
             esac
           done
