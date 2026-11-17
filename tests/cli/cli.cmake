@@ -475,6 +475,22 @@ elseif(CASE STREQUAL "joined_block_ends")
 		endif()
 	endforeach()
 
+elseif(CASE STREQUAL "error_line")
+	# A runtime error in a debug build names the file and line it came from; without -d there is no such line to name.
+	set(ERROR_PROGRAM "${TESTS}/cli/error_line.bb")
+	blitzcc(-d "${ERROR_PROGRAM}" -o "${EXE}")
+	expect_ok()
+	execute_process(COMMAND "${EXE}" RESULT_VARIABLE _RUN ERROR_VARIABLE _ERR OUTPUT_QUIET)
+	if(_RUN EQUAL 0 OR NOT _ERR MATCHES "Runtime Error: Integer divide by zero" OR NOT _ERR MATCHES "at [^\n]*error_line\\.bb:6")
+		message(FATAL_ERROR "The runtime error of a debug build does not say where it is (${_RUN}): ${_ERR}")
+	endif()
+	blitzcc("${ERROR_PROGRAM}" -o "${EXE}")
+	expect_ok()
+	execute_process(COMMAND "${EXE}" RESULT_VARIABLE _RUN ERROR_VARIABLE _ERR OUTPUT_QUIET)
+	if(_ERR MATCHES "error_line")
+		message(FATAL_ERROR "A build without -d names a line: ${_ERR}")
+	endif()
+
 elseif(CASE STREQUAL "stop")
 	# Stop is a breakpoint in a debug build, and nothing in any other. Neither is run with the trap in it.
 	set(STOP_PROGRAM "${TESTS}/cli/stop.bb")
