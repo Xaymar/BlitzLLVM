@@ -255,6 +255,18 @@ namespace bb::gfx {
 		return dither_temporal() ? 5.588238f * float(presented % 64u) : 0.0f;
 	}
 
+	// How far the noise of EntityBlend 4 (stochastic alpha) is moved in the picture that is made now: it always moves, whatever Dither does.
+	// (The count of pictures of Dither only moves when the picture goes through the gamma pass, which is skipped when nothing needs it.)
+	static uint32_t stochastic_frames = 0;
+	float stochastic_shift()
+	{
+		return 5.588238f * float(stochastic_frames % 64u);
+	}
+	void stochastic_next()
+	{
+		stochastic_frames++;
+	}
+
 	float dither_code()
 	{
 		return (dither > 0) ? 1.0f + dither_shift() : 0.0f;

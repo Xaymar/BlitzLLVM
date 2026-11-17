@@ -730,6 +730,7 @@ namespace bb::gfx {
 		}
 
 		// The gamma tables change what the window shows, not the buffer.
+		stochastic_next();
 		gpu_image& shown = *apply_gamma(front);
 
 		barrier(uint64_t(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);

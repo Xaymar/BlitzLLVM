@@ -1159,7 +1159,23 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, oit=0, slots=4):
         # Pixels that are less solid than the first value of the mask are not drawn at all, which is what makes
         # leaves and fences work with depth.
         boolean = b.new_type("bool", "TypeBool")
-        cut = b.emit("FOrdLessThan", boolean, b.extract(result, 3), b.extract(mask, 0))
+        # EntityBlend 4 (stochastic alpha) sends a first value below 0: the threshold is then temporal Interleaved Gradient Noise (Jimenez, 2014),
+        # moved every picture by the fifth component of the scene data (the same function as Dither, whatever Dither is set to), kept inside
+        # 0.0005 to 0.9995 so that an alpha of 1 is always kept and one of 0 always dropped.
+        #   vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.dither.w);
+        #   float ign = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
+        #   float threshold = (mask.x < 0.0) ? ign * 0.999 + 0.0005 : mask.x;
+        #   if (alpha < threshold) discard;
+        shift_s = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(12))), 3)
+        frag_s = b.load(v4, in_frag)
+        px_s = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag_s, 0)), shift_s)
+        py_s = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag_s, 1)), shift_s)
+        along_s = b.fadd(f, b.fmul(f, px_s, b.const_float(0.06711056)), b.fmul(f, py_s, b.const_float(0.00583715)))
+        ign_s = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along_s), b.const_float(52.9829189)))
+        stochastic_s = b.fadd(f, b.fmul(f, ign_s, b.const_float(0.999)), b.const_float(0.0005))
+        is_stochastic = b.emit("FOrdLessThan", boolean, b.extract(mask, 0), b.const_float(0.0))
+        threshold = b.emit("Select", f, is_stochastic, stochastic_s, b.extract(mask, 0))
+        cut = b.emit("FOrdLessThan", boolean, b.extract(result, 3), threshold)
         kill_label, merge_label = b.m.id(), b.m.id()
         b.m.code += [
             Module.inst("SelectionMerge", merge_label, 0),

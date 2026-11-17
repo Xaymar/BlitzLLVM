@@ -80,7 +80,7 @@ void bb_brush_shininess(int32_t handle, float shininess)
 
 void bb_brush_blend(int32_t handle, int32_t blend)
 {
-	need_brush(handle, "BrushBlend").look.blend = (blend < 1 || blend > 3) ? 0 : blend;
+	need_brush(handle, "BrushBlend").look.blend = (blend < 1 || blend > 4) ? 0 : blend;
 }
 
 void bb_brush_fx(int32_t handle, int32_t fx)
