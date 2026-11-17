@@ -176,6 +176,12 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CreatePanel](CreatePanel)
 * [CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕
 * [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕
+* [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint) 〔BlitzLLVM〕
 * [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕
 * [CreatePivot](CreatePivot)
 * [CreatePlane](CreatePlane)
@@ -334,6 +340,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [FreeGadget](FreeGadget)
 * [FreeIconStrip](FreeIconStrip)
 * [FreeImage](FreeImage)
+* [FreePhysicsConstraint](FreePhysicsConstraint) 〔BlitzLLVM〕
 * [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕
 * [FreeSampler](FreeSampler) 〔BlitzLLVM〕
 * [FreeSound](FreeSound)
@@ -380,6 +387,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕
 * [GetPhysicsBodyShape](GetPhysicsBodyShape) 〔BlitzLLVM〕
 * [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕
+* [GetPhysicsConstraintBroken](GetPhysicsConstraintBroken) 〔BlitzLLVM〕
 * [GetPhysicsContactCount](GetPhysicsContactCount) 〔BlitzLLVM〕
 * [GetPhysicsContactDepth](GetPhysicsContactDepth) 〔BlitzLLVM〕
 * [GetPhysicsContactEntityA](GetPhysicsContactEntityA) 〔BlitzLLVM〕
@@ -705,6 +713,10 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
 * [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕
 * [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+* [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce) 〔BlitzLLVM〕
+* [PhysicsConstraintLimits](PhysicsConstraintLimits) 〔BlitzLLVM〕
+* [PhysicsConstraintMotor](PhysicsConstraintMotor) 〔BlitzLLVM〕
+* [PhysicsConstraintSpring](PhysicsConstraintSpring) 〔BlitzLLVM〕
 * [PhysicsContactReport](PhysicsContactReport) 〔BlitzLLVM〕
 * [PhysicsContactSlop](PhysicsContactSlop) 〔BlitzLLVM〕
 * [PhysicsContinuous](PhysicsContinuous) 〔BlitzLLVM〕

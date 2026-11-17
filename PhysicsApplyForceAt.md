@@ -40,7 +40,7 @@ Pushes a body with a force in newtons at a point of it, which also turns it. Wor
 
 ## Related Commands
 
-[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕, [PhysicsApplyTorque](PhysicsApplyTorque) 〔BlitzLLVM〕, [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
+[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕, [PhysicsApplyTorque](PhysicsApplyTorque) 〔BlitzLLVM〕, [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -35,7 +35,7 @@ Creates a physics world of its own and returns its handle. A world holds rigid b
 
 ## Related Commands
 
-[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕, [GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕, [GetPhysicsWorldSleeping](GetPhysicsWorldSleeping) 〔BlitzLLVM〕, [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕, [PhysicsWorldSleeping](PhysicsWorldSleeping) 〔BlitzLLVM〕
+[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint) 〔BlitzLLVM〕, [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint) 〔BlitzLLVM〕, [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint) 〔BlitzLLVM〕, [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint) 〔BlitzLLVM〕, [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint) 〔BlitzLLVM〕, [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕
 
 <div align="center">
 

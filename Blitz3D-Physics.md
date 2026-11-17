@@ -11,7 +11,14 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕
 * [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕
+* [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint) 〔BlitzLLVM〕
+* [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint) 〔BlitzLLVM〕
 * [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕
+* [FreePhysicsConstraint](FreePhysicsConstraint) 〔BlitzLLVM〕
 * [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕
 * [GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕
 * [GetPhysicsAngularVelocityX](GetPhysicsAngularVelocityX) 〔BlitzLLVM〕
@@ -22,6 +29,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕
 * [GetPhysicsBodyShape](GetPhysicsBodyShape) 〔BlitzLLVM〕
 * [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕
+* [GetPhysicsConstraintBroken](GetPhysicsConstraintBroken) 〔BlitzLLVM〕
 * [GetPhysicsContactCount](GetPhysicsContactCount) 〔BlitzLLVM〕
 * [GetPhysicsContactDepth](GetPhysicsContactDepth) 〔BlitzLLVM〕
 * [GetPhysicsContactEntityA](GetPhysicsContactEntityA) 〔BlitzLLVM〕
@@ -85,6 +93,10 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
 * [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕
 * [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+* [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce) 〔BlitzLLVM〕
+* [PhysicsConstraintLimits](PhysicsConstraintLimits) 〔BlitzLLVM〕
+* [PhysicsConstraintMotor](PhysicsConstraintMotor) 〔BlitzLLVM〕
+* [PhysicsConstraintSpring](PhysicsConstraintSpring) 〔BlitzLLVM〕
 * [PhysicsContactReport](PhysicsContactReport) 〔BlitzLLVM〕
 * [PhysicsContactSlop](PhysicsContactSlop) 〔BlitzLLVM〕
 * [PhysicsContinuous](PhysicsContinuous) 〔BlitzLLVM〕

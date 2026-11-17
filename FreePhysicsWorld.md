@@ -33,7 +33,7 @@ Frees a world made by `CreatePhysicsWorld`. The entities of its bodies stay, as 
 
 ## Related Commands
 
-[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕, [GetPhysicsAngularDamping](GetPhysicsAngularDamping) 〔BlitzLLVM〕, [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕, [GetPhysicsWorldSleeping](GetPhysicsWorldSleeping) 〔BlitzLLVM〕, [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕, [PhysicsWorldSleeping](PhysicsWorldSleeping) 〔BlitzLLVM〕
+[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕, [FreePhysicsConstraint](FreePhysicsConstraint) 〔BlitzLLVM〕, [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕, [GetPhysicsWorldSleeping](GetPhysicsWorldSleeping) 〔BlitzLLVM〕, [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕, [PhysicsWorldSleeping](PhysicsWorldSleeping) 〔BlitzLLVM〕
 
 <div align="center">
 

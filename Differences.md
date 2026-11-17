@@ -98,6 +98,12 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
 * [CreatePhysicsBody](CreatePhysicsBody#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
+* [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePhysicsWorld](CreatePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
 * [CreateSampler](CreateSampler#differences) 〔BlitzLLVM〕: Not in the originals, which read every texture with the settings of its flags.
@@ -147,6 +153,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [FormatTextAreaText](FormatTextAreaText#differences): Underline and strike-through are not supported, as in the original.
 * [FreeFont](FreeFont#differences): A font that does not exist stops the program with an error message.
 * [FreeImage](FreeImage#differences): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
+* [FreePhysicsConstraint](FreePhysicsConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
 * [FreePhysicsWorld](FreePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
 * [FreeSound](FreeSound#differences): FreeSound with a handle that was freed already, or with 0, is ignored.
 * [FreeTexture](FreeTexture#differences): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
@@ -169,6 +176,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GetPhysicsBodyMotion](GetPhysicsBodyMotion#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetPhysicsBodyShape](GetPhysicsBodyShape#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetPhysicsBodyWorld](GetPhysicsBodyWorld#differences) 〔BlitzLLVM〕: The original has no such command.
+* [GetPhysicsConstraintBroken](GetPhysicsConstraintBroken#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetPhysicsContactCount](GetPhysicsContactCount#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetPhysicsContactDepth](GetPhysicsContactDepth#differences) 〔BlitzLLVM〕: The original has no such command.
 * [GetPhysicsContactEntityA](GetPhysicsContactEntityA#differences) 〔BlitzLLVM〕: The original has no such command.
@@ -330,6 +338,10 @@ Commands that differ from the original or are not finished, with the first of th
 * [PhysicsBaumgarte](PhysicsBaumgarte#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsBodyMotion](PhysicsBodyMotion#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsBodyWorld](PhysicsBodyWorld#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsConstraintLimits](PhysicsConstraintLimits#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsConstraintMotor](PhysicsConstraintMotor#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsConstraintSpring](PhysicsConstraintSpring#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsContactReport](PhysicsContactReport#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsContactSlop](PhysicsContactSlop#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsContinuous](PhysicsContinuous#differences) 〔BlitzLLVM〕: The original has no such command.

@@ -815,12 +815,19 @@
 <li><a href="ScaleMesh">ScaleMesh</a></li>
 </ul>
 </details></li>
-<li><details><summary>Physics (109)</summary>
+<li><details><summary>Physics (121)</summary>
 <ul>
 <li><a href="Blitz3D-Physics">Overview</a></li>
 <li><a href="CreatePhysicsBody">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePhysicsBodyFromEntity">CreatePhysicsBodyFromEntity</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsConeConstraint">CreatePhysicsConeConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsDistanceConstraint">CreatePhysicsDistanceConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsFixedConstraint">CreatePhysicsFixedConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsHingeConstraint">CreatePhysicsHingeConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsPointConstraint">CreatePhysicsPointConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsSliderConstraint">CreatePhysicsSliderConstraint</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePhysicsWorld">CreatePhysicsWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="FreePhysicsConstraint">FreePhysicsConstraint</a> 〔BlitzLLVM〕</li>
 <li><a href="FreePhysicsWorld">FreePhysicsWorld</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsAngularDamping">GetPhysicsAngularDamping</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsAngularVelocityX">GetPhysicsAngularVelocityX</a> 〔BlitzLLVM〕</li>
@@ -831,6 +838,7 @@
 <li><a href="GetPhysicsBodyMotion">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyShape">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyWorld">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsConstraintBroken">GetPhysicsConstraintBroken</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactCount">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactDepth">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactEntityA">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
@@ -894,6 +902,10 @@
 <li><a href="PhysicsBaumgarte">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintBreakForce">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintLimits">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintMotor">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintSpring">PhysicsConstraintSpring</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactReport">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactSlop">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuous">PhysicsContinuous</a> 〔BlitzLLVM〕</li>
@@ -1360,7 +1372,7 @@
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (445)</summary>
+<li><details><summary>Commands (457)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1412,6 +1424,12 @@
 <li><a href="CreateMenu#differences">CreateMenu</a></li>
 <li><a href="CreatePhysicsBody#differences">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePhysicsBodyFromEntity#differences">CreatePhysicsBodyFromEntity</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsConeConstraint#differences">CreatePhysicsConeConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsDistanceConstraint#differences">CreatePhysicsDistanceConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsFixedConstraint#differences">CreatePhysicsFixedConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsHingeConstraint#differences">CreatePhysicsHingeConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsPointConstraint#differences">CreatePhysicsPointConstraint</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsSliderConstraint#differences">CreatePhysicsSliderConstraint</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePhysicsWorld#differences">CreatePhysicsWorld</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePlane#differences">CreatePlane</a></li>
 <li><a href="CreateSampler#differences">CreateSampler</a> 〔BlitzLLVM〕</li>
@@ -1461,6 +1479,7 @@
 <li><a href="FormatTextAreaText#differences">FormatTextAreaText</a></li>
 <li><a href="FreeFont#differences">FreeFont</a></li>
 <li><a href="FreeImage#differences">FreeImage</a></li>
+<li><a href="FreePhysicsConstraint#differences">FreePhysicsConstraint</a> 〔BlitzLLVM〕</li>
 <li><a href="FreePhysicsWorld#differences">FreePhysicsWorld</a> 〔BlitzLLVM〕</li>
 <li><a href="FreeSound#differences">FreeSound</a></li>
 <li><a href="FreeTexture#differences">FreeTexture</a></li>
@@ -1483,6 +1502,7 @@
 <li><a href="GetPhysicsBodyMotion#differences">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyShape#differences">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsBodyWorld#differences">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="GetPhysicsConstraintBroken#differences">GetPhysicsConstraintBroken</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactCount#differences">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactDepth#differences">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
 <li><a href="GetPhysicsContactEntityA#differences">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
@@ -1644,6 +1664,10 @@
 <li><a href="PhysicsBaumgarte#differences">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion#differences">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld#differences">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintBreakForce#differences">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintLimits#differences">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintMotor#differences">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsConstraintSpring#differences">PhysicsConstraintSpring</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactReport#differences">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContactSlop#differences">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsContinuous#differences">PhysicsContinuous</a> 〔BlitzLLVM〕</li>

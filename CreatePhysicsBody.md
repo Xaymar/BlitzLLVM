@@ -66,7 +66,7 @@ ScaleEntity sphere, 0.5, 0.5, 0.5
 
 ## Related Commands
 
-[CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕, [FreePhysicsWorld](FreePhysicsWorld) 〔BlitzLLVM〕, [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕, [GetPhysicsBodyShape](GetPhysicsBodyShape) 〔BlitzLLVM〕, [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕, [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕, [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+[CreatePhysicsBodyFromEntity](CreatePhysicsBodyFromEntity) 〔BlitzLLVM〕, [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint) 〔BlitzLLVM〕, [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint) 〔BlitzLLVM〕, [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint) 〔BlitzLLVM〕, [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint) 〔BlitzLLVM〕, [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint) 〔BlitzLLVM〕, [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕
 
 <div align="center">
 

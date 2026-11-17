@@ -49,7 +49,7 @@ EntityParent rock, body, True
 
 ## Related Commands
 
-[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕, [GetPhysicsBodyMotion](GetPhysicsBodyMotion) 〔BlitzLLVM〕, [GetPhysicsBodyShape](GetPhysicsBodyShape) 〔BlitzLLVM〕, [GetPhysicsBodyWorld](GetPhysicsBodyWorld) 〔BlitzLLVM〕, [GetPhysicsContactEntityA](GetPhysicsContactEntityA) 〔BlitzLLVM〕, [GetPhysicsContactEntityB](GetPhysicsContactEntityB) 〔BlitzLLVM〕, [GetPhysicsHitEntity](GetPhysicsHitEntity) 〔BlitzLLVM〕
+[CreatePhysicsBody](CreatePhysicsBody) 〔BlitzLLVM〕, [CreatePhysicsConeConstraint](CreatePhysicsConeConstraint) 〔BlitzLLVM〕, [CreatePhysicsDistanceConstraint](CreatePhysicsDistanceConstraint) 〔BlitzLLVM〕, [CreatePhysicsFixedConstraint](CreatePhysicsFixedConstraint) 〔BlitzLLVM〕, [CreatePhysicsHingeConstraint](CreatePhysicsHingeConstraint) 〔BlitzLLVM〕, [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint) 〔BlitzLLVM〕, [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint) 〔BlitzLLVM〕, [CreatePhysicsWorld](CreatePhysicsWorld) 〔BlitzLLVM〕
 
 <div align="center">
 
