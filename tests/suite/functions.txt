@@ -520,6 +520,8 @@ drawimagerect	graphics	done	DrawImageRect%image%x%y%rect_x%rect_y%rect_width%rec
 drawmovie	graphics	done	%DrawMovie%movie%x=0%y=0%w=-1%h=-1
 endgraphics	graphics	done	EndGraphics
 flip	graphics	done	Flip%vwait=1
+setgraphicsrefreshrate	graphics	done	SetGraphicsRefreshRate#rate
+getgraphicsrefreshrate	graphics	done	#GetGraphicsRefreshRate
 fontheight	graphics	done	%FontHeight
 fontwidth	graphics	done	%FontWidth
 freefont	graphics	done	FreeFont%font

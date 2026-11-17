@@ -59,6 +59,8 @@
 		{ "backbuffer", "bb_back_buffer", 'i', "", 0, {}, false },
 		{ "frontbuffer", "bb_front_buffer", 'i', "", 0, {}, false },
 		{ "flip", "bb_flip", 'v', "i", 0, { 1 }, false },
+		{ "setgraphicsrefreshrate", "bb_set_graphics_refresh_rate", 'v', "f", 1, {}, false },
+		{ "getgraphicsrefreshrate", "bb_get_graphics_refresh_rate", 'f', "", 0, {}, false },
 		{ "cls", "bb_cls", 'v', "", 0, {}, false },
 		{ "color", "bb_color", 'v', "iii", 3, {}, false },
 		{ "clscolor", "bb_clscolor", 'v', "iii", 3, {}, false },
