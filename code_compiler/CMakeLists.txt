@@ -491,6 +491,15 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	set_tests_properties(vram_pixels PROPERTIES LABELS "gpu")
 endif()
 
+# Texture streaming on every renderer: levels dropped under BLITZLLVM_TEXTURE_BUDGET_MB, given back in pieces (BLITZLLVM_UPLOAD_BUDGET_MB).
+if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
+	add_test(
+		NAME streaming_pixels
+		COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/streaming.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/streaming_mips.bb" "${PROJECT_BINARY_DIR}/cli/streaming"
+	)
+	set_tests_properties(streaming_pixels PROPERTIES LABELS "gpu" TIMEOUT 600)
+endif()
+
 # What actually comes out of the speakers: played through SDL's disk audio driver, and checked for pitch, looping and gaps.
 if(Python3_FOUND AND NOT WIN32)
 	add_test(NAME audio-output COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_output.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio")
