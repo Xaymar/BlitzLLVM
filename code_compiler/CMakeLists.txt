@@ -117,8 +117,24 @@ if(MINGW)
 	endif()
 	get_filename_component(_MINGW_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
 	get_filename_component(_MINGW_ROOT "${_MINGW_BIN}" DIRECTORY)
-	# The C headers are not in the directory of a target but in <root>/include, which clang finds as <sysroot>/include.
-	install(DIRECTORY "${_MINGW_ROOT}/include" DESTINATION lib/blitzllvm/mingw PATTERN "c++" EXCLUDE)
+	# The C headers are not in the directory of a target but in <root>/include, which clang finds as <sysroot>/include. Only the ones that the
+	# C sources of the runtime include (with everything they include) are installed, as llvm-mingw has over 100 MB of headers of all of
+	# Windows. They are installed with the same path as in llvm-mingw, so the sysroot has the layout clang expects. The compiler's own headers
+	# (<root>/lib/clang/<version>/include) are among them. The x64 and the arm64 build install the same headers (or each the ones of its target).
+	set(_MINGW_HEADER_SOURCES "")
+	foreach(_FILE IN LISTS BLITZRT_INLINE_FILES)
+		if(_FILE MATCHES "\\.c$")
+			list(APPEND _MINGW_HEADER_SOURCES "${_FILE}")
+		endif()
+	endforeach()
+	install(CODE "
+		set(COMPILER [[${CMAKE_C_COMPILER}]])
+		set(ROOT [[${_MINGW_ROOT}]])
+		set(DESTINATION [[\${CMAKE_INSTALL_PREFIX}/lib/blitzllvm/mingw]])
+		set(SOURCE_DIRECTORY [[${_RT}]])
+		set(SOURCES [[${_MINGW_HEADER_SOURCES}]])
+		include([[${PROJECT_SOURCE_DIR}/../cmake/install_mingw_headers.cmake]])
+	")
 	# Programs of BlitzBasic need the C headers (the inline C of the runtime) and what blitzcc links: the startup objects, the C and C++ runtime
 	# libraries and the import libraries of the Windows DLLs that the runtime uses (the list in main.cpp, SDL3, FFmpeg and what the
 	# runtime libraries and the C++ library ask for on their own). Userlibs are loaded when the program runs and link to nothing in here, so the
@@ -141,7 +157,6 @@ if(MINGW)
 	foreach(_DIR IN LISTS _MINGW_CLANG_VERSIONS)
 		get_filename_component(_VERSION "${_DIR}" NAME)
 		# Of the runtime libraries of the compiler only the builtins of this architecture, not the sanitizers and profilers.
-		install(DIRECTORY "${_DIR}/include" DESTINATION lib/blitzllvm/mingw/lib/clang/${_VERSION})
 		install(DIRECTORY "${_DIR}/lib" DESTINATION lib/blitzllvm/mingw/lib/clang/${_VERSION} FILES_MATCHING PATTERN "libclang_rt.builtins*")
 	endforeach()
 endif()
