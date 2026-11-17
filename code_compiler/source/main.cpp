@@ -830,17 +830,18 @@ static int compiler_main(int argc, char** argv)
 			} else {
 				command.push_back(opt.console ? "-mconsole" : "-mwindows");
 			}
-			// The manifest makes the program DPI aware (Windows would otherwise scale its window), as a resource file for the
-			// linker. The linkers of LLVM take those; the GNU linker of MinGW doesn't, so lld is used for it. A program that brings a
-			// manifest or resources of its own through --llvm-flag is left alone.
+			// The manifest makes the program DPI aware (Windows would otherwise scale its window), and the icon is the one that every
+			// program has until it gets one of its own, as a resource file for the linker. The linkers of LLVM take those; the GNU
+			// linker of MinGW doesn't, so lld is used for it. A program that brings a manifest or resources of its own through
+			// --llvm-flag is left alone, which is also how it replaces the icon.
 			bool own_resources = false;
 			for (auto const& flag : opt.flags) {
 				own_resources = own_resources || (flag.size() >= 4 && (flag.compare(flag.size() - 4, 4, ".res") == 0 || flag.compare(flag.size() - 4, 4, ".rc") == 0)) || (flag.find("manifest") != std::string::npos);
 			}
 			if (!own_resources) {
-				auto manifest_file = temp_dir / "manifest.res";
-				write_file(manifest_file, blitz::windows_manifest_resource());
-				command.push_back(manifest_file.generic_string());
+				auto resource_file = temp_dir / "resources.res";
+				write_file(resource_file, blitz::windows_default_resources());
+				command.push_back(resource_file.generic_string());
 				if (!windows_msvc) {
 					command.push_back("-fuse-ld=lld");
 				}

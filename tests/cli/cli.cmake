@@ -908,7 +908,7 @@ elseif(CASE STREQUAL "console_subsystem")
 	expect_missing("-mconsole")
 
 elseif(CASE STREQUAL "windows_manifest")
-	# Programs for Windows carry a manifest that makes them DPI aware (per monitor, version 2), as a resource file for the linker.
+	# Programs for Windows carry a manifest that makes them DPI aware (per monitor, version 2) and the icon of BlitzLLVM, as a resource file for the linker.
 	# Cross-compiling shows the link line and keeps the file even though the link itself may fail here, so the result is not checked.
 	set(_TEMP "${WORK}/temp")
 	file(MAKE_DIRECTORY "${_TEMP}")
@@ -916,11 +916,11 @@ elseif(CASE STREQUAL "windows_manifest")
 		COMMAND "${CMAKE_COMMAND}" -E env "TMPDIR=${_TEMP}" "TEMP=${_TEMP}" "TMP=${_TEMP}" "${BLITZCC}" --verbose --keep-temps --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/msvc.exe"
 		RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
 	)
-	expect_contains("manifest.res")
-	file(GLOB _FILES "${_TEMP}/blitzllvm-*/manifest.res")
+	expect_contains("resources.res")
+	file(GLOB _FILES "${_TEMP}/blitzllvm-*/resources.res")
 	list(LENGTH _FILES _COUNT)
 	if(NOT _COUNT EQUAL 1)
-		message(FATAL_ERROR "Expected one manifest.res kept, found ${_COUNT}: ${_FILES}")
+		message(FATAL_ERROR "Expected one resources.res kept, found ${_COUNT}: ${_FILES}")
 	endif()
 	file(READ "${_FILES}" _HEX HEX)
 	# The empty entry that starts every 32 bit resource file: no data, a header of 32 bytes, type 0 and name 0.
@@ -940,20 +940,27 @@ elseif(CASE STREQUAL "windows_manifest")
 			message(FATAL_ERROR "The manifest does not contain '${_NEEDED}'.")
 		endif()
 	endforeach()
+	# The icon of BlitzLLVM is the icon of every program: an RT_GROUP_ICON (14) with ID 1 and seven RT_ICON (3) entries, one per size.
+	string(FIND "${_HEX}" "ffff0e00ffff0100" _GROUP_AT)
+	string(FIND "${_HEX}" "ffff0300ffff0100" _FIRST_AT)
+	string(FIND "${_HEX}" "ffff0300ffff0700" _LAST_AT)
+	if(_GROUP_AT EQUAL -1 OR _FIRST_AT EQUAL -1 OR _LAST_AT EQUAL -1)
+		message(FATAL_ERROR "The resource file does not hold the icon group and its seven images.")
+	endif()
 	# MinGW has the GNU linker by default, which doesn't take resource files; lld does.
 	blitzcc(--verbose --target x86_64-w64-mingw32 "${PROGRAM}" -o "${WORK}/mingw.exe")
-	expect_contains("manifest.res")
+	expect_contains("resources.res")
 	expect_contains("-fuse-ld=lld")
 	# A program that brings its own resources or manifest is left alone.
 	blitzcc(--verbose --llvm-flag "${WORK}/own.res" --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/own.exe")
-	expect_missing("manifest.res")
+	expect_missing("resources.res")
 	blitzcc(--verbose --llvm-flag -Wl,/manifestinput:own.manifest --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/own.exe")
-	expect_missing("manifest.res")
+	expect_missing("resources.res")
 	# Other systems have no manifests.
 	if(NOT CMAKE_HOST_WIN32)
 		blitzcc(--verbose "${PROGRAM}" -o "${EXE}")
 		expect_ok()
-		expect_missing("manifest.res")
+		expect_missing("resources.res")
 	endif()
 
 elseif(CASE STREQUAL "userlib_shared")

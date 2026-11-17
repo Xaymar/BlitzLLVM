@@ -57,3 +57,6 @@ install(FILES "${_COMMANDS}" DESTINATION share/blitzllvm RENAME commands.txt COM
 
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
+
+# After the source groups: the generated resource file lies in the build directory, which the groups do not cover.
+blitz_windows_icon(${PROJECT_NAME})

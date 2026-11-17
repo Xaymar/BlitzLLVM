@@ -221,6 +221,17 @@ endif()
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
 
+# After the source groups: the generated files lie in the build directory, which the groups do not cover.
+blitz_windows_icon(${PROJECT_NAME})
+# The icon that programs for Windows get, as data in blitzcc (it is a resource file that blitzcc writes for the linker), for every host.
+file(READ "${PROJECT_SOURCE_DIR}/../media/windows/blitzllvm.ico" _ICON HEX)
+string(LENGTH "${_ICON}" _ICON_LENGTH)
+math(EXPR BLITZ_ICON_SIZE "${_ICON_LENGTH} / 2")
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," BLITZ_ICON_BYTES "${_ICON}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/source/windows_icon_data.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/windows_icon_data.cpp" @ONLY)
+target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/windows_icon_data.cpp")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/../media/windows/blitzllvm.ico")
+
 
 # Tests: the function test suite and the command line options, each below. The lexer test only has to lex.
 enable_testing()
