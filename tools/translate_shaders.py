@@ -160,6 +160,20 @@ D3D11_LIMITS = {"t": 128, "s": 16, "b": 14, "u": 8}  # Slots of shader resources
 CONSTANT = re.compile(r"#ifndef SPIRV_CROSS_CONSTANT_ID_(\d+)\n#define SPIRV_CROSS_CONSTANT_ID_\1 ([^\n]+)\n#endif\nstatic const (\w+) (\w+) = SPIRV_CROSS_CONSTANT_ID_\1;\n")
 
 
+def d3d11_vertex_fixups(text):
+    """
+    What Vulkan and Direct3D 11 do differently in a vertex shader, which the SPIR-V (made for Vulkan) does the Vulkan way:
+    - Clip space has Y pointing down on Vulkan and up on Direct3D. The vertex shaders write the negated Y (here, in the shader and nowhere else), so that
+      the framebuffer positions, the winding of triangles and every picture are the same as on Vulkan, with the viewport and the winding of the pipeline unchanged.
+    - gl_InstanceIndex includes the first instance of the draw on Vulkan, while SV_InstanceID of Direct3D starts at 0. The shaders that read it (entity
+      indices of 3D) take it from a vertex buffer of their own instead (BBINSTANCE, a stream of 0, 1, 2, ... that advances once per instance, and starts
+      at the first instance of the draw): the backend binds it as buffer 1 of the input layout.
+    """
+    text = text.replace("stage_output.gl_Position = gl_Position;", "stage_output.gl_Position = float4(gl_Position.x, -gl_Position.y, gl_Position.z, gl_Position.w);")
+    text = text.replace("uint gl_InstanceIndex : SV_InstanceID;", "uint gl_InstanceIndex : BBINSTANCE;")
+    return text
+
+
 def d3d11_hlsl(text, places):
     """
     Makes the HLSL of SPIRV-Cross (translated from a module of flatten_bindings) fit Direct3D 11 with bytecode compiled ahead of time:
@@ -210,6 +224,7 @@ def d3d11_hlsl(text, places):
         push = len(compact.get("b", {}))
         compact.setdefault("b", {})[-2] = push
         text = re.sub(r"^cbuffer (\w+)\n", lambda m: "cbuffer %s : register(b%d)\n" % (m.group(1), push), text, flags=re.M)
+    text = d3d11_vertex_fixups(text)
     for kind, limit in D3D11_LIMITS.items():
         if len(compact.get(kind, {})) > limit:
             raise ValueError("%d registers of kind %s, Direct3D 11 has %d" % (len(compact[kind]), kind, limit))

@@ -54,6 +54,9 @@ namespace bb::rhi {
 #ifdef BB_OPENGL
 			case backend::opengl: return &opengl_backend;
 #endif
+#ifdef BB_D3D11_SHADERS
+			case backend::d3d11: return &d3d11_backend;
+#endif
 			default: return nullptr;
 			}
 		}

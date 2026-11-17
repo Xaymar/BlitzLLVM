@@ -34,4 +34,7 @@ namespace bb::rhi {
 #ifdef BB_OPENGL
 	extern const backend_table opengl_backend;
 #endif
+#ifdef BB_D3D11_SHADERS
+	extern const backend_table d3d11_backend; // Windows, with the bytecode of the shaders (code_runtime/CMakeLists.txt).
+#endif
 } // namespace bb::rhi

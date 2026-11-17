@@ -39,7 +39,7 @@ SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
     _27 = stage_input._27;
     vert_main();
     SPIRV_Cross_Output stage_output;
-    stage_output.gl_Position = gl_Position;
+    stage_output.gl_Position = float4(gl_Position.x, -gl_Position.y, gl_Position.z, gl_Position.w);
     stage_output._28 = _28;
     stage_output._29 = _29;
     return stage_output;
