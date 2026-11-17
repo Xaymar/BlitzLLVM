@@ -5,11 +5,11 @@
 
 ## Nightly builds
 
-Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
+Every push to the `root` branch builds BlitzLLVM for Windows (x64 and arm64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
 
 * Linux: install the two Flatpaks, `blitzllvm-<version>-<commit>-linux-x64-runtime.flatpak` first and then `blitzllvm-<version>-<commit>-linux-x64.flatpak` (`-linux-arm64` on ARM), with `flatpak install --user --bundle <file>`. There is no zip, and no deb, rpm, Arch or snap package. The first holds the shared libraries that every program made by BlitzLLVM uses, the second the compiler and tools; see [[Flatpak]].
 * macOS: install `blitzllvm-<version>-<commit>-macos-universal.pkg`.
-* Windows: run `blitzllvm-<version>-<commit>-windows-x64-setup.exe` (or `-windows-arm64-setup.exe`). It looks for LLVM (clang and lld) on `PATH` and in `C:\Program Files\LLVM\bin`, offers to install it with `winget install -e --id LLVM.LLVM` when it is missing, can add BlitzLLVM to `PATH`, and comes with an uninstaller. Silent installs (`/VERYSILENT`) install only BlitzLLVM, add `/INSTALLLLVM=yes` to install LLVM too. Or download `blitzllvm-<version>-<commit>-windows-x64.zip` (or `-windows-arm64.zip`) and extract it yourself.
+* Windows: run `blitzllvm-<version>-<commit>-windows-setup.exe`. It works on x64 and on arm64 Windows, installs the tools of your computer and can build programs for both. It looks for LLVM (clang and lld) on `PATH` and in `C:\Program Files\LLVM\bin`, offers to install it with `winget install -e --id LLVM.LLVM` when it is missing, can add BlitzLLVM to `PATH`, and comes with an uninstaller. Silent installs (`/VERYSILENT`) install only BlitzLLVM, add `/INSTALLLLVM=yes` to install LLVM too. Or download `blitzllvm-<version>-<commit>-windows.zip` and extract it yourself: `bin/x86_64` has the x64 tools and `bin/arm64` the arm64 tools.
 
 For the zip:
 
@@ -68,7 +68,7 @@ blitzcc -o program program.bb  # only build the executable
 blitzcc -O2 -o program program.bb   # a lower optimization level (the default is -O3)
 blitzcc --fast-math full -o program program.bb   # also assume that Float math never produces NaN or Infinity (see below)
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
-blitzcc --target <triple> program.bb   # cross-compile
+blitzcc --target <triple> program.bb   # cross-compile (the Windows package builds for x64 and arm64: --target aarch64-w64-mingw32 or x86_64-w64-mingw32)
 blitzcc -q program.bb          # quiet: no version banner and no warnings
 blitzcc -W4 -Werror program.bb   # more warnings (-W0 to -W4, -W2 is the default), and any warning is an error, see [[Warnings]]
 blitzcc -Wno-implicit-lossy-real-to-int program.bb   # turn off one warning
