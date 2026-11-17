@@ -5,7 +5,7 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
-const { execFile } = require('child_process');
+const { execFile, execFileSync } = require('child_process');
 const { LanguageClient, TransportKind } = require('vscode-languageclient/node');
 
 let client;
@@ -19,18 +19,40 @@ let output;
 const exeName = (name) => (process.platform === 'win32' ? name + '.exe' : name);
 const settings = () => vscode.workspace.getConfiguration('blitz');
 
-/** A program of the installation: the setting for the program, then bin/ of the installation folder, then PATH. */
+const FLATPAK_ID = 'com.xaymar.BlitzLLVM';
+let flatpakInstalled; // Cached: is the Flatpak of BlitzLLVM installed?
+
+function hasFlatpak() {
+  if (flatpakInstalled === undefined) {
+    try { execFileSync('flatpak', ['info', FLATPAK_ID], { stdio: 'ignore', timeout: 10000 }); flatpakInstalled = true; } catch (e) { flatpakInstalled = false; }
+  }
+  return flatpakInstalled;
+}
+
+function onPath(name) {
+  const dirs = (process.env.PATH || '').split(path.delimiter);
+  return dirs.some((dir) => dir && fs.existsSync(path.join(dir, exeName(name))));
+}
+
+/**
+ * A program of the installation as { command, args }: the setting for the program, then bin/ of the installation folder, then the extension's own bin,
+ * then PATH. On Linux, the Flatpak (blitz.flatpak: auto uses it when nothing else was found) is run with `flatpak run --command=<name>`.
+ */
 function findProgram(setting, name) {
   const configured = settings().get(setting, '');
-  if (configured) return configured;
+  if (configured) return { command: configured, args: [] };
   const installed = settings().get('installPath', '');
   if (installed) {
     const candidate = path.join(installed, 'bin', exeName(name));
-    if (fs.existsSync(candidate)) return candidate;
+    if (fs.existsSync(candidate)) return { command: candidate, args: [] };
   }
   const bundled = path.join(__dirname, '..', 'bin', exeName(name));
-  if (fs.existsSync(bundled)) return bundled;
-  return name; // PATH
+  if (fs.existsSync(bundled)) return { command: bundled, args: [] };
+  const mode = settings().get('flatpak', 'auto');
+  if (process.platform === 'linux' && mode !== 'never' && (mode === 'always' || (!onPath(name) && hasFlatpak()))) {
+    return { command: 'flatpak', args: ['run', `--command=${name}`, FLATPAK_ID], flatpak: true };
+  }
+  return { command: name, args: [] }; // PATH
 }
 
 /** What the language server needs of the settings: the warning level and the arguments of blitzcc (-Wno-unused-result ...). */
@@ -77,12 +99,13 @@ async function selectProject() {
 }
 
 function startServer(context) {
-  const command = findProgram('server.path', 'blitz-lsp');
+  const server = findProgram('server.path', 'blitz-lsp');
+  const command = server.command;
   const env = Object.assign({}, process.env);
   const userlibs = settings().get('userlibsDirectory', '');
   const active = vscode.window.activeTextEditor;
   if (userlibs) env.BLITZLLVM_USERLIBS = settingPath(userlibs, active && active.document.uri.scheme === 'file' ? active.document.uri.fsPath : undefined);
-  client = new LanguageClient('blitz', 'BlitzLLVM', { command, args: ['--stdio'], transport: TransportKind.stdio, options: { env } }, {
+  client = new LanguageClient('blitz', 'BlitzLLVM', { command, args: [...server.args, '--stdio'], transport: TransportKind.stdio, options: { env } }, {
     documentSelector: [{ scheme: 'file', language: 'blitzbasic' }],
     initializationOptions: serverSettings(),
     outputChannel: output
@@ -154,9 +177,10 @@ function taskScope(file, folder) {
 }
 
 function makeTask(action, mode, file, folder) {
+  const compiler = findProgram('compiler.path', 'blitzcc');
   const definition = { type: 'blitz', action, mode, file };
   const title = { build: 'Build', run: 'Run', check: 'Check' }[action] + (action === 'check' ? '' : ` (${mode})`);
-  const execution = new vscode.ProcessExecution(findProgram('compiler.path', 'blitzcc'), compilerArguments(action, mode, file), { cwd: path.dirname(file) });
+  const execution = new vscode.ProcessExecution(compiler.command, [...compiler.args, ...compilerArguments(action, mode, file)], { cwd: path.dirname(file) });
   const task = new vscode.Task(definition, taskScope(file, folder), `${title}: ${path.basename(file)}`, 'blitz', execution, ['$blitzcc', '$blitzcc-notice']); // Errors and warnings, and notices as information (VS Code has no notice)
   if (action === 'build') task.group = mode === 'release' ? vscode.TaskGroup.Build : undefined;
   task.presentationOptions = { reveal: vscode.TaskRevealKind.Always, panel: vscode.TaskPanelKind.Dedicated, clear: true };
@@ -196,9 +220,10 @@ function build(file, mode) {
     const exe = outputPath(file, mode);
     fs.mkdirSync(path.dirname(exe), { recursive: true });
     const compiler = findProgram('compiler.path', 'blitzcc');
+    if (compiler.flatpak) { reject(new Error('Debugging needs a BlitzLLVM that is not the Flatpak: the program uses libraries of the Flatpak that the debugger cannot find outside of it. Set "blitz.installPath", or use Run.')); return; }
     const args = compilerArguments('build', mode, file);
-    output.appendLine(`> ${compiler} ${args.join(' ')}`);
-    execFile(compiler, args, { cwd: path.dirname(file), maxBuffer: 64 * 1024 * 1024 }, (error, stdout, stderr) => {
+    output.appendLine(`> ${compiler.command} ${args.join(' ')}`);
+    execFile(compiler.command, args, { cwd: path.dirname(file), maxBuffer: 64 * 1024 * 1024 }, (error, stdout, stderr) => {
       output.append(stdout || '');
       output.append(stderr || '');
       if (error) { output.show(true); reject(new Error(`blitzcc failed (${error.code || error.message}), see the output "BlitzLLVM".`)); } else { resolve(exe); }

@@ -81,6 +81,13 @@
 					"default": "",
 					"markdownDescription": "The folder BlitzLLVM is installed in (the one that has `bin/blitzcc` and `bin/blitz-lsp`). Empty: the programs are looked for in `PATH`."
 				},
+				"blitz.flatpak": {
+					"order": 0,
+					"type": "string",
+					"enum": ["auto", "always", "never"],
+					"default": "auto",
+					"markdownDescription": "Linux: run `blitzcc` and `blitz-lsp` from the Flatpak `com.xaymar.BlitzLLVM`. `auto`: when they are not found any other way (not in `blitz.installPath`, not in `PATH`) and the Flatpak is installed. The Flatpak sees your home folder, so projects elsewhere need `flatpak override --user --filesystem=host com.xaymar.BlitzLLVM`."
+				},
 				"blitz.server.path": {
 					"order": 1,
 					"type": "string",
