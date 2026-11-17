@@ -43,6 +43,10 @@ Where the system has no mode that can do this, the display is still synced and t
 
 A program written for the original should keep `Flip` or `Flip False`. Values other than 0 and 2 act like 1.
 
+## Frame rate limit
+
+[SetGraphicsRefreshRate](SetGraphicsRefreshRate) sets a most frames per second. `Flip 0` ignores it, `Flip 1` waits for the display and keeps it, and `Flip 2` keeps it while the picture is synced with the display.
+
 @param vwait  1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait and may tear. 2 keeps the picture free of tearing but never makes the program wait (see below). Defaults to 1.
 @gap Without a graphics window nothing happens.
 @gap `Flip 2` is an extension: the picture is synced with the display without making the program wait.

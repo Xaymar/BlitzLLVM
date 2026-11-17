@@ -1437,6 +1437,8 @@ int32_t bb_set_buffer(int32_t buffer);
 int32_t bb_graphics_buffer(void);
 void bb_app_title(const char* title, const char* close_prompt);
 void bb_flip(int32_t vwait);
+void bb_set_graphics_refresh_rate(float rate);
+float bb_get_graphics_refresh_rate(void);
 int32_t bb_graphics_depth(void);
 int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth);
 int32_t bb_windowed_3d(void);

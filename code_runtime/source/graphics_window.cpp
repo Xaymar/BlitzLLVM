@@ -787,8 +787,51 @@ namespace {
 } // namespace
 
 
+// SetGraphicsRefreshRate: the most frames per second that Flip 1 and Flip 2 let the program show. 0 is no limit. The frame limit is kept
+// by absolute deadlines (one period after the last), so a late frame is not made up for by a sleep that drifts, and the sleep itself
+// is SDL_DelayPrecise, not a 1 ms poll.
+static std::atomic<float> refresh_limit { 0.0f };
+static uint64_t           limit_deadline_ns = 0;
+
+static void keep_refresh_limit(int32_t vwait)
+{
+	float rate = refresh_limit.load();
+	if ((vwait == 0) || !(rate > 0.0f)) {
+		limit_deadline_ns = 0; // Starts over when the limit is turned on again.
+		return;
+	}
+	uint64_t period = uint64_t(1000000000.0 / double(rate));
+	uint64_t now    = SDL_GetTicksNS();
+	if (limit_deadline_ns == 0) {
+		limit_deadline_ns = now + period;
+		return;
+	}
+	if (now < limit_deadline_ns) {
+		SDL_DelayPrecise(limit_deadline_ns - now);
+		limit_deadline_ns += period;
+	} else if (now - limit_deadline_ns > period * 4) {
+		limit_deadline_ns = now + period; // Far behind (a pause, a load): do not rush to catch up.
+	} else {
+		limit_deadline_ns += period;
+	}
+}
+
+void bb_set_graphics_refresh_rate(float rate)
+{
+	if (!(rate >= 0.0f) || (rate > 100000.0f)) {
+		bb_runtime_error("SetGraphicsRefreshRate: the rate has to be 0 (no limit) or up to 100000.");
+	}
+	refresh_limit.store(rate);
+	limit_deadline_ns = 0;
+}
+
+float bb_get_graphics_refresh_rate(void)
+{
+	return refresh_limit.load();
+}
+
 // Flip [vwait]: show what was drawn to the back buffer. 0 shows at once, 1 syncs with the display, 2 syncs only the picture.
-void bb_flip(int32_t vwait)
+static void flip_once(int32_t vwait)
 {
 	bb::profile_scope timer(bb::PROFILE_FLIP);
 	if (bb::profile_enabled) {
@@ -824,6 +867,12 @@ void bb_flip(int32_t vwait)
 	present_front(true);
 	recovery_flip_end();
 	textures_stream_frame();
+}
+
+void bb_flip(int32_t vwait)
+{
+	flip_once(vwait);
+	keep_refresh_limit(vwait); // After the present, so the wait is the time the program would otherwise spend drawing ahead.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
