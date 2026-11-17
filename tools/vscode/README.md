@@ -23,6 +23,8 @@ Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs (`.bb
 
 The `.vsix` is a file of every release and nightly (`blitzllvm-<version>-vscode.vsix`); install it with *Extensions: Install from VSIX*. `blitz-lsp` is part of every package of BlitzLLVM. Install BlitzLLVM, then either put its `bin` folder into `PATH` or set `blitz.installPath` to the folder that has `bin/blitzcc` and `bin/blitz-lsp`.
 
+On Linux, the Flatpak `com.xaymar.BlitzLLVM` works without either: when the programs are not found in `blitz.installPath` or `PATH`, the extension runs them with `flatpak run` (`blitz.flatpak` sets `auto`, `always` or `never`). The Flatpak sees your home folder, so programs elsewhere need `flatpak override --user --filesystem=host com.xaymar.BlitzLLVM`. Debugging is not possible with the Flatpak yet, as the program needs the libraries of the Flatpak: use Run, or a BlitzLLVM that is not a Flatpak.
+
 ## Building the extension
 
 ```
