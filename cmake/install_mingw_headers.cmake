@@ -41,6 +41,10 @@ foreach(_FILE IN LISTS _DEPENDENCIES)
 	if(_RELATIVE MATCHES "^\\.\\.")
 		continue() # The sources of the runtime themselves.
 	endif()
+	# llvm-mingw has the headers once, in generic-w64-mingw32/include, and every <triple>/include is a link to it. The compiler lists the
+	# files by the path of the link, which was resolved above to the one they are in. That folder means nothing to clang in the sysroot of the
+	# package (it looks in <sysroot>/<triple>/include and <sysroot>/include), so they go to <sysroot>/include, shared by every target.
+	string(REGEX REPLACE "^generic-w64-mingw32/include/" "include/" _RELATIVE "${_RELATIVE}")
 	get_filename_component(_DIRECTORY "${_RELATIVE}" DIRECTORY)
 	file(INSTALL "${_FILE}" DESTINATION "${DESTINATION}/${_DIRECTORY}")
 	math(EXPR _COUNT "${_COUNT} + 1")
