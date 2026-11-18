@@ -17,6 +17,7 @@
 #include "scene.hpp"
 #include "memory.h"
 
+#include <cstdio>
 #include <unordered_map>
 #include <iterator>
 #include <vector>
