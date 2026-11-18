@@ -1483,10 +1483,14 @@ namespace bb::gfx {
 			}
 		}
 
+		mesh_defrag_begin(); // The buffers of meshes are moved with the images (this also destroys what was freed, which can not be done once the allocator is moving things).
 		uint32_t moved = 0;
 		bool started = bb::rhi::defragment_memory([&](uint64_t allocation, uint64_t destination) {
 			auto found = owners.find(allocation);
-			if ((found == owners.end()) || !move_image(*found->second.image, destination)) {
+			if (found == owners.end()) {
+				return mesh_defrag_move(allocation, destination); // Counted when the pass is over (mesh_defrag_pass_done).
+			}
+			if (!move_image(*found->second.image, destination)) {
 				return false;
 			}
 			moved++;
@@ -1494,13 +1498,15 @@ namespace bb::gfx {
 			found->second.image->sampler = found->second.sampler;
 			return true;
 		});
+		uint32_t meshes = mesh_defrag_end();
 		if (!started) {
 			return false;
 		}
 		if (bb_env_bool("BLITZLLVM_DEFRAG_REPORT", false)) {
 			fprintf(stderr, "defragmentation moved %u images\n", moved);
+			fprintf(stderr, "defragmentation moved %u mesh buffers\n", meshes);
 		}
-		return moved > 0;
+		return (moved + meshes) > 0;
 	}
 
 	// Moves textures that may use system memory to it: their images are made again there from their recipes, and the set that samples them is written again.

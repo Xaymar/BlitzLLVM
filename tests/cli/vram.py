@@ -56,6 +56,15 @@ def main():
         print("vram: textures that were moved together should keep their pictures (and some should have moved).\n%s" % result.stderr)
         return 1
 
+    # The vertex and index buffers of meshes that the allocator moved still draw (also from the table of static draws), and the meshes can change.
+    defrag_mesh = os.path.join(work, "vram_defrag_mesh")
+    procutil.run([blitzcc, "-d", os.path.join(os.path.dirname(source), "vram_defrag_mesh.bb"), "-o", defrag_mesh], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([defrag_mesh], env=dict(os.environ, BLITZLLVM_DEFRAG_TEST="1", BLITZLLVM_DEFRAG_REPORT="1"), capture_output=True, text=True, timeout=120)
+    moved = [line for line in result.stderr.splitlines() if line.startswith("defragmentation moved") and line.endswith(" mesh buffers") and not line.endswith(" 0 mesh buffers")]
+    if result.returncode != 0 or "defrag mesh ok" not in result.stderr or not moved:
+        print("vram: meshes whose buffers were moved together should still be drawn (and some buffers should have moved).\n%s" % result.stderr)
+        return 1
+
     # The buffers of the window and of order independent transparency come before textures without flag 256.
     priority = os.path.join(work, "vram_priority")
     procutil.run([blitzcc, os.path.join(os.path.dirname(source), "vram_priority.bb"), "-o", priority], check=True, stdout=subprocess.DEVNULL)

@@ -100,6 +100,8 @@ BB_RHI_CALL(void, create_buffer, (gpu_buffer& buffer, uint64_t size, buffer_usag
 BB_RHI_CALL(void, destroy_buffer, (gpu_buffer& buffer), (buffer))
 BB_RHI_CALL(bool, can_defragment, (), ())
 BB_RHI_CALL(bool, defragment_memory, (const std::function<bool(uint64_t allocation, uint64_t destination)>& move_one), (move_one))
+BB_RHI_CALL(bool, move_buffer, (gpu_buffer& buffer, uint64_t destination), (buffer, destination))
+BB_RHI_CALL(void, buffer_moved, (gpu_buffer& buffer), (buffer))
 BB_RHI_CALL(void, destroy_retired_buffer, (uint64_t buffer, uint64_t allocation), (buffer, allocation))
 BB_RHI_CALL(bool, create_buffer_any_thread, (gpu_buffer& buffer, uint64_t size, buffer_usage usage, memory where), (buffer, size, usage, where))
 BB_RHI_CALL(void, destroy_buffer_any_thread, (gpu_buffer& buffer), (buffer))
