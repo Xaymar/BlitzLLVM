@@ -17,6 +17,7 @@
 // eye: its algorithm is not public). Where there is no HDR the swapchain is the one it was, and nothing here runs.
 
 #include <algorithm>
+#include <string>
 #include <vector>
 #include "graphics_internal.hpp"
 #include "shaders.inc"
@@ -353,8 +354,14 @@ namespace bb::gfx {
 					wp ? int(SDL_GetBooleanProperty(wp, SDL_PROP_WINDOW_HDR_ENABLED_BOOLEAN, false)) : -1, wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_SDR_WHITE_LEVEL_FLOAT, 0.0f) : 0.0f,
 					wp ? SDL_GetFloatProperty(wp, SDL_PROP_WINDOW_HDR_HEADROOM_FLOAT, 0.0f) : 0.0f, unsigned(shown), shown ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(shown), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1,
 					unsigned(first), first ? int(SDL_GetBooleanProperty(SDL_GetDisplayProperties(first), SDL_PROP_DISPLAY_HDR_ENABLED_BOOLEAN, false)) : -1, int(s.chain.hdr_offered), int(s.chain.hdr), int(seen.hdr), seen.white, (seen.hdr && seen.white > 0.0f) ? seen.white * seen.headroom : 0.0f);
-			fputs(line, stderr); // A program without a console shows nothing there, so the line is also appended to autohdr_debug.txt in the working folder.
-			if (FILE* file = fopen("autohdr_debug.txt", "ab")) {
+			fputs(line, stderr); // A program without a console shows nothing there, so the line is also appended to autohdr_debug.txt in the folder of the program.
+			// Next to the program, which is the same wherever it is started from (the working folder of a program started from an editor is not obvious).
+			std::string debug_path = "autohdr_debug.txt";
+			if (const char* base = SDL_GetBasePath()) {
+				debug_path = std::string(base) + "autohdr_debug.txt";
+			}
+			fprintf(stderr, "AutoHDR: this line is also in %s\n", debug_path.c_str());
+			if (FILE* file = fopen(debug_path.c_str(), "ab")) {
 				fputs(line, file);
 				fclose(file);
 			}
