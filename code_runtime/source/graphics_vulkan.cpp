@@ -2394,6 +2394,9 @@ namespace bb::rhi::vulkan {
 				&& (vkGetSwapchainTimeDomainPropertiesEXT(device, swapchain, &domains, &counter) >= VK_SUCCESS) && (domains.timeDomainCount > 0)) {
 				sc.timing      = true;
 				sc.time_domain = domain_ids[0];
+				if (bb_env_bool("BLITZLLVM_DEBUG_PRESENT_TIMING", 0)) {
+					fprintf(stderr, "BlitzLLVM: present timing is on for this window's swapchain (time domain id %llu, %u domains).\n", (unsigned long long)sc.time_domain, domains.timeDomainCount);
+				}
 			}
 		}
 

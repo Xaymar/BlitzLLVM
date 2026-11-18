@@ -816,6 +816,27 @@ static void keep_refresh_limit(int32_t vwait)
 	}
 }
 
+// Flip 1 waits for the display in the present. A limit kept by the clock on top of that would beat against the refresh (a limit of 60 on a
+// 60 Hz display lost frames: the clock wakes a hair before the display does, the sleep runs into the next refresh and a frame is
+// missed). So with Flip 1 the wait is before the present, counted from when the last Flip returned (which is when the display took it),
+// and wakes a little early so that the present is in time for the refresh it is aimed at.
+static uint64_t limit_returned_ns = 0;
+
+static void wait_for_refresh_limit_before_present()
+{
+	float rate = refresh_limit.load();
+	if (!(rate > 0.0f) || (limit_returned_ns == 0)) {
+		return;
+	}
+	uint64_t period = uint64_t(1000000000.0 / double(rate));
+	uint64_t margin = (period / 4) < 1000000ull ? (period / 4) : 1000000ull;
+	uint64_t target = limit_returned_ns + period - margin;
+	uint64_t now    = SDL_GetTicksNS();
+	if (now < target) {
+		SDL_DelayPrecise(target - now);
+	}
+}
+
 void bb_set_graphics_refresh_rate(float rate)
 {
 	if (!(rate >= 0.0f) || (rate > 100000.0f)) {
@@ -823,6 +844,7 @@ void bb_set_graphics_refresh_rate(float rate)
 	}
 	refresh_limit.store(rate);
 	limit_deadline_ns = 0;
+	limit_returned_ns = 0;
 }
 
 float bb_get_graphics_refresh_rate(void)
@@ -871,8 +893,21 @@ static void flip_once(int32_t vwait)
 
 void bb_flip(int32_t vwait)
 {
+	if (vwait == 0) {
+		limit_returned_ns = 0;
+		flip_once(vwait);
+		return;
+	}
+	if (vwait == 2) {
+		limit_returned_ns = 0;
+		flip_once(vwait);
+		keep_refresh_limit(vwait); // Flip 2 does not wait for the display, so the clock alone keeps the limit.
+		return;
+	}
+	limit_deadline_ns = 0;
+	wait_for_refresh_limit_before_present();
 	flip_once(vwait);
-	keep_refresh_limit(vwait); // After the present, so the wait is the time the program would otherwise spend drawing ahead.
+	limit_returned_ns = SDL_GetTicksNS();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
