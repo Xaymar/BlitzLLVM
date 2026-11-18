@@ -213,6 +213,11 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt")
 set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
 if(APPLE)
 	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
+	# The logo in the corner of the installer window (a .pkg file has no icon of its own to set).
+	set(CPACK_PRODUCTBUILD_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/resources")
+	set(CPACK_PRODUCTBUILD_BACKGROUND "background.png")
+	set(CPACK_PRODUCTBUILD_BACKGROUND_ALIGNMENT "bottomleft")
+	set(CPACK_PRODUCTBUILD_BACKGROUND_SCALING "none")
 endif()
 
 include(CPack)

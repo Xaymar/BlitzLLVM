@@ -303,6 +303,10 @@ jobs:
           (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
+          # The installer shows the logo (the background image is in the Resources of the package).
+          pkgutil --expand "packages/${ARTIFACT}.pkg" pkg-expanded
+          test -f pkg-expanded/Resources/background.png
+          rm -rf pkg-expanded
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg" build/required-licenses.txt
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-help.sh "${ARTIFACT}.pkg"
           ls -l packages
