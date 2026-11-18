@@ -40,6 +40,13 @@ SetGraphicsRefreshRate 20
 Local took0 = Flips30(0)
 CheckTrue "Flip 0 ignores the limit", took0 < 1000
 
+; Flip 1 waits for the display and keeps the limit as well: at 20 Hz, 30 frames take about 1.5 seconds, and not more than a few times that.
+SetGraphicsRefreshRate 20
+Flips30 1
+Local took1 = Flips30(1)
+CheckTrue "Flip 1 is limited (at least 1200 ms for 30 frames at 20 Hz)", took1 >= 1200
+CheckTrue "Flip 1 is not slower than the limit by far", took1 <= 4000
+
 SetGraphicsRefreshRate 0
 Check "The limit can be turned off", GetGraphicsRefreshRate(), 0
 EndGraphics
