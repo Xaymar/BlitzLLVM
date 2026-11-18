@@ -241,12 +241,20 @@ jobs:
             printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
             # The inline C code of the runtime is compiled in the same step. When the headers are missing it fails and the program is slower, but it still builds.
             dist/bin/blitzcc "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged.exe" 2>&1 | tee "$RUNNER_TEMP/packaged.log"
-            ! grep -qi "error" "$RUNNER_TEMP/packaged.log"
+            # (A leading ! does not stop a script with -e, so this is an if.)
+            if grep -qiE "error|failed, building without it" "$RUNNER_TEMP/packaged.log"; then echo "blitzcc reported a problem"; exit 1; fi
             "$RUNNER_TEMP/packaged.exe" | grep -q "packaged ok"
             # And with the clang that comes with the runner's LLVM install, which does not default to compiler-rt and libc++ for the MinGW target
             # the way llvm-mingw's does (it asked for libgcc and libgcc_eh, which the package does not ship).
             dist/bin/blitzcc --cc "C:/Program Files/LLVM/bin/clang.exe" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged_plain.exe" 2>&1 | tee "$RUNNER_TEMP/packaged_plain.log"
-            ! grep -qi "error" "$RUNNER_TEMP/packaged_plain.log"
+            # (A leading ! does not stop a script with -e, so this is an if.)
+            # The compiler headers of the package are those of clang 23 (the minimum the installer asks for). An older clang can not compile them (the
+            # inline runtime then falls back, with the warning, and the program is only slower), so the inline runtime is only required of clang 23 or newer.
+            plain_major=$("C:/Program Files/LLVM/bin/clang.exe" --version | sed -n 's/.*clang version \([0-9]*\)\..*/\1/p' | head -n 1)
+            echo "The clang of the runner is version $plain_major"
+            if [ "${plain_major:-0}" -ge 23 ]; then
+              if grep -qiE "error|failed, building without it" "$RUNNER_TEMP/packaged_plain.log"; then echo "blitzcc reported a problem"; exit 1; fi
+            fi
             "$RUNNER_TEMP/packaged_plain.exe" | grep -q "packaged ok"
           fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
@@ -391,13 +399,27 @@ jobs:
           printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
           for target in x86_64-w64-mingw32 aarch64-w64-mingw32; do
             dist/bin/x86_64/blitzcc --target "$target" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged-$target.exe" 2>&1 | tee "$RUNNER_TEMP/packaged-$target.log"
-            ! grep -qi "error" "$RUNNER_TEMP/packaged-$target.log"
+            if grep -qiE "error|failed, building without it" "$RUNNER_TEMP/packaged-$target.log"; then echo "blitzcc reported a problem for $target"; exit 1; fi
           done
           "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "packaged ok"
           llvm-objdump -f "$RUNNER_TEMP/packaged-x86_64-w64-mingw32.exe" | grep -q "file format coff-x86-64"
           llvm-objdump -f "$RUNNER_TEMP/packaged-aarch64-w64-mingw32.exe" | grep -q "file format coff-arm64"
           # The tools of the arm64 folder are arm64 programs.
           llvm-objdump -f dist/bin/arm64/blitzcc.exe | grep -q "file format coff-arm64"
+      - name: Compile the inline runtime against the packaged sysroot
+        # blitzcc only warns when the inline C of the runtime does not compile (the program is built without it, just slower), which is how the
+        # missing C headers went unnoticed. So the sources that the package ships are compiled here on their own, once per architecture, with
+        # nothing but the sysroot of the package (no include path of the toolchain), and every error fails the job.
+        run: |
+          sysroot="$PWD/dist/lib/blitzllvm/mingw"
+          resource="$(echo "$sysroot"/lib/clang/*)"
+          test -d "$resource" || { echo "The package has no compiler headers in $sysroot/lib/clang"; exit 1; }
+          for target in x86_64-w64-mingw32 aarch64-w64-mingw32; do
+            for source in dist/lib/blitzllvm/runtime/inline/*.c; do
+              clang --target="$target" --sysroot="$sysroot" -resource-dir="$resource" -nostdinc++ -fsyntax-only -Idist/lib/blitzllvm/runtime/inline "$source" \
+                || { echo "$source does not compile against the sysroot of the package for $target"; exit 1; }
+            done
+          done
       - name: Zip
         run: |
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
