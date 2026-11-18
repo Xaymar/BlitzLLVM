@@ -516,13 +516,14 @@ blitz_dependency(VulkanHeaders Vulkan-Headers
 #
 # The runtime draws with its own renderers and never creates an SDL_Renderer, so on Windows the Direct3D render drivers and OpenGL ES
 # are left out. OpenGL stays in: the OpenGL renderer of the runtime needs windows with an OpenGL context, and SDL loads opengl32.dll
-# only when such a window is made. SDL has no option for the DirectSound audio driver
+# only when such a window is made. It is asked for by name: a build directory of SDL from before the OpenGL renderer was built for
+# Windows remembers SDL_OPENGL=OFF, and leaving the option out would keep that. SDL has no option for the DirectSound audio driver
 # (WASAPI is used instead) or the Direct3D 12 GPU driver (the runtime does not use SDL_GPU either), so the header checks that
 # enable them are answered in advance.
 set(_SDL3_ARGS -DSDL_STATIC=ON -DSDL_SHARED=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_INSTALL_DOCS=OFF)
 if(WIN32)
 	list(APPEND _SDL3_ARGS
-		-DSDL_RENDER_D3D=OFF -DSDL_RENDER_D3D11=OFF -DSDL_RENDER_D3D12=OFF -DSDL_OPENGLES=OFF
+		-DSDL_RENDER_D3D=OFF -DSDL_RENDER_D3D11=OFF -DSDL_RENDER_D3D12=OFF -DSDL_OPENGL=ON -DSDL_OPENGLES=OFF
 		-DHAVE_DSOUND_H=0 -DHAVE_DXGI1_6_H=0
 	)
 endif()
@@ -538,6 +539,20 @@ else()
 		BUILD_ARGS --config Release
 		INSTALL_ARGS --config Release
 	)
+
+	# Without OpenGL in SDL every program that asks for the OpenGL renderer ends when it opens its window, which no test on a machine
+	# without an OpenGL 4.3 driver shows. So what SDL was configured with is read from its build directory.
+	if(WIN32)
+		file(GLOB_RECURSE _SDL3_BUILD_CONFIG "${SDL3_BINARY_PATH}/SDL_build_config.h")
+		if(NOT _SDL3_BUILD_CONFIG)
+			message(FATAL_ERROR "SDL3 has no SDL_build_config.h in '${SDL3_BINARY_PATH}', so whether it was built with OpenGL is not known.")
+		endif()
+		list(GET _SDL3_BUILD_CONFIG 0 _SDL3_BUILD_CONFIG)
+		file(STRINGS "${_SDL3_BUILD_CONFIG}" _SDL3_OPENGL REGEX "^#define SDL_VIDEO_OPENGL_WGL 1")
+		if(NOT _SDL3_OPENGL)
+			message(FATAL_ERROR "SDL3 was built without OpenGL (no SDL_VIDEO_OPENGL_WGL in '${_SDL3_BUILD_CONFIG}'), the OpenGL renderer of the runtime needs it.")
+		endif()
+	endif()
 
 	# Where SDL3Config.cmake ends up depends on the platform (cmake/, lib/cmake/SDL3, lib64/...), so look for it.
 	file(GLOB_RECURSE _SDL3_CONFIG "${SDL3_INSTALL_PATH}/SDL3Config.cmake")
