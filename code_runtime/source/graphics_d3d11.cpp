@@ -991,7 +991,8 @@ namespace bb::gfx {
 			if (image->depth) {
 				D3D11_DEPTH_STENCIL_VIEW_DESC dd = {};
 				dd.Format                        = DXGI_FORMAT_D32_FLOAT;
-				dd.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2D;
+				// A view of a multisampled texture has its own dimension, Direct3D refuses the other one (E_INVALIDARG).
+				dd.ViewDimension = (samples > 1) ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 				check(dx.device->CreateDepthStencilView(image->texture, &dd, &whole->dsv), "CreateDepthStencilView");
 				dd.Flags = D3D11_DSV_READ_ONLY_DEPTH;
 				check(dx.device->CreateDepthStencilView(image->texture, &dd, &whole->dsv_read), "CreateDepthStencilView (read only)");
