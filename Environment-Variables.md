@@ -63,8 +63,8 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[GPU-Optimizations]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_VRAM_LIMIT_MB` | Pretends that the program has only this much video memory (0 or unset: all there is). For testing what the program does when video memory is full: textures without flag 256 go to system memory, the others stop the program with an "out of video memory" error, and `AvailVidMem` reports less. The Vulkan renderer only. |
-| `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures and images together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
-| `BLITZLLVM_DEFRAG_REPORT` | Prints how many images a defragmentation moved. |
+| `BLITZLLVM_DEFRAG_TEST` | Moves the allocations of textures, images and the buffers of meshes together before every texture is made, instead of only when video memory has no gap that is big enough. For testing; it costs time. |
+| `BLITZLLVM_DEFRAG_REPORT` | Prints how many images and how many buffers of meshes a defragmentation moved. |
 | `BLITZLLVM_TEXTURE_STREAMING` | `0` turns off texture streaming: textures with mip maps (not render targets, cube maps or texture arrays) no longer lose their biggest mip levels when video memory is short, and stay as they are. |
 | `BLITZLLVM_STREAMING_REPORT` | Prints a line whenever streaming drops mip levels of a texture or gives a level back. |
 | `BLITZLLVM_TEXTURE_BUDGET_MB` | Gives textures only this much memory for streaming, on every renderer. For testing; the Vulkan and D3D11 renderers use what the driver says is free, OpenGL has no such number. |
