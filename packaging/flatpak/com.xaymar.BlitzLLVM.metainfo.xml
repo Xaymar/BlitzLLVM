@@ -2,6 +2,7 @@
 <component type="console-application">
   <id>com.xaymar.BlitzLLVM</id>
   <name>BlitzLLVM</name>
+  <icon type="stock">com.xaymar.BlitzLLVM</icon>
   <summary>BlitzBasic, Blitz3D and BlitzPlus compiler built on LLVM</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>BSD-3-Clause</project_license>

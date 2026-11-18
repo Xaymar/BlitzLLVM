@@ -47,8 +47,15 @@ modules:
       - mkdir -p /app/sdk/llvm21 /app/lib/blitzllvm-shared
       - cp -a app/. /app/
       - install -Dm644 com.xaymar.BlitzLLVM.metainfo.xml -t /app/share/metainfo
+      # The logo, under the id of the app (the only name that Flatpak exports icons under).
+      - install -Dm644 icon-128.png /app/share/icons/hicolor/128x128/apps/com.xaymar.BlitzLLVM.png
+      - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/com.xaymar.BlitzLLVM.svg
     sources:
       - type: dir
         path: ../../flatpak-stage
       - type: file
         path: com.xaymar.BlitzLLVM.metainfo.xml
+      - type: file
+        path: ../../media/icon-128.png
+      - type: file
+        path: ../../media/icon.svg
