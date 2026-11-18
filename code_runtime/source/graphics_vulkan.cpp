@@ -19,6 +19,7 @@
 #include "memory.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <unordered_map>
 #include <unordered_set>
 #include <mutex>
