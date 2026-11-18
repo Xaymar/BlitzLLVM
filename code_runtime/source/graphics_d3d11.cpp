@@ -2433,35 +2433,35 @@ namespace bb::rhi::d3d11 {
 		if (!swap1) {
 			return false;
 		}
-		// AutoHDR: scRGB needs a swapchain of 16-bit floats in the flip model, with its color space set. Whether the system takes it is found
-		// out on the swapchain that exists, so a program that does not want HDR keeps the one it always had.
+		// AutoHDR: scRGB needs a swapchain of 16-bit floats in the flip model, with its color space set. Windows 10 has both for every device that
+		// does Direct3D 11, so it is always offered (HWHDRSupported also asks whether the display has HDR on). The color space is not asked of the
+		// 8-bit swapchain that exists: it has no scRGB, whatever the display does.
 		bool           hdr    = false;
 		constexpr DXGI_COLOR_SPACE_TYPE scrgb = DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709;
-		{
-			IDXGISwapChain3* swap3 = nullptr;
-			UINT             support = 0;
-			if (SUCCEEDED(swap1->QueryInterface(__uuidof(IDXGISwapChain3), reinterpret_cast<void**>(&swap3))) && swap3) {
-				if (SUCCEEDED(swap3->CheckColorSpaceSupport(scrgb, &support)) && (support & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)) {
-					sc.hdr_offered = true;
-				}
-				release(swap3);
-			}
-		}
-		if (d.hdr && sc.hdr_offered) {
+		sc.hdr_offered = true;
+		if (d.hdr) {
+			// One window has one swapchain: the 8-bit one goes, and comes back if the HDR one is refused.
+			IDXGISwapChain1* hdr_swap  = nullptr;
+			IDXGISwapChain3* hdr_swap3 = nullptr;
+			UINT             support   = 0;
+			release(swap1);
 			DXGI_SWAP_CHAIN_DESC1 hdr_desc = desc;
 			hdr_desc.Format                = DXGI_FORMAT_R16G16B16A16_FLOAT;
 			hdr_desc.BufferCount           = 2;
 			hdr_desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-			IDXGISwapChain1* hdr_swap      = nullptr;
-			IDXGISwapChain3* hdr_swap3     = nullptr;
 			if (SUCCEEDED(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &hdr_desc, nullptr, nullptr, &hdr_swap)) && hdr_swap
 				&& SUCCEEDED(hdr_swap->QueryInterface(__uuidof(IDXGISwapChain3), reinterpret_cast<void**>(&hdr_swap3))) && hdr_swap3
+				&& SUCCEEDED(hdr_swap3->CheckColorSpaceSupport(scrgb, &support)) && (support & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)
 				&& SUCCEEDED(hdr_swap3->SetColorSpace1(scrgb))) {
-				release(swap1);
 				swap1 = hdr_swap;
 				hdr   = true;
 			} else {
-				release(hdr_swap); // The 8-bit one stays.
+				release(hdr_swap);
+				check(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &desc, nullptr, nullptr, &swap1), "IDXGIFactory2::CreateSwapChainForHwnd");
+				if (!swap1) {
+					release(hdr_swap3);
+					return false;
+				}
 			}
 			release(hdr_swap3);
 		}
