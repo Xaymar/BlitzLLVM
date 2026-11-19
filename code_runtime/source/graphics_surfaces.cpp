@@ -322,7 +322,7 @@ namespace bb::gfx {
 		int cw = 0, ch = 0, sw = in_units(w > 0 ? w : 1, s.units), sh = in_units(h > 0 ? h : 1, s.units);
 		SDL_GetWindowSize(s.window, &cw, &ch);
 		if ((cw != sw) || (ch != sh)) {
-			SDL_SetWindowSize(s.window, sw > 0 ? sw : 1, sh > 0 ? sh : 1);
+			bb::wnd::set_window_size(s.window, sw > 0 ? sw : 1, sh > 0 ? sh : 1);
 		}
 	}
 } // namespace bb::gfx

@@ -48,6 +48,11 @@ namespace bb::wnd {
 	SDL_Window* create_window(const char* title, int width, int height, SDL_WindowFlags flags);
 	void        destroy_window(SDL_Window* window);
 
+	// SDL_SetWindowSize and SDL_SyncWindow: on the window system's thread, where the size is applied and the events it makes are queued
+	// before the call returns, as they were when the program's thread did the window system's work itself.
+	void set_window_size(SDL_Window* window, int width, int height);
+	void sync_window(SDL_Window* window);
+
 	// The next event the thread of the window system has queued, like SDL_PollEvent, and a wait of up to the milliseconds for one to come.
 	bool poll_event(SDL_Event* event);
 	void wait_event(int milliseconds);

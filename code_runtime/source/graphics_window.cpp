@@ -202,7 +202,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		SDL_SetWindowFullscreenMode(surface().window, nullptr); // The desktop mode, not a mode of the size asked for.
 		surface().fullscreen = true;
 		SDL_SetWindowPosition(surface().window, bounds.x, bounds.y); // For systems that do not move a fullscreen window.
-		SDL_SyncWindow(surface().window);
+		bb::wnd::sync_window(surface().window);
 	}
 	if (mode != 1) {
 		disable_rounded_corners(surface().window);

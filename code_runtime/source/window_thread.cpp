@@ -124,6 +124,19 @@ namespace bb::wnd {
 		run([&] { SDL_DestroyWindow(window); });
 	}
 
+	void set_window_size(SDL_Window* window, int width, int height)
+	{
+		run([&] {
+			SDL_SetWindowSize(window, width, height);
+			SDL_SyncWindow(window);
+		});
+	}
+
+	void sync_window(SDL_Window* window)
+	{
+		run([&] { SDL_SyncWindow(window); });
+	}
+
 	bool poll_event(SDL_Event* event)
 	{
 		if (!thread_id.load()) {
