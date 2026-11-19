@@ -178,15 +178,35 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 			}
 			type t = (decl.type == type::UNKNOWN) ? type::INT32 : decl.type;
 			uint32_t count = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
+			if (!decl.shape.empty() && node->constant) {
+				throw err(decl.where, "A vector or matrix can't be a Const, use Local or Global.");
+			}
+			if (!decl.shape.empty() && !_in_main && shape_total(decl.shape) * array_element_size(t) > 4096) {
+				auto kib = (shape_total(decl.shape) * array_element_size(t) + 1023) / 1024;
+				warn(decl.where, "large-local-array", "'" + decl.name + "' is a Local " + shape_name(t, decl.shape) + " of " + std::to_string(kib) + " KiB, which is made again on every call of the function.", "A Local above 4 KiB costs time on every call, and above 64 KiB it lives on the heap. Declare it with Global outside of the function to make it once, or turn this off with -Wno-large-local-array.");
+			}
 			if (count && !_in_main && uint64_t(count) * array_element_size(t) > 4096) {
 				auto kib = (uint64_t(count) * array_element_size(t) + 1023) / 1024;
 				warn(decl.where, "large-local-array", "'" + decl.name + "' is a Local array of " + std::to_string(kib) + " KiB, which is made again on every call of the function.", "A Local array above 4 KiB costs time on every call, and above 64 KiB it lives on the heap. Declare it with Global or Dim outside of the function to make it once, or turn this off with -Wno-large-local-array.");
 			}
-			var            = create_local(decl.name, t, false, decl.where, decl.struct_name, count);
+			var            = create_local(decl.name, t, false, decl.where, decl.struct_name, count, decl.shape);
 			auto& stored        = _locals[lower(decl.name)];
 			stored.where        = decl.where;
 			stored.name         = decl.name;
 			stored.check_unused = true;
+		}
+		if (!var.shape.empty()) {
+			// Locals start out as zero every time the declaration is executed.
+			address target{ var.pointer, var.type, std::string(), 0, false };
+			target.shape = var.shape;
+			if (!node->global) {
+				emit(zero_memory(var.pointer, shape_llvm(var.type, var.shape)));
+			}
+			if (decl.initial) {
+				auto v = gen(decl.initial.get());
+				assign_aggregate(target, v, decl.initial->where, &decl.initial->covers);
+			}
+			continue;
 		}
 		if (var.count) {
 			if (decl.initial) {
@@ -296,6 +316,10 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 	}
 	if (addr.count) {
 		throw err(node->where, "Arrays can't be assigned as a whole, use an index.");
+	}
+	if (!addr.shape.empty() || !rhs.shape.empty()) {
+		assign_aggregate(addr, rhs, node->value->where, &node->value->covers);
+		return;
 	}
 	auto v = convert(rhs, addr.type, node->value->where, true, addr.sname, &node->value->covers);
 	store_value(addr, v);
