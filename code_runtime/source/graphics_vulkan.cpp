@@ -2316,6 +2316,15 @@ namespace bb::rhi::vulkan {
 			}
 			vkGetPhysicalDeviceSurfacePresentModesKHR(physical, surface, &mode_count, modes);
 			VkPresentModeKHR wanted = ((d.vsync == 2) || d.own_thread) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+			// For finding out what a driver does with Flip 2: BLITZLLVM_FLIP2_PRESENT_MODE picks the mode of the window of Graphics for it.
+			if ((d.vsync == 2) && !d.own_thread) {
+				const char* forced = bb_env("BLITZLLVM_FLIP2_PRESENT_MODE");
+				if (forced && (strcmp(forced, "immediate") == 0)) {
+					wanted = VK_PRESENT_MODE_IMMEDIATE_KHR;
+				} else if (forced && (strcmp(forced, "fifo_relaxed") == 0)) {
+					wanted = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+				}
+			}
 			for (uint32_t i = 0; i < mode_count; i++) {
 				if (modes[i] == wanted) {
 					mode = modes[i];
