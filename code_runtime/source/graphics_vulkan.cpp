@@ -17,6 +17,7 @@
 #include "scene.hpp"
 #include "memory.h"
 
+#include <cstdio>
 #include <unordered_map>
 #include <iterator>
 #include <vector>
@@ -788,6 +789,32 @@ namespace bb::gfx {
 		Uint32             extension_count = 0;
 		const char* const* extensions      = SDL_Vulkan_GetInstanceExtensions(&extension_count);
 
+		// Present timing (BLITZLLVM_PRESENT_TIMING=1) needs the instance to have VK_KHR_get_surface_capabilities2.
+		const char* wanted_extensions[64];
+		for (Uint32 i = 0; (i < extension_count) && (i < 62); i++) {
+			wanted_extensions[i] = extensions[i];
+		}
+		if (extension_count > 62) {
+			extension_count = 62;
+		}
+		if (bb_env_bool("BLITZLLVM_PRESENT_TIMING", 0) && vkEnumerateInstanceExtensionProperties) {
+			uint32_t                           available_count = 0;
+			vkEnumerateInstanceExtensionProperties(nullptr, &available_count, nullptr);
+			std::vector<VkExtensionProperties> available(available_count);
+			vkEnumerateInstanceExtensionProperties(nullptr, &available_count, available.data());
+			bool listed = false, have = false;
+			for (const VkExtensionProperties& e : available) {
+				listed |= strcmp(e.extensionName, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) == 0;
+			}
+			for (Uint32 i = 0; i < extension_count; i++) {
+				have |= strcmp(wanted_extensions[i], VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) == 0;
+			}
+			if (listed && !have) {
+				wanted_extensions[extension_count++] = VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME;
+			}
+		}
+		extensions = wanted_extensions;
+
 		VkApplicationInfo app = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
 		app.pApplicationName  = "BlitzLLVM";
 		app.apiVersion        = VK_API_VERSION_1_3;
@@ -1050,12 +1077,15 @@ namespace bb::gfx {
 		std::vector<VkExtensionProperties> available(device_extension_count);
 		vkEnumerateDeviceExtensionProperties(vkd.physical, nullptr, &device_extension_count, available.data());
 		VkPhysicalDeviceCustomBorderColorFeaturesEXT border_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
-		bool has_present_id = false, has_present_wait = false;
+		bool has_present_id = false, has_present_wait = false, has_timing = false, has_id2 = false, has_calibrated = false;
 		g.can_memory_budget = false;
 		for (VkExtensionProperties const& e : available) {
 			g.can_memory_budget |= strcmp(e.extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0;
 			has_present_id |= strcmp(e.extensionName, VK_KHR_PRESENT_ID_EXTENSION_NAME) == 0;
 			has_present_wait |= strcmp(e.extensionName, VK_KHR_PRESENT_WAIT_EXTENSION_NAME) == 0;
+			has_timing |= strcmp(e.extensionName, VK_EXT_PRESENT_TIMING_EXTENSION_NAME) == 0;
+			has_id2 |= strcmp(e.extensionName, VK_KHR_PRESENT_ID_2_EXTENSION_NAME) == 0;
+			has_calibrated |= strcmp(e.extensionName, VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME) == 0;
 			if (strcmp(e.extensionName, VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME) == 0) {
 				VkPhysicalDeviceCustomBorderColorFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
 				VkPhysicalDeviceFeatures2 query2 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
@@ -1086,6 +1116,27 @@ namespace bb::gfx {
 			}
 		}
 
+		// Present timing: a frame can be asked to be shown a time after the last one, which the display side keeps, also on a display with a
+		// variable refresh rate. It needs VK_KHR_present_id2 and VK_KHR_calibrated_timestamps, and the instance's
+		// VK_KHR_get_surface_capabilities2. Off unless BLITZLLVM_PRESENT_TIMING=1: it has only been written against the specification.
+		VkPhysicalDevicePresentTimingFeaturesEXT timing_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT };
+		VkPhysicalDevicePresentId2FeaturesKHR    id2_features    = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR };
+		g.can_present_timing = false;
+		if (bb_env_bool("BLITZLLVM_PRESENT_TIMING", 0) && has_timing && has_id2 && has_calibrated && vkGetPhysicalDeviceSurfaceCapabilities2KHR) {
+			VkPhysicalDevicePresentTimingFeaturesEXT query_timing = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT };
+			VkPhysicalDevicePresentId2FeaturesKHR    query_id2    = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR };
+			VkPhysicalDeviceFeatures2                query2       = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+			query_timing.pNext = &query_id2;
+			query2.pNext       = &query_timing;
+			vkGetPhysicalDeviceFeatures2(vkd.physical, &query2);
+			if (query_timing.presentTiming && query_timing.presentAtRelativeTime && query_id2.presentId2) {
+				g.can_present_timing                  = true;
+				timing_features.presentTiming         = VK_TRUE;
+				timing_features.presentAtRelativeTime = VK_TRUE;
+				id2_features.presentId2               = VK_TRUE;
+			}
+		}
+
 		// Timeline semaphores (every Vulkan 1.2 device has them): the handover of a picture to the thread of a window signals one.
 		VkPhysicalDeviceVulkan12Features features12 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
 		features12.timelineSemaphore                = VK_TRUE;
@@ -1104,7 +1155,15 @@ namespace bb::gfx {
 			features13.pNext            = &present_id_features;
 		}
 
-		const char* device_extensions[8] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		if (g.can_present_timing) {
+			timing_features.pNext = nullptr;
+			id2_features.pNext    = nullptr;
+			timing_features.pNext = &id2_features;
+			id2_features.pNext    = features13.pNext;
+			features13.pNext      = &timing_features;
+		}
+
+		const char* device_extensions[12] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
 		if (g.can_custom_border) {
 			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
@@ -1115,6 +1174,11 @@ namespace bb::gfx {
 		if (g.can_present_wait) {
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_ID_EXTENSION_NAME;
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_WAIT_EXTENSION_NAME;
+		}
+		if (g.can_present_timing) {
+			device_extensions[device_extension_total++] = VK_EXT_PRESENT_TIMING_EXTENSION_NAME;
+			device_extensions[device_extension_total++] = VK_KHR_PRESENT_ID_2_EXTENSION_NAME;
+			device_extensions[device_extension_total++] = VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME;
 		}
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
@@ -1945,6 +2009,15 @@ namespace bb::rhi::vulkan {
 			}
 			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &mode_count, modes);
 			VkPresentModeKHR wanted = ((d.vsync == 2) || d.own_thread) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+			// For finding out what a driver does with Flip 2: BLITZLLVM_FLIP2_PRESENT_MODE picks the mode of the window of Graphics for it.
+			if ((d.vsync == 2) && !d.own_thread) {
+				const char* forced = bb_env("BLITZLLVM_FLIP2_PRESENT_MODE");
+				if (forced && (strcmp(forced, "immediate") == 0)) {
+					wanted = VK_PRESENT_MODE_IMMEDIATE_KHR;
+				} else if (forced && (strcmp(forced, "fifo_relaxed") == 0)) {
+					wanted = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+				}
+			}
 			for (uint32_t i = 0; i < mode_count; i++) {
 				if (modes[i] == wanted) {
 					mode = modes[i];
@@ -1957,6 +2030,40 @@ namespace bb::rhi::vulkan {
 					}
 				}
 			}
+		}
+
+		// Present timing: a swapchain that can be asked to show a frame at a time, which only modes that wait for the display allow (FIFO).
+		// Only for a thread of its own: the program's own Flip would wait in the present.
+		bool timing = false;
+		if (d.own_thread && g.can_present_timing && vkGetPhysicalDeviceSurfaceCapabilities2KHR) {
+			VkSurfaceCapabilitiesPresentId2KHR       id2_caps    = { VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR };
+			VkPresentTimingSurfaceCapabilitiesEXT    timing_caps = { VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT };
+			VkSurfaceCapabilities2KHR                caps2       = { VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR };
+			VkPhysicalDeviceSurfaceInfo2KHR          surface_info = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR };
+			surface_info.surface = surface;
+			timing_caps.pNext    = &id2_caps;
+			caps2.pNext          = &timing_caps;
+			if ((vkGetPhysicalDeviceSurfaceCapabilities2KHR(vkd.physical, &surface_info, &caps2) == VK_SUCCESS) && timing_caps.presentTimingSupported && timing_caps.presentAtRelativeTimeSupported && id2_caps.presentId2Supported) {
+				timing = true;
+				mode   = VK_PRESENT_MODE_FIFO_KHR;
+			}
+		}
+
+		if (bb_env_bool("BLITZLLVM_DEBUG_PRESENT_MODE", 0)) {
+			uint32_t         listed = 0;
+			VkPresentModeKHR all[16];
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &listed, nullptr);
+			if (listed > 16) {
+				listed = 16;
+			}
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &listed, all);
+			const char* names[] = { "IMMEDIATE", "MAILBOX", "FIFO", "FIFO_RELAXED" };
+			auto        name    = [&](VkPresentModeKHR m) { return (unsigned(m) < 4) ? names[m] : "other"; };
+			fprintf(stderr, "BlitzLLVM: present mode %s for Flip %d%s; the surface lists:", name(mode), int(d.vsync), d.own_thread ? " (window thread)" : "");
+			for (uint32_t i = 0; i < listed; i++) {
+				fprintf(stderr, " %s", name(all[i]));
+			}
+			fprintf(stderr, ".\n");
 		}
 
 		// MAILBOX needs a spare image: the display and the window system may each hold one, and the program must still find one to draw to.
@@ -1981,11 +2088,35 @@ namespace bb::rhi::vulkan {
 		info.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		info.presentMode              = mode;
 		info.clipped                  = VK_TRUE;
+		if (timing) {
+			info.flags = VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT | VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR;
+		}
 		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 		check(vkCreateSwapchainKHR(vkd.device, &info, nullptr, &swapchain), "vkCreateSwapchainKHR");
 		sc.handle = uint64_t(swapchain);
 		if (!swapchain) {
 			return true; // The device is lost.
+		}
+		sc.timing      = false;
+		sc.time_domain = 0;
+		if (timing && vkSetSwapchainPresentTimingQueueSizeEXT && vkGetSwapchainTimeDomainPropertiesEXT) {
+			// A small queue: nothing asks for the times of past presents, so none are kept for long. The first time domain the swapchain
+			// lists is the one the times are in.
+			VkSwapchainTimeDomainPropertiesEXT domains     = { VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT };
+			uint64_t                          counter      = 0;
+			VkTimeDomainKHR                   domain_kind[8];
+			uint64_t                          domain_ids[8];
+			domains.timeDomainCount = 8;
+			domains.pTimeDomains    = domain_kind;
+			domains.pTimeDomainIds  = domain_ids;
+			if ((vkSetSwapchainPresentTimingQueueSizeEXT(vkd.device, swapchain, 4) == VK_SUCCESS)
+				&& (vkGetSwapchainTimeDomainPropertiesEXT(vkd.device, swapchain, &domains, &counter) >= VK_SUCCESS) && (domains.timeDomainCount > 0)) {
+				sc.timing      = true;
+				sc.time_domain = domain_ids[0];
+				if (bb_env_bool("BLITZLLVM_DEBUG_PRESENT_TIMING", 0)) {
+					fprintf(stderr, "BlitzLLVM: present timing is on for this window's swapchain (time domain id %llu, %u domains).\n", (unsigned long long)sc.time_domain, domains.timeDomainCount);
+				}
+			}
 		}
 
 		VkImage  images[max_swapchain_images] = {};
@@ -2219,7 +2350,22 @@ namespace bb::rhi::vulkan {
 		present.pImageIndices      = &index;
 		VkPresentIdKHR present_id  = { VK_STRUCTURE_TYPE_PRESENT_ID_KHR };
 		uint64_t       this_id     = presenter.present_id + 1;
-		if (presenter.present_wait) {
+		// A swapchain with timing takes ids of the second kind, and a time relative to the one before: the display side keeps it.
+		VkPresentId2KHR           present_id2  = { VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR };
+		VkPresentTimingInfoEXT    timing_info  = { VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT };
+		VkPresentTimingsInfoEXT   timings_info = { VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT };
+		if (chain.timing) {
+			present_id2.swapchainCount = 1;
+			present_id2.pPresentIds    = &this_id;
+			timing_info.flags          = (presenter.target_ns != 0) ? VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT : 0;
+			timing_info.targetTime     = presenter.target_ns;
+			timing_info.timeDomainId   = chain.time_domain;
+			timing_info.targetTimeDomainPresentStage = VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_VISIBLE_BIT_EXT;
+			timings_info.swapchainCount = 1;
+			timings_info.pTimingInfos   = &timing_info;
+			present_id2.pNext           = &timings_info;
+			present.pNext               = &present_id2;
+		} else if (presenter.present_wait) {
 			present_id.swapchainCount = 1;
 			present_id.pPresentIds    = &this_id;
 			present.pNext             = &present_id;
@@ -2244,8 +2390,8 @@ namespace bb::rhi::vulkan {
 
 	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns)
 	{
-		if (!presenter.present_wait || !vkWaitForPresentKHR) {
-			return false;
+		if (chain.timing || !presenter.present_wait || !vkWaitForPresentKHR) {
+			return false; // With timing the display side keeps the pace, see show_picture.
 		}
 		vkWaitForPresentKHR(VkDevice(presenter.device), VkSwapchainKHR(chain.handle), presenter.present_id, timeout_ns);
 		return true;
