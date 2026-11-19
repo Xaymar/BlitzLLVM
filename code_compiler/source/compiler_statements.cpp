@@ -596,6 +596,21 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 		emit_terminator("br label %" + _exit_label);
 		return;
 	}
+	if (!_return_shape.empty()) {
+		// A vector or matrix is written to the memory that the caller passed.
+		address target{ _ret_slot, _return_type, std::string(), 0, false };
+		target.shape = _return_shape;
+		if (node->value) {
+			_return_kinds.insert("other");
+			auto given = gen(node->value.get());
+			assign_aggregate(target, given, node->value->where, &node->value->covers);
+		} else {
+			warn(node->where, "return-missing-value", "Return has no value, but the function returns " + shape_name(_return_type, _return_shape) + ".", "Return a value, such as 'Return " + blitz::types::display(_return_type) + std::to_string(shape_total(_return_shape)) + "(0)'.");
+			emit(zero_memory(_ret_slot, shape_llvm(_return_type, _return_shape)));
+		}
+		emit_terminator("br label %" + _exit_label);
+		return;
+	}
 	if (!node->value) {
 		_return_kinds.insert("void");
 	}

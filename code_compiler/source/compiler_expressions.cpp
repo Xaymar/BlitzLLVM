@@ -264,7 +264,7 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 			operand o;
 			o.code = capture_code([&] {
 				auto addr = gen_address(arg, true);
-				if (addr.constant || addr.count) {
+				if (addr.constant || addr.count || !addr.shape.empty()) {
 					throw err(arg->where, describe + (addr.constant ? " can't write to a constant." : " can't take a whole array, give it an element."));
 				}
 				if (addr.type != type::FLOAT16) {
@@ -434,8 +434,8 @@ blitz::compiler::address blitz::compiler::gen_reference_argument(ast::call const
 	if (addr.constant) {
 		throw err(arg->where, describe + " can't write to a constant.");
 	}
-	if (addr.count) {
-		throw err(arg->where, describe + " can't take a whole array, give it an element.");
+	if (addr.count || !addr.shape.empty()) {
+		throw err(arg->where, describe + " can't take a " + (addr.shape.empty() ? std::string("whole array") : shape_name(addr.type, addr.shape)) + ", give it an element.");
 	}
 	if ((addr.type != param.type) || ((param.type == type::STRUCT) && (addr.sname != lower(param.struct_name)))) {
 		auto name = [](type t, std::string const& sname) { return (t == type::STRUCT) ? "object of type '" + sname + "'" : blitz::types::display(t); };
@@ -541,6 +541,17 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 			list += (idx ? ", " : "") + std::string("ptr ") + operands[idx].v.repr;
 			continue;
 		}
+		if (!param.shape.empty()) {
+			// The function copies what it gets, so the memory of the argument is passed.
+			auto const& where_arg = (idx < node->arguments.size()) ? node->arguments[idx]->where : param.where;
+			auto const* covers    = (idx < node->arguments.size()) ? &node->arguments[idx]->covers : nullptr;
+			if (operands[idx].v.shape != param.shape) {
+				throw err(where_arg, "Parameter '" + param.name + "' of '" + fn.name + "' is a " + shape_name(param.type, param.shape) + ", not " + (operands[idx].v.shape.empty() ? blitz::types::display(operands[idx].v.type) : shape_name(operands[idx].v.type, operands[idx].v.shape)) + ".");
+			}
+			v = convert_aggregate(operands[idx].v, param.type, where_arg, covers);
+			list += (idx ? ", " : "") + std::string("ptr ") + v.repr;
+			continue;
+		}
 		if (idx < node->arguments.size()) {
 			v = convert(operands[idx].v, param.type, node->arguments[idx]->where, true, param.struct_name, &node->arguments[idx]->covers);
 		} else {
@@ -550,6 +561,14 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	}
 
 	auto ret = fn.type;
+	if (!fn.shape.empty()) {
+		// The function writes its vector or matrix to memory made here.
+		value out{ aggregate_temp(fn.type, fn.shape), fn.type };
+		out.shape = fn.shape;
+		emit("call void " + it->second.symbol + "(ptr " + out.repr + (list.empty() ? "" : ", " + list) + ")");
+		out.need = chain;
+		return out;
+	}
 	if (fn.is_void) {
 		emit("call void " + it->second.symbol + "(" + list + ")");
 		value none{ "", type::UNKNOWN };

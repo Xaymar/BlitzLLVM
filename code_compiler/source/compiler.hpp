@@ -114,6 +114,7 @@ namespace blitz {
 		std::string                          _return_sname;
 		bool                                 _return_typed = false;
 		bool                                 _return_void  = false; // Inside of a `Name:Void` function.
+		shape_t                              _return_shape;         // Not empty inside of a function that returns a vector or matrix, which it writes to the memory its caller passes first.
 		std::set<std::string>                _return_kinds; // What the Return statements of the function without a type give: "void" (no value), "int", "float", "string" or "other".
 		std::map<std::string, std::pair<std::string, ast::location>> _unknown; // Functions that were called but don't exist, so all can be reported at once.
 
