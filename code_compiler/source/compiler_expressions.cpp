@@ -572,7 +572,7 @@ blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
 	namespace t = blitz::types;
 	auto v      = gen(node->operand.get());
 
-	if (node->kind == ast::unary::op::NOT) {
+	if ((node->kind == ast::unary::op::NOT) && v.shape.empty()) {
 		if (v.type == type::STRING) {
 			// Not x is x = 0 in Blitz, which compares a string with "0" as text.
 			return from_bool(compare(ast::binary::op::EQUAL, v, { "0", type::INT32 }, node->where));
@@ -590,6 +590,18 @@ blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
 		return from_bool(r);
 	}
 
+	if (!v.shape.empty()) {
+		if (node->kind == ast::unary::op::NOT) {
+			throw err(node->where, "Not can't be used on a " + shape_name(v.type, v.shape) + ", compare it with = or <>.");
+		}
+		return elementwise(v.shape, { v }, [&](std::vector<value> const& numbers) { return gen_unary_values(node, numbers[0]); });
+	}
+	return gen_unary_values(node, v);
+}
+
+blitz::compiler::value blitz::compiler::gen_unary_values(ast::unary const* node, value v)
+{
+	namespace t = blitz::types;
 	if (!is_number(v.type)) {
 		throw err(node->where, "Operation requires a number.");
 	}
@@ -702,6 +714,10 @@ blitz::compiler::value blitz::compiler::gen_binary_values(ast::binary const* nod
 
 	if ((lhs.type == type::UNKNOWN) || (rhs.type == type::UNKNOWN)) {
 		throw err(node->where, "Expression does not return a value.");
+	}
+
+	if (!lhs.shape.empty() || !rhs.shape.empty()) {
+		return gen_aggregate_binary(node, lhs, rhs);
 	}
 
 	if (node->kind >= op::EQUAL) {

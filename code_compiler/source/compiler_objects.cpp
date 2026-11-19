@@ -221,7 +221,24 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		}
 		throw err(f->where, "Type '" + info.name + "' has no field '" + f->name + "'.");
 	} else if (auto i = dynamic_cast<ast::index_access const*>(expr)) {
-		auto base = gen_address(i->base.get(), write);
+		address base;
+		auto const* inner = i->base.get();
+		bool        place = dynamic_cast<ast::reference const*>(inner) || dynamic_cast<ast::field_access const*>(inner) || dynamic_cast<ast::index_access const*>(inner);
+		if (auto c = dynamic_cast<ast::call const*>(inner)) {
+			place = find_dim(c->name) != nullptr; // `Dim` arrays are indexed like a call.
+		}
+		if (place) {
+			base = gen_address(inner, write);
+		} else {
+			// The result of a calculation or of a function: `(a + b)[1]`, `Cross(a, b)[2]`.
+			auto computed = gen(inner);
+			if (computed.shape.empty()) {
+				throw err(i->where, "This is not an array.");
+			}
+			base       = address{ computed.repr, computed.type, std::string(), 0, false };
+			base.shape = computed.shape;
+			base.need  = computed.need;
+		}
 		if (!base.shape.empty()) {
 			// An element of a vector, or a column of a matrix. Checked against the size, like the index of an array.
 			auto index = convert(gen(i->index.get()), type::INT32, i->index->where, true, std::string(), &i->index->covers);

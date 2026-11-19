@@ -269,3 +269,124 @@ blitz::compiler::value blitz::compiler::gen_construct(ast::call const* node, typ
 	return out;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Operators
+////////////////////////////////////////////////////////////////////////////////
+// = and <> compare every element, and are true when all (or, for <>, not all) of them are equal.
+std::string blitz::compiler::aggregate_equal(value const& lhs, value const& rhs, ast::location const& where)
+{
+	auto accumulator = "%all" + std::to_string(_counter++);
+	_allocas << "  " << accumulator << " = alloca i1\n";
+	emit("store i1 true, ptr " + accumulator);
+	for_each_element(shape_total(lhs.shape), [&](std::string const& index) {
+		auto same = compare(ast::binary::op::EQUAL, load_element(lhs, index), load_element(rhs, index), where);
+		auto held = tmp(), both = tmp();
+		emit(held + " = load i1, ptr " + accumulator);
+		emit(both + " = and i1 " + held + ", " + same);
+		emit("store i1 " + both + ", ptr " + accumulator);
+	});
+	auto result = tmp();
+	emit(result + " = load i1, ptr " + accumulator);
+	return result;
+}
+
+blitz::compiler::value blitz::compiler::gen_aggregate_binary(ast::binary const* node, value const& lhs, value const& rhs)
+{
+	using op = ast::binary::op;
+	if (!is_number(lhs.type) || !is_number(rhs.type)) {
+		throw err(node->where, "Vectors and matrices only work together with numbers and with each other.");
+	}
+	bool left = !lhs.shape.empty(), right = !rhs.shape.empty();
+
+	if (node->kind >= op::EQUAL) {
+		if ((node->kind != op::EQUAL) && (node->kind != op::NOT_EQUAL)) {
+			throw err(node->where, "A vector or matrix can only be compared with = and <>, which look at all of its numbers.");
+		}
+		if (!left || !right || (lhs.shape != rhs.shape)) {
+			throw err(node->where, "Can't compare " + (left ? shape_name(lhs.type, lhs.shape) : blitz::types::display(lhs.type)) + " with " + (right ? shape_name(rhs.type, rhs.shape) : blitz::types::display(rhs.type)) + ", they have to be of the same size.");
+		}
+		auto equal = aggregate_equal(lhs, rhs, node->where);
+		if (node->kind == op::NOT_EQUAL) {
+			auto different = tmp();
+			emit(different + " = xor i1 " + equal + ", true");
+			equal = different;
+		}
+		return from_bool(equal);
+	}
+
+	// Matrix times matrix, and matrix times vector (the vector is a column), as in GLSL.
+	if ((node->kind == op::MULTIPLY) && left && right && (lhs.shape.size() == 2)) {
+		return matrix_multiply(node, lhs, rhs);
+	}
+
+	shape_t shape = left ? lhs.shape : rhs.shape;
+	if (left && right) {
+		if (lhs.shape != rhs.shape) {
+			throw err(node->where, "Can't combine " + shape_name(lhs.type, lhs.shape) + " with " + shape_name(rhs.type, rhs.shape) + ", they have to be of the same size.");
+		}
+	}
+	return elementwise(shape, { lhs, rhs }, [&](std::vector<value> const& numbers) { return gen_binary_values(node, numbers[0], numbers[1]); });
+}
+
+// `a * b` with a of K columns and M rows, and b of N columns and K rows (or a vector of K numbers): N columns and M rows.
+blitz::compiler::value blitz::compiler::matrix_multiply(ast::binary const* node, value const& a, value const& b)
+{
+	uint32_t K = a.shape[0], M = a.shape[1];
+	uint32_t N = (b.shape.size() == 2) ? b.shape[0] : 1;
+	uint32_t Kb = (b.shape.size() == 2) ? b.shape[1] : b.shape[0];
+	if (K != Kb) {
+		throw err(node->where, "Can't multiply " + shape_name(a.type, a.shape) + " by " + shape_name(b.type, b.shape) + ": the first has " + std::to_string(K) + " columns, the second " + std::to_string(Kb) + " rows.");
+	}
+	shape_t shape = (b.shape.size() == 2) ? shape_t{ N, M } : shape_t{ M };
+	auto    t     = common_type(a.type, b.type, node->where);
+
+	ast::binary multiply, add;
+	multiply.kind  = ast::binary::op::MULTIPLY;
+	multiply.where = node->where;
+	add.kind       = ast::binary::op::ADD;
+	add.where      = node->where;
+
+	auto accumulator = "%sum" + std::to_string(_counter++);
+	_allocas << "  " << accumulator << " = alloca " << blitz::types::to_llvm(t) << "\n";
+	std::string out = aggregate_temp(t, shape);
+	for_each_element(uint64_t(N) * M, [&](std::string const& index) {
+		// Which column of the result, and which row.
+		std::string column, row;
+		if (is_constant_index(index)) {
+			column = std::to_string(std::stoull(index) / M);
+			row    = std::to_string(std::stoull(index) % M);
+		} else {
+			column = tmp();
+			row    = tmp();
+			emit(column + " = udiv i64 " + index + ", " + std::to_string(M));
+			emit(row + " = urem i64 " + index + ", " + std::to_string(M));
+		}
+		emit("store " + blitz::types::to_llvm(t) + " " + zero(t).repr + ", ptr " + accumulator);
+		for_each_element(K, [&](std::string const& k) {
+			auto index_of = [&](std::string const& major, uint64_t stride, std::string const& minor) {
+				// major * stride + minor
+				if (is_constant_index(major) && is_constant_index(minor)) {
+					return std::to_string(std::stoull(major) * stride + std::stoull(minor));
+				}
+				auto scaled = tmp(), sum = tmp();
+				emit(scaled + " = mul i64 " + major + ", " + std::to_string(stride));
+				emit(sum + " = add i64 " + scaled + ", " + minor);
+				return sum;
+			};
+			auto x    = load_element(a, index_of(k, M, row));
+			auto y    = load_element(b, index_of(column, K, k));
+			auto prod = gen_binary_values(&multiply, x, y);
+			auto held = tmp();
+			emit(held + " = load " + blitz::types::to_llvm(t) + ", ptr " + accumulator);
+			auto sum = gen_binary_values(&add, { held, t }, prod);
+			emit("store " + blitz::types::to_llvm(t) + " " + sum.repr + ", ptr " + accumulator);
+		});
+		auto result = tmp();
+		emit(result + " = load " + blitz::types::to_llvm(t) + ", ptr " + accumulator);
+		emit("store " + blitz::types::to_llvm(t) + " " + result + ", ptr " + element_pointer(out, t, index));
+	});
+	value v{ out, t };
+	v.shape = shape;
+	return v;
+}
+

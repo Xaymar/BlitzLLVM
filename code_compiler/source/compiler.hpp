@@ -413,7 +413,11 @@ namespace blitz {
 		value saturate_integer(value v, blitz::types::type to, ast::location const& where);
 		blitz::keywords::user_function const* find_userlib(std::string const& key) const;
 		value gen_unary(ast::unary const* node);
+		value gen_unary_values(ast::unary const* node, value v);
 		value gen_construct(ast::call const* node, blitz::types::type t, shape_t const& shape);
+		value gen_aggregate_binary(ast::binary const* node, value const& lhs, value const& rhs);
+		value matrix_multiply(ast::binary const* node, value const& a, value const& b);
+		std::string aggregate_equal(value const& lhs, value const& rhs, ast::location const& where);
 		value gen_binary(ast::binary const* node);
 		value gen_field(ast::field_access const* node);
 		value gen_index(ast::index_access const* node);
