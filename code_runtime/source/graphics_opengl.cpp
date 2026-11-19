@@ -24,6 +24,7 @@
 //   Its specialization constants are #defines, so a program is compiled for each set of constants. What a program reads has a name
 //   that says the set and the binding (see opengl_glsl in the tool), from which the texture units and buffer bindings are given out.
 // - Buffers that the CPU writes are mapped for good (ARB_buffer_storage), as the shared code expects.
+#include "window_thread.hpp"
 #include "rhi_backend.hpp"
 #include "scene.hpp"
 #include "memory.h"
@@ -2026,7 +2027,7 @@ namespace bb::rhi::opengl {
 	static void create_context()
 	{
 		using namespace gfx;
-		glc.helper = SDL_CreateWindow("", 1, 1, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+		glc.helper = bb::wnd::create_window("", 1, 1, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
 		glc.context = glc.helper ? SDL_GL_CreateContext(glc.helper) : nullptr;
 		if (!glc.context) {
 			char message[512];
@@ -2216,7 +2217,7 @@ namespace bb::rhi::opengl {
 			SDL_GL_DestroyContext(glc.context);
 		}
 		if (glc.helper) {
-			SDL_DestroyWindow(glc.helper);
+			bb::wnd::destroy_window(glc.helper);
 		}
 		glc = gl_state();
 		buffer_sizes.clear();

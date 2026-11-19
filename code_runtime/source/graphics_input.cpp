@@ -339,7 +339,7 @@ namespace bb::gfx {
 	{
 		SDL_Event event;
 		push_test_events();
-		while (SDL_PollEvent(&event)) {
+		while (bb::wnd::poll_event(&event)) {
 			// What happens to a window besides the one of Graphics is that window's. A window of the GUI tells its gadget; the mouse
 			// and keys in one are the program's as well, at the place of the window on the desktop of the GUI.
 			int32_t gui_window = 0, gui_x = 0, gui_y = 0;
@@ -743,7 +743,7 @@ namespace bb::gfx {
 		apply_mouse_lock();
 		bb_apply_pointer();
 		while (g.auto_suspend && surface().suspended && surface().window && !g.offscreen && !extra_surface_focused()) {
-			SDL_WaitEventTimeout(nullptr, 50);
+			bb::wnd::wait_event(50);
 			drain();
 		}
 		presenter_service(); // The windows with a thread of their own that need a new swapchain.
@@ -943,12 +943,12 @@ int32_t bb_hw_raw_input(void)
 	if (g.created && g.headless) {
 		return 0;
 	}
-	if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+	if (!bb::wnd::init(SDL_INIT_VIDEO)) {
 		return 0;
 	}
 	const char* driver = SDL_GetCurrentVideoDriver();
 	bool        ok     = driver && SDL_strcmp(driver, "dummy") && SDL_strcmp(driver, "offscreen") && SDL_HasMouse();
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	bb::wnd::quit(SDL_INIT_VIDEO);
 	return ok ? 1 : 0;
 }
 
