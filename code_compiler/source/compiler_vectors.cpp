@@ -52,6 +52,18 @@ std::string blitz::compiler::shape_llvm(type t, shape_t const& shape)
 std::string blitz::compiler::shape_name(type t, shape_t const& shape)
 {
 	auto text = blitz::types::display(t);
+	// The alias, when it is the one that the program would also write: Float3, Int4x3.
+	if (!shape.empty() && (shape.size() <= 2)) {
+		std::string alias = text;
+		for (size_t idx = 0; idx < shape.size(); idx++) {
+			alias += (idx ? "x" : "") + std::to_string(shape[idx]);
+		}
+		blitz::types::type    parsed;
+		std::vector<uint32_t> sizes;
+		if (blitz::types::from_shape_name(alias, parsed, sizes) && (parsed == t) && (sizes == shape)) {
+			return alias;
+		}
+	}
 	for (auto size : shape) {
 		text += "[" + std::to_string(size) + "]";
 	}
@@ -168,10 +180,92 @@ void blitz::compiler::assign_aggregate(address const& target, value const& v, as
 		emit("call void @llvm.memmove.p0.p0.i64(ptr " + target.pointer + ", ptr " + v.repr + ", i64 " + std::to_string(total * array_element_size(v.type)) + ", i1 false)");
 		return;
 	}
+	auto converted = convert_aggregate(v, target.type, where, covers);
+	declare("llvm.memmove.p0.p0.i64", "declare void @llvm.memmove.p0.p0.i64(ptr, ptr, i64, i1)");
+	emit("call void @llvm.memmove.p0.p0.i64(ptr " + target.pointer + ", ptr " + converted.repr + ", i64 " + std::to_string(total * array_element_size(target.type)) + ", i1 false)");
+}
+
+// The numbers of a vector or matrix as another type, with the rules of single numbers (as for Double3(v) and for the arguments of a function).
+blitz::compiler::value blitz::compiler::convert_aggregate(value const& v, type to, ast::location const& where, ast::range const* covers)
+{
+	if (v.type == to) {
+		return v;
+	}
 	bool warned = false;
-	for_each_element(total, [&](std::string const& index) {
-		auto number = convert(load_element(v, index), target.type, where, !warned, std::string(), covers);
-		warned      = true;
-		emit("store " + blitz::types::to_llvm(target.type) + " " + number.repr + ", ptr " + element_pointer(target.pointer, target.type, index));
+	return elementwise(v.shape, { v }, [&](std::vector<value> const& numbers) {
+		auto converted = convert(numbers[0], to, where, !warned, std::string(), covers);
+		warned         = true;
+		return converted;
 	});
 }
+
+namespace {
+	bool is_constant_index(std::string const& index)
+	{
+		return !index.empty() && (index.find_first_not_of("0123456789") == std::string::npos);
+	}
+} // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+// Construction: Float3(x, y, z), Float3(v2, z), Float3(s), Double3(v), Float4x3(column, column, ...)
+////////////////////////////////////////////////////////////////////////////////
+blitz::compiler::value blitz::compiler::gen_construct(ast::call const* node, type t, shape_t const& shape)
+{
+	for (auto size : shape) {
+		if ((size == 0) || (size > blitz::types::max_axis)) {
+			throw err(node->where, "The size " + std::to_string(size) + " of '" + node->name + "' has to be between 1 and " + std::to_string(blitz::types::max_axis) + ".");
+		}
+	}
+	auto total = shape_total(shape);
+
+	std::vector<value> args;
+	uint64_t           given = 0;
+	for (auto const& arg : node->arguments) {
+		auto v = gen(arg.get());
+		if (v.type == type::UNKNOWN) {
+			throw err(arg->where, "Expression does not return a value.");
+		}
+		given += shape.empty() ? 0 : (v.shape.empty() ? 1 : shape_total(v.shape));
+		args.push_back(v);
+	}
+	value out{ aggregate_temp(t, shape), t };
+	out.shape = shape;
+	auto store_at = [&](value number, std::string const& index) {
+		auto converted = convert_explicit(number, t, false, node->where);
+		emit("store " + blitz::types::to_llvm(t) + " " + converted.repr + ", ptr " + element_pointer(out.repr, t, index));
+	};
+
+	if (args.empty()) {
+		emit(zero_memory(out.repr, shape_llvm(t, shape)));
+	} else if ((args.size() == 1) && args[0].shape.empty()) {
+		// One number for every element.
+		auto number = convert_explicit(args[0], t, false, node->where);
+		for_each_element(total, [&](std::string const& index) { store_at(number, index); });
+	} else if (given == total) {
+		uint64_t at = 0;
+		for (auto const& arg : args) {
+			if (arg.shape.empty()) {
+				store_at(arg, std::to_string(at++));
+				continue;
+			}
+			auto base = at;
+			for_each_element(shape_total(arg.shape), [&](std::string const& index) {
+				std::string where_to = index;
+				if (base) {
+					if (is_constant_index(index)) {
+						where_to = std::to_string(base + std::stoull(index));
+					} else {
+						where_to = tmp();
+						emit(where_to + " = add i64 " + index + ", " + std::to_string(base));
+					}
+				}
+				store_at(load_element(arg, index), where_to);
+			});
+			at += shape_total(arg.shape);
+		}
+	} else {
+		throw err(node->where, "'" + node->name + "' needs " + std::to_string(total) + " numbers (or one number for all of them), but got " + std::to_string(given) + ".");
+	}
+	return out;
+}
+

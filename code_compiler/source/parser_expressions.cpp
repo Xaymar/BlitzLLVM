@@ -361,7 +361,7 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 	};
 	if (is_keyword(op, "int") || is_keyword(op, "float") || is_keyword(op, "str")) {
 		bool suffixed = cast_suffix(op) != nullptr;
-		if (suffixed || !is_symbol(tk(1), "(")) {
+		if (suffixed || (!is_symbol(tk(1), "(") && !is_symbol(tk(1), "["))) {
 			// `Float x` converts without needing parenthesis, and binds tighter than any operator.
 			advance();
 			if (suffixed) {
@@ -672,6 +672,33 @@ blitz::ast::expression_ptr blitz::parser::parse_primary_inner()
 		}
 
 		advance();
+		if (is_symbol(tk(), "[") && adjacent(token, tk()) && (blitz::types::from_string(word) != blitz::types::type::UNKNOWN) && (blitz::types::from_string(word) != blitz::types::type::STRING)) {
+			// `Float[4][3](...)` makes a vector or matrix, like `Float4x3(...)` does. A name that is only a variable has no `(` behind its `[..]`.
+			size_t                saved = _pos;
+			std::vector<uint32_t> sizes;
+			auto                  last = token;
+			while (is_symbol(tk(), "[") && adjacent(last, tk()) && (tk(1).type == blitz::token::variant::INTEGER) && is_symbol(tk(2), "]")) {
+				sizes.push_back(shape_size(tk(1)));
+				last = tk(2);
+				advance();
+				advance();
+				advance();
+			}
+			if (!sizes.empty() && is_symbol(tk(), "(") && adjacent(last, tk())) {
+				if (sizes.size() > 2) {
+					throw error(last, "A vector or matrix has at most 2 sizes.");
+				}
+				advance();
+				auto node         = std::make_unique<ast::call>();
+				node->where       = here(token);
+				node->name        = token.text;
+				node->shape       = sizes;
+				node->arguments   = parse_arguments();
+				expect_symbol(")");
+				return parse_postfix(std::move(node), token);
+			}
+			_pos = saved;
+		}
 		auto type        = parse_type_suffix(token);
 		auto struct_name = _struct_name;
 		if ((word == "object") && (type == blitz::types::type::STRUCT)) {

@@ -102,6 +102,7 @@ namespace blitz {
 			blitz::types::type          type = blitz::types::type::UNKNOWN;
 			std::string                 struct_name;
 			std::vector<expression_ptr> arguments;
+			std::vector<uint32_t>       shape; // `Float[4][3](...)`: makes a vector or matrix of the type in `name`, empty for other calls.
 		};
 
 		/** `Object\Field`. */

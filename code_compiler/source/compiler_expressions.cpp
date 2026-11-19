@@ -453,6 +453,9 @@ blitz::compiler::address blitz::compiler::gen_reference_argument(ast::call const
 
 blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 {
+	if (!node->shape.empty()) {
+		return gen_construct(node, blitz::types::from_string(node->name), node->shape);
+	}
 	auto key = lower(node->name);
 	if (find_dim(key)) {
 		auto addr   = gen_dim_address(node);
@@ -464,6 +467,11 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	// Functions in the program take priority over built-in ones.
 	auto it = _functions.find(key);
 	if (it == _functions.end()) {
+		type    made;
+		shape_t made_shape;
+		if (blitz::types::from_shape_name(node->name, made, made_shape)) {
+			return gen_construct(node, made, made_shape);
+		}
 		bool handled;
 		auto result = gen_builtin(node, handled);
 		if (handled) {
