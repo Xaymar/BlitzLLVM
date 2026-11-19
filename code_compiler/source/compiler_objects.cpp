@@ -196,30 +196,7 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		}
 		return gen_dim_address(c);
 	} else if (auto f = dynamic_cast<ast::field_access const*>(expr)) {
-		auto object = gen(f->object.get());
-		if ((object.type != type::STRUCT) || object.sname.empty()) {
-			throw err(f->where, "'\\" + f->name + "' can only be used on an object.");
-		}
-		auto& info = need_type(object.sname, f->where);
-		for (auto const& field : info.fields) {
-			if (lower(field.name) == lower(f->name)) {
-				auto missing = tmp(), flags_p = tmp(), flags = tmp(), deleted = tmp(), bad = tmp();
-				emit(missing + " = icmp eq ptr " + object.repr + ", null");
-				guard(missing, "Object does not exist.");
-				emit(flags_p + " = getelementptr inbounds { ptr, ptr, i32, i32 }, ptr " + object.repr + ", i32 0, i32 3");
-				emit(flags + " = load i32, ptr " + flags_p);
-				emit(deleted + " = and i32 " + flags + ", 1");
-				emit(bad + " = icmp ne i32 " + deleted + ", 0");
-				guard(bad, "Object does not exist.");
-				auto p = tmp();
-				emit(p + " = getelementptr inbounds " + info.llvm + ", ptr " + object.repr + ", i32 0, i32 " + std::to_string(field.index));
-				address result{ p, field.type, field.sname, field.count, false };
-				result.shape = field.shape;
-				result.need = object.need;
-				return result;
-			}
-		}
-		throw err(f->where, "Type '" + info.name + "' has no field '" + f->name + "'.");
+		return field_address(gen(f->object.get()), f);
 	} else if (auto i = dynamic_cast<ast::index_access const*>(expr)) {
 		address base;
 		auto const* inner = i->base.get();
@@ -227,7 +204,25 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		if (auto c = dynamic_cast<ast::call const*>(inner)) {
 			place = find_dim(c->name) != nullptr; // `Dim` arrays are indexed like a call.
 		}
-		if (place) {
+		auto const* swizzled = dynamic_cast<ast::field_access const*>(inner);
+		if (swizzled) {
+			auto name = lower(swizzled->name);
+			if (!((name.size() > 1) && (name.size() <= 4) && (name.find_first_not_of("xyzwrgba") == std::string::npos))) {
+				swizzled = nullptr;
+			}
+		}
+		if (swizzled) {
+			// `v\zyx[0]`: the components that are picked, or a field of an object that is named like them.
+			auto object = gen(swizzled->object.get());
+			if (!object.shape.empty()) {
+				auto picked = swizzle(object, swizzled);
+				base        = address{ picked.repr, picked.type, std::string(), 0, false };
+				base.shape  = picked.shape;
+			} else {
+				base = field_address(object, swizzled);
+			}
+			base.need = object.need;
+		} else if (place) {
 			base = gen_address(inner, write);
 		} else {
 			// The result of a calculation or of a function: `(a + b)[1]`, `Cross(a, b)[2]`.
@@ -267,6 +262,37 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 	throw err(expr->where, "This can't be assigned to.");
 }
 
+// Where the field of an object (or the component of a vector) is.
+blitz::compiler::address blitz::compiler::field_address(value const& object, ast::field_access const* f)
+{
+	if (!object.shape.empty()) {
+		return component_address(object, f);
+	}
+	if ((object.type != type::STRUCT) || object.sname.empty()) {
+		throw err(f->where, "'\\" + f->name + "' can only be used on an object.");
+	}
+	auto& info = need_type(object.sname, f->where);
+	for (auto const& field : info.fields) {
+		if (lower(field.name) == lower(f->name)) {
+			auto missing = tmp(), flags_p = tmp(), flags = tmp(), deleted = tmp(), bad = tmp();
+			emit(missing + " = icmp eq ptr " + object.repr + ", null");
+			guard(missing, "Object does not exist.");
+			emit(flags_p + " = getelementptr inbounds { ptr, ptr, i32, i32 }, ptr " + object.repr + ", i32 0, i32 3");
+			emit(flags + " = load i32, ptr " + flags_p);
+			emit(deleted + " = and i32 " + flags + ", 1");
+			emit(bad + " = icmp ne i32 " + deleted + ", 0");
+			guard(bad, "Object does not exist.");
+			auto p = tmp();
+			emit(p + " = getelementptr inbounds " + info.llvm + ", ptr " + object.repr + ", i32 0, i32 " + std::to_string(field.index));
+			address result{ p, field.type, field.sname, field.count, false };
+			result.shape = field.shape;
+			result.need = object.need;
+			return result;
+		}
+	}
+	throw err(f->where, "Type '" + info.name + "' has no field '" + f->name + "'.");
+}
+
 blitz::compiler::value blitz::compiler::load_address(address const& addr)
 {
 	if (addr.count) {
@@ -285,6 +311,24 @@ blitz::compiler::value blitz::compiler::load_address(address const& addr)
 
 blitz::compiler::value blitz::compiler::gen_field(ast::field_access const* node)
 {
+	auto name = lower(node->name);
+	bool several = (name.size() > 1) && (name.size() <= 4) && (name.find_first_not_of("xyzwrgba") == std::string::npos);
+	if (several) {
+		// `v\xy` reads several components of a vector. An object can have a field with such a name.
+		auto object = gen(node->object.get());
+		if (!object.shape.empty()) {
+			auto picked = swizzle(object, node);
+			picked.need = object.need;
+			return picked;
+		}
+		auto addr = field_address(object, node);
+		if (addr.count) {
+			throw err(node->where, "An array can only be used with an index.");
+		}
+		auto loaded = load_address(addr);
+		loaded.need = addr.need;
+		return loaded;
+	}
 	auto addr = gen_address(node);
 	if (addr.count) {
 		throw err(node->where, "An array can only be used with an index.");

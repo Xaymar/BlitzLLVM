@@ -390,3 +390,71 @@ blitz::compiler::value blitz::compiler::matrix_multiply(ast::binary const* node,
 	return v;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Components: v\x v\y v\z v\w (or v\r v\g v\b v\a), and v\xy, v\zyx to read several at once
+////////////////////////////////////////////////////////////////////////////////
+namespace {
+	int component_index(char c)
+	{
+		switch (c) {
+		case 'x':
+		case 'r':
+			return 0;
+		case 'y':
+		case 'g':
+			return 1;
+		case 'z':
+		case 'b':
+			return 2;
+		case 'w':
+		case 'a':
+			return 3;
+		default:
+			return -1;
+		}
+	}
+} // namespace
+
+blitz::compiler::address blitz::compiler::component_address(value const& object, ast::field_access const* node)
+{
+	auto name = lower(node->name);
+	if ((object.shape.size() != 1) || (object.shape[0] > 4)) {
+		throw err(node->where, "'\\" + node->name + "' only exists for vectors of 2 to 4 numbers, not for " + shape_name(object.type, object.shape) + ".");
+	}
+	int index = (name.size() == 1) ? component_index(name[0]) : -1;
+	if (index < 0) {
+		if (name.size() > 1) {
+			throw err(node->where, "'\\" + node->name + "' can only be read, not assigned to.");
+		}
+		throw err(node->where, "'\\" + node->name + "' is not a component of a vector, use x, y, z, w (or r, g, b, a).");
+	}
+	if (uint32_t(index) >= object.shape[0]) {
+		throw err(node->where, "A " + shape_name(object.type, object.shape) + " has no '\\" + node->name + "'.");
+	}
+	address result{ element_pointer(object.repr, object.type, std::to_string(index)), object.type, std::string(), 0, false };
+	return result;
+}
+
+blitz::compiler::value blitz::compiler::swizzle(value const& object, ast::field_access const* node)
+{
+	auto name = lower(node->name);
+	if ((object.shape.size() != 1) || (object.shape[0] > 4)) {
+		throw err(node->where, "'\\" + node->name + "' only exists for vectors of 2 to 4 numbers, not for " + shape_name(object.type, object.shape) + ".");
+	}
+	std::vector<int> picks;
+	for (char c : name) {
+		int index = component_index(c);
+		if ((index < 0) || (uint32_t(index) >= object.shape[0])) {
+			throw err(node->where, "A " + shape_name(object.type, object.shape) + " has no '\\" + node->name + "', use the letters x, y, z, w (or r, g, b, a) of its numbers.");
+		}
+		picks.push_back(index);
+	}
+	shape_t shape{ uint32_t(picks.size()) };
+	value   out{ aggregate_temp(object.type, shape), object.type };
+	out.shape = shape;
+	for (size_t idx = 0; idx < picks.size(); idx++) {
+		auto number = load_element(object, std::to_string(picks[idx]));
+		emit("store " + blitz::types::to_llvm(out.type) + " " + number.repr + ", ptr " + element_pointer(out.repr, out.type, std::to_string(idx)));
+	}
+	return out;
+}

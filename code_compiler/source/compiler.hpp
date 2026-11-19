@@ -408,6 +408,9 @@ namespace blitz {
 		value gen_userlib(ast::call const* node, bool& handled);
 		value gen_numeric(ast::call const* node, bool& handled);
 		value convert_aggregate(value const& v, blitz::types::type to, ast::location const& where, ast::range const* covers);
+		address component_address(value const& object, ast::field_access const* node);
+		address field_address(value const& object, ast::field_access const* node);
+		value swizzle(value const& object, ast::field_access const* node);
 		value convert_explicit(value v, blitz::types::type to, bool saturate, ast::location const& where);
 		value saturate_real(value v, blitz::types::type to, ast::location const& where, bool indefinite = false);
 		value saturate_integer(value v, blitz::types::type to, ast::location const& where);
