@@ -2347,6 +2347,23 @@ namespace bb::rhi::vulkan {
 			}
 		}
 
+		if (bb_env_bool("BLITZLLVM_DEBUG_PRESENT_MODE", 0)) {
+			uint32_t         listed = 0;
+			VkPresentModeKHR all[16];
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &listed, nullptr);
+			if (listed > 16) {
+				listed = 16;
+			}
+			vkGetPhysicalDeviceSurfacePresentModesKHR(vkd.physical, surface, &listed, all);
+			const char* names[] = { "IMMEDIATE", "MAILBOX", "FIFO", "FIFO_RELAXED" };
+			auto        name    = [&](VkPresentModeKHR m) { return (unsigned(m) < 4) ? names[m] : "other"; };
+			fprintf(stderr, "BlitzLLVM: present mode %s for Flip %d%s; the surface lists:", name(mode), int(d.vsync), d.own_thread ? " (window thread)" : "");
+			for (uint32_t i = 0; i < listed; i++) {
+				fprintf(stderr, " %s", name(all[i]));
+			}
+			fprintf(stderr, ".\n");
+		}
+
 		// MAILBOX needs a spare image: the display and the window system may each hold one, and the program must still find one to draw to.
 		uint32_t count = caps.minImageCount + ((mode == VK_PRESENT_MODE_MAILBOX_KHR) ? 3 : 1);
 		if ((caps.maxImageCount > 0) && (count > caps.maxImageCount)) {
