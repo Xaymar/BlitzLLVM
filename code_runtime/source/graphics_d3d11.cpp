@@ -33,6 +33,7 @@
 #include <windows.h>
 #include <d3d11_4.h>
 #include <dxgi1_4.h>
+#include <dxgi1_5.h>
 
 #include <algorithm>
 #include <atomic>
@@ -173,6 +174,7 @@ namespace bb::gfx {
 			IDXGISwapChain* swap   = nullptr;
 			d3d_image*      image  = nullptr;
 			int             interval = 0;
+			bool            hdr      = false; // The buffers are scRGB (16-bit floats, 1.0 = 80 nits).
 		};
 
 		constexpr uint32_t push_bytes = 256;
@@ -2329,6 +2331,39 @@ namespace bb::rhi::d3d11 {
 		if (!swap1) {
 			return false;
 		}
+		// AutoHDR: scRGB needs a swapchain of 16-bit floats in the flip model, with its color space set. Windows 10 has both for every device that
+		// does Direct3D 11, so it is always offered (HWHDRSupported also asks whether the display has HDR on). The color space is not asked of the
+		// 8-bit swapchain that exists: it has no scRGB, whatever the display does.
+		bool           hdr    = false;
+		constexpr DXGI_COLOR_SPACE_TYPE scrgb = DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709;
+		sc.hdr_offered = true;
+		if (d.hdr) {
+			// One window has one swapchain: the 8-bit one goes, and comes back if the HDR one is refused.
+			IDXGISwapChain1* hdr_swap  = nullptr;
+			IDXGISwapChain3* hdr_swap3 = nullptr;
+			UINT             support   = 0;
+			release(swap1);
+			DXGI_SWAP_CHAIN_DESC1 hdr_desc = desc;
+			hdr_desc.Format                = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			hdr_desc.BufferCount           = 2;
+			hdr_desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			if (SUCCEEDED(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &hdr_desc, nullptr, nullptr, &hdr_swap)) && hdr_swap
+				&& SUCCEEDED(hdr_swap->QueryInterface(__uuidof(IDXGISwapChain3), reinterpret_cast<void**>(&hdr_swap3))) && hdr_swap3
+				&& SUCCEEDED(hdr_swap3->CheckColorSpaceSupport(scrgb, &support)) && (support & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)
+				&& SUCCEEDED(hdr_swap3->SetColorSpace1(scrgb))) {
+				swap1 = hdr_swap;
+				hdr   = true;
+			} else {
+				release(hdr_swap);
+				check(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &desc, nullptr, nullptr, &swap1), "IDXGIFactory2::CreateSwapChainForHwnd");
+				if (!swap1) {
+					release(hdr_swap3);
+					return false;
+				}
+			}
+			release(hdr_swap3);
+		}
+		sc.hdr = hdr;
 		dx.factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 		d3d_chain* chain  = new d3d_chain();
 		chain->window     = window;
@@ -2338,12 +2373,39 @@ namespace bb::rhi::d3d11 {
 		check(swap1->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&chain->image->texture)), "IDXGISwapChain::GetBuffer");
 		chain->image->width  = uint32_t(w);
 		chain->image->height = uint32_t(h);
-		chain->image->format = format::rgba8;
+		chain->image->format = hdr ? format::rgba16f : format::rgba8;
+		chain->hdr           = hdr;
 		chain->image->chain  = chain;
 		sc.handle    = uint64_t(uintptr_t(chain));
 		sc.count     = 1;
 		sc.images[0] = uint64_t(uintptr_t(chain->image));
 		return true;
+	}
+
+	void set_hdr_metadata(swapchain& sc, const hdr_metadata& m)
+	{
+		d3d_chain* chain = reinterpret_cast<d3d_chain*>(uintptr_t(sc.handle));
+		if (!chain || !chain->hdr) {
+			return;
+		}
+		IDXGISwapChain4* swap4 = nullptr;
+		if (SUCCEEDED(chain->swap->QueryInterface(__uuidof(IDXGISwapChain4), reinterpret_cast<void**>(&swap4))) && swap4) {
+			DXGI_HDR_METADATA_HDR10 data = {};
+			data.RedPrimary[0]           = UINT16(0.640f / 0.00002f);
+			data.RedPrimary[1]           = UINT16(0.330f / 0.00002f);
+			data.GreenPrimary[0]         = UINT16(0.300f / 0.00002f);
+			data.GreenPrimary[1]         = UINT16(0.600f / 0.00002f);
+			data.BluePrimary[0]          = UINT16(0.150f / 0.00002f);
+			data.BluePrimary[1]          = UINT16(0.060f / 0.00002f);
+			data.WhitePoint[0]           = UINT16(0.3127f / 0.00002f);
+			data.WhitePoint[1]           = UINT16(0.3290f / 0.00002f);
+			data.MaxMasteringLuminance   = UINT(m.max_luminance);
+			data.MinMasteringLuminance   = UINT(m.min_luminance / 0.0001f);
+			data.MaxContentLightLevel    = UINT16(m.max_content_light);
+			data.MaxFrameAverageLightLevel = UINT16(m.max_frame_average);
+			swap4->SetHDRMetaData(DXGI_HDR_METADATA_TYPE_HDR10, sizeof(data), &data);
+			release(swap4);
+		}
 	}
 
 	void destroy_swapchain(swapchain& sc)
@@ -2433,7 +2495,7 @@ namespace bb::rhi::d3d11 {
 		{
 			std::lock_guard<std::recursive_mutex> guard(context_lock);
 			d3d_image* from = image_of(picture);
-			if ((w == chain.width) && (h == chain.height) && (from->format == format::rgba8)) {
+			if ((w == chain.width) && (h == chain.height) && (from->format == target->image->format)) {
 				dx.context->CopySubresourceRegion(target->image->texture, 0, 0, 0, 0, from->texture, 0, nullptr);
 			} else {
 				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.

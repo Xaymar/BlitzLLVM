@@ -17,6 +17,7 @@
 #include "scene.hpp"
 #include "memory.h"
 
+#include <algorithm>
 #include <unordered_map>
 #include <iterator>
 #include <vector>
@@ -785,16 +786,28 @@ namespace bb::gfx {
 
 	VkResult make_instance(VkInstance& instance)
 	{
-		Uint32             extension_count = 0;
-		const char* const* extensions      = SDL_Vulkan_GetInstanceExtensions(&extension_count);
+		Uint32                   extension_count = 0;
+		const char* const*       sdl_extensions  = SDL_Vulkan_GetInstanceExtensions(&extension_count);
+		std::vector<const char*> extensions(sdl_extensions, sdl_extensions + extension_count);
+		// Without this extension a surface only has the sRGB colorspace, with it the HDR ones (AutoHDR) are listed too.
+		uint32_t available_count = 0;
+		if (vkEnumerateInstanceExtensionProperties && (vkEnumerateInstanceExtensionProperties(nullptr, &available_count, nullptr) == VK_SUCCESS)) {
+			std::vector<VkExtensionProperties> available(available_count);
+			vkEnumerateInstanceExtensionProperties(nullptr, &available_count, available.data());
+			for (VkExtensionProperties const& e : available) {
+				if ((strcmp(e.extensionName, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME) == 0) && (std::find_if(extensions.begin(), extensions.end(), [](const char* name) { return strcmp(name, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME) == 0; }) == extensions.end())) {
+					extensions.push_back(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME);
+				}
+			}
+		}
 
 		VkApplicationInfo app = { VK_STRUCTURE_TYPE_APPLICATION_INFO };
 		app.pApplicationName  = "BlitzLLVM";
 		app.apiVersion        = VK_API_VERSION_1_3;
 		VkInstanceCreateInfo instance_info    = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
 		instance_info.pApplicationInfo        = &app;
-		instance_info.enabledExtensionCount   = extension_count;
-		instance_info.ppEnabledExtensionNames = extensions;
+		instance_info.enabledExtensionCount   = uint32_t(extensions.size());
+		instance_info.ppEnabledExtensionNames = extensions.data();
 		return vkCreateInstance(&instance_info, nullptr, &instance);
 	}
 
@@ -1050,9 +1063,10 @@ namespace bb::gfx {
 		std::vector<VkExtensionProperties> available(device_extension_count);
 		vkEnumerateDeviceExtensionProperties(vkd.physical, nullptr, &device_extension_count, available.data());
 		VkPhysicalDeviceCustomBorderColorFeaturesEXT border_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
-		bool has_present_id = false, has_present_wait = false;
+		bool has_present_id = false, has_present_wait = false, has_hdr_metadata = false;
 		g.can_memory_budget = false;
 		for (VkExtensionProperties const& e : available) {
+			has_hdr_metadata |= strcmp(e.extensionName, VK_EXT_HDR_METADATA_EXTENSION_NAME) == 0;
 			g.can_memory_budget |= strcmp(e.extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0;
 			has_present_id |= strcmp(e.extensionName, VK_KHR_PRESENT_ID_EXTENSION_NAME) == 0;
 			has_present_wait |= strcmp(e.extensionName, VK_KHR_PRESENT_WAIT_EXTENSION_NAME) == 0;
@@ -1115,6 +1129,10 @@ namespace bb::gfx {
 		if (g.can_present_wait) {
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_ID_EXTENSION_NAME;
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_WAIT_EXTENSION_NAME;
+		}
+		g.can_hdr_metadata = has_hdr_metadata;
+		if (g.can_hdr_metadata) {
+			device_extensions[device_extension_total++] = VK_EXT_HDR_METADATA_EXTENSION_NAME;
 		}
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
@@ -1929,6 +1947,24 @@ namespace bb::rhi::vulkan {
 				break;
 			}
 		}
+		// AutoHDR: scRGB if the surface offers it and the driver can blit to it. The sRGB format stays where it is not offered, so a
+		// program that asked for AutoHDR on a display without HDR looks as it always did.
+		sc.hdr_offered = false;
+		sc.hdr         = false;
+		{
+			VkFormatProperties properties;
+			vkGetPhysicalDeviceFormatProperties(vkd.physical, VK_FORMAT_R16G16B16A16_SFLOAT, &properties);
+			for (uint32_t i = 0; i < format_count; i++) {
+				if ((formats[i].format == VK_FORMAT_R16G16B16A16_SFLOAT) && (formats[i].colorSpace == VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT) && (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT)) {
+					sc.hdr_offered = true;
+					if (d.hdr) {
+						chosen    = formats[i];
+						sc.hdr    = true;
+					}
+					break;
+				}
+			}
+		}
 
 		// Flip 1 is FIFO, which is always available and makes the program wait for the display. Flip 0 shows at once (tearing).
 		// Flip 2 syncs the picture with the display without making the program wait: MAILBOX replaces a picture that was
@@ -2000,6 +2036,24 @@ namespace bb::rhi::vulkan {
 			sc.done[i] = uint64_t(done);
 		}
 		return true;
+	}
+
+	void set_hdr_metadata(swapchain& sc, const hdr_metadata& m)
+	{
+		if (!sc.hdr || !sc.handle || !gfx::g.can_hdr_metadata || !vkSetHdrMetadataEXT) {
+			return;
+		}
+		VkHdrMetadataEXT metadata          = { VK_STRUCTURE_TYPE_HDR_METADATA_EXT };
+		metadata.displayPrimaryRed         = { 0.640f, 0.330f };
+		metadata.displayPrimaryGreen       = { 0.300f, 0.600f };
+		metadata.displayPrimaryBlue        = { 0.150f, 0.060f };
+		metadata.whitePoint                = { 0.3127f, 0.3290f };
+		metadata.maxLuminance              = m.max_luminance;
+		metadata.minLuminance              = m.min_luminance;
+		metadata.maxContentLightLevel      = m.max_content_light;
+		metadata.maxFrameAverageLightLevel = m.max_frame_average;
+		VkSwapchainKHR handle              = VkSwapchainKHR(sc.handle);
+		vkSetHdrMetadataEXT(vkd.device, 1, &handle, &metadata);
 	}
 
 	void destroy_swapchain(swapchain& sc)

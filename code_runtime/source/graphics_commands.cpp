@@ -730,7 +730,11 @@ namespace bb::gfx {
 		}
 
 		// The gamma tables change what the window shows, not the buffer.
-		gpu_image& shown = *apply_gamma(front);
+		gpu_image* picture = hdr_reads_directly(front) ? &front : apply_gamma(front);
+		if (surface().chain.hdr || hdr_test()) {
+			picture = apply_hdr(*picture); // Linear scRGB for the HDR swapchain, see graphics_hdr.cpp.
+		}
+		gpu_image& shown = *picture;
 
 		barrier(uint64_t(surface().chain.images[index]), bb::rhi::image_state::undefined, bb::rhi::image_state::copy_dst);
 		buffer_rect area = fit_buffer(float(surface().chain.width), float(surface().chain.height));
@@ -760,6 +764,7 @@ namespace bb::gfx {
 		profile_gpu_mark(3);
 		submit_async(surface().acquired, uint64_t(surface().chain.done[index]), true, index);
 		gamma_after_present();
+		hdr_after_present();
 	}
 
 	void flush_handover(gpu_image& picture, uint64_t timeline, uint64_t value)
