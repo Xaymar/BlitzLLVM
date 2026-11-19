@@ -340,7 +340,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d, 21686, 0xF1883EF87325F7CEull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d, 21687, 0x04617A895FE7B775ull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -982,7 +982,7 @@ void main()
     }
     vec4 _2653 = vec4(_2648, _922.w);
     vec4 _2660 = vec4(_2653.xyz + ((_32 + ((_34 - _32) * _35.z)) + _804), _2653.w);
-    if (_2660.w < ((_35.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _28._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _28._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
+    if (_2660.w < ((_35.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _28._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
     {
         discard;
     }
@@ -2031,7 +2031,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit, 15604, 0xE50E8D0B83591C38ull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit, 15605, 0xD108AB2B2AC55610ull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -2663,7 +2663,7 @@ void main()
     }
     vec4 _2656 = vec4(_2651, _925.w);
     vec4 _2663 = vec4(_2656.xyz + ((_35 + ((_37 - _35) * _38.z)) + _807), _2656.w);
-    if (_2663.w < ((_38.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _31._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _31._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _38.x))
+    if (_2663.w < ((_38.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _31._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _38.x))
     {
         discard;
     }
@@ -2694,7 +2694,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_moments, 15554, 0x026FCFB5407D48A8ull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_moments, 15555, 0xC126E01F1FAC4EEAull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -3320,7 +3320,7 @@ void main()
     }
     vec4 _2654 = vec4(_2649, _923.w);
     vec4 _2661 = vec4(_2654.xyz + ((_33 + ((_35 - _33) * _36.z)) + _805), _2654.w);
-    if (_2661.w < ((_36.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _29._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _29._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _36.x))
+    if (_2661.w < ((_36.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _29._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _36.x))
     {
         discard;
     }
@@ -3349,7 +3349,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_color, 16121, 0x1BBB378DAF2C8936ull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_color, 16122, 0x4FA4474D7474B217ull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -3976,7 +3976,7 @@ void main()
     }
     vec4 _2655 = vec4(_2650, _924.w);
     vec4 _2662 = vec4(_2655.xyz + ((_32 + ((_34 - _32) * _35.z)) + _806), _2655.w);
-    if (_2662.w < ((_35.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _28._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _28._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
+    if (_2662.w < ((_35.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _28._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
     {
         discard;
     }
@@ -4027,7 +4027,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_slots4, 15678, 0x36DEDF1F102D922Bull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_slots4, 15679, 0x8BDE14EE14D9953Eull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -4653,7 +4653,7 @@ void main()
     }
     vec4 _2657 = vec4(_2652, _926.w);
     vec4 _2664 = vec4(_2657.xyz + ((_37 + ((_39 - _37) * _40.z)) + _808), _2657.w);
-    if (_2664.w < ((_40.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _33._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _33._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _40.x))
+    if (_2664.w < ((_40.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _33._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _40.x))
     {
         discard;
     }
@@ -4685,7 +4685,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_slots8, 15682, 0xAA4A76C45FE02198ull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_slots8, 15683, 0xF39F1A37709F3275ull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -5311,7 +5311,7 @@ void main()
     }
     vec4 _2657 = vec4(_2652, _926.w);
     vec4 _2664 = vec4(_2657.xyz + ((_37 + ((_39 - _37) * _40.z)) + _808), _2657.w);
-    if (_2664.w < ((_40.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _33._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _33._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _40.x))
+    if (_2664.w < ((_40.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _33._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _40.x))
     {
         discard;
     }
@@ -5407,7 +5407,7 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_peel, 15484, 0x0B14F5D325AF66CEull, 'f', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_fragment_3d_oit_peel, 15485, 0x40708C5ED76834E1ull, 'f', R"glsl(#version 430
 
 struct _14
 {
@@ -6032,7 +6032,7 @@ void main()
     }
     vec4 _2653 = vec4(_2648, _922.w);
     vec4 _2660 = vec4(_2653.xyz + ((_32 + ((_34 - _32) * _35.z)) + _804), _2653.w);
-    if (_2660.w < ((_35.x < 0.0) ? ((fract(fract(((floor(gl_FragCoord.x) + _28._m12.w) * 0.067110560834407806396484375) + ((floor(gl_FragCoord.y) + _28._m12.w) * 0.005837149918079376220703125)) * 52.98291778564453125) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
+    if (_2660.w < ((_35.x < 0.0) ? ((fract(fract(fract((floor(gl_FragCoord.x) * 0.067110560834407806396484375) + (floor(gl_FragCoord.y) * 0.005837149918079376220703125)) * 52.98291778564453125) + _28._m12.w) * 0.999000012874603271484375) + 0.0005000000237487256526947021484375) : _35.x))
     {
         discard;
     }

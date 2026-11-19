@@ -844,7 +844,7 @@ namespace bb::gfx {
 	gpu_image* apply_gamma(gpu_image& front);
 	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
 	float dither_code();
-	/** The shift of the noise of EntityBlend 4 (stochastic alpha) in this picture: it moves every picture and repeats after 64. */
+	/** The offset of the threshold of EntityBlend 4 (stochastic alpha) in this picture, 0 to 1: it moves by the golden ratio every picture. */
 	float stochastic_shift();
 	/** Counts a picture that is presented, for stochastic_shift. */
 	void stochastic_next();

@@ -255,12 +255,15 @@ namespace bb::gfx {
 		return dither_temporal() ? 5.588238f * float(presented % 64u) : 0.0f;
 	}
 
-	// How far the noise of EntityBlend 4 (stochastic alpha) is moved in the picture that is made now: it always moves, whatever Dither does.
+	// By how much the threshold of EntityBlend 4 (stochastic alpha) is moved in the picture that is made now, 0 up to 1: the fraction of the count of
+	// pictures times the golden ratio, so that the thresholds of one pixel are spread evenly over time and no pattern slides or repeats.
+	// It always moves, whatever Dither does.
 	// (The count of pictures of Dither only moves when the picture goes through the gamma pass, which is skipped when nothing needs it.)
 	static uint32_t stochastic_frames = 0;
 	float stochastic_shift()
 	{
-		return 5.588238f * float(stochastic_frames % 64u);
+		double turns = double(stochastic_frames) * 0.6180339887498949;
+		return float(turns - floor(turns));
 	}
 	void stochastic_next()
 	{
