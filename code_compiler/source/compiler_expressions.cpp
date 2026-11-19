@@ -453,9 +453,6 @@ blitz::compiler::address blitz::compiler::gen_reference_argument(ast::call const
 
 blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 {
-	if (!node->shape.empty()) {
-		return gen_construct(node, blitz::types::from_string(node->name), node->shape);
-	}
 	auto key = lower(node->name);
 	if (find_dim(key)) {
 		auto addr   = gen_dim_address(node);

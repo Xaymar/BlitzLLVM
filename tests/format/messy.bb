@@ -56,7 +56,7 @@ high=value
 End Function
 
 Function Scale:Float3(v:Float3,factor:Float=2)
-Local m:Float[4][3],n:Float4x3
+Local m:Float4x3,n:Float2x2
 m[1][2]=factor
 Return v*m[1][2]
 End Function

@@ -58,7 +58,7 @@ namespace blitz {
 		constexpr uint32_t max_axis = 1024;
 
 		/**
-		 * Recognizes the alias names of vectors and matrices, such as Float3 (the same as Float[3]) and Int4x3 (the same as Int[4][3]).
+		 * Recognizes the alias names of vectors and matrices, such as Float3 and Int4x3.
 		 * Names that already mean a single number (Int8, Float32, ...) are not aliases. Sizes are not checked against max_axis.
 		 */
 		bool from_shape_name(std::string text, blitz::types::type& type, std::vector<uint32_t>& shape);

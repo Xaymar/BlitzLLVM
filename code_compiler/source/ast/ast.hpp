@@ -102,7 +102,6 @@ namespace blitz {
 			blitz::types::type          type = blitz::types::type::UNKNOWN;
 			std::string                 struct_name;
 			std::vector<expression_ptr> arguments;
-			std::vector<uint32_t>       shape; // `Float[4][3](...)`: makes a vector or matrix of the type in `name`, empty for other calls.
 		};
 
 		/** `Object\Field`. */
@@ -192,7 +191,7 @@ namespace blitz {
 			blitz::types::type type = blitz::types::type::UNKNOWN;
 			std::string        struct_name;
 			expression_ptr     array_size; // `Name[Size]`
-			std::vector<uint32_t> shape;   // `Name:Float[4][3]`, `Name:Float4x3`: the sizes of a vector or matrix that is held by value, empty for a single value.
+			std::vector<uint32_t> shape;   // `Name:Float4x3`: the sizes of a vector or matrix that is held by value, empty for a single value.
 			expression_ptr     initial;
 		};
 

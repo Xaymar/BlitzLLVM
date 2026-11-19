@@ -1882,14 +1882,13 @@ elseif(CASE STREQUAL "vector_errors")
 	refuse(swizzle_write "can only be read, not assigned to" "Local a:Float4\na\\xy = a\\zw")
 	refuse(matrix_product "Can't multiply Float3x2 by Float2x2" "Local a:Float3x2\nLocal b:Float2x2\nLocal c:Float2x2 = a * b")
 	refuse(const_vector "can't be a Const" "Const a:Float3 = Float3(1, 2, 3)")
-	refuse(big_size "has to be between 1 and 1024" "Local a:Float[2000]")
-	refuse(three_sizes "A vector or matrix has at most 2 sizes." "Local a:Float[2][2][2]")
+	refuse(big_size "has to be between 1 and 1024" "Local a:Float2000")
 	refuse(parameter_sizes "Parameter 'v' of 'F' is a Float3, not Float4" "Function F:Void(v:Float3)\nEnd Function\nLocal a:Float4\nF a")
 	refuse(parameter_number "Parameter 'v' of 'F' is a Float3, not Int" "Function F:Void(v:Float3)\nEnd Function\nF 1")
 	refuse(out_vector "can only be given as an In parameter" "Function F:Void(Out v:Float3)\nEnd Function\nLocal a:Float3\nF a")
 
 	# The size behind a name still counts up to the highest index, a space keeps the old meaning behind a type.
-	accept(old_arrays "Local a[3]\na[3] = 1\nLocal b:Float [3]\nb[3] = 1")
+	accept(old_arrays "Local a[3]\na[3] = 1\nLocal b:Float [3]\nb[3] = 1\nLocal c:Float[3]\nc[3] = 1")
 	# Names that already mean a number are no vectors.
 	accept(scalar_names "Local a:Int8 = 5\nLocal b:Float32 = 1.5\nLocal c:Float16 = 2")
 	# A program that has its own functions and variables of those names keeps working.

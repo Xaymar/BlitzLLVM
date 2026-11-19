@@ -19,9 +19,9 @@ using namespace blitz::compiler_detail;
 ////////////////////////////////////////////////////////////////////////////////
 // Vectors and matrices
 //
-// A vector or matrix (`Float3`, `Int[8]`, `Double4x4`) is a value that is held by value, not an object: assigning it copies every element, and a
+// A vector or matrix (`Float3`, `Int4`, `Double4x4`) is a value that is held by value, not an object: assigning it copies every element, and a
 // function that gets one can't change the one of its caller. Its elements are numbers of one type, in one piece of memory without padding. The
-// last size is the one that changes fastest, so `Float[4][3]` (4 columns of 3 rows) has the 3 numbers of the first column first.
+// last size is the one that changes fastest, so `Float4x3` (4 columns of 3 rows) has the 3 numbers of the first column first.
 //
 // While the program is compiled, such a value is the pointer to its memory (`value::repr`) and its sizes (`value::shape`). A variable is its own
 // memory. The result of an operation is a temporary that lives in the entry block of the function, so that loops do not grow the stack.
@@ -48,7 +48,7 @@ std::string blitz::compiler::shape_llvm(type t, shape_t const& shape)
 	return text;
 }
 
-// The name that the program would use: `Float[4][3]`.
+// The name that the program would use: `Float4x3`.
 std::string blitz::compiler::shape_name(type t, shape_t const& shape)
 {
 	auto text = blitz::types::display(t);

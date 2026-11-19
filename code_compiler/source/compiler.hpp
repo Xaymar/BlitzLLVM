@@ -34,7 +34,7 @@
 
 namespace blitz {
 	class compiler {
-		// The sizes of a vector or matrix that is held by value: `Float[4][3]` is { 4, 3 }, columns first. Empty for a single value.
+		// The sizes of a vector or matrix that is held by value: `Float4x3` is { 4, 3 }, columns first. Empty for a single value.
 		// Its elements are in one piece of memory, the first size counts the slowest: element [x][y] is number x * 3 + y.
 		using shape_t = std::vector<uint32_t>;
 

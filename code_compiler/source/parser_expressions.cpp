@@ -102,21 +102,6 @@ blitz::types::type blitz::parser::parse_type_suffix(blitz::token const& name, bo
 			if (type != blitz::types::type::UNKNOWN) {
 				advance();
 				advance();
-				if (shaped && (type != blitz::types::type::STRING)) {
-					// `:Float[4][3]`: sizes written directly behind the type are the size of a vector or matrix. A space before the `[` keeps
-					// the size of an array, which counts up to the highest index.
-					auto last = type_tk;
-					while (is_symbol(tk(), "[") && adjacent(last, tk()) && (tk(1).type == blitz::token::variant::INTEGER) && is_symbol(tk(2), "]")) {
-						_shape.push_back(shape_size(tk(1)));
-						last = tk(2);
-						advance();
-						advance();
-						advance();
-					}
-					if (_shape.size() > 2) {
-						throw error(last, "A vector or matrix has at most 2 sizes.");
-					}
-				}
 				return type;
 			}
 			std::vector<uint32_t> dims;
@@ -134,21 +119,6 @@ blitz::types::type blitz::parser::parse_type_suffix(blitz::token const& name, bo
 		}
 	}
 	return blitz::types::type::UNKNOWN;
-}
-
-uint32_t blitz::parser::shape_size(blitz::token const& size) const
-{
-	auto const& text = size.text;
-	uint64_t    value = 0;
-	for (char c : text) {
-		if (!isdigit((unsigned char)c) || ((value = value * 10 + uint64_t(c - '0')) > 1000000)) {
-			throw error(size, "The size of a vector or matrix has to be a whole number.");
-		}
-	}
-	if ((value == 0) || (value > blitz::types::max_axis)) {
-		throw error(size, blitz::format("The size of a vector or matrix has to be between 1 and %u.", blitz::types::max_axis));
-	}
-	return uint32_t(value);
 }
 
 bool blitz::parser::is_void_suffix(blitz::token const& name) const
@@ -361,7 +331,7 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 	};
 	if (is_keyword(op, "int") || is_keyword(op, "float") || is_keyword(op, "str")) {
 		bool suffixed = cast_suffix(op) != nullptr;
-		if (suffixed || (!is_symbol(tk(1), "(") && !is_symbol(tk(1), "["))) {
+		if (suffixed || !is_symbol(tk(1), "(")) {
 			// `Float x` converts without needing parenthesis, and binds tighter than any operator.
 			advance();
 			if (suffixed) {
@@ -672,33 +642,6 @@ blitz::ast::expression_ptr blitz::parser::parse_primary_inner()
 		}
 
 		advance();
-		if (is_symbol(tk(), "[") && adjacent(token, tk()) && (blitz::types::from_string(word) != blitz::types::type::UNKNOWN) && (blitz::types::from_string(word) != blitz::types::type::STRING)) {
-			// `Float[4][3](...)` makes a vector or matrix, like `Float4x3(...)` does. A name that is only a variable has no `(` behind its `[..]`.
-			size_t                saved = _pos;
-			std::vector<uint32_t> sizes;
-			auto                  last = token;
-			while (is_symbol(tk(), "[") && adjacent(last, tk()) && (tk(1).type == blitz::token::variant::INTEGER) && is_symbol(tk(2), "]")) {
-				sizes.push_back(shape_size(tk(1)));
-				last = tk(2);
-				advance();
-				advance();
-				advance();
-			}
-			if (!sizes.empty() && is_symbol(tk(), "(") && adjacent(last, tk())) {
-				if (sizes.size() > 2) {
-					throw error(last, "A vector or matrix has at most 2 sizes.");
-				}
-				advance();
-				auto node         = std::make_unique<ast::call>();
-				node->where       = here(token);
-				node->name        = token.text;
-				node->shape       = sizes;
-				node->arguments   = parse_arguments();
-				expect_symbol(")");
-				return parse_postfix(std::move(node), token);
-			}
-			_pos = saved;
-		}
 		auto type        = parse_type_suffix(token);
 		auto struct_name = _struct_name;
 		if ((word == "object") && (type == blitz::types::type::STRUCT)) {

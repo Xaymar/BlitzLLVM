@@ -29,7 +29,7 @@ namespace blitz {
 		std::unique_ptr<ast::program>      _program;
 		int                                _depth; // Block nesting depth, functions may only exist at depth 0.
 		std::string                        _struct_name; // Type name found by the last parse_type_suffix, for `Name.TypeName`.
-		std::vector<uint32_t>              _shape;       // Sizes found by the last parse_type_suffix(.., true), for `Name:Float[4][3]` and `Name:Float4x3`.
+		std::vector<uint32_t>              _shape;       // Sizes found by the last parse_type_suffix(.., true), for `Name:Float4x3`.
 
 		// A type suffix on a use of a name (`msg$`) has to match the Local, Global, parameter or function it refers to. Like in the
 		// original, a name declared without a type is an Int and is never given the type of a later use.
@@ -119,7 +119,6 @@ namespace blitz {
 		// Expressions
 		blitz::types::type                 parse_type_suffix(blitz::token const& name, bool shaped = false);
 		/** If the tokens after the name are `:Void`. */
-		uint32_t                           shape_size(blitz::token const& size) const;
 		bool                               is_void_suffix(blitz::token const& name) const;
 		std::vector<ast::expression_ptr>   parse_arguments();
 		ast::expression_ptr                parse_expression();
