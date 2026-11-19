@@ -60,7 +60,7 @@ static void quit_window_system()
 	const SDL_InitFlags mask = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD;
 	// Every start of a subsystem counts, so it is quit until it is gone, as SDL_Quit would have.
 	while (SDL_WasInit(mask)) {
-		SDL_QuitSubSystem(mask);
+		bb::wnd::quit(mask);
 	}
 }
 
@@ -120,7 +120,7 @@ static void release_for_new_graphics()
 	save_finish_all();
 	destroy_device_objects();
 	if (surface().window) {
-		SDL_DestroyWindow(surface().window);
+		bb::wnd::destroy_window(surface().window);
 	}
 	bb_free(g.ops);
 	forget_recorded();
@@ -176,7 +176,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		return;
 	}
 
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+	if (!bb::wnd::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		fail(SDL_GetError());
 	}
 	SDL_WindowFlags flags = bb::rhi::window_flags();
@@ -194,7 +194,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &bounds);
 	}
 	// An AppTitle before Graphics names the window, BlitzLLVM until the program sets one.
-	surface().window = SDL_CreateWindow(save_title().c_str(), bounds.w, bounds.h, flags);
+	surface().window = bb::wnd::create_window(save_title().c_str(), bounds.w, bounds.h, flags);
 	if (!surface().window) {
 		fail(SDL_GetError());
 	}
@@ -324,19 +324,19 @@ bool bb::gfx::ensure_device()
 	if (g.headless || bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
 		return false;
 	}
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+	if (!bb::wnd::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		fail(SDL_GetError());
 	}
 	bb_on_exit(bb_end_graphics);
 	g.requested_depth = 32;
 	g.buffer_depth    = 32;
 	g.buffer_format   = bb::rhi::format::rgba8;
-	SDL_Window* probe = SDL_CreateWindow("", 1, 1, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
+	SDL_Window* probe = bb::wnd::create_window("", 1, 1, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
 	if (!probe) {
 		fail(SDL_GetError());
 	}
 	bb::rhi::create_device_for(probe);
-	SDL_DestroyWindow(probe);
+	bb::wnd::destroy_window(probe);
 	return true;
 }
 
@@ -360,10 +360,10 @@ bool bb::gfx::ensure_offscreen()
 	if (bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
 		return false;
 	}
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+	if (!bb::wnd::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		return false; // No window system, as in a program that runs on a server.
 	}
-	surface().window = SDL_CreateWindow("BlitzLLVM", offscreen_size, offscreen_size, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
+	surface().window = bb::wnd::create_window("BlitzLLVM", offscreen_size, offscreen_size, bb::rhi::window_flags() | SDL_WINDOW_HIDDEN);
 	if (!surface().window) {
 		quit_window_system();
 		return false;
@@ -403,7 +403,7 @@ void bb_end_graphics(void)
 		// Graphics failed before there was a device (no Vulkan driver, or no GPU that does Vulkan 1.3): nothing was made on a GPU, and the
 		// Vulkan functions were not loaded, so only the window goes away. Calling them would crash while the error is being reported.
 		if (surface().window) {
-			SDL_DestroyWindow(surface().window);
+			bb::wnd::destroy_window(surface().window);
 		}
 		quit_window_system();
 	} else if (!g.headless) {
@@ -424,7 +424,7 @@ void bb_end_graphics(void)
 		async_shutdown(); // The pictures that were still loading went with the freed handles.
 		destroy_device_objects();
 		if (surface().window) {
-			SDL_DestroyWindow(surface().window);
+			bb::wnd::destroy_window(surface().window);
 		}
 		quit_window_system();
 	}

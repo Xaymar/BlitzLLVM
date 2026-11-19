@@ -16,6 +16,7 @@
 #include "load_pool.hpp"
 #include "profile.hpp"
 #include "rhi.hpp"
+#include "window_thread.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>

@@ -74,7 +74,7 @@ namespace bb::gfx {
 		}
 		bb::rhi::destroy_surface(s->surface);
 		if (s->window) {
-			SDL_DestroyWindow(s->window);
+			bb::wnd::destroy_window(s->window);
 		}
 		delete s;
 		extras[handle - 1] = nullptr;
@@ -114,7 +114,7 @@ namespace bb::gfx {
 		}
 		surface_state* s = new surface_state();
 		extras[handle - 1] = s;
-		s->window = SDL_CreateWindow(title ? title : "", width, height, flags);
+		s->window = bb::wnd::create_window(title ? title : "", width, height, flags);
 		if (!s->window || !bb::rhi::create_surface(s->window, s->surface)) {
 			destroy_extra_surface(handle);
 			return 0;
