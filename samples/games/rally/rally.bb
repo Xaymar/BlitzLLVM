@@ -6,10 +6,12 @@
 ; Every picture and sound in this game is made by the code itself, so there are no files to ship with it.
 ;
 ; Controls:
-;   Title screen:  1 = play against the computer, 2 = two players, Left/Right = computer skill, Escape = quit
+;   Menus:         Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;   Left paddle:   W and S
 ;   Right paddle:  Up and Down (two players only)
-;   P pauses, Escape goes back to the title screen.
+;   P pauses, Escape goes back to the menu.
+;
+; The options are saved in rally.cfg next to the program.
 ;
 ; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
@@ -17,14 +19,14 @@ Const SCREEN_W = 800, SCREEN_H = 600
 Const COURT_TOP = 60, COURT_BOTTOM = 580
 Const PADDLE_W = 12, PADDLE_H = 84, PADDLE_SPEED# = 7.0, PADDLE_MARGIN = 32
 Const BALL_SIZE = 12, BALL_START_SPEED# = 6.0, BALL_MAX_SPEED# = 15.0, BALL_SPEEDUP# = 0.45
-Const WINNING_SCORE = 7
 Const TRAIL_LENGTH = 14
 
 ; The states the game can be in. The main loop asks the current state what to do.
-Const STATE_TITLE = 0, STATE_SERVE = 1, STATE_PLAY = 2, STATE_PAUSED = 3, STATE_OVER = 4
+Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_SERVE = 3, STATE_PLAY = 4, STATE_PAUSED = 5
+Const STATE_OVER = 6
 
 ; Scan codes of the keys we use.
-Const KEY_ESCAPE = 1, KEY_1 = 2, KEY_2 = 3, KEY_W = 17, KEY_P = 25, KEY_S = 31, KEY_SPACE = 57
+Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_S = 31, KEY_ENTER = 28, KEY_SPACE = 57
 Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 Type Paddle
@@ -32,6 +34,7 @@ Type Paddle
 	Field speed#        ; How far it moved this frame, which puts spin on the ball.
 	Field score
 	Field computer      ; True if the computer plays this paddle.
+	Field guess#        ; The computer's aiming error for the ball that is coming.
 	Field r, g, b
 End Type
 
@@ -41,9 +44,23 @@ Type Spark
 	Field r, g, b
 End Type
 
-Global state = STATE_TITLE
+; --- Options -----------------------------------------------------------------------------------------------------
+Global optSkill = 2        ; 1 to 3: how well the computer plays.
+Global optPoints = 1       ; Index into pointsToWin below.
+Global optVolume = 4       ; 0 to 4, in quarters.
+Global optShake = True     ; Shake the screen when a point is scored.
+Global optFullscreen = False
+Dim pointsToWin(2)
+pointsToWin(0) = 5 : pointsToWin(1) = 7 : pointsToWin(2) = 11
+
+Global settingsPath$ = SystemProperty$("appdir")
+If settingsPath <> "" And Right(settingsPath, 1) <> "\" And Right(settingsPath, 1) <> "/" Then settingsPath = settingsPath + "/"
+settingsPath = settingsPath + "rally.cfg"
+LoadSettings()
+
+; --- Game ----------------------------------------------------------------------------------------------------------
+Global state = STATE_MENU
 Global twoPlayers = False
-Global skill = 2 ; 1 to 3: how well the computer plays.
 Global serveTimer = 0, serveDirection = 1
 Global shake# = 0
 Global flashTimer = 0
@@ -59,10 +76,11 @@ Global rightPaddle.Paddle = New Paddle
 rightPaddle\x = Float(SCREEN_W - PADDLE_MARGIN - PADDLE_W)
 rightPaddle\r = 255 : rightPaddle\g = 140 : rightPaddle\b = 80
 
-Graphics SCREEN_W, SCREEN_H, 0, 2
-AppTitle "Rally"
-SetBuffer BackBuffer()
-SeedRnd MilliSecs()
+; --- Menus ---------------------------------------------------------------------------------------------------------
+Dim menuText$(7)
+Global menuCount, menuSelected, menuTop
+
+OpenScreen()
 
 ; --- Sounds ----------------------------------------------------------------------------------------------------------
 Const WAVE_SQUARE = 0, WAVE_SINE = 1, WAVE_NOISE = 2
@@ -76,12 +94,17 @@ Global soundSelect = MakeSound(700, 700, 50, WAVE_SQUARE, 0.2)
 ; A timer keeps the game at 60 updates per second on every computer.
 Local timer = CreateTimer(60)
 
+GoToMenu()
 Local quit = False
 While Not quit
 	WaitTimer timer
 	Select state
-		Case STATE_TITLE
-			UpdateTitle()
+		Case STATE_MENU
+			quit = UpdateMenu()
+		Case STATE_OPTIONS
+			UpdateOptions()
+		Case STATE_HELP
+			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
 		Case STATE_SERVE
 			UpdatePaddles()
 			UpdateServe()
@@ -91,14 +114,12 @@ While Not quit
 		Case STATE_PAUSED
 			If KeyHit(KEY_P) Then state = STATE_PLAY
 		Case STATE_OVER
-			If KeyHit(KEY_SPACE) Then state = STATE_TITLE : PlaySound soundSelect
+			If KeyHit(KEY_SPACE) Or KeyHit(KEY_ENTER) Or MouseHit(1) Then GoToMenu()
 	End Select
 
-	If state <> STATE_TITLE
-		If KeyHit(KEY_ESCAPE) Then state = STATE_TITLE : PlaySound soundSelect
+	If state >= STATE_SERVE
+		If KeyHit(KEY_ESCAPE) Then GoToMenu()
 		If state = STATE_PLAY And KeyHit(KEY_P) Then state = STATE_PAUSED
-	Else
-		If KeyHit(KEY_ESCAPE) Then quit = True
 	EndIf
 
 	UpdateSparks()
@@ -108,14 +129,181 @@ Wend
 
 End
 
-; --- Game flow -------------------------------------------------------------------------------------------------------
+; --- Screen and settings -------------------------------------------------------------------------------------------
 
-Function UpdateTitle()
-	If KeyHit(KEY_LEFT) And skill > 1 Then skill = skill - 1 : PlaySound soundSelect
-	If KeyHit(KEY_RIGHT) And skill < 3 Then skill = skill + 1 : PlaySound soundSelect
-	If KeyHit(KEY_1) Then StartMatch(False)
-	If KeyHit(KEY_2) Then StartMatch(True)
+; Opens the window or full screen, as the option says. Graphics frees all images, so the watermark is made again.
+Function OpenScreen()
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	AppTitle "Rally"
+	SetBuffer BackBuffer()
+	SeedRnd MilliSecs()
+	watermark = 0
 End Function
+
+Function LoadSettings()
+	If FileType(settingsPath) <> 1 Then Return
+	Local file = ReadFile(settingsPath)
+	If Not file Then Return
+	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
+		optSkill = ReadInt(file)
+		optPoints = ReadInt(file)
+		optVolume = ReadInt(file)
+		optShake = ReadInt(file)
+		optFullscreen = ReadInt(file)
+	EndIf
+	CloseFile file
+	; Never trust a file: someone may have edited it.
+	If optSkill < 1 Or optSkill > 3 Then optSkill = 2
+	If optPoints < 0 Or optPoints > 2 Then optPoints = 1
+	If optVolume < 0 Or optVolume > 4 Then optVolume = 4
+End Function
+
+Function SaveSettings()
+	Local file = WriteFile(settingsPath)
+	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
+	WriteInt file, 1
+	WriteInt file, optSkill
+	WriteInt file, optPoints
+	WriteInt file, optVolume
+	WriteInt file, optShake
+	WriteInt file, optFullscreen
+	CloseFile file
+End Function
+
+; Every sound goes through here, so the volume option works everywhere.
+Function PlaySfx(sound)
+	If sound = 0 Or optVolume = 0 Then Return
+	Local channel = PlaySound(sound)
+	ChannelVolume channel, optVolume / 4.0
+End Function
+
+; --- Menus ---------------------------------------------------------------------------------------------------------
+; A menu is a list of lines and the number of the selected one. The keyboard moves the selection, the mouse selects
+; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
+
+Function MenuInput()
+	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundSelect)
+	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundSelect)
+
+	Local line = MenuLineAt(MouseX(), MouseY())
+	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
+
+	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
+	If MouseHit(1) And line >= 0
+		menuSelected = line
+		Return line
+	EndIf
+	Return -1
+End Function
+
+; Which line is at a screen position, or -1. Lines are 30 pixels apart and 360 wide.
+Function MenuLineAt(x, y)
+	If x < SCREEN_W / 2 - 180 Or x >= SCREEN_W / 2 + 180 Or y < menuTop Then Return -1
+	Local line = (y - menuTop) / 30
+	If line >= menuCount Then Return -1
+	Return line
+End Function
+
+Function DrawMenu()
+	Local i, y
+	For i = 0 To menuCount - 1
+		y = menuTop + i * 30
+		If i = menuSelected
+			Color 70, 60, 130
+			Rect SCREEN_W / 2 - 180, y, 360, 26, 1
+			Color 255, 230, 140
+		Else
+			Color 200, 200, 220
+		EndIf
+		Text SCREEN_W / 2, y + 13, menuText(i), True, True
+	Next
+End Function
+
+Function GoToMenu()
+	state = STATE_MENU
+	menuCount = 5
+	menuSelected = 0
+	menuTop = 280
+	menuText(0) = "Play against the computer"
+	menuText(1) = "Two players"
+	menuText(2) = "Options"
+	menuText(3) = "How to play"
+	menuText(4) = "Quit"
+	ResetTrail() ; The ball's trail would otherwise stay frozen in the air.
+	; Forget keys pressed during a match, so they do not act on the menu too.
+	FlushKeys
+	FlushMouse
+End Function
+
+; Gives back True when the player chose Quit.
+Function UpdateMenu()
+	If KeyHit(KEY_ESCAPE) Then Return True
+	Select MenuInput()
+		Case 0 : StartMatch(False)
+		Case 1 : StartMatch(True)
+		Case 2 : GoToOptions()
+		Case 3
+			state = STATE_HELP
+			FlushKeys
+			FlushMouse
+		Case 4 : Return True
+	End Select
+	Return False
+End Function
+
+Function GoToOptions()
+	state = STATE_OPTIONS
+	menuCount = 6
+	menuTop = 250
+	menuSelected = 0
+	RefreshOptionsText()
+	PlaySfx(soundSelect)
+	FlushMouse
+End Function
+
+Function RefreshOptionsText()
+	Select optSkill
+		Case 1 : menuText(0) = "Computer: Relaxed"
+		Case 2 : menuText(0) = "Computer: Fair"
+		Case 3 : menuText(0) = "Computer: Sharp"
+	End Select
+	menuText(1) = "Points to win: " + pointsToWin(optPoints)
+	menuText(2) = "Sound volume: " + (optVolume * 25) + "%"
+	If optShake Then menuText(3) = "Screen shake: on" Else menuText(3) = "Screen shake: off"
+	If optFullscreen Then menuText(4) = "Display: full screen" Else menuText(4) = "Display: window"
+	menuText(5) = "Back"
+End Function
+
+Function UpdateOptions()
+	Local change = 0
+	If KeyHit(KEY_LEFT) Then change = -1
+	If KeyHit(KEY_RIGHT) Then change = 1
+	Local chosen = MenuInput()
+	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
+
+	If KeyHit(KEY_ESCAPE) Or chosen = 5
+		SaveSettings()
+		GoToMenu()
+		menuSelected = 2 ; Back on "Options".
+		PlaySfx(soundSelect)
+		Return
+	EndIf
+	If change = 0 Then Return
+
+	Select menuSelected
+		Case 0 : optSkill = (optSkill - 1 + change + 3) Mod 3 + 1
+		Case 1 : optPoints = (optPoints + change + 3) Mod 3
+		Case 2 : optVolume = (optVolume + change + 5) Mod 5
+		Case 3 : optShake = Not optShake
+		Case 4
+			optFullscreen = Not optFullscreen
+			OpenScreen()
+	End Select
+	PlaySfx(soundSelect)
+	RefreshOptionsText()
+End Function
+
+; --- Game flow -------------------------------------------------------------------------------------------------------
 
 Function StartMatch(players2)
 	twoPlayers = players2
@@ -126,9 +314,10 @@ Function StartMatch(players2)
 	leftPaddle\y = Float((COURT_TOP + COURT_BOTTOM - PADDLE_H) / 2)
 	rightPaddle\y = leftPaddle\y
 	FlushKeys
+	FlushMouse
 	serveDirection = 1 - 2 * Rand(0, 1) ; Either 1 or -1.
 	PrepareServe()
-	PlaySound soundSelect
+	PlaySfx(soundSelect)
 End Function
 
 ; Puts the ball in the middle and waits a moment before it starts moving.
@@ -147,27 +336,28 @@ Function UpdateServe()
 	If serveTimer > 0 Then Return
 
 	; Serve at a random angle of up to 30 degrees, towards the player who lost the last point.
-	Local angle# = Rnd(-30.0, 30)
+	Local angle# = Rnd(-30, 30)
 	ballSpeed = BALL_START_SPEED
 	ballVX = Cos(angle) * ballSpeed * serveDirection
 	ballVY = Sin(angle) * ballSpeed
-	PlaySound soundServe
+	PlaySfx(soundServe)
 	state = STATE_PLAY
 End Function
 
 Function ScorePoint(scorer.Paddle)
 	scorer\score = scorer\score + 1
-	shake = 12
+	If optShake Then shake = 12
 	flashTimer = 10
 	BurstSparks(ballX + BALL_SIZE / 2, ballY + BALL_SIZE / 2, 60, scorer\r, scorer\g, scorer\b)
 	If scorer = leftPaddle Then serveDirection = 1 Else serveDirection = -1
 
-	If scorer\score >= WINNING_SCORE
+	If scorer\score >= pointsToWin(optPoints)
 		winner = scorer
 		state = STATE_OVER
-		PlaySound soundWin
+		ResetTrail()
+		PlaySfx(soundWin)
 	Else
-		PlaySound soundScore
+		PlaySfx(soundScore)
 		PrepareServe()
 	EndIf
 End Function
@@ -192,23 +382,32 @@ Function UpdatePaddles()
 	rightPaddle\speed = rightPaddle\y - oldY
 End Function
 
-; The computer guesses where the ball will cross its side, bounces included, and moves there. Lower skill makes
-; it slower, makes it react later and adds an error to its guess.
+; The computer works out where the ball will cross its side, bounces included, and moves there. To make it beatable
+; it makes a mistake in that guess: picked once for every ball that comes its way, bigger for a fast ball and for a
+; lower skill. Lower skill also makes it slower, and Relaxed and Fair only react once the ball crosses the middle.
 Function ComputerMove(p.Paddle)
 	Local targetY# = Float((COURT_TOP + COURT_BOTTOM - PADDLE_H) / 2) ; Wait in the middle by default.
-	Local maxSpeed# = PADDLE_SPEED * (0.45 + 0.2 * skill)
+	Local maxSpeed#, reactDistance#, mistake#
+	Select optSkill
+		Case 1 : maxSpeed = 0.5 : reactDistance = 0.5 : mistake = 1.2
+		Case 2 : maxSpeed = 0.7 : reactDistance = 0.5 : mistake = 0.9
+		Case 3 : maxSpeed = 0.9 : reactDistance = 0.8 : mistake = 0.7
+	End Select
+	maxSpeed = maxSpeed * PADDLE_SPEED
+	reactDistance = reactDistance * SCREEN_W
 
 	Local towards = (ballVX > 0 And p\x > ballX) Or (ballVX < 0 And p\x < ballX)
-	Local reactDistance# = SCREEN_W * (0.35 + 0.2 * skill)
-	If towards And Abs(p\x - ballX) < reactDistance
+	If Not towards
+		p\guess = 9999 ; 9999 means "no guess yet": the next ball that comes gets a new mistake.
+	ElseIf Abs(p\x - ballX) < reactDistance
+		If p\guess = 9999 Then p\guess = Rnd(-1, 1) * mistake * PADDLE_H * (0.15 + 0.85 * ballSpeed / BALL_MAX_SPEED)
 		; Follow the ball's path forward, folding it back at the walls like the ball itself will.
 		Local frames# = Abs((p\x - ballX) / ballVX)
 		Local height# = Float(COURT_BOTTOM - COURT_TOP - BALL_SIZE)
 		Local y# = (ballY - COURT_TOP) + ballVY * frames
 		y = y - Floor(y / (2 * height)) * (2 * height)
 		If y > height Then y = 2 * height - y
-		Local wobble# = (3 - skill) * 18 * Sin(MilliSecs() / 7.0)
-		targetY = COURT_TOP + y + BALL_SIZE / 2 - PADDLE_H / 2 + wobble
+		targetY = COURT_TOP + y + BALL_SIZE / 2 - PADDLE_H / 2 + p\guess
 	EndIf
 
 	Local diff# = targetY - p\y
@@ -238,11 +437,11 @@ Function UpdateBall()
 		If ballY < COURT_TOP
 			ballY = Float(COURT_TOP)
 			ballVY = Abs(ballVY)
-			PlaySound soundWall
+			PlaySfx(soundWall)
 		ElseIf ballY > COURT_BOTTOM - BALL_SIZE
 			ballY = Float(COURT_BOTTOM - BALL_SIZE)
 			ballVY = -Abs(ballVY)
-			PlaySound soundWall
+			PlaySfx(soundWall)
 		EndIf
 
 		If ballVX < 0 Then CheckPaddleHit(leftPaddle, 1)
@@ -267,9 +466,9 @@ Function CheckPaddleHit(p.Paddle, direction)
 	; Where on the paddle did it hit? -1 is the top end, 0 the middle, 1 the bottom end. Hits near the ends send the
 	; ball away at a steep angle, which is how players aim.
 	Local offset# = ((ballY + BALL_SIZE / 2) - (p\y + PADDLE_H / 2)) / (PADDLE_H / 2)
-	offset = Clamp(offset, -1.0, 1)
+	offset = Clamp(offset, -1, 1)
 	Local angle# = offset * 55 + p\speed * 2.5 ; A moving paddle adds spin.
-	angle = Clamp(angle, -60.0, 60)
+	angle = Clamp(angle, -60, 60)
 
 	rallyHits = rallyHits + 1
 	ballSpeed = ballSpeed + BALL_SPEEDUP
@@ -280,9 +479,8 @@ Function CheckPaddleHit(p.Paddle, direction)
 	; Put the ball just outside the paddle so it cannot hit it twice.
 	If direction = 1 Then ballX = p\x + PADDLE_W Else ballX = p\x - BALL_SIZE
 
-	shake = 2 + ballSpeed / 4
 	BurstSparks(ballX + BALL_SIZE / 2, ballY + BALL_SIZE / 2, 14, p\r, p\g, p\b)
-	PlaySound soundPaddle
+	PlaySfx(soundPaddle)
 End Function
 
 Function ResetTrail()
@@ -331,12 +529,18 @@ Function DrawGame()
 	Origin ox, oy
 
 	; Background, brighter for a moment after a point.
-	If flashTimer > 0 Then ClsColor 40 + flashTimer * 4, 30, 60 Else ClsColor 14, 12, 28
-	Cls
+	If flashTimer > 0
+		ClsColor 40 + flashTimer * 4, 30, 60
+		Cls
+	Else
+		ClsColor 14, 12, 28
+		Cls
+		DrawWatermark(14, 12, 28)
+	EndIf
 
-	DrawCourt()
+	DrawCourt(state > STATE_HELP) ; No net behind the menus, it would cross the text.
 
-	If state = STATE_TITLE
+	If state <= STATE_HELP
 		DrawTitle()
 		Origin 0, 0
 		Return
@@ -383,10 +587,11 @@ Function DrawGame()
 	EndIf
 End Function
 
-Function DrawCourt()
+Function DrawCourt(withNet)
 	Color 60, 60, 100
 	Rect 0, COURT_TOP - 6, SCREEN_W, 6, 1
 	Rect 0, COURT_BOTTOM, SCREEN_W, 6, 1
+	If Not withNet Then Return
 	Local y%
 	For y = COURT_TOP + 8 To COURT_BOTTOM - 16 Step 24
 		Rect SCREEN_W / 2 - 2, y, 4, 12, 1
@@ -429,25 +634,34 @@ Function DrawTitle()
 	Color 255, 250, 220
 	Local t# = MilliSecs() / 10.0
 	Local x# = SCREEN_W / 2 + Sin(t) * 300
-	Local y# = SCREEN_H / 2 + 120 + Sin(t * 2.3) * 60
+	Local y# = SCREEN_H / 2 + 200 + Sin(t * 2.3) * 40
 	Oval Int(x - BALL_SIZE / 2), Int(y - BALL_SIZE / 2), BALL_SIZE, BALL_SIZE, 1
 
 	Color 255, 200, 90
-	DrawWord("RALLY", SCREEN_W / 2 - 119, 130, 10) ; Five letters, 52 pixels apart and 30 wide: 238 pixels in all.
-
-	Color 200, 200, 220
-	CenterText(300, "1 - Play against the computer")
-	CenterText(325, "2 - Two players")
-	Local skillName$
-	Select skill
-		Case 1 : skillName = "Relaxed"
-		Case 2 : skillName = "Fair"
-		Case 3 : skillName = "Sharp"
-	End Select
-	CenterText(365, "< Computer skill: " + skillName + " >")
+	DrawWord("RALLY", SCREEN_W / 2 - 119, 110, 10) ; Five letters, 52 pixels apart and 30 wide: 238 pixels in all.
 	Color 120, 120, 150
-	CenterText(420, "Left: W / S     Right: Up / Down     P: pause     Esc: back")
-	CenterText(440, "First to " + WINNING_SCORE + " points wins.")
+	CenterText(SCREEN_H - 50, "A BlitzLLVM sample game")
+
+	Select state
+		Case STATE_MENU
+			DrawMenu()
+			Color 120, 120, 150
+			CenterText(450, "Up / Down or the mouse to choose, Enter or a click to select.")
+		Case STATE_OPTIONS
+			DrawMenu()
+			Color 120, 120, 150
+			CenterText(450, "Left / Right or a click change the option, Escape goes back.")
+		Case STATE_HELP
+			Color 200, 200, 220
+			CenterText(250, "Hit the ball past the other paddle to score.")
+			CenterText(275, "First to " + pointsToWin(optPoints) + " points wins the match.")
+			CenterText(310, "Hit the ball with the end of the paddle to send it off at a steep angle,")
+			CenterText(330, "or move the paddle while it hits to add spin.")
+			CenterText(365, "Left paddle: W and S.   Right paddle: Up and Down.")
+			CenterText(385, "P pauses, Escape goes back to the menu.")
+			Color 120, 120, 150
+			CenterText(450, "Press Enter or click to go back.")
+	End Select
 End Function
 
 Function CenterText(y, message$)
@@ -505,6 +719,38 @@ Function GlyphBits(c$)
 	Return 0
 End Function
 
+; --- Watermark -------------------------------------------------------------------------------------------------------
+; Every frame carries a faint pattern that nobody can see: some background pixels are one step bluer than the rest.
+; A program can find the pattern again in a screenshot, which shows that the picture came from this sample game.
+; The pattern is drawn as a masked image just after Cls, so everything else is drawn over it.
+
+Global watermark, watermarkColor ; DrawWatermark makes the image the first time it is needed.
+
+Function DrawWatermark(r, g, b)
+	Local rgb = (r Shl 16) Or (g Shl 8) Or b
+	If watermark = 0 Or rgb <> watermarkColor
+		If watermark <> 0 Then FreeImage watermark
+		watermark = CreateImage(SCREEN_W, SCREEN_H)
+		watermarkColor = rgb
+		Local marked = b + 1
+		If b = 255 Then marked = 254
+		Local x, y, buffer = ImageBuffer(watermark)
+		LockBuffer buffer
+		For y = 0 To SCREEN_H - 1
+			For x = 0 To SCREEN_W - 1
+				; Black is the mask colour, so only the marked pixels are drawn.
+				If (x * 7 + y * 13) Mod 29 < 3
+					WritePixelFast x, y, (r Shl 16) Or (g Shl 8) Or marked, buffer
+				Else
+					WritePixelFast x, y, 0, buffer
+				EndIf
+			Next
+		Next
+		UnlockBuffer buffer
+	EndIf
+	DrawImage watermark, 0, 0
+End Function
+
 ; --- Helpers ---------------------------------------------------------------------------------------------------------
 
 Function Clamp#(value#, low#, high#)
@@ -544,11 +790,11 @@ Function MakeSound(startHz#, endHz#, lengthMs, wave, volume#)
 		Local v#
 		Select wave
 			Case WAVE_SQUARE
-				If phase < 180 Then v = 1 Else v = -1.0
+				If phase < 180 Then v = 1 Else v = -1
 			Case WAVE_SINE
 				v = Sin(phase)
 			Default
-				v = Rnd(-1.0, 1)
+				v = Rnd(-1, 1)
 		End Select
 		; Fade in very quickly and fade out towards the end, so the sound does not click.
 		Local envelope# = 1.0
