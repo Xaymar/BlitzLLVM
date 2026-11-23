@@ -2610,22 +2610,24 @@ namespace bb::gfx {
 		to_local(half_w, -half_h, far_z, corner[2]);
 		to_local(-half_w, -half_h, far_z, corner[3]);
 
-		const int divs = e.plane_divs;
-		float     grid[21][21][3];
-		for (int x = 0; x <= divs; x++) {
-			float t = float(x) / float(divs);
-			for (int y = 0; y <= divs; y++) {
-				float u = float(y) / float(divs);
-				for (int k = 0; k < 3; k++) {
-					float top    = (corner[1][k] - corner[0][k]) * t + corner[0][k];
-					float bottom = (corner[2][k] - corner[3][k]) * t + corner[3][k];
-					grid[x][y][k] = (bottom - top) * u + top;
-				}
+		// The grid has no upper size, so its points are worked out when a square needs them instead of being kept in a table.
+		const int divs  = e.plane_divs;
+		auto      point = [&](int x, int y, float* out) {
+			float t = float(x) / float(divs), u = float(y) / float(divs);
+			for (int k = 0; k < 3; k++) {
+				float top    = (corner[1][k] - corner[0][k]) * t + corner[0][k];
+				float bottom = (corner[2][k] - corner[3][k]) * t + corner[3][k];
+				out[k]       = (bottom - top) * u + top;
 			}
-		}
+		};
 		for (int x = 0; x < divs; x++) {
 			for (int y = 0; y < divs; y++) {
-				const float* in[4] = { grid[x][y], grid[x + 1][y], grid[x + 1][y + 1], grid[x][y + 1] };
+				float grid[4][3];
+				point(x, y, grid[0]);
+				point(x + 1, y, grid[1]);
+				point(x + 1, y + 1, grid[2]);
+				point(x, y + 1, grid[3]);
+				const float* in[4] = { grid[0], grid[1], grid[2], grid[3] };
 				float        out[5][3];
 				int          count = 0;
 				for (int k = 0; k < 4; k++) {
