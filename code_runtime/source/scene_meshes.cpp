@@ -294,10 +294,11 @@ namespace bb::scene {
 		return add_entity(MESH, parent);
 	}
 
-	// The original takes 2 to 100 segments for a sphere and 3 to 100 for a cylinder or a cone.
+	// The original takes 2 to 100 segments for a sphere and 3 to 100 for a cylinder or a cone. There is no upper limit here, as
+	// indices are 32 bits wide: more segments only make a bigger mesh.
 	static int clamp_segments(int segments, int lowest)
 	{
-		return segments < lowest ? lowest : (segments > 100 ? 100 : segments);
+		return segments < lowest ? lowest : segments;
 	}
 
 	static vertex3d& vertex_of(int32_t handle, int32_t index, const char* what)
