@@ -9,10 +9,13 @@
 ;   Arrow keys or W A S D   fly
 ;   Space or Left Ctrl      fire (hold it down)
 ;   P                       pause
-;   Escape                  back to the title screen, or quit from there
+;   Escape                  back to the menu, or quit from there
+;   Menus                   Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;
 ; Orange orbs make your gun stronger, up to five levels. Blue orbs repair the shield. Touching the cavern walls or
 ; an enemy costs shield, and a ship without shield is lost. Survive the waves to meet the guardian at the end.
+;
+; The options and the best scores are saved in ion-tide.cfg next to the program.
 ;
 ; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
@@ -20,12 +23,14 @@ Const SCREEN_W = 800, SCREEN_H = 600
 Const SCROLL_SPEED# = 2.0
 Const WALL_SEGMENT = 16                       ; The cavern is made of strips this wide.
 Const WALL_SEGMENTS = SCREEN_W / WALL_SEGMENT + 2
-Const PLAYER_SPEED# = 4.5, PLAYER_MAX_SHIELD = 5, START_LIVES = 3
+Const PLAYER_SPEED# = 4.5, PLAYER_MAX_SHIELD = 5
 Const FIRE_DELAY = 7                          ; Frames between shots.
 
-Const STATE_TITLE = 0, STATE_PLAY = 1, STATE_PAUSED = 2, STATE_DEAD = 3, STATE_OVER = 4, STATE_WON = 5
+Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_PLAY = 3, STATE_PAUSED = 4, STATE_DEAD = 5
+Const STATE_OVER = 6, STATE_WON = 7
 
 Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_CTRL = 29, KEY_SPACE = 57
+Const KEY_ENTER = 28
 Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 Const ENEMY_DRIFTER = 1, ENEMY_GUNNER = 2, ENEMY_DIVER = 3, ENEMY_MINE = 4, ENEMY_GUARDIAN = 5
@@ -69,28 +74,37 @@ End Type
 Dim ceilingY#(WALL_SEGMENTS - 1), floorY#(WALL_SEGMENTS - 1)
 Global wallStart, wallOffset#, wallTime#, wallNarrow#
 
-Global state = STATE_TITLE
-Global playerX#, playerY#, shield, lives, gunLevel, fireTimer, invulnerable
-Global score, highScore
+; --- Options -----------------------------------------------------------------------------------------------------
+Global optDifficulty = 1   ; 0 easy, 1 normal, 2 hard.
+Global optVolume = 4       ; 0 to 4, in quarters.
+Global optShake = True
+Global optFullscreen = False
+Dim difficultyName$(2), startShips(2), difficultyShots#(2)
+difficultyName(0) = "Easy" : startShips(0) = 5 : difficultyShots(0) = 0.8
+difficultyName(1) = "Normal" : startShips(1) = 3 : difficultyShots(1) = 1.0
+difficultyName(2) = "Hard" : startShips(2) = 2 : difficultyShots(2) = 1.25
+Dim bestScore(2) ; One best score per difficulty.
+
+Global settingsPath$ = SystemProperty$("appdir")
+If settingsPath <> "" And Right(settingsPath, 1) <> "\" And Right(settingsPath, 1) <> "/" Then settingsPath = settingsPath + "/"
+settingsPath = settingsPath + "ion-tide.cfg"
+LoadSettings()
+
+; --- Game ----------------------------------------------------------------------------------------------------------
+Global state = STATE_MENU
+Global playerX#, playerY#, shield, lives, gunLevel, gunCharge, fireTimer, invulnerable
+Global score
 Global frame, waveTimer, nextWave, guardianAlive, guardianMaxHealth
 Global shake#, deadTimer
 
-Graphics SCREEN_W, SCREEN_H, 0, 2
-AppTitle "Ion Tide"
-SetBuffer BackBuffer()
-SeedRnd MilliSecs()
+Dim menuText$(7)
+Global menuCount, menuSelected, menuTop
 
 ; --- Pictures made in code ------------------------------------------------------------------------------------------
-; Each picture is drawn into an image once at the start. MaskImage makes black see-through, and MidHandle puts the
-; image's handle in its middle, so positions are the centre of each ship.
-Global imagePlayer = MakeShipImage(48, 24, 80, 200, 255, True)
-Global imageDrifter = MakeShipImage(36, 22, 255, 120, 80, False)
-Global imageGunner = MakeShipImage(44, 30, 220, 90, 220, False)
-Global imageDiver = MakeShipImage(30, 18, 255, 220, 70, False)
-Global imageMine = MakeMineImage(26)
-Global imageGuardian = MakeGuardianImage(150, 120)
-Global imageShot = MakeGlowImage(14, 6, 150, 255, 255)
-Global imageEnemyShot = MakeGlowImage(10, 10, 255, 110, 90)
+; Each picture is drawn into an image when the screen opens. MaskImage makes black see-through, and MidHandle puts
+; the image's handle in its middle, so positions are the centre of each ship.
+Global imagePlayer, imageDrifter, imageGunner, imageDiver, imageMine, imageGuardian, imageShot, imageEnemyShot
+OpenScreen()
 
 Const WAVE_SQUARE = 0, WAVE_SINE = 1, WAVE_NOISE = 2
 Global soundShot = MakeSound(1400, 700, 50, WAVE_SQUARE, 0.12)
@@ -112,16 +126,22 @@ Next
 ResetCavern()
 Local timer = CreateTimer(60)
 
+GoToMenu()
 Local quit = False
 While Not quit
 	WaitTimer timer
 	frame = frame + 1
 
 	Select state
-		Case STATE_TITLE
+		Case STATE_MENU
 			ScrollCavern()
-			If KeyHit(KEY_SPACE) Then StartGame()
-			If KeyHit(KEY_ESCAPE) Then quit = True
+			quit = UpdateMenu()
+		Case STATE_OPTIONS
+			ScrollCavern()
+			UpdateOptions()
+		Case STATE_HELP
+			ScrollCavern()
+			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
 		Case STATE_PLAY
 			ScrollCavern()
 			UpdatePlayer()
@@ -147,9 +167,14 @@ While Not quit
 			EndIf
 		Case STATE_OVER, STATE_WON
 			ScrollCavern()
-			If KeyHit(KEY_SPACE) Then state = STATE_TITLE
+			UpdateEnemies()
+			UpdateBullets()
+			If KeyHit(KEY_SPACE) Or KeyHit(KEY_ENTER) Or MouseHit(1) Then GoToMenu()
 	End Select
-	If state <> STATE_TITLE And KeyHit(KEY_ESCAPE) Then state = STATE_TITLE : ClearWorld()
+	If state >= STATE_PLAY And KeyHit(KEY_ESCAPE)
+		SaveBest()
+		GoToMenu()
+	EndIf
 
 	UpdateStars()
 	UpdateParticles()
@@ -159,13 +184,197 @@ Wend
 
 End
 
+; --- Screen and settings -------------------------------------------------------------------------------------------
+
+; Opens the window or full screen, as the option says. Graphics frees all images, so they are all made again here.
+Function OpenScreen()
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	AppTitle "Ion Tide"
+	SetBuffer BackBuffer()
+	SeedRnd MilliSecs()
+	imagePlayer = MakeShipImage(48, 24, 80, 200, 255, True)
+	imageDrifter = MakeShipImage(36, 22, 255, 120, 80, False)
+	imageGunner = MakeShipImage(44, 30, 220, 90, 220, False)
+	imageDiver = MakeShipImage(30, 18, 255, 220, 70, False)
+	imageMine = MakeMineImage(26)
+	imageGuardian = MakeGuardianImage(150, 120)
+	imageShot = MakeGlowImage(14, 6, 150, 255, 255)
+	imageEnemyShot = MakeGlowImage(10, 10, 255, 110, 90)
+	watermark = 0
+End Function
+
+Function LoadSettings()
+	If FileType(settingsPath) <> 1 Then Return
+	Local file = ReadFile(settingsPath)
+	If Not file Then Return
+	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
+		optDifficulty = ReadInt(file)
+		optVolume = ReadInt(file)
+		optShake = ReadInt(file)
+		optFullscreen = ReadInt(file)
+		Local i
+		For i = 0 To 2
+			bestScore(i) = ReadInt(file)
+		Next
+	EndIf
+	CloseFile file
+	; Never trust a file: someone may have edited it.
+	If optDifficulty < 0 Or optDifficulty > 2 Then optDifficulty = 1
+	If optVolume < 0 Or optVolume > 4 Then optVolume = 4
+End Function
+
+Function SaveSettings()
+	Local file = WriteFile(settingsPath)
+	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
+	WriteInt file, 1
+	WriteInt file, optDifficulty
+	WriteInt file, optVolume
+	WriteInt file, optShake
+	WriteInt file, optFullscreen
+	Local i
+	For i = 0 To 2
+		WriteInt file, bestScore(i)
+	Next
+	CloseFile file
+End Function
+
+Function SaveBest()
+	If score <= bestScore(optDifficulty) Then Return
+	bestScore(optDifficulty) = score
+	SaveSettings()
+End Function
+
+; Every sound goes through here, so the volume option works everywhere.
+Function PlaySfx(sound)
+	If sound = 0 Or optVolume = 0 Then Return
+	Local channel = PlaySound(sound)
+	ChannelVolume channel, optVolume / 4.0
+End Function
+
+; --- Menus ---------------------------------------------------------------------------------------------------------
+; A menu is a list of lines and the number of the selected one. The keyboard moves the selection, the mouse selects
+; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
+
+Function MenuInput()
+	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundShot)
+	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundShot)
+
+	Local line = MenuLineAt(MouseX(), MouseY())
+	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
+
+	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
+	If MouseHit(1) And line >= 0
+		menuSelected = line
+		Return line
+	EndIf
+	Return -1
+End Function
+
+; Which line is at a screen position, or -1. Lines are 30 pixels apart and 360 wide.
+Function MenuLineAt(x, y)
+	If x < SCREEN_W / 2 - 180 Or x >= SCREEN_W / 2 + 180 Or y < menuTop Then Return -1
+	Local line = (y - menuTop) / 30
+	If line >= menuCount Then Return -1
+	Return line
+End Function
+
+Function DrawMenu()
+	Local i, y
+	For i = 0 To menuCount - 1
+		y = menuTop + i * 30
+		If i = menuSelected
+			Color 30, 70, 140
+			Rect SCREEN_W / 2 - 180, y, 360, 26, 1
+			Color 255, 240, 200
+		Else
+			Color 200, 215, 245
+		EndIf
+		Text SCREEN_W / 2, y + 13, menuText(i), True, True
+	Next
+End Function
+
+Function GoToMenu()
+	state = STATE_MENU
+	menuCount = 4
+	menuTop = 330
+	menuSelected = 0
+	menuText(0) = "Launch (" + difficultyName(optDifficulty) + ")"
+	menuText(1) = "Options"
+	menuText(2) = "How to play"
+	menuText(3) = "Quit"
+	ClearWorld() ; Enemies and shots of the last game would otherwise stay on the menu.
+	; Forget keys pressed during a game, so they do not act on the menu too.
+	FlushKeys
+	FlushMouse
+End Function
+
+; Gives back True when the player chose Quit.
+Function UpdateMenu()
+	If KeyHit(KEY_ESCAPE) Then Return True
+	Select MenuInput()
+		Case 0 : StartGame()
+		Case 1 : GoToOptions()
+		Case 2
+			state = STATE_HELP
+			FlushKeys
+			FlushMouse
+		Case 3 : Return True
+	End Select
+	Return False
+End Function
+
+Function GoToOptions()
+	state = STATE_OPTIONS
+	menuCount = 5
+	menuTop = 310
+	menuSelected = 0
+	RefreshOptionsText()
+	FlushMouse
+End Function
+
+Function RefreshOptionsText()
+	menuText(0) = "Difficulty: " + difficultyName(optDifficulty) + " (" + startShips(optDifficulty) + " ships)"
+	menuText(1) = "Sound volume: " + (optVolume * 25) + "%"
+	If optShake Then menuText(2) = "Screen shake: on" Else menuText(2) = "Screen shake: off"
+	If optFullscreen Then menuText(3) = "Display: full screen" Else menuText(3) = "Display: window"
+	menuText(4) = "Back"
+End Function
+
+Function UpdateOptions()
+	Local change = 0
+	If KeyHit(KEY_LEFT) Then change = -1
+	If KeyHit(KEY_RIGHT) Then change = 1
+	Local chosen = MenuInput()
+	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
+
+	If KeyHit(KEY_ESCAPE) Or chosen = 4
+		SaveSettings()
+		GoToMenu()
+		menuSelected = 1 ; Back on "Options".
+		Return
+	EndIf
+	If change = 0 Then Return
+
+	Select menuSelected
+		Case 0 : optDifficulty = (optDifficulty + change + 3) Mod 3
+		Case 1 : optVolume = (optVolume + change + 5) Mod 5
+		Case 2 : optShake = Not optShake
+		Case 3
+			optFullscreen = Not optFullscreen
+			OpenScreen()
+	End Select
+	PlaySfx(soundShot)
+	RefreshOptionsText()
+End Function
+
 ; --- Game flow -------------------------------------------------------------------------------------------------------
 
 Function StartGame()
 	ClearWorld()
 	score = 0
-	lives = START_LIVES
+	lives = startShips(optDifficulty)
 	gunLevel = 1
+	gunCharge = 0
 	nextWave = 0
 	waveTimer = 120
 	guardianAlive = False
@@ -184,8 +393,12 @@ Function RespawnPlayer()
 End Function
 
 Function EndGame(newState)
-	If score > highScore Then highScore = score
 	state = newState
+	SaveBest()
+	; Fire taps during the game may still be waiting, and Space leaves this screen. Forget them, so the screen
+	; does not vanish at once.
+	FlushKeys
+	FlushMouse
 End Function
 
 Function ClearWorld()
@@ -198,16 +411,18 @@ Function DamagePlayer(amount)
 	If invulnerable > 0 Then Return
 	shield = shield - amount
 	invulnerable = 45
-	shake = 8
-	PlaySound soundHurt
+	If optShake Then shake = 8
+	PlaySfx(soundHurt)
 	If shield <= 0
 		lives = lives - 1
 		Explode(playerX, playerY, 80, 120, 220, 255)
-		PlaySound soundBigBoom
-		shake = 20
+		PlaySfx(soundBigBoom)
+		If optShake Then shake = 20
 		If gunLevel > 1 Then gunLevel = gunLevel - 1 ; Losing a ship costs one gun level.
+		gunCharge = 0
 		deadTimer = 120
 		state = STATE_DEAD
+		FlushKeys
 	EndIf
 End Function
 
@@ -232,7 +447,7 @@ Function ComputeWall(i)
 	; Move the narrowing a little towards its goal for each strip, so the walls never jump.
 	Local goal# = 0
 	If state = STATE_PLAY Then goal = Float(nextWave * 4)
-	If goal > 60 Then goal = 60
+	If goal > 70 Then goal = 70
 	If wallNarrow < goal Then wallNarrow = wallNarrow + 0.25
 	If wallNarrow > goal Then wallNarrow = wallNarrow - 0.25
 	ceilingY(i) = 70 + wallNarrow + 35 * Sin(t * 3.1) + 20 * Sin(t * 7.3 + 40) + 10 * Sin(t * 17.0)
@@ -279,7 +494,7 @@ Function UpdatePlayer()
 	If invulnerable > 0 Then invulnerable = invulnerable - 1
 
 	; Exhaust flame behind the ship.
-	If frame Mod 2 = 0 Then AddParticle(playerX - 24, playerY + Rnd(-3.0, 3), Rnd(-4.0, -2.0), Rnd(-0.3, 0.3), 0.06, 120, 200, 255, 3)
+	If frame Mod 2 = 0 Then AddParticle(playerX - 24, playerY + Rnd(-3, 3), Rnd(-4, -2), Rnd(-0.3, 0.3), 0.06, 120, 200, 255, 3)
 
 	; Scraping the cavern walls hurts.
 	If playerY - 10 < WallAt(playerX, False) Or playerY + 10 > WallAt(playerX, True)
@@ -296,11 +511,11 @@ End Function
 
 ; Each gun level adds shots. Level 1 is a single shot, level 5 a wide spread.
 Function FireGun()
-	PlaySound soundShot
+	PlaySfx(soundShot)
 	FireShot(playerX + 24, playerY, 11, 0)
 	If gunLevel >= 2 Then FireShot(playerX + 18, playerY - 8, 11, 0) : FireShot(playerX + 18, playerY + 8, 11, 0)
 	If gunLevel >= 3 Then FireShot(playerX + 16, playerY - 4, 10.5, -1.6) : FireShot(playerX + 16, playerY + 4, 10.5, 1.6)
-	If gunLevel >= 4 Then FireShot(playerX, playerY - 10, -9.0, -1.0) : FireShot(playerX, playerY + 10, -9.0, 1) ; Rear guns.
+	If gunLevel >= 4 Then FireShot(playerX, playerY - 10, -9, -1) : FireShot(playerX, playerY + 10, -9, 1) ; Rear guns.
 	If gunLevel >= 5 Then FireShot(playerX + 16, playerY, 10, -3.2) : FireShot(playerX + 16, playerY, 10, 3.2)
 End Function
 
@@ -352,7 +567,7 @@ Function SpawnEnemy(kind, x#, y#, index)
 		Case ENEMY_GUNNER : e\health = 6 : e\image = imageGunner : e\vx = -1.4
 		Case ENEMY_DIVER : e\health = 2 : e\image = imageDiver : e\vx = -4.5
 		Case ENEMY_MINE : e\health = 4 : e\image = imageMine : e\vx = -SCROLL_SPEED
-		Case ENEMY_GUARDIAN : e\health = 300 : e\image = imageGuardian : e\vx = -1.0
+		Case ENEMY_GUARDIAN : e\health = 500 : e\image = imageGuardian : e\vx = -1
 	End Select
 	If kind = ENEMY_GUARDIAN Then guardianMaxHealth = e\health
 End Function
@@ -371,7 +586,7 @@ Function UpdateEnemies()
 				e\y = e\baseY + Sin(Float(e\age * 4)) * 60
 			Case ENEMY_GUNNER
 				; Slows down on screen and shoots at the player now and then.
-				If e\x < SCREEN_W - 120 Then e\vx = e\vx * 0.98 - 0.006
+				If e\x < SCREEN_W - 120 Then e\vx = e\vx * 0.98 - 0.016 ; Settles at 0.8 pixels per frame.
 				e\x = e\x + e\vx
 				e\y = e\y + (playerY - e\y) * 0.01
 				If e\age > 0 And e\age Mod 70 = 0 And state = STATE_PLAY Then AimShot(e\x - 20, e\y, 4.5)
@@ -389,8 +604,12 @@ Function UpdateEnemies()
 				UpdateGuardian(e)
 		End Select
 
-		; Touching an enemy hurts the player. Enemies other than the guardian blow up when they touch.
-		If state = STATE_PLAY
+		; Keep enemies inside the cavern, where the player's shots can reach them.
+		If e\kind <> ENEMY_GUARDIAN Then e\y = KeepInCavern(e\x, e\y, 18)
+
+		; Touching an enemy hurts the player. Enemies other than the guardian blow up when they touch. While the ship
+		; blinks it cannot be hurt, and then it simply passes through: no free points for ramming.
+		If state = STATE_PLAY And invulnerable = 0
 			If ImagesCollide(imagePlayer, Int(playerX), Int(playerY), 0, e\image, Int(e\x), Int(e\y), 0)
 				DamagePlayer(1)
 				If e\kind <> ENEMY_GUARDIAN Then e\health = 0
@@ -408,7 +627,7 @@ End Function
 Function UpdateGuardian(e.Enemy)
 	; Moves in, then hovers on the right and fires patterns that get faster as it weakens.
 	If e\x > SCREEN_W - 140 Then e\x = e\x + e\vx Else e\x = SCREEN_W - 140 + Sin(e\age * 0.7) * 20
-	e\y = SCREEN_H / 2 + Sin(e\age * 1.1) * 120
+	e\y = KeepInCavern(e\x, SCREEN_H / 2 + Sin(e\age * 1.1) * 120, 60) ; It is 120 pixels high.
 	If e\x > SCREEN_W - 10 Then Return
 
 	Local anger# = 1.0 - Float(e\health) / guardianMaxHealth
@@ -421,6 +640,24 @@ Function UpdateGuardian(e.Enemy)
 		Next
 	EndIf
 	If e\age Mod 90 = 45 Then AimShot(e\x - 60, e\y - 40, 5) : AimShot(e\x - 60, e\y + 40, 5)
+
+	; Second phase: below half health it also throws out a slowly turning ring of shots.
+	If anger > 0.5 And e\age Mod 100 = 0
+		For a = 0 To 330 Step 30
+			EnemyShot(e\x - 40, e\y, 3 * Cos(Float(a + e\age)), 3 * Sin(Float(a + e\age)))
+		Next
+	EndIf
+End Function
+
+; Gives back a height that keeps something of the given half height between the cavern's ceiling and floor.
+; Where the gap is too narrow, it gives back the middle of the gap.
+Function KeepInCavern#(x#, y#, halfHeight)
+	Local top# = WallAt(x, False) + halfHeight
+	Local bottom# = WallAt(x, True) - halfHeight
+	If top > bottom Then Return (top + bottom) / 2
+	If y < top Then Return top
+	If y > bottom Then Return bottom
+	Return y
 End Function
 
 Function KillEnemy(e.Enemy)
@@ -435,10 +672,10 @@ Function KillEnemy(e.Enemy)
 	Local i%
 	If e\kind = ENEMY_GUARDIAN
 		For i = 1 To 8
-			Explode(e\x + Rnd(-60.0, 60), e\y + Rnd(-50.0, 50), 60, 255, Rand(120, 220), 80)
+			Explode(e\x + Rnd(-60, 60), e\y + Rnd(-50, 50), 60, 255, Rand(120, 220), 80)
 		Next
-		PlaySound soundBigBoom
-		shake = 30
+		PlaySfx(soundBigBoom)
+		If optShake Then shake = 30
 		guardianAlive = False
 		Delete Each Bullet
 		Delete e
@@ -447,13 +684,13 @@ Function KillEnemy(e.Enemy)
 	EndIf
 
 	Explode(e\x, e\y, 40, 255, 170, 80)
-	PlaySound soundBoom
-	shake = shake + 3
-	; Sometimes an orb is left behind. Gunners always leave one.
-	If e\kind = ENEMY_GUNNER Or Rand(1, 8) = 1
+	PlaySfx(soundBoom)
+	If optShake Then shake = shake + 3
+	; Sometimes an orb is left behind: one in 10 enemies, or every second gunner. Half of them repair the shield.
+	If (e\kind = ENEMY_GUNNER And Rand(1, 2) = 1) Or Rand(1, 10) = 1
 		Local o.Orb = New Orb
 		o\x = e\x : o\y = e\y
-		If Rand(1, 3) = 1 Then o\kind = ORB_SHIELD Else o\kind = ORB_POWER
+		If Rand(1, 2) = 1 Then o\kind = ORB_SHIELD Else o\kind = ORB_POWER
 	EndIf
 	Delete e
 End Function
@@ -461,14 +698,14 @@ End Function
 Function EnemyShot(x#, y#, vx#, vy#)
 	Local b.Bullet = New Bullet
 	b\x = x : b\y = y
-	b\vx = vx : b\vy = vy
+	b\vx = vx * difficultyShots(optDifficulty) : b\vy = vy * difficultyShots(optDifficulty)
 	b\friendly = False
 End Function
 
 Function AimShot(x#, y#, speed#)
 	Local angle# = ATan2(playerY - y, playerX - x)
 	EnemyShot(x, y, Cos(angle) * speed, Sin(angle) * speed)
-	PlaySound soundEnemyShot
+	PlaySfx(soundEnemyShot)
 End Function
 
 ; --- Bullets and orbs ------------------------------------------------------------------------------------------------
@@ -484,7 +721,7 @@ Function UpdateBullets()
 		; Shots stop at the cavern walls.
 		If Not gone
 			If b\y < WallAt(b\x, False) Or b\y > WallAt(b\x, True)
-				AddParticle(b\x, b\y, Rnd(-1.0, 1), Rnd(-1.0, 1), 0.08, 200, 200, 255, 2)
+				AddParticle(b\x, b\y, Rnd(-1, 1), Rnd(-1, 1), 0.08, 200, 200, 255, 2)
 				gone = True
 			EndIf
 		EndIf
@@ -496,8 +733,8 @@ Function UpdateBullets()
 						e\health = e\health - 1
 						e\flash = 3
 						score = score + 5
-						PlaySound soundHit
-						AddParticle(b\x, b\y, Rnd(-2.0, 0), Rnd(-2.0, 2), 0.06, 255, 255, 200, 2)
+						PlaySfx(soundHit)
+						AddParticle(b\x, b\y, Rnd(-2, 0), Rnd(-2, 2), 0.06, 255, 255, 200, 2)
 						gone = True
 						Exit
 					EndIf
@@ -521,11 +758,16 @@ Function UpdateOrbs()
 		o\x = o\x - SCROLL_SPEED * 0.6
 		o\y = o\y + Sin(Float(o\age * 5)) * 0.8
 		If Abs(o\x - playerX) < 26 And Abs(o\y - playerY) < 22
-			PlaySound soundOrb
+			PlaySfx(soundOrb)
 			score = score + 250
-			If o\kind = ORB_POWER
-				If gunLevel < 5 Then gunLevel = gunLevel + 1
-			Else
+			If o\kind = ORB_POWER And gunLevel < 5
+				; Levels 1 to 3 need one orb each, the stronger levels 4 and 5 need two.
+				gunCharge = gunCharge + 1
+				If gunLevel < 3 Or gunCharge >= 2
+					gunLevel = gunLevel + 1
+					gunCharge = 0
+				EndIf
+			ElseIf o\kind = ORB_SHIELD
 				shield = PLAYER_MAX_SHIELD
 			EndIf
 			Delete o
@@ -587,6 +829,7 @@ Function DrawGame()
 
 	ClsColor 4, 4, 14
 	Cls
+	DrawWatermark(4, 4, 14)
 
 	; Far away stars move slowly, close ones quickly. That difference makes the scene look deep.
 	Local s.Star
@@ -662,17 +905,17 @@ End Function
 Function DrawHud()
 	Color 220, 230, 255
 	Text 16, 10, "Score " + score
-	Text SCREEN_W - 16 - StringWidth("Best " + highScore), 10, "Best " + highScore
+	Text SCREEN_W - 16 - StringWidth("Best " + bestScore(optDifficulty)), 10, "Best " + bestScore(optDifficulty)
 
 	Local i%
-	If state <> STATE_TITLE
+	If state >= STATE_PLAY
 		Text 16, SCREEN_H - 24, "Shield"
 		For i = 1 To PLAYER_MAX_SHIELD
 			If i <= shield Then Color 60, 160, 255 Else Color 30, 40, 70
 			Rect 70 + i * 18, SCREEN_H - 22, 14, 10, 1
 		Next
 		Color 255, 160, 60
-		Text 220, SCREEN_H - 24, "Gun " + gunLevel
+		If gunCharge > 0 Then Text 220, SCREEN_H - 24, "Gun " + gunLevel + "+" Else Text 220, SCREEN_H - 24, "Gun " + gunLevel
 		Color 220, 230, 255
 		Text 300, SCREEN_H - 24, "Ships " + lives
 	EndIf
@@ -689,23 +932,71 @@ Function DrawHud()
 		Next
 	EndIf
 
+	If state <= STATE_HELP
+		DrawImage imageGuardian, SCREEN_W / 2, Int(190 + Sin(Float(frame)) * 10)
+		Color 150, 230, 255
+		Text SCREEN_W / 2, 280, "I O N   T I D E", True, False
+		Color 110, 130, 170
+		Text SCREEN_W / 2, SCREEN_H - 40, "A BlitzLLVM sample game", True, True
+	EndIf
+
 	Color 255, 240, 200
 	Select state
-		Case STATE_TITLE
-			DrawImage imageGuardian, SCREEN_W / 2, Int(200 + Sin(Float(frame)) * 10)
-			Color 150, 230, 255
-			Text SCREEN_W / 2, 300, "I O N   T I D E", True, False
+		Case STATE_MENU
+			DrawMenu()
+			Color 150, 165, 200
+			Text SCREEN_W / 2, 470, "Up / Down or the mouse to choose, Enter or a click to select.", True, True
+		Case STATE_OPTIONS
+			DrawMenu()
+			Color 150, 165, 200
+			Text SCREEN_W / 2, 480, "Left / Right or a click change the option, Escape goes back.", True, True
+		Case STATE_HELP
 			Color 220, 230, 255
-			Text SCREEN_W / 2, 340, "Arrows or WASD fly, Space or Ctrl fires.", True, False
-			Text SCREEN_W / 2, 360, "Orange orbs power up the gun, blue orbs repair the shield.", True, False
-			Text SCREEN_W / 2, 410, "Press Space to launch", True, False
+			Text SCREEN_W / 2, 320, "Arrows or WASD fly, Space or Ctrl fires (hold it down).", True, True
+			Text SCREEN_W / 2, 345, "Orange orbs power up the gun, blue orbs repair the shield.", True, True
+			Text SCREEN_W / 2, 370, "The walls and the enemies cost shield. Without shield the ship is lost.", True, True
+			Text SCREEN_W / 2, 395, "Survive the waves to meet the guardian. P pauses, Escape goes to the menu.", True, True
+			Color 150, 165, 200
+			Text SCREEN_W / 2, 450, "Press Enter or click to go back.", True, True
 		Case STATE_PAUSED
 			Text SCREEN_W / 2, SCREEN_H / 2, "Paused - press P", True, True
 		Case STATE_OVER
-			Text SCREEN_W / 2, SCREEN_H / 2, "All ships lost. Press Space", True, True
+			Text SCREEN_W / 2, SCREEN_H / 2, "All ships lost. Press Space or click", True, True
 		Case STATE_WON
-			Text SCREEN_W / 2, SCREEN_H / 2, "The guardian is destroyed! Score " + score + ". Press Space", True, True
+			Text SCREEN_W / 2, SCREEN_H / 2, "The guardian is destroyed! Score " + score + ". Press Space or click", True, True
 	End Select
+End Function
+
+; --- Watermark -------------------------------------------------------------------------------------------------------
+; Every frame carries a faint pattern that nobody can see: some background pixels are one step bluer than the rest.
+; A program can find the pattern again in a screenshot, which shows that the picture came from this sample game.
+; The pattern is drawn as a masked image just after Cls, so everything else is drawn over it.
+
+Global watermark, watermarkColor ; DrawWatermark makes the image the first time it is needed.
+
+Function DrawWatermark(r, g, b)
+	Local rgb = (r Shl 16) Or (g Shl 8) Or b
+	If watermark = 0 Or rgb <> watermarkColor
+		If watermark <> 0 Then FreeImage watermark
+		watermark = CreateImage(SCREEN_W, SCREEN_H)
+		watermarkColor = rgb
+		Local marked = b + 1
+		If b = 255 Then marked = 254
+		Local x, y, buffer = ImageBuffer(watermark)
+		LockBuffer buffer
+		For y = 0 To SCREEN_H - 1
+			For x = 0 To SCREEN_W - 1
+				; Black is the mask colour, so only the marked pixels are drawn.
+				If (x * 7 + y * 13) Mod 29 < 3
+					WritePixelFast x, y, (r Shl 16) Or (g Shl 8) Or marked, buffer
+				Else
+					WritePixelFast x, y, 0, buffer
+				EndIf
+			Next
+		Next
+		UnlockBuffer buffer
+	EndIf
+	DrawImage watermark, 0, 0
 End Function
 
 ; --- Pictures --------------------------------------------------------------------------------------------------------
@@ -834,11 +1125,11 @@ Function MakeSound(startHz#, endHz#, lengthMs, wave, volume#)
 		Local v#
 		Select wave
 			Case WAVE_SQUARE
-				If phase < 180 Then v = 1 Else v = -1.0
+				If phase < 180 Then v = 1 Else v = -1
 			Case WAVE_SINE
 				v = Sin(phase)
 			Default
-				v = Rnd(-1.0, 1)
+				v = Rnd(-1, 1)
 		End Select
 		; Fade in very quickly and fade out towards the end, so the sound does not click.
 		Local envelope# = 1.0
@@ -884,7 +1175,21 @@ Data 4, 6, 30, 0, 100
 Data 2, 2, 60, 0, 240
 Data 1, 8, 14, 0, 120
 Data 3, 6, 18, 0, 120
-Data 2, 3, 50, 0, 300
+Data 2, 3, 50, 0, 240
 Data 4, 8, 22, 0, 120
-Data 1, 10, 12, 0, 300
+Data 1, 10, 12, 0, 200
+Data 3, 4, 20, 200, 60
+Data 3, 4, 20, 400, 160
+Data 2, 2, 40, 0, 200
+Data 1, 6, 14, 220, 40
+Data 1, 6, 14, 380, 160
+Data 4, 10, 18, 0, 100
+Data 2, 3, 40, 0, 160
+Data 3, 8, 14, 0, 140
+Data 1, 12, 10, 0, 120
+Data 2, 4, 45, 0, 260
+Data 4, 6, 20, 0, 40
+Data 3, 6, 16, 0, 160
+Data 1, 10, 12, 0, 60
+Data 2, 3, 50, 0, 300
 Data 0, 0, 0, 0, 0
