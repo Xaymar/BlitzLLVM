@@ -39,7 +39,7 @@ all go away at the end of the migration.
 
 ## Direct3D 11: runtime `D3DCompile` from System32 (decided 23 Nov 2026)
 
-This replaces the earlier decision that HLSL is compiled offline with fxc. The rule that BlitzLLVM never ships `d3dcompiler_47.dll` stays:
+Today the HLSL is compiled with fxc when the Windows build runs. With this design it is compiled at runtime instead. BlitzLLVM does not ship `d3dcompiler_47.dll`:
 the runtime uses the copy that is part of Windows 10 and 11.
 
 - **Loading.** The D3D11 backend loads `d3dcompiler_47.dll` with `LoadLibraryExW(..., LOAD_LIBRARY_SEARCH_SYSTEM32)` and looks up
