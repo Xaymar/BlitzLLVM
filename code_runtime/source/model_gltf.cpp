@@ -331,7 +331,7 @@ namespace {
 		}
 
 		// The texture of the model for a texture of the file, made once for each set of flags.
-		int model_texture(const cgltf_texture* texture, int flags)
+		int model_texture(const cgltf_texture* texture, int flags, int blend = 0)
 		{
 			const cgltf_image* image = texture->image ? texture->image : (texture->webp_image ? texture->webp_image : texture->basisu_image);
 			if (!image) {
@@ -342,7 +342,7 @@ namespace {
 				if (texture->sampler->wrap_s == 33071) flags |= 16;
 				if (texture->sampler->wrap_t == 33071) flags |= 32;
 			}
-			auto key = std::make_pair(number, flags);
+			auto key = std::make_pair(number, flags | (blend << 20));
 			auto it  = texture_cache.find(key);
 			if (it != texture_cache.end()) {
 				return it->second;
@@ -356,6 +356,7 @@ namespace {
 				info.name = duplicate(file_name + "#" + std::to_string(number));
 			}
 			info.flags = flags;
+			info.blend = blend;
 			m.textures.push(info);
 			int index          = int(m.textures.size) - 1;
 			texture_cache[key] = index;
@@ -400,6 +401,22 @@ namespace {
 						out.brush.texture = t;
 					} else {
 						out.base.texture = nullptr;
+					}
+				}
+				// A normal map bends the lights (TextureBlend 6, green up, as glTF has it). It takes the first layer and the picture the second, which
+				// only solid drawing does, so it is for opaque materials; it also needs the same coordinates as the picture.
+				texture_ref normal;
+				if ((mat.alpha_mode == cgltf_alpha_mode_opaque) && read_texture_ref(mat.normal_texture, normal)) {
+					bool same = !out.base.texture || ((normal.coord == out.base.coord) && (normal.transform == out.base.transform)
+						&& (!normal.transform || (!memcmp(normal.offset, out.base.offset, sizeof(normal.offset)) && !memcmp(normal.scale, out.base.scale, sizeof(normal.scale)) && (normal.rotation == out.base.rotation))));
+					if (same) {
+						int n = model_texture(normal.texture, 1 | 8, 6);
+						if (n >= 0) {
+							out.brush.normal = n;
+							if (!out.base.texture) {
+								out.base = normal; // Only the coordinates of it count.
+							}
+						}
 					}
 				}
 			}

@@ -1001,11 +1001,11 @@ namespace bb::gfx {
 		copies.clear();
 	}
 
-	// What TextureBlend asks of a texture, as the shaders say it: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none.
+	// What TextureBlend asks of a texture, as the shaders say it: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none, 6 and 7 a normal map.
 	static int texture_blend_code(int texture_blend)
 	{
-		static const int blend_codes[6] = { 5, 1, 0, 2, 3, 4 };
-		return blend_codes[(texture_blend < 0 || texture_blend > 5) ? 2 : texture_blend];
+		static const int blend_codes[8] = { 5, 1, 0, 2, 3, 4, 6, 7 };
+		return blend_codes[(texture_blend < 0 || texture_blend > 7) ? 2 : texture_blend];
 	}
 
 	// What the layers after the first need of the draws that wait (the buffer of them is filled when the draws are recorded), and the groups of textures
@@ -3214,8 +3214,12 @@ namespace bb::gfx {
 			texture_texgen(texture, push.texgen);
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 			if (texture && texture->set) {
-				// What TextureBlend asks of the first texture, written twice into the same value: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none.
+				// What TextureBlend asks of the first texture, written twice into the same value: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none,
+				// 6 and 7 a normal map (green up and down), which is no color: it bends the normal of the lights, so those are worked out per pixel.
 				push.mask[3] += 2.0f * float(texture_blend_code(texture->blend));
+				if (texture->blend == 6 || texture->blend == 7) {
+					push.extra[3] = 1.0f;
+				}
 				if (!(texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED))) {
 					push.mask[3] += 16.0f; // No alpha channel: the alpha is 1.
 				}
@@ -3283,6 +3287,9 @@ namespace bb::gfx {
 			for (int stage = 1; stage < stage_count; stage++) {
 				int            extra_handle = stages[stage];
 				texture_entry* extra        = texture_of(extra_handle);
+				if (extra->blend == 6 || extra->blend == 7) {
+					continue; // A normal map only works as the first texture: it is no color to blend over the others.
+				}
 				layer_data     data         = {};
 				texture_uv(extra, extra_handle, data.uv);
 				data.extra[0] = (extra->flags & 0x10000) ? 1.0f : 0.0f;
