@@ -4841,6 +4841,50 @@ void bb_reset_camera_view_matrix(int32_t camera)
 	need_camera(camera, "ResetCameraViewMatrix")->cam_custom_view = false;
 }
 
+static int clip_plane_index(int32_t index, const char* what)
+{
+	if ((index < 0) || (index > 5)) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the clip plane has to be 0 to 5, not %d.", what, int(index));
+		bb_runtime_error(message);
+	}
+	return int(index);
+}
+
+// SetCameraClipPlane camera, index, a, b, c, d: one of the 6 clip planes of a camera, in the world. What has a*x + b*y + c*z + d below 0 is
+// cut away. SetCameraClipPlaneEnabled turns it on. A BlitzLLVM extension.
+void bb_set_camera_clip_plane(int32_t camera, int32_t index, float a, float b, float c, float d)
+{
+	bb::entity* cam   = need_camera(camera, "SetCameraClipPlane");
+	float*      plane = cam->cam_clip_planes[clip_plane_index(index, "SetCameraClipPlane")];
+	plane[0]          = a;
+	plane[1]          = b;
+	plane[2]          = c;
+	plane[3]          = d;
+}
+
+// GetCameraClipPlane(camera, index): the plane as a FloatVector4 of a, b, c and d.
+void bb_get_camera_clip_plane(float* out, int32_t camera, int32_t index)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraClipPlane");
+	memcpy(out, cam->cam_clip_planes[clip_plane_index(index, "GetCameraClipPlane")], sizeof(float) * 4);
+}
+
+// SetCameraClipPlaneEnabled camera, index, enabled: turns a clip plane on or off.
+void bb_set_camera_clip_plane_enabled(int32_t camera, int32_t index, int32_t enabled)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraClipPlaneEnabled");
+	int         bit = 1 << clip_plane_index(index, "SetCameraClipPlaneEnabled");
+	cam->cam_clip_enabled = enabled ? (cam->cam_clip_enabled | bit) : (cam->cam_clip_enabled & ~bit);
+}
+
+// GetCameraClipPlaneEnabled(camera, index): 1 if the clip plane is on.
+int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraClipPlaneEnabled");
+	return (cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
+}
+
 // RenderWorld: draws everything the cameras see into the current buffer.
 void bb_render_world(float tween)
 {

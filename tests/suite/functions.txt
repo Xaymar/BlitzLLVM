@@ -89,6 +89,10 @@ resetcameraprojectionmatrix	blitz3d	done	ResetCameraProjectionMatrix%camera
 setcameraviewmatrix	blitz3d	done	SetCameraViewMatrix%camera|matrix
 getcameraviewmatrix	blitz3d	done	|GetCameraViewMatrix%camera
 resetcameraviewmatrix	blitz3d	done	ResetCameraViewMatrix%camera
+setcameraclipplane	blitz3d	done	SetCameraClipPlane%camera%index#a#b#c#d
+getcameraclipplane	blitz3d	done	@GetCameraClipPlane%camera%index
+setcameraclipplaneenabled	blitz3d	done	SetCameraClipPlaneEnabled%camera%index%enabled
+getcameraclipplaneenabled	blitz3d	done	%GetCameraClipPlaneEnabled%camera%index
 cameraprojmode	blitz3d	done	CameraProjMode%camera%mode
 camerarange	blitz3d	done	CameraRange%camera#near#far
 cameraviewport	blitz3d	done	CameraViewport%camera%x%y%width%height
