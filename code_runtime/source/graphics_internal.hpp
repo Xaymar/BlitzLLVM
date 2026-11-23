@@ -412,6 +412,9 @@ namespace bb::gfx {
 	// Counts changes to images, so that collision data that was made from them is made again.
 	extern uint32_t image_generation;
 
+	// Counts the calls of Flip, so that what is done once a frame (the movies and sounds that RenderCamera brings up to date) knows when a new frame started.
+	extern uint32_t flip_serial;
+
 
 	// Buffers are numbers. 1 and 2 are the front and back buffer, the others say which image (or texture) and frame.
 	constexpr int image_buffer_base   = 0x10000000;
