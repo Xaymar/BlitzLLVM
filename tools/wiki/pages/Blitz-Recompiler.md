@@ -13,6 +13,25 @@ blitz-recompiler -S game.exe                      # only write the LLVM IR
 blitz-recompiler --userlibs-dir userlibs game.exe # where the .decls files of its user libraries are
 ```
 
+## Options
+
+| Option | What it does |
+| --- | --- |
+| `-o <file>` | The executable to create. Without it, the name of the input with `-recompiled` added. |
+| `-S`, `--emit-llvm` | Only write the LLVM IR (`.ll`) and don't build an executable. |
+| `--info`, `--commands` | Describe the program (its functions, globals and what it needs from the runtime) and stop; `--commands` also lists every command it calls. |
+| `--blitzcc <path>` | The `blitzcc` that builds the IR. Without it, the one next to `blitz-recompiler`. |
+| `--userlibs-dir <dir>` | Where the `.decls` files and libraries of its user libraries are, see below. |
+| `--strict` | Fail when a part of the program can't be translated. Without it, that function raises a runtime error when the program calls it. |
+| `-v`, `-q` | Print every step, or only errors. |
+| `-- <options>` | Everything after a lone `--` goes to `blitzcc` as it is (`-O3`, `--target`, ...). |
+
+## What it handles
+
+The compiler of the original always wrote the same kind of x86 code, and `blitz-recompiler` only translates that: if the code of a function contains something else, that function can't be translated (see `--strict`). Strings, instances of your own `Type`s, arrays and `Data` live in a 32 bit address space inside the program, as in the original; everything the runtime hands out (images, entities, sounds, ...) is a number, as in BlitzLLVM. The commands are called with the arguments that the executable passes, so a program only works if BlitzLLVM has all commands that it uses (`--info` tells).
+
+Behaviour of the original that BlitzLLVM changes (such as DirectPlay for multiplayer) is changed in recompiled programs too. A recompiled program is a new program: it does not contain the runtime of the original, and it needs the files next to the executable that it needed before.
+
 ## User libraries
 
 A program of the original calls the functions of its user libraries (`Decls` files in the `userlibs` directory of the original) through addresses that the original runtime filled in. The executable says which function of which DLL a call is (`_AddInts@8` in `ulib.dll`), but not what the function takes and returns: that was only in the `.decls` file when the program was made. So `blitz-recompiler` reads the [[Userlib-Declarations]] files of the `userlibs` directory (`--userlibs-dir`, `$BLITZLLVM_USERLIBS`, or the directory of the installation) and looks for a declaration of the same library and function for every call. If there is none, `blitz-recompiler` stops with an error that names the library function and the directory that it searched, and writes nothing.
