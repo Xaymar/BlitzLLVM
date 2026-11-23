@@ -31,26 +31,30 @@ outputs, constants). A prelude per target (`bb_vulkan.h`, `bb_opengl.h`, `bb_d3d
 
 - **Vulkan** prepends the Vulkan prelude and compiles with glslang, linked statically into the runtime, to SPIR-V.
 - **OpenGL** prepends the OpenGL prelude and hands the text to the driver, which it already does with the SPIRV-Cross output today.
-- **Direct3D 11** gets HLSL from the same source and prelude. How it is compiled is the open decision below.
+- **Direct3D 11** prepends the D3D11 prelude and compiles the HLSL at runtime with `D3DCompile` from the `d3dcompiler_47.dll` that
+  Windows itself ships in System32.
 
-`generate_shaders.py`, `translate_shaders.py`, `shaders.inc`, `shaders_opengl.inc` and the generated `d3d11/` folder all go away at the end
-of the migration.
+`generate_shaders.py`, `translate_shaders.py`, `shaders.inc`, `shaders_opengl.inc`, the generated `d3d11/` folder and the fxc build step
+all go away at the end of the migration.
 
-## Open decision: how Direct3D 11 gets its shaders
+## Direct3D 11: runtime `D3DCompile` from System32 (decided 23 Nov 2026)
 
-A standing decision says HLSL is compiled offline (fxc in Windows CI) and `d3dcompiler_47.dll` is never shipped. Handing HLSL source to
-Direct3D 11 at runtime would need `D3DCompile`, which lives in that DLL. The options:
+This replaces the earlier decision that HLSL is compiled offline with fxc. The rule that BlitzLLVM never ships `d3dcompiler_47.dll` stays:
+the runtime uses the copy that is part of Windows 10 and 11.
 
-| Option | What happens | Keeps the standing decision |
-|---|---|---|
-| **A. Offline fxc from the same sources** (recommended) | The build runs the HLSL flavour of each shader through fxc, as today. Only the input changes: hand-written source plus the D3D11 prelude instead of SPIRV-Cross output. | Yes |
-| B. Runtime `D3DCompile` from the system DLL | Windows 10 and 11 have `d3dcompiler_47.dll` in System32, so nothing would be shipped. The runtime loads it and compiles at startup, like OpenGL. | In letter only: no DLL is shipped, but compilation moves to runtime |
-| C. A now, B later for user shaders only | Built-in shaders stay offline. If user shaders arrive, those alone go through the system `D3DCompile`. | Yes for built-ins |
-
-Why A is recommended: fxc is slow on large shaders with loops (the 3D fragment shader has eight unrolled lights and many variants), so B
-would most likely need a disk cache to keep startup fast, which A does not need at all. I have not measured fxc compile times; that needs a
-Windows machine. A also keeps the D3D11 backend exactly as it is at runtime, so the migration cannot regress it in a way only Windows
-would show. C keeps the door open for user shaders without deciding that now.
+- **Loading.** The D3D11 backend loads `d3dcompiler_47.dll` with `LoadLibraryExW(..., LOAD_LIBRARY_SEARCH_SYSTEM32)` and looks up
+  `D3DCompile`, so a stray copy next to the program is never picked up. If it is missing or the lookup fails, the backend reports itself as
+  unavailable and renderer selection falls back as it does for any backend that cannot start.
+- **Compile cost.** fxc is slow on large shaders with loops (the 3D fragment shader has eight unrolled lights and several variants). I have
+  not measured `D3DCompile` times yet; that needs a Windows machine and is the first thing step 2 does. Shaders compile on first use,
+  the 3D ones on a worker thread at `Graphics3D`, as for Vulkan.
+- **Disk cache.** Because of that cost, the D3D11 backend keeps compiled bytecode on disk, keyed by a hash of the preprocessed source, the
+  compile flags and the version of `d3dcompiler_47.dll`. It lives under `%LOCALAPPDATA%\BlitzLLVM\shader-cache\`; a bad or stale entry is
+  ignored and rebuilt, and deleting the folder is always safe. Vulkan and OpenGL can use the same cache later if their numbers ask for it.
+- **Flags.** `D3DCOMPILE_OPTIMIZATION_LEVEL3` for release builds; debug builds (`-d`) may use a lower level to start faster.
+- **Wine.** Wine and Proton provide their own `d3dcompiler_47`, so the D3D11 tests on merenka keep working, with whatever differences that
+  implementation has. Real Windows remains the reference.
+- **User shaders** work on Direct3D 11 the same way as on the other backends, with no extra machinery.
 
 ## The shared dialect
 
@@ -63,7 +67,7 @@ everything else is written in the common subset.
 |---|---|---|
 | `float2/3/4`, `int4`, `uint4`, `float4x4` | `#define float4 vec4`, ... | native |
 | `lerp`, `saturate`, `frac`, `rsqrt` | `mix`, `clamp(x,0,1)`, `fract`, `inversesqrt` | native |
-| `BB_MOD(a, b)` | `mod` | `a - b * floor(a / b)` (fxc's `fmod` truncates, GLSL's `mod` floors) |
+| `BB_MOD(a, b)` | `mod` | `a - b * floor(a / b)` (HLSL's `fmod` truncates, GLSL's `mod` floors) |
 | `BB_MUL(m, v)` | `m * v` | `mul(m, v)` with matching row/column layout |
 | `BB_SAMPLE(t, uv)`, `BB_SAMPLE_LOD`, `BB_FETCH` | `texture(t, uv)`, ... | `t.Sample(t##_sampler, uv)`, ... |
 
@@ -153,14 +157,14 @@ the migration a shader is created from a shader id plus defines, and each backen
 
 - Vulkan: embedded source, Vulkan prelude, glslang, `vkCreateShaderModule`.
 - OpenGL: embedded source, OpenGL prelude, `glShaderSource`.
-- Direct3D 11: the precompiled bytecode for that id and variant (option A or C), or `D3DCompile` (option B).
+- Direct3D 11: embedded source, D3D11 prelude, the disk cache or `D3DCompile`, `CreatePixelShader` and so on.
 
 During the migration both ways exist side by side, so shaders can move over one at a time.
 
 ## User shaders
 
 Not part of this work, but the design should not block them. With glslang in the runtime, a user shader written in the same dialect
-works on Vulkan and OpenGL with no extra machinery. Direct3D 11 needs option B or C for them. The commands, how a user shader binds to a
+works on all three backends with no extra machinery, since every backend compiles from source at runtime. The commands, how a user shader binds to a
 brush or a post-processing pass, and how errors are reported belong in their own design thread.
 
 ## Migration
@@ -168,17 +172,19 @@ brush or a post-processing pass, and how errors are reported belong in their own
 Each step is its own PR, and every step leaves all three backends working and the test suite green.
 
 1. **This document.**
-2. **glslang in the runtime.** Submodule, build, `shader_compiler.cpp`, license notice. No shader changes. Measure size on Windows and
-   arm64 here.
+2. **Runtime compilers.** glslang submodule, build, `shader_compiler.cpp`, license notice; the D3D11 loader for the system
+   `D3DCompile` and the disk cache. No shader changes. Measure glslang size on Windows and arm64 and `D3DCompile` times on a Windows
+   machine here.
 3. **Preludes and the small shaders.** `bb_vulkan.h`, `bb_opengl.h`, `bb_d3d11.h`, then the 2D vertex and fragment shaders, the
    fullscreen vertex shader, gamma, palette, the OIT composite, layer, accumulated and resolve passes, and the two compute shaders. Each
-   leaves `generate_shaders.py` as it is ported. D3D11 bytecode for them comes from fxc over the new HLSL flavour.
+   leaves `generate_shaders.py` as it is ported, and its D3D11 form switches from the fxc bytecode to runtime `D3DCompile`.
 4. **SMAA.** Move `tools/smaa/smaa.glsl` onto the preludes; `generate_smaa.py` then only produces the lookup textures.
 5. **The 3D vertex shader.**
 6. **The 3D fragment shader family.** The largest piece: lighting, fog, texture layers, OIT modes, dither and palette.
 7. **Remove the old pipeline.** `generate_shaders.py`, `translate_shaders.py`, `shaders.inc`, `shaders_opengl.inc`, the generated
    `d3d11/` files, and the SPIR-V tools in CI. CI instead compiles every shader in every flavour: glslang for Vulkan and for OpenGL 4.30,
-   fxc on Windows, and glslang's HLSL frontend on Linux as a parse check (as `translate_shaders.py` does today).
+   `D3DCompile` in the Windows test job (a small tool or test that compiles every shader through the system DLL), and glslang's HLSL
+   frontend on Linux as a parse check (as `translate_shaders.py` does today). The fxc step and `BLITZLLVM_REQUIRE_FXC` are removed.
 
 Steps 5 and 6 touch the same shaders as the normal maps PR (#479). They wait until #479 is merged, so that work is not disturbed; steps 2
 to 4 do not touch those shaders and can go ahead before.
@@ -198,3 +204,5 @@ a goal, since glslang and the hand-built generator emit different but equivalent
   pixel by one step. Tests with exact pixel values may need a tolerance of one, decided per test.
 - **Startup on slow machines.** The numbers above are from a cloud container. They should be measured again on Shibela's iGPU path and
   on an arm64 build before step 6.
+- **`D3DCompile` time on the 3D shaders.** Unknown until measured on Windows. If the first start is slow even with the disk cache only
+  helping on later starts, options are compiling the 3D variants on worker threads in parallel and lowering the optimisation level.
