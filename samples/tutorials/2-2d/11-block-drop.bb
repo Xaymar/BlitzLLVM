@@ -19,8 +19,6 @@
 ;
 ; Controls: Left / Right move, Up or X turns clockwise, Z turns the other way, Down drops faster, Space drops at once,
 ; C holds a piece for later. Escape or P pauses.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Const SCREEN_W = 800, SCREEN_H = 600
 Const COLUMNS = 10, ROWS = 22

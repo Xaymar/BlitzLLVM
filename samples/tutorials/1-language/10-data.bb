@@ -6,8 +6,6 @@
 ; Data lines store fixed values right inside the program, such as level layouts, enemy waves or the notes of a
 ; tune. Read takes the next value, and Restore says where reading starts. This is a simple way to ship a game
 ; without any extra files.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

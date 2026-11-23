@@ -19,8 +19,6 @@
 ;
 ; Controls: left click uncovers a square, right click puts a flag on it (or a question mark, if that option is on).
 ; Left click on a number whose mines are all flagged uncovers the squares around it. Escape goes back to the menu.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 ; --- Constants and settings ---------------------------------------------------------------------------------------
 

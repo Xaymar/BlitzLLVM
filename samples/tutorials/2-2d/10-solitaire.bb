@@ -20,8 +20,6 @@
 ;
 ; Controls: drag cards with the left mouse button. Double click a card to send it to its suit pile. U undoes the last
 ; move, Escape goes back to the menu.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Const SCREEN_W = 800, SCREEN_H = 600
 Const CARD_W = 72, CARD_H = 100

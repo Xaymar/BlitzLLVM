@@ -16,8 +16,6 @@
 ; dot always drop a capsule. Capsules: W = wider paddle, M = more balls, S = slower balls, + = an extra life.
 ;
 ; The options and the best score are saved in shatterwall.cfg next to the program.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Const SCREEN_W = 800, SCREEN_H = 600
 Const FIELD_LEFT = 36, FIELD_RIGHT = 764, FIELD_TOP = 60 ; 14 bricks of 52 pixels fill the field exactly.

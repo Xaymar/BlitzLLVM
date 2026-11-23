@@ -5,8 +5,6 @@
 ;
 ; Every game opens a graphics mode and then runs a main loop: once per frame it reads the input, updates the game
 ; and draws a new picture. This tutorial shows that loop with a square that slides across the window.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 ; Graphics width, height, depth, mode
 ;   depth 0 picks the best colour depth by itself.

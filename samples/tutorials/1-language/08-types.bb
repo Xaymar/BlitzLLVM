@@ -6,8 +6,6 @@
 ; A Type groups several values that belong together into one thing, like the position, speed and health of an
 ; enemy. Every "New" makes another object of that Type, and Blitz keeps all objects of a Type in a list, so you
 ; can make and remove as many as the game needs.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

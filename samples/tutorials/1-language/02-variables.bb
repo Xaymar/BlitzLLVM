@@ -11,8 +11,6 @@
 ;   name$                a string, a piece of text such as "Alex"
 ;
 ; You only need the suffix the first time you use a variable. After that Blitz remembers its kind.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 ; Print opens a small window by itself, but this program prints more than fits into it. Graphics opens a
 ; bigger one first: 800 by 600 pixels, colour depth 0 (the best there is) and mode 2 (a window).

@@ -16,8 +16,6 @@
 ; camera you can fly around.
 ;
 ; Controls: arrow keys turn and move the camera, A and Z move it up and down.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.02: Moving, Turning and Parents"

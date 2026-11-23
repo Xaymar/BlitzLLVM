@@ -16,8 +16,6 @@
 ; an enemy costs shield, and a ship without shield is lost. Survive the waves to meet the guardian at the end.
 ;
 ; The options and the best scores are saved in ion-tide.cfg next to the program.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Const SCREEN_W = 800, SCREEN_H = 600
 Const SCROLL_SPEED# = 2.0

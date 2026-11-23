@@ -14,8 +14,6 @@
 ; which is what lets a player walk along a wall instead of sticking to it.
 ;
 ; Controls: arrow keys roll the ball, Space jumps. Collect all the gems.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.06: Collisions"
