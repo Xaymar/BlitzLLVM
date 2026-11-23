@@ -315,7 +315,7 @@ blitz::compiler::value blitz::compiler::gen_aggregate_binary(ast::binary const* 
 	}
 
 	// Matrix times matrix, and matrix times vector (the vector is a column), as in GLSL.
-	if ((node->kind == op::MULTIPLY) && left && right && (lhs.shape.size() == 2)) {
+	if ((node->kind == op::MULTIPLY) && left && right && ((lhs.shape.size() == 2) || (rhs.shape.size() == 2))) {
 		return matrix_multiply(node, lhs, rhs);
 	}
 
@@ -357,13 +357,15 @@ blitz::types::type blitz::compiler::vector_type(type a, type b, ast::location co
 // `a * b` with a of K columns and M rows, and b of N columns and K rows (or a vector of K numbers): N columns and M rows.
 blitz::compiler::value blitz::compiler::matrix_multiply(ast::binary const* node, value const& a, value const& b)
 {
-	uint32_t K = a.shape[0], M = a.shape[1];
+	// A vector on the left is a row: K numbers times K rows give a vector of N numbers (v * M).
+	bool     row = (a.shape.size() == 1);
+	uint32_t K = a.shape[0], M = row ? 1 : a.shape[1];
 	uint32_t N = (b.shape.size() == 2) ? b.shape[0] : 1;
 	uint32_t Kb = (b.shape.size() == 2) ? b.shape[1] : b.shape[0];
 	if (K != Kb) {
 		throw err(node->where, "Can't multiply " + shape_name(a.type, a.shape) + " by " + shape_name(b.type, b.shape) + ": the first has " + std::to_string(K) + " columns, the second " + std::to_string(Kb) + " rows.");
 	}
-	shape_t shape = (b.shape.size() == 2) ? shape_t{ N, M } : shape_t{ M };
+	shape_t shape = row ? shape_t{ N } : (b.shape.size() == 2) ? shape_t{ N, M } : shape_t{ M };
 	auto    t     = vector_type(a.type, b.type, node->where);
 
 	ast::binary multiply, add;

@@ -215,4 +215,10 @@ Local mi:Int8Matrix2x2 = Int8Matrix2x2(100, 0, 0, 100)
 Local mp:Int8Matrix2x2 = mi * mi
 Check "Int8 matrix product stays Int8", mp[0][0], 16
 
+; A vector times a matrix is a row times the matrix.
+Local rowm:FloatMatrix2x3 = FloatMatrix2x3(1, 2, 3, 4, 5, 6)
+Local rowv:FloatVector2 = FloatVector3(1, 1, 2) * rowm
+Check "vector times matrix x", rowv\x, 9
+Check "vector times matrix y", rowv\y, 21
+
 Done "language_vectors"
