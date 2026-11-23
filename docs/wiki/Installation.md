@@ -19,6 +19,7 @@ For the zip:
    ```
    bin/blitzcc          the compiler (blitzcc.exe on Windows)
    bin/blitz-format     formats source code, see [[blitz-format]]
+   bin/blitz-recompiler turns executables of the original Blitz compilers into BlitzLLVM programs, see [[Blitz-Recompiler]]
    lib/blitzllvm/runtime/  the runtime sources (inline/) and the libraries per architecture (x86_64/, arm64/; macOS has them directly), keep lib next to bin
    userlibs/            user libraries
    help/                the HTML help in the layout of the Blitz3D help: open help/index.html (the Flatpak has it in /app/share/doc/blitzllvm/help)

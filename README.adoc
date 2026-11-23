@@ -37,6 +37,7 @@ Beyond the originals:
 * Image decoders for PNG, JPEG, BMP, TGA, WebP, AVIF and JPEG XL.
 * Multiplayer over TCP instead of DirectPlay (games can only play with other BlitzLLVM games).
 * Warnings for code that is legal but probably not what was meant (`-W1` to `-W4`), and `blitz-tidy`, which fixes them in your source files (`blitz-tidy program.bb`, see https://github.com/Xaymar/BlitzLLVM/wiki/Blitz-Tidy[Blitz-Tidy]).
+* `blitz-recompiler` turns an executable made by the original Blitz3D or BlitzPlus into a BlitzLLVM program, for programs that you made or may modify. See https://github.com/Xaymar/BlitzLLVM/wiki/Blitz-Recompiler[Blitz-Recompiler].
 
 == Installation
 

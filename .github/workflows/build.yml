@@ -456,7 +456,7 @@ jobs:
           $machinePath = { [Environment]::GetEnvironmentVariable('Path', 'User') }
           $p = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir", '/TASKS=addtopath', "/LOG=$log" -Wait -PassThru
           if ($p.ExitCode -ne 0) { Get-Content $log; throw "Setup failed ($($p.ExitCode))" }
-          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64-w64-mingw32', 'lib\blitzllvm\mingw\aarch64-w64-mingw32', 'LICENSE.adoc', 'unins000.exe') {
+          foreach ($f in 'bin\blitzcc.exe', 'bin\blitz-format.exe', 'bin\blitz-tidy.exe', 'bin\blitz-recompiler.exe', 'lib\blitzllvm\runtime\x86_64', 'lib\blitzllvm\runtime\arm64', 'lib\blitzllvm\mingw\x86_64-w64-mingw32', 'lib\blitzllvm\mingw\aarch64-w64-mingw32', 'LICENSE.adoc', 'unins000.exe') {
             if (-not (Test-Path (Join-Path $dir $f))) { throw "Not installed: $f" }
           }
           foreach ($f in 'bin\x86_64', 'bin\arm64') { if (Test-Path (Join-Path $dir $f)) { throw "$f must not be installed, bin has the tools of this computer" } }
