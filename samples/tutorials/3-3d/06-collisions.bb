@@ -59,7 +59,7 @@ Next
 ; A ramp: a flat box, tilted. The ball rolls up it because response 2 slides along slopes too.
 Local ramp = CreateCube()
 ScaleEntity ramp, 1.5, 0.2, 4
-RotateEntity ramp, -20.0, 0, 0
+RotateEntity ramp, -20, 0, 0
 PositionEntity ramp, 0, 0.8, 4
 EntityColor ramp, 200, 200, 90
 EntityType ramp, TYPE_WORLD
@@ -87,7 +87,7 @@ PositionEntity g\entity, 0, 2.5, 7
 ; --- The player ---------------------------------------------------------------------------------------------------
 Local player = CreateSphere(12)
 ScaleEntity player, 0.5, 0.5, 0.5
-PositionEntity player, 0, 1, -8.0
+PositionEntity player, 0, 1, -8
 EntityColor player, 255, 90, 90
 EntityType player, TYPE_PLAYER
 EntityRadius player, 0.5 ; The radius is in world units, so it matches the scaled sphere.
@@ -136,8 +136,8 @@ While Not KeyHit(1)
 	EndIf
 
 	; Fell off the level? Start again.
-	If EntityY(player) < -10.0
-		PositionEntity player, 0, 1, -8.0
+	If EntityY(player) < -10
+		PositionEntity player, 0, 1, -8
 		ResetEntity player ; Forgets the old position, so UpdateWorld does not "collide" all the way back.
 		fallSpeed = 0
 	EndIf

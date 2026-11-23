@@ -20,7 +20,7 @@ AppTitle "Tutorial 3.07: Picking"
 SetBuffer BackBuffer()
 
 Local camera = CreateCamera()
-PositionEntity camera, 0, 9, -14.0
+PositionEntity camera, 0, 9, -14
 RotateEntity camera, 35, 0, 0
 CameraClsColor camera, 40, 45, 60
 

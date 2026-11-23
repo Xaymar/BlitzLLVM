@@ -16,12 +16,12 @@ AppTitle "Tutorial 3.03: Building Meshes from Code"
 SetBuffer BackBuffer()
 
 Local camera = CreateCamera()
-PositionEntity camera, 0, 20, -42.0
+PositionEntity camera, 0, 20, -42
 RotateEntity camera, 25, 0, 0
 CameraClsColor camera, 140, 190, 255
 
 Local light = CreateLight()
-RotateEntity light, 50, -40.0, 0
+RotateEntity light, 50, -40, 0
 AmbientLight 70, 70, 90
 
 ; --- A pyramid, one vertex and one triangle at a time ------------------------------------------------------------
@@ -96,7 +96,7 @@ Local wireOn = False
 
 While Not KeyHit(1)
 	TurnEntity land, 0, 0.2, 0
-	TurnEntity pyramid, 0, -1.0, 0
+	TurnEntity pyramid, 0, -1, 0
 
 	; W toggles wireframe mode, which shows the triangles.
 	If KeyHit(17) Then wireOn = Not wireOn : WireFrame wireOn
