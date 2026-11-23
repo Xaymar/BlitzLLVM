@@ -83,6 +83,9 @@ namespace blitz::compiler_detail {
 		case 'X':
 			return type::FLOAT16;
 		case 'f':
+		case 'V':
+		case 'N':
+		case 'M':
 			return type::FLOAT32;
 		case 'd':
 			return type::FLOAT64;
@@ -90,6 +93,22 @@ namespace blitz::compiler_detail {
 			return type::STRING;
 		default:
 			return type::UNKNOWN;
+		}
+	}
+
+	// The vectors and matrices that builtins take and give: V is a FloatVector4, N a FloatMatrix4x3 and M a FloatMatrix4x4. They go to the
+	// runtime as the address of their numbers, and a result is written to memory whose address is the first argument.
+	inline std::vector<uint32_t> builtin_shape(char c)
+	{
+		switch (c) {
+		case 'V':
+			return { 4 };
+		case 'N':
+			return { 4, 3 };
+		case 'M':
+			return { 4, 4 };
+		default:
+			return {};
 		}
 	}
 
