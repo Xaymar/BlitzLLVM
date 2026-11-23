@@ -15,8 +15,8 @@ NUMBER="${1:?pull request number}"
 FILES="$(gh api --paginate "repos/${GH_REPO}/pulls/${NUMBER}/files" --jq '.[] | .filename, (.previous_filename // empty)')" || { echo true; exit 0; }
 [ -n "$FILES" ] || { echo true; exit 0; }
 
-# Only what changes the binaries or the packages (the Flatpaks and the macOS package are made from packaging/, the icon of the Windows files from media/windows/). Documentation, the wiki, the tests and the tools do not.
-if printf '%s\n' "$FILES" | grep -q -E '^(code_compiler/|code_runtime/|cmake/|third_party/|CMakeLists\.txt$|CMakePresets\.json$|\.gitmodules$|LICENSE\.adoc$|packaging/|media/windows/|media/icon-128\.png$|\.github/scripts/check-licenses\.sh$|\.github/workflows/(test|build)\.yml$)'; then
+# Only what changes the binaries or the packages (the Flatpaks and the macOS package are made from packaging/, the icon of the Windows files from media/windows/). Documentation, the wiki, the tests, the tools and the game in third_party/Stranded2 (used by the benchmarks and the tests) do not.
+if printf '%s\n' "$FILES" | grep -v -E '^third_party/Stranded2/' | grep -q -E '^(code_compiler/|code_runtime/|cmake/|third_party/|CMakeLists\.txt$|CMakePresets\.json$|\.gitmodules$|LICENSE\.adoc$|packaging/|media/windows/|media/icon-128\.png$|\.github/scripts/check-licenses\.sh$|\.github/workflows/(test|build)\.yml$)'; then
   echo true
 else
   echo false

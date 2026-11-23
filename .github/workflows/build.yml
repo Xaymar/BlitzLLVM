@@ -64,8 +64,9 @@ jobs:
       - name: Hash the dependency submodules
         id: dependencies
         shell: bash
-        # The recorded commits of third_party/, so that updating a submodule changes the cache key.
-        run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+        # The recorded commits of the submodules in third_party/, so that updating a submodule changes the cache key. Stranded II
+        # (third_party/Stranded2) is not a dependency, so a change to it keeps the cache.
+        run: echo "hash=$(git ls-tree HEAD third_party/ | grep -v $'\tthird_party/Stranded2$' | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Pin Python (Windows)
         if: runner.os == 'Windows' && runner.arch == 'X64'
         # CMake records the path of the Python it was configured with, and the tests run on this runner right after the build, so the
