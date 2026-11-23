@@ -587,6 +587,12 @@
 		{ "cameracullingsource", "bb_camera_culling_source", 'v', "ii", 1, { 0, 0 }, false },
 		{ "setcamerabuffer", "bb_set_camera_buffer", 'v', "ii", 2, {}, false },
 		{ "getcamerabuffer", "bb_get_camera_buffer", 'i', "i", 1, {}, false },
+		{ "setcameraprojectionmatrix", "bb_set_camera_projection_matrix", 'v', "iM", 2, {}, false },
+		{ "getcameraprojectionmatrix", "bb_get_camera_projection_matrix", 'M', "i", 1, {}, false },
+		{ "resetcameraprojectionmatrix", "bb_reset_camera_projection_matrix", 'v', "i", 1, {}, false },
+		{ "setcameraviewmatrix", "bb_set_camera_view_matrix", 'v', "iN", 2, {}, false },
+		{ "getcameraviewmatrix", "bb_get_camera_view_matrix", 'N', "i", 1, {}, false },
+		{ "resetcameraviewmatrix", "bb_reset_camera_view_matrix", 'v', "i", 1, {}, false },
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },

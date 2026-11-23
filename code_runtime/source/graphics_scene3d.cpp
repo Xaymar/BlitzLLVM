@@ -2359,7 +2359,8 @@ namespace bb::gfx {
 	{
 		grid.enabled = false;
 		static const bool allowed = bb_env_bool("BLITZLLVM_LIGHT_GRID", true);
-		if (!allowed || current_light_count <= draw_lights || cam.cam_projection != 1 || cam.cam_near <= 0 || cam.cam_far <= cam.cam_near * 1.5f) {
+		// The grid follows a view that is the same on both sides, which a matrix of the program does not have to be.
+		if (!allowed || current_light_count <= draw_lights || cam.cam_projection != 1 || cam.cam_custom_projection || cam.cam_near <= 0 || cam.cam_far <= cam.cam_near * 1.5f) {
 			return;
 		}
 		grid.enabled    = true;
@@ -3858,6 +3859,18 @@ namespace bb::gfx {
 	// instead of using most of it close to the camera.
 	static void projection(float* p, bb::entity const& cam, float width, float height)
 	{
+		if (cam.cam_custom_projection) {
+			// The matrix of the program has Y up and the depth from 0 at the near plane to 1 at the far plane. The renderer's Y points
+			// down and its depth is reversed: the second row is negated and the third becomes the fourth minus the third.
+			const float* m = cam.cam_projection_matrix;
+			for (int c = 0; c < 4; c++) {
+				p[c * 4 + 0] = m[c * 4 + 0];
+				p[c * 4 + 1] = -m[c * 4 + 1];
+				p[c * 4 + 2] = m[c * 4 + 3] - m[c * 4 + 2];
+				p[c * 4 + 3] = m[c * 4 + 3];
+			}
+			return;
+		}
 		float sx = cam.cam_zoom, sy = cam.cam_zoom * (width / height);
 		float n = cam.cam_near, f = cam.cam_far;
 		memset(p, 0, sizeof(float) * 16);
@@ -3879,6 +3892,62 @@ namespace bb::gfx {
 		p[14] = f * n / (f - n);
 	}
 
+	// What the renderer needs to know about the projection of a camera besides its matrix: the near and far plane, the zoom and whether it
+	// is orthographic. For a matrix that SetCameraProjectionMatrix gave, they are read from the matrix: exact for a usual perspective or
+	// orthographic matrix, close for others. 'zoom' is then the smallest that sees all of what the matrix sees (a matrix for a tile of the
+	// picture sees off to one side), and 'pixels' the scale of the first column, which says how big sprites are.
+	struct camera_lens {
+		float near_plane, far_plane, zoom, pixels;
+		bool  ortho, custom;
+	};
+
+	static camera_lens lens_of(bb::entity const& cam, float width, float height)
+	{
+		camera_lens lens = { cam.cam_near, cam.cam_far, cam.cam_zoom, cam.cam_zoom, cam.cam_projection == 2, false };
+		if (lens.ortho) {
+			lens.pixels = cam.cam_zoom / cam.cam_near;
+		}
+		if (!cam.cam_custom_projection) {
+			return lens;
+		}
+		const float* m = cam.cam_projection_matrix;
+		lens.custom    = true;
+		lens.ortho     = (fabsf(m[3]) < 1e-7f) && (fabsf(m[7]) < 1e-7f) && (fabsf(m[11]) < 1e-7f);
+		double w       = lens.ortho ? 1.0 : double(m[11]); // How much of z the fourth row takes.
+		double a = double(m[10]) / w, b = double(m[14]) / w;
+		double n = (a != 0) ? -b / a : 0, f = 0;
+		if (lens.ortho) {
+			f = (a != 0) ? (1 - b) / a : 0;
+		} else {
+			f = (a != 1) ? b / (1 - a) : 0;
+		}
+		if (std::isfinite(n) && std::isfinite(f) && (n > 0) && (f > n)) {
+			lens.near_plane = float(n);
+			lens.far_plane  = float(f);
+		}
+		// Where the edges of the view are at a distance of 1 (perspective), or at all (orthographic): x from (-1 - m8) / m0 to (1 - m8) / m0.
+		double sx = double(m[0]) / w, sy = double(m[5]) / w, ox = double(lens.ortho ? m[12] : m[8]) / w, oy = double(lens.ortho ? m[13] : m[9]) / w;
+		lens.pixels = float(sx);
+		if ((sx != 0) && (sy != 0)) {
+			double half_x = (1 + fabs(ox)) / fabs(sx), half_y = (1 + fabs(oy)) / fabs(sy);
+			double zoom   = std::min(1 / half_x, (1 / half_y) * (double(height) / double(width)));
+			lens.zoom     = float(lens.ortho ? zoom * lens.near_plane : zoom);
+		}
+		return lens;
+	}
+
+	// Where the camera is in the world and the view from there: its entity, or the matrix of SetCameraViewMatrix.
+	static void camera_view(int handle, bb::entity const& cam, float* world, float* view)
+	{
+		if (cam.cam_custom_view) {
+			memcpy(view, cam.cam_view_matrix, sizeof(float) * 16);
+			bb::mat_affine_inverse(view, world);
+			return;
+		}
+		bb::world_matrix(handle, world);
+		bb::mat_affine_inverse(world, view);
+	}
+
 	// The part of a buffer of the given size that the camera draws to. Returns false if there is none.
 	static bool camera_viewport(bb::entity const& cam, int buffer_w, int buffer_h, int& vx, int& vy, int& vw, int& vh)
 	{
@@ -3890,7 +3959,7 @@ namespace bb::gfx {
 		if (vy < 0) { vh += vy; vy = 0; }
 		if (vx + vw > buffer_w) { vw = buffer_w - vx; }
 		if (vy + vh > buffer_h) { vh = buffer_h - vy; }
-		return (vw > 0) && (vh > 0) && (cam.cam_projection != 0);
+		return (vw > 0) && (vh > 0) && ((cam.cam_projection != 0) || cam.cam_custom_projection);
 	}
 
 	// Mirrors are pivots of the class Mirror, and show the world as it would be seen from the other side of their ground.
@@ -3943,8 +4012,7 @@ namespace bb::gfx {
 			vh = target_h;
 		}
 		float world[16], view[16], proj[16], vp[16];
-		bb::world_matrix(handle, world);
-		bb::mat_affine_inverse(world, view);
+		camera_view(handle, cam, world, view);
 		view[12] = view[13] = view[14] = 0;
 		projection(proj, cam, float(vw), float(vh));
 		bb::mat_multiply(vp, proj, view);
@@ -4004,14 +4072,16 @@ namespace bb::gfx {
 		float proj[16];
 		memcpy(current_camera, cam_world, sizeof(float) * 16);
 		current_reflected = reflected;
-		current_view[0] = cam.cam_zoom;
-		current_view[1] = cam.cam_far;
+		camera_lens lens = lens_of(cam, float(vw), float(vh));
+		current_view[0] = lens.zoom;
+		current_view[1] = lens.far_plane;
 		current_view[2] = float(vh) / float(vw);
 		projection(proj, cam, float(vw), float(vh));
-		current_near     = cam.cam_near;
-		current_clip_ok  = (cam.cam_projection != 2) && (cam.cam_zoom > 0) && (cam.cam_near > 0) && bb_env_bool("BLITZLLVM_TRIANGLE_CLIP", true);
-		current_pixels[0] = (cam.cam_projection == 2 ? cam.cam_zoom / cam.cam_near : cam.cam_zoom) * float(vw) * 0.5f;
-		current_pixels[1] = cam.cam_projection == 2 ? 1.0f : 0.0f;
+		current_near     = lens.near_plane;
+		// Giant triangles are cut to a view that is the same on both sides, which a matrix of the program does not have to be.
+		current_clip_ok  = !lens.custom && !lens.ortho && (lens.zoom > 0) && (lens.near_plane > 0) && bb_env_bool("BLITZLLVM_TRIANGLE_CLIP", true);
+		current_pixels[0] = lens.pixels * float(vw) * 0.5f;
+		current_pixels[1] = lens.ortho ? 1.0f : 0.0f;
 
 		// Positions are relative to the camera on the GPU, so that the cancellation of a position and the camera
 		// does not happen per vertex with 32-bit floats: the view has no translation, the entities and the lights
@@ -4027,12 +4097,10 @@ namespace bb::gfx {
 				bb::mat_multiply(aa_vp, proj, view_rotation);
 				memcpy(aa_origin, current_origin, sizeof(aa_origin));
 			}
-			if (cam.cam_projection == 2) {
-				proj[12] += aa_plan.jitter[0];
-				proj[13] += aa_plan.jitter[1];
-			} else {
-				proj[8] += aa_plan.jitter[0];
-				proj[9] += aa_plan.jitter[1];
+			// Moves the picture in clip space: what the fourth row gives (z for a perspective, 1 for an orthographic matrix) times the jitter.
+			for (int c = 0; c < 4; c++) {
+				proj[c * 4 + 0] += aa_plan.jitter[0] * proj[c * 4 + 3];
+				proj[c * 4 + 1] += aa_plan.jitter[1] * proj[c * 4 + 3];
 			}
 		}
 		bb::mat_multiply(data.viewprojection, proj, view_rotation);
@@ -4046,9 +4114,9 @@ namespace bb::gfx {
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = (cam.fog_mode == 2) ? 1.0f : 0.0f;
-		data.projection[0] = cam.cam_near;
-		data.projection[1] = cam.cam_far;
-		data.projection[2] = (cam.cam_projection == 2) ? 1.0f : 0.0f;
+		data.projection[0] = lens.near_plane;
+		data.projection[1] = lens.far_plane;
+		data.projection[2] = lens.ortho ? 1.0f : 0.0f;
 		data.projection[3] = dither_code();
 		memset(data.dither, 0, sizeof(data.dither));
 		dither_steps(data.dither);
@@ -4242,8 +4310,7 @@ namespace bb::gfx {
 		}
 
 		float world[16], view[16];
-		bb::world_matrix(handle, world);
-		bb::mat_affine_inverse(world, view);
+		camera_view(handle, cam, world, view);
 		culling_choice culling = choose_culling(handle, cam, target.w, target.h);
 		aa_plan = antialias_begin(handle, int(g.target), target, vx, vy, vw, vh);
 
@@ -4288,8 +4355,7 @@ namespace bb::gfx {
 			return false;
 		}
 		float world[16], view[16], proj[16], vp[16];
-		bb::world_matrix(cam_handle, world);
-		bb::mat_affine_inverse(world, view);
+		camera_view(cam_handle, cam, world, view);
 		projection(proj, cam, float(vw), float(vh));
 		bb::mat_multiply(vp, proj, view);
 
@@ -4316,6 +4382,56 @@ namespace bb::gfx {
 			bb_runtime_error(message);
 		}
 		return e;
+	}
+
+	// The inverse of a 4x4 matrix (column-major), by Gauss-Jordan elimination in double. False if it has none.
+	static bool invert_matrix(const float* m, double* out)
+	{
+		double a[4][8];
+		for (int r = 0; r < 4; r++) {
+			for (int c = 0; c < 4; c++) {
+				a[r][c]     = m[c * 4 + r];
+				a[r][c + 4] = (r == c) ? 1 : 0;
+			}
+		}
+		for (int c = 0; c < 4; c++) {
+			int pivot = c;
+			for (int r = c + 1; r < 4; r++) {
+				pivot = (fabs(a[r][c]) > fabs(a[pivot][c])) ? r : pivot;
+			}
+			if (fabs(a[pivot][c]) < 1e-12) {
+				return false;
+			}
+			for (int k = 0; k < 8; k++) {
+				std::swap(a[c][k], a[pivot][k]);
+			}
+			double scale = 1 / a[c][c];
+			for (int k = 0; k < 8; k++) {
+				a[c][k] *= scale;
+			}
+			for (int r = 0; r < 4; r++) {
+				if (r != c) {
+					double factor = a[r][c];
+					for (int k = 0; k < 8; k++) {
+						a[r][k] -= factor * a[c][k];
+					}
+				}
+			}
+		}
+		for (int r = 0; r < 4; r++) {
+			for (int c = 0; c < 4; c++) {
+				out[c * 4 + r] = a[r][c + 4];
+			}
+		}
+		return true;
+	}
+
+	// The size of what a camera draws to, for the matrices that depend on it: its own buffer, the current one, or the size of Graphics.
+	static void camera_target_size(bb::entity& cam, int& w, int& h)
+	{
+		target_ref target = resolve_target(camera_target(cam));
+		w = target.image ? target.w : int(g.width);
+		h = target.image ? target.h : int(g.height);
 	}
 
 	void camera_buffers_forget(int texture)
@@ -4400,8 +4516,7 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	}
 
 	float world[16], view[16], proj[16], vp[16];
-	bb::world_matrix(camera, world);
-	bb::mat_affine_inverse(world, view);
+	camera_view(camera, *cam, world, view);
 	projection(proj, *cam, float(vw), float(vh));
 	bb::mat_multiply(vp, proj, view);
 
@@ -4477,8 +4592,34 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 	float sx = cam->cam_zoom, sy = cam->cam_zoom * (float(vw) / float(vh));
 	float ndc_x = (x - float(vx)) / float(vw) * 2 - 1, ndc_y = (y - float(vy)) / float(vh) * 2 - 1;
 	float local[3] = { ndc_x / sx, -ndc_y / sy, 1 };
-	float m[16];
-	bb::world_matrix(camera, m);
+	float m[16], view[16];
+	camera_view(camera, *cam, m, view);
+	if (cam->cam_custom_projection) {
+		// The line goes from the near to the far plane of the matrix, through the pixel: both ends are found with its inverse.
+		double inverse[16];
+		if (!invert_matrix(cam->cam_projection_matrix, inverse)) {
+			return 0;
+		}
+		double ends[2][3];
+		for (int end = 0; end < 2; end++) {
+			double clip[4] = { ndc_x, -ndc_y, double(end), 1 }, p[4];
+			for (int r = 0; r < 4; r++) {
+				p[r] = inverse[r] * clip[0] + inverse[4 + r] * clip[1] + inverse[8 + r] * clip[2] + inverse[12 + r] * clip[3];
+			}
+			if (fabs(p[3]) < 1e-12) {
+				return 0;
+			}
+			for (int r = 0; r < 3; r++) {
+				ends[end][r] = p[r] / p[3];
+			}
+		}
+		double start[3], finish[3];
+		for (int r = 0; r < 3; r++) {
+			start[r]  = m[r] * ends[0][0] + m[4 + r] * ends[0][1] + m[8 + r] * ends[0][2] + m[12 + r];
+			finish[r] = m[r] * ends[1][0] + m[4 + r] * ends[1][1] + m[8 + r] * ends[1][2] + m[12 + r];
+		}
+		return bb_line_pick(float(start[0]), float(start[1]), float(start[2]), float(finish[0] - start[0]), float(finish[1] - start[1]), float(finish[2] - start[2]), 0);
+	}
 	// Like the original the line ends as far along the view direction as the far plane, so its time is the depth over the far plane.
 	float range = cam->cam_far;
 	float dx = (m[0] * local[0] + m[4] * local[1] + m[8] * local[2]) * range;
@@ -4610,6 +4751,82 @@ static void world_end(camera_collector& mirrors)
 	bb::rendering_world = false;
 }
 
+// SetCameraProjectionMatrix camera, matrix: the camera projects with this FloatMatrix4x4 instead of CameraRange, CameraZoom and CameraProjMode.
+// The matrix is in the usual convention: the camera looks down +Z, X is right and Y up, and the depth goes from 0 at the near plane to 1 at the
+// far plane. A BlitzLLVM extension.
+void bb_set_camera_projection_matrix(int32_t camera, const float* matrix)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraProjectionMatrix");
+	memcpy(cam->cam_projection_matrix, matrix, sizeof(cam->cam_projection_matrix));
+	cam->cam_custom_projection = true;
+}
+
+// GetCameraProjectionMatrix(camera): the matrix of SetCameraProjectionMatrix, or the one CameraRange, CameraZoom and CameraProjMode make for
+// the size of the camera's viewport, in the convention of SetCameraProjectionMatrix.
+void bb_get_camera_projection_matrix(float* out, int32_t camera)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraProjectionMatrix");
+	if (cam->cam_custom_projection) {
+		memcpy(out, cam->cam_projection_matrix, sizeof(cam->cam_projection_matrix));
+		return;
+	}
+	int w, h, vx, vy, vw, vh;
+	camera_target_size(*cam, w, h);
+	if (!camera_viewport(*cam, w, h, vx, vy, vw, vh)) {
+		vw = (w > 0) ? w : 1;
+		vh = (h > 0) ? h : 1;
+	}
+	float p[16];
+	projection(p, *cam, float(vw), float(vh)); // Mode 0 draws nothing, but still has the perspective matrix of mode 1.
+
+	// The renderer's matrix has Y down and the depth reversed, which is undone the same way it was done.
+	for (int c = 0; c < 4; c++) {
+		out[c * 4 + 0] = p[c * 4 + 0];
+		out[c * 4 + 1] = -p[c * 4 + 1];
+		out[c * 4 + 2] = p[c * 4 + 3] - p[c * 4 + 2];
+		out[c * 4 + 3] = p[c * 4 + 3];
+	}
+}
+
+// ResetCameraProjectionMatrix camera: back to CameraRange, CameraZoom and CameraProjMode.
+void bb_reset_camera_projection_matrix(int32_t camera)
+{
+	need_camera(camera, "ResetCameraProjectionMatrix")->cam_custom_projection = false;
+}
+
+// SetCameraViewMatrix camera, matrix: the camera looks at the world through this FloatMatrix4x3 (from the world to the camera) instead of from
+// where its entity is. A BlitzLLVM extension.
+void bb_set_camera_view_matrix(int32_t camera, const float* matrix)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraViewMatrix");
+	bb::mat_identity(cam->cam_view_matrix);
+	for (int c = 0; c < 4; c++) {
+		for (int r = 0; r < 3; r++) {
+			cam->cam_view_matrix[c * 4 + r] = matrix[c * 3 + r];
+		}
+	}
+	cam->cam_custom_view = true;
+}
+
+// GetCameraViewMatrix(camera): the matrix of SetCameraViewMatrix, or the one that the camera entity has (the inverse of where it is).
+void bb_get_camera_view_matrix(float* out, int32_t camera)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraViewMatrix");
+	float world[16], view[16];
+	camera_view(camera, *cam, world, view);
+	for (int c = 0; c < 4; c++) {
+		for (int r = 0; r < 3; r++) {
+			out[c * 3 + r] = view[c * 4 + r];
+		}
+	}
+}
+
+// ResetCameraViewMatrix camera: back to the view from the camera entity.
+void bb_reset_camera_view_matrix(int32_t camera)
+{
+	need_camera(camera, "ResetCameraViewMatrix")->cam_custom_view = false;
+}
+
 // RenderWorld: draws everything the cameras see into the current buffer.
 void bb_render_world(float tween)
 {
@@ -4648,7 +4865,7 @@ void bb_render_camera(int32_t camera, float tween)
 	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
 	bb::entity* cam = need_camera(camera, "RenderCamera");
 	check_world_target(cam->cam_buffer ? cam->cam_buffer : g.target, "RenderCamera");
-	if (cam->cam_projection == 0) {
+	if ((cam->cam_projection == 0) && !cam->cam_custom_projection) {
 		return;
 	}
 	scene_data       data;

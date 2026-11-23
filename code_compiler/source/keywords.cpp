@@ -192,6 +192,9 @@ namespace {
 	// strings. Nothing for no type.
 	std::string suffix_of(char code)
 	{
+		if (!blitz::compiler_detail::builtin_shape(code).empty()) {
+			return ""; // A vector or matrix has no sign of its own.
+		}
 		auto type = blitz::compiler_detail::builtin_type(code);
 		if (blitz::types::is_integer(type)) {
 			return "%";
@@ -221,6 +224,16 @@ namespace {
 	{
 		if (code == 'p') {
 			return "Pointer";
+		}
+		switch (code) {
+		case 'V':
+			return "FloatVector4";
+		case 'N':
+			return "FloatMatrix4x3";
+		case 'M':
+			return "FloatMatrix4x4";
+		default:
+			break;
 		}
 		return blitz::types::long_name(blitz::compiler_detail::builtin_type(code));
 	}

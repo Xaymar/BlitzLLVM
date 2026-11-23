@@ -39,7 +39,7 @@ def commands():
         columns = line.rstrip("\n").split("\t")
         if len(columns) < 4:
             continue
-        signature = columns[3].lstrip("%#$!~")
+        signature = columns[3].lstrip("%#$!~@|^")
         name = ""
         for c in signature:
             if c.isalnum() or c == "_":

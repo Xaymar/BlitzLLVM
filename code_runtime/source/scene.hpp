@@ -301,6 +301,10 @@ namespace bb {
 		int   cam_cull_flags = 3; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 3.
 		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
 		int   cam_buffer = 0;      // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
+		bool  cam_custom_projection = false; // SetCameraProjectionMatrix: cam_projection_matrix replaces CameraRange, CameraZoom and CameraProjMode.
+		bool  cam_custom_view       = false; // SetCameraViewMatrix: cam_view_matrix replaces where the camera entity is.
+		float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
+		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
 		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };
