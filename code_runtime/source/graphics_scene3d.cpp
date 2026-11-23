@@ -4639,6 +4639,27 @@ void bb_render_world(float tween)
 	world_end(mirrors);
 }
 
+// RenderCamera camera [, tween]: draws the world as this one camera sees it, into its buffer (SetCameraBuffer) or the current one, and no other
+// camera. The camera is drawn even if it is hidden, so hidden cameras can be left to RenderCamera while RenderWorld draws the others. A camera
+// with CameraProjMode 0 draws nothing. Movies and the sounds of entities are brought up to date once a frame, by the first RenderWorld or
+// RenderCamera after a Flip, and TrisRendered counts what all RenderCamera calls of a frame drew. A BlitzLLVM extension.
+void bb_render_camera(int32_t camera, float tween)
+{
+	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
+	bb::entity* cam = need_camera(camera, "RenderCamera");
+	check_world_target(cam->cam_buffer ? cam->cam_buffer : g.target, "RenderCamera");
+	if (cam->cam_projection == 0) {
+		return;
+	}
+	scene_data       data;
+	camera_collector mirrors;
+	if (!world_begin(tween, false, data, mirrors)) {
+		return;
+	}
+	render_camera(camera, *cam, data, mirrors.handles);
+	world_end(mirrors);
+}
+
 // The scene lets go of a surface: its GPU buffers go with it.
 void bb_release_surface_gpu(void* gpu)
 {
