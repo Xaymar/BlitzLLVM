@@ -197,4 +197,22 @@ Check "Float32Vector2", f32\y, 2
 Local u16:UInt16Matrix2x2 = UInt16Matrix2x2(1, 2, 3, 4)
 Check "UInt16Matrix2x2", u16[1][1], 4
 
+; Less bits with more bits give more bits, the same bits stay the same bits.
+Local i16:Int16Vector2 = Int16Vector2(100, 100)
+Local s8:Int8Vector2 = Int8Vector2(100, 100)
+Local wider:Int16Vector2 = i16 + s8
+Check "Int16 + Int8 is an Int16", wider\x, 200
+Local keep8:Int8Vector2 = Int8Vector2(100, 100)
+Local sum8:Int8Vector2 = keep8 * keep8
+Check "Int8 * Int8 stays Int8", sum8\x, 16
+Local sh:HalfVector2 = HalfVector2(60000, 1)
+Local sh2:HalfVector2 = sh + sh
+Check "Half + Half stays Half", sh2\x > 65504, 1
+Local big10:DoubleVector2 = DoubleVector2(Double(10000000000), 0)
+Local fd:DoubleVector2 = FloatVector2(1, 1) + big10
+Check "Float + Double is Double", fd\x - Double(10000000000), 1
+Local mi:Int8Matrix2x2 = Int8Matrix2x2(100, 0, 0, 100)
+Local mp:Int8Matrix2x2 = mi * mi
+Check "Int8 matrix product stays Int8", mp[0][0], 16
+
 Done "language_vectors"

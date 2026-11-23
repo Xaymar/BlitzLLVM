@@ -325,7 +325,33 @@ blitz::compiler::value blitz::compiler::gen_aggregate_binary(ast::binary const* 
 			throw err(node->where, "Can't combine " + shape_name(lhs.type, lhs.shape) + " with " + shape_name(rhs.type, rhs.shape) + ", they have to be of the same size.");
 		}
 	}
-	return elementwise(shape, { lhs, rhs }, [&](std::vector<value> const& numbers) { return gen_binary_values(node, numbers[0], numbers[1]); });
+	// The type of the result is the one with more bits, and two of the same type stay that type, even a small one: Int8 + Int8 is an Int8 (and wraps
+	// around if it has to), Half + Float is a Float. See vector_type.
+	auto want = vector_type(lhs.type, rhs.type, node->where);
+	return elementwise(shape, { lhs, rhs }, [&](std::vector<value> const& numbers) {
+		auto r = gen_binary_values(node, numbers[0], numbers[1]);
+		if (r.type != want) {
+			r = convert(r, want, node->where, false);
+		}
+		return r;
+	});
+}
+
+// The type that two number types give when they are combined in a vector or matrix: the one with more bits, the same type for two of one type.
+// Numbers of different kinds (an integer and a real number) follow the rules of single numbers.
+blitz::types::type blitz::compiler::vector_type(type a, type b, ast::location const& where)
+{
+	namespace t = blitz::types;
+	if (a == b) {
+		return a;
+	}
+	if (is_number(a) && is_number(b) && (t::is_real(a) == t::is_real(b))) {
+		if (t::bits(a) != t::bits(b)) {
+			return (t::bits(a) > t::bits(b)) ? a : b;
+		}
+		return t::is_signed(a) ? b : a; // Same size, one unsigned: the unsigned one.
+	}
+	return common_type(a, b, where);
 }
 
 // `a * b` with a of K columns and M rows, and b of N columns and K rows (or a vector of K numbers): N columns and M rows.
@@ -338,7 +364,7 @@ blitz::compiler::value blitz::compiler::matrix_multiply(ast::binary const* node,
 		throw err(node->where, "Can't multiply " + shape_name(a.type, a.shape) + " by " + shape_name(b.type, b.shape) + ": the first has " + std::to_string(K) + " columns, the second " + std::to_string(Kb) + " rows.");
 	}
 	shape_t shape = (b.shape.size() == 2) ? shape_t{ N, M } : shape_t{ M };
-	auto    t     = common_type(a.type, b.type, node->where);
+	auto    t     = vector_type(a.type, b.type, node->where);
 
 	ast::binary multiply, add;
 	multiply.kind  = ast::binary::op::MULTIPLY;
@@ -376,9 +402,15 @@ blitz::compiler::value blitz::compiler::matrix_multiply(ast::binary const* node,
 			auto x    = load_element(a, index_of(k, M, row));
 			auto y    = load_element(b, index_of(column, K, k));
 			auto prod = gen_binary_values(&multiply, x, y);
+			if (prod.type != t) {
+				prod = convert(prod, t, node->where, false);
+			}
 			auto held = tmp();
 			emit(held + " = load " + blitz::types::to_llvm(t) + ", ptr " + accumulator);
 			auto sum = gen_binary_values(&add, { held, t }, prod);
+			if (sum.type != t) {
+				sum = convert(sum, t, node->where, false);
+			}
 			emit("store " + blitz::types::to_llvm(t) + " " + sum.repr + ", ptr " + accumulator);
 		});
 		auto result = tmp();
