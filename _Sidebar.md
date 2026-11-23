@@ -672,7 +672,7 @@
 <li><a href="LoadBrush">LoadBrush</a></li>
 </ul>
 </details></li>
-<li><details><summary>Cameras (15)</summary>
+<li><details><summary>Cameras (21)</summary>
 <ul>
 <li><a href="Blitz3D-Cameras">Overview</a></li>
 <li><a href="CameraClsColor">CameraClsColor</a></li>
@@ -689,7 +689,13 @@
 <li><a href="CameraZoom">CameraZoom</a></li>
 <li><a href="CreateCamera">CreateCamera</a></li>
 <li><a href="GetCameraBuffer">GetCameraBuffer</a></li>
+<li><a href="GetCameraProjectionMatrix">GetCameraProjectionMatrix</a></li>
+<li><a href="GetCameraViewMatrix">GetCameraViewMatrix</a></li>
+<li><a href="ResetCameraProjectionMatrix">ResetCameraProjectionMatrix</a></li>
+<li><a href="ResetCameraViewMatrix">ResetCameraViewMatrix</a></li>
 <li><a href="SetCameraBuffer">SetCameraBuffer</a></li>
+<li><a href="SetCameraProjectionMatrix">SetCameraProjectionMatrix</a></li>
+<li><a href="SetCameraViewMatrix">SetCameraViewMatrix</a></li>
 </ul>
 </details></li>
 <li><details><summary>Collisions (19)</summary>

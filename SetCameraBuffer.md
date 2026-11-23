@@ -51,7 +51,7 @@ Flip
 
 ## Related Commands
 
-[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [CameraCulling](CameraCulling), [CameraCullingSource](CameraCullingSource), [CameraFogColor](CameraFogColor), [CameraFogMode](CameraFogMode), [CameraFogRange](CameraFogRange), [GetCameraBuffer](GetCameraBuffer)
+[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [CameraCulling](CameraCulling), [CameraCullingSource](CameraCullingSource), [CameraFogColor](CameraFogColor), [GetCameraBuffer](GetCameraBuffer), [SetCameraProjectionMatrix](SetCameraProjectionMatrix), [SetCameraViewMatrix](SetCameraViewMatrix)
 
 <div align="center">
 
