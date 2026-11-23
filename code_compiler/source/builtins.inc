@@ -248,6 +248,7 @@
 		{ "ambientlight", "bb_ambient_light", 'v', "fff", 3, {}, false },
 		{ "updateworld", "bb_update_world", 'v', "f", 0, { 1 }, false },
 		{ "renderworld", "bb_render_world", 'v', "f", 0, { 1 }, false },
+		{ "rendercamera", "bb_render_camera", 'v', "if", 1, { 0, 1 }, false },
 		// 3D: Entities
 		{ "createpivot", "bb_create_pivot", 'i', "i", 0, { 0 }, false },
 		{ "createcamera", "bb_create_camera", 'i', "i", 0, { 0 }, false },

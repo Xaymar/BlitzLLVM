@@ -4522,37 +4522,51 @@ int32_t bb_get_camera_buffer(int32_t camera)
 	return (cam->cam_buffer == 0) ? 0 : (camera_target(*cam) == cam->cam_buffer ? cam->cam_buffer : 0);
 }
 
-// RenderWorld: draws everything the cameras see into the current buffer.
-void bb_render_world(float tween)
+// The checks that RenderWorld and RenderCamera make of the buffer they draw into.
+static void check_world_target(int32_t buffer, const char* what)
 {
-	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
+	char message[160];
 	// A texture that was not made as a render target can be drawn on in 2D, but the world is only rendered into one that was (flag 4096).
-	if (bb_is_debug() && (g.target >= texture_buffer_base)) {
-		texture_entry* tex = live_texture_of(int32_t((g.target - texture_buffer_base) >> 10));
+	if (bb_is_debug() && (buffer >= texture_buffer_base)) {
+		texture_entry* tex = live_texture_of(int32_t((buffer - texture_buffer_base) >> 10));
 		if (tex && !(tex->flags & TEXTURE_TARGET)) {
-			bb_runtime_error("RenderWorld: the texture is not a render target, give it flag 4096 when it is made.");
+			snprintf(message, sizeof(message), "%s: the texture is not a render target, give it flag 4096 when it is made.", what);
+			bb_runtime_error(message);
 		}
 	}
-	if (!active()) {
-		return;
+	if (active() && resolve_target(buffer).image && (buffer >= image_buffer_base) && (buffer < texture_buffer_base)) {
+		snprintf(message, sizeof(message), "%s can not draw to an image, use a texture.", what);
+		fail(message);
 	}
-	{
+}
+
+// What is the same for every camera that draws the world: the lights, the mirrors and the tween. What is only done once a frame (movies, sounds,
+// the statistics and the frame of antialiasing) is done when every_call is set (RenderWorld), and otherwise only for the first call after a Flip.
+static uint32_t prepared_flip = ~0u;
+
+static bool world_begin(float tween, bool every_call, scene_data& data, camera_collector& mirrors)
+{
+	if (!active()) {
+		return false;
+	}
+	bool new_frame = every_call || (prepared_flip != flip_serial);
+	prepared_flip  = flip_serial;
+	if (new_frame) {
 		static const bool wanted = bb_env_bool("BLITZLLVM_GPU_DRAWS", false);
 		gpu_static::enabled      = wanted && g.can_gpu_cull && g.static_pipeline;
 		bb::gpu_static_active    = gpu_static::enabled;
 		gpu_static::frame++;
-	}
-	bb_movie_update(); // The textures of movies are up to date for this frame.
-	bb_sound_update(); // Programs that render every frame never wait with Delay, the sounds of entities follow them here.
-	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
-		fail("RenderWorld can not draw to an image, use a texture.");
+		bb_movie_update(); // The textures of movies are up to date for this frame.
+		bb_sound_update(); // Programs that render every frame never wait with Delay, the sounds of entities follow them here.
 	}
 	acquire_frame(); // The buffers that the scene is written to are not read by the frame before any more.
-	antialias_new_frame();
-	g.triangles_drawn = 0;
-	stats3d           = {};
+	if (new_frame) {
+		antialias_new_frame();
+		g.triangles_drawn = 0;
+		stats3d           = {};
+	}
 
-	scene_data data = {};
+	data = {};
 	data.ambient[0] = bb::ambient_light[0];
 	data.ambient[1] = bb::ambient_light[1];
 	data.ambient[2] = bb::ambient_light[2];
@@ -4562,8 +4576,6 @@ void bb_render_world(float tween)
 	bb::rendering_world = true;
 	bb::grid_begin_frame();
 	light_collector lights = { &data, 0 };
-	camera_collector cameras;
-	camera_collector mirrors;
 	{
 		bb::profile_scope scan(bb::PROFILE_SCAN);
 		bb::for_each_visible(bb::LIGHT, collect_light, &lights);
@@ -4585,9 +4597,31 @@ void bb_render_world(float tween)
 		}
 		current_light_hash = hash | 1u;
 	}
-		bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 		bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
 	}
+	return true;
+}
+
+static void world_end(camera_collector& mirrors)
+{
+	mirrors.handles.release();
+	bb::grid_end_frame();
+	bb::render_tween = 1.0f;
+	bb::rendering_world = false;
+}
+
+// RenderWorld: draws everything the cameras see into the current buffer.
+void bb_render_world(float tween)
+{
+	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
+	check_world_target(g.target, "RenderWorld");
+	scene_data       data;
+	camera_collector mirrors;
+	if (!world_begin(tween, true, data, mirrors)) {
+		return;
+	}
+	camera_collector cameras;
+	bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 	// The cameras draw from the highest EntityOrder to the lowest, so the one with the lowest is drawn last and on top. Cameras that
 	// have the same order keep the order they were made in.
 	std::stable_sort(cameras.handles.data, cameras.handles.data + cameras.handles.size, [](int a, int b) {
@@ -4602,10 +4636,28 @@ void bb_render_world(float tween)
 		}
 	}
 	cameras.handles.release();
-	mirrors.handles.release();
-	bb::grid_end_frame();
-	bb::render_tween = 1.0f;
-	bb::rendering_world = false;
+	world_end(mirrors);
+}
+
+// RenderCamera camera [, tween]: draws the world as this one camera sees it, into its buffer (SetCameraBuffer) or the current one, and no other
+// camera. The camera is drawn even if it is hidden, so hidden cameras can be left to RenderCamera while RenderWorld draws the others. A camera
+// with CameraProjMode 0 draws nothing. Movies and the sounds of entities are brought up to date once a frame, by the first RenderWorld or
+// RenderCamera after a Flip, and TrisRendered counts what all RenderCamera calls of a frame drew. A BlitzLLVM extension.
+void bb_render_camera(int32_t camera, float tween)
+{
+	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
+	bb::entity* cam = need_camera(camera, "RenderCamera");
+	check_world_target(cam->cam_buffer ? cam->cam_buffer : g.target, "RenderCamera");
+	if (cam->cam_projection == 0) {
+		return;
+	}
+	scene_data       data;
+	camera_collector mirrors;
+	if (!world_begin(tween, false, data, mirrors)) {
+		return;
+	}
+	render_camera(camera, *cam, data, mirrors.handles);
+	world_end(mirrors);
 }
 
 // The scene lets go of a surface: its GPU buffers go with it.
