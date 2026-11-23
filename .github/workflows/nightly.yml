@@ -9,6 +9,8 @@ on:
       - 'code_runtime/**'
       - 'cmake/**'
       - 'third_party/**'
+      # Stranded II is a game for the benchmarks and the tests, not a part of the binaries.
+      - '!third_party/Stranded2/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
       - '.gitmodules'
