@@ -50,19 +50,30 @@ bool blitz::tools::is_type_name(std::string_view word)
 	if (std::find(std::begin(names), std::end(names), key) != std::end(names)) {
 		return true;
 	}
-	// The names of vectors and matrices: Float3, Int4, Double4x4. Sizes are a number, or two numbers with an x between them.
-	size_t first = 0;
-	while ((first < key.size()) && !std::isdigit((unsigned char)key[first])) {
-		first++;
+	// The names of vectors and matrices: FloatVector3, IntVector4, DoubleMatrix4x4. Sizes are a number, or two numbers with an x between them.
+	size_t kind = key.rfind("vector");
+	size_t axes = 1;
+	if (kind == std::string::npos) {
+		kind = key.rfind("matrix");
+		axes = 2;
 	}
-	if ((first == 0) || (first == key.size()) || (key.back() == 'x') || (key.find("xx") != std::string::npos)) {
+	if ((kind == std::string::npos) || (kind == 0)) {
 		return false;
 	}
-	for (size_t idx = first; idx < key.size(); idx++) {
-		if (!std::isdigit((unsigned char)key[idx]) && (key[idx] != 'x')) {
+	auto base = key.substr(0, kind);
+	if ((base == "string") || (base == "void") || (std::find(std::begin(names), std::end(names), base) == std::end(names))) {
+		return false;
+	}
+	auto   sizes  = key.substr(kind + 6);
+	size_t digits = 0, xs = 0;
+	for (size_t idx = 0; idx < sizes.size(); idx++) {
+		if (std::isdigit((unsigned char)sizes[idx])) {
+			digits++;
+		} else if ((sizes[idx] == 'x') && idx && idx + 1 < sizes.size() && std::isdigit((unsigned char)sizes[idx + 1]) && std::isdigit((unsigned char)sizes[idx - 1])) {
+			xs++;
+		} else {
 			return false;
 		}
 	}
-	auto base = key.substr(0, first);
-	return (base != "string") && (base != "void") && (std::find(std::begin(names), std::end(names), base) != std::end(names));
+	return (digits > 0) && (xs + 1 == axes);
 }

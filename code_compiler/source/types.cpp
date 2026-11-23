@@ -228,20 +228,28 @@ bool blitz::types::from_shape_name(std::string text, blitz::types::type& out, st
 	if (from_string(text) != type::UNKNOWN) {
 		return false;
 	}
-	size_t first = 0;
-	while ((first < text.size()) && !std::isdigit((unsigned char)text[first])) {
-		first++;
+	// `<number type>Vector<N>` or `<number type>Matrix<C>x<R>`, in any case: FloatVector4, Int8Vector3, DoubleMatrix4x4.
+	std::string key = text;
+	for (auto& c : key) {
+		c = char(std::tolower((unsigned char)c));
 	}
-	if ((first == 0) || (first >= text.size())) {
+	size_t axes = 1;
+	auto   kind = key.rfind("vector");
+	size_t len  = 6;
+	if (kind == std::string::npos) {
+		kind = key.rfind("matrix");
+		axes = 2;
+	}
+	if ((kind == std::string::npos) || (kind == 0)) {
 		return false;
 	}
-	auto base = from_string(text.substr(0, first));
+	auto base = from_string(text.substr(0, kind));
 	if ((base == type::UNKNOWN) || (base == type::STRING)) {
 		return false;
 	}
-	// What follows the name is `N` or `NxM`: columns, then rows.
+	// What follows is `N` for a vector, `CxR` for a matrix: columns, then rows.
 	std::vector<uint32_t> dims;
-	size_t                at = first;
+	size_t                at = kind + len;
 	while (true) {
 		size_t end = at;
 		while ((end < text.size()) && std::isdigit((unsigned char)text[end])) {
@@ -259,7 +267,7 @@ bool blitz::types::from_shape_name(std::string text, blitz::types::type& out, st
 		}
 		at = end + 1;
 	}
-	if (dims.size() > 2) {
+	if (dims.size() != axes) {
 		return false;
 	}
 	out   = base;

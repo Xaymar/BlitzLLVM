@@ -48,13 +48,13 @@ std::string blitz::compiler::shape_llvm(type t, shape_t const& shape)
 	return text;
 }
 
-// The name that the program would use: `Float4x3`.
+// The name that the program would use: `FloatMatrix4x3`.
 std::string blitz::compiler::shape_name(type t, shape_t const& shape)
 {
 	auto text = blitz::types::display(t);
-	// The alias, when it is the one that the program would also write: Float3, Int4x3.
+	// The name, when it is the one that the program would also write: FloatVector3, IntMatrix4x3.
 	if (!shape.empty() && (shape.size() <= 2)) {
-		std::string alias = text;
+		std::string alias = text + (shape.size() == 1 ? "Vector" : "Matrix");
 		for (size_t idx = 0; idx < shape.size(); idx++) {
 			alias += (idx ? "x" : "") + std::to_string(shape[idx]);
 		}
