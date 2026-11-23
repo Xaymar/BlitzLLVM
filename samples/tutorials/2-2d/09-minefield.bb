@@ -254,6 +254,8 @@ Function GoToMenu()
 	menuText(3) = "Quit"
 	FlushKeys ; Forget keys pressed on the screen before, so they don't act here too.
 	FlushMouse
+	MouseXSpeed() ; Forget old mouse movement, so a mouse resting over the menu does not pick a line.
+	MouseYSpeed()
 End Function
 
 ; Gives back True when the player chose Quit.
@@ -280,6 +282,8 @@ Function GoToOptions()
 	menuSelected = 0
 	RefreshOptionsText()
 	FlushMouse
+	MouseXSpeed() ; Forget old mouse movement, so a mouse resting over the menu does not pick a line.
+	MouseYSpeed()
 End Function
 
 Function RefreshOptionsText()
