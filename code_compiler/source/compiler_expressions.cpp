@@ -24,7 +24,8 @@ using namespace blitz::compiler_detail;
 ////////////////////////////////////////////////////////////////////////////////
 blitz::compiler::value blitz::compiler::gen(ast::expression const* expr)
 {
-	auto v = gen_node(expr);
+	auto v   = gen_node(expr);
+	v.source = expr;
 	if (v.need <= 0) {
 		v.need = default_need(expr);
 	}

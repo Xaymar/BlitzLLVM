@@ -1467,6 +1467,26 @@ elseif(CASE STREQUAL "warnings")
 	expect_err("warning: Implicit conversion from Float64 to Float32 can change the value. [-Wimplicit-lossy-real-to-real]")
 	expect_no_err("[-Wunused-variable]\nLocal i")
 
+	# Integers known while compiling (negative numbers, Consts, what is made of them) only warn when they really change.
+	file(WRITE "${WORK}/known.bb"
+		"Const K = 30\nConst BIG = 16777217\nConst NK = -K * 2\n"
+		"Local a# = Rnd(-30, 30)\nLocal b# = Rnd(K, -K)\nLocal c# = NK + 1\nLocal d# = 16777218\nLocal e:half = -2048\nLocal g:byte = -K\nLocal h:double = BIG\n"
+		"Local i# = BIG\nLocal j# = -16777217\nLocal m:half = 2049\nLocal n:byte = K * 5\n"
+		"Print a + b + c + d + e + g + h + i + j + m + n\n"
+		"Function Shadowed#()\n\tLocal k = 16777217\n\tLocal r# = K\n\tReturn r\nEnd Function\nPrint Shadowed()\n"
+		"Function Minus#()\n\tReturn -1\nEnd Function\nPrint Minus()\n")
+	blitzcc(-c "${WORK}/known.bb")
+	expect_ok()
+	foreach(_LINE 4 5 6 7 8 9 10)
+		expect_no_err("known.bb:${_LINE}:")
+	endforeach()
+	expect_err("known.bb:11:12: warning: Implicit conversion from Int32 to Float32 can change the value. [-Wimplicit-lossy-int-to-real]")
+	expect_err("known.bb:12:12: warning: Implicit conversion from Int32 to Float32 can change the value. [-Wimplicit-lossy-int-to-real]")
+	expect_err("known.bb:13:16: warning: Implicit conversion from Int32 to Float16 can change the value. [-Wimplicit-lossy-int-to-real]")
+	expect_err("known.bb:14:18: warning: Implicit conversion from Int32 to Int8 can change the value. [-Wimplicit-lossy-int-to-int]")
+	# A Local of the same name hides the Const, so its value is not known.
+	expect_err("known.bb:18:13: warning: Implicit conversion from Int32 to Float32 can change the value. [-Wimplicit-lossy-int-to-real]")
+
 	# Return with another type than the function has: both types, and the function that fixes it.
 	blitzcc(-c "${WORK}/w.bb")
 	expect_err("w.bb:23:9: warning: Return gives String, but the function returns Int. [-Wreturn-type-mismatch]")

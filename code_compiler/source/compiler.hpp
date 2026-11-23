@@ -44,6 +44,7 @@ namespace blitz {
 			std::string        sname;                              // Lower case name of the Type if this is an object. Empty for Null.
 			int                need = 0;                           // Registers the original compiler needed for it, which decides the order of evaluation. 0 until gen() fills it in.
 			shape_t            shape;                              // Not empty for a vector or matrix, whose value lives in memory (repr) and is not changed by what is done with it.
+			ast::expression const* source = nullptr;               // The expression gen() made it from, so that a number known while compiling (a Const, -30) can be found.
 		};
 
 		// An expression that was generated on its own, so that it can be put where the original evaluated it.
@@ -293,7 +294,9 @@ namespace blitz {
 		void         warn_short_notations(std::vector<ast::short_notation> const& notations);
 		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
 		void         report_unused(std::map<std::string, variable>& variables);
-		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal) const;
+		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal, ast::expression const* source = nullptr);
+		/** The value of an integer that is known while compiling: a number written in the program, a Const, or what is made of them. */
+		bool         known_integer(blitz::types::type from, std::string const& literal, ast::expression const* source, int64_t& known);
 
 		// Debug information
 		std::string md(std::string const& node, bool distinct = false);
