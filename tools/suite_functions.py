@@ -281,7 +281,7 @@ EXTENSIONS = {
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
-NAME = re.compile(r"^[%#$&!]?([A-Za-z_][A-Za-z0-9_]*)")
+NAME = re.compile(r"^[%#$&!@|^]?([A-Za-z_][A-Za-z0-9_]*)")
 
 
 def originals():
