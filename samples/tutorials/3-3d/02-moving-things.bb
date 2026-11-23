@@ -24,7 +24,7 @@ AppTitle "Tutorial 3.02: Moving, Turning and Parents"
 SetBuffer BackBuffer()
 
 Local camera = CreateCamera()
-PositionEntity camera, 0, 8, -18.0
+PositionEntity camera, 0, 8, -18
 
 ; A point light in the middle shines in all directions, like a lamp: light type 2.
 Local sunLight = CreateLight(2)

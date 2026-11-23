@@ -35,7 +35,7 @@ EntityColor cube, 255, 140, 40
 
 ; A sphere and a cylinder for company. The number is how many segments they are made of: more is rounder.
 Local sphere = CreateSphere(24)
-PositionEntity sphere, -3.0, 0, 7
+PositionEntity sphere, -3, 0, 7
 EntityColor sphere, 80, 200, 255
 
 Local cylinder = CreateCylinder(24)

@@ -17,7 +17,7 @@ AppTitle "Tutorial 3.04: Textures Made in Code"
 SetBuffer BackBuffer()
 
 Local camera = CreateCamera()
-PositionEntity camera, 0, 4, -9.0
+PositionEntity camera, 0, 4, -9
 RotateEntity camera, 20, 0, 0
 CameraClsColor camera, 20, 20, 30
 

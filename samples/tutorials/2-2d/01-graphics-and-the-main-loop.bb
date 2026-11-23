@@ -25,7 +25,7 @@ Local frames = 0
 While Not KeyHit(1)
 	; 1. Update: move the square, and wrap it around when it leaves the window.
 	x = x + 2.5
-	If x > GraphicsWidth() Then x = -40.0
+	If x > GraphicsWidth() Then x = -40
 	frames = frames + 1
 
 	; 2. Draw: clear the back buffer, then draw the new frame into it.

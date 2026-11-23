@@ -46,7 +46,7 @@ LightColor moon, 70, 90, 150
 
 ; A red point light. LightRange is how far its light reaches.
 Local lamp = CreateLight(2)
-PositionEntity lamp, -4.0, 1.5, 6
+PositionEntity lamp, -4, 1.5, 6
 LightColor lamp, 255, 60, 40
 LightRange lamp, 6
 Local lampBall = CreateSphere(8, lamp) ; A small ball shows where the lamp is.
@@ -66,7 +66,7 @@ LightRange torch, 20
 ; --- Cameras ------------------------------------------------------------------------------------------------------
 ; The main camera. CameraRange sets the nearest and farthest distance it draws.
 Local camera = CreateCamera()
-PositionEntity camera, 0, 5, -10.0
+PositionEntity camera, 0, 5, -10
 RotateEntity camera, 20, 0, 0
 CameraRange camera, 0.1, 60
 CameraClsColor camera, 10, 10, 20

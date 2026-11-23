@@ -84,7 +84,7 @@ Function UpdateGame()
 	If spawnTimer <= 0
 		Local s.FallingStar = New FallingStar
 		s\x = Rnd(20, 620)
-		s\y = -10.0
+		s\y = -10
 		s\speed = Rnd(2, 3) + score * 0.05
 		spawnTimer = 50 - score
 		If spawnTimer < 15 Then spawnTimer = 15

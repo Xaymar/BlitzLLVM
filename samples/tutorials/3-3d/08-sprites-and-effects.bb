@@ -24,7 +24,7 @@ SetBuffer BackBuffer()
 ; The camera sits on a pivot in the middle, so turning the pivot swings the camera around the fountain.
 Local cameraPivot = CreatePivot()
 Local camera = CreateCamera(cameraPivot)
-PositionEntity camera, 0, 4, -14.0
+PositionEntity camera, 0, 4, -14
 RotateEntity camera, 12, 0, 0
 CameraClsColor camera, 5, 5, 15
 
