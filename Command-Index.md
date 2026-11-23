@@ -823,6 +823,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [RecvUDPMsg](RecvUDPMsg)
 * [RefreshRateAt](RefreshRateAt) 〔BlitzLLVM〕
 * [RemoveGadgetItem](RemoveGadgetItem)
+* [RenderCamera](RenderCamera)
 * [RenderWorld](RenderWorld)
 * [Repeat](Repeat)
 * [Replace](Replace)

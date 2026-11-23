@@ -1098,7 +1098,7 @@
 <li><a href="VectorYaw">VectorYaw</a></li>
 </ul>
 </details></li>
-<li><details><summary>World (20)</summary>
+<li><details><summary>World (21)</summary>
 <ul>
 <li><a href="Blitz3D-World">Overview</a></li>
 <li><a href="ActiveTextures">ActiveTextures</a></li>
@@ -1114,6 +1114,7 @@
 <li><a href="HWMultiTex">HWMultiTex</a></li>
 <li><a href="HWOrderIndependentTransparency">HWOrderIndependentTransparency</a></li>
 <li><a href="HWTexUnits">HWTexUnits</a></li>
+<li><a href="RenderCamera">RenderCamera</a></li>
 <li><a href="RenderWorld">RenderWorld</a></li>
 <li><a href="Stats3D">Stats3D</a></li>
 <li><a href="TransparencyDistanceSortMode">TransparencyDistanceSortMode</a></li>

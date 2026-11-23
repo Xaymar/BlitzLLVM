@@ -22,6 +22,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [HWMultiTex](HWMultiTex)
 * [HWOrderIndependentTransparency](HWOrderIndependentTransparency)
 * [HWTexUnits](HWTexUnits)
+* [RenderCamera](RenderCamera)
 * [RenderWorld](RenderWorld)
 * [Stats3D](Stats3D)
 * [TransparencyDistanceSortMode](TransparencyDistanceSortMode)

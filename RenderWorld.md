@@ -23,7 +23,7 @@ RenderWorld:Void tween:Float32=1
 
 ## Description
 
-Draws the whole 3D world into the back buffer, once for every visible camera, inside that camera's viewport. Cameras that are hidden or have a projection mode of 0 are skipped. The 2D drawing commands work on top of the result, so text and shapes drawn after RenderWorld appear in front of the 3D picture. Call [Flip](Flip) afterwards to show the frame. A camera that has a buffer of its own ([SetCameraBuffer](SetCameraBuffer)) draws into that buffer instead.
+Draws the whole 3D world into the back buffer, once for every visible camera, inside that camera's viewport. Cameras that are hidden or have a projection mode of 0 are skipped. The 2D drawing commands work on top of the result, so text and shapes drawn after RenderWorld appear in front of the 3D picture. Call [Flip](Flip) afterwards to show the frame. A camera that has a buffer of its own ([SetCameraBuffer](SetCameraBuffer)) draws into that buffer instead. To draw the world for one camera only, use [RenderCamera](RenderCamera).
 
 The optional tween value is for smooth movement when the game logic runs at a lower rate than the screen. First call [CaptureWorld](CaptureWorld) to remember where everything is, then move the entities to their new places, then draw with a tween from 0 to 1: 0 shows the captured positions, 1 the current ones, and anything between shows the entities part of the way. The example slides a cube across with 20 frames drawn between two positions of the world.
 
@@ -64,7 +64,7 @@ Next
 
 ## Related Commands
 
-[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [UpdateWorld](UpdateWorld)
+[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [RenderCamera](RenderCamera), [UpdateWorld](UpdateWorld)
 
 <div align="center">
 
