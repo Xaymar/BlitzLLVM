@@ -12,8 +12,6 @@
 ;   P pauses, Escape goes back to the menu.
 ;
 ; The options are saved in rally.cfg next to the program.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Const SCREEN_W = 800, SCREEN_H = 600
 Const COURT_TOP = 60, COURT_BOTTOM = 580

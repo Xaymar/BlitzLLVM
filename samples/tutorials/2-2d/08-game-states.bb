@@ -9,8 +9,6 @@
 ; object is updated and drawn.
 ;
 ; This is a tiny but complete game: catch the falling stars with the basket, miss three and the game is over.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.08: Game States and Objects"

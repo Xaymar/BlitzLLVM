@@ -5,8 +5,6 @@
 ;
 ; Files keep data after the program ends: save games, settings and high score tables. This tutorial writes a
 ; small save file, reads it back and then deletes it again.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

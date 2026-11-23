@@ -4,8 +4,6 @@
 ; Tutorial 1.09: Maths and Randomness
 ;
 ; Games use a handful of maths functions all the time: distances, angles, rounding and random numbers.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

@@ -5,8 +5,6 @@
 ;
 ; The 2D drawing commands all use the current colour set by Color. Positions are in pixels: (0, 0) is the top left
 ; corner, x grows to the right and y grows downwards.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.02: Drawing"

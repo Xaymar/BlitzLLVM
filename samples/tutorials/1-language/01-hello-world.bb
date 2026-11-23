@@ -8,8 +8,6 @@
 ;
 ; A Blitz program runs from the first line to the last. There is no "main" function you have to write: the code
 ; at the top level of the file is the program.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 ; Print writes a line of text and moves to the next line. If no graphics mode is open yet, Blitz opens a small
 ; window for the text.

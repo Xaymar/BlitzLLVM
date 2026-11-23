@@ -11,8 +11,6 @@
 ;   Delta time:  measure how long the last frame took (MilliSecs) and move by speed multiplied by that time.
 ;
 ; Press 1, 2 or 3 to change how fast the loop runs, and watch which balls keep their speed.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.04: Timing"

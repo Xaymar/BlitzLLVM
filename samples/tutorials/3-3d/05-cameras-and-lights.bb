@@ -13,8 +13,6 @@
 ;   3  spot         shines in a cone from one place, like a torch. Both matter.
 ;
 ; Controls: 1, 2 and 3 switch the coloured lights on and off, F toggles fog, Up / Down zoom the big camera.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.05: Cameras and Lights"

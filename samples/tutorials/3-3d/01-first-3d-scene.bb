@@ -9,8 +9,6 @@
 ;
 ; Directions: x points right, y points up and z points into the screen. The camera starts at (0, 0, 0) and looks
 ; along +z, so things need a positive z to be in front of it.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 ; Graphics3D is Graphics for 3D: width, height, depth (0 = best) and mode (2 = window).
 Graphics3D 640, 480, 0, 2

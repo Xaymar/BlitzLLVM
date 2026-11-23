@@ -7,8 +7,6 @@
 ; frame. Images can be loaded from files with LoadImage, but they can also be made by the program itself: create
 ; an empty image, point the drawing commands at its buffer, and draw into it. That is what this tutorial does, so
 ; it needs no files.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.05: Images"

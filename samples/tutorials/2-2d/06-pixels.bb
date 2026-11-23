@@ -8,8 +8,6 @@
 ; A pixel is one integer that holds the colour as $AARRGGBB: alpha, red, green and blue, 8 bits each.
 ;
 ; This tutorial draws a moving "plasma" into an image, from sine waves.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.06: Pixels"

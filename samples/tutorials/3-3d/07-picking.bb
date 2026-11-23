@@ -12,8 +12,6 @@
 ; and which way the surface faces there.
 ;
 ; Controls: click a block to paint it, right-click to remove it. The red laser in the middle shows LinePick.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.07: Picking"

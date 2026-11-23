@@ -5,8 +5,6 @@
 ;
 ; An array is a row of variables that share one name. Each one is found by its number, the "index". Arrays hold
 ; things like a high score table, the cells of a game board or the pixels of a picture.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

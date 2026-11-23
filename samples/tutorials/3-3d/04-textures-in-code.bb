@@ -9,8 +9,6 @@
 ;
 ; Texture coordinates (u and v) say which part of the texture lands on which vertex. They go from 0 to 1 across the
 ; texture, and values past 1 repeat it. ScaleTexture, PositionTexture and RotateTexture change them all at once.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.04: Textures Made in Code"

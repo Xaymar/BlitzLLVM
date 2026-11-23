@@ -10,8 +10,6 @@
 ;
 ;   1 Escape    57 Space    28 Enter    200 Up    208 Down    203 Left    205 Right
 ;   17 W        30 A        31 S        32 D      2 to 11 are the number keys 1 to 9 and 0
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.03: Keyboard and Mouse"

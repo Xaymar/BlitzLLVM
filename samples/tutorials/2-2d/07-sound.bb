@@ -11,8 +11,6 @@
 ;   A S D F G H J K   play a scale (C D E F G A B C)
 ;   1 2 3 4           choose the wave shape
 ;   Left / Right      pan the sound,  Up / Down  change the volume
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 640, 480, 0, 2
 AppTitle "Tutorial 2.07: Making Sounds"

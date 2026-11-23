@@ -14,8 +14,6 @@
 ;   CopyEntity         makes a cheap copy of an entity, sharing its mesh and texture. FreeEntity removes one.
 ;
 ; Controls: Space makes an explosion, Left / Right turn the camera around the fountain.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.08: Sprites and Particles"

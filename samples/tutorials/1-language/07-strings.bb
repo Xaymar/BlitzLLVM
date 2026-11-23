@@ -5,8 +5,6 @@
 ;
 ; Strings hold text. Blitz has many functions to look inside text, cut it up and build new text from pieces.
 ; Positions in a string start at 1 for the first character.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

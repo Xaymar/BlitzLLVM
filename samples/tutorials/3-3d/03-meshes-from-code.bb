@@ -8,8 +8,6 @@
 ; terrain, a road, a voxel world, a level from a map.
 ;
 ; This tutorial builds two meshes: a small pyramid, vertex by vertex, and a hilly landscape made from a grid.
-;
-; Works on: the original Blitz3D and BlitzLLVM.
 
 Graphics3D 640, 480, 0, 2
 AppTitle "Tutorial 3.03: Building Meshes from Code"

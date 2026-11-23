@@ -5,8 +5,6 @@
 ;
 ; A loop runs the same code many times. Blitz has three kinds, and every game has at least one: the main loop that
 ; runs once per frame until the player quits.
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 

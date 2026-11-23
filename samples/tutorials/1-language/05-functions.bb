@@ -5,8 +5,6 @@
 ;
 ; A function is a named piece of code you can run from anywhere, as often as you like. Functions keep programs
 ; short (write it once, use it many times) and easy to read (a good name says what the code does).
-;
-; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
 Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
 
