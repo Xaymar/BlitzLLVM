@@ -21,7 +21,7 @@ Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz
     flythrough benchmarks/flythrough.bb, waterfall.bb, dungeon.bb, loading.bb      (Scene)
     lights     benchmarks/many_lights.bb: 8, 32 and 127 lights                    (Scene)
     gpu        GPU time of the passes of the waterfall, from BLITZ_FPS            (GPU)
-    stranded2  tests/stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
+    stranded2  third_party/Stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
 
 Without a display the programs run under xvfb-run, which with Mesa means llvmpipe, a software rasterizer: the milliseconds are then
 mostly the CPU drawing pixels. With --wine the original runs under Wine on top of that, which is only there to have a number to put next
@@ -259,7 +259,7 @@ def bench_compile(compiler, runs):
         targets["flythrough"] = (os.path.join(d, "flythrough.bb"), d)
         if not QUICK:
             game = os.path.join(d, "stranded2")
-            shutil.copytree(os.path.join(ROOT, "tests", "stranded2"), game)
+            shutil.copytree(os.path.join(ROOT, "third_party", "Stranded2"), game)
             targets["stranded2"] = (os.path.join(game, "StrandedII.bb"), game)
         out = {}
         for name, (src, cwd) in targets.items():
@@ -305,7 +305,7 @@ def bench_movies(compiler, runs):
 
 
 def bench_audio(compiler, runs):
-    sfx = os.path.join(ROOT, "tests", "stranded2", "mods", "Stranded II", "sfx")
+    sfx = os.path.join(ROOT, "third_party", "Stranded2", "mods", "Stranded II", "sfx")
     files = sorted(f for f in os.listdir(sfx) if f.endswith(".wav"))[:16]
     with tempfile.TemporaryDirectory() as d:
         for f in files:
@@ -386,8 +386,8 @@ def bench_stranded2(compiler, runs):
     import benchmark_stranded2
     if compiler.wine:
         # The decls of the Windows API calls the game makes (the original reads userlibs from its own folder).
-        for f in os.listdir(os.path.join(ROOT, "tests", "stranded2", "userlibs")):
-            shutil.copy(os.path.join(ROOT, "tests", "stranded2", "userlibs", f), os.path.join(WINE_HOME, "userlibs", f))
+        for f in os.listdir(os.path.join(ROOT, "third_party", "Stranded2", "userlibs")):
+            shutil.copy(os.path.join(ROOT, "third_party", "Stranded2", "userlibs", f), os.path.join(WINE_HOME, "userlibs", f))
     with tempfile.TemporaryDirectory() as d:
         game = benchmark_stranded2.prepare(ROOT, d, original=not compiler.llvm)
         program = compiler.program_path(game, "stranded2_bench")
