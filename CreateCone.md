@@ -19,7 +19,7 @@ CreateCone:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `segments` | In | Int32 | `8` | Detail of the cone, 3 to 100. Defaults to 8. |
+| `segments` | In | Int32 | `8` | Detail of the cone, 3 or more. Defaults to 8. |
 | `solid` | In | Int32 | `1` | 1 for a cone with a base, 0 for an open one. Defaults to 1. |
 | `parent` | In | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
 
@@ -27,7 +27,11 @@ CreateCone:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 
 ## Description
 
-Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Valid values are 3 to 100.
+Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Values below 3 count as 3.
+
+## Differences
+
+* The original allows 3 to 100 segments. Here there is no upper limit, but more segments make a bigger mesh that takes longer to build and draw.
 
 ## Examples
 

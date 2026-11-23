@@ -19,14 +19,18 @@ CreateSphere:Int32 segments:Int32=8, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `segments` | In | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
+| `segments` | In | Int32 | `8` | Detail of the sphere, 2 or more. Defaults to 8. |
 | `parent` | In | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new sphere.
 
 ## Description
 
-Creates a sphere with a radius of 1 around the origin. `segments` sets how round it looks. A sphere has `2 * segments * (segments - 1) * 2` triangles, so 8 gives 224 and 16 gives 960, and `4 * segments + (segments - 1) * (2 * segments + 1)` vertices (151 for 8): each pole has a vertex for every segment, and the seam of a ring is repeated, as in the original. Use the smallest number that still looks smooth at the distance the sphere is seen from. Valid values are 2 to 100.
+Creates a sphere with a radius of 1 around the origin. `segments` sets how round it looks. A sphere has `2 * segments * (segments - 1) * 2` triangles, so 8 gives 224 and 16 gives 960, and `4 * segments + (segments - 1) * (2 * segments + 1)` vertices (151 for 8): each pole has a vertex for every segment, and the seam of a ring is repeated, as in the original. Use the smallest number that still looks smooth at the distance the sphere is seen from. Values below 2 count as 2.
+
+## Differences
+
+* The original allows 2 to 100 segments. Here there is no upper limit, but more segments make a bigger mesh that takes longer to build and draw.
 
 ## Examples
 

@@ -1373,7 +1373,7 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (457)</summary>
+<li><details><summary>Commands (460)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1417,6 +1417,8 @@
 <li><a href="CreateButton#differences">CreateButton</a></li>
 <li><a href="CreateCanvas#differences">CreateCanvas</a></li>
 <li><a href="CreateComboBox#differences">CreateComboBox</a></li>
+<li><a href="CreateCone#differences">CreateCone</a></li>
+<li><a href="CreateCylinder#differences">CreateCylinder</a></li>
 <li><a href="CreateHtmlView#differences">CreateHtmlView</a> 〔BlitzLLVM〕</li>
 <li><a href="CreateImage#differences">CreateImage</a></li>
 <li><a href="CreateLabel#differences">CreateLabel</a></li>
@@ -1434,6 +1436,7 @@
 <li><a href="CreatePhysicsWorld#differences">CreatePhysicsWorld</a> 〔BlitzLLVM〕</li>
 <li><a href="CreatePlane#differences">CreatePlane</a></li>
 <li><a href="CreateSampler#differences">CreateSampler</a> 〔BlitzLLVM〕</li>
+<li><a href="CreateSphere#differences">CreateSphere</a></li>
 <li><a href="CreateTabber#differences">CreateTabber</a></li>
 <li><a href="CreateTCPServer#differences">CreateTCPServer</a></li>
 <li><a href="CreateTerrain#differences">CreateTerrain</a></li>

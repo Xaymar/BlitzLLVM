@@ -91,6 +91,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateButton](CreateButton#differences): Buttons are drawn in the look of the program, not with the controls of the operating system.
 * [CreateCanvas](CreateCanvas#differences): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
 * [CreateComboBox](CreateComboBox#differences): The user cannot type into it, only pick from the list.
+* [CreateCone](CreateCone#differences): The original allows 3 to 100 segments.
+* [CreateCylinder](CreateCylinder#differences): The original allows 3 to 100 segments.
 * [CreateHtmlView](CreateHtmlView#differences) 〔BlitzLLVM〕: There is no web browser inside the window yet: the gadget is a frame that shows the address it was sent to, and no page is loaded.
 * [CreateImage](CreateImage#differences): A graphics window must be open, because images live in video memory.
 * [CreateLabel](CreateLabel#differences): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
@@ -106,8 +108,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreatePhysicsPointConstraint](CreatePhysicsPointConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePhysicsSliderConstraint](CreatePhysicsSliderConstraint#differences) 〔BlitzLLVM〕: The original has no such command.
 * [CreatePhysicsWorld](CreatePhysicsWorld#differences) 〔BlitzLLVM〕: The original has no such command.
-* [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
+* [CreatePlane](CreatePlane#differences): The original allows 1 to 16 segments, and larger values can crash it or stop it with an error.
 * [CreateSampler](CreateSampler#differences) 〔BlitzLLVM〕: Not in the originals, which read every texture with the settings of its flags.
+* [CreateSphere](CreateSphere#differences): The original allows 2 to 100 segments.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTCPServer](CreateTCPServer#differences): The server accepts IPv4 and IPv6 connections on the same port (where the system has IPv6), see [IPv6](IPv6).
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.

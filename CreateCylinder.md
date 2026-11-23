@@ -19,7 +19,7 @@ CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `segments` | In | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
+| `segments` | In | Int32 | `8` | Detail of the cylinder, 3 or more. Defaults to 8. |
 | `solid` | In | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
 | `parent` | In | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
 
@@ -27,7 +27,11 @@ CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 
 ## Description
 
-Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1. With `solid` set to 0 the top and bottom are left open and you get a tube. 3 segments make a prism, 8 is about the smallest that still reads as round and 16 looks smooth. Valid values are 3 to 100.
+Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1. With `solid` set to 0 the top and bottom are left open and you get a tube. 3 segments make a prism, 8 is about the smallest that still reads as round and 16 looks smooth. Values below 3 count as 3.
+
+## Differences
+
+* The original allows 3 to 100 segments. Here there is no upper limit, but more segments make a bigger mesh that takes longer to build and draw.
 
 ## Examples
 

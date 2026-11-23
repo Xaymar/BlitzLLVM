@@ -19,7 +19,7 @@ CreatePlane:Int32 segments:Int32=1, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `segments` | In | Int32 | `1` | How many pieces the plane is divided into per side, 1 to 16. Defaults to 1. |
+| `segments` | In | Int32 | `1` | How many pieces the plane is divided into per side, 1 or more. 0 or less counts as 1. Defaults to 1. |
 | `parent` | In | Int32 | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new plane.
@@ -30,6 +30,7 @@ Creates a flat, endless ground at height 0 that faces up. It is handy for outdoo
 
 ## Differences
 
+* The original allows 1 to 16 segments, and larger values can crash it or stop it with an error. Here there is no upper limit, but every segment more makes each frame a little slower, as the visible part of the plane is built again for every frame.
 * Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
 
 ## Examples
