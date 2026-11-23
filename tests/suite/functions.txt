@@ -413,11 +413,11 @@ physicswake	blitz3d	done	PhysicsWake%entity
 physicsworldsleeping	blitz3d	done	PhysicsWorldSleeping%allow%world=0
 physicsraycast	blitz3d	done	%PhysicsRayCast#x1#y1#z1#x2#y2#z2%mask_low=-1%mask_high=-1%sensors=0%world=0
 physicsspherecast	blitz3d	done	%PhysicsSphereCast#x1#y1#z1#x2#y2#z2#radius%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsboxcast	blitz3d	done	%PhysicsBoxCast#x1#y1#z1#x2#y2#z2#half_x#half_y#half_z%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicscapsulecast	blitz3d	done	%PhysicsCapsuleCast#x1#y1#z1#x2#y2#z2#radius#half_height%mask_low=-1%mask_high=-1%sensors=0%world=0
+physicsboxcast	blitz3d	done	%PhysicsBoxCast#x1#y1#z1#x2#y2#z2#half_x#half_y#half_z#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
+physicscapsulecast	blitz3d	done	%PhysicsCapsuleCast#x1#y1#z1#x2#y2#z2#radius#half_height#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
 physicspointinside	blitz3d	done	%PhysicsPointInside#x#y#z%mask_low=-1%mask_high=-1%sensors=0%world=0
 physicsoverlapsphere	blitz3d	done	%PhysicsOverlapSphere#x#y#z#radius%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsoverlapbox	blitz3d	done	%PhysicsOverlapBox#x#y#z#half_x#half_y#half_z%mask_low=-1%mask_high=-1%sensors=0%world=0
+physicsoverlapbox	blitz3d	done	%PhysicsOverlapBox#x#y#z#half_x#half_y#half_z#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
 getphysicsoverlap	blitz3d	done	%GetPhysicsOverlap%index
 getphysicshitentity	blitz3d	done	%GetPhysicsHitEntity
 getphysicshitx	blitz3d	done	#GetPhysicsHitX

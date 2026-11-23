@@ -29,6 +29,15 @@ Check "box normal", GetPhysicsHitNX(), -1, 0.02
 Check "capsule hits the wall", PhysicsCapsuleCast(0, 1, 0, 10, 1, 0, 0.3, 0.5), wall, 0
 Check "capsule distance", GetPhysicsHitDistance(), 3.2, 0.03
 
+; A turned box is wider: a flat 1.0 x 0.1 slab turned 90 degrees around yaw reaches 0.1 to each side instead of 1.0
+Check "slab as it is", PhysicsBoxCast(0, 1, 0, 10, 1, 0, 1, 0.1, 0.1), wall, 0
+Check "slab as it is, distance", GetPhysicsHitDistance(), 2.5, 0.03
+Check "slab turned", PhysicsBoxCast(0, 1, 0, 10, 1, 0, 1, 0.1, 0.1, 0, 90, 0), wall, 0
+Check "slab turned, distance", GetPhysicsHitDistance(), 3.4, 0.03
+Check "capsule lying", PhysicsCapsuleCast(0, 1, 0, 10, 1, 0, 0.3, 0.5, 0, 0, 90), wall, 0
+Check "capsule lying, distance", GetPhysicsHitDistance(), 2.7, 0.03
+Check "overlap box turned", PhysicsOverlapBox(4, 2, 0, 0.1, 0.1, 0.1, 0, 45, 0), 1, 0
+
 ; Layers: leave out layer 0 where the floor is
 Check "layer left out", PhysicsSphereCast(0, 3, 0, 0, -7, 0, 0.5, -2, -1), 0, 0
 

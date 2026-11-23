@@ -1161,7 +1161,15 @@ int32_t bb_physics_ray_cast(float x1, float y1, float z1, float x2, float y2, fl
 	return last_hit.entity;
 }
 
-static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], float x1, float y1, float z1, float x2, float y2, float z2, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+// A turn of pitch, yaw and roll (degrees, as TurnEntity takes them) as a quaternion (x, y, z, w) for the library.
+static void euler_quat(float pitch, float yaw, float roll, float* q)
+{
+	float angles[3] = { pitch, yaw, roll }, r[9];
+	rotation_matrix(r, angles);
+	quat_from_matrix(r, q);
+}
+
+static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], const float* rotation, float x1, float y1, float z1, float x2, float y2, float z2, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
 	world_rec&          w = world_of(world, name);
 	physics::api const& l = lib(name);
@@ -1169,7 +1177,7 @@ static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], 
 	float        from[3] = { x1, y1, z1 }, along[3] = { x2 - x1, y2 - y1, z2 - z1 };
 	bp_query_hit hit{};
 	clear_hit();
-	if (!l.sim_shape_cast(w.sim, kind, size, from, nullptr, along, layer_mask(mask_low, mask_high), sensors ? BP_QUERY_SENSORS : 0, &hit)) {
+	if (!l.sim_shape_cast(w.sim, kind, size, from, rotation, along, layer_mask(mask_low, mask_high), sensors ? BP_QUERY_SENSORS : 0, &hit)) {
 		return 0;
 	}
 	keep_hit(hit);
@@ -1179,19 +1187,21 @@ static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], 
 int32_t bb_physics_sphere_cast(float x1, float y1, float z1, float x2, float y2, float z2, float radius, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
 	float size[3] = { radius, 0, 0 };
-	return shape_cast("PhysicsSphereCast", BP_SHAPE_SPHERE, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+	return shape_cast("PhysicsSphereCast", BP_SHAPE_SPHERE, size, nullptr, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
 }
 
-int32_t bb_physics_box_cast(float x1, float y1, float z1, float x2, float y2, float z2, float half_x, float half_y, float half_z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+int32_t bb_physics_box_cast(float x1, float y1, float z1, float x2, float y2, float z2, float half_x, float half_y, float half_z, float pitch, float yaw, float roll, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
-	float size[3] = { half_x, half_y, half_z };
-	return shape_cast("PhysicsBoxCast", BP_SHAPE_BOX, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+	float size[3] = { half_x, half_y, half_z }, q[4];
+	euler_quat(pitch, yaw, roll, q);
+	return shape_cast("PhysicsBoxCast", BP_SHAPE_BOX, size, q, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
 }
 
-int32_t bb_physics_capsule_cast(float x1, float y1, float z1, float x2, float y2, float z2, float radius, float half_height, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+int32_t bb_physics_capsule_cast(float x1, float y1, float z1, float x2, float y2, float z2, float radius, float half_height, float pitch, float yaw, float roll, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
-	float size[3] = { radius, half_height, 0 };
-	return shape_cast("PhysicsCapsuleCast", BP_SHAPE_CAPSULE, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+	float size[3] = { radius, half_height, 0 }, q[4];
+	euler_quat(pitch, yaw, roll, q);
+	return shape_cast("PhysicsCapsuleCast", BP_SHAPE_CAPSULE, size, q, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
 }
 
 int32_t bb_physics_point_inside(float x, float y, float z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
@@ -1234,18 +1244,19 @@ int32_t bb_physics_overlap_sphere(float x, float y, float z, float radius, int32
 	return keep_overlaps(count, users);
 }
 
-int32_t bb_physics_overlap_box(float x, float y, float z, float half_x, float half_y, float half_z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+int32_t bb_physics_overlap_box(float x, float y, float z, float half_x, float half_y, float half_z, float pitch, float yaw, float roll, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
 	world_rec&          w = world_of(world, "PhysicsOverlapBox");
 	physics::api const& l = lib("PhysicsOverlapBox");
 	sync_poses(w, l);
-	float               c[3] = { x, y, z }, half[3] = { half_x, half_y, half_z };
+	float               c[3] = { x, y, z }, half[3] = { half_x, half_y, half_z }, q[4];
+	euler_quat(pitch, yaw, roll, q);
 	uint64_t            mask = layer_mask(mask_low, mask_high);
 	uint32_t            flags = sensors ? BP_QUERY_SENSORS : 0;
-	uint32_t            count = l.sim_overlap_box(w.sim, c, half, nullptr, mask, flags, nullptr, 0);
+	uint32_t            count = l.sim_overlap_box(w.sim, c, half, q, mask, flags, nullptr, 0);
 	std::vector<uint64_t> users(count);
 	if (count) {
-		l.sim_overlap_box(w.sim, c, half, nullptr, mask, flags, users.data(), count);
+		l.sim_overlap_box(w.sim, c, half, q, mask, flags, users.data(), count);
 	}
 	return keep_overlaps(count, users);
 }
