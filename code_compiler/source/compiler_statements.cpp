@@ -623,9 +623,10 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 	if (node->value) {
 		auto given = gen(node->value.get());
 		_return_kinds.insert((given.type == type::INT32) ? "int" : (given.type == type::FLOAT32) ? "float" : (given.type == type::STRING) ? "string" : "other");
-		// A number written in the program that fits is fine, like it is for the implicit conversions.
-		bool literal = blitz::types::is_integer(given.type) && !given.repr.empty() && (given.repr.find_first_not_of("-0123456789") == std::string::npos);
-		bool report  = (given.type != _return_type) && (given.type != type::STRUCT) && (_return_type != type::STRUCT) && (given.type != type::UNKNOWN) && !(literal && !is_lossy(given.type, _return_type, given.repr));
+		// A number known while compiling that fits (0, -1, a Const) is fine, like it is for the implicit conversions.
+		int64_t known;
+		bool    literal = known_integer(given.type, given.repr, given.source, known);
+		bool    report  = (given.type != _return_type) && (given.type != type::STRUCT) && (_return_type != type::STRUCT) && (given.type != type::UNKNOWN) && !(literal && !is_lossy(given.type, _return_type, given.repr, given.source));
 		if (report && warning_options.enabled("return-type-mismatch")) {
 			namespace t = blitz::types;
 			std::string fix;

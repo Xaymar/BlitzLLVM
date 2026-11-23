@@ -215,20 +215,41 @@ void blitz::compiler::guard(std::string const& failed, const char* message)
 	begin_label(ok_l);
 }
 
-bool blitz::compiler::is_lossy(type from, type to, std::string const& literal) const
+bool blitz::compiler::known_integer(type from, std::string const& literal, ast::expression const* source, int64_t& known)
 {
 	namespace t = blitz::types;
-	// A number written in the program is fine if it fits, because nothing is lost for it.
-	bool     digits = !literal.empty() && (literal.find_first_not_of("0123456789") == std::string::npos || (literal[0] == '-' && literal.size() > 1 && literal.find_first_not_of("0123456789", 1) == std::string::npos));
-	long double value = 0;
-	if (digits && literal.size() < 19) {
-		value = std::stold(literal);
-	} else {
-		digits = false;
+	if (!t::is_integer(from)) {
+		return false;
 	}
+	if (source && fold_int(source, known)) {
+		// Only if the folded number is the one the program has, which it is not when it wrapped around in a smaller type.
+		unsigned width = t::bits(from);
+		if (width >= 64) {
+			return t::is_signed(from) || (known >= 0);
+		} else if (t::is_signed(from)) {
+			return (known >= -(int64_t(1) << (width - 1))) && (known < (int64_t(1) << (width - 1)));
+		}
+		return (known >= 0) && (known < (int64_t(1) << width));
+	}
+	bool digits = !literal.empty() && (literal.find_first_not_of("0123456789") == std::string::npos || (literal[0] == '-' && literal.size() > 1 && literal.find_first_not_of("0123456789", 1) == std::string::npos));
+	if (digits && literal.size() < 19) {
+		known = std::stoll(literal);
+		return true;
+	}
+	return false;
+}
+
+bool blitz::compiler::is_lossy(type from, type to, std::string const& literal, ast::expression const* source)
+{
+	namespace t = blitz::types;
+	// A number that is known while compiling (written in the program, a Const, or something made only of them, like -30) is
+	// fine if it fits, because nothing is lost for it.
+	int64_t known = 0;
+	bool    fixed = known_integer(from, literal, source, known);
 	if (t::is_integer(from) && t::is_integer(to)) {
 		unsigned bits = t::bits(to) - (t::is_signed(to) ? 1 : 0);
-		if (digits) {
+		if (fixed) {
+			long double value = (long double)known;
 			long double low = t::is_signed(to) ? -std::ldexp(1.0L, int(bits)) : 0, high = std::ldexp(1.0L, int(bits)) - 1;
 			return (value < low) || (value > high);
 		}
@@ -237,8 +258,16 @@ bool blitz::compiler::is_lossy(type from, type to, std::string const& literal) c
 		return (have > bits) || (t::is_signed(from) && !t::is_signed(to));
 	} else if (t::is_integer(from) && t::is_real(to)) {
 		unsigned mantissa = (to == type::FLOAT16) ? 11 : ((to == type::FLOAT32) ? 24 : 53);
-		if (digits) {
-			return std::fabs(value) > std::ldexp(1.0L, int(mantissa));
+		if (fixed) {
+			// It is exact if the significant bits fit into the mantissa, so 16777218 is fine for a Float but 16777217 is not.
+			uint64_t magnitude = (known < 0) ? (0 - uint64_t(known)) : uint64_t(known);
+			if ((to == type::FLOAT16) && (magnitude > 65504)) {
+				return true;
+			}
+			while ((magnitude != 0) && ((magnitude & 1) == 0)) {
+				magnitude >>= 1;
+			}
+			return magnitude >= (uint64_t(1) << mantissa);
 		}
 		return t::bits(from) - (t::is_signed(from) ? 1 : 0) > mantissa;
 	}
@@ -292,7 +321,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 	bool to_int    = t::is_integer(to), to_real = t::is_real(to), to_str = (to == type::STRING);
 	auto from_llvm = t::to_llvm(from.type), to_llvm = t::to_llvm(to);
 
-	if (warn_lossy && ((from_int && to_int) || (from_int && to_real) || (from_real && to_real)) && is_lossy(from.type, to, from.repr)) {
+	if (warn_lossy && ((from_int && to_int) || (from_int && to_real) || (from_real && to_real)) && is_lossy(from.type, to, from.repr, from.source)) {
 		const char* name = (from_int && to_int) ? "implicit-lossy-int-to-int" : (from_int ? "implicit-lossy-int-to-real" : "implicit-lossy-real-to-real");
 		// Whole numbers can also be converted so that they stop at the limits of the target.
 		std::string notice = "Use " + t::converter(to) + "(value) to convert on purpose";

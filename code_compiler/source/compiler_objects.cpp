@@ -33,7 +33,12 @@ bool blitz::compiler::fold_int(ast::expression const* expr, int64_t& out)
 			return true;
 		}
 	} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
-		auto it = _const_values.find(lower(r->name));
+		auto key = lower(r->name);
+		auto own = _locals.find(key);
+		if ((own != _locals.end()) && !own->second.constant) {
+			return false; // A Local of a function hides the Const of the same name.
+		}
+		auto it = _const_values.find(key);
 		if (it != _const_values.end()) {
 			out = it->second;
 			return true;
