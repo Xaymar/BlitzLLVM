@@ -27,6 +27,8 @@ The originals have the integer `Int`, the real `Float`, `String` and the custom 
 
 Every type works as a `Global`, a `Local`, a parameter (with default values), a return type, a field of a `Type`, a `Const` and the type of a `Dim` array.
 
+A number type with a size behind it is a vector or a matrix, such as `FloatVector3` or `Int[4][4]`: see [Vectors and matrices](Vectors-and-Matrices).
+
 Write the type as a short form behind the name (`Count%`, `Total#`) or as a long form behind a colon (`Count:UInt`, `Function Now:ULong()`). The long form is preferred, and the `short-type-notation` warning (level 3) can point out the short one.
 
 A function with the name of a type converts to it: `Byte(x)`, `UInt(x)` and `Double(x)`, next to `Int`, `Float` and `Str` of the originals. An `Int` assigned to a `Float`, or the other way around, is converted for you.

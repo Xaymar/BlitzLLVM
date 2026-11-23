@@ -43,6 +43,7 @@ Differences that are not caused by one command.
 * [Types and numbers: Number suffixes](Types#number-suffixes): Extension: number literals take a suffix that picks their type, such as `255ui8` or `0.1.d`.
 * [Types and numbers: Void](Types#void): Extension: `Void` can be the return type of a function.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
+* [Vectors and matrices](Vectors-and-Matrices): Extension: `FloatVector3`, `IntVector4`, `FloatMatrix4x3` and the other vectors and matrices are values.
 
 ## Commands
 

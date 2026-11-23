@@ -1337,7 +1337,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (31)</summary>
+<li><details><summary>Features (32)</summary>
 <ul>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
 <li><a href="Colors">Colors</a></li>
@@ -1370,6 +1370,7 @@
 <li><a href="Types#number-suffixes">Types and numbers: Number suffixes</a></li>
 <li><a href="Types#void">Types and numbers: Void</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
+<li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
 <li><details><summary>Commands (457)</summary>
