@@ -9,10 +9,13 @@
 ;   Mouse or Left/Right   move the paddle
 ;   Left click or Space   launch the ball
 ;   P                     pause
-;   Escape                back to the title screen, or quit from there
+;   Escape                back to the menu, or quit from there
+;   Menus                 Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;
 ; Bricks: the number of stripes shows how many hits a brick needs. Grey bricks cannot be broken. Bricks with a
 ; dot always drop a capsule. Capsules: W = wider paddle, M = more balls, S = slower balls, + = an extra life.
+;
+; The options and the best score are saved in shatterwall.cfg next to the program.
 ;
 ; Works on: the original Blitz3D and BlitzPlus, and BlitzLLVM.
 
@@ -23,12 +26,13 @@ Const BRICKS_TOP = 100
 Const PADDLE_Y = 550, PADDLE_H = 14, PADDLE_W_NORMAL = 100, PADDLE_W_WIDE = 160, PADDLE_SPEED# = 10
 Const BALL_SIZE = 10, BALL_SPEED# = 6.5, BALL_SPEED_MAX# = 11
 Const MAX_BALLS = 8
-Const START_LIVES = 3
 Const LEVEL_COUNT = 5
 
-Const STATE_TITLE = 0, STATE_PLAY = 1, STATE_PAUSED = 2, STATE_CLEARED = 3, STATE_OVER = 4, STATE_WON = 5
+Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_PLAY = 3, STATE_PAUSED = 4, STATE_CLEARED = 5
+Const STATE_OVER = 6, STATE_WON = 7
 
-Const KEY_ESCAPE = 1, KEY_P = 25, KEY_SPACE = 57, KEY_LEFT = 203, KEY_RIGHT = 205
+Const KEY_ESCAPE = 1, KEY_P = 25, KEY_ENTER = 28, KEY_SPACE = 57
+Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 ; Brick kinds as stored in the level grid.
 Const BRICK_NONE = 0, BRICK_SOLID = 9 ; 1 to 4 are normal bricks that need that many hits.
@@ -59,21 +63,38 @@ Type Popup
 End Type
 
 Dim bricks(BRICK_COLUMNS - 1, BRICK_ROWS - 1)
-Dim brickDrops(BRICK_COLUMNS - 1, BRICK_ROWS - 1)
+Dim brickDrops(BRICK_COLUMNS - 1, BRICK_ROWS - 1) ; The capsule a brick always drops, or 0.
 
-Global state = STATE_TITLE
-Global level, lives, score, highScore
+; --- Options -----------------------------------------------------------------------------------------------------
+Global optDifficulty = 1   ; 0 easy, 1 normal, 2 hard.
+Global optVolume = 4       ; 0 to 4, in quarters.
+Global optShake = True
+Global optFullscreen = False
+Dim difficultyName$(2), startLives(2), difficultySpeed#(2)
+difficultyName(0) = "Easy" : startLives(0) = 5 : difficultySpeed(0) = 0.85
+difficultyName(1) = "Normal" : startLives(1) = 3 : difficultySpeed(1) = 1.0
+difficultyName(2) = "Hard" : startLives(2) = 2 : difficultySpeed(2) = 1.15
+Dim bestScore(2) ; One best score per difficulty.
+
+Global settingsPath$ = SystemProperty$("appdir")
+If settingsPath <> "" And Right(settingsPath, 1) <> "\" And Right(settingsPath, 1) <> "/" Then settingsPath = settingsPath + "/"
+settingsPath = settingsPath + "shatterwall.cfg"
+LoadSettings()
+
+; --- Game ----------------------------------------------------------------------------------------------------------
+Global state = STATE_MENU
+Global level, lives, score
 Global paddleX#, paddleW#, wideTimer, slowTimer
 Global speedScale# = 1.0
 Global shake#
 Global lastMouseX
+Global framesWithoutBrick  ; Counts up while no brick is hit, for the aim help.
 
-Graphics SCREEN_W, SCREEN_H, 0, 2
-AppTitle "Shatterwall"
-SetBuffer BackBuffer()
-SeedRnd MilliSecs()
+Dim menuText$(7)
+Global menuCount, menuSelected, menuTop
 
-Global background = MakeBackground()
+Global background
+OpenScreen()
 
 Const WAVE_SQUARE = 0, WAVE_SINE = 1, WAVE_NOISE = 2
 Global soundPaddle = MakeSound(300, 420, 50, WAVE_SQUARE, 0.25)
@@ -87,14 +108,18 @@ Global soundCleared = MakeSound(520, 1560, 700, WAVE_SINE, 0.35)
 Local timer = CreateTimer(60)
 lastMouseX = MouseX()
 
+GoToMenu()
 Local quit = False
 While Not quit
 	WaitTimer timer
 
 	Select state
-		Case STATE_TITLE
-			If KeyHit(KEY_SPACE) Or MouseHit(1) Then StartGame()
-			If KeyHit(KEY_ESCAPE) Then quit = True
+		Case STATE_MENU
+			quit = UpdateMenu()
+		Case STATE_OPTIONS
+			UpdateOptions()
+		Case STATE_HELP
+			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
 		Case STATE_PLAY
 			UpdatePaddle()
 			UpdateBalls()
@@ -104,15 +129,18 @@ While Not quit
 		Case STATE_PAUSED
 			If KeyHit(KEY_P) Then state = STATE_PLAY
 		Case STATE_CLEARED, STATE_OVER, STATE_WON
-			If KeyHit(KEY_SPACE) Or MouseHit(1)
+			If KeyHit(KEY_SPACE) Or KeyHit(KEY_ENTER) Or MouseHit(1)
 				If state = STATE_CLEARED
 					StartLevel(level + 1)
 				Else
-					state = STATE_TITLE
+					GoToMenu()
 				EndIf
 			EndIf
 	End Select
-	If state <> STATE_TITLE And KeyHit(KEY_ESCAPE) Then state = STATE_TITLE
+	If state >= STATE_PLAY And KeyHit(KEY_ESCAPE)
+		If score > bestScore(optDifficulty) Then bestScore(optDifficulty) = score : SaveSettings()
+		GoToMenu()
+	EndIf
 
 	UpdateEffects()
 	DrawGame()
@@ -121,11 +149,182 @@ Wend
 
 End
 
+; --- Screen and settings -------------------------------------------------------------------------------------------
+
+; Opens the window or full screen, as the option says. Graphics frees all images, so the background is made again.
+Function OpenScreen()
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	AppTitle "Shatterwall"
+	SetBuffer BackBuffer()
+	SeedRnd MilliSecs()
+	background = MakeBackground()
+End Function
+
+Function LoadSettings()
+	If FileType(settingsPath) <> 1 Then Return
+	Local file = ReadFile(settingsPath)
+	If Not file Then Return
+	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
+		optDifficulty = ReadInt(file)
+		optVolume = ReadInt(file)
+		optShake = ReadInt(file)
+		optFullscreen = ReadInt(file)
+		Local i
+		For i = 0 To 2
+			bestScore(i) = ReadInt(file)
+		Next
+	EndIf
+	CloseFile file
+	; Never trust a file: someone may have edited it.
+	If optDifficulty < 0 Or optDifficulty > 2 Then optDifficulty = 1
+	If optVolume < 0 Or optVolume > 4 Then optVolume = 4
+End Function
+
+Function SaveSettings()
+	Local file = WriteFile(settingsPath)
+	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
+	WriteInt file, 1
+	WriteInt file, optDifficulty
+	WriteInt file, optVolume
+	WriteInt file, optShake
+	WriteInt file, optFullscreen
+	Local i
+	For i = 0 To 2
+		WriteInt file, bestScore(i)
+	Next
+	CloseFile file
+End Function
+
+; Every sound goes through here, so the volume option works everywhere.
+Function PlaySfx(sound)
+	If sound = 0 Or optVolume = 0 Then Return
+	Local channel = PlaySound(sound)
+	ChannelVolume channel, optVolume / 4.0
+End Function
+
+; --- Menus ---------------------------------------------------------------------------------------------------------
+; A menu is a list of lines and the number of the selected one. The keyboard moves the selection, the mouse selects
+; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
+
+Function MenuInput()
+	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundPaddle)
+	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundPaddle)
+
+	Local line = MenuLineAt(MouseX(), MouseY())
+	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
+
+	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
+	If MouseHit(1) And line >= 0
+		menuSelected = line
+		Return line
+	EndIf
+	Return -1
+End Function
+
+; Which line is at a screen position, or -1. Lines are 30 pixels apart and 360 wide.
+Function MenuLineAt(x, y)
+	If x < SCREEN_W / 2 - 180 Or x >= SCREEN_W / 2 + 180 Or y < menuTop Then Return -1
+	Local line = (y - menuTop) / 30
+	If line >= menuCount Then Return -1
+	Return line
+End Function
+
+Function DrawMenu()
+	Local i, y
+	For i = 0 To menuCount - 1
+		y = menuTop + i * 30
+		If i = menuSelected
+			Color 40, 90, 170
+			Rect SCREEN_W / 2 - 180, y, 360, 26, 1
+			Color 255, 240, 200
+		Else
+			Color 200, 205, 230
+		EndIf
+		Text SCREEN_W / 2, y + 13, menuText(i), True, True
+	Next
+End Function
+
+Function GoToMenu()
+	state = STATE_MENU
+	menuCount = 4
+	menuTop = 290
+	menuSelected = 0
+	menuText(0) = "Play (" + difficultyName(optDifficulty) + ")"
+	menuText(1) = "Options"
+	menuText(2) = "How to play"
+	menuText(3) = "Quit"
+	Delete Each Ball
+	Delete Each Capsule
+	Delete Each Popup
+	; Forget keys pressed during a game, so they do not act on the menu too.
+	FlushKeys
+	FlushMouse
+End Function
+
+; Gives back True when the player chose Quit.
+Function UpdateMenu()
+	If KeyHit(KEY_ESCAPE) Then Return True
+	Select MenuInput()
+		Case 0 : StartGame()
+		Case 1 : GoToOptions()
+		Case 2
+			state = STATE_HELP
+			FlushKeys
+			FlushMouse
+		Case 3 : Return True
+	End Select
+	Return False
+End Function
+
+Function GoToOptions()
+	state = STATE_OPTIONS
+	menuCount = 5
+	menuTop = 260
+	menuSelected = 0
+	RefreshOptionsText()
+	FlushMouse
+End Function
+
+Function RefreshOptionsText()
+	menuText(0) = "Difficulty: " + difficultyName(optDifficulty) + " (" + startLives(optDifficulty) + " lives)"
+	menuText(1) = "Sound volume: " + (optVolume * 25) + "%"
+	If optShake Then menuText(2) = "Screen shake: on" Else menuText(2) = "Screen shake: off"
+	If optFullscreen Then menuText(3) = "Display: full screen" Else menuText(3) = "Display: window"
+	menuText(4) = "Back"
+End Function
+
+Function UpdateOptions()
+	Local change = 0
+	If KeyHit(KEY_LEFT) Then change = -1
+	If KeyHit(KEY_RIGHT) Then change = 1
+	Local chosen = MenuInput()
+	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
+
+	If KeyHit(KEY_ESCAPE) Or chosen = 4
+		SaveSettings()
+		GoToMenu()
+		menuSelected = 1 ; Back on "Options".
+		Return
+	EndIf
+	If change = 0 Then Return
+
+	Select menuSelected
+		Case 0 : optDifficulty = (optDifficulty + change + 3) Mod 3
+		Case 1 : optVolume = (optVolume + change + 5) Mod 5
+		Case 2 : optShake = Not optShake
+		Case 3
+			optFullscreen = Not optFullscreen
+			OpenScreen()
+	End Select
+	PlaySfx(soundPaddle)
+	RefreshOptionsText()
+End Function
+
 ; --- Game flow -------------------------------------------------------------------------------------------------------
 
 Function StartGame()
 	score = 0
-	lives = START_LIVES
+	lives = startLives(optDifficulty)
 	FlushKeys : FlushMouse
 	StartLevel(1)
 End Function
@@ -138,7 +337,8 @@ Function StartLevel(number)
 	wideTimer = 0 : slowTimer = 0
 	paddleW = Float(PADDLE_W_NORMAL)
 	paddleX = (FIELD_LEFT + FIELD_RIGHT - paddleW) / 2
-	speedScale = 1.0 + (level - 1) * 0.08 ; Each level is a little faster.
+	speedScale = difficultySpeed(optDifficulty) * (1.0 + (level - 1) * 0.08) ; Each level is a little faster.
+	framesWithoutBrick = 0
 	NewStuckBall()
 	AddPopup(Float(SCREEN_W / 2), 380, "Level " + level)
 	state = STATE_PLAY
@@ -146,13 +346,13 @@ End Function
 
 Function LoseLife()
 	lives = lives - 1
-	shake = 14
-	PlaySound soundLose
+	If optShake Then shake = 14
+	PlaySfx(soundLose)
 	Delete Each Capsule
 	wideTimer = 0 : slowTimer = 0
 	If lives <= 0
-		If score > highScore Then highScore = score
 		state = STATE_OVER
+		SaveBest()
 	Else
 		NewStuckBall()
 	EndIf
@@ -169,13 +369,19 @@ Function CheckCleared()
 	Delete Each Ball
 	Delete Each Capsule
 	score = score + 1000 * level
-	PlaySound soundCleared
+	PlaySfx(soundCleared)
 	If level = LEVEL_COUNT
-		If score > highScore Then highScore = score
 		state = STATE_WON
+		SaveBest()
 	Else
 		state = STATE_CLEARED
 	EndIf
+End Function
+
+Function SaveBest()
+	If score <= bestScore(optDifficulty) Then Return
+	bestScore(optDifficulty) = score
+	SaveSettings()
 End Function
 
 ; Levels are stored as text in Data lines at the bottom of this file. Each row has one character per brick:
@@ -196,17 +402,16 @@ Function LoadLevel(number)
 		For x = 0 To BRICK_COLUMNS - 1
 			Local c$ = Mid(row, x + 1, 1)
 			bricks(x, y) = BRICK_NONE
-			brickDrops(x, y) = False
+			brickDrops(x, y) = 0
 			Select c
 				Case "1", "2", "3", "4"
 					bricks(x, y) = Int(c)
 				Case "#"
 					bricks(x, y) = BRICK_SOLID
-				Case "."
-					; Empty.
-				Default
-					bricks(x, y) = 1
-					brickDrops(x, y) = True
+				Case "W" : bricks(x, y) = 1 : brickDrops(x, y) = POWER_WIDE
+				Case "M" : bricks(x, y) = 1 : brickDrops(x, y) = POWER_MULTI
+				Case "S" : bricks(x, y) = 1 : brickDrops(x, y) = POWER_SLOW
+				Case "L" : bricks(x, y) = 1 : brickDrops(x, y) = POWER_LIFE
 			End Select
 		Next
 	Next
@@ -353,24 +558,34 @@ Function HitBrick(x, y)
 	Local px# = Float(FIELD_LEFT + x * BRICK_W + BRICK_W / 2)
 	Local py# = Float(BRICKS_TOP + y * BRICK_H + BRICK_H / 2)
 	If bricks(x, y) = BRICK_SOLID
-		PlaySound soundSolid
+		PlaySfx(soundSolid)
 		Return
 	EndIf
 
+	framesWithoutBrick = 0
 	bricks(x, y) = bricks(x, y) - 1
 	score = score + 10
 	If bricks(x, y) > 0
-		PlaySound soundBrick
+		PlaySfx(soundBrick)
 		Return
 	EndIf
 
 	; The brick broke.
 	score = score + 40
-	shake = shake + 2
-	PlaySound soundBreak
+	If optShake Then shake = shake + 2
+	PlaySfx(soundBreak)
 	BrickColor(1, y) ; The pieces take the colour of the brick.
 	BurstShards(px, py, 18)
-	If brickDrops(x, y) Or Rand(1, 9) = 1 Then DropCapsule(px, py)
+	If brickDrops(x, y) <> 0
+		DropCapsule(px, py, brickDrops(x, y))
+	ElseIf Rand(1, 15) = 1
+		; A random capsule. Extra lives are rare: they mostly come from the bricks marked for them.
+		If Rand(1, 20) = 1
+			DropCapsule(px, py, POWER_LIFE)
+		Else
+			DropCapsule(px, py, Rand(POWER_WIDE, POWER_SLOW))
+		EndIf
+	EndIf
 End Function
 
 ; Bounces a ball off the paddle. Where it lands on the paddle decides the new angle, like a curved surface.
@@ -380,21 +595,39 @@ Function CheckPaddle(b.Ball)
 	If b\x + BALL_SIZE < paddleX Or b\x > paddleX + paddleW Then Return False
 
 	Local offset# = ((b\x + BALL_SIZE / 2) - (paddleX + paddleW / 2)) / (paddleW / 2)
-	If offset < -1 Then offset = -1.0
+	If offset < -1 Then offset = -1
 	If offset > 1 Then offset = 1
 	b\y = Float(PADDLE_Y - BALL_SIZE)
-	SetBallDirection(b, -90 + offset * 60)
-	PlaySound soundPaddle
+	Local angle# = -90 + offset * 65
+
+	; The last few bricks can be hard to reach. After 20 seconds without hitting one, the paddle helps a little: it
+	; sends the ball halfway towards a brick that is still standing.
+	If framesWithoutBrick > 60 * 20
+		Local x, y, found = False
+		For y = BRICK_ROWS - 1 To 0 Step -1
+			For x = 0 To BRICK_COLUMNS - 1
+				If Not found And bricks(x, y) >= 1 And bricks(x, y) <= 4 And Rand(1, 3) = 1
+					Local towards# = ATan2(BRICKS_TOP + y * BRICK_H + BRICK_H / 2 - b\y, FIELD_LEFT + x * BRICK_W + BRICK_W / 2 - b\x)
+					angle = (angle + towards) / 2
+					found = True
+				EndIf
+			Next
+		Next
+	EndIf
+	If angle < -160 Then angle = -160
+	If angle > -20 Then angle = -20
+
+	SetBallDirection(b, angle)
+	PlaySfx(soundPaddle)
 	Return True
 End Function
 
 ; --- Capsules --------------------------------------------------------------------------------------------------------
 
-Function DropCapsule(x#, y#)
+Function DropCapsule(x#, y#, kind)
 	Local c.Capsule = New Capsule
 	c\x = x : c\y = y
-	c\kind = Rand(POWER_WIDE, POWER_LIFE)
-	If c\kind = POWER_LIFE And Rand(1, 3) > 1 Then c\kind = Rand(POWER_WIDE, POWER_SLOW) ; Lives are rarer.
+	c\kind = kind
 End Function
 
 Function UpdateCapsules()
@@ -411,7 +644,7 @@ Function UpdateCapsules()
 End Function
 
 Function CollectCapsule(kind, x#, y#)
-	PlaySound soundPower
+	PlaySfx(soundPower)
 	score = score + 100
 	Local b.Ball
 	Local i%
@@ -427,12 +660,17 @@ Function CollectCapsule(kind, x#, y#)
 			AddPopup(x, y - 20, "Extra life")
 		Case POWER_MULTI
 			AddPopup(x, y - 20, "More balls")
-			; Every flying ball splits into three, up to a limit.
-			Local count = 0
+			; Every flying ball splits into three, up to a limit. New balls go to the end of the list, so the loop
+			; would reach them too and split them again. Counting the balls first and stopping after that many keeps
+			; the split to the balls that were there before.
+			Local count = 0, oldBalls
 			For b.Ball = Each Ball
 				count = count + 1
 			Next
+			oldBalls = count
 			For b.Ball = Each Ball
+				oldBalls = oldBalls - 1
+				If oldBalls < 0 Then Exit
 				If Not b\stuck
 					Local angle# = ATan2(b\vy, b\vx)
 					For i = -1 To 1 Step 2
@@ -456,8 +694,8 @@ Function BurstShards(x#, y#, count)
 		Local s.Shard = New Shard
 		s\x = x + Rnd(Float(-BRICK_W / 2), Float(BRICK_W / 2))
 		s\y = y + Rnd(Float(-BRICK_H / 2), Float(BRICK_H / 2))
-		s\vx = Rnd(-3.0, 3)
-		s\vy = Rnd(-4.0, 1)
+		s\vx = Rnd(-3, 3)
+		s\vy = Rnd(-4, 1)
 		s\life = Rnd(0.6, 1.0)
 		s\r = ColorRed() : s\g = ColorGreen() : s\b = ColorBlue()
 	Next
@@ -503,7 +741,7 @@ Function DrawGame()
 	Rect FIELD_LEFT - 6, FIELD_TOP, 6, SCREEN_H, 1
 	Rect FIELD_RIGHT, FIELD_TOP, 6, SCREEN_H, 1
 
-	If state <> STATE_TITLE
+	If state >= STATE_PLAY
 		DrawBricks()
 		DrawPaddle()
 		DrawBalls()
@@ -611,16 +849,21 @@ End Function
 Function DrawHud()
 	Color 220, 220, 240
 	Text 24, 20, "Score " + score
-	If state <> STATE_TITLE Then Text SCREEN_W / 2, 20, "Level " + level + " / " + LEVEL_COUNT, True, False
-	Text SCREEN_W - 24 - StringWidth("Best " + highScore), 20, "Best " + highScore
+	If state >= STATE_PLAY Then Text SCREEN_W / 2, 20, "Level " + level + " / " + LEVEL_COUNT, True, False
+	Text SCREEN_W - 24 - StringWidth("Best " + bestScore(optDifficulty)), 20, "Best " + bestScore(optDifficulty)
 
-	; One small paddle for every life left.
+	; One small paddle for every spare life. Past 8 there is one paddle and a number, so they never run off the field.
 	Local i%
-	If state <> STATE_TITLE
+	If state >= STATE_PLAY
 		Color 110, 190, 255
-		For i = 1 To lives - 1
-			Rect 24 + (i - 1) * 30, SCREEN_H - 20, 24, 6, 1
-		Next
+		If lives - 1 > 8
+			Rect 24, SCREEN_H - 20, 24, 6, 1
+			Text 56, SCREEN_H - 17, "x " + (lives - 1), False, True
+		Else
+			For i = 1 To lives - 1
+				Rect 24 + (i - 1) * 30, SCREEN_H - 20, 24, 6, 1
+			Next
+		EndIf
 	EndIf
 
 	Local p.Popup
@@ -631,14 +874,32 @@ Function DrawHud()
 		Text Int(p\x), Int(p\y), p\message, True, True
 	Next
 
+	If state <= STATE_HELP
+		DrawTitleBricks()
+		Color 120, 125, 160
+		Text SCREEN_W / 2, SCREEN_H - 30, "A BlitzLLVM sample game", True, True
+	EndIf
+
 	Color 255, 240, 200
 	Select state
-		Case STATE_TITLE
-			DrawTitleBricks()
+		Case STATE_MENU
+			DrawMenu()
+			Color 150, 155, 190
+			Text SCREEN_W / 2, 460, "Up / Down or the mouse to choose, Enter or a click to select.", True, True
+		Case STATE_OPTIONS
+			DrawMenu()
+			Color 150, 155, 190
+			Text SCREEN_W / 2, 460, "Left / Right or a click change the option, Escape goes back.", True, True
+		Case STATE_HELP
 			Color 220, 220, 240
-			Text SCREEN_W / 2, 330, "Break every brick to clear the level. There are " + LEVEL_COUNT + " levels.", True, False
-			Text SCREEN_W / 2, 360, "Mouse or Left / Right moves the paddle, click or Space launches the ball.", True, False
-			Text SCREEN_W / 2, 420, "Click or press Space to start", True, False
+			Text SCREEN_W / 2, 280, "Break every brick to clear the level. There are " + LEVEL_COUNT + " levels.", True, True
+			Text SCREEN_W / 2, 305, "Mouse or Left / Right moves the paddle, click or Space launches the ball.", True, True
+			Text SCREEN_W / 2, 330, "The edge of the paddle sends the ball off at a steep angle.", True, True
+			Text SCREEN_W / 2, 365, "Stripes show how many hits a brick needs. Grey bricks never break.", True, True
+			Text SCREEN_W / 2, 390, "Bricks with a dot drop a capsule. W: wider paddle, M: more balls,", True, True
+			Text SCREEN_W / 2, 410, "S: slower balls, +: an extra life. P pauses, Escape goes to the menu.", True, True
+			Color 150, 155, 190
+			Text SCREEN_W / 2, 460, "Press Enter or click to go back.", True, True
 		Case STATE_PAUSED
 			Text SCREEN_W / 2, 400, "Paused - press P", True, False
 		Case STATE_CLEARED
@@ -687,7 +948,28 @@ Function MakeBackground()
 		Oval x, y2, size, size, 1
 	Next
 	SetBuffer BackBuffer()
+	AddWatermark(image)
 	Return image
+End Function
+
+; --- Watermark -------------------------------------------------------------------------------------------------------
+; Every frame carries a faint pattern that nobody can see: some background pixels are one step bluer than the rest.
+; A program can find the pattern again in a screenshot, which shows that the picture came from this sample game.
+; Here it is painted into the background image once, so it costs nothing while playing.
+
+Function AddWatermark(image)
+	Local buffer = ImageBuffer(image), x, y, rgb
+	LockBuffer buffer
+	For y = 0 To SCREEN_H - 1
+		For x = 0 To SCREEN_W - 1
+			If (x * 7 + y * 13) Mod 29 < 3
+				rgb = ReadPixelFast(x, y, buffer)
+				If (rgb And $FF) = 255 Then rgb = rgb - 1 Else rgb = rgb + 1
+				WritePixelFast x, y, rgb, buffer
+			EndIf
+		Next
+	Next
+	UnlockBuffer buffer
 End Function
 
 ; --- Helpers ---------------------------------------------------------------------------------------------------------
@@ -731,11 +1013,11 @@ Function MakeSound(startHz#, endHz#, lengthMs, wave, volume#)
 		Local v#
 		Select wave
 			Case WAVE_SQUARE
-				If phase < 180 Then v = 1 Else v = -1.0
+				If phase < 180 Then v = 1 Else v = -1
 			Case WAVE_SINE
 				v = Sin(phase)
 			Default
-				v = Rnd(-1.0, 1)
+				v = Rnd(-1, 1)
 		End Select
 		; Fade in very quickly and fade out towards the end, so the sound does not click.
 		Local envelope# = 1.0
