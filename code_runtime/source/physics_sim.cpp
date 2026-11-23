@@ -1161,6 +1161,39 @@ int32_t bb_physics_ray_cast(float x1, float y1, float z1, float x2, float y2, fl
 	return last_hit.entity;
 }
 
+static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], float x1, float y1, float z1, float x2, float y2, float z2, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	world_rec&          w = world_of(world, name);
+	physics::api const& l = lib(name);
+	sync_poses(w, l);
+	float        from[3] = { x1, y1, z1 }, along[3] = { x2 - x1, y2 - y1, z2 - z1 };
+	bp_query_hit hit{};
+	clear_hit();
+	if (!l.sim_shape_cast(w.sim, kind, size, from, nullptr, along, layer_mask(mask_low, mask_high), sensors ? BP_QUERY_SENSORS : 0, &hit)) {
+		return 0;
+	}
+	keep_hit(hit);
+	return last_hit.entity;
+}
+
+int32_t bb_physics_sphere_cast(float x1, float y1, float z1, float x2, float y2, float z2, float radius, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	float size[3] = { radius, 0, 0 };
+	return shape_cast("PhysicsSphereCast", BP_SHAPE_SPHERE, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+}
+
+int32_t bb_physics_box_cast(float x1, float y1, float z1, float x2, float y2, float z2, float half_x, float half_y, float half_z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	float size[3] = { half_x, half_y, half_z };
+	return shape_cast("PhysicsBoxCast", BP_SHAPE_BOX, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+}
+
+int32_t bb_physics_capsule_cast(float x1, float y1, float z1, float x2, float y2, float z2, float radius, float half_height, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
+{
+	float size[3] = { radius, half_height, 0 };
+	return shape_cast("PhysicsCapsuleCast", BP_SHAPE_CAPSULE, size, x1, y1, z1, x2, y2, z2, mask_low, mask_high, sensors, world);
+}
+
 int32_t bb_physics_point_inside(float x, float y, float z, int32_t mask_low, int32_t mask_high, int32_t sensors, int32_t world)
 {
 	world_rec&          w = world_of(world, "PhysicsPointInside");
