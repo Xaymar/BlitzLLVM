@@ -22,3 +22,5 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [CameraViewport](CameraViewport)
 * [CameraZoom](CameraZoom)
 * [CreateCamera](CreateCamera)
+* [GetCameraBuffer](GetCameraBuffer)
+* [SetCameraBuffer](SetCameraBuffer)
