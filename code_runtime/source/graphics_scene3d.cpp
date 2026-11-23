@@ -846,7 +846,7 @@ namespace bb::gfx {
 
 	void build_pipelines_3d()
 	{
-		bb::rhi::shader vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
+		bb::rhi::shader vs = g.can_clip_planes ? create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d)) : create_shader(bb_shader_vertex_3d_noclip, sizeof(bb_shader_vertex_3d_noclip));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		bb::rhi::shader fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
@@ -4130,6 +4130,20 @@ namespace bb::gfx {
 			}
 		}
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
+		// The clip planes move with everything else to be relative to the camera: d grows by the distance of the camera along the normal.
+		for (int i = 0; i < 6; i++) {
+			const float* plane = cam.cam_clip_planes[i];
+			if (cam.cam_clip_enabled & (1 << i)) {
+				double shift = double(plane[0]) * double(current_origin[0]) + double(plane[1]) * double(current_origin[1]) + double(plane[2]) * double(current_origin[2]);
+				data.clip_planes[i][0] = plane[0];
+				data.clip_planes[i][1] = plane[1];
+				data.clip_planes[i][2] = plane[2];
+				data.clip_planes[i][3] = float(double(plane[3]) + shift);
+			} else {
+				data.clip_planes[i][0] = data.clip_planes[i][1] = data.clip_planes[i][2] = 0;
+				data.clip_planes[i][3] = 1;
+			}
+		}
 
 		scene_record scene = {};
 		scene.slot         = scenes.size;

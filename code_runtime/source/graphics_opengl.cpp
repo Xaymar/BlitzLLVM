@@ -76,6 +76,9 @@ namespace gl {
 #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
 #endif
+#ifndef GL_CLIP_DISTANCE0
+#define GL_CLIP_DISTANCE0 0x3000
+#endif
 #ifndef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT 0x8C4D
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT 0x8C4E
@@ -126,6 +129,7 @@ namespace bb::gfx {
 			std::vector<gl_binding> textures, uniforms, storage;
 			int                     push_point    = -1; // The binding of the block of push constants.
 			GLint                   base_instance = -1; // The uniform that stands in for the first instance where the driver has no ARB_shader_draw_parameters.
+			int                     clip_distances = 0; // How many gl_ClipDistance the vertex shader writes, which have to be enabled while it draws.
 		};
 
 		// A pipeline as it is bound: a program and the state that Vulkan keeps in the pipeline.
@@ -442,6 +446,9 @@ namespace bb::gfx {
 				return;
 			}
 			const bb::rhi::pipeline_desc& desc = pipeline->desc;
+			for (int i = 0; i < 6; i++) {
+				(pipeline->program && (i < pipeline->program->clip_distances) ? gl::Enable : gl::Disable)(GLenum(GL_CLIP_DISTANCE0 + i));
+			}
 			static const GLenum factors[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_SRC_COLOR };
 			for (uint32_t i = 0; i < desc.attachment_count; i++) {
 				const bb::rhi::blend_state& blend = desc.attachments[i].blend;
@@ -628,6 +635,10 @@ namespace bb::gfx {
 				if (shader) {
 					gl::DeleteShader(shader); // The program keeps what it needs.
 				}
+			}
+			// The 3D vertex shader writes the distances to the clip planes of the camera (gl_ClipDistance[6]); the others write none.
+			if (strstr(shader_sources[first.id - 1].source, "gl_ClipDistance")) {
+				program->clip_distances = 6;
 			}
 			assign_bindings(*program);
 			programs[key] = program;

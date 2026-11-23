@@ -43,7 +43,314 @@ void main()
 }
 
 )glsl")
-BB_OPENGL_SHADER(bb_shader_vertex_3d, 5172, 0x65A8FD95927E19C4ull, 'v', R"glsl(#version 430
+BB_OPENGL_SHADER(bb_shader_vertex_3d, 5346, 0x599020672443226Aull, 'v', R"glsl(#version 430
+#ifdef GL_ARB_shader_draw_parameters
+#extension GL_ARB_shader_draw_parameters : enable
+#endif
+
+out float gl_ClipDistance[6];
+
+struct _19
+{
+    vec4 _m0;
+    vec4 _m1;
+    vec4 _m2;
+    vec4 _m3;
+    vec4 _m4;
+    vec4 _m5;
+    vec4 _m6;
+    vec4 _m7;
+    vec4 _m8;
+    vec4 _m9;
+    vec4 _m10;
+    vec4 _m11;
+};
+
+#ifndef SPIRV_CROSS_CONSTANT_ID_0
+#define SPIRV_CROSS_CONSTANT_ID_0 0.0
+#endif
+const float _791 = SPIRV_CROSS_CONSTANT_ID_0;
+#ifndef SPIRV_CROSS_CONSTANT_ID_1
+#define SPIRV_CROSS_CONSTANT_ID_1 1.0
+#endif
+const float _792 = SPIRV_CROSS_CONSTANT_ID_1;
+
+layout(std140) uniform bb_u1_0_v
+{
+    mat4 _m0;
+    vec4 _m1;
+    vec4 _m4;
+    vec4 _m5;
+    vec4 _m6;
+    vec4 _m8;
+    vec4 _m9;
+    vec4 _m10;
+    vec4 _m2[128];
+    vec4 _m3[128];
+    vec4 _m7[128];
+    vec4 _m11;
+    vec4 _m12;
+    vec4 _m13[6];
+} _17;
+
+layout(std430) readonly buffer bb_b2_0_v
+{
+    _19 _m0[];
+} _22;
+
+#ifdef GL_ARB_shader_draw_parameters
+#define SPIRV_Cross_BaseInstance gl_BaseInstanceARB
+#else
+uniform int SPIRV_Cross_BaseInstance;
+#endif
+layout(location = 6) flat out vec4 _26;
+layout(location = 8) flat out vec4 _28;
+layout(location = 0) in vec3 _29;
+layout(location = 1) in vec3 _31;
+layout(location = 2) in vec2 _32;
+layout(location = 3) in vec4 _34;
+layout(location = 4) in vec2 _36;
+layout(location = 0) out vec2 _37;
+layout(location = 7) out vec4 _39;
+layout(location = 1) out vec4 _40;
+layout(location = 2) out vec4 _41;
+layout(location = 3) flat out vec4 _42;
+layout(location = 4) out vec3 _43;
+layout(location = 5) flat out vec3 _45;
+layout(location = 9) out vec3 _46;
+layout(location = 10) flat out vec4 _47;
+layout(location = 11) flat out vec4 _48;
+layout(location = 12) flat out float _49;
+layout(location = 13) flat out vec4 _51;
+layout(location = 14) out vec4 _52;
+
+void main()
+{
+    _26 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m6;
+    vec4 _93 = vec4(_29, 1.0);
+    vec3 _97 = vec3(dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m0, _93), dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m1, _93), dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m2, _93));
+    vec3 _104 = vec3(dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m0.xyz, _31), dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m1.xyz, _31), dot(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m2.xyz, _31));
+    vec3 _109 = _104 * (1.0 / max(length(_104), 9.9999999747524270787835121154785e-07));
+    vec4 _116 = vec4(_97, 1.0);
+    vec4 _117 = _17._m0 * _116;
+    gl_Position = _117;
+    gl_ClipDistance[0] = dot(_17._m13[0], _116);
+    gl_ClipDistance[1] = dot(_17._m13[1], _116);
+    gl_ClipDistance[2] = dot(_17._m13[2], _116);
+    gl_ClipDistance[3] = dot(_17._m13[3], _116);
+    gl_ClipDistance[4] = dot(_17._m13[4], _116);
+    gl_ClipDistance[5] = dot(_17._m13[5], _116);
+    _28 = vec4(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m10.xy, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m10.z + (_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m10.w * (_17._m0 * vec4(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m0.w, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m1.w, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m2.w, 1.0)).w), _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m10.w);
+    vec3 _782;
+    vec3 _783;
+    if ((!(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.w > 0.5)) || (_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m6.z > 0.5))
+    {
+        vec3 _185 = _17._m6.xyz - _97;
+        vec3 _190 = _185 * (1.0 / max(length(_185), 9.9999997473787516355514526367188e-05));
+        float _195 = max(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.w * 128.0, 0.001000000047497451305389404296875);
+        float _199 = floor(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.x * 0.00390625);
+        int _203 = int(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.x - (_199 * 256.0));
+        int _204 = int(_199);
+        float _207 = floor(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.y * 0.00390625);
+        int _210 = int(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.y - (_207 * 256.0));
+        int _211 = int(_207);
+        float _214 = floor(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.z * 0.00390625);
+        int _217 = int(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.z - (_214 * 256.0));
+        int _218 = int(_214);
+        float _221 = floor(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.w * 0.00390625);
+        int _224 = int(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9.w - (_221 * 256.0));
+        int _225 = int(_221);
+        vec3 _293;
+        vec3 _294;
+        if (_203 < 127)
+        {
+            vec3 _239 = _17._m2[_203].xyz - _97;
+            float _240 = length(_239);
+            float _246 = clamp(_17._m2[_203].w * 1000.0, 0.0, 1.0);
+            vec3 _250 = (_17._m2[_203].xyz * (1.0 - _246)) + ((_239 * (1.0 / max(_240, 9.9999997473787516355514526367188e-05))) * _246);
+            float _252 = max(dot(_109, _250), 0.0);
+            float _276 = (1.0 + (((max(_17._m2[_203].w, 9.9999997473787516355514526367188e-05) / max(_240, 9.9999997473787516355514526367188e-05)) - 1.0) * _246)) * (1.0 + ((clamp(((0.0 - dot(_250, _17._m7[_203].xyz)) - _17._m7[_203].w) / max(_17._m3[_203].w - _17._m7[_203].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_203].w)));
+            vec3 _280 = _250 + _190;
+            _293 = _17._m3[_203].xyz * (_252 * _276);
+            _294 = vec3(1.0) * ((pow(max(dot(_109, _280 * (1.0 / max(length(_280), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _252)) * _276);
+        }
+        else
+        {
+            _293 = vec3(0.0);
+            _294 = vec3(0.0);
+        }
+        vec3 _361;
+        vec3 _362;
+        if (_204 < 127)
+        {
+            vec3 _309 = _17._m2[_204].xyz - _97;
+            float _310 = length(_309);
+            float _315 = clamp(_17._m2[_204].w * 1000.0, 0.0, 1.0);
+            vec3 _319 = (_17._m2[_204].xyz * (1.0 - _315)) + ((_309 * (1.0 / max(_310, 9.9999997473787516355514526367188e-05))) * _315);
+            float _321 = max(dot(_109, _319), 0.0);
+            float _344 = (1.0 + (((max(_17._m2[_204].w, 9.9999997473787516355514526367188e-05) / max(_310, 9.9999997473787516355514526367188e-05)) - 1.0) * _315)) * (1.0 + ((clamp(((0.0 - dot(_319, _17._m7[_204].xyz)) - _17._m7[_204].w) / max(_17._m3[_204].w - _17._m7[_204].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_204].w)));
+            vec3 _348 = _319 + _190;
+            _361 = _17._m3[_204].xyz * (_321 * _344);
+            _362 = vec3(1.0) * ((pow(max(dot(_109, _348 * (1.0 / max(length(_348), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _321)) * _344);
+        }
+        else
+        {
+            _361 = vec3(0.0);
+            _362 = vec3(0.0);
+        }
+        vec3 _429;
+        vec3 _430;
+        if (_210 < 127)
+        {
+            vec3 _377 = _17._m2[_210].xyz - _97;
+            float _378 = length(_377);
+            float _383 = clamp(_17._m2[_210].w * 1000.0, 0.0, 1.0);
+            vec3 _387 = (_17._m2[_210].xyz * (1.0 - _383)) + ((_377 * (1.0 / max(_378, 9.9999997473787516355514526367188e-05))) * _383);
+            float _389 = max(dot(_109, _387), 0.0);
+            float _412 = (1.0 + (((max(_17._m2[_210].w, 9.9999997473787516355514526367188e-05) / max(_378, 9.9999997473787516355514526367188e-05)) - 1.0) * _383)) * (1.0 + ((clamp(((0.0 - dot(_387, _17._m7[_210].xyz)) - _17._m7[_210].w) / max(_17._m3[_210].w - _17._m7[_210].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_210].w)));
+            vec3 _416 = _387 + _190;
+            _429 = _17._m3[_210].xyz * (_389 * _412);
+            _430 = vec3(1.0) * ((pow(max(dot(_109, _416 * (1.0 / max(length(_416), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _389)) * _412);
+        }
+        else
+        {
+            _429 = vec3(0.0);
+            _430 = vec3(0.0);
+        }
+        vec3 _497;
+        vec3 _498;
+        if (_211 < 127)
+        {
+            vec3 _445 = _17._m2[_211].xyz - _97;
+            float _446 = length(_445);
+            float _451 = clamp(_17._m2[_211].w * 1000.0, 0.0, 1.0);
+            vec3 _455 = (_17._m2[_211].xyz * (1.0 - _451)) + ((_445 * (1.0 / max(_446, 9.9999997473787516355514526367188e-05))) * _451);
+            float _457 = max(dot(_109, _455), 0.0);
+            float _480 = (1.0 + (((max(_17._m2[_211].w, 9.9999997473787516355514526367188e-05) / max(_446, 9.9999997473787516355514526367188e-05)) - 1.0) * _451)) * (1.0 + ((clamp(((0.0 - dot(_455, _17._m7[_211].xyz)) - _17._m7[_211].w) / max(_17._m3[_211].w - _17._m7[_211].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_211].w)));
+            vec3 _484 = _455 + _190;
+            _497 = _17._m3[_211].xyz * (_457 * _480);
+            _498 = vec3(1.0) * ((pow(max(dot(_109, _484 * (1.0 / max(length(_484), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _457)) * _480);
+        }
+        else
+        {
+            _497 = vec3(0.0);
+            _498 = vec3(0.0);
+        }
+        vec3 _565;
+        vec3 _566;
+        if (_217 < 127)
+        {
+            vec3 _513 = _17._m2[_217].xyz - _97;
+            float _514 = length(_513);
+            float _519 = clamp(_17._m2[_217].w * 1000.0, 0.0, 1.0);
+            vec3 _523 = (_17._m2[_217].xyz * (1.0 - _519)) + ((_513 * (1.0 / max(_514, 9.9999997473787516355514526367188e-05))) * _519);
+            float _525 = max(dot(_109, _523), 0.0);
+            float _548 = (1.0 + (((max(_17._m2[_217].w, 9.9999997473787516355514526367188e-05) / max(_514, 9.9999997473787516355514526367188e-05)) - 1.0) * _519)) * (1.0 + ((clamp(((0.0 - dot(_523, _17._m7[_217].xyz)) - _17._m7[_217].w) / max(_17._m3[_217].w - _17._m7[_217].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_217].w)));
+            vec3 _552 = _523 + _190;
+            _565 = _17._m3[_217].xyz * (_525 * _548);
+            _566 = vec3(1.0) * ((pow(max(dot(_109, _552 * (1.0 / max(length(_552), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _525)) * _548);
+        }
+        else
+        {
+            _565 = vec3(0.0);
+            _566 = vec3(0.0);
+        }
+        vec3 _633;
+        vec3 _634;
+        if (_218 < 127)
+        {
+            vec3 _581 = _17._m2[_218].xyz - _97;
+            float _582 = length(_581);
+            float _587 = clamp(_17._m2[_218].w * 1000.0, 0.0, 1.0);
+            vec3 _591 = (_17._m2[_218].xyz * (1.0 - _587)) + ((_581 * (1.0 / max(_582, 9.9999997473787516355514526367188e-05))) * _587);
+            float _593 = max(dot(_109, _591), 0.0);
+            float _616 = (1.0 + (((max(_17._m2[_218].w, 9.9999997473787516355514526367188e-05) / max(_582, 9.9999997473787516355514526367188e-05)) - 1.0) * _587)) * (1.0 + ((clamp(((0.0 - dot(_591, _17._m7[_218].xyz)) - _17._m7[_218].w) / max(_17._m3[_218].w - _17._m7[_218].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_218].w)));
+            vec3 _620 = _591 + _190;
+            _633 = _17._m3[_218].xyz * (_593 * _616);
+            _634 = vec3(1.0) * ((pow(max(dot(_109, _620 * (1.0 / max(length(_620), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _593)) * _616);
+        }
+        else
+        {
+            _633 = vec3(0.0);
+            _634 = vec3(0.0);
+        }
+        vec3 _701;
+        vec3 _702;
+        if (_224 < 127)
+        {
+            vec3 _649 = _17._m2[_224].xyz - _97;
+            float _650 = length(_649);
+            float _655 = clamp(_17._m2[_224].w * 1000.0, 0.0, 1.0);
+            vec3 _659 = (_17._m2[_224].xyz * (1.0 - _655)) + ((_649 * (1.0 / max(_650, 9.9999997473787516355514526367188e-05))) * _655);
+            float _661 = max(dot(_109, _659), 0.0);
+            float _684 = (1.0 + (((max(_17._m2[_224].w, 9.9999997473787516355514526367188e-05) / max(_650, 9.9999997473787516355514526367188e-05)) - 1.0) * _655)) * (1.0 + ((clamp(((0.0 - dot(_659, _17._m7[_224].xyz)) - _17._m7[_224].w) / max(_17._m3[_224].w - _17._m7[_224].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_224].w)));
+            vec3 _688 = _659 + _190;
+            _701 = _17._m3[_224].xyz * (_661 * _684);
+            _702 = vec3(1.0) * ((pow(max(dot(_109, _688 * (1.0 / max(length(_688), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _661)) * _684);
+        }
+        else
+        {
+            _701 = vec3(0.0);
+            _702 = vec3(0.0);
+        }
+        vec3 _769;
+        vec3 _770;
+        if (_225 < 127)
+        {
+            vec3 _717 = _17._m2[_225].xyz - _97;
+            float _718 = length(_717);
+            float _723 = clamp(_17._m2[_225].w * 1000.0, 0.0, 1.0);
+            vec3 _727 = (_17._m2[_225].xyz * (1.0 - _723)) + ((_717 * (1.0 / max(_718, 9.9999997473787516355514526367188e-05))) * _723);
+            float _729 = max(dot(_109, _727), 0.0);
+            float _752 = (1.0 + (((max(_17._m2[_225].w, 9.9999997473787516355514526367188e-05) / max(_718, 9.9999997473787516355514526367188e-05)) - 1.0) * _723)) * (1.0 + ((clamp(((0.0 - dot(_727, _17._m7[_225].xyz)) - _17._m7[_225].w) / max(_17._m3[_225].w - _17._m7[_225].w, 9.9999997473787516355514526367188e-05), 0.0, 1.0) - 1.0) * step(-1.5, _17._m7[_225].w)));
+            vec3 _756 = _727 + _190;
+            _769 = _17._m3[_225].xyz * (_729 * _752);
+            _770 = vec3(1.0) * ((pow(max(dot(_109, _756 * (1.0 / max(length(_756), 9.9999997473787516355514526367188e-05))), 9.9999997473787516355514526367188e-05), _195) * step(9.9999999747524270787835121154785e-07, _729)) * _752);
+        }
+        else
+        {
+            _769 = vec3(0.0);
+            _770 = vec3(0.0);
+        }
+        vec3 _771 = (((((((_17._m1.xyz + _293) + _361) + _429) + _497) + _565) + _633) + _701) + _769;
+        _782 = _771 + ((vec3(1.0) - _771) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.x);
+        _783 = ((((((((vec3(0.0) + _294) + _362) + _430) + _498) + _566) + _634) + _702) + _770) * (clamp(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.w, 0.0, 1.0) * (1.0 - _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.x));
+    }
+    else
+    {
+        _782 = vec3(1.0);
+        _783 = vec3(0.0);
+    }
+    float _802 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m3.w * (1.0 + ((_34.w - 1.0) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.z));
+    vec4 _810 = vec4(clamp((_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m3.xyz + ((_34.xyz - _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m3.xyz) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.y)) * _782, vec3(_791), vec3(_792)), _802 + ((_34.w - _802) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4.y));
+    _40 = _810;
+    _42 = _810;
+    _43 = _783;
+    _45 = _783;
+    _46 = _109;
+    _47 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m4;
+    _48 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m9;
+    _49 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.w;
+    vec2 _820 = _32 + ((_36 - _32) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.x);
+    float _823 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.z + 1.0;
+    float _824 = _820.x;
+    float _825 = _820.y;
+    vec2 _834 = (vec2((_823 * _824) + (_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.y * _825), (_823 * _825) - (_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m7.y * _824)) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m5.xy) + vec2(_22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m5.zw);
+    vec3 _847 = vec3(dot(_109, _17._m8.xyz), dot(_109, _17._m9.xyz), dot(_109, _17._m10.xyz));
+    vec3 _865 = _97 - _17._m6.xyz;
+    vec3 _869 = _865 * (1.0 / max(length(_865), 9.9999997473787516355514526367188e-05));
+    vec3 _874 = _869 - (_109 * (2.0 * dot(_109, _869)));
+    vec3 _879 = _874 + ((_109 - _874) * step(1.5, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.y));
+    vec3 _884 = _879 + ((_865 - _879) * step(2.5, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.y));
+    _37 = _834 + ((vec2((0.5 * _847.x) + 0.5, 0.5 - (0.5 * _847.y)) - _834) * (step(0.5, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.x) * (1.0 - step(1.5, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.x))));
+    _39 = vec4(_884 + ((vec3(dot(_884, _17._m8.xyz), dot(_884, _17._m9.xyz), dot(_884, _17._m10.xyz)) - _884) * _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.z), _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.w * step(1.5, _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m8.x));
+    _52 = vec4(_32.x, _32.y, _36.x, _36.y);
+    _51 = _22._m0[(gl_InstanceID + SPIRV_Cross_BaseInstance)]._m11;
+    _41 = vec4(_117.w, _97);
+}
+
+)glsl")
+BB_OPENGL_SHADER(bb_shader_vertex_3d_noclip, 5172, 0x65A8FD95927E19C4ull, 'v', R"glsl(#version 430
 #ifdef GL_ARB_shader_draw_parameters
 #extension GL_ARB_shader_draw_parameters : enable
 #endif

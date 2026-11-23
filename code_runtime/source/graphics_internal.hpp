@@ -278,6 +278,7 @@ namespace bb::gfx {
 		bb::rhi::pipeline            add3d          ;
 		bb::rhi::pipeline            wire3d[4];  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
+		bool                  can_clip_planes = true; // Whether the 3D vertex shader can write clip distances (SetCameraClipPlane); Vulkan needs the feature shaderClipDistance.
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
@@ -503,7 +504,7 @@ namespace bb::gfx {
 
 	constexpr uint32_t max_scenes   = 64;  // Cameras that can be waiting to be drawn.
 
-	constexpr uint32_t scene_stride = 6400; // Distance between the scene data of each, a multiple of what the GPU wants.
+	constexpr uint32_t scene_stride = 6656; // Distance between the scene data of each, a multiple of what the GPU wants.
 
 
 	// What the vertex shader reads as the scene: matches the uniform block in tools/generate_shaders.py.
@@ -519,6 +520,7 @@ namespace bb::gfx {
 		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
 		float projection[4];                // Near and far plane, and 1 if orthographic: turns depth back into distance for soft sprite edges. Fourth: see dither_code.
 		float dither[4];                    // The steps of the Bayer pattern of this picture (DitherMode 1), see dither_steps.
+		float clip_planes[6][4];            // SetCameraClipPlane, relative to the camera like everything else: 0, 0, 0, 1 for a plane that is off.
 	};
 	static_assert(sizeof(scene_data) <= scene_stride, "The scene data has to fit in the stride that is between the cameras.");
 
