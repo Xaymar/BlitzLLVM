@@ -4192,8 +4192,45 @@ namespace bb::gfx {
 		op.first      = scenes.size - 1;
 	}
 
+	// The buffer a camera draws to: the one of SetCameraBuffer, or the one of SetBuffer. A texture that was freed is not drawn to,
+	// the camera goes back to the buffer of SetBuffer.
+	static int camera_target(bb::entity& cam)
+	{
+		if ((cam.cam_buffer >= texture_buffer_base) && !live_texture_of((cam.cam_buffer - texture_buffer_base) >> 10)) {
+			cam.cam_buffer = 0;
+		}
+		return cam.cam_buffer ? cam.cam_buffer : g.target;
+	}
+
+	// While a camera draws to a buffer of its own, that is the buffer that what is recorded goes to, without the 2D viewport of SetBuffer's.
+	struct camera_target_scope {
+		int saved_target, saved_view[4];
+		bool changed;
+
+		explicit camera_target_scope(int buffer) : saved_target(g.target), saved_view{ g.view_x, g.view_y, g.view_w, g.view_h }, changed(buffer != g.target)
+		{
+			if (changed) {
+				g.target = buffer;
+				g.view_x = g.view_y = 0;
+				g.view_w = g.view_h = -1;
+			}
+		}
+
+		~camera_target_scope()
+		{
+			if (changed) {
+				g.target = saved_target;
+				g.view_x = saved_view[0];
+				g.view_y = saved_view[1];
+				g.view_w = saved_view[2];
+				g.view_h = saved_view[3];
+			}
+		}
+	};
+
 	static void render_camera(int handle, bb::entity& cam, scene_data& data, bb::buffer<int> const& mirrors)
 	{
+		camera_target_scope scope(camera_target(cam));
 		target_ref target = resolve_target(g.target);
 		if (!target.image) {
 			return;
@@ -4279,6 +4316,16 @@ namespace bb::gfx {
 			bb_runtime_error(message);
 		}
 		return e;
+	}
+
+	void camera_buffers_forget(int texture)
+	{
+		for (int h = 1; h <= bb::entity_count(); h++) {
+			bb::entity* e = bb::get_entity(h);
+			if (e && (e->kind == bb::CAMERA) && (e->cam_buffer >= texture_buffer_base) && (((e->cam_buffer - texture_buffer_base) >> 10) == texture)) {
+				e->cam_buffer = 0;
+			}
+		}
 	}
 } // namespace bb::gfx
 
@@ -4438,6 +4485,41 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 	float dy = (m[1] * local[0] + m[5] * local[1] + m[9] * local[2]) * range;
 	float dz = (m[2] * local[0] + m[6] * local[1] + m[10] * local[2]) * range;
 	return bb_line_pick(m[12], m[13], m[14], dx, dy, dz, 0);
+}
+
+// SetCameraBuffer camera, buffer: the camera always draws into this buffer, whatever SetBuffer says. It can be BackBuffer(), FrontBuffer() or the
+// TextureBuffer of a texture made with flag 4096; 0 makes the camera draw into the buffer of SetBuffer again. The viewport of the camera is
+// in the buffer it draws to. A BlitzLLVM extension.
+void bb_set_camera_buffer(int32_t camera, int32_t buffer)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraBuffer");
+	if ((buffer != 0) && (buffer != front_buffer) && (buffer != back_buffer)) {
+		if (buffer < image_buffer_base) {
+			bb_runtime_error("SetCameraBuffer: the buffer does not exist.");
+			return;
+		}
+		if (buffer < texture_buffer_base) {
+			bb_runtime_error("SetCameraBuffer: a camera can not draw to an image, use a texture.");
+			return;
+		}
+		texture_entry* tex = live_texture_of((buffer - texture_buffer_base) >> 10);
+		if (!tex) {
+			bb_runtime_error("SetCameraBuffer: the texture of the buffer does not exist.");
+			return;
+		}
+		if (!(tex->flags & TEXTURE_TARGET)) {
+			bb_runtime_error("SetCameraBuffer: the texture is not a render target, give it flag 4096 when it is made.");
+			return;
+		}
+	}
+	cam->cam_buffer = buffer;
+}
+
+// GetCameraBuffer camera: the buffer of SetCameraBuffer, or 0 if the camera draws into the buffer of SetBuffer. A texture that was freed counts as 0.
+int32_t bb_get_camera_buffer(int32_t camera)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraBuffer");
+	return (cam->cam_buffer == 0) ? 0 : (camera_target(*cam) == cam->cam_buffer ? cam->cam_buffer : 0);
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.

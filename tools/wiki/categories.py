@@ -154,7 +154,7 @@ _RULES = {
         (r"^(bsp|loadbsp)", B3D, "BSP"),
         (r"terrain", B3D, "Terrain"),
         (r"sprite", B3D, "Sprites"),
-        (r"^camera|^createcamera", B3D, "Cameras"),
+        (r"^camera|^createcamera|^(set|get)camera", B3D, "Cameras"),
         (r"light", B3D, "Lights"),
         (r"brush", B3D, "Brushes"),
         (r"texture|sampler|setcube|loadanimtexture|loadatlas|positiontexture|rotatetexture|scaletexture", B3D, "Textures"),
