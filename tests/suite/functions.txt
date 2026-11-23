@@ -83,6 +83,12 @@ cameraculling	blitz3d	done	CameraCulling%camera%flags
 cameracullingsource	blitz3d	done	CameraCullingSource%camera_a%camera_b=0
 setcamerabuffer	blitz3d	done	SetCameraBuffer%camera%buffer
 getcamerabuffer	blitz3d	done	%GetCameraBuffer%camera
+setcameraprojectionmatrix	blitz3d	done	SetCameraProjectionMatrix%camera^matrix
+getcameraprojectionmatrix	blitz3d	done	^GetCameraProjectionMatrix%camera
+resetcameraprojectionmatrix	blitz3d	done	ResetCameraProjectionMatrix%camera
+setcameraviewmatrix	blitz3d	done	SetCameraViewMatrix%camera|matrix
+getcameraviewmatrix	blitz3d	done	|GetCameraViewMatrix%camera
+resetcameraviewmatrix	blitz3d	done	ResetCameraViewMatrix%camera
 cameraprojmode	blitz3d	done	CameraProjMode%camera%mode
 camerarange	blitz3d	done	CameraRange%camera#near#far
 cameraviewport	blitz3d	done	CameraViewport%camera%x%y%width%height
