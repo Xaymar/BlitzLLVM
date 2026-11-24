@@ -172,6 +172,8 @@ namespace bb::gfx {
 		s.gpu         = gpu;
 		s.dirty       = false;
 		s.bound_valid = false;
+		gpu->uploaded_geometry       = s.geometry_version;
+		gpu->uploaded_vertex_version = s.vertex_version;
 		return true;
 	}
 
@@ -207,13 +209,22 @@ namespace bb::gfx {
 		// Changing the contents is only fine if nothing that waits to be drawn looks at the buffers, and they are big enough.
 		uint64_t vsize = uint64_t(s.vertices.size) * sizeof(bb::vertex3d);
 		uint64_t isize = uint64_t(s.indices.size) * sizeof(uint32_t);
+		// When only what is in the vertices changed since the buffers were filled, the index buffer still has the right triangles. A surface
+		// that was made dirty without a new geometry_version (the renderer's own, see build_plane) is copied whole.
+		const uint32_t changes        = gpu ? s.geometry_version - gpu->uploaded_geometry : 0;
+		const bool     same_triangles = gpu && gpu->index_buffer && (changes != 0) && (changes == s.vertex_version - gpu->uploaded_vertex_version)
+			&& (s.indices.size == gpu->index_count);
 		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
 		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
 		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
 			memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
-			memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
-			gpu->index_count = s.indices.size;
-			gpu->clusters_valid = false;
+			if (!same_triangles) {
+				memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
+			}
+			gpu->index_count             = s.indices.size;
+			gpu->clusters_valid          = false;
+			gpu->uploaded_geometry       = s.geometry_version;
+			gpu->uploaded_vertex_version = s.vertex_version;
 			return gpu;
 		}
 		surface_gpu* old = gpu;
@@ -236,19 +247,29 @@ namespace bb::gfx {
 			old->clusters                = bb::buffer<gpu_cluster>();
 			old->cluster_index_buffer    = rhi::gpu_buffer();
 		}
+		// So does the index buffer: the GPU may still read it for draws that wait, which is fine as nothing writes to it.
+		if (same_triangles) {
+			gpu->index_buffer   = old->index_buffer;
+			gpu->index_capacity = old->index_capacity;
+			old->index_buffer   = rhi::gpu_buffer();
+		}
 		release_surface_gpu(old);
 
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
-		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
 		rhi::create_buffer(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh);
 		memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
 
-		rhi::create_buffer(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh);
-		memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
+		if (!same_triangles) {
+			gpu->index_capacity = s.indices.size + s.indices.size / 4 + 48;
+			rhi::create_buffer(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh);
+			memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
+		}
 
-		gpu->index_count = s.indices.size;
-		s.gpu            = gpu;
+		gpu->index_count             = s.indices.size;
+		gpu->uploaded_geometry       = s.geometry_version;
+		gpu->uploaded_vertex_version = s.vertex_version;
+		s.gpu                        = gpu;
 		return gpu;
 	}
 

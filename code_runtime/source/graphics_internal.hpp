@@ -588,6 +588,9 @@ namespace bb::gfx {
 		uint32_t       index_count   = 0;
 		uint32_t       vertex_capacity = 0, index_capacity = 0;
 		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
+		// What the surface was when the buffers were filled last: when only its vertices changed since (see surface_vertices_changed), the
+		// indices in the buffer are still right and only the vertices are copied again.
+		uint32_t       uploaded_geometry = 0, uploaded_vertex_version = 0;
 		// Big surfaces are also kept as clusters for culling on the GPU: the triangles ordered by where they are, in an index buffer of their own.
 		bool           clusters_valid  = false;       // Whether they match the surface as it is.
 		uint32_t       clusters_flush  = 0;           // The flush they were made in, to not make them again for a surface that changes all the time.
