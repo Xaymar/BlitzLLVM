@@ -5,4 +5,4 @@
 Include "<keys.bb>"
 Include "<mouse.bb>"
 Include "<joystick.bb>"
-Print KEY_ESCAPE + "," + KEY_ENTER + "," + KEY_RETURN + "," + VKEY_A + "," + MOUSE_RIGHT + "," + JOYHAT_LEFT
+Print BB_KEY_ESCAPE + "," + BB_KEY_ENTER + "," + BB_KEY_RETURN + "," + BB_VKEY_A + "," + BB_MOUSE_RIGHT + "," + BB_JOYHAT_LEFT

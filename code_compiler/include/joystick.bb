@@ -7,22 +7,22 @@
 ; different from one gamepad to the next.
 
 ; What JoyType returns. The original calls 1 and 2 digital and analog. BlitzLLVM gives 1 for gamepads and 2 for everything else.
-Const JOYTYPE_NONE = 0    ; Nothing in that port
-Const JOYTYPE_DIGITAL = 1 ; A gamepad
-Const JOYTYPE_ANALOG = 2  ; Anything else: a flight stick, a wheel, ...
+Const BB_JOYTYPE_NONE = 0    ; Nothing in that port
+Const BB_JOYTYPE_DIGITAL = 1 ; A gamepad
+Const BB_JOYTYPE_ANALOG = 2  ; Anything else: a flight stick, a wheel, ...
 
 ; What JoyHat returns: the direction of the first hat (d-pad) in degrees, clockwise from up.
-Const JOYHAT_CENTERED = -1
-Const JOYHAT_UP = 0
-Const JOYHAT_UP_RIGHT = 45
-Const JOYHAT_RIGHT = 90
-Const JOYHAT_DOWN_RIGHT = 135
-Const JOYHAT_DOWN = 180
-Const JOYHAT_DOWN_LEFT = 225
-Const JOYHAT_LEFT = 270
-Const JOYHAT_UP_LEFT = 315
+Const BB_JOYHAT_CENTERED = -1
+Const BB_JOYHAT_UP = 0
+Const BB_JOYHAT_UP_RIGHT = 45
+Const BB_JOYHAT_RIGHT = 90
+Const BB_JOYHAT_DOWN_RIGHT = 135
+Const BB_JOYHAT_DOWN = 180
+Const BB_JOYHAT_DOWN_LEFT = 225
+Const BB_JOYHAT_LEFT = 270
+Const BB_JOYHAT_UP_LEFT = 315
 
 ; What JoyXDir, JoyYDir, JoyZDir, JoyUDir and JoyVDir return.
-Const JOYDIR_NEGATIVE = -1 ; Left, up, ...
-Const JOYDIR_CENTERED = 0
-Const JOYDIR_POSITIVE = 1  ; Right, down, ...
+Const BB_JOYDIR_NEGATIVE = -1 ; Left, up, ...
+Const BB_JOYDIR_CENTERED = 0
+Const BB_JOYDIR_POSITIVE = 1  ; Right, down, ...

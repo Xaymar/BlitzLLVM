@@ -4,8 +4,8 @@
 ; Mouse buttons, shipped with BlitzLLVM: Include "<mouse.bb>"
 ; For MouseDown, MouseHit, WaitMouse and GetMouse.
 
-Const MOUSE_LEFT = 1
-Const MOUSE_RIGHT = 2
-Const MOUSE_MIDDLE = 3
-Const MOUSE_BACK = 4    ; The first side button (X1)
-Const MOUSE_FORWARD = 5 ; The second side button (X2)
+Const BB_MOUSE_LEFT = 1
+Const BB_MOUSE_RIGHT = 2
+Const BB_MOUSE_MIDDLE = 3
+Const BB_MOUSE_BACK = 4    ; The first side button (X1)
+Const BB_MOUSE_FORWARD = 5 ; The second side button (X2)

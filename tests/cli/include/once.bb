@@ -6,4 +6,4 @@ Include "<keys.bb>"
 Include "<KEYS.BB>"
 Include "<all.bb>"
 Include "sub\..\once_local.bb"
-Print KEY_SPACE
+Print BB_KEY_SPACE

@@ -5,22 +5,22 @@
 
 @difference Extension: `Include "<keys.bb>"` includes a file shipped with BlitzLLVM, such as the constants of the key codes.
 
-BlitzLLVM comes with include files of constants, so that a program doesn't have to type the key codes and flags in again. A name in angle brackets inside the quotes includes one of them:
+BlitzLLVM comes with include files of constants, so that a program doesn't have to type the key codes and flags in again. Every name starts with `BB_`, so it doesn't clash with the constants a program already has. A name in angle brackets inside the quotes includes one of them:
 
 ```blitzbasic
 Include "<keys.bb>"
 Include "<mouse.bb>"
 
-While Not KeyHit(KEY_ESCAPE)
-	If MouseHit(MOUSE_LEFT) Then Print "Click"
+While Not KeyHit(BB_KEY_ESCAPE)
+	If MouseHit(BB_MOUSE_LEFT) Then Print "Click"
 Wend
 ```
 
 | File | What it has |
 |---|---|
-| `keys.bb` | `KEY_*` for `KeyDown` and `KeyHit` (`KEY_ESCAPE`, `KEY_A`, `KEY_LEFT`, `KEY_ENTER`, ...), `VKEY_*` for `VKeyDown` and `VKeyHit`, see [[Scan-Codes]]. The names are those of the key's position on a US keyboard. |
-| `mouse.bb` | `MOUSE_LEFT`, `MOUSE_RIGHT`, `MOUSE_MIDDLE`, `MOUSE_BACK`, `MOUSE_FORWARD`. |
-| `joystick.bb` | `JOYTYPE_*` for `JoyType`, `JOYHAT_*` for `JoyHat`, `JOYDIR_*` for `JoyXDir` and the others. Buttons have no names, because every device numbers them differently. |
+| `keys.bb` | `BB_KEY_*` for `KeyDown` and `KeyHit` (`BB_KEY_ESCAPE`, `BB_KEY_A`, `BB_KEY_LEFT`, `BB_KEY_ENTER`, ...), `BB_VKEY_*` for `VKeyDown` and `VKeyHit`, see [[Scan-Codes]]. The names are those of the key's position on a US keyboard. |
+| `mouse.bb` | `BB_MOUSE_LEFT`, `BB_MOUSE_RIGHT`, `BB_MOUSE_MIDDLE`, `BB_MOUSE_BACK`, `BB_MOUSE_FORWARD`. |
+| `joystick.bb` | `BB_JOYTYPE_*` for `JoyType`, `BB_JOYHAT_*` for `JoyHat`, `BB_JOYDIR_*` for `JoyXDir` and the others. Buttons have no names, because every device numbers them differently. |
 | `all.bb` | All of the above. |
 
 The files are in the `include` folder of the installation (`share/blitzllvm/include` for the Linux packages). The compiler looks in the folders given with `-I <folder>` first, so a project can keep its own shared files there and include them the same way. `BLITZLLVM_INCLUDE` replaces the folder of the installation. A file is included once, however often and from wherever it is named.
