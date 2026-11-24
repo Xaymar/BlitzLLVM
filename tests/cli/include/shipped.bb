@@ -4,4 +4,5 @@
 ; The include files shipped with BlitzLLVM, found in the include directory of the installation.
 Include "<keys.bb>"
 Include "<mouse.bb>"
-Print KEY_ESCAPE + "," + KEY_ENTER + "," + KEY_RETURN + "," + VKEY_A + "," + MOUSE_RIGHT
+Include "<joystick.bb>"
+Print KEY_ESCAPE + "," + KEY_ENTER + "," + KEY_RETURN + "," + VKEY_A + "," + MOUSE_RIGHT + "," + JOYHAT_LEFT

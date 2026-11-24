@@ -5,3 +5,4 @@
 
 Include "<keys.bb>"
 Include "<mouse.bb>"
+Include "<joystick.bb>"
