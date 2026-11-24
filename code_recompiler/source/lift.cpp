@@ -602,8 +602,10 @@ namespace blitz::recompiler {
 						char b[40];
 						std::snprintf(b, sizeof(b), "0x%016llX", static_cast<unsigned long long>(bits));
 						v = b;
+					} else if (k == 's') {
+						v = "null"; // A parameter that BlitzLLVM added to the end (SaveImage's format): the runtime reads no string as an empty one.
 					} else {
-						throw unsupported("the command '" + c.name + "' has a string parameter that the original does not have");
+						throw unsupported("the command '" + c.name + "' has a parameter type that is not supported");
 					}
 				}
 				args += (args.empty() ? "" : ", ") + std::string(ll_type(k)) + " " + v;
