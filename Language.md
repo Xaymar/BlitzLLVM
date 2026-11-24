@@ -229,4 +229,4 @@ BlitzLLVM
 
 ## Other keywords
 
-`Include "file.bb"` puts another source file in this place, `True` and `False` are 1 and 0, `Null` is the empty object, and `End` stops the program.
+`Include "file.bb"` puts another source file in this place (`Include "<keys.bb>"` one shipped with BlitzLLVM, see [[Include-Files]]), `True` and `False` are 1 and 0, `Null` is the empty object, and `End` stops the program.

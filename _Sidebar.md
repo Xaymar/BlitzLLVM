@@ -18,6 +18,7 @@
 <li><a href="Types">Types and numbers</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
 <li><a href="Language-Quirks">Language Quirks</a></li>
+<li><a href="Include-Files">Include Files</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 </ul>
 
@@ -1353,7 +1354,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (32)</summary>
+<li><details><summary>Features (33)</summary>
 <ul>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
 <li><a href="Colors">Colors</a></li>
@@ -1363,6 +1364,7 @@
 <li><a href="GPU-Optimizations">GPU optimizations</a></li>
 <li><a href="GPU-Optimizations#sprite-shapes">GPU optimizations: Sprite shapes</a></li>
 <li><a href="Image-Formats">Image formats</a></li>
+<li><a href="Include-Files">Include Files</a></li>
 <li><a href="IPv6">IPv6</a></li>
 <li><a href="Language#data">Language: Data</a></li>
 <li><a href="Lost-Graphics-Device">Lost graphics device</a></li>

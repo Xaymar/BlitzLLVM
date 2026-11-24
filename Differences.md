@@ -20,6 +20,7 @@ Differences that are not caused by one command.
 * [GPU optimizations](GPU-Optimizations): Extension: `CameraCulling` chooses what is left out of the picture before it is drawn, and `CameraCullingSource` shows what a camera leaves out. The picture is the same.
 * [GPU optimizations: Sprite shapes](GPU-Optimizations#sprite-shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
+* [Include Files](Include-Files): Extension: `Include "<keys.bb>"` includes a file shipped with BlitzLLVM, such as the constants of the key codes.
 * [IPv6](IPv6): The network commands also work over IPv6, and have text versions of the commands that use an address as a whole number.
 * [Language: Data](Language#data): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
