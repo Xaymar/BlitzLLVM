@@ -19,7 +19,8 @@ Function BenchClusters()
 	Return Stats3D(1004)
 End Function
 
-; Shows the frame. Flip 2 syncs the picture with the display without making the program wait, so the time stays the time of the program.
+; Shows the frame without waiting for the display, like the original (Flip 0). Flip 2 is not used while it can still hold a frame back
+; to the refresh rate of the display (seen at 180 Hz), which would measure the display instead of the program.
 Function BenchFlip()
-	Flip 2
+	Flip 0
 End Function
