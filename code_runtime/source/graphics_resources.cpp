@@ -808,6 +808,15 @@ namespace bb::gfx {
 		}
 	}
 
+	// BLITZLLVM_DEBUG_SWAPCHAIN=1 writes to stderr each time a window's swapchain is made, with how long that took and how much of it
+	// was the wait for the GPU, and what is done about each present that answered SUBOPTIMAL.
+	static bool debug_swapchain()
+	{
+		static const bool on = bb_env_bool("BLITZLLVM_DEBUG_SWAPCHAIN", false) != 0;
+		return on;
+	}
+	static thread_local Uint64 swapchain_remade_since = 0, swapchain_idle_ns = 0; // When destroy_swapchain began, and its wait for the GPU.
+
 	void create_swapchain(surface_state& s)
 	{
 		int w = 0, h = 0;
@@ -821,20 +830,34 @@ namespace bb::gfx {
 		if (bb::rhi::create_swapchain(s.chain, desc)) {
 			s.resized = false;
 		}
+		if (debug_swapchain()) {
+			Uint64 now = SDL_GetTicksNS();
+			fprintf(stderr, "[swapchain] %.3f s: made for %s window, %ux%u, in %.2f ms (%.2f ms waiting for the GPU)\n", double(now) / 1e9,
+			        (&s == &surface()) ? "the Graphics" : "another", s.chain.width, s.chain.height,
+			        swapchain_remade_since ? double(now - swapchain_remade_since) / 1e6 : 0.0, double(swapchain_idle_ns) / 1e6);
+			swapchain_remade_since = swapchain_idle_ns = 0;
+		}
 	}
 
 	bool swapchain_size_changed(surface_state& s)
 	{
-		int w = 0, h = 0;
-		if (!s.window || !SDL_GetWindowSizeInPixels(s.window, &w, &h)) {
-			return true;
+		int  w = 0, h = 0;
+		bool changed = !s.window || !SDL_GetWindowSizeInPixels(s.window, &w, &h) || (uint32_t(w) != s.chain.width) || (uint32_t(h) != s.chain.height);
+		if (debug_swapchain()) {
+			fprintf(stderr, "[swapchain] %.3f s: SUBOPTIMAL for %s window, window %dx%d, swapchain %ux%u: %s\n", double(SDL_GetTicksNS()) / 1e9,
+			        (&s == &surface()) ? "the Graphics" : "another", w, h, s.chain.width, s.chain.height, changed ? "made again" : "kept");
 		}
-		return (uint32_t(w) != s.chain.width) || (uint32_t(h) != s.chain.height);
+		return changed;
 	}
 
 	void destroy_swapchain(surface_state& s)
 	{
+		Uint64 started = SDL_GetTicksNS();
 		gpu_idle();
+		if (debug_swapchain()) {
+			swapchain_remade_since = started;
+			swapchain_idle_ns      = SDL_GetTicksNS() - started;
+		}
 		bb::rhi::destroy_swapchain(s.chain);
 	}
 
