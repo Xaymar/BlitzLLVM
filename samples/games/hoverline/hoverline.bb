@@ -234,11 +234,16 @@ Global soundFall = MakeSound(900, 120, 800, WAVE_SINE, 0.3)
 Global soundPickup = MakeSound(500, 1400, 220, WAVE_SQUARE, 0.12)
 Global soundShot = MakeSound(1400, 600, 50, WAVE_NOISE, 0.12)
 Global soundMissile = MakeSound(200, 700, 500, WAVE_NOISE, 0.2)
-Global soundBlast = MakeSound(180, 40, 500, WAVE_NOISE, 0.4)
+Global soundBlast = MakeBlastSound(1100, 0.55, 55)
+Global soundBigBlast = MakeBlastSound(1900, 0.6, 38)
 Global soundPlasma = MakeSound(2000, 300, 350, WAVE_SINE, 0.3)
 Global soundCharge = MakeSound(200, 1600, 1000, WAVE_SINE, 0.2)
 Global soundWarning = MakeSound(1200, 1200, 80, WAVE_SQUARE, 0.12)
-Global soundShield = MakeSound(300, 900, 400, WAVE_SINE, 0.2)
+Global soundShield = MakeShieldSound(200, 900, 600)
+Global soundShieldDown = MakeShieldSound(700, 150, 500)
+Global soundShieldHit = MakeShieldHitSound()
+Global soundShieldHum = MakeShieldHum()
+Global soundComputer = MakeComputerSound()
 Global soundPulse = MakeSound(120, 60, 400, WAVE_SQUARE, 0.3)
 Global soundLock = MakeSound(1800, 1800, 60, WAVE_SINE, 0.12)
 Global soundEngine = MakeEngineSound()
@@ -1734,6 +1739,7 @@ Function DamageCraft(c.Craft, amount#, by.Craft, what$)
 	CraftPoint(c, HOVER)
 	If c\shield > 0
 		BurstSparks(gX, gY, gZ, 120, 200, 255, 8, 0.25, 0.6)
+		If c = player Or by = player Then PlaySfx(soundShieldHit)
 		Return
 	EndIf
 	BurstSparks(gX, gY, gZ, 255, 160, 80, 10, 0.3, 0.8)
@@ -1945,7 +1951,9 @@ Function Explode(sh.Shot)
 	EndIf
 	; Loud enough to hear when it is near the camera.
 	Local dx# = sh\x - EntityX(camera), dy# = sh\y - EntityY(camera), dz# = sh\z - EntityZ(camera)
-	If dx * dx + dy * dy + dz * dz < 120 * 120 Then PlaySfx(soundBlast)
+	If dx * dx + dy * dy + dz * dz < 120 * 120
+		If sh\kind = SHOT_PLASMA Then PlaySfx(soundBigBlast) Else PlaySfx(soundBlast)
+	EndIf
 End Function
 
 Function UpdateWaves()
@@ -2225,15 +2233,50 @@ End Function
 Function StopEngine()
 	If engineChannel <> 0 Then StopChannel engineChannel
 	engineChannel = 0
+	StopLoops()
 End Function
 
 Function UpdateEngine()
+	UpdateLoops()
 	If engineChannel = 0 Then Return
 	Local pitch# = 0.6 + player\spd / classScale * 0.4 + (classScale - 1) * 0.2
 	If player\padTimer > 0 Or player\boostTimer > 0 Then pitch = pitch + 0.25
 	If player\respawn > 0 Then pitch = 0.4
 	ChannelPitch engineChannel, Int(22050 * pitch)
 End Function
+
+; The player's shield hums and the autopilot computes for as long as they last. Both only play while racing.
+Function UpdateLoops()
+	Local racing = state = STATE_RACE And optVolume > 0
+	If racing And player\shield > 0 And player\respawn = 0
+		If shieldChannel = 0
+			shieldChannel = PlaySound(soundShieldHum)
+			ChannelVolume shieldChannel, optVolume / 4.0 * 0.5
+		EndIf
+	ElseIf shieldChannel <> 0
+		StopChannel shieldChannel
+		shieldChannel = 0
+		If racing Then PlaySfx(soundShieldDown)
+	EndIf
+	If racing And player\autopilot > 0 And player\respawn = 0
+		If computerChannel = 0
+			computerChannel = PlaySound(soundComputer)
+			ChannelVolume computerChannel, optVolume / 4.0 * 0.6
+		EndIf
+	ElseIf computerChannel <> 0
+		StopChannel computerChannel
+		computerChannel = 0
+	EndIf
+End Function
+
+Function StopLoops()
+	If shieldChannel <> 0 Then StopChannel shieldChannel
+	If computerChannel <> 0 Then StopChannel computerChannel
+	shieldChannel = 0
+	computerChannel = 0
+End Function
+
+Global shieldChannel, computerChannel
 
 ; --- Menus -----------------------------------------------------------------------------------------------------------
 
@@ -2452,6 +2495,7 @@ End Function
 
 Function GoToPause()
 	If engineChannel <> 0 Then PauseChannel engineChannel
+	StopLoops() ; They start again when the race carries on.
 	OpenMenu(STATE_PAUSED, 4, 260)
 	menuText(0) = "Carry on"
 	menuText(1) = "Start again"
@@ -3208,6 +3252,121 @@ Function MakeSound(startHz#, endHz#, lengthMs, wave, volume#)
 		PokeShort bank, 44 + i * 2, Int(v * envelope * volume * 32000) And $FFFF
 	Next
 	Return SoundFromBank(bank, False)
+End Function
+
+; An explosion: a sharp crack, then noise that grows darker as it dies away, over a deep rumble that sinks from
+; rumbleHz. The noise goes through a simple low-pass filter whose cutoff falls over the length of the sound.
+Function MakeBlastSound(lengthMs, volume#, rumbleHz#)
+	Local rate = 22050
+	Local samples = rate * lengthMs / 1000
+	Local bank = WaveBank(samples)
+	Local i, t#, seconds#, v#, noise#, low# = 0, lower# = 0, cutoff#, phase# = 0, rumble#, envelope#
+	For i = 0 To samples - 1
+		t = Float(i) / samples
+		seconds = Float(i) / rate
+		noise = Rnd(-1, 1)
+		; Two filters in a row: the second one keeps only the deepest part of the noise for the rumble.
+		cutoff = 0.5 * (1 - t) * (1 - t) + 0.02
+		low = low + (noise - low) * cutoff
+		lower = lower + (low - lower) * 0.03
+		phase = phase + 360.0 * rumbleHz * (1 - 0.4 * t) / rate
+		If phase >= 360 Then phase = phase - 360
+		rumble = Sin(phase) * (0.6 + 0.4 * Sin(seconds * 360 * 7))
+		; The hiss dies away quickly, the rumble lingers.
+		v = low * 0.6 * Exp(-seconds * 9 / (lengthMs / 1000.0))
+		v = v + (lower * 6 + rumble * 0.8) * Exp(-seconds * 2.5 / (lengthMs / 1000.0))
+		If seconds < 0.025 Then v = v + noise * 0.7 * (1 - seconds / 0.025) ; The crack at the start.
+		envelope = 1 - t
+		If i < 32 Then envelope = envelope * i / 32.0
+		v = Clamp(v * envelope * volume, -1, 1)
+		PokeShort bank, 44 + i * 2, Int(v * 32000) And $FFFF
+	Next
+	Return SoundFromBank(bank, False)
+End Function
+
+; The shield going up (a rising sweep) or down (a falling one): two tones a few waves a second apart, so they beat
+; against each other and shimmer, with an octave above.
+Function MakeShieldSound(startHz#, endHz#, lengthMs)
+	Local rate = 22050
+	Local samples = rate * lengthMs / 1000
+	Local bank = WaveBank(samples)
+	Local i, t#, hz#, a# = 0, b# = 0, c# = 0, v#, envelope#
+	For i = 0 To samples - 1
+		t = Float(i) / samples
+		hz = startHz + (endHz - startHz) * Sqr(t)
+		a = a + 360.0 * hz / rate
+		b = b + 360.0 * (hz * 1.02 + 6) / rate
+		c = c + 360.0 * hz * 2 / rate
+		If a >= 360 Then a = a - 360
+		If b >= 360 Then b = b - 360
+		If c >= 360 Then c = c - 360
+		v = Sin(a) * 0.45 + Sin(b) * 0.45 + Sin(c) * 0.15
+		envelope = Sin(t * 180)
+		PokeShort bank, 44 + i * 2, Int(v * envelope * 0.3 * 32000) And $FFFF
+	Next
+	Return SoundFromBank(bank, False)
+End Function
+
+; A hit on the shield: a bright zap that falls in pitch, ring-modulated so it sounds electric.
+Function MakeShieldHitSound()
+	Local rate = 22050, samples = 22050 / 4
+	Local bank = WaveBank(samples)
+	Local i, t#, a# = 0, v#
+	For i = 0 To samples - 1
+		t = Float(i) / samples
+		a = a + 360.0 * (2200 - 1800 * t) / rate
+		If a >= 360 Then a = a - 360
+		v = Sin(a) * Sin(Float(i) / rate * 360 * 90) * 0.8 + Rnd(-0.2, 0.2) * (1 - t)
+		v = v * (1 - t) * (1 - t)
+		If i < 32 Then v = v * i / 32.0
+		PokeShort bank, 44 + i * 2, Int(v * 0.35 * 32000) And $FFFF
+	Next
+	Return SoundFromBank(bank, False)
+End Function
+
+; The hum while the shield is up. It loops without a click: one second holds a whole number of every wave in it.
+Function MakeShieldHum()
+	Local rate = 22050, samples = 22050
+	Local bank = WaveBank(samples)
+	Local i, t#, v#
+	For i = 0 To samples - 1
+		t = Float(i) / rate
+		v = Sin(t * 360 * 90) * 0.45 + Sin(t * 360 * 181) * 0.25 + Sin(t * 360 * 270) * 0.1
+		v = v + Sin(t * 360 * 1350) * 0.07 * (0.5 + 0.5 * Sin(t * 360 * 6)) ; A faint high shimmer.
+		v = v * (0.8 + 0.2 * Sin(t * 360 * 4))
+		PokeShort bank, 44 + i * 2, Int(v * 0.4 * 32000) And $FFFF
+	Next
+	Return SoundFromBank(bank, True)
+End Function
+
+; The autopilot: a computer busy calculating. Short beeps at random pitches, with a few gaps, over a quiet hum. It
+; loops, so each beep fades in and out and the hum fits a whole number of waves into the loop.
+Function MakeComputerSound()
+	; 24 beeps of 1225 samples make 4/3 of a second, which holds exactly 160 waves of the 120 Hz hum.
+	Local rate = 22050, noteLength = 1225, notes = 24
+	Local samples = noteLength * notes
+	Local bank = WaveBank(samples)
+	Local note, i, k, hz#, phase#, v#, envelope#, t#
+	For note = 0 To notes - 1
+		hz = 0
+		If Rand(5) > 1 Then hz = 880 * 2 ^ (Rand(0, 18) / 12.0) ; A random note over an octave and a half.
+		phase = 0
+		For k = 0 To noteLength - 1
+			i = note * noteLength + k
+			t = Float(i) / rate
+			v = Sin(t * 360 * 120) * 0.12
+			If hz > 0
+				phase = phase + 360.0 * hz / rate
+				If phase >= 360 Then phase = phase - 360
+				envelope = 1.0
+				If k < 40 Then envelope = k / 40.0
+				If k > noteLength - 40 Then envelope = (noteLength - k) / 40.0
+				If phase < 180 Then v = v + 0.35 * envelope Else v = v - 0.35 * envelope
+			EndIf
+			PokeShort bank, 44 + i * 2, Int(v * 0.3 * 32000) And $FFFF
+		Next
+	Next
+	Return SoundFromBank(bank, True)
 End Function
 
 ; The engine: a low buzz that loops without a click, because it holds a whole number of waves. Its pitch follows the
