@@ -227,7 +227,9 @@ Function ReadRooms()
 					r\w = r\homeW : r\h = r\homeH
 				EndIf
 			Case ROOM_STRETCH
-				; A green room stays where it is and only changes its size.
+				; A green room stays where it is and only changes its size. SetWindowSizeLimit has the window system keep
+				; the size within the limits of the room, so the size is only put back where nothing holds to the limits
+				; (a desktop without a window manager).
 				Local w = Min(Max(r\w, r\minW), r\maxW), h = Min(Max(r\h, r\minH), r\maxH)
 				If r\x <> r\homeX Or r\y <> r\homeY Or w <> r\w Or h <> r\h
 					SetGadgetShape r\win, r\homeX, r\homeY, w, h
@@ -613,7 +615,6 @@ Function OpenRoom(r.Room)
 	If r\kind = ROOM_STRETCH Then style = 1 + 2
 	r\win = CreateWindow(r\title, r\x, r\y, r\w, r\h, Desktop(), style)
 	If r\win = 0 Then RuntimeError "Could not open the window of the room " + r\title + "."
-	If r\kind = ROOM_STRETCH Then SetMinWindowSize r\win, r\minW, r\minH
 	r\canvas = CreateCanvas(0, 0, r\w, r\h, r\win)
 	SetGadgetLayout r\canvas, 1, 1, 1, 1
 	; The computer may have put the window somewhere else than asked: it goes where the level says.
@@ -625,6 +626,9 @@ Function OpenRoom(r.Room)
 	If r\kind = ROOM_STRETCH
 		r\minW = Min(r\minW, r\w) : r\minH = Min(r\minH, r\h)
 		r\maxW = Max(r\maxW, r\w) : r\maxH = Max(r\maxH, r\h)
+		; The window system holds the window to these sizes while the player drags an edge. Shrinking it back from the
+		; program instead would have to wait until the player lets go.
+		SetWindowSizeLimit r\win, r\minW, r\minH, r\maxW, r\maxH
 	EndIf
 End Function
 
