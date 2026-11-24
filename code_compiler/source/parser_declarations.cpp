@@ -162,13 +162,40 @@ void blitz::parser::parse_include(ast::block& into)
 	// Blitz programs come from Windows: paths use backslashes, and don't care about the case of names.
 	std::string text = file_tk.text;
 	std::replace(text.begin(), text.end(), '\\', '/');
-	std::filesystem::path target = std::filesystem::path(text);
-	for (auto const& part : target.relative_path()) {
+	std::filesystem::path target  = std::filesystem::path(text);
+	bool                  shipped = (text.size() >= 2) && (text.front() == '<') && (text.back() == '>');
+	for (auto const& part : (shipped ? std::filesystem::path(text.substr(1, text.size() - 2)) : target).relative_path()) {
 		if (is_device_name(part)) {
 			throw error(file_tk, blitz::format("Can't include '%s': '%s' is the name of a Windows device, not of a file.", file_tk.text.c_str(), part.string().c_str()));
 		}
 	}
-	if (target.is_relative()) {
+	if (shipped) {
+		// `Include "<keys.bb>"` names a file shipped with BlitzLLVM. Windows forbids '<' and '>' in file names, so the original
+		// can never open such a file and stops with "Unable to open include file". The form is decided by the text alone: a file
+		// that is really called '<keys.bb>' is never looked for.
+		std::filesystem::path name = std::filesystem::path(text.substr(1, text.size() - 2));
+		bool                  valid = !name.empty() && !name.has_root_path();
+		for (auto const& part : name) {
+			valid = valid && (part != "..");
+		}
+		if (!valid) {
+			throw error(file_tk, blitz::format("'%s' is not a name of a shipped include: it can't be empty, absolute or contain '..'.", file_tk.text.c_str()));
+		}
+		target.clear();
+		std::string looked;
+		for (auto const& dir : include_dirs) {
+			auto candidate = find_file(dir / name);
+			if (std::filesystem::is_regular_file(candidate)) {
+				target = candidate;
+				break;
+			}
+			looked += (looked.empty() ? "" : ", ") + dir.generic_string();
+		}
+		if (target.empty()) {
+			throw error(file_tk, looked.empty() ? blitz::format("Shipped include '%s' not found: there is no include directory (use -I or BLITZLLVM_INCLUDE).", file_tk.text.c_str())
+			                                    : blitz::format("Shipped include '%s' does not exist (looked in %s).", file_tk.text.c_str(), looked.c_str()));
+		}
+	} else if (target.is_relative()) {
 		// Relative to the file that includes, or else to the main program (which is where Blitz runs from).
 		auto local = find_file(_file.parent_path() / target);
 		target     = std::filesystem::exists(local) ? local : (_root_dir / target);
@@ -187,6 +214,21 @@ void blitz::parser::parse_include(ast::block& into)
 		return;
 	}
 	parse_file(target, into);
+}
+
+std::filesystem::path blitz::parser::installed_include_dir(std::filesystem::path const& bin_dir)
+{
+	if (const char* env = std::getenv("BLITZLLVM_INCLUDE"); env && *env) {
+		return env;
+	}
+	for (auto const& candidate : { bin_dir / ".." / "include", bin_dir / ".." / ".." / "include", bin_dir / "include", bin_dir / ".." / "share" / "blitzllvm" / "include" }) {
+		std::error_code ec;
+		// A directory with Blitz files, not the C headers of a prefix such as /usr.
+		if (std::filesystem::is_regular_file(candidate / "keys.bb", ec)) {
+			return std::filesystem::weakly_canonical(candidate, ec);
+		}
+	}
+	return {};
 }
 
 void blitz::parser::parse_type_decl()
