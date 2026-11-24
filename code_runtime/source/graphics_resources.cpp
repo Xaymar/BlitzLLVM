@@ -823,6 +823,15 @@ namespace bb::gfx {
 		}
 	}
 
+	bool swapchain_size_changed(surface_state& s)
+	{
+		int w = 0, h = 0;
+		if (!s.window || !SDL_GetWindowSizeInPixels(s.window, &w, &h)) {
+			return true;
+		}
+		return (uint32_t(w) != s.chain.width) || (uint32_t(h) != s.chain.height);
+	}
+
 	void destroy_swapchain(surface_state& s)
 	{
 		gpu_idle();
