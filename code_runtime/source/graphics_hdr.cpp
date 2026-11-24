@@ -37,9 +37,8 @@ namespace {
 	constexpr float scrgb_white_nits = 80.0f; // 1.0 in scRGB.
 
 	int   mode         = -1;    // AutoHDR: -1 until BLITZLLVM_AUTOHDR was read (1 if it is not set).
-	float white_nits   = -1.0f; // AutoHDRWhite: 0 for the SDR white level of the system. -1 until BLITZLLVM_AUTOHDR_WHITE was read.
-	float meta_min     = 0.0f;  // AutoHDRMetadata: what the system is told about the picture, 0 for the default of each.
-	float meta_average = 0.0f;
+	float white_nits   = -1.0f; // SetGraphicsHDR average: the SDR white level, 0 for that of the system. -1 until BLITZLLVM_AUTOHDR_WHITE was read.
+	float meta_min     = 0.0f;  // SetGraphicsHDR minimum and maximum: what the system is told about the picture, 0 for the default of each (the maximum is also the peak).
 	float meta_max     = 0.0f;
 	bool  meta_dirty   = true;
 
@@ -268,10 +267,10 @@ namespace {
 		return (white_nits > 0.0f) ? white_nits : ((levels.white > 0.0f) ? levels.white : 203.0f);
 	}
 
-	// The brightest the display shows in nits: what the system says, else 1000.
+	// The brightest the display shows in nits: asked for, else what the system says, else 1000.
 	float effective_peak(const system_levels& levels, float white)
 	{
-		float peak = ((levels.hdr && (levels.headroom > 1.0f) && (levels.white > 0.0f)) ? levels.white * levels.headroom : 1000.0f);
+		float peak = (meta_max > 0.0f) ? meta_max : ((levels.hdr && (levels.headroom > 1.0f) && (levels.white > 0.0f)) ? levels.white * levels.headroom : 1000.0f);
 		return std::max(peak, white);
 	}
 
@@ -305,7 +304,7 @@ namespace {
 		metadata.max_luminance     = (meta_max > 0.0f) ? meta_max : peak;
 		metadata.min_luminance     = meta_min;
 		metadata.max_content_light = (meta_max > 0.0f) ? meta_max : peak;
-		metadata.max_frame_average = (meta_average > 0.0f) ? meta_average : white;
+		metadata.max_frame_average = white;
 		bb::rhi::set_hdr_metadata(s.chain, metadata);
 	}
 } // namespace
@@ -365,7 +364,7 @@ namespace bb::gfx {
 
 	bool hdr_reads_directly(const gpu_image& front)
 	{
-		// AutoHDR 2: a buffer of more than 8 bits goes to the HDR pass as it is, instead of through the 8 bit picture of the gamma pass, so that
+		// Mode 2: a buffer of more than 8 bits goes to the HDR pass as it is, instead of through the 8 bit picture of the gamma pass, so that
 		// its precision, and values above 1, are kept. The gamma tables and a palette need that 8 bit picture.
 		bool deep = (front.format == bb::rhi::format::rgba16f) || (front.format == bb::rhi::format::a2bgr10);
 		return (mode == 2) && deep && (surface().chain.hdr || hdr_test()) && gamma_plain();
@@ -486,10 +485,14 @@ namespace bb::gfx {
 
 extern "C" {
 
-// AutoHDR mode: 0 shows the window as it always was. 1 is the default: where the display has HDR switched on and the driver offers it
+// SetGraphicsHDR mode, minimum, average, maximum
+// mode: 0 shows the window as it always was. 1 is the default: where the display has HDR switched on and the driver offers it
 // (HWHDRSupported) the window is shown in HDR, the same picture with SDR white at the brightness the system has set; elsewhere it does
 // nothing. 2 also shows 64 bit and 30 bit buffers directly. Can be set before Graphics.
-void bb_auto_hdr(int32_t value)
+// minimum, average, maximum in nits: the black level, the SDR white and the peak. They are what the system is told about the picture,
+// and the average and the maximum are what the picture is scaled and cut at. 0 keeps the default of each (no black level, the SDR
+// white of the system, the peak of the display).
+void bb_set_graphics_hdr(int32_t value, float minimum, float average, float maximum)
 {
 	read_environment();
 	int level = std::clamp(value, 0, 2);
@@ -500,24 +503,31 @@ void bb_auto_hdr(int32_t value)
 			surface().resized = true; // The swapchain changes format at the next Flip.
 		}
 	}
-}
-
-// AutoHDRWhite: the brightness of SDR white in nits (203 is the usual value), or 0 to follow the system, which is the default.
-void bb_auto_hdr_white(float nits)
-{
-	read_environment();
-	white_nits = std::clamp(nits, 0.0f, 10000.0f);
+	meta_min   = std::clamp(minimum, 0.0f, 10000.0f);
+	white_nits = std::clamp(average, 0.0f, 10000.0f);
+	meta_max   = std::clamp(maximum, 0.0f, 10000.0f);
 	meta_dirty = true;
 }
 
-// AutoHDRMetadata: the darkest, average and brightest value in nits that the system is told the picture has. 0 keeps the default of each
-// (no black level, SDR white, the peak).
-void bb_auto_hdr_metadata(float minimum, float average, float maximum)
+// GetGraphicsHDR Out mode, Out minimum, Out average, Out maximum: the mode and the values in nits that are in use (the SDR white and the peak
+// are the ones of the system when none were set). Arguments that are left out are not written.
+void bb_get_graphics_hdr(int32_t* out_mode, float* out_minimum, float* out_average, float* out_maximum)
 {
-	meta_min     = std::clamp(minimum, 0.0f, 10000.0f);
-	meta_average = std::clamp(average, 0.0f, 10000.0f);
-	meta_max     = std::clamp(maximum, 0.0f, 10000.0f);
-	meta_dirty   = true;
+	read_environment();
+	system_levels levels = ask_system();
+	float         white  = effective_white(levels);
+	if (out_mode) {
+		*out_mode = mode;
+	}
+	if (out_minimum) {
+		*out_minimum = meta_min;
+	}
+	if (out_average) {
+		*out_average = white;
+	}
+	if (out_maximum) {
+		*out_maximum = effective_peak(levels, white);
+	}
 }
 
 // HWHDRSupported: 1 if the display has HDR switched on (and, once there is a window, the driver offers an HDR swapchain for it). Checked every

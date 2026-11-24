@@ -1682,7 +1682,7 @@ def fragment_shader_hdr():
     """
     Shows an RGBA8 picture in a window that has an HDR swapchain (scRGB: linear, 1.0 is 80 nits, in 16 bit floating point). The
     picture is made linear (the sRGB curve) and scaled so that SDR white lands on the brightness it has on the display. push.white
-    is the SDR white in scRGB (nits / 80). The picture may be a buffer of more than 8 bits that holds values above 1 (AutoHDR 2):
+    is the SDR white in scRGB (nits / 80). The picture may be a buffer of more than 8 bits that holds values above 1 (HDR mode 2):
     they are brighter than SDR white and are cut at push.limit, the peak of the display in scRGB.
 
     #version 450

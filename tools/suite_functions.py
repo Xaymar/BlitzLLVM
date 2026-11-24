@@ -86,6 +86,8 @@ EXTENSIONS = {
     "writepixel64": ("graphics", "WritePixel64%x%y%buffer=0~red~green~blue~alpha"),
     "readpixelfast64": ("graphics", "!ReadPixelFast64%x%y%buffer=0>~red=0>~green=0>~blue=0>~alpha=0"),
     "writepixelfast64": ("graphics", "WritePixelFast64%x%y%buffer=0~red~green~blue~alpha"),
+    "setgraphicshdr": ("blitz3d", "SetGraphicsHDR%mode#minimum=0#average=0#maximum=0"),
+    "getgraphicshdr": ("blitz3d", "GetGraphicsHDR>%mode=0>#minimum=0>#average=0>#maximum=0"),
     "playmovie": ("graphics", "PlayMovie%movie"),
     "pausemovie": ("graphics", "PauseMovie%movie"),
     "getmovietexture": ("graphics", "%GetMovieTexture%movie"),

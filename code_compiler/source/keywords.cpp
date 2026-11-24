@@ -256,7 +256,7 @@ namespace {
 		}
 		std::string list;
 		for (size_t idx = 0; idx < params.size(); idx++) {
-			list += (idx ? ", " : " ") + std::string(params[idx].second == 'X' ? "Out " : "") + params[idx].first + ":" + native_type_of(params[idx].second);
+			list += (idx ? ", " : " ") + std::string(blitz::compiler_detail::is_out(params[idx].second) ? "Out " : "") + params[idx].first + ":" + native_type_of(params[idx].second);
 			if (first ? (idx == 0) : (idx >= required)) {
 				list += "=" + ((params[idx].second == 's') ? std::string("\"\"") : number_of(defaults ? defaults[idx] : 0));
 			}

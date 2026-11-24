@@ -43,8 +43,7 @@ DeleteFile "hdr.tmp" ; Not one of an earlier run.
 SetEnv "BLITZLLVM_TEST_HDR", "hdr.tmp"
 
 ; It can be set before Graphics, and the test window has no HDR.
-AutoHDR 1
-AutoHDRWhite 160
+SetGraphicsHDR 1, 0, 160
 Graphics W, H, 32, 2
 SetBuffer BackBuffer()
 CheckFalse "a test window is not shown in HDR", HWHDRActive()
@@ -65,13 +64,12 @@ Show
 Check "white is SDR white", Shown(10, 10, 0), 2, 0.005
 
 ; The brightness follows AutoHDRWhite.
-AutoHDRWhite 320
+SetGraphicsHDR 1, 0, 320
 Show
 Check "white at 320 nits", Shown(10, 10, 0), 4, 0.01
 
 ; Mode 2 shows an 8 bit buffer as mode 1 does.
-AutoHDR 2
-AutoHDRWhite 160
+SetGraphicsHDR 2, 0, 160
 Fill 100, 150, 200
 Show
 Check "mode 2 shows 8 bits as mode 1", Shown(10, 10, 2), 0.577580 * 2, 0.005
@@ -80,10 +78,22 @@ Show
 Check "white stays SDR white", Shown(10, 10, 0), 2, 0.005
 
 ; The metadata is only told to the system, and any value is taken.
-AutoHDRMetadata 0.01, 100, 1000
-AutoHDRMetadata 0, 0, 0
+SetGraphicsHDR 2, 0.01, 160, 1000
+SetGraphicsHDR 2, 0, 160, 0
 Show
 Check "still the same picture", Shown(10, 10, 0), 2, 0.005
+
+; GetGraphicsHDR gives back what is in use.
+SetGraphicsHDR 2, 0.5, 160, 800
+GetGraphicsHDR m, lo#, av#, hi#
+Check "the mode", m, 2
+Check "the black level", lo, 0.5, 0.001
+Check "the SDR white", av, 160, 0.001
+Check "the peak", hi, 800, 0.001
+GetGraphicsHDR m
+Check "one value is enough", m, 2
+Show
+Check "white is below the peak", Shown(10, 10, 0), 2, 0.005
 
 DeleteFile "hdr.tmp"
 Done "graphics_autohdr_pixels"
