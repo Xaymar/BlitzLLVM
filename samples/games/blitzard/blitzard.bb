@@ -152,7 +152,9 @@ Global denCount
 Dim itemCount(ITEM_COUNT - 1)
 Dim seen(SPECIES_COUNT), caught(SPECIES_COUNT)
 Global money, playFrames, champion
-Global playerX, playerY, playerFacing, playerStep, stepFrames, stepLength, walkFrame
+Global playerX, playerY, playerFacing, walkFrame
+Global playerStep#, stepLength# ; Pixels left to walk into the current tile, and pixels per frame.
+Global lastDirection = -1 ; The direction key pressed last; it wins while it is held.
 Global respawnX, respawnY
 Global cameraX, cameraY
 
@@ -1155,35 +1157,57 @@ Function DirY(d)
 	Return 0
 End Function
 
+Function DirectionDown(d)
+	Select d
+		Case DIR_UP : Return KeyDown(KEY_UP) Or KeyDown(KEY_W)
+		Case DIR_DOWN : Return KeyDown(KEY_DOWN) Or KeyDown(KEY_S)
+		Case DIR_LEFT : Return KeyDown(KEY_LEFT) Or KeyDown(KEY_A)
+	End Select
+	Return KeyDown(KEY_RIGHT) Or KeyDown(KEY_D)
+End Function
+
+; Called every field frame. A newly pressed key takes over from one that is still held, and a tap shorter
+; than a frame still counts.
 Function HeldDirection()
-	If KeyDown(KEY_UP) Or KeyDown(KEY_W) Then Return DIR_UP
-	If KeyDown(KEY_DOWN) Or KeyDown(KEY_S) Then Return DIR_DOWN
-	If KeyDown(KEY_LEFT) Or KeyDown(KEY_A) Then Return DIR_LEFT
-	If KeyDown(KEY_RIGHT) Or KeyDown(KEY_D) Then Return DIR_RIGHT
+	Local hit = -1
+	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then hit = DIR_UP
+	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then hit = DIR_DOWN
+	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Then hit = DIR_LEFT
+	If KeyHit(KEY_RIGHT) Or KeyHit(KEY_D) Then hit = DIR_RIGHT
+	If hit >= 0 Then lastDirection = hit : Return hit
+	If lastDirection >= 0 And DirectionDown(lastDirection) Then Return lastDirection
+	lastDirection = -1
+	Local d
+	For d = DIR_DOWN To DIR_RIGHT
+		If DirectionDown(d) Then Return d
+	Next
 	Return -1
 End Function
 
 Global bumpTimer
 
 Function UpdateField()
+	Local d = HeldDirection()
 	If playerStep > 0
 		; Walking into the next tile. playerStep counts the pixels left; the position is already the new tile.
-		playerStep = Max(0, playerStep - stepLength)
-		If playerStep = 0 Then ArriveOnTile()
-		Return
+		playerStep = playerStep - stepLength
+		If playerStep > 0.01 Then Return
+		playerStep = 0
+		ArriveOnTile()
+		; Keep walking in the same frame when nothing happened on arrival, so held keys never pause between tiles.
+		If state <> STATE_FIELD Then Return
 	EndIf
 
 	If BackHit() Then PlaySfx(soundSelect) : OpenFieldMenu() : Return
 	If ConfirmHit() Then Interact() : Return
 
-	Local d = HeldDirection()
 	If d < 0 Then Return
 	playerFacing = d
 	Local nx = playerX + DirX(d), ny = playerY + DirY(d)
 	If Walkable(nx, ny)
 		playerX = nx : playerY = ny
 		playerStep = TILE
-		If KeyDown(KEY_LSHIFT) Or KeyDown(KEY_RSHIFT) Then stepLength = 4 Else stepLength = 2
+		If KeyDown(KEY_LSHIFT) Or KeyDown(KEY_RSHIFT) Then stepLength = TILE / 6.0 Else stepLength = TILE / 11.0
 		walkFrame = 1 - walkFrame
 	Else
 		bumpTimer = bumpTimer - 1
@@ -2715,8 +2739,8 @@ Function DrawField()
 	Cls
 	DrawWatermark(GRASS_R, GRASS_G, GRASS_B)
 
-	Local px = playerX * TILE - DirX(playerFacing) * playerStep
-	Local py = playerY * TILE - DirY(playerFacing) * playerStep
+	Local px = playerX * TILE - DirX(playerFacing) * Int(playerStep)
+	Local py = playerY * TILE - DirY(playerFacing) * Int(playerStep)
 	cameraX = Max(0, Min(MAP_W * TILE - SCREEN_W, px + TILE / 2 - SCREEN_W / 2))
 	cameraY = Max(0, Min(MAP_H * TILE - SCREEN_H, py + TILE / 2 - SCREEN_H / 2))
 
