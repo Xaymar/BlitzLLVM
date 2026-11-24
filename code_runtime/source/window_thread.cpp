@@ -33,6 +33,7 @@ namespace bb::wnd {
 		SDL_Thread*             thread = nullptr;
 		std::atomic<SDL_ThreadID> thread_id{ 0 };
 		bool                    started = false;
+		std::atomic<bool>       cursor_owned{ true }; // The last change of the pointer was made on the thread that owns the windows.
 
 		int thread_main(void*)
 		{
@@ -135,6 +136,38 @@ namespace bb::wnd {
 	void sync_window(SDL_Window* window)
 	{
 		run([&] { SDL_SyncWindow(window); });
+	}
+
+	bool owns_windows()
+	{
+		return !thread_id.load() || on_thread();
+	}
+
+	void set_cursor_visible(bool visible)
+	{
+		run([&] {
+			if (visible) {
+				SDL_ShowCursor();
+			} else {
+				SDL_HideCursor();
+			}
+			cursor_owned = owns_windows();
+		});
+	}
+
+	bool cursor_changed_by_owner()
+	{
+		return cursor_owned;
+	}
+
+	void set_cursor(SDL_Cursor* cursor)
+	{
+		run([&] { SDL_SetCursor(cursor); });
+	}
+
+	void set_relative_mouse_mode(SDL_Window* window, bool enabled)
+	{
+		run([&] { SDL_SetWindowRelativeMouseMode(window, enabled); });
 	}
 
 	bool poll_event(SDL_Event* event)
