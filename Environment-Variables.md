@@ -117,7 +117,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 
 The tests of BlitzLLVM use `BLITZLLVM_TEST_*` variables that the runtime reads. They let the tests look at what a window shows, press keys, open more windows than `Graphics` has, and save what the windows of the BlitzPlus GUI show as a picture. They can change at any time and are not for programs.
 
-The variables are `BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS` and `BLITZLLVM_TEST_WINDOW_SHOTS`. The test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...).
+The variables are `BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS`, `BLITZLLVM_TEST_POINTER` and `BLITZLLVM_TEST_WINDOW_SHOTS`. The test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...).
 
 The tests set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program, so that the program can set these with `SetEnv`. That variable is read at the start as well and is not for programs either.
 ## Old names
