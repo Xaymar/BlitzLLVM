@@ -227,10 +227,11 @@ Function ReadRooms()
 					r\w = r\homeW : r\h = r\homeH
 				EndIf
 			Case ROOM_STRETCH
+				; A green room stays where it is and only changes its size.
 				Local w = Min(Max(r\w, r\minW), r\maxW), h = Min(Max(r\h, r\minH), r\maxH)
-				If w <> r\w Or h <> r\h
-					SetGadgetShape r\win, r\x, r\y, w, h
-					r\w = w : r\h = h
+				If r\x <> r\homeX Or r\y <> r\homeY Or w <> r\w Or h <> r\h
+					SetGadgetShape r\win, r\homeX, r\homeY, w, h
+					r\x = r\homeX : r\y = r\homeY : r\w = w : r\h = h
 				EndIf
 		End Select
 		If GadgetWidth(r\canvas) <> r\w Or GadgetHeight(r\canvas) <> r\h Then SetGadgetShape r\canvas, 0, 0, r\w, r\h
@@ -338,23 +339,57 @@ End Function
 ; wall; Pip then stays where it was.
 Function CarryPip()
 	Local r.Room, cx = pipX, cy = pipY - PIP_H / 2
+	; A grey room holds on to Pip, so a blue room never carries Pip around inside one.
+	If InFixedRoom(cx, cy) Then CheckPip() : Return
 	For r = Each Room
-		If r\kind = ROOM_FREE Or r\kind = ROOM_STRETCH
+		If r\kind = ROOM_FREE
 			If r\x <> r\lastX Or r\y <> r\lastY
 				If cx >= r\lastX And cx < r\lastX + r\w And cy >= r\lastY And cy < r\lastY + r\h
-					Local nx = pipX + (r\x - r\lastX), ny = pipY + (r\y - r\lastY)
-					If PipFits(nx, ny)
-						pipX = nx : pipY = ny
-						; A room going up lifts Pip, it does not throw. Pip floats for a moment after that, so a room
-						; that is dragged up in small jerks lifts Pip all the way, even where another room is below.
-						If r\y < r\lastY Then pipVY = 0 : pipFloat = 12
-					EndIf
+					; A room going up lifts Pip, it does not throw. Pip floats for a moment after that, so a room
+					; that is dragged up in small jerks lifts Pip all the way, even where another room is below.
+					If r\y < r\lastY Then pipVY = 0 : pipFloat = 12
+					CarryPipWith(r)
 					Exit
 				EndIf
 			EndIf
 		EndIf
 	Next
 	CheckPip()
+End Function
+
+; Moves the room and Pip back to where they were and then along again a pixel at a time, so a room that is dragged
+; fast can not take Pip through a wall or over the void. Pip stays behind at a wall, and is let go as soon as it is
+; inside a grey room.
+Function CarryPipWith(r.Room)
+	Local tx = r\x, ty = r\y, dx = r\x - r\lastX, dy = r\y - r\lastY
+	Local steps = Max(Abs(dx), Abs(dy)), i, x0 = pipX, y0 = pipY
+	For i = 1 To steps
+		r\x = r\lastX + dx * i / steps : r\y = r\lastY + dy * i / steps
+		Local nx = x0 + dx * i / steps, ny = y0 + dy * i / steps
+		If Not PipFits(nx, ny)
+			; Sliding along the wall when only one direction is blocked.
+			If PipFits(nx, pipY)
+				ny = pipY
+			ElseIf PipFits(pipX, ny)
+				nx = pipX
+			Else
+				Exit
+			EndIf
+		EndIf
+		pipX = nx : pipY = ny
+		If PipInVoid() Or InFixedRoom(pipX, pipY - PIP_H / 2) Then Exit
+	Next
+	r\x = tx : r\y = ty
+End Function
+
+Function InFixedRoom(x, y)
+	Local r.Room
+	For r = Each Room
+		If r\kind = ROOM_FIXED
+			If x >= r\x And x < r\x + r\w And y >= r\y And y < r\y + r\h Then Return True
+		EndIf
+	Next
+	Return False
 End Function
 
 Function MovePip()
@@ -483,8 +518,10 @@ Function StartDrag(canvas, x, y)
 	Local r.Room
 	For r = Each Room
 		If r\canvas = canvas And (r\kind = ROOM_FREE Or r\kind = ROOM_STRETCH)
+			grabResize = r\kind = ROOM_STRETCH
+			; Green rooms do not move, so only their grip can be dragged.
+			If grabResize And (x < r\w - GRIP_SIZE Or y < r\h - GRIP_SIZE) Then Return
 			dragRoom = r
-			grabResize = r\kind = ROOM_STRETCH And x >= r\w - GRIP_SIZE And y >= r\h - GRIP_SIZE
 			If grabResize
 				; How far the mouse is from the bottom right corner, which stays the same while resizing.
 				grabX = r\w - x : grabY = r\h - y
@@ -1392,8 +1429,8 @@ Data "steps. Move and resize the rooms to make a way to the door."
 Data ""
 Data "  Grey rooms stay where they are."
 Data "  Blue rooms move: drag them from anywhere inside. They"
-Data "  carry Pip along."
-Data "  Green rooms also resize, by the grip in their corner."
+Data "  carry Pip, but let go of Pip inside a grey room."
+Data "  Green rooms only resize, by the grip in their corner."
 Data "  Red windows are the void: Pip must never touch them."
 Data "  Keys open locks, springs throw Pip up, spikes hurt."
 Data ""
@@ -1430,13 +1467,13 @@ Data THING_EXIT, 156, 94, 26, 36
 Data ROOM_FREE, "Lift", 440, 260, 170, 110, 0, 0, 0, 0, 0
 
 .Level3
-Data "Stretch", "Green rooms can be resized: pull the grip in the corner. The Stretcher reaches a long way."
+Data "Stretch", "Green rooms stay where they are, but pull the grip in the corner and they grow. The Stretcher reaches a long way."
 Data 3
 Data ROOM_FIXED, "Start", 40, 300, 180, 120, 0, 0, 0, 0, 1
 Data THING_START, 40, 120, 0, 0
 Data ROOM_FIXED, "Home", 800, 300, 160, 120, 0, 0, 0, 0, 1
 Data THING_EXIT, 118, 84, 26, 36
-Data ROOM_STRETCH, "Stretcher", 420, 470, 200, 100, 170, 80, 620, 160, 0
+Data ROOM_STRETCH, "Stretcher", 200, 340, 170, 80, 170, 80, 620, 80, 0
 
 .Level4
 Data "Keyholder", "The door is locked. The key waits in the Vault."
@@ -1459,7 +1496,7 @@ Data ROOM_FIXED, "Pit", 250, 300, 420, 200, 0, 0, 0, 0, 1
 Data THING_SPIKES, 0, 186, 0, 14
 Data ROOM_FIXED, "Home", 660, 300, 280, 130, 0, 0, 0, 0, 1
 Data THING_EXIT, 236, 94, 26, 36
-Data ROOM_STRETCH, "Plank", 420, 560, 180, 60, 170, 60, 440, 60, 1
+Data ROOM_STRETCH, "Plank", 240, 382, 180, 60, 170, 60, 440, 60, 1
 Data THING_BLOCK, 0, 48, 0, 0
 
 .Level6
@@ -1483,17 +1520,20 @@ Data THING_EXIT, 156, 94, 26, 36
 Data ROOM_FREE, "Ferry", 250, 250, 170, 100, 0, 0, 0, 0, 0
 
 .Level8
-Data "Grand tour", "Everything at once. The Plank keeps Pip off the spikes, and the Ferry has to go around the void."
+Data "Grand tour", "Everything at once. The Ferry has to go over the void, and only the Plank has a floor that keeps Pip off the spikes."
 Data 6
 Data ROOM_FIXED, "Start", 40, 470, 180, 120, 0, 0, 0, 0, 1
 Data THING_START, 30, 120, 0, 0
-Data ROOM_FIXED, "Vault", 450, 220, 150, 100, 0, 0, 0, 0, 1
+Data ROOM_FIXED, "Vault", 430, 60, 150, 100, 0, 0, 0, 0, 1
 Data THING_KEY, 70, 70, 12, 24
-Data ROOM_VOID, "Void", 640, 180, 50, 460, 0, 0, 0, 0, 0
-Data ROOM_FIXED, "Home", 760, 300, 200, 130, 0, 0, 0, 0, 3
-Data THING_SPIKES, 0, 116, 60, 14
-Data THING_LOCK, 80, 60, 20, 70
-Data THING_EXIT, 156, 94, 26, 36
-Data ROOM_FREE, "Ferry", 200, 250, 170, 100, 0, 0, 0, 0, 0
-Data ROOM_STRETCH, "Plank", 400, 540, 180, 70, 170, 70, 300, 70, 1
+Data ROOM_VOID, "Void", 300, 200, 60, 440, 0, 0, 0, 0, 0
+Data ROOM_FIXED, "Home", 780, 420, 180, 130, 0, 0, 0, 0, 6
+Data THING_SPIKES, 0, 118, 80, 0
+Data THING_LOCK, 80, 0, 20, 0
+Data THING_BLOCK, 100, 0, 0, 12
+Data THING_BLOCK, 168, 0, 0, 0
+Data THING_BLOCK, 100, 108, 0, 0
+Data THING_EXIT, 126, 72, 26, 36
+Data ROOM_FREE, "Ferry", 60, 260, 170, 100, 0, 0, 0, 0, 0
+Data ROOM_STRETCH, "Plank", 600, 470, 170, 70, 170, 70, 300, 70, 1
 Data THING_BLOCK, 0, 58, 0, 0
