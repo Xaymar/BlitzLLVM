@@ -41,7 +41,7 @@ Main stream, 32 bytes, two vertices to a 64-byte cache line:
 | Bytes | Field          | Kept as                                                       |
 |------:|----------------|---------------------------------------------------------------|
 | 12    | x, y, z        | 3 floats, unchanged                                           |
-| 4     | normal         | octahedral, 2 x 16-bit signed normalized (see below)          |
+| 4     | normal         | octahedral, 2 x 16-bit signed normalized, precise (oct32P)    |
 | 8     | u, v           | 2 floats, unchanged                                           |
 | 8     | r, g, b, a     | 4 half floats, unchanged                                      |
 
@@ -60,20 +60,36 @@ Both streams stay plain arrays of the same bytes on the CPU and the GPU, so uplo
 
 ### The normal
 
-Measured on 2 million random unit vectors (scratch script, numpy), angle between the written and the read-back normal:
+Cigolle et al., "A Survey of Efficient Representations for Independent Unit Vectors" (JCGT vol. 3 no. 2, 2014), compares the
+known encodings. Their Table 1, angle between the written and the read-back normal, for the ones that matter here:
 
-| Encoding                         | Bytes | Mean error | Worst error |
-|----------------------------------|------:|-----------:|------------:|
-| 3 floats (today)                 | 12    | 0          | 0           |
-| 3 half floats                    | 6     | 0.006°     | 0.023°      |
-| 3 x int8 signed normalized       | 3 (4) | 0.17°      | 0.39°       |
-| octahedral, 2 x int8             | 2     | 0.34°      | 0.95°       |
-| octahedral, 2 x int16            | 4     | 0.0013°    | 0.0037°     |
+| Encoding (paper name)            | Bits | Mean error | Worst error |
+|----------------------------------|-----:|-----------:|------------:|
+| 3 floats (today)                 | 96   | 0          | 0           |
+| octahedral 2 x 8 (oct16)         | 16   | 0.337°     | 0.944°      |
+| 3 x int8 snorm (snorm8x3)        | 24   | 0.170°     | 0.386°      |
+| octahedral 2 x 12 (oct24)        | 24   | 0.021°     | 0.059°      |
+| octahedral 2 x 12, precise (oct24P) | 24 | 0.020°    | 0.039°      |
+| 3 half floats (float16x3)        | 48   | 0.006°     | 0.026°      |
+| octahedral 2 x 16 (oct32)        | 32   | 0.0013°    | 0.0037°     |
+| octahedral 2 x 16, precise (oct32P) | 32 | 0.0012°   | 0.0025°     |
 
-Octahedral 2 x int16 is the same size as int8 x 4 and about a hundred times more accurate, more accurate than half floats in less space.
-Axis-aligned normals (0, 1, 0 and so on, which planes, cubes and terrain mostly have) come back exactly with both int8 and octahedral.
-The cost is a few shader instructions to unfold it (one `abs`, one subtraction, a `max` and two sign-aware subtractions, then the
-normalize the shader already does), and a few more on the CPU when a normal is written or read.
+A quick check here on 2 million random unit vectors (numpy) gave the same numbers for oct16, snorm8x3, oct32 and half floats.
+
+"Precise" (P) is the same bits and the same decoder; only the CPU encoder differs: it rounds both components down, then tries the four
+floor/ceil combinations and keeps the one that decodes closest to the input (their Listing 3). That is four decodes per written
+normal on the CPU and nothing extra on the GPU.
+
+The paper's own summary is that octahedral is the best of the cheap encodings at every size, oct24P already beats snorm8x3 with the
+same 3 bytes, and at 32 bits it is visually lossless (their Figure 6 shows hardly any shading difference even for 16-bit encodings
+under per-pixel Lambert lighting; Blitz3D lights per vertex, which hides it further).
+
+oct32P is the recommendation: 4 bytes, worst error 0.0025°, and two 16-bit snorm components are a vertex format every backend reads
+natively (the hardware turns them into floats from -1 to 1). oct24P would save one more byte, but there is no 3-byte or 12-bit vertex
+format, so it would need integer unpacking in the shader, and vertex attributes are aligned to 4 bytes anyway: the byte saved would
+be padding. Axis-aligned normals (0, 1, 0 and so on, which planes, cubes and terrain mostly have) come back exactly. The cost is a few
+shader instructions to unfold it (one `abs`, one subtraction, a `max` and two sign-aware subtractions, then the normalize the shader
+already does), and the precise encoder on the CPU when a normal is written.
 
 A quaternion frame (normal plus tangent in 32 bits) is not needed: normal maps (TextureBlend 6 and 7) build their tangent frame from
 screen-space derivatives in the fragment shader, so meshes carry no tangents. If per-vertex tangents are ever added, a 32-bit
@@ -116,8 +132,8 @@ same source as they do today.
 
 ## Open choices for Xaymar
 
-1. **Normal encoding.** Octahedral 2 x int16 (recommended: 4 bytes, error under 0.004°, a few shader instructions), or plain
-   int8 x 4 (4 bytes, no unfolding in the shader, error up to 0.4°), or half floats (8 bytes with padding, error up to 0.02°).
+1. **Normal encoding.** oct32P (recommended: 4 bytes, worst error 0.0025°, a few shader instructions), or oct24P (3 bytes plus a
+   padding byte, worst 0.039°, needs integer unpacking in the shader), or plain int8 x 4 (no unfolding, worst 0.39°).
 2. **Second set as an extra stream.** Split it out (recommended: 32 bytes for most surfaces), or keep it in the vertex and only pack the
    normal (40 bytes, one buffer, simpler).
 3. **Vertex colors.** Keep half floats (recommended: they were chosen so colors are not rounded to steps of 1/255, and 32 bytes is a
