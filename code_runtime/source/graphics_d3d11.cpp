@@ -752,9 +752,9 @@ namespace bb::gfx {
 					add("TEXCOORD", 2, DXGI_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r));
 				} else {
 					add("TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, x));
-					add("TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, nx));
+					add("TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, stored_normal));
 					add("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u));
-					add("TEXCOORD", 3, DXGI_FORMAT_R16G16B16A16_FLOAT, offsetof(bb::vertex3d, r));
+					add("TEXCOORD", 3, DXGI_FORMAT_R16G16B16A16_FLOAT, offsetof(bb::vertex3d, stored_color));
 					add("TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u2));
 				}
 				if (p.vsi->uses_instance) {

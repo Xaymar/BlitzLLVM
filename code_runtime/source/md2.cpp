@@ -156,9 +156,7 @@ namespace bb {
 			v.z            = (pb[k + 2] - pa[k + 2]) * blend + pa[k + 2];
 			float n[3]     = { (nb[k + 0] - na[k + 0]) * blend + na[k + 0], (nb[k + 1] - na[k + 1]) * blend + na[k + 1], (nb[k + 2] - na[k + 2]) * blend + na[k + 2] };
 			normalize(n);
-			v.nx = n[0];
-			v.ny = n[1];
-			v.nz = n[2];
+			v.set_normal(n);
 		}
 		surf.dirty       = true;
 		bb::surface_epoch++;
@@ -443,7 +441,7 @@ int32_t bb_load_md2(const char* file, int32_t parent)
 		v.v        = d->uvs[uint32_t(i) * 2 + 1];
 		v.u2       = v.u;
 		v.v2       = v.v;
-		v.r = v.g = v.b = v.a = half_one;
+		v.set_white();
 		s->vertices.push(v);
 	}
 	for (uint32_t i = 0; i < d->indices.size; i++) {

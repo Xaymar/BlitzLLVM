@@ -172,12 +172,62 @@ namespace bb {
 		return result;
 	}
 
+	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
+	// only reached through the functions below, so how they are stored can change without touching what uses them (docs/Vertex-Format.md).
 	struct vertex3d {
 		float    x, y, z;
-		float    nx, ny, nz;
+		float    stored_normal[3];
 		float    u, v;
-		uint16_t r, g, b, a; // 0 to 1 as half floats, so colors are not rounded to steps of 1/255.
-		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
+		uint16_t stored_color[4]; // 0 to 1 as half floats.
+		float    u2, v2; // The second set of texture coordinates, for textures that ask for it.
+
+		void set_normal(float nx, float ny, float nz)
+		{
+			stored_normal[0] = nx;
+			stored_normal[1] = ny;
+			stored_normal[2] = nz;
+		}
+		void set_normal(const float* n) { set_normal(n[0], n[1], n[2]); }
+		void get_normal(float* out) const
+		{
+			out[0] = stored_normal[0];
+			out[1] = stored_normal[1];
+			out[2] = stored_normal[2];
+		}
+
+		/** Red, green, blue and alpha from 0 to 1. */
+		void set_color(float r, float g, float b, float a)
+		{
+			stored_color[0] = float_to_half(r);
+			stored_color[1] = float_to_half(g);
+			stored_color[2] = float_to_half(b);
+			stored_color[3] = float_to_half(a);
+		}
+		void set_white() { stored_color[0] = stored_color[1] = stored_color[2] = stored_color[3] = half_one; }
+		void get_color(float* out) const
+		{
+			for (int k = 0; k < 4; k++) {
+				out[k] = half_to_float(stored_color[k]);
+			}
+		}
+		/** One of red (0), green (1), blue (2) and alpha (3), from 0 to 1. */
+		float color(int channel) const { return half_to_float(stored_color[channel]); }
+
+		/** A white vertex whose second set of texture coordinates is the first, which is what AddVertex makes. */
+		static vertex3d make(float x, float y, float z, float nx, float ny, float nz, float u, float v)
+		{
+			vertex3d made = {};
+			made.x        = x;
+			made.y        = y;
+			made.z        = z;
+			made.set_normal(nx, ny, nz);
+			made.u  = u;
+			made.v  = v;
+			made.u2 = u;
+			made.v2 = v;
+			made.set_white();
+			return made;
+		}
 	};
 
 	// The vertices of a surface, in an array that starts at vertex_alignment.

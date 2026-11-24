@@ -2772,7 +2772,7 @@ namespace bb::gfx {
 				}
 				uint32_t first = s.vertices.size;
 				for (int k = 0; k < count; k++) {
-					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], bb::half_one, bb::half_one, bb::half_one, bb::half_one, out[k][0], out[k][2] };
+					bb::vertex3d v = bb::vertex3d::make(out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2]);
 					s.vertices.push(v);
 				}
 				for (int k = 2; k < count; k++) {
@@ -3036,12 +3036,14 @@ namespace bb::gfx {
 			for (int k = 0; k < 3; k++) {
 				bb::vertex3d const& v = src.vertices[ids[k]];
 				clip_point p = corners[k];
-				const double values[10] = { v.x, v.y, v.z, v.nx, v.ny, v.nz, v.u, v.v, v.u2, v.v2 };
+				float n[3], color[4];
+				v.get_normal(n);
+				v.get_color(color);
+				const double values[10] = { v.x, v.y, v.z, n[0], n[1], n[2], v.u, v.v, v.u2, v.v2 };
 				memcpy(p.v, values, sizeof(values));
-				p.color[0] = bb::half_to_float(v.r);
-				p.color[1] = bb::half_to_float(v.g);
-				p.color[2] = bb::half_to_float(v.b);
-				p.color[3] = bb::half_to_float(v.a);
+				for (int c = 0; c < 4; c++) {
+					p.color[c] = color[c];
+				}
 				polygon.push_back(p);
 			}
 			for (int plane = 0; plane < 6 && polygon.size() >= 3; plane++) {
@@ -3093,12 +3095,9 @@ namespace bb::gfx {
 					clip_point const& p = piece.p[k];
 					bb::vertex3d v = {};
 					v.x = float(p.v[0]); v.y = float(p.v[1]); v.z = float(p.v[2]);
-					v.nx = float(p.v[3]); v.ny = float(p.v[4]); v.nz = float(p.v[5]);
+					v.set_normal(float(p.v[3]), float(p.v[4]), float(p.v[5]));
 					v.u = float(p.v[6]); v.v = float(p.v[7]); v.u2 = float(p.v[8]); v.v2 = float(p.v[9]);
-					v.r = bb::float_to_half(float(p.color[0]));
-					v.g = bb::float_to_half(float(p.color[1]));
-					v.b = bb::float_to_half(float(p.color[2]));
-					v.a = bb::float_to_half(float(p.color[3]));
+					v.set_color(float(p.color[0]), float(p.color[1]), float(p.color[2]), float(p.color[3]));
 					out.vertices.push(v);
 					out.indices.push(first + uint32_t(k));
 				}

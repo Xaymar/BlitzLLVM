@@ -2108,9 +2108,9 @@ namespace bb::rhi::opengl {
 		attribute(2, 4, GL_UNSIGNED_BYTE, true, offsetof(vertex, r));
 		gl::BindVertexArray(glc.vaos[int(vertex_layout::scene3d)]);
 		attribute(0, 3, GL_FLOAT, false, offsetof(bb::vertex3d, x));
-		attribute(1, 3, GL_FLOAT, false, offsetof(bb::vertex3d, nx));
+		attribute(1, 3, GL_FLOAT, false, offsetof(bb::vertex3d, stored_normal));
 		attribute(2, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u));
-		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, r));
+		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, stored_color));
 		attribute(4, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u2));
 		gl::BindVertexArray(glc.vaos[0]);
 

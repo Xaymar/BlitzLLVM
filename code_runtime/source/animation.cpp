@@ -413,9 +413,7 @@ namespace bb::anim {
 							box_lo[k] = local[k] < box_lo[k] ? local[k] : box_lo[k];
 							box_hi[k] = local[k] > box_hi[k] ? local[k] : box_hi[k];
 						}
-						vert.nx = local_normal[0];
-						vert.ny = local_normal[1];
-						vert.nz = local_normal[2];
+						vert.set_normal(local_normal);
 					}
 					surf->dirty = true;
 					bb::surface_epoch++;

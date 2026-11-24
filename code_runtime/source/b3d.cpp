@@ -482,19 +482,16 @@ namespace {
 						transform_point(matrix, v.pos, p);
 						transform_normal(matrix, v.normal, n);
 						out.x = p[0]; out.y = p[1]; out.z = p[2];
-						out.nx = n[0]; out.ny = n[1]; out.nz = n[2];
+						out.set_normal(n);
 					} else {
 						out.x = v.pos[0]; out.y = v.pos[1]; out.z = v.pos[2];
-						out.nx = v.normal[0]; out.ny = v.normal[1]; out.nz = v.normal[2];
+						out.set_normal(v.normal);
 					}
 					out.u = v.uv[0];
 					out.v = v.uv[1];
 					out.u2 = v.uv2[0];
 					out.v2 = v.uv2[1];
-					out.r = float_to_half(v.color[0]);
-					out.g = float_to_half(v.color[1]);
-					out.b = float_to_half(v.color[2]);
-					out.a = float_to_half(v.color[3]);
+					out.set_color(v.color[0], v.color[1], v.color[2], v.color[3]);
 					remap[original] = int(made.vertices.size);
 					made.vertices.push(out);
 					made.source.push(original);
@@ -735,9 +732,11 @@ namespace {
 						skin->bind_position.push(original.pos[k]);
 					}
 					vertex3d const& built = surf->vertices[v];
-					skin->bind_normal.push(built.nx);
-					skin->bind_normal.push(built.ny);
-					skin->bind_normal.push(built.nz);
+					float built_normal[3];
+					built.get_normal(built_normal);
+					skin->bind_normal.push(built_normal[0]);
+					skin->bind_normal.push(built_normal[1]);
+					skin->bind_normal.push(built_normal[2]);
 				}
 				for (uint32_t v = 0; v < ids.size; v++) {
 					skin->start.push(skin->bone.size);
