@@ -177,6 +177,20 @@ namespace bb::gfx {
 		return true;
 	}
 
+	// Copies a lot of vertices to a buffer that the GPU reads with all threads of the pool: one thread does not reach what the memory can do,
+	// least of all for video memory that the CPU writes over PCIe. Small copies are not worth waking the threads for.
+	static void copy_vertices(void* to, const void* from, size_t bytes)
+	{
+		constexpr size_t grain = 256 * 1024;
+		bb::work_pool&   threads = bb::pool();
+		const uint32_t   chunks  = uint32_t((bytes + grain - 1) / grain);
+		threads.split(threads.parts(chunks, 2), chunks, [&](uint32_t, uint32_t first, uint32_t last) {
+			const size_t begin = size_t(first) * grain;
+			const size_t end   = std::min(bytes, size_t(last) * grain);
+			memcpy(static_cast<char*>(to) + begin, static_cast<const char*>(from) + begin, end - begin);
+		});
+	}
+
 	// Whether only what is in the vertices of a surface changed since its clusters were made or fitted (see surface_vertices_changed): the same
 	// triangles and as many vertices, so that the order of the triangles in the clusters is still right.
 	static bool clusters_fit(bb::surface const& s, surface_gpu const& gpu)
@@ -217,7 +231,7 @@ namespace bb::gfx {
 		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
 		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
 		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
-			memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
+			copy_vertices(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
 			if (!same_triangles) {
 				memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
 			}
@@ -258,7 +272,7 @@ namespace bb::gfx {
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
 		rhi::create_buffer(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh);
-		memcpy(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
+		copy_vertices(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
 
 		if (!same_triangles) {
 			gpu->index_capacity = s.indices.size + s.indices.size / 4 + 48;
