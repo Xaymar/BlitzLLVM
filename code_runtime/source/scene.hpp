@@ -278,6 +278,10 @@ namespace bb {
 		float depth_fade = 0;             // SpriteDepthFade, EntityDepthFade: how far from what is behind it a blended entity fades out, 0 for not at all.
 		int   static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
 		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
+		// SetEntityStencil, SetEntityStencilBack: the stencil test and operations of the front ([0]) and back ([1]) faces, in the numbers of the commands
+		// (compare 0 never .. 7 always, operations 0 keep .. 7 decrement and wrap). Always with keep everywhere is no stencil at all.
+		uint8_t stencil_compare[2] = { 7, 7 }, stencil_fail[2] = { 0, 0 }, stencil_depth_fail[2] = { 0, 0 }, stencil_pass[2] = { 0, 0 };
+		uint8_t stencil_reference = 0, stencil_read_mask = 0xFF, stencil_write_mask = 0xFF;
 		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
 		bool  blend_set = false; // EntityBlend was called: the original then looks at every texture for alpha, not just a lone one.
 		float shininess = 0;
@@ -307,6 +311,9 @@ namespace bb {
 		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
 		float cam_clip_planes[6][4] = {};   // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
 		int   cam_clip_enabled      = 0;    // SetCameraClipPlaneEnabled: one bit for each plane.
+		bool  cam_stencil           = false; // SetCameraStencil: the depth buffer the camera draws with has stencil, and entities with SetEntityStencil use it.
+		bool  cam_stencil_clear     = true;  // SetCameraStencilClear: whether the stencil is cleared when the camera starts drawing, and to what.
+		uint8_t cam_stencil_value   = 0;
 		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };
