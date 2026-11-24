@@ -60,6 +60,15 @@ namespace bb::rhi::vulkan::dxgi {
 		constexpr uint32_t image_count = 3;
 
 		// The Direct3D 11 device that every swapchain presents with, made for the Vulkan device that is in use.
+		template<typename T>
+		void release(T*& object)
+		{
+			if (object) {
+				object->Release();
+				object = nullptr;
+			}
+		}
+
 		struct d3d_device {
 			HMODULE               d3d11_library = nullptr;
 			HMODULE               dxgi_library  = nullptr;
@@ -86,6 +95,7 @@ namespace bb::rhi::vulkan::dxgi {
 
 		struct chain {
 			VkDevice         device = VK_NULL_HANDLE;
+			HWND             window = nullptr;
 			IDXGISwapChain1* swap   = nullptr;
 			ID3D11Texture2D* back   = nullptr; // Buffer 0, which Direct3D 11 keeps as the one to draw into next.
 			ID3D11Fence*     fence  = nullptr;
@@ -110,6 +120,34 @@ namespace bb::rhi::vulkan::dxgi {
 		};
 		std::mutex          chains_lock;
 		std::vector<chain*> chains;
+
+		// A window's swapchain is kept when its chain is destroyed, as the chain is made again at once when the window changes its size: ResizeBuffers
+		// then gives it new buffers, where a new swapchain would leave the window black for a moment. Guarded by d3d_lock.
+		struct parked_swap {
+			HWND             window  = nullptr;
+			IDXGISwapChain1* swap    = nullptr;
+			HANDLE           latency = nullptr;
+		};
+		std::vector<parked_swap> parked;
+
+		void release_parked(parked_swap& p)
+		{
+			if (p.latency) {
+				CloseHandle(p.latency);
+			}
+			release(p.swap);
+		}
+
+		// Lets go of the kept swapchains of windows that are gone. Called with d3d_lock held.
+		void prune_parked()
+		{
+			for (size_t i = parked.size(); i-- > 0;) {
+				if (!IsWindow(parked[i].window)) {
+					release_parked(parked[i]);
+					parked.erase(parked.begin() + ptrdiff_t(i));
+				}
+			}
+		}
 
 		chain* find(uint64_t handle)
 		{
@@ -140,17 +178,12 @@ namespace bb::rhi::vulkan::dxgi {
 			}
 		}
 
-		template<typename T>
-		void release(T*& object)
-		{
-			if (object) {
-				object->Release();
-				object = nullptr;
-			}
-		}
-
 		void release_device()
 		{
+			for (parked_swap& p : parked) {
+				release_parked(p);
+			}
+			parked.clear();
 			if (d3d.context) {
 				d3d.context->ClearState();
 				d3d.context->Flush();
@@ -381,17 +414,24 @@ namespace bb::rhi::vulkan::dxgi {
 			}
 			release(c->fence);
 			release(c->back);
+			{
+				std::lock_guard<std::mutex> guard(d3d_lock);
+				if (d3d.context) {
+					// ResizeBuffers and a new swapchain both need the buffers to be let go of for real, which takes a flush.
+					d3d.context->ClearState();
+					d3d.context->Flush();
+				}
+				if (c->swap && IsWindow(c->window) && (c->device == d3d.made_for)) {
+					parked.push_back({ c->window, c->swap, c->latency });
+					c->swap    = nullptr;
+					c->latency = nullptr;
+				}
+				prune_parked();
+			}
 			if (c->latency) {
 				CloseHandle(c->latency);
 			}
 			release(c->swap);
-			{
-				// The swapchain is let go of at once, so the window can have a new one.
-				std::lock_guard<std::mutex> guard(d3d_lock);
-				if (d3d.context) {
-					d3d.context->Flush();
-				}
-			}
 			delete c;
 		}
 	} // namespace
@@ -459,6 +499,7 @@ namespace bb::rhi::vulkan::dxgi {
 
 		chain* c  = new chain();
 		c->device = vkd.device;
+		c->window = window;
 		c->interval = ((d.vsync == 1) && !d.own_thread) ? 1 : 0;
 		c->flags    = ((d.vsync == 0) && !d.own_thread && d3d.tearing) ? DXGI_PRESENT_ALLOW_TEARING : 0;
 
@@ -473,12 +514,36 @@ namespace bb::rhi::vulkan::dxgi {
 		desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode             = DXGI_ALPHA_MODE_IGNORE;
 		desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | (d3d.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
-		HRESULT result             = d3d.factory->CreateSwapChainForHwnd(d3d.device, window, &desc, nullptr, nullptr, &c->swap);
-		if (SUCCEEDED(result)) {
-			d3d.factory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES); // Fullscreen is the program's business.
-			result = c->swap->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&c->back));
+		HRESULT result             = E_FAIL;
+		prune_parked();
+		for (size_t i = 0; i < parked.size(); i++) {
+			if (parked[i].window == window) {
+				c->swap    = parked[i].swap;
+				c->latency = parked[i].latency;
+				parked.erase(parked.begin() + ptrdiff_t(i));
+				result = c->swap->ResizeBuffers(desc.BufferCount, desc.Width, desc.Height, desc.Format, desc.Flags);
+				if (FAILED(result)) {
+					// A new swapchain then, which needs the old one gone.
+					if (c->latency) {
+						CloseHandle(c->latency);
+						c->latency = nullptr;
+					}
+					release(c->swap);
+				}
+				break;
+			}
+		}
+		const bool resized = SUCCEEDED(result);
+		if (!resized) {
+			result = d3d.factory->CreateSwapChainForHwnd(d3d.device, window, &desc, nullptr, nullptr, &c->swap);
+			if (SUCCEEDED(result)) {
+				d3d.factory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES); // Fullscreen is the program's business.
+			}
 		}
 		if (SUCCEEDED(result)) {
+			result = c->swap->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&c->back));
+		}
+		if (SUCCEEDED(result) && !resized) {
 			// The wait for the display happens on this object and not in Present: Present holds the lock of the device, which every
 			// window presents with.
 			IDXGISwapChain2* swap2 = nullptr;
