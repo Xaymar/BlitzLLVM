@@ -88,7 +88,7 @@ Type Craft
 	Field accelMul#, topMul#, brakeMul#, maxEnergy#
 	Field steer#        ; How far the craft leans into a turn, for the look of it.
 	Field lastHit
-	Field mesh, glow, shadow, shieldBubble
+	Field mesh, glow, shadow, shieldBubble, chargeGlow
 	Field index                    ; 0 to 3, for the pulse to remember whom it hit.
 	Field weapon, aiHold           ; The weapon held, and how long the computer waits before using it.
 	Field lockTarget.Craft, lockTimer
@@ -1081,6 +1081,12 @@ Function MakeCraftMesh(c.Craft)
 	EntityBlend c\shieldBubble, 3
 	EntityFX c\shieldBubble, 1 + 16
 	HideEntity c\shieldBubble
+
+	; The plasma charge: light that gathers on the nose, shown while the plasma charges.
+	c\chargeGlow = CopyEntity(sparkTemplate, mesh)
+	PositionEntity c\chargeGlow, 0, 0.15, 2.7
+	EntityColor c\chargeGlow, 120, 230, 255
+	HideEntity c\chargeGlow
 	c\mesh = mesh
 End Function
 
@@ -1120,6 +1126,14 @@ Function PlaceCraft(c.Craft)
 	TurnEntity c\mesh, -Clamp(ATan2(slope, Max(c\spd, 0.3)), -30, 30), 0, c\steer * 14
 	If c\airborne And c\y > Ground(c\d, c\lat) + 2 Then HideEntity c\shadow Else ShowEntity c\shadow
 	If c\shield > 0 And (c\shield > 60 Or frame Mod 8 < 5) Then ShowEntity c\shieldBubble Else HideEntity c\shieldBubble
+	If c\charge > 0
+		; It grows as the plasma charges, and flickers.
+		Local chargeSize# = 0.4 + 2.2 * c\charge / PLASMA_CHARGE + Rnd(0.3)
+		ScaleSprite c\chargeGlow, chargeSize, chargeSize
+		ShowEntity c\chargeGlow
+	Else
+		HideEntity c\chargeGlow
+	EndIf
 	Local glowSize# = 0.6 + c\spd / classScale * 0.35
 	If c\padTimer > 0 Or c\boostTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
 	ScaleSprite c\glow, glowSize, glowSize
@@ -1823,12 +1837,6 @@ Function UpdateWeapons()
 				c\weapon = WEAPON_NONE
 				NewShot(c, SHOT_PLASMA)
 				If c = player Then PlaySfx(soundPlasma)
-			ElseIf frame Mod 2 = 0
-				; Light gathers at the nose while it charges.
-				CraftHeading(c, c\ang)
-				Local nx# = hX, ny# = hY, nz# = hZ
-				CraftPoint(c, HOVER)
-				BurstSparks(gX + nx * 2.6, gY + ny * 2.6, gZ + nz * 2.6, 120, 230, 255, 1, 0.04, 0.4 + c\charge * 0.03)
 			EndIf
 		EndIf
 		If c\weapon = WEAPON_MISSILE
