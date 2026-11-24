@@ -117,9 +117,8 @@ with it, not with this change.
 
 ### Clashes with a program's own constants
 
-A program that already declares `KEY_ESCAPE` and then includes `keys.bb` gets the usual *duplicate* error. That is
-acceptable: including is opt-in, and the fix is to delete the program's own line. The compiler does not get special
-rules for these constants.
+Every shipped constant starts with `BB_` (`BB_KEY_ESCAPE`), so a program that declares its own `KEY_ESCAPE`, maybe with
+another value, keeps working when it includes `keys.bb`. The compiler does not get special rules for these constants.
 
 ## Compatibility includes
 
@@ -155,6 +154,7 @@ The wiki page *Language* gets a short section on the two forms of `Include`, wit
 
 Decided: the syntax is `Include "<keys.bb>"`. Until answered otherwise, the implementation uses the defaults below.
 
-1. Constant names: `KEY_ESCAPE` style as above, or with a `BB_`/`BL_` prefix to avoid clashes entirely?
-2. Should `-I` directories also apply to the plain `Include "..."` form (C does not do this for `"..."` beyond the
+Decided: every constant starts with `BB_` (`BB_KEY_ESCAPE`), so that it can't clash with a constant a program already has (Xaymar, 24 Nov 2026). The names in the tables above get the prefix too. The device names of Windows (CON, COM1, ...) are refused by both forms of `Include` (Xaymar, 24 Nov 2026).
+
+1. Should `-I` directories also apply to the plain `Include "..."` form (C does not do this for `"..."` beyond the
    including directory), or only to `<...>`? This document says only `<...>`.
