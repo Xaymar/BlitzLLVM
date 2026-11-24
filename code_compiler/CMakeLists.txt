@@ -194,6 +194,16 @@ install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline C
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
 
+# The samples, tutorials and games of BlitzLLVM itself (samples/ of the repository): <prefix>/samples in a plain install, <prefix>/share/blitzllvm/samples
+# in the packages, next to the originals below.
+foreach(_DESTINATION IN ITEMS samples share/blitzllvm/samples)
+	set(_ARGS)
+	if(NOT _DESTINATION STREQUAL "samples")
+		set(_ARGS COMPONENT system EXCLUDE_FROM_ALL)
+	endif()
+	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../samples/" DESTINATION "${_DESTINATION}" ${_ARGS} PATTERN ".gitignore" EXCLUDE PATTERN "build" EXCLUDE PATTERN "*.bb_bak*" EXCLUDE)
+endforeach()
+
 # The sample programs and games of the original Blitz3D and BlitzPlus with their media, and the tutorials of the original Blitz3D (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules, when they are checked out):
 # <prefix>/samples/original-blitz3d and <prefix>/samples/original-blitzplus in a plain install, <prefix>/share/blitzllvm/samples in the packages.
 # The prefix keeps them apart from the samples of BlitzLLVM itself next to them. The Windows executables that came with them are left out.

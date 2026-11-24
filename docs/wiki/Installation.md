@@ -22,7 +22,7 @@ For the zip:
    lib/blitzllvm/runtime/  the runtime sources (inline/) and the libraries per architecture (x86_64/, arm64/; macOS has them directly), keep lib next to bin
    userlibs/            user libraries
    help/                the HTML help in the layout of the Blitz3D help: open help/index.html (the Flatpak has it in /app/share/doc/blitzllvm/help)
-   samples/             the samples and games of the original Blitz3D (original-blitz3d/, with its tutorials) and BlitzPlus (original-blitzplus/) with their media; share/blitzllvm/samples in the deb, rpm and pkg packages
+   samples/             the samples of BlitzLLVM: tutorials/, games/ and v1.0/ (feature showcases); the samples and games of the original Blitz3D (original-blitz3d/, with its tutorials) and BlitzPlus (original-blitzplus/) with their media; share/blitzllvm/samples in the deb, rpm and pkg packages
    ```
 
 2. Optionally add the `bin` directory to your `PATH`.
