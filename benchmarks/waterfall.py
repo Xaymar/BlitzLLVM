@@ -14,7 +14,7 @@ over a cliff, made of thousands of see-through sprites. The result is also saved
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
-folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0), and it can have at most 16383 sprites.
+folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0), and it can have at most 16125 water sprites.
 
 Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU
 rasterizing and only a smoke test. The counts (draws, triangles) are exact on any GPU.
@@ -32,8 +32,11 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
 
-# Most sprites the original Blitz3D can have: they share one vertex buffer, 4 vertices each, and Direct3D 7 buffers hold at most 65535 vertices.
-ORIGINAL_MAX_SPRITES = 16383
+# Most water sprites the original Blitz3D 1.118 can have (measured by Xaymar: 16125 runs, more crashes). All sprites share one vertex
+# buffer of 4 vertices each, Sprite::allocIndex grows it 256 sprites at a time, and Direct3D 7 buffers hold at most 65535 vertices:
+# 63 * 256 = 16128 sprites (64512 vertices) fit, the step to 16384 sprites (65536 vertices) fails. waterfall.bb makes 3 hidden
+# template sprites, which count too, so 16128 - 3 = 16125 are left for the water.
+ORIGINAL_MAX_SPRITES = 16125
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
@@ -80,8 +83,8 @@ def main():
     if args.profile and llvm:
         flags.append("--profile")
     if not llvm and args.sprites > ORIGINAL_MAX_SPRITES:
-        sys.exit("The original Blitz3D can draw only %d sprites (they share one vertex buffer of 4 vertices each, and Direct3D 7 "
-                 "buffers have at most 65535 vertices); use --sprites %d or less with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_SPRITES))
+        sys.exit("The original Blitz3D can draw only %d water sprites (they share one vertex buffer of 4 vertices each that grows 256 "
+                 "sprites at a time, Direct3D 7 buffers have at most 65535 vertices, and 3 more sprites are templates); use --sprites %d or less with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_SPRITES))
     if not llvm and (int(width) > ORIGINAL_MAX_SIZE or int(height) > ORIGINAL_MAX_SIZE):
         sys.exit("The original Blitz3D (Direct3D 7) cannot open a window above %dx%d, it stops with \"Unable to create 3D Scene\" (asked for %sx%s); "
                  "use --size %dx%d or less with it, or BlitzLLVM for larger windows." % (ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE, width, height, ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE))

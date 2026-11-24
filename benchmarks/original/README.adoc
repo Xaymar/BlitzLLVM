@@ -105,7 +105,7 @@ SUMMARY bench=blitz3d total_ms=…
 # done
 ----
 
-Three scenes at 2000 and 10000 entities (and 100000 with `SCALES = 3`, which crashes the original: it dies above 16383 sprites, so sprite scenes with more than `MAXSPRITES` entities are skipped, and the 100000 meshes scene crashes it too): `mixed` is all 16 kinds of the
+Three scenes at 2000 and 10000 entities (and 100000 with `SCALES = 3`, which crashes the original: it dies above 16128 sprites, so sprite scenes with more than `MAXSPRITES` entities are skipped, and the 100000 meshes scene crashes it too): `mixed` is all 16 kinds of the
 fly-through, `meshes` the 12 mesh kinds (cube, sphere, cone, cylinder, octahedron with lit, textured, flat, vertex colored,
 alpha, additive and two sided variants) and `sprites` the 4 sprite kinds (textured, alpha, additive, flat color). A frame
 is `RenderWorld` and `Flip False`. `ms_avg` is the whole timed part divided by the number of frames; the other `ms_*` are
