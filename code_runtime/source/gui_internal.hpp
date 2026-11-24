@@ -305,7 +305,7 @@ namespace bb::gui {
 	bool handle_event(void const* sdl_event, int window); // Says whether the gadgets used it. The window is the one of the computer it came from, 0 for the one of Graphics.
 	bool translate(int kind, int* x, int* y, int* source);
 	extern thread_local bool (*modal_handler)(void const* sdl_event, int window); // While a requester is shown it gets everything, with the window it came from.
-	extern thread_local void (*overlay_draw)(int window, int w, int h);           // What is drawn on top of the gadgets of a window (0 the desktop of Graphics) of this size, before they are shown.
+	extern thread_local void (*overlay_draw)(int window, int w, int h);           // What is drawn on top of the gadgets of a window of this size, before they are shown.
 	void render();
 	void show_window(int window, bool wait); // Draws one window and shows it now (FlipCanvas); wait returns once it was shown.
 	// Drawing into the window that is being drawn, at its scale, for the requesters: positions are in the units of the program.
