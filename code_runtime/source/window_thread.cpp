@@ -18,6 +18,16 @@
 #include <condition_variable>
 #include <mutex>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 namespace bb::wnd {
 	namespace {
 		struct job {
@@ -62,11 +72,21 @@ namespace bb::wnd {
 			return 0;
 		}
 
-		bool on_thread()
-		{
-			return thread_id.load() && (SDL_GetCurrentThreadID() == thread_id.load());
-		}
 	} // namespace
+
+	bool on_thread()
+	{
+		return thread_id.load() && (SDL_GetCurrentThreadID() == thread_id.load());
+	}
+
+	void handle_sent_messages()
+	{
+#if defined(_WIN32)
+		// Only the messages other threads sent (SendMessage), which wait for this thread: nothing is taken from the queue.
+		MSG message;
+		PeekMessageW(&message, nullptr, 0, 0, PM_NOREMOVE | PM_QS_SENDMESSAGE);
+#endif
+	}
 
 	bool enabled()
 	{

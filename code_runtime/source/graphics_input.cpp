@@ -751,7 +751,6 @@ namespace bb::gfx {
 			bb::wnd::wait_event(50);
 			drain();
 		}
-		presenter_service(); // The windows with a thread of their own that need a new swapchain.
 	}
 
 	bool active()

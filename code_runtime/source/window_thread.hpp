@@ -40,6 +40,13 @@ namespace bb::wnd {
 		run([](void* f) { (*static_cast<std::remove_reference_t<F>*>(f))(); }, &function);
 	}
 
+	// True on the thread of the window system itself.
+	bool on_thread();
+
+	// Handles the messages that other threads sent to the windows of this thread and wait for it to take (SendMessage on Windows; a
+	// swapchain may be made that way). For the thread of the window system while it waits for another thread. Nothing elsewhere.
+	void handle_sent_messages();
+
 	// SDL_InitSubSystem and SDL_QuitSubSystem, on the thread that has to own what they start.
 	bool init(SDL_InitFlags flags);
 	void quit(SDL_InitFlags flags);

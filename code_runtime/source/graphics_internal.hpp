@@ -1008,9 +1008,8 @@ namespace bb::gfx {
 	int32_t    presenter_buffer(surface_state& s);
 	void       presenter_handover(surface_state& s, bool wait);
 	void       presenter_resize(surface_state& s, int width, int height); // The pictures take the size; nothing is shown until the next handover.
-	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
+	/** From the program's thread: an event of the window. */
 	void       presenter_window_event(surface_state& s, const SDL_Event& event);
-	void       presenter_service();
 	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents, uint32_t* shows);
 	void       test_presenters(const char* path);
 	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
