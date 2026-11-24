@@ -603,6 +603,37 @@ void blitz::compiler::report_unused(std::map<std::string, variable>& variables)
 	}
 }
 
+void blitz::compiler::collect_constants(ast::block const& block)
+{
+	for (auto const& stmt : block) {
+		if (auto d = dynamic_cast<ast::declare const*>(stmt.get())) {
+			if (d->constant) {
+				for (auto const& decl : d->variables) {
+					auto key = lower(decl.name);
+					if (!_const_decls.count(key)) { // collect_globals reports the duplicate.
+						_const_order.push_back(key);
+						_const_decls[key] = &decl;
+					}
+				}
+			}
+		} else if (auto i = dynamic_cast<ast::if_statement const*>(stmt.get())) {
+			for (auto const& b : i->branches) {
+				collect_constants(b.body);
+			}
+		} else if (auto w = dynamic_cast<ast::while_statement const*>(stmt.get())) {
+			collect_constants(w->body);
+		} else if (auto r = dynamic_cast<ast::repeat_statement const*>(stmt.get())) {
+			collect_constants(r->body);
+		} else if (auto f = dynamic_cast<ast::for_statement const*>(stmt.get())) {
+			collect_constants(f->body);
+		} else if (auto s = dynamic_cast<ast::select_statement const*>(stmt.get())) {
+			for (auto const& c : s->cases) {
+				collect_constants(c.body);
+			}
+		}
+	}
+}
+
 void blitz::compiler::collect_globals(ast::block const& block)
 {
 	for (auto const& stmt : block) {
@@ -644,10 +675,6 @@ void blitz::compiler::collect_globals(ast::block const& block)
 					declared.where        = decl.where;
 					declared.name         = decl.name;
 					declared.check_unused = true;
-				}
-				int64_t folded;
-				if (d->constant && decl.initial && fold_int(decl.initial.get(), folded)) {
-					_const_values[key] = folded;
 				}
 			}
 		} else if (auto dim = dynamic_cast<ast::dim_statement const*>(stmt.get())) {
@@ -716,6 +743,24 @@ std::string blitz::compiler::generate(ast::program const& program)
 		for (auto const& param : fn->parameters) {
 			if (!param.typed) {
 				warn_typeless(param.where, param.name, "Parameter ");
+			}
+		}
+	}
+
+	// Like in the original, a Const is known everywhere, no matter where it is declared. One Const can use another that comes later, so
+	// fold them until nothing changes.
+	collect_constants(program.main);
+	for (auto const& fn : program.functions) {
+		collect_constants(fn->body);
+	}
+	for (bool changed = true; changed;) {
+		changed = false;
+		for (auto const& key : _const_order) {
+			int64_t folded;
+			auto    decl = _const_decls.at(key);
+			if (!_const_values.count(key) && decl->initial && fold_int(decl->initial.get(), folded)) {
+				_const_values[key] = folded;
+				changed            = true;
 			}
 		}
 	}
