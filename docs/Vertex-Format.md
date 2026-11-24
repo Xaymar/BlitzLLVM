@@ -174,8 +174,8 @@ same source as they do today.
 
 One PR per step, each with its own commits:
 
-1. Accessors: `set_normal`/`normal` and second-set helpers on `vertex3d`, every reader and writer moved to them. No change in layout or
-   behavior; pixels and tests identical.
+1. Accessors and alignment: `set_normal`/`normal` and second-set helpers on `vertex3d`, every reader and writer moved to them, and
+   vertex memory on every side allocated at `bb::vertex_alignment`. No change in layout or behavior; pixels and tests identical.
 2. Packed normal: the octahedral (or chosen) encoding behind the accessors, the three backends' attribute 1, the vertex shader, the
    long-triangle clipper. Pixel tests need checking for small lighting differences; known-good images may need regenerating.
 3. Extra stream: `vertex3d_extra`, binding 1 in the three backends, the stride-0 default buffer, set selection in the renderer,
