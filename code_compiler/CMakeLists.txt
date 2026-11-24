@@ -194,7 +194,7 @@ install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline C
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
 
-# The sample programs and games of the original Blitz3D and BlitzPlus with their media (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules, when they are checked out):
+# The sample programs and games of the original Blitz3D and BlitzPlus with their media, and the tutorials of the original Blitz3D (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules, when they are checked out):
 # <prefix>/samples/original-blitz3d and <prefix>/samples/original-blitzplus in a plain install, <prefix>/share/blitzllvm/samples in the packages.
 # The prefix keeps them apart from the samples of BlitzLLVM itself next to them. The Windows executables that came with them are left out.
 set(_BLITZ3D_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/blitz3d")
@@ -215,7 +215,7 @@ if(BLITZ_INSTALL_SAMPLES AND EXISTS "${_BLITZ3D_ROOT}/_release/samples" AND EXIS
 		if(NOT _DESTINATION STREQUAL "samples")
 			set(_ARGS COMPONENT system EXCLUDE_FROM_ALL)
 		endif()
-		install(DIRECTORY "${_BLITZ3D_ROOT}/_release/samples" "${_BLITZ3D_ROOT}/_release/Games" DESTINATION "${_DESTINATION}/original-blitz3d" ${_ARGS} PATTERN "*.exe" EXCLUDE PATTERN "*.EXE" EXCLUDE)
+		install(DIRECTORY "${_BLITZ3D_ROOT}/_release/samples" "${_BLITZ3D_ROOT}/_release/Games" "${_BLITZ3D_ROOT}/_release/tutorials" DESTINATION "${_DESTINATION}/original-blitz3d" ${_ARGS} PATTERN "*.exe" EXCLUDE PATTERN "*.EXE" EXCLUDE)
 		install(DIRECTORY "${_BLITZPLUS_ROOT}/_release/samples" "${_BLITZPLUS_ROOT}/_release/games" DESTINATION "${_DESTINATION}/original-blitzplus" ${_ARGS} PATTERN "*.exe" EXCLUDE PATTERN "*.EXE" EXCLUDE)
 	endforeach()
 endif()
