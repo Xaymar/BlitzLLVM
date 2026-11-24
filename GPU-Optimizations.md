@@ -51,4 +51,4 @@ The square is kept for sprites that cover fewer than 128 pixels, and when the te
 * has been scaled, moved or turned (`ScaleTexture`, `PositionTexture`, `RotateTexture`)
 * is a sphere or cube map
 
-`BLITZLLVM_SPRITE_HULL=0` turns the shapes off.
+An octagon is 6 triangles, and [TrisRendered](TrisRendered) counts them as drawn. `BLITZLLVM_SPRITE_HULL=0` turns the shapes off.

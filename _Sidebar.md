@@ -1389,7 +1389,7 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (463)</summary>
+<li><details><summary>Commands (464)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1830,6 +1830,7 @@
 <li><a href="TFormImage#differences">TFormImage</a></li>
 <li><a href="TotalVidMem#differences">TotalVidMem</a></li>
 <li><a href="TrailingZeros#differences">TrailingZeros</a> 〔BlitzLLVM〕</li>
+<li><a href="TrisRendered#differences">TrisRendered</a></li>
 <li><a href="UByte#differences">UByte</a> 〔BlitzLLVM〕</li>
 <li><a href="UDPMsgIP#differences">UDPMsgIP</a></li>
 <li><a href="UDPStreamIP#differences">UDPStreamIP</a></li>

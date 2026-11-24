@@ -488,6 +488,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
 * [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB, because it has to fit into an integer.
 * [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
+* [TrisRendered](TrisRendered#differences): A sprite drawn as an octagon (see [GPU optimizations](GPU-Optimizations#sprite-shapes)) counts as the 6 triangles that are drawn, not as 2, so scenes with many sprites count more than in the original.
 * [UByte](UByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [UDPMsgIP](UDPMsgIP#differences): A sender that uses IPv6 has no address as a number, so this returns 0 for it; use [GetUDPMsgAddress](GetUDPMsgAddress).
 * [UDPStreamIP](UDPStreamIP#differences): Only IPv4, use [GetUDPStreamAddress](GetUDPStreamAddress) for IPv6 too.

@@ -23,6 +23,10 @@ TrisRendered:Int32
 
 _Not documented yet._
 
+## Differences
+
+* A sprite drawn as an octagon (see [GPU optimizations](GPU-Optimizations#sprite-shapes)) counts as the 6 triangles that are drawn, not as 2, so scenes with many sprites count more than in the original.
+
 ## Examples
 
 ```blitzbasic
