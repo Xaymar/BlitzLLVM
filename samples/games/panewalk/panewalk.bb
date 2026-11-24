@@ -8,8 +8,8 @@
 ; window is moved, to build a way from the start to the door.
 ;
 ;   Grey rooms have no title bar and stay where they are.
-;   Blue rooms can be moved by their title bar, and carry Pip along when Pip stands in them.
-;   Green rooms can be moved and resized, between a smallest and a largest size.
+;   Blue rooms can be dragged by their title bar or from anywhere inside, and carry Pip along when Pip is in them.
+;   Green rooms can also be resized, by an edge or the grip in their corner, between a smallest and a largest size.
 ;   Red windows are the void: Pip must never touch them.
 ;
 ; This is a BlitzPlus program: it opens no Graphics window. Every room is a window of the computer with a canvas in
@@ -22,7 +22,7 @@
 ;
 ; The options and the progress are saved in panewalk.cfg next to the program.
 
-Const EVENT_KEY_DOWN = $101, EVENT_MOUSE_DOWN = $201, EVENT_MOUSE_MOVE = $203
+Const EVENT_KEY_DOWN = $101, EVENT_MOUSE_DOWN = $201, EVENT_MOUSE_UP = $202, EVENT_MOUSE_MOVE = $203
 Const EVENT_WINDOW_CLOSE = $803, EVENT_TIMER = $4001
 
 ; Scan codes of the keys we use.
@@ -121,6 +121,10 @@ Global newBest ; The level was done faster than ever before.
 Global showHint = True
 Global frame ; Counts every tick, for things that bob and blink.
 
+; A room that is dragged from inside: where in its canvas it was grabbed, and whether its corner grip was grabbed.
+Global dragRoom.Room, grabX, grabY, grabResize
+Const GRIP_SIZE = 18 ; The grip of a green room, in its bottom right corner.
+
 ; The buttons of what the Panewalk window shows.
 Dim buttonX(15), buttonY(15), buttonW(15), buttonH(15), buttonId(15), buttonText$(15)
 Global buttonCount, buttonSelected = -1, buttonHover = -1
@@ -154,9 +158,17 @@ Repeat
 					buttonSelected = hit
 					quit = Press(buttonId(hit), EventData() = 2)
 				EndIf
+			ElseIf EventData() = 1
+				StartDrag(EventSource(), EventX(), EventY())
 			EndIf
 		Case EVENT_MOUSE_MOVE
-			If EventSource() = screen Then buttonHover = ButtonAt(EventX(), EventY())
+			If EventSource() = screen
+				buttonHover = ButtonAt(EventX(), EventY())
+			ElseIf dragRoom <> Null
+				If EventSource() = dragRoom\canvas Then Drag(EventX(), EventY())
+			EndIf
+		Case EVENT_MOUSE_UP
+			dragRoom = Null
 		Case EVENT_KEY_DOWN
 			quit = KeyDown(EventData())
 		Case EVENT_WINDOW_CLOSE
@@ -462,6 +474,45 @@ Function PipHome()
 	BuildPlayButtons()
 End Function
 
+;--- Dragging the rooms from inside -------------------------------------------------------------------------------
+; Blue and green rooms can be moved by their title bar like any window, but a small window has little title bar left
+; next to its buttons. So they can also be dragged from anywhere inside, and a green room resized by the grip in its
+; bottom right corner. The window follows the mouse, which stays over the same point of the canvas while it moves.
+
+Function StartDrag(canvas, x, y)
+	Local r.Room
+	For r = Each Room
+		If r\canvas = canvas And (r\kind = ROOM_FREE Or r\kind = ROOM_STRETCH)
+			dragRoom = r
+			grabResize = r\kind = ROOM_STRETCH And x >= r\w - GRIP_SIZE And y >= r\h - GRIP_SIZE
+			If grabResize
+				; How far the mouse is from the bottom right corner, which stays the same while resizing.
+				grabX = r\w - x : grabY = r\h - y
+			Else
+				grabX = x : grabY = y
+			EndIf
+			Return
+		EndIf
+	Next
+End Function
+
+Function Drag(x, y)
+	; The button may have come up outside of every window of the game, where no event tells about it.
+	If Not MouseDown(1)
+		dragRoom = Null
+		Return
+	EndIf
+	Local r.Room = dragRoom
+	Local wx = GadgetX(r\win), wy = GadgetY(r\win), w = ClientWidth(r\win), h = ClientHeight(r\win)
+	If grabResize
+		; The size is kept between the smallest and the largest before the window gets it.
+		Local nw = Min(Max(x + grabX, r\minW), r\maxW), nh = Min(Max(y + grabY, r\minH), r\maxH)
+		If nw <> w Or nh <> h Then SetGadgetShape r\win, wx, wy, nw, nh
+	ElseIf x <> grabX Or y <> grabY
+		SetGadgetShape r\win, wx + x - grabX, wy + y - grabY, w, h
+	EndIf
+End Function
+
 ; --- Levels ------------------------------------------------------------------------------------------------------
 
 Function StartLevel(n)
@@ -530,9 +581,18 @@ Function OpenRoom(r.Room)
 	SetGadgetLayout r\canvas, 1, 1, 1, 1
 	; The computer may have put the window somewhere else than asked: it goes where the level says.
 	If GadgetX(r\win) <> r\x Or GadgetY(r\win) <> r\y Then SetGadgetShape r\win, r\x, r\y, r\w, r\h
+	; The computer may also keep a window bigger than asked, as a window with a title bar has a smallest width of its
+	; own. The room then keeps the size that it got, instead of fighting the computer over it.
+	r\w = ClientWidth(r\win) : r\h = ClientHeight(r\win)
+	r\homeW = r\w : r\homeH = r\h
+	If r\kind = ROOM_STRETCH
+		r\minW = Min(r\minW, r\w) : r\minH = Min(r\minH, r\h)
+		r\maxW = Max(r\maxW, r\w) : r\maxH = Max(r\maxH, r\h)
+	EndIf
 End Function
 
 Function CloseLevel()
+	dragRoom = Null
 	Local r.Room
 	For r = Each Room
 		FreeGadget r\win
@@ -661,11 +721,12 @@ Function DrawEdges(r.Room)
 		EdgePiece(0, i, 3, Min(6, r\h - i), InSpace(r\x - 1, r\y + i + 3), wallR, wallG, wallB)
 		EdgePiece(r\w - 3, i, 3, Min(6, r\h - i), InSpace(r\x + r\w, r\y + i + 3), wallR, wallG, wallB)
 	Next
-	; Grips in the corners of a green room, which can be resized.
+	; The grip in the corner of a green room, which resizes it.
 	If r\kind = ROOM_STRETCH
 		Color wallR, wallG, wallB
-		For i = 0 To 2
+		For i = 0 To 3
 			Line r\w - 4 - i * 4, r\h - 4, r\w - 4, r\h - 4 - i * 4
+			Line r\w - 5 - i * 4, r\h - 4, r\w - 4, r\h - 5 - i * 4
 		Next
 	EndIf
 End Function
@@ -1330,8 +1391,9 @@ Data "Pip walks on its own, turns at walls and climbs small"
 Data "steps. Move and resize the rooms to make a way to the door."
 Data ""
 Data "  Grey rooms stay where they are."
-Data "  Blue rooms move by their title bar and carry Pip along."
-Data "  Green rooms can also be resized."
+Data "  Blue rooms move: drag them from anywhere inside. They"
+Data "  carry Pip along."
+Data "  Green rooms also resize, by the grip in their corner."
 Data "  Red windows are the void: Pip must never touch them."
 Data "  Keys open locks, springs throw Pip up, spikes hurt."
 Data ""
@@ -1350,7 +1412,7 @@ Data "-"
 Data "First steps", "Room service", "Stretch", "Keyholder", "Spike pit", "Bounce", "The void", "Grand tour"
 
 .Level1
-Data "First steps", "Drag the Bridge window so that it overlaps both grey rooms, with its floor level with theirs. Then press Go."
+Data "First steps", "Drag the Bridge from anywhere inside it until it overlaps both grey rooms, with its floor level with theirs. Then press Go."
 Data 3
 Data ROOM_FIXED, "Start", 40, 260, 240, 150, 0, 0, 0, 0, 1
 Data THING_START, 40, 150, 0, 0
@@ -1365,16 +1427,16 @@ Data ROOM_FIXED, "Start", 40, 430, 200, 130, 0, 0, 0, 0, 1
 Data THING_START, 40, 130, 0, 0
 Data ROOM_FIXED, "Home", 760, 230, 200, 130, 0, 0, 0, 0, 1
 Data THING_EXIT, 156, 94, 26, 36
-Data ROOM_FREE, "Lift", 440, 260, 150, 110, 0, 0, 0, 0, 0
+Data ROOM_FREE, "Lift", 440, 260, 170, 110, 0, 0, 0, 0, 0
 
 .Level3
-Data "Stretch", "Green rooms can be resized: pull an edge or a corner. The Stretcher reaches a long way."
+Data "Stretch", "Green rooms can be resized: pull the grip in the corner. The Stretcher reaches a long way."
 Data 3
 Data ROOM_FIXED, "Start", 40, 300, 180, 120, 0, 0, 0, 0, 1
 Data THING_START, 40, 120, 0, 0
 Data ROOM_FIXED, "Home", 800, 300, 160, 120, 0, 0, 0, 0, 1
 Data THING_EXIT, 118, 84, 26, 36
-Data ROOM_STRETCH, "Stretcher", 420, 470, 200, 100, 120, 80, 620, 160, 0
+Data ROOM_STRETCH, "Stretcher", 420, 470, 200, 100, 170, 80, 620, 160, 0
 
 .Level4
 Data "Keyholder", "The door is locked. The key waits in the Vault."
@@ -1386,7 +1448,7 @@ Data THING_KEY, 84, 80, 12, 24
 Data ROOM_FIXED, "Home", 780, 430, 180, 130, 0, 0, 0, 0, 2
 Data THING_LOCK, 50, 60, 20, 70
 Data THING_EXIT, 136, 94, 26, 36
-Data ROOM_FREE, "Ferry", 450, 470, 150, 100, 0, 0, 0, 0, 0
+Data ROOM_FREE, "Ferry", 450, 470, 170, 100, 0, 0, 0, 0, 0
 
 .Level5
 Data "Spike pit", "The Pit is lined with spikes. The Plank has a floor of its own, and it stretches."
@@ -1397,7 +1459,7 @@ Data ROOM_FIXED, "Pit", 250, 300, 420, 200, 0, 0, 0, 0, 1
 Data THING_SPIKES, 0, 186, 0, 14
 Data ROOM_FIXED, "Home", 660, 300, 280, 130, 0, 0, 0, 0, 1
 Data THING_EXIT, 236, 94, 26, 36
-Data ROOM_STRETCH, "Plank", 420, 560, 160, 60, 100, 60, 440, 60, 1
+Data ROOM_STRETCH, "Plank", 420, 560, 180, 60, 170, 60, 440, 60, 1
 Data THING_BLOCK, 0, 48, 0, 0
 
 .Level6
@@ -1408,7 +1470,7 @@ Data THING_START, 30, 120, 0, 0
 Data THING_SPRING, 236, 110, 24, 10
 Data ROOM_FIXED, "Home", 260, 260, 260, 140, 0, 0, 0, 0, 1
 Data THING_EXIT, 220, 104, 26, 36
-Data ROOM_FREE, "Chimney", 760, 250, 110, 240, 0, 0, 0, 0, 0
+Data ROOM_FREE, "Chimney", 760, 250, 170, 240, 0, 0, 0, 0, 0
 
 .Level7
 Data "The void", "Pip must never touch the void, not even while a room carries it. Go around."
@@ -1418,7 +1480,7 @@ Data THING_START, 30, 130, 0, 0
 Data ROOM_VOID, "Void", 430, 200, 150, 440, 0, 0, 0, 0, 0
 Data ROOM_FIXED, "Home", 770, 400, 200, 130, 0, 0, 0, 0, 1
 Data THING_EXIT, 156, 94, 26, 36
-Data ROOM_FREE, "Ferry", 250, 250, 150, 100, 0, 0, 0, 0, 0
+Data ROOM_FREE, "Ferry", 250, 250, 170, 100, 0, 0, 0, 0, 0
 
 .Level8
 Data "Grand tour", "Everything at once. The Plank keeps Pip off the spikes, and the Ferry has to go around the void."
@@ -1432,6 +1494,6 @@ Data ROOM_FIXED, "Home", 760, 300, 200, 130, 0, 0, 0, 0, 3
 Data THING_SPIKES, 0, 116, 60, 14
 Data THING_LOCK, 80, 60, 20, 70
 Data THING_EXIT, 156, 94, 26, 36
-Data ROOM_FREE, "Ferry", 250, 250, 140, 100, 0, 0, 0, 0, 0
-Data ROOM_STRETCH, "Plank", 400, 540, 160, 70, 100, 70, 300, 70, 1
+Data ROOM_FREE, "Ferry", 200, 250, 170, 100, 0, 0, 0, 0, 0
+Data ROOM_STRETCH, "Plank", 400, 540, 180, 70, 170, 70, 300, 70, 1
 Data THING_BLOCK, 0, 58, 0, 0
