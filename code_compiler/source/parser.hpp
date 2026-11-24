@@ -60,8 +60,19 @@ namespace blitz {
 		std::unique_ptr<blitz::error> _suffix_error; // The first suffix that contradicts a declaration, reported once everything is parsed.
 
 		public:
+		/** Where `Include "<name>"` looks for the files shipped with BlitzLLVM, in order. Starts as default_include_dirs. */
+		std::vector<std::filesystem::path> include_dirs;
+
+		/** What include_dirs of a new parser is: set once by the tools (blitz-lsp, blitz-tidy) that parse in many places. */
+		static std::vector<std::filesystem::path> default_include_dirs;
+
 		~parser();
 		parser();
+
+		/** The include directory of the installation for a tool in `bin_dir`: $BLITZLLVM_INCLUDE, else <prefix>/include (Windows
+		 * installer and zips, also with the tool in bin/<architecture>), else 'include' next to the tool (build tree), else
+		 * <prefix>/share/blitzllvm/include (Linux packages and Flatpak). Empty if there is none. */
+		static std::filesystem::path installed_include_dir(std::filesystem::path const& bin_dir);
 
 		std::unique_ptr<ast::program> parse(std::filesystem::path file);
 

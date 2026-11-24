@@ -99,12 +99,22 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
 )
 
+# The include files shipped with BlitzLLVM (Include "<keys.bb>"), in 'include' next to the compiler, where it finds them in the build
+# directory. Copied on every build so that a changed file is used without relinking the compiler.
+file(GLOB_RECURSE BLITZ_INCLUDE_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
+add_custom_target(${PROJECT_NAME}_include ALL
+	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_CURRENT_SOURCE_DIR}/include" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/include"
+	SOURCES ${BLITZ_INCLUDE_FILES}
+)
+add_dependencies(${PROJECT_NAME}_include ${PROJECT_NAME})
+
 # Install layout, the same as the system layout of the packages below: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime (the libraries
-# and the sources of the hot parts of the runtime) and <prefix>/userlibs. blitzcc finds the runtime from where it is.
+# and the sources of the hot parts of the runtime), <prefix>/userlibs and <prefix>/include. blitzcc finds the runtime from where it is.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
+install(DIRECTORY "include/" DESTINATION include)
 if(MINGW)
 	# The headers, libraries and runtime libraries of the compiler (llvm-mingw), that blitzcc gives to clang as its sysroot. With them a developer
 	# needs nothing but a clang with lld. They are those of the toolchain that built the runtime, so they match it.
@@ -187,11 +197,12 @@ endfunction()
 blitz_install_licenses(licenses)
 
 # System layout for packages (deb, rpm, pkg), left out of a plain install: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime
-# and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
+# <prefix>/share/blitzllvm/userlibs and <prefix>/share/blitzllvm/include. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR} COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
+install(DIRECTORY "include/" DESTINATION share/blitzllvm/include COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
 
 # The samples, tutorials and games of BlitzLLVM itself (samples/ of the repository): <prefix>/samples in a plain install, <prefix>/share/blitzllvm/samples
@@ -475,6 +486,7 @@ endif()
 
 # Every BLITZLLVM_ variable that the runtime and the compiler read is on the wiki page, and nothing reads the environment around bb_env.
 if(Python3_FOUND)
+	add_test(NAME include-keys-generated COMMAND ${Python3_EXECUTABLE} -I "${PROJECT_SOURCE_DIR}/../tools/generate_include_keys.py" --check)
 	add_test(NAME environment-variables COMMAND ${Python3_EXECUTABLE} -I "${PROJECT_SOURCE_DIR}/../tools/check_environment.py" "${PROJECT_SOURCE_DIR}/..")
 endif()
 
@@ -534,7 +546,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info error_line fast_math sane_evaluation_order parameter_modes vector_errors inline_checks for_step joined_block_ends runtime_inline runtime_layout runtime_architecture image_codecs audio_codecs stop gfx_driver gpu_preference keywords keywords_syntax keywords_native keywords_bad_userlib userlib_shared userlib_env userlib_evaluation_order userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout temp_directory shell_quoting warnings version long_version verbose_long_only console_subsystem windows_manifest windows_icon_option run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info error_line fast_math sane_evaluation_order parameter_modes vector_errors inline_checks for_step joined_block_ends runtime_inline runtime_layout runtime_architecture image_codecs audio_codecs stop gfx_driver gpu_preference keywords keywords_syntax keywords_native keywords_bad_userlib userlib_shared userlib_env userlib_evaluation_order userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout shipped_include shipped_include_layout shipped_include_files include_device_names temp_directory shell_quoting warnings version long_version verbose_long_only console_subsystem windows_manifest windows_icon_option run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

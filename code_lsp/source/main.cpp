@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include "parser.hpp"
 #include "server.hpp"
 #include "stack.hpp"
 #if defined(_WIN32)
@@ -161,6 +162,10 @@ namespace {
 			},
 			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true), find_data("BLITZLLVM_HELP", "help.json", false));
 
+		// Include "<keys.bb>" finds the files of the installation, like blitzcc does.
+		if (auto installed = blitz::parser::installed_include_dir(executable_path().parent_path()); !installed.empty()) {
+			blitz::parser::default_include_dirs.push_back(installed);
+		}
 		trace("server ready");
 		input in;
 		for (;;) {
