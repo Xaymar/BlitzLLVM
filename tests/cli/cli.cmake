@@ -1811,6 +1811,21 @@ elseif(CASE STREQUAL "parameter_modes")
 	# In, Out and InOut stay usable as names, and In is the default.
 	accept(names "Function F(in:Int32, out:Int32, inout:Int32)\n\tPrint in + out + inout\nEnd Function\nFunction G(In a:Int32)\n\ta = 1\nEnd Function" "Local in:Int32 = 1\nF in, 2, 3\nG in")
 
+elseif(CASE STREQUAL "include_device_names")
+	# Windows opens a device for CON, PRN, AUX, NUL, COM0-9 and LPT0-9 in any folder and with any extension. Neither form of Include
+	# takes them, and a directory isn't a file either.
+	set(_DIR "${TESTS}/cli/include")
+	foreach(_PAIR IN ITEMS "device|name of a Windows device" "device_dir|name of a Windows device" "directory|it is not a file")
+		string(REPLACE "|" ";" _PAIR "${_PAIR}")
+		list(GET _PAIR 0 _FILE)
+		list(GET _PAIR 1 _TEXT)
+		blitzcc(-c "${_DIR}/${_FILE}.bb")
+		string(FIND "${OUT}${ERR}" "${_TEXT}" _AT)
+		if((RC EQUAL 0) OR (_AT EQUAL -1))
+			message(FATAL_ERROR "Expected '${_TEXT}' for ${_FILE}.bb, got '${RC}':\n${OUT}${ERR}")
+		endif()
+	endforeach()
+
 elseif(CASE STREQUAL "temp_directory")
 	# A build keeps its files in a folder of its own that is new, can't be guessed from the names of the files, and is private: a folder
 	# that another user made (or a name they knew in advance) would be where the compiler wrote and read the program it builds.
