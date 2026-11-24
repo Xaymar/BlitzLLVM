@@ -241,11 +241,18 @@ void blitz::compiler::hoist_constant(std::string const& key, std::set<std::strin
 
 void blitz::compiler::gen_constants()
 {
-	// A Const has its value from the start of the program, like in the original where it is known when compiling. Only a Const that
-	// is not a constant expression (which the original refuses) gets its value where it is declared.
+	// A Const has its value from the start of the program, like in the original where it is known when compiling.
 	std::set<std::string> visiting;
 	for (auto const& key : _const_order) {
 		hoist_constant(key, visiting);
+	}
+	// Like the original, a Const can only be made from constants.
+	for (auto const& key : _const_order) {
+		auto decl = _const_decls.at(key);
+		auto var  = _global_variables.at(key);
+		if (decl->initial && !_const_hoisted.count(decl) && !var.count && var.shape.empty()) {
+			throw err(decl->initial->where, "The value of the Const '" + decl->name + "' must be constant, use a Global for other values.");
+		}
 	}
 }
 
