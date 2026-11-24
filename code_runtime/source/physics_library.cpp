@@ -96,6 +96,7 @@ api const* library()
 	BB_BP(sim_contact_get);
 	BB_BP(sim_contacts_clear);
 	BB_BP(sim_ray_cast);
+	BB_BP(sim_shape_cast);
 	BB_BP(sim_point_inside);
 	BB_BP(sim_overlap_sphere);
 	BB_BP(sim_overlap_box);

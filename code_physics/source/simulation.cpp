@@ -16,6 +16,7 @@
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -968,6 +969,70 @@ BP_API int bp_sim_point_inside(const bp_sim* sim, const float point[3], uint64_t
 		hit->normal[i] = 0.0f;
 	}
 	hit->distance = 0.0f;
+	return 1;
+}
+
+BP_API int bp_sim_shape_cast(const bp_sim* sim, uint32_t shape_kind, const float size[3], const float origin[3], const float* rotation, const float direction[3], uint64_t mask, uint32_t flags, bp_query_hit* hit)
+{
+	if (!sim || !size || !origin || !direction || !hit) {
+		return 0;
+	}
+	for (int i = 0; i < 3; i++) {
+		if (!finite(size[i]) || !finite(origin[i]) || !finite(direction[i])) {
+			return 0;
+		}
+	}
+	Vec3 dir = to_vec(direction);
+	if (!(dir.LengthSq() > 0.0f)) {
+		return 0;
+	}
+	Ref<Shape> shape;
+	switch (shape_kind) {
+	case BP_SHAPE_SPHERE:
+		if (!(size[0] > 0.0f)) {
+			return 0;
+		}
+		shape = new SphereShape(size[0]);
+		break;
+	case BP_SHAPE_BOX: {
+		if (!(size[0] > 0.0f) || !(size[1] > 0.0f) || !(size[2] > 0.0f)) {
+			return 0;
+		}
+		float min_half = std::min(size[0], std::min(size[1], size[2]));
+		shape          = new BoxShape(to_vec(size), std::min(cDefaultConvexRadius, min_half * 0.5f));
+		break;
+	}
+	case BP_SHAPE_CAPSULE:
+		if (!(size[0] > 0.0f) || !(size[1] > 0.0f)) {
+			return 0;
+		}
+		shape = new CapsuleShape(size[1], size[0]);
+		break;
+	default:
+		return 0;
+	}
+	RShapeCast                                    cast(shape, Vec3::sReplicate(1.0f), RMat44::sRotationTranslation(rotation ? to_quat(rotation) : Quat::sIdentity(), RVec3(to_vec(origin))), dir);
+	ShapeCastSettings                             settings;
+	settings.mReturnDeepestPoint = false;
+	ClosestHitCollisionCollector<CastShapeCollector> collector;
+	query_filter                                  filter(sim, mask, flags);
+	sim->system.GetNarrowPhaseQueryNoLock().CastShape(cast, settings, RVec3::sZero(), collector, {}, {}, filter);
+	if (!collector.HadHit()) {
+		return 0;
+	}
+	const ShapeCastResult& result = collector.mHit;
+	BodyLockRead           lock(sim->system.GetBodyLockInterfaceNoLock(), result.mBodyID2);
+	if (!lock.Succeeded()) {
+		return 0;
+	}
+	fill_hit(sim, lock.GetBody(), hit);
+	Vec3 normal = -result.mPenetrationAxis;
+	normal      = normal.LengthSq() > 0.0f ? normal.Normalized() : Vec3::sZero();
+	for (int i = 0; i < 3; i++) {
+		hit->point[i]  = result.mContactPointOn2[i];
+		hit->normal[i] = normal[i];
+	}
+	hit->distance = result.mFraction * dir.Length();
 	return 1;
 }
 

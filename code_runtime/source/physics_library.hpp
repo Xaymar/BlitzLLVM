@@ -58,6 +58,7 @@ namespace bb::physics {
 		decltype(&::bp_sim_contact_get)                         sim_contact_get;
 		decltype(&::bp_sim_contacts_clear)                      sim_contacts_clear;
 		decltype(&::bp_sim_ray_cast)                            sim_ray_cast;
+		decltype(&::bp_sim_shape_cast)                          sim_shape_cast;
 		decltype(&::bp_sim_point_inside)                        sim_point_inside;
 		decltype(&::bp_sim_overlap_sphere)                      sim_overlap_sphere;
 		decltype(&::bp_sim_overlap_box)                         sim_overlap_box;

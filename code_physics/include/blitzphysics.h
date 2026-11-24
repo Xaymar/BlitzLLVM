@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 // Bumped when the interface changes.
-#define BP_VERSION 6
+#define BP_VERSION 7
 
 typedef struct bp_world bp_world;
 typedef struct bp_mesh  bp_mesh;
@@ -256,6 +256,11 @@ typedef struct bp_query_hit {
 
 // The closest body that the ray from origin along direction (its length is how far the ray reaches) hits. Returns 1 and fills hit, or 0.
 BP_API int bp_sim_ray_cast(const bp_sim* sim, const float origin[3], const float direction[3], uint64_t mask, uint32_t flags, bp_query_hit* hit);
+// Moves a shape from origin along direction (its length is how far it moves) and returns the first body it touches. shape_kind is
+// BP_SHAPE_SPHERE (size[0] radius), BP_SHAPE_BOX (size: half extents, rotation a quaternion x y z w or null) or BP_SHAPE_CAPSULE (size[0]
+// radius, size[1] half height of the straight part). distance is how far the shape went, point where it touched, normal points out of
+// the body. A shape that starts inside a body hits it at distance 0. Returns 1 and fills hit, or 0.
+BP_API int bp_sim_shape_cast(const bp_sim* sim, uint32_t shape_kind, const float size[3], const float origin[3], const float* rotation, const float direction[3], uint64_t mask, uint32_t flags, bp_query_hit* hit);
 // The body with the lowest number that contains the point. Returns 1 and fills hit (point is the point, distance 0), or 0.
 BP_API int bp_sim_point_inside(const bp_sim* sim, const float point[3], uint64_t mask, uint32_t flags, bp_query_hit* hit);
 // The bodies that touch a sphere or a box (axis aligned when rotation is null), in the order of their numbers. Returns how many there

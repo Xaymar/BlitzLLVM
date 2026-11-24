@@ -62,7 +62,7 @@ Check "in the order they were made 2", GetPhysicsOverlap(1), wall
 Check "in the order they were made 3", GetPhysicsOverlap(2), region
 Check "a box", PhysicsOverlapBox(0, 0.5, 0, 1, 1, 1), 1
 Check "its entity (box)", GetPhysicsOverlap(0), floor
-Check "no layers", PhysicsOverlapBox(0, 0.5, 0, 1, 1, 1, 0, 0), 0
+Check "no layers", PhysicsOverlapBox(0, 0.5, 0, 1, 1, 1, 0, 0, 0, 0, 0), 0
 
 ; ---- Another world has its own bodies
 other = CreatePhysicsWorld()

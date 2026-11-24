@@ -639,6 +639,43 @@ static bp_constraint_desc cdesc(uint32_t kind, bp_body a, bp_body b)
 	return d;
 }
 
+static void test_shape_cast()
+{
+	bp_sim*      sim  = bp_sim_create(0, 0);
+	uint64_t     all  = ~uint64_t(0);
+	bp_body_desc fd   = desc(BP_SHAPE_BOX, BP_STATIC, 10.0f, 0.5f, 10.0f, 0, -0.5f, 0);
+	bp_body      floor_ = bp_sim_body_create(sim, &fd);
+	bp_body_desc wd   = desc(BP_SHAPE_BOX, BP_STATIC, 0.5f, 2.0f, 5.0f, 4.0f, 2.0f, 0);
+	bp_body      wall = bp_sim_body_create(sim, &wd);
+	bp_query_hit hit;
+	float        size[3] = {0.5f, 0.0f, 0.0f}, from[3] = {0.0f, 3.0f, 0.0f}, down[3] = {0.0f, -10.0f, 0.0f};
+	// A sphere of radius 0.5 dropped from y=3 stops when its bottom touches the floor at y=0: it moved 2.5.
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, size, from, nullptr, down, all, 0, &hit) == 1);
+	CHECK(hit.body == floor_ && near(hit.distance, 2.5f, 1e-2f) && near(hit.point[1], 0.0f, 1e-2f) && near(hit.normal[1], 1.0f, 1e-2f));
+	// Too short to reach.
+	float shortened[3] = {0.0f, -2.0f, 0.0f};
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, size, from, nullptr, shortened, all, 0, &hit) == 0);
+	// A box sweeping sideways stops at the wall (x = 3.5): half width 0.25 so it moves 3.25.
+	float bsize[3] = {0.25f, 0.25f, 0.25f}, bfrom[3] = {0.0f, 1.0f, 0.0f}, side[3] = {10.0f, 0.0f, 0.0f};
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_BOX, bsize, bfrom, nullptr, side, all, 0, &hit) == 1);
+	CHECK(hit.body == wall && near(hit.distance, 3.25f, 2e-2f) && near(hit.normal[0], -1.0f, 1e-2f));
+	// A capsule (radius 0.3, half height 0.5) from the side.
+	float csize[3] = {0.3f, 0.5f, 0.0f};
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_CAPSULE, csize, bfrom, nullptr, side, all, 0, &hit) == 1 && hit.body == wall && near(hit.distance, 3.2f, 2e-2f));
+	// A layer that is left out is not hit; the floor is on layer 0 by default, so mask it out and the sphere falls through.
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, size, from, nullptr, down, all & ~uint64_t(1), 0, &hit) == 0);
+	// Starting inside a body hits it at distance 0.
+	float inside[3] = {0.0f, 0.0f, 0.0f};
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, size, inside, nullptr, down, all, 0, &hit) == 1 && near(hit.distance, 0.0f, 1e-3f));
+	// Invalid input.
+	float none[3] = {0.0f, 0.0f, 0.0f}, zero[3] = {0.0f, 0.0f, 0.0f};
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, size, from, nullptr, none, all, 0, &hit) == 0);
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_SPHERE, zero, from, nullptr, down, all, 0, &hit) == 0);
+	CHECK(bp_sim_shape_cast(sim, BP_SHAPE_ELLIPSOID, size, from, nullptr, down, all, 0, &hit) == 0);
+	CHECK(bp_sim_shape_cast(nullptr, BP_SHAPE_SPHERE, size, from, nullptr, down, all, 0, &hit) == 0);
+	bp_sim_destroy(sim);
+}
+
 static void test_constraints()
 {
 	float origin[3] = { 0, 0, 0 }, p[3];
@@ -832,6 +869,7 @@ int main(int argc, char** argv)
 	test_shapes();
 	test_interpolation();
 	test_queries();
+	test_shape_cast();
 	test_constraints();
 	test_determinism();
 	if (failures) {
