@@ -123,7 +123,9 @@ be done:
 | OpenGL mesh buffers                     | `glMapBufferRange`                                        | already at least 64 (`GL_MIN_MAP_BUFFER_ALIGNMENT` is at least 64 since 4.2); check and assert |
 
 With both sides aligned and the same layout, the upload copy runs on whole lines and full-width aligned vector loads and stores.
-A `static_assert` on `sizeof(vertex3d)` and `sizeof(vertex3d_extra)` dividing 64 keeps later changes from breaking the rule.
+x86-64 is the strict case (Xaymar, 24 Nov): an unaligned load or store that crosses a line costs double, two cache lines and two
+pipeline stalls. So every vertex stride is 16, 32 or 64 bytes, never 40 or 48, and a `static_assert` on `sizeof(vertex3d)` and
+`sizeof(vertex3d_extra)` dividing 64 keeps later changes from breaking the rule.
 
 ### What reads and writes vertices
 
