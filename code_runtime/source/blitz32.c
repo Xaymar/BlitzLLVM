@@ -202,16 +202,10 @@ static uint32_t string_alloc(char* text, size_t length)
 	return handle;
 }
 
+// The characters of a string are a string of the runtime (the length in front, a NUL behind), so that they can be given to its commands.
 static char* text_copy(const char* s, size_t n)
 {
-	char* t = (char*)bb_malloc(n + 1);
-	if (!t) {
-		fputs("Out of memory.\n", stderr);
-		exit(1);
-	}
-	memcpy(t, s, n);
-	t[n] = 0;
-	return t;
+	return bb_copy(s, n);
 }
 
 uint32_t bb32_str_from_text(const char* text)
@@ -227,7 +221,7 @@ uint32_t bb32_str_take_text(char* text)
 		return string_alloc(text_copy("", 0), 0);
 	}
 	size_t n = strlen(text);
-	return string_alloc(text, n); // Already allocated by the runtime with bb_malloc.
+	return string_alloc(text, n); // Already made by the runtime (bb_alloc).
 }
 
 const char* bb32_str_text(uint32_t str)
@@ -243,7 +237,7 @@ void bb32_str_release(uint32_t str)
 	if (strings[str].cstr) {
 		bb32_free(strings[str].cstr);
 	}
-	bb_free(strings[str].text);
+	bb_str_free(strings[str].text);
 	strings[str].text = NULL;
 	if (string_free_count == string_free_cap) {
 		string_free_cap = string_free_cap ? string_free_cap * 2 : 1024;
@@ -276,12 +270,11 @@ uint32_t bb32_str_concat(uint32_t s1, uint32_t s2)
 {
 	bb32_string* a = &strings[s1];
 	bb32_string* b = &strings[s2];
-	a->text = (char*)bb_realloc(a->text, a->length + b->length + 1);
-	if (!a->text) {
-		fputs("Out of memory.\n", stderr);
-		exit(1);
-	}
-	memcpy(a->text + a->length, b->text, b->length + 1);
+	char* joined = bb_alloc(a->length + b->length);
+	memcpy(joined, a->text, a->length);
+	memcpy(joined + a->length, b->text, b->length + 1);
+	bb_str_free(a->text);
+	a->text = joined;
 	a->length += b->length;
 	if (a->cstr) {
 		bb32_free(a->cstr);
@@ -703,7 +696,9 @@ uint32_t bb32_obj_to_str(uint32_t obj)
 	size_t length = 0, cap = 0;
 	text_append(&text, &length, &cap, "", 0);
 	obj_text(obj, &text, &length, &cap);
-	return string_alloc(text, length);
+	uint32_t str = string_alloc(bb_copy(text, length), length);
+	bb_free(text);
+	return str;
 }
 
 int32_t bb32_obj_to_handle(uint32_t obj)
