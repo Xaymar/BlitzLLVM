@@ -3512,8 +3512,6 @@ Function MakeTile(ch$, f)
 				If i Mod 2 Then Color 50, 128, 46 Else Color 76, 158, 58
 				Line x, y, x + Rand(-2, 2), y - Rand(6, 10)
 			Next
-			Color 36, 104, 40
-			Line 0, 31, 31, 31
 		Case ";"
 			Color 70, 122, 86 : Rect 0, 0, TILE, TILE, 1
 			For i = 1 To 22
