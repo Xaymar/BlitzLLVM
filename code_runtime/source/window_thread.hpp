@@ -53,6 +53,9 @@ namespace bb::wnd {
 	void set_window_size(SDL_Window* window, int width, int height);
 	void sync_window(SDL_Window* window);
 
+	// True on the thread that owns the windows: the thread of the window system, or the program's own where there is none.
+	bool owns_windows();
+
 	// SDL_ShowCursor/SDL_HideCursor, SDL_SetCursor and SDL_SetWindowRelativeMouseMode, on the thread that owns the windows. Windows
 	// keeps the pointer of each thread apart: a SetCursor from the program's thread does not change the pointer over a window of
 	// another thread, which only changes when the window is asked again, on the next movement of the mouse (and not at all while the
@@ -60,6 +63,9 @@ namespace bb::wnd {
 	void set_cursor_visible(bool visible);
 	void set_cursor(SDL_Cursor* cursor);
 	void set_relative_mouse_mode(SDL_Window* window, bool enabled);
+
+	// For the tests: if the last set_cursor_visible ran on the thread that owns the windows.
+	bool cursor_changed_by_owner();
 
 	// The next event the thread of the window system has queued, like SDL_PollEvent, and a wait of up to the milliseconds for one to come.
 	bool poll_event(SDL_Event* event);

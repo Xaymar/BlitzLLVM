@@ -347,7 +347,7 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			add_test(NAME "${_PREFIX}-run-${_NAME}-legacy" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
 			set_tests_properties("${_PREFIX}-run-${_NAME}-legacy" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite" ENVIRONMENT "BLITZLLVM_HEADLESS=1;${_BACKEND};BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_TEST_LIVE_ENV=1" RESOURCE_LOCK "suite-${_NAME}")
 		endif()
-		if(BLITZ_TEST_GPU AND UNIX AND NOT APPLE AND _NAME MATCHES "^(plusgui_scale_pixels|plusgui_pixels|plusgui_windows_pixels|plusgui_canvas_pixels|input_pixels|graphics_presenters_pixels)$")
+		if(BLITZ_TEST_GPU AND UNIX AND NOT APPLE AND _NAME MATCHES "^(plusgui_scale_pixels|plusgui_pixels|plusgui_windows_pixels|plusgui_canvas_pixels|input_pixels|input_pointer_pixels|graphics_presenters_pixels)$")
 			# Again with the windows on the thread of the window system (what Windows does by default, so that a window that is dragged does not
 			# stop the program), which has to give the same pictures.
 			add_test(NAME "${_PREFIX}-run-${_NAME}-window-thread" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")

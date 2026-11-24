@@ -1029,6 +1029,14 @@ void bb_apply_pointer(void)
 		return;
 	}
 	bb::wnd::set_cursor_visible(want);
+	if (const char* path = bb_env("BLITZLLVM_TEST_POINTER")) {
+		// Test hook: if SDL shows the pointer, and if the thread that changed it owns the windows (on Windows the change is lost
+		// otherwise), as two numbers in the named file.
+		if (FILE* file = fopen(path, "w")) {
+			fprintf(file, "%d %d", SDL_CursorVisible() ? 1 : 0, bb::wnd::cursor_changed_by_owner() ? 1 : 0);
+			fclose(file);
+		}
+	}
 }
 
 void bb_hide_pointer(int32_t canvas)
