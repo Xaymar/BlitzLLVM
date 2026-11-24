@@ -4,3 +4,4 @@
 ; Every include file shipped with BlitzLLVM: Include "<all.bb>"
 
 Include "<keys.bb>"
+Include "<mouse.bb>"
