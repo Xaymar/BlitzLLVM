@@ -1020,17 +1020,15 @@ void bb_unlock_mouse(void)
 // HidePointer before Graphics is remembered and applies as soon as the window is made (Blitz3D does the same).
 void bb_apply_pointer(void)
 {
-	static int applied = -1; // -1: nothing passed on yet, else 1 for hidden and 0 for shown.
 	if (!active()) {
-		applied = -1; // A new window may need it again.
 		return;
 	}
-	int want = g.pointer_hidden ? 1 : 0;
-	if (want == applied) {
+	// Asked of SDL rather than remembered here: SDL forgets it when EndGraphics takes the window system down, and shows the pointer again.
+	bool want = !g.pointer_hidden;
+	if (want == SDL_CursorVisible()) {
 		return;
 	}
-	applied = want;
-	bb::wnd::set_cursor_visible(!want);
+	bb::wnd::set_cursor_visible(want);
 }
 
 void bb_hide_pointer(int32_t canvas)
