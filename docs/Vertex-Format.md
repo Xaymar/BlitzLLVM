@@ -124,7 +124,11 @@ be done:
 
 With both sides aligned and the same layout, the upload copy runs on whole lines and full-width aligned vector loads and stores.
 x86-64 is the strict case (Xaymar, 24 Nov): an unaligned load or store that crosses a line costs double, two cache lines and two
-pipeline stalls. So every vertex stride is 16, 32 or 64 bytes, never 40 or 48, and a `static_assert` on `sizeof(vertex3d)` and
+pipeline stalls. On AMD before Zen 2 it is up to four times (through the slower die interconnect), on older Intel generations up to
+thirteen times, and aligned SIMD instructions (`movaps`, `vmovdqa` and friends) fault outright on an unaligned address. So there are no
+exceptions: every vertex allocation starts at `bb::vertex_alignment`, every sub-range of one (a place in an upload ring or staging
+buffer, a copy for clipped long triangles, a range handed to a worker thread) starts at a multiple of 64 bytes, and every vertex stride
+is 16, 32 or 64 bytes, never 40 or 48, and a `static_assert` on `sizeof(vertex3d)` and
 `sizeof(vertex3d_extra)` dividing 64 keeps later changes from breaking the rule.
 
 ### What reads and writes vertices
