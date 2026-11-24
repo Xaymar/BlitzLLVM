@@ -253,3 +253,20 @@ namespace bb::gfx::vulkan {
 #undef BB_RHI_CALL
 #undef BB_GFX_CALL
 } // namespace bb::gfx::vulkan
+
+// Windows: the windows show what Vulkan draws through DXGI swapchains (graphics_vulkan_dxgi.cpp). Elsewhere these do nothing.
+namespace bb::rhi::vulkan::dxgi {
+	/** Adds the device extensions it needs to the list, where the device has them. */
+	void choose_extensions(const VkExtensionProperties* available, uint32_t available_count, const char** extensions, uint32_t& count);
+	/** Takes what it needs of the device that was just made. */
+	void device_made(VkInstance instance, VkPhysicalDevice physical, VkDevice device);
+	/** Makes the swapchain of the window as a DXGI one. False where it can't (the caller makes a Vulkan swapchain then). */
+	bool create(bb::rhi::swapchain& sc, const bb::rhi::swapchain_desc& desc);
+	/** Whether the handle is of a swapchain that create made. */
+	bool owns(uint64_t handle);
+	void destroy(bb::rhi::swapchain& sc);
+	/** Like vkAcquireNextImageKHR: the next image, ready to draw into once signal is signalled. Takes the lock of the queue for its submit. */
+	bb::rhi::present_result acquire(uint64_t handle, VkSemaphore signal, VkQueue queue, uint32_t queue_index, uint64_t timeout_ns, uint32_t& index);
+	/** Like vkQueuePresentKHR: shows the image once wait is signalled. Takes the lock of the queue for its submit. */
+	bb::rhi::present_result present(uint64_t handle, VkQueue queue, uint32_t queue_index, VkSemaphore wait, uint32_t index, bool wait_queue);
+} // namespace bb::rhi::vulkan::dxgi
