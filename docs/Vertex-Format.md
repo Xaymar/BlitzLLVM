@@ -42,8 +42,13 @@ Main stream, 32 bytes, two vertices to a 64-byte cache line:
 |------:|----------------|---------------------------------------------------------------|
 | 12    | x, y, z        | 3 floats, unchanged                                           |
 | 4     | normal         | octahedral, 2 x 16-bit signed normalized, precise (oct32P)    |
-| 8     | u, v           | 2 floats, unchanged                                           |
+|       | 16-byte boundary (SSE, NEON) |                                                 |
 | 8     | r, g, b, a     | 4 half floats, unchanged                                      |
+| 8     | u, v           | 2 floats, unchanged                                           |
+|       | 32-byte boundary (AVX) |                                                       |
+
+The order is Xaymar's (24 Nov): position and normal fill the first 16 bytes, color and the first set the second 16, so each half is
+one SSE/NEON register and the whole vertex one AVX register.
 
 Extra stream, 16 bytes, only allocated when needed:
 
@@ -57,6 +62,26 @@ to 48 (32 + 16) but gains a real w for both sets, which `custom-textures/design.
 texture coordinate).
 
 Both streams stay plain arrays of the same bytes on the CPU and the GPU, so uploads stay `memcpy`.
+
+### Split streams or one 64-byte vertex
+
+Xaymar's layout (24 Nov) puts everything in one 64-byte vertex: the same first 32 bytes as above, then u1, v1 (8) and 24 bytes of
+padding. The first 32 bytes are identical in both, so the only question is whether the second half is part of every vertex or a
+separate array that only some surfaces have.
+
+| | One 64-byte vertex | Split, 32 + 16 when used |
+|---|---|---|
+| Bytes per vertex, surface without a second set (most meshes, the forest grass) | 64 (today 48) | 32 |
+| Bytes per vertex, lightmapped / two-set surface | 64 | 48 |
+| Buffers per surface, bindings per draw | 1 | 1 or 2 |
+| Cache lines per vertex | 1 | half a line (+ a quarter) |
+| Room to grow | 24 spare bytes (w, w2, a tangent quaternion, ...) | extra stream can grow to 32 |
+| Code | simplest: nothing optional | `extra` buffer, stride-0 default binding, set fallback |
+
+For the case this started from (meshes rewritten and uploaded every frame, bandwidth-bound), one 64-byte vertex is a third more bytes
+than today and twice the split's, so the split is the recommendation. The 64-byte vertex is the better choice if simplicity is worth
+more than upload bandwidth, or if the spare bytes will soon be filled anyway.
+
 
 ### The normal
 
