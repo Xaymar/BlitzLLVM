@@ -262,8 +262,8 @@ python benchmarks\dungeon.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
 python benchmarks\dungeon.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
 ----
 
-The original crashes with more than 16383 sprites in total (they share one vertex buffer, 4 vertices each), so the program stops with a message
-when the sprites of the torches and the campfires are more than that. Every room is one surface of a few thousand vertices, far below the 65535
+The original crashes with more than 16128 sprites in total (they share one vertex buffer, 4 vertices each, see the waterfall section), and 2 of
+them are the flame and smoke templates, so the program stops with a message when the sprites of the torches and the campfires are more than 16126. Every room is one surface of a few thousand vertices, far below the 65535
 that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
 called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
 

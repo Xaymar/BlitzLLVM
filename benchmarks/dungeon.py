@@ -94,10 +94,11 @@ def main():
         # Without BLITZPATH the original prints an error instead of its version.
         version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     if not llvm:
-        # The original Blitz3D crashes with more than 16383 sprites (they share one vertex buffer of 4 vertices each).
+        # The original Blitz3D crashes with more than 16128 sprites (they share one vertex buffer of 4 vertices each that grows 256 sprites
+        # at a time), and 2 of them are the flame and smoke templates. dungeon.bb checks again with the campfires counted.
         sprites = args.rooms * args.torches * args.particles
-        if sprites > 16383:
-            sys.exit("The original Blitz3D crashes with more than 16383 sprites, and this run has %d (rooms x torches x particles). Use fewer." % sprites)
+        if sprites > 16126:
+            sys.exit("The original Blitz3D crashes with more than 16126 flame and smoke sprites, and this run has %d (rooms x torches x particles). Use fewer." % sprites)
     runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
     if runner and not shutil.which("xvfb-run"):
         sys.exit("There is no display and no xvfb-run.")

@@ -27,9 +27,11 @@ End Function
 Function BenchDepthFade(sprite, distance#)
 End Function
 
-; The original crashes with more sprites than that: they share one vertex buffer, 4 vertices each.
+; The original crashes with more sprites than that: they share one vertex buffer of 4 vertices each, which grows 256 sprites at a
+; time, and Direct3D 7 refuses the step from 16128 sprites (64512 vertices) to 16384 (65536 vertices). The flame and smoke templates
+; are sprites too, so 16128 - 2 = 16126 are left for the particles.
 Function BenchMaxSprites()
-	Return 16383
+	Return 16126
 End Function
 
 ; Shows the frame without waiting for the display (the original has no Flip 2).
