@@ -32,8 +32,10 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
 
-# Most objects the original Blitz3D can have: 4 of every 16 are sprites, it can have 16383 of them (see README.adoc).
-ORIGINAL_MAX_OBJECTS = 65532
+# Most objects the original Blitz3D can have: it can have 16128 sprites (see README.adoc), 4 of them are the hidden templates, and
+# entity i is a sprite when i Mod 16 is 12 to 15. 64508 objects have 4031 * 4 = 16124 sprites, one more object would be one sprite too many.
+ORIGINAL_MAX_SPRITES = 16128
+ORIGINAL_MAX_OBJECTS = 64508
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 MODEL = os.path.join(ROOT, "tests", "suite", "models", "textured.3ds")
@@ -81,8 +83,8 @@ def main():
         flags.append("--profile")
     if not llvm and args.objects > ORIGINAL_MAX_OBJECTS:
         sys.exit("The original Blitz3D can draw only %d sprites, and a quarter of the objects are sprites (they share one vertex buffer of "
-                 "4 vertices each, and Direct3D 7 buffers have at most 65535 vertices); use --objects %d or less with it, or BlitzLLVM for more."
-                 % (ORIGINAL_MAX_OBJECTS // 4, ORIGINAL_MAX_OBJECTS))
+                 "4 vertices each that grows 256 sprites at a time, and Direct3D 7 buffers have at most 65535 vertices); use --objects %d or less "
+                 "with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_OBJECTS))
     if not llvm and (int(width) > ORIGINAL_MAX_SIZE or int(height) > ORIGINAL_MAX_SIZE):
         sys.exit("The original Blitz3D (Direct3D 7) cannot open a window above %dx%d, it stops with \"Unable to create 3D Scene\" (asked for %sx%s); "
                  "use --size %dx%d or less with it, or BlitzLLVM for larger windows." % (ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE, width, height, ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE))
