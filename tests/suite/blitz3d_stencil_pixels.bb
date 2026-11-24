@@ -98,6 +98,19 @@ SetCameraStencilClear camera, True, 1
 RenderWorld
 Check "A cleared stencil has nothing of the frames before", Blue(40, 60), 0, 8
 
+; Back faces have their own operations: the front faces of the mask keep the stencil, its back faces replace it with 2. With
+; culling only front faces are drawn, so nothing becomes 2; drawn on both sides, the back faces mark the stencil.
+SetEntityStencil mask, 7, 2, 255, 255, 0, 0, 0
+SetEntityStencilBack mask, 7, 0, 0, 2
+SetEntityStencil wall, 2, 2
+RenderWorld
+Check "Front faces with keep leave the stencil alone", Blue(40, 60), 0, 8
+EntityFX mask, 1 + 16
+RenderWorld
+Check "Back faces use the operations of SetEntityStencilBack", Blue(40, 60), 255, 8
+Check "Back faces only mark the pixels of the mask", Blue(120, 60), 0, 8
+EntityFX mask, 1
+
 ; Turning the stencil off again: the wall is everywhere.
 SetCameraStencil camera, False
 RenderWorld
