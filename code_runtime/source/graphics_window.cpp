@@ -32,15 +32,22 @@ extern "C" void    bb_reset_world(void);
 extern "C" void    bb_close_movies(void);
 extern "C" void    bb_free_images(void);
 extern "C" void    bb_free_fonts(void);
+extern "C" void    bb_dither(int32_t enable);
+extern "C" void    bb_anti_alias(int32_t enable);
+extern "C" void    bb_wire_frame(int32_t on);
 
 // What Graphics (without keep) and EndGraphics free, like the original: the 3D world with its entities, brushes and textures, the
 // movies, the images and the fonts of the program. The movies go first, as their pictures are an image and a texture. Sounds stay.
+// Dither, AntiAlias and WireFrame are back to what a program starts with, as they were settings of the scene of the original.
 static void free_program_graphics()
 {
 	bb_close_movies();
 	bb_reset_world();
 	bb_free_images();
 	bb_free_fonts();
+	bb_dither(0);
+	bb_anti_alias(0);
+	bb_wire_frame(0);
 }
 
 #ifdef _WIN32
@@ -164,6 +171,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode, int
 	// A second call changes the resolution: the window and the buffers are made again, and the images and textures that are left
 	// (all of them with keep) keep what they had.
 	const bool first  = !g.created;
+	const bool wireframe = g.wireframe; // Kept with keep: the state of Graphics is made new below.
 	const bool remake = g.created && !g.headless;
 	if (remake) {
 		release_for_new_graphics();
@@ -258,6 +266,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode, int
 	}
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
+	if (keep) {
+		g.wireframe = wireframe && g.can_wireframe;
+	}
 	if (remake) {
 		textures_rebuild();
 		images_rebuild();
