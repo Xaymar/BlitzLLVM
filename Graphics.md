@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-Graphics:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
+Graphics:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0, keep:Int32=0
 ```
 
 | Parameter | Mode | Type | Default | Description |
@@ -23,10 +23,11 @@ Graphics:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 | `height` | In | Int32 | required | Height of the picture in pixels. |
 | `depth` | In | Int32 | `0` | Color depth in bits, see Color depth above: 8, 12, 15, 16, 24, 30, 32 or 64, or 0 for 32. Defaults to 0. |
 | `mode` | In | Int32 | `0` | 0 opens a window, 1 uses full screen (a borderless window over the display, see Full screen above), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
+| `keep` | In | Int32 | `0` | True keeps everything the program made (entities, brushes, textures, images, fonts, movies and the settings of the 3D world), so a change of the resolution is cheap. False (the default) frees it like the original. A BlitzLLVM extension. |
 
 ## Description
 
-Opens the graphics window and has to be called before any drawing command. Calling it again closes the window and opens a new one, and then all images and textures are gone, so load them again. It also puts the colors and the current buffer back to their defaults.
+Opens the graphics window and has to be called before any drawing command. Calling it again closes the window and opens a new one, and frees everything the program made for it: entities, brushes, textures, images, fonts and movies are gone (images and fonts stay in a program built with `blitzcc --blitzplus`, as in BlitzPlus), and the collision rules, [AmbientLight](AmbientLight), [TextureFilter](TextureFilter) and [LoaderMatrix](LoaderMatrix), [Dither](Dither), [AntiAlias](AntiAlias) and [WireFrame](WireFrame) are back to their defaults. Sounds stay. It also puts the colors and the current buffer back to their defaults. To only change the resolution, pass `True` for `keep`: then all of it stays, with the pixels that were drawn into images and textures.
 
 ## Differences
 
@@ -36,6 +37,7 @@ Opens the graphics window and has to be called before any drawing command. Calli
 * In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
 * The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
 * A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
+* `keep` is a BlitzLLVM extension; Blitz3D always frees everything, BlitzPlus never freed images and fonts (build with `--blitzplus` for that).
 * A width or height below 1 stops the program with an error message.
 
 ## Examples

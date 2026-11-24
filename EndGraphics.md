@@ -19,7 +19,7 @@ EndGraphics:Void
 
 ## Description
 
-Closes the graphics window, which returns the program to the state it had before [Graphics](Graphics): everything that was drawn is gone and all images and textures are freed. Use `Graphics` again to open a new window, for example to switch between a window and full screen.
+Closes the graphics window, which returns the program to the state it had before [Graphics](Graphics): everything that was drawn is gone, and the entities, brushes, textures, images, fonts and movies of the program are freed, as [Graphics](Graphics) without `keep` does (images and fonts stay with `blitzcc --blitzplus`). Use `Graphics` again to open a new window, for example to switch between a window and full screen.
 
 ## Differences
 

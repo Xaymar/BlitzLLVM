@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-Graphics3D:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
+Graphics3D:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0, keep:Int32=0
 ```
 
 | Parameter | Mode | Type | Default | Description |
@@ -23,10 +23,11 @@ Graphics3D:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 | `height` | In | Int32 | required | Height of the picture in pixels. |
 | `depth` | In | Int32 | `0` | Color depth, which picks the format of the buffers, see [Color depth](Graphics#color-depth). Defaults to 0. |
 | `mode` | In | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
+| `keep` | In | Int32 | `0` | True keeps the scene, textures, images and fonts for a cheap change of the resolution. Defaults to False, which frees them like the original. A BlitzLLVM extension. |
 
 ## Description
 
-The same command as [Graphics](Graphics), under the name that 3D programs use. There is no 2D-only graphics mode, so the 3D commands work after either of them, and a program that opens its window with `Graphics` can use 3D commands as well. It has to be the first graphics command of a program: every drawing command fails until it ran. After it, the back buffer is the target of drawing and you draw one frame at a time with [RenderWorld](RenderWorld) and [Flip](Flip). Calling either of them again closes the window and opens a new one.
+The same command as [Graphics](Graphics), under the name that 3D programs use. There is no 2D-only graphics mode, so the 3D commands work after either of them, and a program that opens its window with `Graphics` can use 3D commands as well. It has to be the first graphics command of a program: every drawing command fails until it ran. After it, the back buffer is the target of drawing and you draw one frame at a time with [RenderWorld](RenderWorld) and [Flip](Flip). Calling either of them again closes the window and opens a new one, and frees the scene and everything else the program made, unless `keep` is `True`, see [Graphics](Graphics).
 
 | Mode | Behavior |
 |---|---|
@@ -41,6 +42,7 @@ The same command as [Graphics](Graphics), under the name that 3D programs use. T
 * Unlike in Blitz3D, mode 0 always opens a window, and `Graphics` and `Graphics3D` are the same command. The 3D commands do not need `Graphics3D` in particular.
 * The depth does not pick a video mode, it picks the format of the buffers, see [Color depth](Graphics#color-depth).
 * Full screen (mode 1) does not change the video mode of the display, see [Full screen](Graphics#full-screen).
+* `keep` is a BlitzLLVM extension; the original always frees everything.
 * A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 
 ## Examples
