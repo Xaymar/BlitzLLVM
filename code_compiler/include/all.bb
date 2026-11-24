@@ -6,3 +6,8 @@
 Include "<keys.bb>"
 Include "<mouse.bb>"
 Include "<joystick.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+Include "<physics.bb>"
+Include "<gui.bb>"
