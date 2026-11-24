@@ -7,7 +7,7 @@
 ;
 ; Controls:
 ;   Menus:         Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
-;   Left paddle:   W and S
+;   Left paddle:   the mouse, or W and S
 ;   Right paddle:  Up and Down (two players only)
 ;   P pauses, Escape goes back to the menu.
 ;
@@ -16,6 +16,7 @@
 Const SCREEN_W = 800, SCREEN_H = 600
 Const COURT_TOP = 60, COURT_BOTTOM = 580
 Const PADDLE_W = 12, PADDLE_H = 84, PADDLE_SPEED# = 7.0, PADDLE_MARGIN = 32
+Const MOUSE_SPEED# = 16.0 ; How far the paddle can follow the mouse in one update: fast, but not a jump.
 Const BALL_SIZE = 12, BALL_START_SPEED# = 6.0, BALL_MAX_SPEED# = 15.0, BALL_SPEEDUP# = 0.45
 Const TRAIL_LENGTH = 14
 
@@ -48,6 +49,8 @@ Global optPoints = 1       ; Index into pointsToWin below.
 Global optVolume = 4       ; 0 to 4, in quarters.
 Global optShake = True     ; Shake the screen when a point is scored.
 Global optFullscreen = False
+Global optMouse = True     ; The mouse moves the left paddle.
+Global mouseTarget# = -1   ; Where the mouse wants the left paddle, or -1 while the keys are in charge.
 Dim pointsToWin(2)
 pointsToWin(0) = 5 : pointsToWin(1) = 7 : pointsToWin(2) = 11
 
@@ -142,13 +145,15 @@ Function LoadSettings()
 	If FileType(settingsPath) <> 1 Then Return
 	Local file = ReadFile(settingsPath)
 	If Not file Then Return
-	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
+	Local version = ReadInt(file) ; A version number, so a changed file format can be recognised later.
+	If version = 1 Or version = 2
 		optSkill = ReadInt(file)
 		optPoints = ReadInt(file)
 		optVolume = ReadInt(file)
 		optShake = ReadInt(file)
 		optFullscreen = ReadInt(file)
 	EndIf
+	If version = 2 Then optMouse = ReadInt(file) ; Version 1 files are older than the mouse option.
 	CloseFile file
 	; Never trust a file: someone may have edited it.
 	If optSkill < 1 Or optSkill > 3 Then optSkill = 2
@@ -159,12 +164,13 @@ End Function
 Function SaveSettings()
 	Local file = WriteFile(settingsPath)
 	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
-	WriteInt file, 1
+	WriteInt file, 2
 	WriteInt file, optSkill
 	WriteInt file, optPoints
 	WriteInt file, optVolume
 	WriteInt file, optShake
 	WriteInt file, optFullscreen
+	WriteInt file, optMouse
 	CloseFile file
 End Function
 
@@ -233,6 +239,7 @@ Function GoToMenu()
 	FlushMouse
 	MouseXSpeed() ; Forget old mouse movement, so a mouse resting over the menu does not pick a line.
 	MouseYSpeed()
+	ShowPointer
 End Function
 
 ; Gives back True when the player chose Quit.
@@ -253,8 +260,8 @@ End Function
 
 Function GoToOptions()
 	state = STATE_OPTIONS
-	menuCount = 6
-	menuTop = 250
+	menuCount = 7
+	menuTop = 225
 	menuSelected = 0
 	RefreshOptionsText()
 	PlaySfx(soundSelect)
@@ -273,7 +280,8 @@ Function RefreshOptionsText()
 	menuText(2) = "Sound volume: " + (optVolume * 25) + "%"
 	If optShake Then menuText(3) = "Screen shake: on" Else menuText(3) = "Screen shake: off"
 	If optFullscreen Then menuText(4) = "Display: full screen" Else menuText(4) = "Display: window"
-	menuText(5) = "Back"
+	If optMouse Then menuText(5) = "Left paddle: mouse and keys" Else menuText(5) = "Left paddle: keys only"
+	menuText(6) = "Back"
 End Function
 
 Function UpdateOptions()
@@ -283,7 +291,7 @@ Function UpdateOptions()
 	Local chosen = MenuInput()
 	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
-	If KeyHit(KEY_ESCAPE) Or chosen = 5
+	If KeyHit(KEY_ESCAPE) Or chosen = 6
 		SaveSettings()
 		GoToMenu()
 		menuSelected = 2 ; Back on "Options".
@@ -300,6 +308,7 @@ Function UpdateOptions()
 		Case 4
 			optFullscreen = Not optFullscreen
 			OpenScreen()
+		Case 5 : optMouse = Not optMouse
 	End Select
 	PlaySfx(soundSelect)
 	RefreshOptionsText()
@@ -317,6 +326,9 @@ Function StartMatch(players2)
 	rightPaddle\y = leftPaddle\y
 	FlushKeys
 	FlushMouse
+	MouseYSpeed() ; Only mouse movement from now on moves the paddle.
+	mouseTarget = -1
+	HidePointer
 	serveDirection = 1 - 2 * Rand(0, 1) ; Either 1 or -1.
 	PrepareServe()
 	PlaySfx(soundSelect)
@@ -369,8 +381,17 @@ End Function
 Function UpdatePaddles()
 	Local oldY#
 
+	; The left paddle follows the keys while they are held, and otherwise the mouse: its middle goes to the height of
+	; the mouse, as fast as MOUSE_SPEED allows. Touching a key hands the paddle back to the keys until the mouse moves.
 	oldY = leftPaddle\y
-	leftPaddle\y = leftPaddle\y + (KeyDown(KEY_S) - KeyDown(KEY_W)) * PADDLE_SPEED
+	Local keys = KeyDown(KEY_S) - KeyDown(KEY_W)
+	If keys <> 0
+		leftPaddle\y = leftPaddle\y + keys * PADDLE_SPEED
+		mouseTarget = -1
+	ElseIf optMouse
+		If MouseYSpeed() <> 0 Then mouseTarget = Float(MouseY() - PADDLE_H / 2)
+		If mouseTarget >= 0 Then leftPaddle\y = leftPaddle\y + Clamp(mouseTarget - leftPaddle\y, -MOUSE_SPEED, MOUSE_SPEED)
+	EndIf
 	leftPaddle\y = Clamp(leftPaddle\y, Float(COURT_TOP), Float(COURT_BOTTOM - PADDLE_H))
 	leftPaddle\speed = leftPaddle\y - oldY
 
@@ -659,7 +680,7 @@ Function DrawTitle()
 			CenterText(275, "First to " + pointsToWin(optPoints) + " points wins the match.")
 			CenterText(310, "Hit the ball with the end of the paddle to send it off at a steep angle,")
 			CenterText(330, "or move the paddle while it hits to add spin.")
-			CenterText(365, "Left paddle: W and S.   Right paddle: Up and Down.")
+			CenterText(365, "Left paddle: the mouse, or W and S.   Right paddle: Up and Down.")
 			CenterText(385, "P pauses, Escape goes back to the menu.")
 			Color 120, 120, 150
 			CenterText(450, "Press Enter or click to go back.")
