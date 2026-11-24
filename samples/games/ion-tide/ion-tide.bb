@@ -12,7 +12,8 @@
 ;   Escape                  back to the menu, or quit from there
 ;   Menus                   Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;
-; Orange orbs make your gun stronger, up to five levels. Blue orbs repair the shield. Touching the cavern walls or
+; Orange orbs make your gun stronger, up to five levels: one comes for every 25 enemies shot down, so the gun grows
+; through the whole level and only reaches its strongest just before the guardian. Blue orbs repair the shield. Touching the cavern walls or
 ; an enemy costs shield, and a ship without shield is lost. Survive the waves to meet the guardian at the end.
 ;
 ; The options and the best scores are saved in ion-tide.cfg next to the program.
@@ -91,7 +92,8 @@ LoadSettings()
 ; --- Game ----------------------------------------------------------------------------------------------------------
 Global state = STATE_MENU
 Global playerX#, playerY#, shield, lives, gunLevel, gunCharge, fireTimer, invulnerable
-Global score
+Global score, kills
+Const KILLS_PER_POWER = 25 ; Every this many enemies shot down leave a power orb behind.
 Global frame, waveTimer, nextWave, guardianAlive, guardianMaxHealth
 Global shake#, deadTimer
 
@@ -374,6 +376,7 @@ End Function
 Function StartGame()
 	ClearWorld()
 	score = 0
+	kills = 0
 	lives = startShips(optDifficulty)
 	gunLevel = 1
 	gunCharge = 0
@@ -688,11 +691,18 @@ Function KillEnemy(e.Enemy)
 	Explode(e\x, e\y, 40, 255, 170, 80)
 	PlaySfx(soundBoom)
 	If optShake Then shake = shake + 3
-	; Sometimes an orb is left behind: one in 10 enemies, or every second gunner. Half of them repair the shield.
-	If (e\kind = ENEMY_GUNNER And Rand(1, 2) = 1) Or Rand(1, 10) = 1
-		Local o.Orb = New Orb
+	; Orbs: a power orb for every KILLS_PER_POWER enemies, and now and then a shield orb (one in 25 enemies). Power
+	; orbs come on a count instead of by chance, so the gun grows at the same pace in every game.
+	kills = kills + 1
+	Local o.Orb
+	If kills Mod KILLS_PER_POWER = 0
+		o = New Orb
 		o\x = e\x : o\y = e\y
-		If Rand(1, 2) = 1 Then o\kind = ORB_SHIELD Else o\kind = ORB_POWER
+		o\kind = ORB_POWER
+	ElseIf Rand(1, 25) = 1
+		o = New Orb
+		o\x = e\x : o\y = e\y
+		o\kind = ORB_SHIELD
 	EndIf
 	Delete e
 End Function
@@ -955,7 +965,7 @@ Function DrawHud()
 		Case STATE_HELP
 			Color 220, 230, 255
 			Text SCREEN_W / 2, 320, "Arrows or WASD fly, Space or Ctrl fires (hold it down).", True, True
-			Text SCREEN_W / 2, 345, "Orange orbs power up the gun, blue orbs repair the shield.", True, True
+			Text SCREEN_W / 2, 345, "Every 25th enemy leaves an orange orb for the gun. Blue orbs repair the shield.", True, True
 			Text SCREEN_W / 2, 370, "The walls and the enemies cost shield. Without shield the ship is lost.", True, True
 			Text SCREEN_W / 2, 395, "Survive the waves to meet the guardian. P pauses, Escape goes to the menu.", True, True
 			Color 150, 165, 200
