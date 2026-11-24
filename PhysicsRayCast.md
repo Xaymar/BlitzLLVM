@@ -36,7 +36,7 @@ PhysicsRayCast:Int32 x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float32,
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Sends a ray from one point to another through the bodies of a physics world and returns the closest body it hits. All points are in the world. The ray sees bodies where their entities are now, including a body that the program moved since the last `PhysicsUpdate`. It does not see legacy colliders or the meshes of `LinePick`, which are a different world.
+Sends a ray from one point to another through the bodies of a physics world and returns the closest body it hits. All points are in the world. The ray sees the bodies as `PhysicsUpdate` last left them. A body that the program moved since then is only found at its new place after the next `PhysicsUpdate`, and `PhysicsUpdate 0` takes the moves over without a step. It does not see legacy colliders or the meshes of `LinePick`, which are a different world.
 
 What was hit is kept for `GetPhysicsHitEntity`, `GetPhysicsHitX`, `GetPhysicsHitY`, `GetPhysicsHitZ`, `GetPhysicsHitNX`, `GetPhysicsHitNY`, `GetPhysicsHitNZ` and `GetPhysicsHitDistance` until the next ray or point query.
 

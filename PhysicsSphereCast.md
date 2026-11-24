@@ -37,7 +37,7 @@ PhysicsSphereCast:Int32 x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Moves a sphere from one point to another through the bodies of a physics world and returns the first body that it touches. It is a ray with a size, which is what a program needs for its own ground checks, wall sliding, camera collision and projectiles. All points are in the world. It sees bodies where their entities are now, but not legacy colliders or the meshes of `LinePick`.
+Moves a sphere from one point to another through the bodies of a physics world and returns the first body that it touches. It is a ray with a size, which is what a program needs for its own ground checks, wall sliding, camera collision and projectiles. All points are in the world. It sees the bodies as `PhysicsUpdate` last left them (`PhysicsUpdate 0` takes over moves without a step), but not legacy colliders or the meshes of `LinePick`.
 
 What was hit is kept for `GetPhysicsHitEntity`, `GetPhysicsHitX`, `GetPhysicsHitY`, `GetPhysicsHitZ`, `GetPhysicsHitNX`, `GetPhysicsHitNY`, `GetPhysicsHitNZ` and `GetPhysicsHitDistance` until the next ray, shape or point query. The point is where the shape touched, the normal points out of the body and the distance is how far the centre of the shape went. A shape that starts inside a body hits it at distance 0.
 
