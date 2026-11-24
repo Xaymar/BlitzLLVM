@@ -40,8 +40,13 @@ namespace bb {
 #endif
 	}
 
-	// A growable array for plain data, which avoids needing the C++ standard library in programs.
-	template<typename T>
+	// Where vertex arrays start, on the CPU and the GPU: a cache line, which is also more than AVX (32), AVX-512 (64) and NEON (16) need. A vertex
+	// whose size divides this never crosses a cache line, which costs two loads and two stalls on x86-64 (see docs/Vertex-Format.md).
+	constexpr size_t vertex_alignment = 64;
+
+	// A growable array for plain data, which avoids needing the C++ standard library in programs. With an alignment above 16 (what the
+	// allocator gives anyway), the memory starts at a multiple of it, which needs a copy when it grows, as there is no aligned realloc.
+	template<typename T, size_t Align = 0>
 	struct buffer {
 		T*       data = nullptr;
 		uint32_t size = 0;
@@ -58,7 +63,18 @@ namespace bb {
 				grown          = grown > count ? grown : count;
 				grown          = grown > UINT32_MAX ? uint64_t(UINT32_MAX) : grown;
 				uint64_t bytes = grown * sizeof(T);
-				void*    made  = (bytes > SIZE_MAX) ? nullptr : bb_realloc(data, size_t(bytes));
+				void*    made  = nullptr;
+				if (bytes <= SIZE_MAX) {
+					if constexpr (Align > 16) {
+						made = bb_aligned_alloc(Align, size_t(bytes));
+						if (made && data) {
+							memcpy(made, data, size_t(size) * sizeof(T));
+							bb_aligned_free(data);
+						}
+					} else {
+						made = bb_realloc(data, size_t(bytes));
+					}
+				}
 				if (!made) {
 					bb_runtime_error("Out of memory.");
 				}
@@ -77,7 +93,11 @@ namespace bb {
 
 		void release()
 		{
-			bb_free(data);
+			if constexpr (Align > 16) {
+				bb_aligned_free(data);
+			} else {
+				bb_free(data);
+			}
 			data = nullptr;
 			size = cap = 0;
 		}
@@ -160,6 +180,9 @@ namespace bb {
 		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
 	};
 
+	// The vertices of a surface, in an array that starts at vertex_alignment.
+	using vertex_array = buffer<vertex3d, vertex_alignment>;
+
 	// What a brush says about how something looks, and what a surface remembers of the brush it was painted with.
 	struct material {
 		float color[3]  = { 1, 1, 1 };
@@ -186,7 +209,7 @@ namespace bb {
 		material paint;
 		int      lightmap = 0; // The texture of the lightmap of a face of a level, which BSPLighting puts on the first layer or takes off.
 
-		buffer<vertex3d> vertices;
+		vertex_array     vertices;
 		buffer<uint32_t> indices;
 
 		int refs = 1; // Copies of an entity share its surfaces.
@@ -431,7 +454,7 @@ namespace bb {
 	surface*  create_surface(int mesh_handle);
 	void      recalculate_normals(surface* s);
 	/** The normals of UpdateNormals for vertices that are not in a surface (yet), which loader threads may call. */
-	void      compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices);
+	void      compute_normals(vertex_array& vertices, buffer<uint32_t> const& indices);
 	void      euler_from_matrix(const float* m, float* euler);
 	void      destroy_animation(animation* a);
 	void      destroy_md2(md2_state* s);

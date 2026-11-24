@@ -220,7 +220,7 @@ namespace bb::scene {
 		bb::surface_vertices_changed(*s);
 	}
 
-	static void compute_normals_impl(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+	static void compute_normals_impl(vertex_array& vertices, buffer<uint32_t> const& indices)
 	{
 		// Vertices at the same position share one normal. They are found by sorting the vertices by position and not by
 		// hashing it: positions are mostly whole numbers (grids), whose float bits only differ in the high bits, which makes
@@ -373,7 +373,7 @@ bb::surface* bb::create_surface(int mesh_handle)
 	return surface_of(new_surface(mesh_handle));
 }
 
-void bb::compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+void bb::compute_normals(vertex_array& vertices, buffer<uint32_t> const& indices)
 {
 	compute_normals_impl(vertices, indices);
 }
