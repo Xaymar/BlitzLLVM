@@ -1859,14 +1859,14 @@ Function MakeTextures()
 	Next
 	UnlockBuffer buffer
 
-	; Boost pads: orange arrows on dark ground, pointing along v.
+	; Boost pads: orange arrows on dark ground. v grows along the track, so the tips are at the high v.
 	padTex = CreateTexture(64, 64)
 	buffer = TextureBuffer(padTex)
 	LockBuffer buffer
 	For y = 0 To 63
 		For x = 0 To 63
 			r = 60 : g = 30 : b = 10
-			If Abs((y Mod 32) - 8 - Abs(x - 31.5) * 0.6) < 5 Then r = 255 : g = 150 : b = 30
+			If Abs((y Mod 32) - 24 + Abs(x - 31.5) * 0.6) < 5 Then r = 255 : g = 150 : b = 30
 			WritePixelFast x, y, $FF000000 Or (r Shl 16) Or (g Shl 8) Or b, buffer
 		Next
 	Next
