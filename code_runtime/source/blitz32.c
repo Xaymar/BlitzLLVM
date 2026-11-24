@@ -709,7 +709,7 @@ int32_t bb32_obj_to_handle(uint32_t obj)
 	if (OBJ_HANDLE(obj)) {
 		return (int32_t)OBJ_HANDLE(obj);
 	}
-	if (handle_count == handle_cap) {
+	if (handle_count >= handle_cap) {
 		handle_cap     = handle_cap ? handle_cap * 2 : 256;
 		handle_objects = (uint32_t*)realloc(handle_objects, handle_cap * sizeof(uint32_t));
 	}
