@@ -372,8 +372,11 @@ namespace blitz {
 		void        register_types(ast::program const& program);
 		address     gen_address(ast::expression const* expr, bool write = false);
 		value       load_address(address const& addr);
+		void        collect_constants(ast::block const& block);
 		void        collect_globals(ast::block const& block);
 		bool                  _collecting_function = false;
+		std::vector<std::string>                              _const_order;   // Lower case names of all Consts, in the order they appear.
+		std::map<std::string, ast::declaration const*>        _const_decls;   // The declaration of each Const.
 		std::vector<std::pair<std::string, ast::location>> _struct_uses; // Types named by Global and Dim declarations, checked once all Types are known.
 		std::set<std::string> _redim_in_function; // Arrays that a function of the program makes again with Dim.
 
