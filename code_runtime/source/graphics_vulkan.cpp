@@ -19,6 +19,8 @@
 #include "memory.h"
 
 #include <unordered_map>
+#include <unordered_set>
+#include <mutex>
 #include <iterator>
 #include <vector>
 
@@ -34,6 +36,32 @@ using namespace bb::gfx;
 namespace bb::gfx {
 
 	constinit thread_local vk_state vkd{};
+
+	// The depth images with stencil, and their views: their layouts and barriers cover the stencil as well, and a pass that draws to one has pipelines that know it.
+	static std::unordered_set<uint64_t> stencil_images, stencil_views;
+	static std::mutex                   stencil_lock;
+
+	static bool is_stencil_image(uint64_t image)
+	{
+		std::lock_guard<std::mutex> hold(stencil_lock);
+		return stencil_images.count(image) != 0;
+	}
+
+	static bool is_stencil_view(uint64_t view)
+	{
+		std::lock_guard<std::mutex> hold(stencil_lock);
+		return stencil_views.count(view) != 0;
+	}
+
+	// The layout of a depth image with stencil in a state: the stencil can always be written, also while the depth is only read (a depth fade).
+	static VkImageLayout vk_stencil_layout_of(bb::rhi::image_state usage)
+	{
+		switch (usage) {
+		case bb::rhi::image_state::depth_target: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		case bb::rhi::image_state::depth_read: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
+		default: return vk_layout_of(usage);
+		}
+	}
 
 	namespace vulkan {
 	void free_group(bb::rhi::binding_group group)
@@ -71,10 +99,21 @@ namespace bb::gfx {
 		if (components) {
 			view.components = *components;
 		}
-		view.subresourceRange.aspectMask   = aspect;
+		// A depth image with stencil is sampled through a view of its depth, and drawn to through one of both.
+		bool stencil                       = (aspect & VK_IMAGE_ASPECT_STENCIL_BIT) != 0;
+		view.subresourceRange.aspectMask   = stencil ? VkImageAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT) : aspect;
 		view.subresourceRange.levelCount   = mips;
 		view.subresourceRange.layerCount   = 1;
 		check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.view }), "vkCreateImageView");
+		if (stencil) {
+			view.subresourceRange.aspectMask = aspect;
+			check(vkCreateImageView(vkd.device, &view, nullptr, vk_out<VkImageView>{ img.target_view }), "vkCreateImageView");
+			std::lock_guard<std::mutex> hold(stencil_lock);
+			stencil_images.insert(img.image);
+			stencil_views.insert(img.view);
+			stencil_views.insert(img.target_view);
+			return;
+		}
 		// Textures are sampled as arrays, with a layer for each frame of an animated one.
 		if ((aspect == VK_IMAGE_ASPECT_COLOR_BIT) && (info.usage & VK_IMAGE_USAGE_SAMPLED_BIT) && (info.samples == VK_SAMPLE_COUNT_1_BIT)) {
 			view.viewType                     = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
@@ -130,6 +169,8 @@ namespace bb::gfx {
 		{ bb::rhi::format::bc5, VK_FORMAT_BC5_UNORM_BLOCK },
 		{ bb::rhi::format::bc7, VK_FORMAT_BC7_UNORM_BLOCK },
 		{ bb::rhi::format::bc7_srgb, VK_FORMAT_BC7_SRGB_BLOCK },
+		{ bb::rhi::format::d32f_s8, VK_FORMAT_D32_SFLOAT_S8_UINT },
+		{ bb::rhi::format::d24s8, VK_FORMAT_D24_UNORM_S8_UINT },
 	};
 
 	VkFormat vk_format(bb::rhi::format format)
@@ -177,7 +218,8 @@ namespace bb::gfx {
 		flags |= (usage & bb::rhi::image_depth_target) ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : 0;
 		flags |= (usage & bb::rhi::image_copy_source) ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0;
 		flags |= (usage & bb::rhi::image_copy_destination) ? VK_IMAGE_USAGE_TRANSFER_DST_BIT : 0;
-		VkImageAspectFlags aspect = (format == bb::rhi::format::d32f) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		VkImageAspectFlags aspect = bb::rhi::has_stencil(format) ? VkImageAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)
+		                                                         : (bb::rhi::is_depth(format) ? VkImageAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT) : VkImageAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT));
 		VkComponentMapping mapping = {};
 		if (components) {
 			mapping = { vk_swizzle(components->r), vk_swizzle(components->g), vk_swizzle(components->b), vk_swizzle(components->a) };
@@ -243,6 +285,11 @@ namespace bb::gfx {
 	// Destroys the views of an image, and nothing else.
 	static void destroy_views(gpu_image& img)
 	{
+		if (img.view || img.target_view) {
+			std::lock_guard<std::mutex> hold(stencil_lock);
+			stencil_views.erase(img.view);
+			stencil_views.erase(img.target_view);
+		}
 		for (uint32_t layer = 1; img.layer_targets && (layer < img.layers); layer++) {
 			vkDestroyImageView(vkd.device, VkImageView(img.layer_targets[layer]), nullptr);
 		}
@@ -267,6 +314,10 @@ namespace bb::gfx {
 	{
 		destroy_views(img);
 		if (img.image) {
+			{
+				std::lock_guard<std::mutex> hold(stencil_lock);
+				stencil_images.erase(img.image);
+			}
 			forget_system_allocation(VmaAllocation(img.allocation));
 			vmaDestroyImage(vkd.allocator, VkImage(img.image), VmaAllocation(img.allocation));
 		}
@@ -421,27 +472,52 @@ namespace bb::gfx {
 	} // namespace vulkan
 
 	namespace {
+		// A version of a pipeline for a target: the format of the target, plus stencil_key when the depth attachment of the pass has stencil.
+		constexpr uint32_t stencil_key = 0x100;
+		struct built_pipeline {
+			VkPipeline pipeline = VK_NULL_HANDLE;
+			bool       stencil  = false; // A 3D pipeline for a pass with stencil: its stencil state is dynamic.
+		};
 		struct pipeline_object {
 			bb::rhi::pipeline_recipe                                 recipe;
-			std::unordered_map<bb::rhi::format, VkPipeline>          built;
+			std::unordered_map<uint32_t, built_pipeline>             built;
 			bool                                                     alive = false;
 			bool                                                     fixed = false; // One description for whatever format it is bound with.
+			bool                                                     depth_known = false, has_depth = false; // Whether it draws in passes with depth, once it was first built.
 		};
 		std::vector<pipeline_object> pipeline_objects;
 	} // namespace
 
-	/** The Vulkan pipeline to draw to an image of that format. A target that is not the format of the buffers (when those are not RGBA8) gets the one made for RGBA8. */
-	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format)
+	/** The Vulkan pipeline to draw to an image of that format, in a pass whose depth attachment has stencil or not. A target that is not the format of the buffers (when those are not RGBA8) gets the one made for RGBA8. */
+	static const built_pipeline& vk_built_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format, bool stencil)
 	{
 		pipeline_object& object = pipeline_objects[pipeline.id - 1];
-		bb::rhi::format  key    = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != bb::rhi::format::rgba8)) ? format : bb::rhi::format::rgba8);
+		bb::rhi::format  target = object.fixed ? bb::rhi::format::undefined : (((format == g.buffer_format) && (format != bb::rhi::format::rgba8)) ? format : bb::rhi::format::rgba8);
+		// A pipeline that has nothing to do with depth is the same in a pass with stencil, and is not made again (its shaders may be gone).
+		stencil                 = stencil && (!object.depth_known || object.has_depth);
+		uint32_t         key    = uint32_t(target) | (stencil ? stencil_key : 0u);
 		auto             found  = object.built.find(key);
 		if (found != object.built.end()) {
 			return found->second;
 		}
-		VkPipeline made = build_pipeline(object.recipe(key));
-		object.built[key] = made;
-		return made;
+		bb::rhi::pipeline_desc desc = object.recipe(target);
+		object.depth_known          = true;
+		object.has_depth            = desc.depth || desc.depth_unused;
+		if (stencil && !object.has_depth) {
+			return vk_built_pipeline(pipeline, format, false);
+		}
+		built_pipeline         made;
+		if (stencil && (desc.depth || desc.depth_unused)) {
+			desc.depth_format = bb::rhi::vulkan::depth_stencil_format();
+			made.stencil      = desc.depth;
+		}
+		made.pipeline = build_pipeline(desc);
+		return object.built[key] = made;
+	}
+
+	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format)
+	{
+		return vk_built_pipeline(pipeline, format, false).pipeline;
 	}
 
 	static VkBlendFactor vk_blend_factor(bb::rhi::blend_factor f)
@@ -561,6 +637,7 @@ namespace bb::gfx {
 		depth.depthWriteEnable                      = VK_TRUE;
 		// The depth is reversed: 1 at the near plane and 0 at the far plane, so closer is greater.
 		depth.depthCompareOp                        = (desc.depth_compare == bb::rhi::compare::less) ? VK_COMPARE_OP_LESS : VK_COMPARE_OP_GREATER_OR_EQUAL;
+		bool stencil                                = bb::rhi::has_stencil(desc.depth_format);
 
 		VkPipelineColorBlendAttachmentState blend[4]   = {};
 		VkFormat                            formats[4] = {};
@@ -580,15 +657,18 @@ namespace bb::gfx {
 		blending.attachmentCount                     = desc.attachment_count;
 		blending.pAttachments                        = blend;
 
-		VkDynamicState dynamic_states[5]         = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
+		// A 3D pipeline for a pass with stencil has all of the stencil state dynamic (core in Vulkan 1.3), so stencil makes no more pipelines than one per pass kind.
+		VkDynamicState dynamic_states[10]        = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
+			VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE, VK_DYNAMIC_STATE_STENCIL_OP, VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK, VK_DYNAMIC_STATE_STENCIL_WRITE_MASK, VK_DYNAMIC_STATE_STENCIL_REFERENCE };
 		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                = desc.depth ? 5 : 2;
+		dynamic.dynamicStateCount                = desc.depth ? (stencil ? 10 : 5) : 2;
 		dynamic.pDynamicStates                   = dynamic_states;
 
 		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 		rendering.colorAttachmentCount          = desc.attachment_count;
 		rendering.pColorAttachmentFormats       = formats;
 		rendering.depthAttachmentFormat         = (desc.depth || desc.depth_unused) ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
+		rendering.stencilAttachmentFormat       = ((desc.depth || desc.depth_unused) && stencil) ? vk_format(desc.depth_format) : VK_FORMAT_UNDEFINED;
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -1251,6 +1331,9 @@ namespace bb::rhi::vulkan {
 		pipeline made = create_pipeline([desc](format) { return desc; });
 		gfx::pipeline_objects[made.id - 1].fixed = true;
 		gfx::vk_pipeline(made, format::undefined); // Built now, so that nothing is compiled in the middle of a frame.
+		if (desc.depth || desc.depth_unused) {
+			gfx::vk_built_pipeline(made, format::undefined, true); // The one for passes with stencil as well, as the shaders are often destroyed right after this.
+		}
 		return made;
 	}
 
@@ -1266,7 +1349,7 @@ namespace bb::rhi::vulkan {
 		info.layout                      = gfx::vk_layout(layout);
 		VkPipeline built                 = VK_NULL_HANDLE;
 		gfx::check(vkCreateComputePipelines(gfx::vkd.device, VK_NULL_HANDLE, 1, &info, nullptr, &built), "vkCreateComputePipelines");
-		gfx::pipeline_objects[made.id - 1].built[format::undefined] = built;
+		gfx::pipeline_objects[made.id - 1].built[uint32_t(format::undefined)] = { built, false };
 		return made;
 	}
 
@@ -1277,7 +1360,7 @@ namespace bb::rhi::vulkan {
 		}
 		auto& object = gfx::pipeline_objects[p.id - 1];
 		for (auto& built : object.built) {
-			vkDestroyPipeline(gfx::vkd.device, built.second, nullptr);
+			vkDestroyPipeline(gfx::vkd.device, built.second.pipeline, nullptr);
 		}
 		object.built.clear();
 		object.recipe = nullptr;
@@ -1385,7 +1468,8 @@ namespace bb::rhi::vulkan {
 
 	void set_group_image(binding_group group, uint32_t place, uint64_t view, sampler s, bool depth_read)
 	{
-		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), gfx::vk_layout_of(depth_read ? image_state::depth_read : image_state::sampled) };
+		VkImageLayout layout        = depth_read ? (gfx::is_stencil_view(view) ? gfx::vk_stencil_layout_of(image_state::depth_read) : gfx::vk_layout_of(image_state::depth_read)) : gfx::vk_layout_of(image_state::sampled);
+		VkDescriptorImageInfo info  = { gfx::vk_sampler(s), VkImageView(view), layout };
 		VkWriteDescriptorSet  write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                = gfx::vk_set(group);
 		write.dstBinding            = place;
@@ -1401,13 +1485,59 @@ namespace bb::rhi::vulkan {
 	{
 		VkRenderingAttachmentInfo out = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 		out.imageView                 = VkImageView(a.view);
-		out.imageLayout               = gfx::vk_layout_of(usage);
+		out.imageLayout               = gfx::is_stencil_view(a.view) ? gfx::vk_stencil_layout_of(usage) : gfx::vk_layout_of(usage);
 		out.loadOp                    = a.load == load_op::clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : (a.load == load_op::load ? VK_ATTACHMENT_LOAD_OP_LOAD : VK_ATTACHMENT_LOAD_OP_DONT_CARE);
 		out.storeOp                   = a.store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		for (int i = 0; i < 4; i++) {
 			out.clearValue.color.float32[i] = a.clear[i];
 		}
 		return out;
+	}
+
+	// The stencil of the pass that is recorded (on this thread): whether its depth attachment has stencil, the state that set_stencil asked for, and
+	// whether the pipeline that is bound takes it (a 3D pipeline built for a pass with stencil).
+	static thread_local bool          pass_stencil  = false;
+	static thread_local bool          bound_stencil = false;
+	static thread_local stencil_state current_stencil;
+
+	static VkCompareOp vk_stencil_compare(stencil_compare c)
+	{
+		return VkCompareOp(c); // The same order.
+	}
+
+	static VkStencilOp vk_stencil_op(stencil_op o)
+	{
+		return VkStencilOp(o); // The same order.
+	}
+
+	static void apply_stencil()
+	{
+		const stencil_state& s = current_stencil;
+		VkCommandBuffer      cmd = gfx::vkd.cmd;
+		vkCmdSetStencilTestEnable(cmd, s.enable ? VK_TRUE : VK_FALSE);
+		const stencil_face front = s.enable ? s.front : stencil_face(), back = s.enable ? s.back : stencil_face();
+		vkCmdSetStencilOp(cmd, VK_STENCIL_FACE_FRONT_BIT, vk_stencil_op(front.fail), vk_stencil_op(front.pass), vk_stencil_op(front.depth_fail), vk_stencil_compare(front.compare));
+		vkCmdSetStencilOp(cmd, VK_STENCIL_FACE_BACK_BIT, vk_stencil_op(back.fail), vk_stencil_op(back.pass), vk_stencil_op(back.depth_fail), vk_stencil_compare(back.compare));
+		vkCmdSetStencilCompareMask(cmd, VK_STENCIL_FACE_FRONT_AND_BACK, s.read_mask);
+		vkCmdSetStencilWriteMask(cmd, VK_STENCIL_FACE_FRONT_AND_BACK, s.write_mask);
+		vkCmdSetStencilReference(cmd, VK_STENCIL_FACE_FRONT_AND_BACK, s.reference);
+	}
+
+	void set_stencil(const stencil_state& state)
+	{
+		current_stencil = state;
+		if (bound_stencil) {
+			apply_stencil();
+		}
+	}
+
+	format depth_stencil_format()
+	{
+		// Vulkan guarantees one of the two for depth attachments; the 32 bit float one is used when it can also be sampled (the depth fade reads it).
+		VkFormatProperties properties = {};
+		vkGetPhysicalDeviceFormatProperties(gfx::vkd.physical, VK_FORMAT_D32_SFLOAT_S8_UINT, &properties);
+		const VkFormatFeatureFlags wanted = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+		return ((properties.optimalTilingFeatures & wanted) == wanted) ? format::d32f_s8 : format::d24s8;
 	}
 
 	void begin_pass(const pass_desc& desc)
@@ -1424,8 +1554,14 @@ namespace bb::rhi::vulkan {
 		info.pColorAttachments          = colors;
 		if (desc.has_depth) {
 			depth                         = vk_attachment(desc.depth, desc.depth.read_only ? bb::rhi::image_state::depth_read : bb::rhi::image_state::depth_target);
-			depth.clearValue.depthStencil = { desc.depth.clear[0], 0 };
+			depth.clearValue.depthStencil = { desc.depth.clear[0], desc.stencil_clear };
 			info.pDepthAttachment         = &depth;
+		}
+		pass_stencil    = desc.has_depth && gfx::is_stencil_view(desc.depth.view);
+		bound_stencil   = false;
+		current_stencil = stencil_state();
+		if (pass_stencil) {
+			info.pStencilAttachment = &depth; // The same image and view: the stencil is loaded, cleared and stored like the depth.
 		}
 		vkCmdBeginRendering(gfx::vkd.cmd, &info);
 		set_viewport(desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3]);
@@ -1453,7 +1589,12 @@ namespace bb::rhi::vulkan {
 namespace bb::rhi::vulkan {
 	void bind_pipeline(pipeline p, format target)
 	{
-		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, gfx::vk_pipeline(p, target));
+		const gfx::built_pipeline& built = gfx::vk_built_pipeline(p, target, pass_stencil);
+		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, built.pipeline);
+		bound_stencil = built.stencil;
+		if (bound_stencil) {
+			apply_stencil(); // Dynamic state that the pipeline before may not have had.
+		}
 	}
 
 	uint32_t sample_counts()
@@ -1466,7 +1607,7 @@ namespace bb::rhi::vulkan {
 
 	void bind_compute_pipeline(pipeline p)
 	{
-		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[format::undefined]);
+		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, gfx::pipeline_objects[p.id - 1].built[uint32_t(format::undefined)].pipeline);
 	}
 
 	void bind_compute_group(pipeline_layout layout, uint32_t index, binding_group group)
@@ -1541,6 +1682,18 @@ namespace bb::rhi::vulkan {
 		vkCmdClearAttachments(gfx::vkd.cmd, 1, &clear, 1, &rect);
 	}
 
+	void clear_stencil(uint8_t value, int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		if (!pass_stencil) {
+			return;
+		}
+		VkClearAttachment clear       = {};
+		clear.aspectMask              = VK_IMAGE_ASPECT_STENCIL_BIT;
+		clear.clearValue.depthStencil = { 0.0f, value };
+		VkClearRect rect              = { { { x, y }, { uint32_t(w), uint32_t(h) } }, 0, 1 };
+		vkCmdClearAttachments(gfx::vkd.cmd, 1, &clear, 1, &rect);
+	}
+
 	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
 	{
 		vkCmdDraw(gfx::vkd.cmd, vertices, instances, first_vertex, first_instance);
@@ -1606,6 +1759,11 @@ namespace bb::rhi::vulkan {
 		b.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
 		b.image                            = VkImage(image);
 		b.subresourceRange.aspectMask      = depth ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		if (depth && gfx::is_stencil_image(image)) {
+			b.oldLayout                   = gfx::vk_stencil_layout_of(from);
+			b.newLayout                   = gfx::vk_stencil_layout_of(to);
+			b.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
 		b.subresourceRange.levelCount      = VK_REMAINING_MIP_LEVELS; // Every level of an image is in the same layout between uses.
 		b.subresourceRange.layerCount      = VK_REMAINING_ARRAY_LAYERS;
 

@@ -115,6 +115,11 @@
 	X(vkFreeDescriptorSets) \
 	X(vkCmdCopyImageToBuffer) \
 	X(vkCmdSetDepthTestEnable) \
+	X(vkCmdSetStencilTestEnable) \
+	X(vkCmdSetStencilOp) \
+	X(vkCmdSetStencilCompareMask) \
+	X(vkCmdSetStencilWriteMask) \
+	X(vkCmdSetStencilReference) \
 	X(vkCreateComputePipelines) \
 	X(vkCmdDispatch) \
 	X(vkCmdDrawIndexedIndirect)
