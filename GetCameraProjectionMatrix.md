@@ -38,7 +38,7 @@ Print m[0][0] ; 2.0
 
 ## Related Commands
 
-[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [GetCameraBuffer](GetCameraBuffer), [GetCameraViewMatrix](GetCameraViewMatrix), [ResetCameraProjectionMatrix](ResetCameraProjectionMatrix), [ResetCameraViewMatrix](ResetCameraViewMatrix), [SetCameraProjectionMatrix](SetCameraProjectionMatrix), [SetCameraViewMatrix](SetCameraViewMatrix)
+[GetCameraBuffer](GetCameraBuffer), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraClipPlaneEnabled](GetCameraClipPlaneEnabled), [GetCameraViewMatrix](GetCameraViewMatrix), [ResetCameraProjectionMatrix](ResetCameraProjectionMatrix), [ResetCameraViewMatrix](ResetCameraViewMatrix), [SetCameraProjectionMatrix](SetCameraProjectionMatrix), [SetCameraViewMatrix](SetCameraViewMatrix)
 
 <div align="center">
 
