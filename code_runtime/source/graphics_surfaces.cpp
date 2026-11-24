@@ -336,7 +336,7 @@ float bb_gui_desktop_scale(void)
 }
 
 // Opens a window for a gadget. flags: 1 the window can be sized, 2 it has no frame, 4 it is a tool window, 8 it starts hidden.
-// 0 where no window can be made (no graphics, or headless): the gadget is then drawn on the desktop as before. The place and
+// 0 where no window can be made (no graphics, or headless): CreateWindow then gives 0 (headless: a gadget shown nowhere). The place and
 // the size are in the units of the program, the window is scaled from them (update_gui_scale).
 int32_t bb_gui_window_open(const char* title, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flags)
 {
