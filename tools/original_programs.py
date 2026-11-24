@@ -115,7 +115,7 @@ def compile_one(blitzcc, program, out):
     source = os.path.join(ROOT, program)
     try:
         # BlitzPlus kept images and fonts across Graphics, Blitz3D freed them.
-        mode = ["--blitzplus"] if program.startswith("blitzplus_msvc2017/") else []
+        mode = ["--blitzplus"] if program.replace("\\", "/").startswith("blitzplus_msvc2017/") else []
         run = procutil.run([blitzcc, source, "-o", exe] + mode, cwd=os.path.dirname(source), capture_output=True, text=True, timeout=300)
         text = (run.stdout + run.stderr).strip()
         return program, run.returncode == 0, text
