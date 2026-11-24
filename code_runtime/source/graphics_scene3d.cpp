@@ -5021,6 +5021,34 @@ int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
 	return (cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
 }
 
+// SetCameraStencil camera, enabled: the depth buffer that the camera draws with gets a stencil (8 bits per pixel), which the entities
+// with SetEntityStencil test and change. Cameras that draw to targets of the same size share the depth buffer, and so the stencil.
+// A BlitzLLVM extension.
+void bb_set_camera_stencil(int32_t camera, int32_t enabled)
+{
+	need_camera(camera, "SetCameraStencil")->cam_stencil = enabled != 0;
+}
+
+// GetCameraStencil(camera): 1 if the camera has a stencil.
+int32_t bb_get_camera_stencil(int32_t camera)
+{
+	return need_camera(camera, "GetCameraStencil")->cam_stencil ? 1 : 0;
+}
+
+// SetCameraStencilClear camera, clear, value: whether the camera clears the stencil of its viewport when it starts drawing (it does by
+// default), and to what (0 to 255, 0 by default).
+void bb_set_camera_stencil_clear(int32_t camera, int32_t clear, int32_t value)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraStencilClear");
+	if ((value < 0) || (value > 255)) {
+		char message[96];
+		snprintf(message, sizeof(message), "SetCameraStencilClear: the value has to be 0 to 255, not %d.", int(value));
+		bb_runtime_error(message);
+	}
+	cam->cam_stencil_clear = clear != 0;
+	cam->cam_stencil_value = uint8_t(value);
+}
+
 // RenderWorld: draws everything the cameras see into the current buffer.
 void bb_render_world(float tween)
 {

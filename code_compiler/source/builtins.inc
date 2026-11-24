@@ -600,6 +600,9 @@
 		{ "getcameraclipplane", "bb_get_camera_clip_plane", 'V', "ii", 2, {}, false },
 		{ "setcameraclipplaneenabled", "bb_set_camera_clip_plane_enabled", 'v', "iii", 3, {}, false },
 		{ "getcameraclipplaneenabled", "bb_get_camera_clip_plane_enabled", 'i', "ii", 2, {}, false },
+		{ "setcamerastencil", "bb_set_camera_stencil", 'v', "ii", 2, {}, false },
+		{ "getcamerastencil", "bb_get_camera_stencil", 'i', "i", 1, {}, false },
+		{ "setcamerastencilclear", "bb_set_camera_stencil_clear", 'v', "iii", 2, { 0, 0, 0 }, false },
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },
