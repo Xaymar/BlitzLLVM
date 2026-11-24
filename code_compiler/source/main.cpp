@@ -109,6 +109,7 @@ namespace {
 		bool                     debug        = false; // -d
 		bool                     debug_info   = false; // -g
 		bool                     profile      = false; // --profile
+		bool                     blitzplus    = false; // --blitzplus
 		bool                     sane_order   = false; // --sane-evaluation-order
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
@@ -168,6 +169,8 @@ namespace {
 				  << "  --sane-evaluation-order\n"
 				  << "                        Evaluate arguments and operands from left to right, like other languages. The default is the\n"
 				  << "                        order of the original Blitz3D (the part that needs more registers first, so F(a(), b(), c()) calls b, c, a).\n"
+				  << "  --blitzplus           Run the program like BlitzPlus did: Graphics and EndGraphics keep the images and fonts, which the\n"
+				  << "                        original Blitz3D frees. Programs written for BlitzPlus need it when they draw images made before Graphics.\n"
 				  << "  --profile             Let the program time the parts of the runtime (UpdateWorld, RenderWorld, CopyRect, Flip, ...), which BLITZLLVM_PROFILE_FPS=1 reports\n"
 				  << "                        once a second. With -g or -d, BLITZLLVM_PROFILE_SAMPLE also records call stacks. Costs a clock read per call of them, so it is off unless asked for or implied by -d.\n"
 				  << "  --no-runtime-inline   Don't compile the hot parts of the runtime (runtime/inline) together with the program. Without it they are\n"
@@ -395,6 +398,8 @@ namespace {
 				opt.sane_order = true;
 			} else if (arg == "--profile") {
 				opt.profile = true;
+			} else if (lowered == "--blitzplus") {
+				opt.blitzplus = true;
 			} else if (arg == "--no-runtime-inline") {
 				opt.no_inline = true;
 			} else if (arg == "--runtime-dir") {
@@ -535,6 +540,7 @@ static int compiler_main(int argc, char** argv)
 		compiler.debug      = opt.debug;
 		compiler.debug_info = opt.debug_info;
 		compiler.profile    = opt.profile || opt.debug;
+		compiler.blitzplus  = opt.blitzplus;
 		compiler.sane_evaluation_order = opt.sane_order;
 		compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
 		compiler.codeview   = windows_target;

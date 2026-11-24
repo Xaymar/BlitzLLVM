@@ -28,6 +28,37 @@ uint32_t bb::gfx::flip_serial = 0;
 static constexpr int offscreen_size = 64; // The buffers of Graphics that was never called; images and textures have sizes of their own.
 
 extern "C" int32_t bb_is_debug(void);
+extern "C" void    bb_reset_world(void);
+extern "C" void    bb_close_movies(void);
+extern "C" void    bb_free_images(void);
+extern "C" void    bb_free_fonts(void);
+extern "C" void    bb_dither(int32_t enable);
+extern "C" void    bb_anti_alias(int32_t enable);
+extern "C" void    bb_wire_frame(int32_t on);
+
+// A program compiled with --blitzplus runs like BlitzPlus did, whose Graphics and EndGraphics kept the images and fonts.
+static int32_t blitzplus_mode = 0;
+
+extern "C" void bb_set_blitzplus(int32_t on)
+{
+	blitzplus_mode = on;
+}
+
+// What Graphics (without keep) and EndGraphics free, like the original: the 3D world with its entities, brushes and textures, the
+// movies, the images and the fonts of the program. The movies go first, as their pictures are an image and a texture. Sounds stay.
+// Dither, AntiAlias and WireFrame are back to what a program starts with, as they were settings of the scene of the original.
+static void free_program_graphics()
+{
+	bb_close_movies();
+	bb_reset_world();
+	if (!blitzplus_mode) {
+		bb_free_images();
+		bb_free_fonts();
+	}
+	bb_dither(0);
+	bb_anti_alias(0);
+	bb_wire_frame(0);
+}
 
 #ifdef _WIN32
 #include <windows.h>
@@ -134,18 +165,26 @@ static void release_for_new_graphics()
 	bb::rhi::forget_backend_state();
 }
 
-// Graphics width, height, depth, mode. Graphics3D is this same function: there is no 2D-only mode, so the 3D commands work
-// after either of them.
+// Graphics width, height, depth, mode, keep. Graphics3D is this same function: there is no 2D-only mode, so the 3D commands work
+// after either of them. Like the original, it frees the entities, brushes, textures, images, fonts and movies of the program and
+// puts the 3D world back to how it started. keep (a BlitzLLVM extension) keeps all of it instead, which makes a change of the
+// resolution cheap.
 // Modes: 0 = windowed, 1 = fullscreen, 2 = windowed, 3 = resizable window,
 // 4 = window without a border (a BlitzLLVM extension). The depth picks what the buffers are made of: 8 is a palette of 256 colors
 // (see GraphicsPalette), 12 is R4G4B4A4, 15 is A1R5G5B5, 16 is R5G6B5, 24 is R8G8B8X8, 30 is R10G10B10A2, 32 (and 0) is R8G8B8A8 and
 // 64 is R16G16B16A16 as half precision floats.
-void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
+void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode, int32_t keep)
 {
 	if ((width <= 0) || (height <= 0)) {
 		fail("Graphics needs a width and height of at least 1.");
 	}
-	// A second call changes the resolution: the window and the buffers are made again, and the images and textures keep what they had.
+	if (!keep) {
+		free_program_graphics();
+	}
+	// A second call changes the resolution: the window and the buffers are made again, and the images and textures that are left
+	// (all of them with keep) keep what they had.
+	const bool first  = !g.created;
+	const bool wireframe = g.wireframe; // Kept with keep: the state of Graphics is made new below.
 	const bool remake = g.created && !g.headless;
 	if (remake) {
 		release_for_new_graphics();
@@ -154,7 +193,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	bb_on_exit(bb_end_graphics); // The program ends with the graphics taken down, while the Vulkan driver's threads still have what they need.
 
-	bb_reset_texture_filters();
+	if (!keep || first) {
+		bb_reset_texture_filters(); // With keep, the filters of the program stay as well.
+	}
 	if (const char* path = bb_env("BLITZLLVM_TEST_LAZY_DEVICE")) {
 		test_lazy_device(path); // Test hook: a device before the window, as a program that opens its own windows first would have (see graphics_surfaces.cpp).
 	}
@@ -238,6 +279,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
+	if (keep) {
+		g.wireframe = wireframe && g.can_wireframe;
+	}
 	if (remake) {
 		textures_rebuild();
 		images_rebuild();
@@ -399,7 +443,15 @@ bool bb::gfx::ensure_offscreen()
 
 extern "C" {
 
-// Takes down the window of Graphics and the device, also a device that was made without a window (ensure_device).
+// EndGraphics: frees what Graphics frees (free_program_graphics), then takes the window down as bb_end_graphics does.
+void bb_close_graphics(void)
+{
+	free_program_graphics();
+	bb_end_graphics();
+}
+
+// Takes down the window of Graphics and the device, also a device that was made without a window (ensure_device). The runtime
+// itself uses it, also when the program ends, so it frees only what the device has to give back.
 void bb_end_graphics(void)
 {
 	if (!g.created && !bb::rhi::has_device()) {
