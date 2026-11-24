@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The sample programs and games that came with the original Blitz3D and BlitzPlus (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules).
+"""The sample programs, games and tutorials that came with the original Blitz3D and BlitzPlus (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules).
 
   original_programs.py list                    Print the programs, one per line (file names are relative to third_party/)
   original_programs.py compile-one BLITZCC PROGRAM OUT   Compile one program, print the output of the compiler when it fails
@@ -21,6 +21,7 @@ ROOT = os.path.join(REPO, "third_party")
 TREES = [
     "blitz3d/_release/samples",
     "blitz3d/_release/Games",
+    "blitz3d/_release/tutorials",
     "blitzplus_msvc2017/_release/samples",
     "blitzplus_msvc2017/_release/games",
 ]

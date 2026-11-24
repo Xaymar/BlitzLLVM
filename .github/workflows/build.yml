@@ -225,6 +225,7 @@ jobs:
         run: |
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
+          .github/scripts/check-samples.sh dist/samples
           # The libraries must not need the newer STL helpers (__std_rotate, ...), or programs fail to link with an older Visual Studio.
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
           # The package compiles and runs a program by itself, with the MinGW headers and libraries it ships.
@@ -296,6 +297,7 @@ jobs:
           # The Flatpaks are made by the flatpak job below from the installs of both architectures, so that each of them can make programs for both.
           mkdir flatpak-stage-root
           DESTDIR="$PWD/flatpak-stage-root/stage" cmake --install build --config Release --component system --prefix /app
+          .github/scripts/check-samples.sh flatpak-stage-root/stage/app/share/blitzllvm/samples
           cp build/required-licenses.txt flatpak-stage-root/
           printf 'VERSION=%s\nARTIFACT_SUFFIX=%s\n' "$VERSION" "${ARTIFACT#blitzllvm-}" > flatpak-stage-root/version.env
           tar -C flatpak-stage-root -cf flatpak-stage.tar .
