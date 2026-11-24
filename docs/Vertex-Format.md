@@ -104,6 +104,8 @@ of the CPU (AVX on x86-64, NEON on ARM64).
   run of vertices does not start on a line either (see below).
 - The 32-byte main stream and the 16-byte extra stream both divide 64, so with the start of the array on a 64-byte boundary no vertex
   ever crosses a line (two main vertices, or four extra entries, per line). That also holds on CPUs with 128-byte lines (Apple arm64).
+  Apple matters, but Xaymar noted (24 Nov) that its CPUs are forgiving with unaligned reads: an aligned buffer start and at least
+  32-byte alignment perform well there, so 64 is enough and nothing needs 128 for Apple.
 - A single 40-byte vertex (choice 2 below without the split) would cross lines and would have to be padded to 64 bytes, which is
   more than today. So the split is no longer just the smaller option, it is the one that keeps the rule without padding. If one
   buffer is preferred anyway, it becomes a 64-byte vertex (main 32 + uv2, w, w2 16 + 16 spare), twice the size of the split main stream.
