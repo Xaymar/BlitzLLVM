@@ -36,6 +36,14 @@ extern "C" void    bb_dither(int32_t enable);
 extern "C" void    bb_anti_alias(int32_t enable);
 extern "C" void    bb_wire_frame(int32_t on);
 
+// A program compiled with --blitzplus runs like BlitzPlus did, whose Graphics and EndGraphics kept the images and fonts.
+static int32_t blitzplus_mode = 0;
+
+extern "C" void bb_set_blitzplus(int32_t on)
+{
+	blitzplus_mode = on;
+}
+
 // What Graphics (without keep) and EndGraphics free, like the original: the 3D world with its entities, brushes and textures, the
 // movies, the images and the fonts of the program. The movies go first, as their pictures are an image and a texture. Sounds stay.
 // Dither, AntiAlias and WireFrame are back to what a program starts with, as they were settings of the scene of the original.
@@ -43,8 +51,10 @@ static void free_program_graphics()
 {
 	bb_close_movies();
 	bb_reset_world();
-	bb_free_images();
-	bb_free_fonts();
+	if (!blitzplus_mode) {
+		bb_free_images();
+		bb_free_fonts();
+	}
 	bb_dither(0);
 	bb_anti_alias(0);
 	bb_wire_frame(0);
