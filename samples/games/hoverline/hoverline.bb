@@ -10,7 +10,7 @@
 ;   Down or S        both air brakes: slows down, and turns tighter
 ;   Q and E          the left and the right air brake: turn much tighter that way, and slide
 ;   Left/Right, A/D  steer
-;   Space            boost, which uses energy
+;   Ctrl or F        use the weapon or ability picked up from a rainbow field
 ;   Escape or P      the pause menu
 ;   Menus            Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;
@@ -21,6 +21,10 @@
 ; laps, places in the race and the computer drivers simple, and the craft can still drift and hit the walls.
 ; Height is the one thing a craft keeps for itself: it follows the road, but where the road drops away faster than
 ; gravity pulls (the end of a ramp, a gap, or the edge of a road without walls) it flies, and falls.
+;
+; Weapons: in a race, rainbow fields across the road hand out a random weapon or ability to a craft that has none.
+; Shots fly straight through the world, so they only hit what is in front of the nose; missiles turn towards their
+; target, and the quake wave and the pulse move along the track. Hits cost energy, the same energy the walls take.
 ;
 ; The options and best times are saved in hoverline.cfg next to the program.
 
@@ -35,7 +39,6 @@ Const WALL_HEIGHT# = 1.6
 ; Speeds are in units per update (there are 60 updates every second), for the slowest class. The faster classes
 ; multiply them by classScale.
 Const ACCELERATION# = 0.022
-Const BOOST_SPEED# = 0.55    ; Extra top speed while Space is held.
 Const PAD_SPEED# = 0.8       ; Extra top speed after crossing a boost pad.
 Const PAD_TIME = 70
 Const AIR_BRAKE# = 2.4       ; Extra turning, in degrees per update, from one air brake.
@@ -54,7 +57,15 @@ Const STATE_PAUSED = 6, STATE_FINISHED = 7, STATE_RESULTS = 8
 Const MODE_RACE = 0, MODE_TRIAL = 1
 Const SETUP_TOP = 170
 
-Const KEY_Q = 16, KEY_E = 18
+Const KEY_Q = 16, KEY_E = 18, KEY_F = 33, KEY_LCTRL = 29, KEY_RCTRL = 157
+
+; The weapons and abilities from the rainbow fields.
+Const WEAPON_NONE = 0, WEAPON_GATLING = 1, WEAPON_MISSILE = 2, WEAPON_QUAKE = 3, WEAPON_BOOST = 4
+Const WEAPON_SHIELD = 5, WEAPON_AUTOPILOT = 6, WEAPON_PULSE = 7, WEAPON_PLASMA = 8, WEAPONS = 8
+Const LOCK_TIME = 150       ; A missile needs 2.5 seconds on the same target before it locks on.
+Const SHIELD_TIME = 300, AUTOPILOT_TIME = 150, GATLING_ROUNDS = 36
+Const PLASMA_CHARGE = 60, PULSE_RADIUS# = 14    ; The plasma charges for a second before it fires.
+Const SHOT_BULLET = 0, SHOT_MISSILE = 1, SHOT_PLASMA = 2
 Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_ENTER = 28, KEY_SPACE = 57
 Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
@@ -64,10 +75,8 @@ Type Craft
 	Field d#, lat#      ; How far along the track, and how far right of the middle.
 	Field ang#, vang#   ; Where the nose points, and where the craft moves, in degrees left of the track direction.
 	Field spd#
-	Field energy#       ; 0 to maxEnergy. Hitting a wall costs energy, so does boosting. At 0 a wall breaks the craft.
+	Field energy#       ; 0 to maxEnergy. Hitting a wall or a weapon hit costs energy. At 0 a wall breaks the craft.
 	Field padTimer      ; Updates of boost left from a boost pad.
-	Field boosting      ; True while boosting this update.
-	Field aiBoost       ; Updates of boost the computer decided on.
 	Field respawn       ; Updates until a broken craft comes back.
 	Field lap, halfway, lapStart, lastLap, bestLap
 	Field finished, finishTime, place
@@ -79,9 +88,35 @@ Type Craft
 	Field accelMul#, topMul#, brakeMul#, maxEnergy#
 	Field steer#        ; How far the craft leans into a turn, for the look of it.
 	Field lastHit
-	Field mesh, glow, shadow
+	Field mesh, glow, shadow, shieldBubble
+	Field index                    ; 0 to 3, for the pulse to remember whom it hit.
+	Field weapon, aiHold           ; The weapon held, and how long the computer waits before using it.
+	Field lockTarget.Craft, lockTimer
+	Field burst, shield, autopilot ; Gatling rounds left to fire, updates of shield and of autopilot left.
+	Field boostTimer               ; Updates left of the Boost pickup.
+	Field charge                   ; Updates the plasma has been charging, 0 when it is not.
 	Field r, g, b
 	Field name$
+End Type
+
+Type Shot
+	Field kind, ent
+	Field x#, y#, z#, vx#, vy#, vz#
+	Field life, damage#, radius#
+	Field owner.Craft, target.Craft
+	Field slice                    ; The slice of the track the shot is over, for the walls.
+End Type
+
+; The quake: a wave that runs forwards along the track and throws grounded crafts up.
+Type Wave
+	Field d#, travelled#, ent
+	Field owner.Craft
+End Type
+
+; The pulse: a ring that grows from where it was set off.
+Type Pulse
+	Field x#, y#, z#, radius#, ent, hits
+	Field owner.Craft
 End Type
 
 Type Spark
@@ -110,6 +145,12 @@ trackNames(0) = "Harbour Loop" : trackNames(1) = "Canyon Climb" : trackNames(2) 
 Const MAX_PADS = 8
 Dim padSlice(MAX_PADS), padLat#(MAX_PADS)
 Global pads, chargeFrom, chargeTo, chargeLat#
+Const MAX_FIELDS = 4
+Dim fieldSlice(MAX_FIELDS)
+Global fields, fieldMesh, quakeTemplate, ringTemplate
+Dim weaponNames$(WEAPONS)
+weaponNames(1) = "Gatling gun" : weaponNames(2) = "Missile" : weaponNames(3) = "Quake" : weaponNames(4) = "Boost"
+weaponNames(5) = "Shield" : weaponNames(6) = "Autopilot" : weaponNames(7) = "Pulse" : weaponNames(8) = "Plasma"
 
 ; Corner numbers of a box: 1 = the high x, 2 = the high y, 4 = the high z. Each side lists its corners clockwise,
 ; as seen from outside, which is the side the graphics card draws.
@@ -129,7 +170,8 @@ Global optFov = 0            ; 0 normal, 1 wide.
 Global optVolume = 4         ; 0 to 4, in quarters.
 Global optEngine = True      ; The engine hum.
 Global optFullscreen = False
-Global setupTrack = 0, setupLaps = 0, setupRivals = 1, setupClass = 0, setupShip = 0
+Global setupTrack = 0, setupLaps = 0, setupRivals = 1, setupClass = 0, setupShip = 0, setupWeapons = True
+Global raceWeapons = True ; Whether weapons are on right now: in races as set up, never in time trials.
 ; The craft designs. Each has 20 points spread over four strengths, from 2 to 8 each: acceleration (how fast it gets
 ; back to top speed), top speed, energy (how much it can take) and brakes (the air brakes and slowing down).
 Const SHIPS = 4
@@ -163,13 +205,13 @@ Global player.Craft, demoTarget.Craft, demoTimer
 Global messageText$, messageTimer
 Global optionsFromPause
 Global newLapRecord, newRaceRecord
-Dim menuText$(7)
+Dim menuText$(8)
 Global menuCount, menuSelected, menuTop
 Dim order.Craft(RACERS - 1) ; The crafts in race order, made by RankCrafts.
 
 ; The entities and pictures, made again by OpenScreen.
 Global camera, sun, trackRoot, mountains, sparkTemplate, minimapImage, shadeImage
-Global roadTex, gridTex, glowTex, padTex, chargeTex, windowTex, checkerTex, shadowTex
+Global roadTex, gridTex, glowTex, padTex, chargeTex, windowTex, checkerTex, shadowTex, fieldTex
 Global camHeadX#, camHeadY#, camHeadZ#, camUpX#, camUpY#, camUpZ#, camReset
 Global titleFont, menuFont, hudFont, bigFont, smallFont
 
@@ -189,6 +231,16 @@ Global soundPad = MakeSound(300, 1200, 300, WAVE_SINE, 0.25)
 Global soundLap = MakeSound(660, 990, 250, WAVE_SQUARE, 0.15)
 Global soundBreak = MakeSound(400, 40, 900, WAVE_NOISE, 0.45)
 Global soundFall = MakeSound(900, 120, 800, WAVE_SINE, 0.3)
+Global soundPickup = MakeSound(500, 1400, 220, WAVE_SQUARE, 0.12)
+Global soundShot = MakeSound(1400, 600, 50, WAVE_NOISE, 0.12)
+Global soundMissile = MakeSound(200, 700, 500, WAVE_NOISE, 0.2)
+Global soundBlast = MakeSound(180, 40, 500, WAVE_NOISE, 0.4)
+Global soundPlasma = MakeSound(2000, 300, 350, WAVE_SINE, 0.3)
+Global soundCharge = MakeSound(200, 1600, 1000, WAVE_SINE, 0.2)
+Global soundWarning = MakeSound(1200, 1200, 80, WAVE_SQUARE, 0.12)
+Global soundShield = MakeSound(300, 900, 400, WAVE_SINE, 0.2)
+Global soundPulse = MakeSound(120, 60, 400, WAVE_SQUARE, 0.3)
+Global soundLock = MakeSound(1800, 1800, 60, WAVE_SINE, 0.12)
 Global soundEngine = MakeEngineSound()
 Global engineChannel
 
@@ -229,6 +281,7 @@ While Not quit
 	If messageTimer > 0 Then messageTimer = messageTimer - 1
 	PositionTexture padTex, 0, -frame * 0.04
 	PositionTexture chargeTex, 0, -frame * 0.02
+	PositionTexture fieldTex, frame * 0.01, 0
 	DrawGame()
 	Flip 0 ; The timer already paces the game, so Flip does not have to wait as well.
 Wend
@@ -283,6 +336,7 @@ Function OpenScreen()
 	minimapImage = 0
 	BuildTrack(setupTrack)
 
+	MakeWeaponTemplates()
 	Local c.Craft
 	For c = Each Craft
 		MakeCraftMesh(c)
@@ -290,6 +344,16 @@ Function OpenScreen()
 	Local s.Spark
 	For s = Each Spark
 		Delete s
+	Next
+	Local sh.Shot, wv.Wave, pl.Pulse
+	For sh = Each Shot
+		Delete sh
+	Next
+	For wv = Each Wave
+		Delete wv
+	Next
+	For pl = Each Pulse
+		Delete pl
 	Next
 	watermark = 0
 	shadeImage = 0
@@ -304,7 +368,7 @@ Function LoadSettings()
 	Local file = ReadFile(settingsPath)
 	If Not file Then Return
 	Local t, l, k, version = ReadInt(file) ; A version number, so a changed file format can be recognised.
-	If version = 1 Or version = 2
+	If version >= 1 And version <= 3
 		optCamera = ReadInt(file)
 		optFov = ReadInt(file)
 		optVolume = ReadInt(file)
@@ -324,6 +388,7 @@ Function LoadSettings()
 		Else
 			setupClass = ReadInt(file)
 			setupShip = ReadInt(file)
+			If version >= 3 Then setupWeapons = ReadInt(file) <> 0
 			For k = 0 To CLASSES - 1
 				For t = 0 To TRACKS - 1
 					recordLap(t, k) = ReadInt(file)
@@ -357,7 +422,7 @@ End Function
 Function SaveSettings()
 	Local file = WriteFile(settingsPath)
 	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
-	WriteInt file, 2
+	WriteInt file, 3
 	WriteInt file, optCamera
 	WriteInt file, optFov
 	WriteInt file, optVolume
@@ -368,6 +433,7 @@ Function SaveSettings()
 	WriteInt file, setupRivals
 	WriteInt file, setupClass
 	WriteInt file, setupShip
+	WriteInt file, setupWeapons
 	Local t, l, k
 	For k = 0 To CLASSES - 1
 		For t = 0 To TRACKS - 1
@@ -521,6 +587,12 @@ Function BuildTrack(index)
 		For i = Int(fromPart * slices) To Int(toPart * slices)
 			sliceKind(i Mod slices) = KIND_OPEN
 		Next
+	Next
+	; The rainbow weapon fields, as parts of the lap.
+	Read fields
+	For j = 0 To fields - 1
+		Read f
+		fieldSlice(j) = Int(f * slices)
 	Next
 
 	BuildRoad()
@@ -736,6 +808,27 @@ Function BuildRoad()
 	EntityFX charge, 1
 	EntityBlend charge, 3
 
+	; The weapon fields: rainbow diamonds right across the road.
+	fieldMesh = CreateMesh(trackRoot)
+	surface = CreateSurface(fieldMesh)
+	For p = 0 To fields - 1
+		For k = 0 To 2
+			s = (fieldSlice(p) + k) Mod slices
+			n = (s + 1) Mod slices
+			base = CountVertices(surface)
+			FramePoint(s, -TRACK_HALF, 0.07, 0) : AddVertex surface, gX, gY, gZ, 0, k * 0.5
+			FramePoint(n, -TRACK_HALF, 0.07, 0) : AddVertex surface, gX, gY, gZ, 0, k * 0.5 + 0.5
+			FramePoint(n, TRACK_HALF, 0.07, 0) : AddVertex surface, gX, gY, gZ, 4, k * 0.5 + 0.5
+			FramePoint(s, TRACK_HALF, 0.07, 0) : AddVertex surface, gX, gY, gZ, 4, k * 0.5
+			AddTriangle surface, base, base + 1, base + 2
+			AddTriangle surface, base, base + 2, base + 3
+		Next
+	Next
+	EntityTexture fieldMesh, fieldTex
+	EntityFX fieldMesh, 1
+	EntityBlend fieldMesh, 3
+	If Not raceWeapons Then HideEntity fieldMesh
+
 	; Underneath: the bottom and both edges of the road, in dark colours.
 	Local under = CreateMesh(trackRoot)
 	surface = CreateSurface(under)
@@ -924,6 +1017,7 @@ End Function
 Function NewCraft.Craft(name$, r, g, b, computer, skill#, ship)
 	Local c.Craft = New Craft
 	SetShip(c, ship)
+	c\index = CraftCount() - 1
 	c\name = name
 	c\r = r : c\g = g : c\b = b
 	c\computer = computer
@@ -978,6 +1072,15 @@ Function MakeCraftMesh(c.Craft)
 	EntityTexture shadow, shadowTex
 	EntityFX shadow, 1
 	c\shadow = shadow
+
+	; The shield: a see-through bubble, shown while the shield is up.
+	c\shieldBubble = CreateSphere(10, mesh)
+	ScaleEntity c\shieldBubble, 2.0, 1.2, 2.9
+	EntityColor c\shieldBubble, 90, 180, 255
+	EntityAlpha c\shieldBubble, 0.45
+	EntityBlend c\shieldBubble, 3
+	EntityFX c\shieldBubble, 1 + 16
+	HideEntity c\shieldBubble
 	c\mesh = mesh
 End Function
 
@@ -1016,8 +1119,9 @@ Function PlaceCraft(c.Craft)
 	Local slope# = c\vy - fY(i) * c\spd * Cos(c\vang)
 	TurnEntity c\mesh, -Clamp(ATan2(slope, Max(c\spd, 0.3)), -30, 30), 0, c\steer * 14
 	If c\airborne And c\y > Ground(c\d, c\lat) + 2 Then HideEntity c\shadow Else ShowEntity c\shadow
+	If c\shield > 0 And (c\shield > 60 Or frame Mod 8 < 5) Then ShowEntity c\shieldBubble Else HideEntity c\shieldBubble
 	Local glowSize# = 0.6 + c\spd / classScale * 0.35
-	If c\boosting Or c\padTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
+	If c\padTimer > 0 Or c\boostTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
 	ScaleSprite c\glow, glowSize, glowSize
 End Function
 
@@ -1051,26 +1155,30 @@ Function SetClass(k)
 End Function
 
 ; Moves a craft for one update. throttle and brake are True or False, steer goes from -1 (right) to 1 (left).
-Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
+Function DriveCraft(c.Craft, throttle, brake, steer#, air#)
 	; air goes from -1 (the right air brake) to 1 (the left one).
-	c\boosting = False
 	If c\respawn > 0
 		c\respawn = c\respawn - 1
 		If c\respawn = 0 Then Respawn(c)
 		Return
 	EndIf
 
+	If c\autopilot > 0
+		DriveAutopilot(c)
+		Return
+	EndIf
+
 	Local top# = topSpeed * c\skill * c\topMul, push# = ACCELERATION * classScale * c\accelMul
+	; A boost pad and the Boost pickup add up: each one raises the top speed and the push.
 	If c\padTimer > 0
 		top = top + PAD_SPEED * classScale
 		push = push * 3
 		c\padTimer = c\padTimer - 1
 	EndIf
-	If boost And c\energy > 10
-		top = top + BOOST_SPEED * classScale
-		push = push * 2.5
-		c\energy = c\energy - 0.35
-		c\boosting = True
+	If c\boostTimer > 0
+		top = top + PAD_SPEED * classScale
+		push = push * 3
+		c\boostTimer = c\boostTimer - 1
 	EndIf
 	If c\airborne
 		c\spd = c\spd * 0.999 ; Nothing to push against in the air.
@@ -1125,7 +1233,7 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
 				BreakCraft(c)
 				Return
 			EndIf
-			c\energy = Max(0, c\energy - 0.15 - impact * 30)
+			If c\shield = 0 Then c\energy = Max(0, c\energy - 0.15 - impact * 30)
 			If (impact > 0.05 And frame - c\lastHit > 10) Or (c\spd > 0.6 * classScale And frame Mod 6 = 0)
 				TrackPoint(c\d, c\lat + Sgn(c\lat) * CRAFT_HALF, HOVER * 0.6)
 				If impact > 0.05
@@ -1179,7 +1287,7 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
 		For p = 0 To pads - 1
 			If (s - padSlice(p) + slices) Mod slices < 4 And Abs(c\lat - padLat(p)) < 3
 				If c\padTimer < PAD_TIME - 20 And c = player Then PlaySfx(soundPad)
-				c\padTimer = PAD_TIME
+				c\padTimer = Max(c\padTimer, PAD_TIME)
 			EndIf
 		Next
 	EndIf
@@ -1350,12 +1458,10 @@ Function DriveComputer(c.Craft)
 	Local canTurn# = (2.7 + AIR_BRAKE * c\brakeMul * 0.5) * grip * 0.8
 	Local wantSpeed# = Min(topSpeed * c\skill * c\topMul * pace, canTurn / (bend + 0.45 * grip / classScale + 0.001))
 	If jumpAhead Then wantSpeed = topSpeed * c\skill * c\topMul
-	If c\aiBoost > 0 Then c\aiBoost = c\aiBoost - 1
-	If c\aiBoost = 0 And c\energy > c\maxEnergy * 0.7 And bend < 0.15 And Rand(120) = 1 Then c\aiBoost = 50
 	; Boost only where the road ahead is straight enough for the extra speed.
-	If (c\aiBoost > 0 Or c\padTimer > 0) And bend < 0.15 Then wantSpeed = wantSpeed + PAD_SPEED * classScale
+	If (c\padTimer > 0 Or c\boostTimer > 0) And bend < 0.15 Then wantSpeed = wantSpeed + PAD_SPEED * classScale
 
-	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.15 * classScale, steer, c\aiBoost > 0, air)
+	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.15 * classScale, steer, air)
 End Function
 
 ; Crafts that touch push each other apart; the one behind loses a little speed and the one in front gains a little.
@@ -1426,6 +1532,7 @@ Function CraftCount()
 End Function
 
 Function ClearCrafts()
+	ClearWeapons()
 	Local c.Craft
 	For c = Each Craft
 		FreeEntity c\mesh
@@ -1443,13 +1550,596 @@ Function GridCrafts()
 		If n Mod 2 = 0 Then c\lat = -3.5 Else c\lat = 3.5
 		c\ang = 0 : c\vang = 0 : c\spd = 0 : c\energy = c\maxEnergy
 		c\y = Ground(c\d, c\lat) : c\vy = 0 : c\airborne = False : c\fell = False
+		c\weapon = 0 : c\burst = 0 : c\shield = 0 : c\autopilot = 0 : c\lockTimer = 0 : c\lockTarget = Null
 		c\lap = 0 : c\halfway = True : c\lapStart = 0 : c\lastLap = 0 : c\bestLap = 0
-		c\finished = False : c\finishTime = 0 : c\respawn = 0 : c\padTimer = 0 : c\aiBoost = 0
+		c\finished = False : c\finishTime = 0 : c\respawn = 0 : c\padTimer = 0 : c\boostTimer = 0 : c\charge = 0
 		c\lineOffset = Rnd(-1.5, 1.5)
 		ShowEntity c\mesh
 		PlaceCraft(c)
 		n = n + 1
 	Next
+End Function
+
+; --- Weapons ---------------------------------------------------------------------------------------------------------
+
+; The shapes the quake wave and the pulse ring are copied from, made again with the screen.
+Function MakeWeaponTemplates()
+	; The quake: a glowing hump right across the road. x runs across, z along the track.
+	quakeTemplate = CreateMesh()
+	Local surface = CreateSurface(quakeTemplate), k, z0#, z1#, h0#, h1#, base
+	For k = 0 To 7
+		z0 = -3 + k * 0.75 : z1 = z0 + 0.75
+		h0 = 1.6 * Sin(k * 22.5) : h1 = 1.6 * Sin((k + 1) * 22.5)
+		base = AddQuad(surface, -TRACK_HALF, h0, z0, -TRACK_HALF, h1, z1, TRACK_HALF, h1, z1, TRACK_HALF, h0, z0)
+		ColorQuad(surface, base, 255, 120 + k * 10.0, 40, 255, 130 + k * 10.0, 50)
+	Next
+	EntityFX quakeTemplate, 1 + 2 + 16
+	EntityBlend quakeTemplate, 3
+	HideEntity quakeTemplate
+
+	; The pulse: a flat ring of radius 1, scaled up as it grows.
+	ringTemplate = CreateMesh()
+	surface = CreateSurface(ringTemplate)
+	Local a0#, a1#
+	For k = 0 To 39
+		a0 = k * 9.0 : a1 = (k + 1) * 9.0
+		base = AddQuad(surface, Sin(a0) * 0.8, 0, Cos(a0) * 0.8, Sin(a0), 0, Cos(a0), Sin(a1), 0, Cos(a1), Sin(a1) * 0.8, 0, Cos(a1) * 0.8)
+		ColorQuad(surface, base, 40, 120, 160, 140, 240, 255)
+		; A low glowing wall along the outer edge, so the ring shows from behind too.
+		base = AddQuad(surface, Sin(a0), -0.3, Cos(a0), Sin(a0), 1.2, Cos(a0), Sin(a1), 1.2, Cos(a1), Sin(a1), -0.3, Cos(a1))
+		ColorQuad(surface, base, 140, 240, 255, 20, 60, 90)
+	Next
+	EntityFX ringTemplate, 1 + 2 + 16
+	EntityBlend ringTemplate, 3
+	HideEntity ringTemplate
+End Function
+
+Function SetWeapons(enabled)
+	raceWeapons = enabled
+	If fieldMesh <> 0
+		If raceWeapons Then ShowEntity fieldMesh Else HideEntity fieldMesh
+	EndIf
+End Function
+
+Function ClearWeapons()
+	Local sh.Shot, wv.Wave, pl.Pulse
+	For sh = Each Shot
+		FreeEntity sh\ent
+		Delete sh
+	Next
+	For wv = Each Wave
+		FreeEntity wv\ent
+		Delete wv
+	Next
+	For pl = Each Pulse
+		FreeEntity pl\ent
+		Delete pl
+	Next
+End Function
+
+; How far b is in front of a along the track, from minus half a lap to half a lap.
+Function GapTo#(a.Craft, b.Craft)
+	Local gap# = b\d - a\d
+	If gap < -trackLength / 2 Then gap = gap + trackLength
+	If gap > trackLength / 2 Then gap = gap - trackLength
+	Return gap
+End Function
+
+; The first craft in front of c within range along the track, or Null.
+Function CraftAhead.Craft(c.Craft, range#)
+	Local o.Craft, best.Craft = Null, bestGap# = range, gap#
+	For o = Each Craft
+		If o <> c And o\respawn = 0
+			gap = GapTo(c, o)
+			If gap > 0 And gap < bestGap Then bestGap = gap : best = o
+		EndIf
+	Next
+	Return best
+End Function
+
+; Uses the weapon or ability a craft holds.
+Function FireWeapon(c.Craft)
+	If c\weapon = WEAPON_NONE Or c\respawn > 0 Then Return
+	Local loud = c = player
+	Select c\weapon
+		Case WEAPON_GATLING
+			c\burst = GATLING_ROUNDS
+		Case WEAPON_MISSILE
+			Local missile.Shot = NewShot(c, SHOT_MISSILE)
+			If c\lockTimer >= LOCK_TIME Then missile\target = c\lockTarget
+			If loud Then PlaySfx(soundMissile)
+		Case WEAPON_QUAKE
+			Local wv.Wave = New Wave
+			wv\owner = c
+			wv\d = c\d + 4
+			If wv\d >= trackLength Then wv\d = wv\d - trackLength
+			wv\ent = CopyEntity(quakeTemplate)
+			ShowEntity wv\ent
+			If loud Then PlaySfx(soundBlast)
+		Case WEAPON_BOOST
+			c\boostTimer = 150
+			c\spd = c\spd + 0.4 * classScale
+			If loud Then PlaySfx(soundPad)
+		Case WEAPON_SHIELD
+			c\shield = SHIELD_TIME
+			If loud Then PlaySfx(soundShield)
+		Case WEAPON_AUTOPILOT
+			c\autopilot = AUTOPILOT_TIME
+			If loud Then PlaySfx(soundPickup)
+		Case WEAPON_PULSE
+			Local pl.Pulse = New Pulse
+			pl\owner = c
+			CraftPoint(c, 0.4)
+			pl\x = gX : pl\y = gY : pl\z = gZ
+			pl\hits = 1 Shl c\index
+			pl\ent = CopyEntity(ringTemplate)
+			ShowEntity pl\ent
+			PositionEntity pl\ent, pl\x, pl\y, pl\z
+			Local i = SliceAt(c\d)
+			AlignToVector pl\ent, uX(i), uY(i), uZ(i), 2, 1
+			If loud Then PlaySfx(soundPulse)
+		Case WEAPON_PLASMA
+			; Starts charging; UpdateWeapons fires it when it is full. It keeps the weapon until then.
+			If c\charge = 0
+				c\charge = 1
+				If loud Then PlaySfx(soundCharge)
+			EndIf
+			Return
+	End Select
+	c\weapon = WEAPON_NONE
+	c\lockTarget = Null
+	c\lockTimer = 0
+End Function
+
+; A shot that flies straight out of the nose of a craft, through the world. Missiles turn towards their target.
+Function NewShot.Shot(c.Craft, kind)
+	Local sh.Shot = New Shot
+	sh\kind = kind
+	sh\owner = c
+	CraftHeading(c, c\ang)
+	Local dirX# = hX, dirY# = hY, dirZ# = hZ, speed#
+	CraftPoint(c, HOVER)
+	sh\x = gX + dirX * 3 : sh\y = gY + dirY * 3 : sh\z = gZ + dirZ * 3
+	sh\ent = CopyEntity(sparkTemplate)
+	ShowEntity sh\ent
+	Select kind
+		Case SHOT_BULLET
+			speed = c\spd + 4
+			sh\life = 45 : sh\damage = 2.5 : sh\radius = 1.7
+			; A little spread, so a burst covers more than a line.
+			dirX = dirX + Rnd(-0.02, 0.02) : dirZ = dirZ + Rnd(-0.02, 0.02)
+			EntityColor sh\ent, 255, 230, 120
+			ScaleSprite sh\ent, 0.45, 0.45
+		Case SHOT_MISSILE
+			speed = topSpeed * 1.35 + 1
+			sh\life = 300 : sh\damage = 20 : sh\radius = 2.2
+			EntityColor sh\ent, 255, 90, 60
+			ScaleSprite sh\ent, 0.9, 0.9
+		Default
+			; Plasma: narrow and straight, so it only hits what the nose points at when it is fired.
+			speed = c\spd + 3.5
+			sh\life = 70 : sh\damage = 100 : sh\radius = 1.2
+			EntityColor sh\ent, 120, 230, 255
+			ScaleSprite sh\ent, 1.6, 1.6
+	End Select
+	sh\vx = dirX * speed : sh\vy = dirY * speed : sh\vz = dirZ * speed
+	sh\slice = SliceAt(c\d)
+	PositionEntity sh\ent, sh\x, sh\y, sh\z
+	Return sh
+End Function
+
+; A hit from a weapon. It costs energy unless the shield is up, and with no energy left the craft breaks.
+Function DamageCraft(c.Craft, amount#, by.Craft, what$)
+	If c\respawn > 0 Then Return
+	CraftPoint(c, HOVER)
+	If c\shield > 0
+		BurstSparks(gX, gY, gZ, 120, 200, 255, 8, 0.25, 0.6)
+		Return
+	EndIf
+	BurstSparks(gX, gY, gZ, 255, 160, 80, 10, 0.3, 0.8)
+	If c = player Or by = player Then PlaySfx(soundWall)
+	; The harder the hit, the more speed it knocks off: a bullet a little, a missile a lot, plasma most of it.
+	c\spd = c\spd * (1 - Clamp(amount * 0.025, 0.04, 0.7))
+	c\energy = c\energy - amount
+	If c\energy <= 0
+		c\energy = 0
+		BreakCraft(c)
+		If by <> Null
+			If c = player Then ShowMessage("Wrecked by " + by\name + "'s " + what + "!")
+			If by = player And c <> player Then ShowMessage("You wrecked " + c\name + "!")
+		EndIf
+	EndIf
+End Function
+
+; The racing line the computer would take here: towards the inside of the corners ahead.
+Function RacingLine#(c.Craft)
+	Local s = SliceAt(c\d), k, near#
+	For k = 3 To 22
+		near = near + tTurn((s + k) Mod slices)
+	Next
+	Local limit# = TRACK_HALF - CRAFT_HALF - 0.6
+	If sliceKind(s) = KIND_OPEN Then limit = TRACK_HALF - 3.5
+	Return Clamp(-near / 45.0, -1, 1) * (limit - 2.5)
+End Function
+
+; Autopilot: for exactly 2.5 seconds the craft follows the racing line at its top speed, on the road, whatever the
+; walls, gaps or bends would do to it.
+Function DriveAutopilot(c.Craft)
+	c\autopilot = c\autopilot - 1
+	Local speed# = topSpeed * c\skill * c\topMul
+	If c\padTimer > 0
+		speed = speed + PAD_SPEED * classScale
+		c\padTimer = c\padTimer - 1
+	EndIf
+	If c\boostTimer > 0
+		speed = speed + PAD_SPEED * classScale
+		c\boostTimer = c\boostTimer - 1
+	EndIf
+	c\spd = Max(c\spd, speed)
+	Local oldD# = c\d
+	c\d = c\d + c\spd
+	If c\d >= trackLength Then c\d = c\d - trackLength
+	CheckLap(c, oldD)
+	c\lat = c\lat + (RacingLine(c) - c\lat) * 0.1
+	c\ang = 0 : c\vang = 0
+	c\steer = c\steer * 0.9
+	Local ground# = Ground(c\d, c\lat)
+	c\vy = ground - c\y
+	c\y = ground
+	c\airborne = False
+	c\energy = Min(c\maxEnergy, c\energy + 0.02)
+End Function
+
+; Everything to do with weapons, once every update: picking them up, missile locks, the computer's choices, and
+; moving the shots, waves and pulses.
+Function UpdateWeapons()
+	Local c.Craft, s, f
+	For c = Each Craft
+		If c\shield > 0 Then c\shield = c\shield - 1
+		If raceWeapons And c\weapon = WEAPON_NONE And c\burst = 0 And c\respawn = 0 And Not c\airborne
+			s = SliceAt(c\d)
+			For f = 0 To fields - 1
+				If (s - fieldSlice(f) + slices) Mod slices < 3
+					c\weapon = Rand(1, WEAPONS)
+					c\aiHold = Rand(30, 150)
+					If c = player
+						PlaySfx(soundPickup)
+						ShowMessage(weaponNames(c\weapon))
+					EndIf
+				EndIf
+			Next
+		EndIf
+		If c\burst > 0 And frame Mod 3 = 0 And c\respawn = 0
+			NewShot(c, SHOT_BULLET)
+			c\burst = c\burst - 1
+			If c = player Then PlaySfx(soundShot)
+		EndIf
+		If c\charge > 0
+			c\charge = c\charge + 1
+			If c\respawn > 0
+				c\charge = 0
+			ElseIf c\charge >= PLASMA_CHARGE
+				c\charge = 0
+				c\weapon = WEAPON_NONE
+				NewShot(c, SHOT_PLASMA)
+				If c = player Then PlaySfx(soundPlasma)
+			ElseIf frame Mod 2 = 0
+				; Light gathers at the nose while it charges.
+				CraftHeading(c, c\ang)
+				Local nx# = hX, ny# = hY, nz# = hZ
+				CraftPoint(c, HOVER)
+				BurstSparks(gX + nx * 2.6, gY + ny * 2.6, gZ + nz * 2.6, 120, 230, 255, 1, 0.04, 0.4 + c\charge * 0.03)
+			EndIf
+		EndIf
+		If c\weapon = WEAPON_MISSILE
+			Local target.Craft = CraftAhead(c, 700)
+			If target = Null Or target <> c\lockTarget
+				c\lockTarget = target
+				c\lockTimer = 0
+			Else
+				c\lockTimer = c\lockTimer + 1
+				If c\lockTimer = LOCK_TIME And c = player Then PlaySfx(soundLock)
+				If target = player And frame Mod 20 = 0 Then PlaySfx(soundWarning)
+			EndIf
+		EndIf
+		If c\computer And c\weapon <> WEAPON_NONE Then ComputerWeapon(c)
+	Next
+
+	UpdateShots()
+	UpdateWaves()
+	UpdatePulses()
+End Function
+
+Function UpdateShots()
+	Local sh.Shot, o.Craft, dx#, dy#, dz#, length#, speed#, hit, wall, along#, lat#, up#, i, n, dot#
+	For sh = Each Shot
+		If sh\target = player And frame Mod 10 = 0 Then PlaySfx(soundWarning)
+		If sh\kind = SHOT_MISSILE And sh\target <> Null
+			If sh\target\respawn = 0
+				; Turn towards the target, keeping the speed.
+				CraftPoint(sh\target, HOVER)
+				dx = gX - sh\x : dy = gY - sh\y : dz = gZ - sh\z
+				length = Sqr(dx * dx + dy * dy + dz * dz) + 0.001
+				speed = Sqr(sh\vx * sh\vx + sh\vy * sh\vy + sh\vz * sh\vz)
+				sh\vx = sh\vx + (dx / length * speed - sh\vx) * 0.15
+				sh\vy = sh\vy + (dy / length * speed - sh\vy) * 0.15
+				sh\vz = sh\vz + (dz / length * speed - sh\vz) * 0.15
+				length = Sqr(sh\vx * sh\vx + sh\vy * sh\vy + sh\vz * sh\vz) + 0.001
+				sh\vx = sh\vx / length * speed : sh\vy = sh\vy / length * speed : sh\vz = sh\vz / length * speed
+			EndIf
+		EndIf
+		sh\x = sh\x + sh\vx : sh\y = sh\y + sh\vy : sh\z = sh\z + sh\vz
+		PositionEntity sh\ent, sh\x, sh\y, sh\z
+		If sh\kind <> SHOT_BULLET And frame Mod 2 = 0
+			If sh\kind = SHOT_MISSILE Then BurstSparks(sh\x, sh\y, sh\z, 200, 190, 180, 1, 0.05, 0.6) Else BurstSparks(sh\x, sh\y, sh\z, 120, 230, 255, 1, 0.05, 0.9)
+		EndIf
+		sh\life = sh\life - 1
+		hit = False
+
+		; Which slice the shot is over: start from the last one and step along until the shot lies within it.
+		i = sh\slice
+		For n = 1 To 8
+			along = (sh\x - tX(i)) * fX(i) + (sh\y - tY(i)) * fY(i) + (sh\z - tZ(i)) * fZ(i)
+			If along > sliceLength
+				i = (i + 1) Mod slices
+			ElseIf along < 0
+				i = (i + slices - 1) Mod slices
+			Else
+				Exit
+			EndIf
+		Next
+		sh\slice = i
+		lat = (sh\x - tX(i)) * rX(i) + (sh\y - tY(i)) * rY(i) + (sh\z - tZ(i)) * rZ(i)
+		up = (sh\x - tX(i)) * uX(i) + (sh\y - tY(i)) * uY(i) + (sh\z - tZ(i)) * uZ(i)
+		; The walls: past the edge of the road, below the top of the wall, where there is a wall.
+		wall = HasWalls(i) And Abs(lat) > TRACK_HALF And Abs(lat) < TRACK_HALF + 3 And up < WALL_HEIGHT + 0.3 And up > -1
+		If wall
+			If sh\kind = SHOT_BULLET
+				; Bullets bounce: the part of the movement towards the wall turns round.
+				dot = sh\vx * rX(i) + sh\vy * rY(i) + sh\vz * rZ(i)
+				If dot * lat > 0
+					sh\vx = sh\vx - 2 * dot * rX(i) : sh\vy = sh\vy - 2 * dot * rY(i) : sh\vz = sh\vz - 2 * dot * rZ(i)
+					BurstSparks(sh\x, sh\y, sh\z, 255, 230, 140, 2, 0.15, 0.3)
+				EndIf
+			Else
+				Explode(sh)
+				hit = True
+			EndIf
+		ElseIf HasRoad(i) And Abs(lat) < TRACK_HALF And up < -0.2 And up > -2
+			; Into the road.
+			If sh\kind <> SHOT_BULLET Then Explode(sh)
+			hit = True
+		EndIf
+
+		For o = Each Craft
+			If o <> sh\owner And o\respawn = 0 And Not hit
+				CraftPoint(o, HOVER)
+				dx = gX - sh\x : dy = gY - sh\y : dz = gZ - sh\z
+				If dx * dx + dy * dy + dz * dz < sh\radius * sh\radius
+					hit = True
+					Select sh\kind
+						Case SHOT_BULLET : DamageCraft(o, sh\damage, sh\owner, "gatling gun")
+						Case SHOT_MISSILE : DamageCraft(o, sh\damage, sh\owner, "missile")
+						Default : DamageCraft(o, sh\damage, sh\owner, "plasma")
+					End Select
+					If sh\kind <> SHOT_BULLET Then Explode(sh)
+				EndIf
+			EndIf
+		Next
+		If hit Or sh\life <= 0
+			FreeEntity sh\ent
+			Delete sh
+		EndIf
+	Next
+End Function
+
+; The blast where a missile or a plasma bolt ends: plasma's is much bigger.
+Function Explode(sh.Shot)
+	If sh\kind = SHOT_PLASMA
+		BurstSparks(sh\x, sh\y, sh\z, 140, 230, 255, 40, 0.7, 2.2)
+		BurstSparks(sh\x, sh\y, sh\z, 255, 255, 255, 20, 0.4, 3.5)
+		BurstSparks(sh\x, sh\y, sh\z, 80, 140, 255, 25, 1.0, 1.4)
+	Else
+		BurstSparks(sh\x, sh\y, sh\z, 255, 140, 60, 25, 0.4, 1.2)
+		BurstSparks(sh\x, sh\y, sh\z, 255, 230, 160, 10, 0.25, 2.0)
+	EndIf
+	; Loud enough to hear when it is near the camera.
+	Local dx# = sh\x - EntityX(camera), dy# = sh\y - EntityY(camera), dz# = sh\z - EntityZ(camera)
+	If dx * dx + dy * dy + dz * dz < 120 * 120 Then PlaySfx(soundBlast)
+End Function
+
+Function UpdateWaves()
+	Local wv.Wave, o.Craft, advance# = topSpeed * 1.5, rel#, oldD#, i, done
+	For wv = Each Wave
+		oldD = wv\d
+		wv\d = wv\d + advance
+		If wv\d >= trackLength Then wv\d = wv\d - trackLength
+		wv\travelled = wv\travelled + advance
+		For o = Each Craft
+			If o <> wv\owner And o\respawn = 0 And Not o\airborne
+				rel = o\d - oldD
+				If rel < -trackLength / 2 Then rel = rel + trackLength
+				If rel >= 0 And rel < advance
+					If o\shield = 0
+						DamageCraft(o, 25, wv\owner, "quake")
+						o\airborne = True
+						o\vy = 0.4 * classScale
+					Else
+						DamageCraft(o, 0, wv\owner, "quake")
+					EndIf
+				EndIf
+			EndIf
+		Next
+		i = SliceAt(wv\d)
+		done = wv\travelled > 700 Or Not HasRoad(i) ; The wave runs out, or there is no road for it.
+		If done
+			FreeEntity wv\ent
+			Delete wv
+		Else
+			TrackPoint(wv\d, 0, 0)
+			PositionEntity wv\ent, gX, gY, gZ
+			RotateEntity wv\ent, 0, 0, 0
+			AlignToVector wv\ent, uX(i), uY(i), uZ(i), 2, 1
+			TFormVector fX(i), fY(i), fZ(i), 0, wv\ent
+			TurnEntity wv\ent, 0, ATan2(-TFormedX(), TFormedZ()), 0
+			EntityAlpha wv\ent, 1 - wv\travelled / 800
+			If frame Mod 3 = 0
+				TrackPoint(wv\d, Rnd(-TRACK_HALF, TRACK_HALF), 1)
+				BurstSparks(gX, gY, gZ, 255, 150, 60, 2, 0.2, 0.8)
+			EndIf
+		EndIf
+	Next
+End Function
+
+Function UpdatePulses()
+	Local pl.Pulse, o.Craft, dx#, dy#, dz#, side#
+	For pl = Each Pulse
+		pl\radius = pl\radius + 0.7
+		; The ring stays round the craft that set it off.
+		If pl\owner <> Null
+			If pl\owner\respawn = 0
+				CraftPoint(pl\owner, 0.4)
+				pl\x = gX : pl\y = gY : pl\z = gZ
+				PositionEntity pl\ent, pl\x, pl\y, pl\z
+			EndIf
+		EndIf
+		ScaleEntity pl\ent, pl\radius, 1, pl\radius
+		EntityAlpha pl\ent, 1 - pl\radius / PULSE_RADIUS
+		For o = Each Craft
+			If o\respawn = 0 And (pl\hits And (1 Shl o\index)) = 0
+				CraftPoint(o, HOVER)
+				dx = gX - pl\x : dy = gY - pl\y : dz = gZ - pl\z
+				If dx * dx + dy * dy + dz * dz < (pl\radius + 1.5) * (pl\radius + 1.5)
+					pl\hits = pl\hits Or (1 Shl o\index)
+					If o\shield = 0
+						side = 1.6
+						If pl\owner <> Null
+							If o\lat < pl\owner\lat Then side = -1.6
+						EndIf
+						o\lat = o\lat + side
+					EndIf
+					DamageCraft(o, 20, pl\owner, "pulse")
+				EndIf
+			EndIf
+		Next
+		If pl\radius > PULSE_RADIUS
+			FreeEntity pl\ent
+			Delete pl
+		EndIf
+	Next
+End Function
+
+; The computer waits a moment after a pickup, then uses it when it is likely to help.
+Function ComputerWeapon(c.Craft)
+	c\aiHold = c\aiHold - 1
+	If c\aiHold > 0 Or c\charge > 0 Then Return
+	Local fire = c\aiHold < -600 ; Held for ten seconds: use it anyway.
+	Local t.Craft = CraftAhead(c, 300), gap#, k, s = SliceAt(c\d), bends#
+	For k = 0 To 40
+		bends = bends + Abs(tTurn((s + k) Mod slices))
+	Next
+	Select c\weapon
+		Case WEAPON_GATLING
+			If t <> Null
+				If GapTo(c, t) < 70 And Abs(t\lat - c\lat) < 2.5 And bends < 25 Then fire = True
+			EndIf
+		Case WEAPON_PLASMA
+			If t <> Null
+				If GapTo(c, t) < 130 And GapTo(c, t) > 30 And Abs(t\lat - c\lat) < 1.5 And bends < 10 Then fire = True
+			EndIf
+		Case WEAPON_MISSILE
+			If c\lockTimer >= LOCK_TIME Then fire = True
+		Case WEAPON_QUAKE
+			If t <> Null
+				If GapTo(c, t) < 250 Then fire = True
+			EndIf
+		Case WEAPON_PULSE
+			Local o.Craft
+			For o = Each Craft
+				If o <> c And o\respawn = 0
+					If Abs(GapTo(c, o)) < 12 Then fire = True
+				EndIf
+			Next
+		Case WEAPON_BOOST
+			If bends < 12 Then fire = True
+		Case WEAPON_SHIELD
+			If c\energy < c\maxEnergy * 0.35 Then fire = True
+			Local sh.Shot
+			For sh = Each Shot
+				If sh\target = c Then fire = True
+			Next
+		Case WEAPON_AUTOPILOT
+			If bends > 50 Or c\energy < c\maxEnergy * 0.25 Then fire = True
+	End Select
+	If fire Then FireWeapon(c)
+End Function
+
+; The held weapon at the top of the screen, and a bracket round the craft a missile is locking on to.
+Function DrawWeaponHud()
+	Local text$ = "", x = SCREEN_W / 2
+	If player\weapon <> WEAPON_NONE
+		text = weaponNames(player\weapon) + "   (Ctrl or F)"
+		If player\weapon = WEAPON_MISSILE
+			If player\lockTarget = Null
+				text = "Missile: no target"
+			ElseIf player\lockTimer >= LOCK_TIME
+				text = "Missile locked on " + player\lockTarget\name + "   (Ctrl or F)"
+			Else
+				text = "Missile locking on " + player\lockTarget\name + "..."
+			EndIf
+		EndIf
+	ElseIf player\burst > 0
+		text = "Gatling gun  " + player\burst
+	ElseIf player\shield > 0
+		text = "Shield  " + (player\shield / 60 + 1) + " s"
+	ElseIf player\autopilot > 0
+		text = "Autopilot"
+	EndIf
+	If player\charge > 0 Then text = "Plasma charging " + Int(player\charge * 100 / PLASMA_CHARGE) + "%"
+	If text <> ""
+		SetFont menuFont
+		Local w = StringWidth(text) + 30
+		Color 20, 14, 40
+		Rect x - w / 2, 14, w, 30, 1
+		Color 200, 120, 255
+		Rect x - w / 2, 14, w, 30, 0
+		Color 245, 240, 255
+		Text x, 29, text, True, True
+		SetFont 0
+	EndIf
+	; Warnings when a rival's missile locks on to the player, or one is flying at them.
+	Local warn$ = "", o.Craft, sh.Shot
+	For o = Each Craft
+		If o\weapon = WEAPON_MISSILE And o\lockTarget = player And o <> player
+			If o\lockTimer >= LOCK_TIME Then warn = o\name + " has a missile lock on you!" Else warn = o\name + " is locking on..."
+		EndIf
+	Next
+	For sh = Each Shot
+		If sh\target = player Then warn = "MISSILE INCOMING!"
+	Next
+	If warn <> "" And frame Mod 30 < 22
+		SetFont menuFont
+		Color 20, 4, 8
+		Text x + 2, 64, warn, True, True
+		Color 255, 70, 60
+		Text x, 62, warn, True, True
+		SetFont 0
+	EndIf
+
+	If player\weapon = WEAPON_MISSILE And player\lockTarget <> Null
+		CraftPoint(player\lockTarget, HOVER)
+		CameraProject camera, gX, gY, gZ
+		If ProjectedZ() > 0
+			Local px = Int(ProjectedX()), py = Int(ProjectedY()), size = 22
+			If player\lockTimer >= LOCK_TIME Then Color 255, 60, 60 Else Color 255, 200, 80
+			If player\lockTimer >= LOCK_TIME Or frame Mod 20 < 14
+				Rect px - size, py - size, 8, 2, 1 : Rect px - size, py - size, 2, 8, 1
+				Rect px + size - 8, py - size, 8, 2, 1 : Rect px + size - 2, py - size, 2, 8, 1
+				Rect px - size, py + size - 2, 8, 2, 1 : Rect px - size, py + size - 8, 2, 8, 1
+				Rect px + size - 8, py + size - 2, 8, 2, 1 : Rect px + size - 2, py + size - 8, 2, 8, 1
+			EndIf
+		EndIf
+	EndIf
 End Function
 
 ; --- Sparks ----------------------------------------------------------------------------------------------------------
@@ -1540,7 +2230,7 @@ End Function
 Function UpdateEngine()
 	If engineChannel = 0 Then Return
 	Local pitch# = 0.6 + player\spd / classScale * 0.4 + (classScale - 1) * 0.2
-	If player\boosting Or player\padTimer > 0 Then pitch = pitch + 0.25
+	If player\padTimer > 0 Or player\boostTimer > 0 Then pitch = pitch + 0.25
 	If player\respawn > 0 Then pitch = 0.4
 	ChannelPitch engineChannel, Int(22050 * pitch)
 End Function
@@ -1587,6 +2277,7 @@ End Function
 Function StartDemo()
 	ClearCrafts()
 	StopEngine()
+	SetWeapons(True)
 	Local k, c.Craft
 	For k = 0 To RACERS - 1
 		NewCraft(RacerName(k), RacerR(k), RacerG(k), RacerB(k), True, 0.95 + k * 0.01, k Mod SHIPS)
@@ -1611,6 +2302,7 @@ Function UpdateDemo()
 		DriveComputer(c)
 	Next
 	BumpCrafts()
+	UpdateWeapons()
 	For c = Each Craft
 		PlaceCraft(c)
 	Next
@@ -1651,7 +2343,7 @@ End Function
 
 Function GoToSetup(newMode)
 	raceMode = newMode
-	If raceMode = MODE_RACE Then OpenMenu(STATE_SETUP, 7, SETUP_TOP) Else OpenMenu(STATE_SETUP, 5, SETUP_TOP)
+	If raceMode = MODE_RACE Then OpenMenu(STATE_SETUP, 8, SETUP_TOP) Else OpenMenu(STATE_SETUP, 5, SETUP_TOP)
 	RefreshSetupText()
 	menuSelected = menuCount - 2 ; Start.
 End Function
@@ -1663,6 +2355,7 @@ Function RefreshSetupText()
 	If raceMode = MODE_RACE
 		menuText(3) = "Laps: " + lapChoices(setupLaps)
 		menuText(4) = "Rivals: " + rivalNames(setupRivals)
+		If setupWeapons Then menuText(5) = "Weapons: on" Else menuText(5) = "Weapons: off"
 	EndIf
 	menuText(menuCount - 2) = "Start"
 	menuText(menuCount - 1) = "Back"
@@ -1699,6 +2392,7 @@ Function UpdateSetup()
 		Case 2 : setupShip = (setupShip + change + SHIPS) Mod SHIPS
 		Case 3 : setupLaps = (setupLaps + change + 3) Mod 3
 		Case 4 : setupRivals = (setupRivals + change + 3) Mod 3
+		Case 5 : setupWeapons = Not setupWeapons
 	End Select
 	PlaySfx(soundClick)
 	RefreshSetupText()
@@ -1824,6 +2518,7 @@ Function StartRace()
 	ClearCrafts()
 	StopEngine()
 	raceLaps = lapChoices(setupLaps)
+	SetWeapons(setupWeapons And raceMode = MODE_RACE)
 	Local k, count = RACERS
 	If raceMode = MODE_TRIAL Then count = 1
 	player = NewCraft(RacerName(0), RacerR(0), RacerG(0), RacerB(0), False, 1.0, setupShip)
@@ -1890,10 +2585,12 @@ Function UpdateRace()
 			Local air# = 0
 			If KeyDown(KEY_Q) Then air = air + 1
 			If KeyDown(KEY_E) Then air = air - 1
-			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, KeyDown(KEY_SPACE), air)
+			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, air)
+			If KeyHit(KEY_LCTRL) Or KeyHit(KEY_RCTRL) Or KeyHit(KEY_F) Then FireWeapon(c)
 		EndIf
 	Next
 	BumpCrafts()
+	UpdateWeapons()
 	For c = Each Craft
 		PlaceCraft(c)
 	Next
@@ -1927,6 +2624,7 @@ Function UpdateResults()
 		DriveComputer(c)
 	Next
 	BumpCrafts()
+	UpdateWeapons()
 	For c = Each Craft
 		PlaceCraft(c)
 	Next
@@ -2037,6 +2735,7 @@ Function DrawHud()
 	ShadowText(x + barW + 12, y - 1, "Energy", False)
 
 	DrawMinimap()
+	If raceWeapons Then DrawWeaponHud()
 
 	; Messages in the middle.
 	If messageTimer > 0
@@ -2048,7 +2747,7 @@ Function DrawHud()
 		Color 255, 80, 80
 		Text SCREEN_W / 2, 170, "Wrong way", True, True
 	EndIf
-	If player\padTimer > 0 Or player\boosting
+	If player\padTimer > 0 Or player\boostTimer > 0
 		SetFont smallFont
 		ShadowText(20, SCREEN_H - 108, "Boost", False)
 	EndIf
@@ -2402,6 +3101,24 @@ Function MakeTextures()
 	UnlockBuffer chargeBuffer
 	UnlockBuffer padBuffer
 
+	; The weapon fields: diamonds whose colour runs through the rainbow.
+	fieldTex = CreateTexture(64, 64)
+	buffer = TextureBuffer(fieldTex)
+	LockBuffer buffer
+	Local hue#
+	For y = 0 To 63
+		For x = 0 To 63
+			If Abs(x - 32) + Abs(y - 32) < 26 And Abs(x - 32) + Abs(y - 32) > 16
+				hue = x * 360.0 / 64
+				r = Int(128 + 127 * Cos(hue)) : g = Int(128 + 127 * Cos(hue - 120)) : b = Int(128 + 127 * Cos(hue + 120))
+				WritePixelFast x, y, $FF000000 Or (r Shl 16) Or (g Shl 8) Or b, buffer
+			Else
+				WritePixelFast x, y, $FF140A20, buffer
+			EndIf
+		Next
+	Next
+	UnlockBuffer buffer
+
 	; The start line.
 	checkerTex = CreateTexture(64, 16)
 	buffer = TextureBuffer(checkerTex)
@@ -2565,7 +3282,8 @@ Data 0, 2, 3, 1
 ; z). Then the boost pads: how many, and for each the part of the lap and the distance right of the middle. Then the
 ; charging strip: where it starts and ends as parts of the lap, and its distance right of the middle. Then the jumps:
 ; how many, and for each where its ramp starts as a part of the lap, how high the ramp lifts, and how many slices the
-; gap after it is long. Last the parts without walls: how many, and where each starts and ends.
+; gap after it is long. Then the parts without walls: how many, and where each starts and ends. Last the weapon
+; fields: how many, and where each one is as a part of the lap.
 .TrackHarbour
 Data "Harbour Loop", 12, 70, 200, 255
 Data 0, 24, -390,  270, 24, -375,  435, 26, -240,  450, 28, 0,  375, 30, 210,  180, 32, 300
@@ -2577,6 +3295,8 @@ Data 1
 Data 0.235, 3.5, 6
 Data 1
 Data 0.72, 0.80
+Data 2
+Data 0.10, 0.60
 
 .TrackCanyon
 Data "Canyon Climb", 12, 255, 150, 60
@@ -2589,6 +3309,8 @@ Data 1
 Data 0.785, 3.5, 6
 Data 1
 Data 0.42, 0.48
+Data 2
+Data 0.20, 0.66
 
 .TrackKnot
 Data "Neon Knot", 12, 255, 80, 210
@@ -2601,6 +3323,8 @@ Data 1
 Data 0.10, 3.5, 6
 Data 1
 Data 0.50, 0.57
+Data 2
+Data 0.36, 0.64
 
 .Ships
 ; Name, then acceleration, top speed, energy and brakes. Each adds up to 20.
@@ -2615,14 +3339,14 @@ Data "and Right (or A and D) steer. Down or S works both air brakes: it slows yo
 Data "and turns tighter. Q and E are the left and the right air brake: each turns"
 Data "you hard to its side and lets the craft slide, for the sharpest corners."
 Data ""
-Data "Yellow arrows are boost pads. Space boosts too, but uses energy. Walls cost"
-Data "energy, and with none left a wall breaks your craft for two seconds. Drive"
-Data "over the green strip before the start line to charge up again."
+Data "Yellow arrows are boost pads. Walls and weapon hits cost energy, and with"
+Data "none left your craft breaks for two seconds. The green strip before the"
+Data "start line charges you up again."
 Data ""
-Data "Red and white arches warn of a jump: keep your speed to clear the gap. Where"
-Data "red and white stripes line the road there are no walls, so mind the edges."
-Data "Fall off and you are back after a second, but the others don't wait."
+Data "Red and white arches warn of a jump: keep your speed to clear the gap. Red"
+Data "and white stripes mean no walls. Fall off and you are back after a second."
 Data ""
-Data "Pick a class from Spark to Pulsar for more speed, and a craft whose 20 points"
-Data "suit you. Time trials keep the best lap for every track and class."
-Data "Escape or P pauses the race."
+Data "Rainbow fields give a weapon or ability; Ctrl or F uses it. Gatling, plasma"
+Data "and missiles fire ahead (a missile locks on after 2.5 s), the quake rolls"
+Data "along the track, the pulse rings out around you. Boost, shield and autopilot"
+Data "help you. Pick a class and a craft whose 20 points suit you. Escape pauses."
