@@ -235,11 +235,12 @@ namespace bb {
 	}
 
 	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
-	// only reached through the functions below (docs/Vertex-Format.md): the normal is octahedral (see normal_encode).
+	// only reached through the functions below (docs/Vertex-Format.md): the normal is octahedral (see normal_encode), the color 8 bits
+	// per channel like the D3DCOLOR of the original.
 	struct vertex3d {
 		float    x, y, z;
 		int16_t  stored_normal[2];
-		uint16_t stored_color[4]; // 0 to 1 as half floats.
+		uint8_t  stored_color[4]; // Red, green, blue, alpha.
 		float    u, v;
 		float    u2, v2;          // The second set of texture coordinates, for textures that ask for it.
 
@@ -247,23 +248,35 @@ namespace bb {
 		void set_normal(const float* n) { set_normal(n[0], n[1], n[2]); }
 		void get_normal(float* out) const { normal_decode(stored_normal, out); }
 
-		/** Red, green, blue and alpha from 0 to 1. */
+		/** Red, green, blue and alpha from 0 to 1, rounded to the nearest of 256 steps. */
 		void set_color(float r, float g, float b, float a)
 		{
-			stored_color[0] = float_to_half(r);
-			stored_color[1] = float_to_half(g);
-			stored_color[2] = float_to_half(b);
-			stored_color[3] = float_to_half(a);
+			const float in[4] = { r, g, b, a };
+			for (int k = 0; k < 4; k++) {
+				float value     = in[k] < 0 ? 0 : (in[k] > 1 ? 1 : in[k]);
+				stored_color[k] = uint8_t(value * 255.0f + 0.5f);
+			}
 		}
-		void set_white() { stored_color[0] = stored_color[1] = stored_color[2] = stored_color[3] = half_one; }
+		/** Red, green, blue and alpha from 0 to 255, cut to whole numbers as the original's VertexColor does. */
+		void set_color_255(float r, float g, float b, float a)
+		{
+			const float in[4] = { r, g, b, a };
+			for (int k = 0; k < 4; k++) {
+				float value     = in[k] < 0 ? 0 : (in[k] > 255 ? 255 : in[k]);
+				stored_color[k] = uint8_t(value);
+			}
+		}
+		void set_white() { stored_color[0] = stored_color[1] = stored_color[2] = stored_color[3] = 255; }
 		void get_color(float* out) const
 		{
 			for (int k = 0; k < 4; k++) {
-				out[k] = half_to_float(stored_color[k]);
+				out[k] = stored_color[k] * (1.0f / 255.0f);
 			}
 		}
 		/** One of red (0), green (1), blue (2) and alpha (3), from 0 to 1. */
-		float color(int channel) const { return half_to_float(stored_color[channel]); }
+		float color(int channel) const { return stored_color[channel] * (1.0f / 255.0f); }
+		/** The same from 0 to 255. */
+		int color_255(int channel) const { return stored_color[channel]; }
 
 		/** A white vertex whose second set of texture coordinates is the first, which is what AddVertex makes. */
 		static vertex3d make(float x, float y, float z, float nx, float ny, float nz, float u, float v)

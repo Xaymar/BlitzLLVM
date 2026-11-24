@@ -72,11 +72,12 @@ Check "VertexColor alpha", VertexAlpha(surface, v0), 0.5, 0.01
 Check "VertexColor is for one vertex", VertexRed(surface, v1), 255
 VertexColor surface, v1, 1, 2, 3
 Check "VertexColor without alpha", VertexAlpha(surface, v1), 1
+; Colors are kept in 8 bits per channel and cut off like the original: the whole part of red, green and blue, and of alpha times 255.
 VertexColor surface, v1, 12.25, 100.5, 200.75, 0.123
-Check "VertexColor keeps fractions of red", VertexRed(surface, v1), 12.25, 0.02
-Check "VertexColor keeps fractions of green", VertexGreen(surface, v1), 100.5, 0.07
-Check "VertexColor keeps fractions of blue", VertexBlue(surface, v1), 200.75, 0.15
-Check "VertexColor keeps fractions of alpha", VertexAlpha(surface, v1), 0.123, 0.0005
+Check "VertexColor cuts off the fraction of red", VertexRed(surface, v1), 12
+Check "VertexColor cuts off the fraction of green", VertexGreen(surface, v1), 100
+Check "VertexColor cuts off the fraction of blue", VertexBlue(surface, v1), 200
+Check "VertexColor keeps alpha in 255 steps", VertexAlpha(surface, v1), 31.0 / 255.0, 0.0001
 VertexColor surface, v1, 300, -5, 0.001
 Check "VertexColor clamps above 255", VertexRed(surface, v1), 255
 Check "VertexColor clamps below 0", VertexGreen(surface, v1), 0
@@ -85,9 +86,9 @@ Check "VertexColor keeps single steps of red", VertexRed(surface, v1), 1, 0.01
 Check "VertexColor keeps single steps of green", VertexGreen(surface, v1), 128, 0.1
 Check "VertexColor keeps single steps of blue", VertexBlue(surface, v1), 254, 0.15
 VertexColor surface, v1, 128, 128.5, 129
-Check "VertexColor tells a half step apart", VertexGreen(surface, v1) - VertexRed(surface, v1) > 0.1, 1
+Check "VertexColor cuts off a half step", VertexGreen(surface, v1), 128
 VertexColor surface, v1, 300, -5, 0.001
-Check "VertexColor keeps tiny values", VertexBlue(surface, v1), 0.001, 0.0001
+Check "VertexColor cuts off tiny values", VertexBlue(surface, v1), 0
 
 ; Texture coordinates can be changed.
 VertexTexCoords surface, v0, 0.25, 0.75

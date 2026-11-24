@@ -715,7 +715,7 @@ def vertex_shader_3d(clip_planes=True):
     layout(location = 0) in vec3 inPosition;
     layout(location = 1) in ivec2 inNormal;  // Octahedral (bb::normal_encode in scene.hpp), unfolded by unfold_normal below.
     layout(location = 2) in vec2 inUV;
-    layout(location = 3) in vec4 inColor;
+    layout(location = 3) in vec4 inColor;   // 8 bits per channel.
     layout(location = 4) in vec2 inUV2;
     layout(set = 1, binding = 0) uniform Scene {
         mat4 viewProjection;

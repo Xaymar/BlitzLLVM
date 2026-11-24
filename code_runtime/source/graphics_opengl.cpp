@@ -2200,7 +2200,7 @@ namespace bb::rhi::opengl {
 		gl::VertexAttribIFormat(1, 2, GL_SHORT, GLuint(offsetof(bb::vertex3d, stored_normal)));
 		gl::VertexAttribBinding(1, 0);
 		attribute(2, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u));
-		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, stored_color));
+		attribute(3, 4, GL_UNSIGNED_BYTE, true, offsetof(bb::vertex3d, stored_color));
 		attribute(4, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u2));
 		gl::BindVertexArray(glc.vaos[0]);
 
