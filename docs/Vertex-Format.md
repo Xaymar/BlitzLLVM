@@ -50,16 +50,22 @@ Main stream, 32 bytes, two vertices to a 64-byte cache line:
 The order is Xaymar's (24 Nov): position and normal fill the first 16 bytes, color and the first set the second 16, so each half is
 one SSE/NEON register and the whole vertex one AVX register.
 
-Extra stream, 16 bytes, only allocated when needed:
+Extra stream, 8 bytes, only allocated when needed (decided by Xaymar, 24 Nov: uv1 moves to its own block):
 
 | Bytes | Field          | Kept as                                                       |
 |------:|----------------|---------------------------------------------------------------|
 | 8     | u2, v2         | 2 floats                                                      |
-| 8     | w, w2          | 2 floats (the third coordinate of each set, for 3D textures)  |
 
 So an ordinary surface goes from 48 to 32 bytes per vertex (a third less to copy and to upload), and a lightmapped surface goes from 48
-to 48 (32 + 16) but gains a real w for both sets, which `custom-textures/design.md` needs for 3D textures (`VertexW` as the third
-texture coordinate).
+to 40 (32 + 8, in two arrays whose strides both divide 64).
+
+w is not part of this change. Texture coordinates will later be extended to u, v, w for 3D textures (`custom-textures/design.md`),
+and the layout gets looked at again then; Xaymar expects the vertex u, v, w can drop to half floats at that point. One thing to check
+then: half floats have 10 mantissa bits, so a coordinate between 32 and 64 only moves in steps of 1/32, and tiled surfaces (terrain,
+planes, scaled textures) often use coordinates that large. Terrain tiled 0 to 100 would step at 1/32 of a repeat
+near its far edge. So half u, v needs either a float fallback for surfaces whose coordinates go beyond a limit, or a per-surface
+offset (coordinates stored relative to the surface's own range, the offset added back in the shader). Half may fit w (a slice or
+layer position) better than u and v.
 
 Both streams stay plain arrays of the same bytes on the CPU and the GPU, so uploads stay `memcpy`.
 
@@ -72,7 +78,7 @@ separate array that only some surfaces have.
 | | One 64-byte vertex | Split, 32 + 16 when used |
 |---|---|---|
 | Bytes per vertex, surface without a second set (most meshes, the forest grass) | 64 (today 48) | 32 |
-| Bytes per vertex, lightmapped / two-set surface | 64 | 48 |
+| Bytes per vertex, lightmapped / two-set surface | 64 | 40 |
 | Buffers per surface, bindings per draw | 1 | 1 or 2 |
 | Cache lines per vertex | 1 | half a line (+ a quarter) |
 | Room to grow | 24 spare bytes (w, w2, a tangent quaternion, ...) | extra stream can grow to 32 |
@@ -133,7 +139,7 @@ of the CPU (AVX on x86-64, NEON on ARM64).
   32-byte alignment perform well there, so 64 is enough and nothing needs 128 for Apple.
 - A single 40-byte vertex (choice 2 below without the split) would cross lines and would have to be padded to 64 bytes, which is
   more than today. So the split is no longer just the smaller option, it is the one that keeps the rule without padding. If one
-  buffer is preferred anyway, it becomes a 64-byte vertex (main 32 + uv2, w, w2 16 + 16 spare), twice the size of the split main stream.
+  buffer is preferred anyway, it becomes a 64-byte vertex (main 32 + uv2 8 + 24 spare), twice the size of the split main stream.
 
 Alignment: one constant, `bb::vertex_alignment = 64`, for every vertex array on every platform. 64 covers AVX and AVX2 (32), AVX-512
 (64), NEON (16) and the cache line, so one value meets all of them and there is nothing per platform to get wrong. Where that has to
@@ -153,7 +159,7 @@ pipeline stalls. On AMD before Zen 2 it is up to four times (through the slower 
 thirteen times, and aligned SIMD instructions (`movaps`, `vmovdqa` and friends) fault outright on an unaligned address. So there are no
 exceptions: every vertex allocation starts at `bb::vertex_alignment`, every sub-range of one (a place in an upload ring or staging
 buffer, a copy for clipped long triangles, a range handed to a worker thread) starts at a multiple of 64 bytes, and every vertex stride
-is 16, 32 or 64 bytes, never 40 or 48, and a `static_assert` on `sizeof(vertex3d)` and
+is 8, 16, 32 or 64 bytes (a size that divides 64), never 40 or 48, and a `static_assert` on `sizeof(vertex3d)` and
 `sizeof(vertex3d_extra)` dividing 64 keeps later changes from breaking the rule.
 
 ### What reads and writes vertices
@@ -180,7 +186,7 @@ Each backend binds two vertex buffers for `vertex_layout::scene3d`:
 | 1 normal         | R16G16_SNORM                 | R16G16_SNORM                   | 2 x GL_SHORT, normalized            |
 | 2 uv             | R32G32_SFLOAT                | R32G32_FLOAT                   | 2 x GL_FLOAT                        |
 | 3 color          | R16G16B16A16_SFLOAT          | R16G16B16A16_FLOAT             | 4 x GL_HALF_FLOAT                   |
-| 4 uv2, w, w2     | R32G32B32A32_SFLOAT, binding 1 | R32G32B32A32_FLOAT, slot 1   | 4 x GL_FLOAT, binding 1             |
+| 4 uv2            | R32G32_SFLOAT, binding 1     | R32G32_FLOAT, slot 1           | 2 x GL_FLOAT, binding 1             |
 
 All of these are formats every implementation has to support as vertex input (to be checked against the Vulkan mandatory format table
 when implementing). A surface without an extra stream binds a small shared buffer with stride 0 in binding 1, which all three APIs allow,
@@ -195,13 +201,11 @@ same source as they do today.
 
 1. **Normal encoding.** oct32P (recommended: 4 bytes, worst error 0.0025°, a few shader instructions), or oct24P (3 bytes plus a
    padding byte, worst 0.039°, needs integer unpacking in the shader), or plain int8 x 4 (no unfolding, worst 0.39°).
-2. **Second set as an extra stream.** Split it out (recommended: 32 bytes for most surfaces, and both streams fit the cache-line rule
-   without padding), or one buffer, which the cache-line rule makes a 64-byte vertex.
-3. **Vertex colors.** Keep half floats (recommended: they were chosen so colors are not rounded to steps of 1/255, and 32 bytes is a
-   good size), or go to 8-bit RGBA like the original (4 bytes saved, 28-byte vertex, brings the 1/255 steps back).
-4. **w in this change or later.** Add w and w2 to the extra stream now, since the stream is being made anyway (recommended), or leave
-   `VertexW` returning 1 until 3D textures land. What `VertexW` should return for a vertex that never had a w set needs a check on the
-   original 1.118 before implementing (not checked yet).
+2. ~~**Second set as an extra stream.**~~ Decided (Xaymar, 24 Nov): uv1 moves to its own block.
+3. **Vertex colors.** Keep half floats (recommended: they were chosen so colors are not rounded to steps of 1/255). 8-bit RGBA would
+   make a 28-byte vertex, which breaks the stride rule and would be padded back to 32, so it saves nothing now.
+4. ~~**w in this change or later.**~~ Decided (Xaymar, 24 Nov): later, together with u, v, w, likely as half floats. What `VertexW`
+   should return for a vertex that never had a w set still needs a check on the original 1.118 then.
 
 ## Plan
 
@@ -213,7 +217,7 @@ One PR per step, each with its own commits:
    long-triangle clipper. Pixel tests need checking for small lighting differences; known-good images may need regenerating.
 3. Extra stream: `vertex3d_extra`, binding 1 in the three backends, the stride-0 default buffer, set selection in the renderer,
    loaders writing the extra stream only when the second set differs from the first.
-4. (If chosen) w and w2: `AddVertex`/`VertexTexCoords` keep w, `VertexW` returns it, the shader passes it on for 3D textures.
+Later, with 3D textures: u, v, w (likely half, see above), `AddVertex`/`VertexTexCoords` keep w, `VertexW` returns it.
 
 ## Benchmarks to run
 
