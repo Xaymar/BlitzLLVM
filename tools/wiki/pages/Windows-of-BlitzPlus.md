@@ -43,7 +43,7 @@ The buffer of a canvas has 32 bits of color (RGBA8) whatever depth `Graphics` ha
 
 `RequestFile`, `RequestDir`, `Notify`, `Confirm` and `Proceed` are the dialogs and message boxes of the operating system, in front of the active window of the program.
 
-`RequestColor` and `RequestFont` are simpler. The runtime draws them inside the active window (the window of `Graphics` where no window of the program is active). They answer to the mouse in that window and the keys from anywhere. See [RequestColor](RequestColor) and [RequestFont](RequestFont).
+`RequestColor` and `RequestFont` are simpler. The runtime draws them inside the active window of the program, or in a window of their own in the middle of the desktop where none is active. They answer to the mouse in that window and the keys from anywhere. See [RequestColor](RequestColor) and [RequestFont](RequestFont).
 
 ## Displays with a high density of pixels
 
