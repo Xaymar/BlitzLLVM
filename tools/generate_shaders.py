@@ -24,7 +24,7 @@ OP = dict(
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, DPdx=207, DPdy=208,
-    IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
+    IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190, IEqual=170,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
@@ -331,7 +331,7 @@ class Builder:
 
 
 # GLSL.std.450 instruction numbers
-GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
+GLSL_FABS, GLSL_FSIGN, GLSL_POW, GLSL_STEP = 4, 6, 26, 48
 GLSL_FLOOR, GLSL_FRACT = 8, 10
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 GLSL_SQRT, GLSL_FMIN = 31, 37
@@ -683,6 +683,29 @@ def cube_sheet_uv(b, uv, look):
     return b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
 
 
+def unfold_normal(b, in_normal):
+    """
+    The normal of a vertex, which is kept octahedral in two 16-bit integers (bb::normal_encode in scene.hpp): a first number of
+    -32768 is no normal (0, 0, 0). The length is not 1 yet; the shader makes it 1 after turning it.
+
+        vec2 e = vec2(inNormal) / 32767.0;
+        float z = 1.0 - abs(e.x) - abs(e.y), t = max(-z, 0.0);
+        vec3 n = vec3(e.x - sign(e.x) * t, e.y - sign(e.y) * t, z) * (inNormal.x == -32768 ? 0.0 : 1.0);
+    """
+    f, i32 = b.float(), b.int()
+    code = b.load(b.new_type(("ivec", 2), "TypeVector", i32, 2), in_normal)
+    ix, iy = b.emit("CompositeExtract", i32, code, 0), b.emit("CompositeExtract", i32, code, 1)
+    step = b.const_float(1.0 / 32767.0)
+    ex, ey = b.fmul(f, b.emit("ConvertSToF", f, ix), step), b.fmul(f, b.emit("ConvertSToF", f, iy), step)
+    z = b.fsub(f, b.fsub(f, b.const_float(1.0), b.ext(f, GLSL_FABS, ex)), b.ext(f, GLSL_FABS, ey))
+    t = b.ext(f, GLSL_FMAX, b.emit("FNegate", f, z), b.const_float(0.0))
+    x = b.fsub(f, ex, b.fmul(f, b.ext(f, GLSL_FSIGN, ex), t))
+    y = b.fsub(f, ey, b.fmul(f, b.ext(f, GLSL_FSIGN, ey), t))
+    none = b.emit("IEqual", b.new_type("bool", "TypeBool"), ix, b.const_int(-32768))
+    keep = b.emit("Select", f, none, b.const_float(0.0), b.const_float(1.0))
+    return b.scale(3, b.construct(3, x, y, z), keep)
+
+
 def vertex_shader_3d(clip_planes=True):
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
@@ -690,7 +713,7 @@ def vertex_shader_3d(clip_planes=True):
 
     #version 450
     layout(location = 0) in vec3 inPosition;
-    layout(location = 1) in vec3 inNormal;
+    layout(location = 1) in ivec2 inNormal;  // Octahedral (bb::normal_encode in scene.hpp), unfolded by unfold_normal below.
     layout(location = 2) in vec2 inUV;
     layout(location = 3) in vec4 inColor;
     layout(location = 4) in vec2 inUV2;
@@ -753,7 +776,7 @@ def vertex_shader_3d(clip_planes=True):
 
     # Inputs and outputs
     in_pos = b.variable("Input", v3, [(DECORATION["Location"], 0)])
-    in_normal = b.variable("Input", v3, [(DECORATION["Location"], 1)])
+    in_normal = b.variable("Input", b.new_type(("ivec", 2), "TypeVector", b.int(), 2), [(DECORATION["Location"], 1)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 2)])
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 3)])
     in_uv2 = b.variable("Input", v2, [(DECORATION["Location"], 4)])
@@ -794,7 +817,7 @@ def vertex_shader_3d(clip_planes=True):
     def push_member(index):
         return entity_member(b, entities, instance, index)
 
-    pos, normal = b.load(v3, in_pos), b.load(v3, in_normal)
+    pos, normal = b.load(v3, in_pos), unfold_normal(b, in_normal)
     color = b.load(v4, in_color)
     row0, row1, row2, material, params, uvparams = (push_member(i) for i in range(6))
     extra = push_member(7)

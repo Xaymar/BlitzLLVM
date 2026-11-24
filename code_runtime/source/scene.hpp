@@ -14,6 +14,7 @@
 #include "memory.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
 #endif
@@ -168,28 +169,83 @@ namespace bb {
 		return result;
 	}
 
+	// Normals are kept in 32 bits, octahedral (Cigolle et al. 2014, "A Survey of Efficient Representations for Independent Unit Vectors"):
+	// the direction is put on an octahedron, which is unfolded into a square from -1 to 1, kept as two 16-bit signed numbers. The worst
+	// error is 0.0025 degrees with the precise encoding below. A first number of -32768, which the encoding never makes, is a normal of
+	// 0, 0, 0 (what AddVertex gives), which lights only by the ambient light as it did in Direct3D 7.
+	constexpr int16_t normal_none = -32768;
+
+	inline void normal_unfold(float ex, float ey, float* out)
+	{
+		float z = 1.0f - fabsf(ex) - fabsf(ey);
+		float t = z < 0 ? -z : 0.0f;
+		out[0]  = ex >= 0 ? ex - t : ex + t;
+		out[1]  = ey >= 0 ? ey - t : ey + t;
+		out[2]  = z;
+		float length = sqrtf(out[0] * out[0] + out[1] * out[1] + out[2] * out[2]);
+		out[0] /= length;
+		out[1] /= length;
+		out[2] /= length;
+	}
+
+	inline void normal_decode(const int16_t* code, float* out)
+	{
+		if (code[0] == normal_none) {
+			out[0] = out[1] = out[2] = 0;
+			return;
+		}
+		normal_unfold(code[0] * (1.0f / 32767.0f), code[1] * (1.0f / 32767.0f), out);
+	}
+
+	inline void normal_encode(float x, float y, float z, int16_t* code)
+	{
+		float l1 = fabsf(x) + fabsf(y) + fabsf(z);
+		if (!(l1 > 1e-30f) || !(l1 < 3.4e38f)) { // Zero, or not a number.
+			code[0] = normal_none;
+			code[1] = 0;
+			return;
+		}
+		float px = x / l1, py = y / l1;
+		if (z < 0) {
+			float fx = (1.0f - fabsf(py)) * (px >= 0 ? 1.0f : -1.0f);
+			float fy = (1.0f - fabsf(px)) * (py >= 0 ? 1.0f : -1.0f);
+			px = fx;
+			py = fy;
+		}
+		// Precise: of the four ways to round the two numbers (down or up each), the one that comes back nearest to the direction.
+		float length = sqrtf(x * x + y * y + z * z), n[3] = { x / length, y / length, z / length };
+		float bx = floorf((px < -1 ? -1 : (px > 1 ? 1 : px)) * 32767.0f), by = floorf((py < -1 ? -1 : (py > 1 ? 1 : py)) * 32767.0f);
+		float best = -2;
+		for (int i = 0; i <= 1; i++) {
+			for (int j = 0; j <= 1; j++) {
+				float cx = bx + float(i), cy = by + float(j);
+				if (cx > 32767.0f || cy > 32767.0f) {
+					continue;
+				}
+				float back[3];
+				normal_unfold(cx * (1.0f / 32767.0f), cy * (1.0f / 32767.0f), back);
+				float cosine = back[0] * n[0] + back[1] * n[1] + back[2] * n[2];
+				if (cosine > best) {
+					best    = cosine;
+					code[0] = int16_t(cx);
+					code[1] = int16_t(cy);
+				}
+			}
+		}
+	}
+
 	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
-	// only reached through the functions below, so how they are stored can change without touching what uses them (docs/Vertex-Format.md).
+	// only reached through the functions below (docs/Vertex-Format.md): the normal is octahedral (see normal_encode).
 	struct vertex3d {
 		float    x, y, z;
-		float    stored_normal[3];
-		float    u, v;
+		int16_t  stored_normal[2];
 		uint16_t stored_color[4]; // 0 to 1 as half floats.
-		float    u2, v2; // The second set of texture coordinates, for textures that ask for it.
+		float    u, v;
+		float    u2, v2;          // The second set of texture coordinates, for textures that ask for it.
 
-		void set_normal(float nx, float ny, float nz)
-		{
-			stored_normal[0] = nx;
-			stored_normal[1] = ny;
-			stored_normal[2] = nz;
-		}
+		void set_normal(float nx, float ny, float nz) { normal_encode(nx, ny, nz, stored_normal); }
 		void set_normal(const float* n) { set_normal(n[0], n[1], n[2]); }
-		void get_normal(float* out) const
-		{
-			out[0] = stored_normal[0];
-			out[1] = stored_normal[1];
-			out[2] = stored_normal[2];
-		}
+		void get_normal(float* out) const { normal_decode(stored_normal, out); }
 
 		/** Red, green, blue and alpha from 0 to 1. */
 		void set_color(float r, float g, float b, float a)

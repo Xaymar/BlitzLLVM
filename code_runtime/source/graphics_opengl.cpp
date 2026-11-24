@@ -56,7 +56,7 @@
 	X(ShaderSource) X(CompileShader) X(GetShaderiv) X(GetShaderInfoLog) X(DeleteShader) X(CreateProgram) X(AttachShader) X(LinkProgram) X(GetProgramiv) \
 	X(GetProgramInfoLog) X(DeleteProgram) X(UseProgram) X(GetUniformLocation) X(Uniform1i) X(GetActiveUniform) X(GetProgramInterfaceiv) \
 	X(GetProgramResourceName) X(UniformBlockBinding) X(ShaderStorageBlockBinding) X(GetActiveUniformBlockName) X(GenVertexArrays) X(DeleteVertexArrays) \
-	X(BindVertexArray) X(EnableVertexAttribArray) X(VertexAttribFormat) X(VertexAttribBinding) X(BindVertexBuffer) X(DrawArraysInstancedBaseInstance) \
+	X(BindVertexArray) X(EnableVertexAttribArray) X(VertexAttribFormat) X(VertexAttribIFormat) X(VertexAttribBinding) X(BindVertexBuffer) X(DrawArraysInstancedBaseInstance) \
 	X(DrawElementsInstancedBaseVertexBaseInstance) X(MultiDrawElementsIndirect) X(DispatchCompute) X(MemoryBarrier) X(GenQueries) X(DeleteQueries) \
 	X(QueryCounter) X(GetQueryObjectui64v) X(GetQueryObjectiv) X(FenceSync) X(ClientWaitSync) X(DeleteSync) X(DebugMessageCallback) X(ProvokingVertex) \
 	X(StencilFuncSeparate) X(StencilOpSeparate) X(StencilMask)
@@ -2196,7 +2196,9 @@ namespace bb::rhi::opengl {
 		attribute(2, 4, GL_UNSIGNED_BYTE, true, offsetof(vertex, r));
 		gl::BindVertexArray(glc.vaos[int(vertex_layout::scene3d)]);
 		attribute(0, 3, GL_FLOAT, false, offsetof(bb::vertex3d, x));
-		attribute(1, 3, GL_FLOAT, false, offsetof(bb::vertex3d, stored_normal));
+		gl::EnableVertexAttribArray(1); // Octahedral, see bb::normal_encode: two integers, which the shader unfolds.
+		gl::VertexAttribIFormat(1, 2, GL_SHORT, GLuint(offsetof(bb::vertex3d, stored_normal)));
+		gl::VertexAttribBinding(1, 0);
 		attribute(2, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u));
 		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, stored_color));
 		attribute(4, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u2));
