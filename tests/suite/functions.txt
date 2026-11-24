@@ -166,6 +166,8 @@ entitylighting	blitz3d	done	EntityLighting%entity%mode
 entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
 entityname	blitz3d	done	$EntityName%entity
 entityorder	blitz3d	done	EntityOrder%entity%order
+setentitystencil	blitz3d	done	SetEntityStencil%entity%compare%reference=0%read_mask=255%write_mask=255%fail=0%depth_fail=0%pass=0
+setentitystencilback	blitz3d	done	SetEntityStencilBack%entity%compare%fail=0%depth_fail=0%pass=0
 entitystatic	blitz3d	done	EntityStatic%entity%is_static
 entityparent	blitz3d	done	EntityParent%entity%parent%global=1
 entitypick	blitz3d	done	%EntityPick%entity#range
