@@ -436,6 +436,14 @@ void bb_gui_window_min_size(int32_t handle, int32_t w, int32_t h)
 	}
 }
 
+// The window system keeps the window from getting bigger, also while the user drags its edge. 0 is no limit.
+void bb_gui_window_max_size(int32_t handle, int32_t w, int32_t h)
+{
+	if (surface_state* s = extra_surface(handle)) {
+		SDL_SetWindowMaximumSize(s->window, w > 0 ? in_units(w, s->units) : 0, h > 0 ? in_units(h, s->units) : 0);
+	}
+}
+
 // How many pixels a unit of the program is in a window of the GUI, which its gadgets are drawn with.
 float bb_gui_window_scale(int32_t handle)
 {
