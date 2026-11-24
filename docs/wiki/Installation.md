@@ -118,6 +118,8 @@ Float math is controlled with `--fast-math`:
 
 Arguments and operands are evaluated in the order of the original Blitz3D, which is not left to right (see [Language Quirks](Language-Quirks)). `--sane-evaluation-order` evaluates them from left to right.
 
+Programs written for BlitzPlus need `--blitzplus`: BlitzPlus kept images and fonts when `Graphics` or `EndGraphics` ran, while Blitz3D freed them, see [Graphics](Graphics).
+
 The default targets a generic CPU of the architecture. Add `--llvm-flag -march=native` for a program that only runs on the machine that built it.
 
 ## Console window on Windows
