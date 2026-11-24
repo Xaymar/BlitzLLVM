@@ -11,6 +11,7 @@ floor = CreatePhysicsBody(1, 1, 10, 0.5, 10)
 PositionEntity floor, 0, -0.5, 0
 wall = CreatePhysicsBody(1, 1, 0.5, 2, 5)
 PositionEntity wall, 4, 2, 0
+PhysicsUpdate 0 ; Casts see the bodies as the last update left them.
 
 ; A sphere of radius 0.5 dropped from y=3 stops at the floor after 2.5
 Check "sphere hits the floor", PhysicsSphereCast(0, 3, 0, 0, -7, 0, 0.5), floor, 0
