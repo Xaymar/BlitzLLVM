@@ -80,6 +80,7 @@ BB_RHI_CALL(void, create_window_presenter, (window_presenter& presenter, uint32_
 BB_RHI_CALL(void, destroy_window_presenter, (window_presenter& presenter), (presenter))
 BB_RHI_CALL(wait_status, wait_timeline, (const window_presenter& presenter, uint64_t value, uint64_t timeout_ns), (presenter, value, timeout_ns))
 BB_RHI_CALL(show_result, show_picture, (window_presenter& presenter, swapchain& chain, uint64_t picture, uint32_t w, uint32_t h), (presenter, chain, picture, w, h))
+BB_RHI_CALL(void, wait_presenter_idle, (window_presenter& presenter), (presenter))
 BB_RHI_CALL(bool, wait_present, (const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns), (presenter, chain, timeout_ns))
 BB_RHI_CALL(void, create_device, (), ())
 BB_RHI_CALL(void, create_device_for, (void* window), (window))

@@ -2094,6 +2094,9 @@ namespace bb::rhi::opengl {
 		return shown;
 	}
 
+	// The picture was presented on the thread of the window before its show returned: nothing is left to wait for.
+	void wait_presenter_idle(window_presenter&) {}
+
 	bool wait_present(const window_presenter&, const swapchain&, uint64_t)
 	{
 		return false;

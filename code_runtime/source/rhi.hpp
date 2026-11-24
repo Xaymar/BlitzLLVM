@@ -545,6 +545,7 @@ namespace bb::rhi {
 		uint32_t height = 0;
 		bool     hdr_offered = false;          // The window system offers scRGB (linear, 1.0 = 80 nits) in 16-bit floats, and the images can be blitted to.
 		bool     hdr         = false;          // The images are scRGB: the picture shown has to be linear, in 16-bit floats.
+		uint64_t device = 0;                   // The device it was made with, which destroys it (on any thread).
 	};
 
 	/** The luminance of the display, in nits, for the window system's tone mapping. */
@@ -562,6 +563,8 @@ namespace bb::rhi {
 		int      vsync      = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		bool     own_thread = false; // A thread of its own shows the pictures, so a present must never wait for the display.
 		bool     hdr        = false; // Wants scRGB images (see swapchain::hdr), used if hdr_offered comes back true.
+		uint64_t device     = 0;     // For a thread that has no graphics state to look at (a window's, which has copies in its
+		uint64_t physical   = 0;     // window_presenter): the device to make it with, and its GPU. Zero: those of the graphics.
 	};
 
 	/** Makes the swapchain (replacing nothing: destroy_swapchain it first). Sets the size even if no images are made because the window is minimized (size 0). False if the device is lost, with nothing set. */
@@ -593,6 +596,7 @@ namespace bb::rhi {
 	/** What a window with a thread of its own shows pictures with: a recording of its own, a fence, the semaphores, and a queue. The thread uses these and nothing of the program's frame. */
 	struct window_presenter {
 		uint64_t device       = 0; // The thread has no graphics state to look at, so it has these copies.
+		uint64_t physical     = 0; // The GPU of the device, which the thread makes its swapchain again with.
 		uint64_t pool         = 0;
 		uint64_t cmd          = 0;
 		uint64_t fence        = 0;
@@ -621,6 +625,10 @@ namespace bb::rhi {
 	/** Shows the picture (an image, w by h pixels) in the window: takes an image of the swapchain, stretches the picture over it, submits and presents, and waits for the blit to be done, so the picture can be drawn into again. Neither
 	    call waits for the display: the swapchain of such a window never does. The queue lock is held for the submit and the present only. */
 	show_result show_picture(window_presenter& presenter, swapchain& chain, uint64_t picture, uint32_t w, uint32_t h);
+
+	/** Waits until the queue of the thread of the window has done everything it was given, its presents too: its swapchain can
+	    then be destroyed. For that thread only; nothing else waits. */
+	void wait_presenter_idle(window_presenter& presenter);
 
 	/** Waits up to timeout_ns for the last present to be shown by the display. False without doing so if the device cannot. */
 	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns);

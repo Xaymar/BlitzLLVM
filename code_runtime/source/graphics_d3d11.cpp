@@ -2513,6 +2513,8 @@ namespace bb::rhi::d3d11 {
 	void destroy_swapchain(swapchain& sc)
 	{
 		if (d3d_chain* chain = reinterpret_cast<d3d_chain*>(uintptr_t(sc.handle))) {
+			// The thread of a window makes its swapchain again itself, while the program's thread may play its recording.
+			std::lock_guard<std::recursive_mutex> guard(context_lock);
 			if (dx.context) {
 				dx.context->OMSetRenderTargets(0, nullptr, nullptr);
 				dx.context->ClearState();
@@ -2618,6 +2620,9 @@ namespace bb::rhi::d3d11 {
 		shown.presented = present_status::ok;
 		return shown;
 	}
+
+	// The picture was presented on the thread of the window before its show returned: nothing is left to wait for.
+	void wait_presenter_idle(window_presenter&) {}
 
 	bool wait_present(const window_presenter&, const swapchain&, uint64_t)
 	{
