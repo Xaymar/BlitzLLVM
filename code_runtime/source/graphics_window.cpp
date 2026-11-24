@@ -788,33 +788,32 @@ namespace {
 } // namespace
 
 
-// SetGraphicsRefreshRate: the most frames per second that Flip 1 and Flip 2 let the program show. 0 is no limit. The frame limit is kept
-// by absolute deadlines (one period after the last), so a late frame is not made up for by a sleep that drifts, and the sleep itself
-// is SDL_DelayPrecise, not a 1 ms poll.
+// SetGraphicsRefreshRate: the most frames per second that Flip 1 and Flip 2 show. 0 is no limit. Flip 1 waits for the limit. Flip 2 never
+// makes the program wait: a frame that is flipped before the next one may be shown is drawn and sent to the GPU but not presented (the
+// program renders as fast as it can, and the display gets the newest frame at most as often as the limit). The deadlines are absolute,
+// one period after each other, so a late frame is not made up for by a sleep that drifts, and the sleep of Flip 1 is SDL_DelayPrecise,
+// not a 1 ms poll.
 static std::atomic<float> refresh_limit { 0.0f };
-static uint64_t           limit_deadline_ns = 0;
+static uint64_t           limit_deadline_ns = 0; // The time the next frame of Flip 2 may be shown; 0 starts over.
 
-static void keep_refresh_limit(int32_t vwait)
+static bool flip2_may_present()
 {
 	float rate = refresh_limit.load();
-	if ((vwait == 0) || !(rate > 0.0f)) {
+	if (!(rate > 0.0f)) {
 		limit_deadline_ns = 0; // Starts over when the limit is turned on again.
-		return;
+		return true;
 	}
 	uint64_t period = uint64_t(1000000000.0 / double(rate));
 	uint64_t now    = SDL_GetTicksNS();
-	if (limit_deadline_ns == 0) {
-		limit_deadline_ns = now + period;
-		return;
-	}
 	if (now < limit_deadline_ns) {
-		SDL_DelayPrecise(limit_deadline_ns - now);
-		limit_deadline_ns += period;
-	} else if (now - limit_deadline_ns > period * 4) {
+		return false;
+	}
+	if ((limit_deadline_ns == 0) || (now - limit_deadline_ns > period * 4)) {
 		limit_deadline_ns = now + period; // Far behind (a pause, a load): do not rush to catch up.
 	} else {
 		limit_deadline_ns += period;
 	}
+	return true;
 }
 
 // Flip 1 waits for the display in the present. A limit kept by the clock after that would beat against the refresh (a limit of 60 on a
@@ -864,7 +863,7 @@ float bb_get_graphics_refresh_rate(void)
 }
 
 // Flip [vwait]: show what was drawn to the back buffer. 0 shows at once, 1 syncs with the display, 2 syncs only the picture.
-static void flip_once(int32_t vwait)
+static void flip_once(int32_t vwait, bool show)
 {
 	bb::profile_scope timer(bb::PROFILE_FLIP);
 	if (bb::profile_enabled) {
@@ -892,6 +891,13 @@ static void flip_once(int32_t vwait)
 		flush();
 		return; // Minimized
 	}
+	if (!show) {
+		// Flip 2 between two frames that the limit lets through: what was drawn is sent, the picture is not shown.
+		flush();
+		recovery_flip_end();
+		textures_stream_frame();
+		return;
+	}
 	// What was asked for and the present are sent together.
 	prepare_palette();
 	begin_commands();
@@ -906,18 +912,17 @@ void bb_flip(int32_t vwait)
 {
 	if (vwait == 0) {
 		limit_flip_deadline_ns = 0;
-		flip_once(vwait);
+		flip_once(vwait, true); // Flip 0 is not held by the limit.
 		return;
 	}
 	if (vwait == 2) {
 		limit_flip_deadline_ns = 0;
-		flip_once(vwait);
-		keep_refresh_limit(vwait); // Flip 2 does not wait for the display, so the clock alone keeps the limit.
+		flip_once(vwait, flip2_may_present());
 		return;
 	}
 	limit_deadline_ns = 0;
 	wait_for_refresh_limit_before_present();
-	flip_once(vwait);
+	flip_once(vwait, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

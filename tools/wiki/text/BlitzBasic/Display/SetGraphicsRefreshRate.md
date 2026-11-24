@@ -13,5 +13,5 @@ While Not KeyHit(1)
 Wend
 ```
 
-[Flip](Flip) 0 is never limited. [Flip](Flip) 1 waits for the display and keeps the limit. [Flip](Flip) 2 keeps the limit while the picture itself is synced with the display.
+[Flip](Flip) 0 is never limited. [Flip](Flip) 1 waits for the display and keeps the limit. [Flip](Flip) 2 never makes the program wait: the program renders as fast as it can, and a frame that is flipped sooner than the limit allows is drawn but not shown, so the display gets the newest frame at most as often as the limit.
 @param rate  The most frames per second, up to 100000. 0 is no limit, which is also the start value. Anything else is a runtime error.
