@@ -1986,11 +1986,11 @@ End Function
 ; U/D slope up/down, H hump, J jump over a gap, C checkpoint, F finish, O barriers off or on again.
 .TrackData
 Data "Meadow Dash", "S2 L2 S C U S R2 S2 H2 S C R2 S2 J2 S2 L2 S C D S2 L S2 R S2 H S R2 S C l2 r2 S2 B S2 F"
-Data 21.2, 23.5, 26.0
+Data 21.9, 24.2, 26.9
 Data "Quarry Hops", "S2 U4 J2 S2 C r2 S J3 S2 L2 S2 C U2 S J2 S2 R4 S2 C S J4 S4 l2 S C U2 S H2 S r2 S2 J2 S3 F"
-Data 26.0, 28.8, 32.0
+Data 26.8, 29.5, 32.8
 Data "Skyline Run", "S2 O S2 L S R2 S C U2 S2 B S3 O L4 O S2 C D2 S2 r2 l2 S2 C O J3 S3 R2 S C O U2 S L2 S2 H2 S2 R2 O S2 J3 S4 F"
-Data 27.0, 29.8, 33.0
+Data 27.0, 29.8, 33.1
 
 .CarColours
 Data "red", 220, 40, 40
