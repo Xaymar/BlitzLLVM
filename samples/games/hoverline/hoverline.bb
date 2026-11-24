@@ -7,7 +7,8 @@
 ;
 ; Controls:
 ;   Up or W          speed up
-;   Down or S        air brake: slows down, and turns tighter
+;   Down or S        both air brakes: slows down, and turns tighter
+;   Q and E          the left and the right air brake: turn much tighter that way, and slide
 ;   Left/Right, A/D  steer
 ;   Space            boost, which uses energy
 ;   Escape or P      the pause menu
@@ -18,6 +19,8 @@
 ; corners, so "right" and "up" tilt with it. A craft does not fly freely through the world: it only remembers how far
 ; along the track it is, how far right of the middle, and which way it points compared to the track. That makes walls,
 ; laps, places in the race and the computer drivers simple, and the craft can still drift and hit the walls.
+; Height is the one thing a craft keeps for itself: it follows the road, but where the road drops away faster than
+; gravity pulls (the end of a ramp, a gap, or the edge of a road without walls) it flies, and falls.
 ;
 ; The options and best times are saved in hoverline.cfg next to the program.
 
@@ -29,18 +32,29 @@ Const TRACK_HALF# = 9.0      ; Half the width of the road.
 Const CRAFT_HALF# = 1.1      ; Half the width of a craft, for the walls.
 Const HOVER# = 0.75          ; How high a craft floats over the road.
 Const WALL_HEIGHT# = 1.6
-Const TOP_SPEED# = 1.9       ; In units per update; there are 60 updates every second.
+; Speeds are in units per update (there are 60 updates every second), for the slowest class. The faster classes
+; multiply them by classScale.
 Const ACCELERATION# = 0.022
 Const BOOST_SPEED# = 0.55    ; Extra top speed while Space is held.
 Const PAD_SPEED# = 0.8       ; Extra top speed after crossing a boost pad.
 Const PAD_TIME = 70
+Const AIR_BRAKE# = 2.4       ; Extra turning, in degrees per update, from one air brake.
+Const GRAVITY# = 0.04        ; How fast a craft in the air falls, in units per update per update.
+Const CLASSES = 4
+
+; What each slice of the track is: road with walls, road without walls (fall off the side and you are out), a gap
+; with no road at all, or a ramp that throws the crafts over the gap after it.
+Const KIND_ROAD = 0, KIND_OPEN = 1, KIND_GAP = 2, KIND_RAMP = 3
+Const RAMP_SLICES = 8
 
 ; The states the game can be in. The main loop asks the current state what to do.
 Const STATE_MENU = 0, STATE_SETUP = 1, STATE_OPTIONS = 2, STATE_HELP = 3, STATE_COUNTDOWN = 4, STATE_RACE = 5
 Const STATE_PAUSED = 6, STATE_FINISHED = 7, STATE_RESULTS = 8
 
 Const MODE_RACE = 0, MODE_TRIAL = 1
+Const SETUP_TOP = 170
 
+Const KEY_Q = 16, KEY_E = 18
 Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_ENTER = 28, KEY_SPACE = 57
 Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
@@ -50,7 +64,7 @@ Type Craft
 	Field d#, lat#      ; How far along the track, and how far right of the middle.
 	Field ang#, vang#   ; Where the nose points, and where the craft moves, in degrees left of the track direction.
 	Field spd#
-	Field energy#       ; 0 to 100. Hitting a wall costs energy, so does boosting. At 0 a wall breaks the craft.
+	Field energy#       ; 0 to maxEnergy. Hitting a wall costs energy, so does boosting. At 0 a wall breaks the craft.
 	Field padTimer      ; Updates of boost left from a boost pad.
 	Field boosting      ; True while boosting this update.
 	Field aiBoost       ; Updates of boost the computer decided on.
@@ -58,9 +72,14 @@ Type Craft
 	Field lap, halfway, lapStart, lastLap, bestLap
 	Field finished, finishTime, place
 	Field computer, skill#, lineOffset#
+	Field y#, vy#       ; Height, and how fast it changes. On the road y is the height of the middle of the road.
+	Field airborne
+	Field fell          ; True while a craft that fell off waits to come back.
+	Field ship                     ; Which craft design, from the list in the data at the end.
+	Field accelMul#, topMul#, brakeMul#, maxEnergy#
 	Field steer#        ; How far the craft leans into a turn, for the look of it.
 	Field lastHit
-	Field mesh, glow
+	Field mesh, glow, shadow
 	Field r, g, b
 	Field name$
 End Type
@@ -82,6 +101,7 @@ Dim fX#(MAX_SAMPLES), fY#(MAX_SAMPLES), fZ#(MAX_SAMPLES)
 Dim rX#(MAX_SAMPLES), rY#(MAX_SAMPLES), rZ#(MAX_SAMPLES)
 Dim uX#(MAX_SAMPLES), uY#(MAX_SAMPLES), uZ#(MAX_SAMPLES)
 Dim tYaw#(MAX_SAMPLES), tTurn#(MAX_SAMPLES), tBank#(MAX_SAMPLES)
+Dim sliceKind(MAX_SAMPLES)
 Global slices, trackLength#, sliceLength#
 Global trackName$, accentR#, accentG#, accentB#
 Dim trackNames$(TRACKS - 1)
@@ -109,19 +129,32 @@ Global optFov = 0            ; 0 normal, 1 wide.
 Global optVolume = 4         ; 0 to 4, in quarters.
 Global optEngine = True      ; The engine hum.
 Global optFullscreen = False
-Global setupTrack = 0, setupLaps = 0, setupRivals = 1
-Dim lapChoices(2), rivalNames$(2), rivalSkill#(2)
+Global setupTrack = 0, setupLaps = 0, setupRivals = 1, setupClass = 0, setupShip = 0
+; The craft designs. Each has 20 points spread over four strengths, from 2 to 8 each: acceleration (how fast it gets
+; back to top speed), top speed, energy (how much it can take) and brakes (the air brakes and slowing down).
+Const SHIPS = 4
+Dim shipNames$(SHIPS - 1), shipAccel(SHIPS - 1), shipSpeed(SHIPS - 1), shipEnergy(SHIPS - 1), shipBrake(SHIPS - 1)
+Restore Ships
+Local ship
+For ship = 0 To SHIPS - 1
+	Read shipNames(ship), shipAccel(ship), shipSpeed(ship), shipEnergy(ship), shipBrake(ship)
+Next
+Dim lapChoices(2), rivalNames$(2), rivalSkill#(2), classNames$(CLASSES - 1), classTop#(CLASSES - 1)
+classNames(0) = "Spark" : classNames(1) = "Flare" : classNames(2) = "Nova" : classNames(3) = "Pulsar"
+classTop(0) = 1.9 : classTop(1) = 2.5 : classTop(2) = 3.25 : classTop(3) = 4.0 ; 380 to 800 km/h on the display.
+Global topSpeed# = 1.9, classScale# = 1.0
 lapChoices(0) = 3 : lapChoices(1) = 5 : lapChoices(2) = 7
 rivalNames(0) = "Rookie" : rivalNames(1) = "Pro" : rivalNames(2) = "Ace"
-rivalSkill(0) = 0.86 : rivalSkill(1) = 0.93 : rivalSkill(2) = 0.99
-; Best times in updates (1/60 seconds), 0 for none yet: the best lap on each track, and the best race on each track
-; for each number of laps.
-Dim recordLap(TRACKS - 1), recordRace(TRACKS - 1, 2)
+rivalSkill(0) = 0.88 : rivalSkill(1) = 0.95 : rivalSkill(2) = 1.0
+; Best times in updates (1/60 seconds), 0 for none yet, for each class: the best lap on each track, and the best race
+; on each track for each number of laps.
+Dim recordLap(TRACKS - 1, CLASSES - 1), recordRace(TRACKS - 1, 2, CLASSES - 1)
 
 Global folder$ = SystemProperty$("appdir")
 If folder <> "" And Right(folder, 1) <> "\" And Right(folder, 1) <> "/" Then folder = folder + "/"
 Global settingsPath$ = folder + "hoverline.cfg"
 LoadSettings()
+SetClass(setupClass)
 
 ; --- Game ----------------------------------------------------------------------------------------------------------
 Global state = STATE_MENU, raceMode = MODE_RACE, raceLaps = 3
@@ -155,6 +188,7 @@ Global soundBump = MakeSound(160, 120, 90, WAVE_SQUARE, 0.2)
 Global soundPad = MakeSound(300, 1200, 300, WAVE_SINE, 0.25)
 Global soundLap = MakeSound(660, 990, 250, WAVE_SQUARE, 0.15)
 Global soundBreak = MakeSound(400, 40, 900, WAVE_NOISE, 0.45)
+Global soundFall = MakeSound(900, 120, 800, WAVE_SINE, 0.3)
 Global soundEngine = MakeEngineSound()
 Global engineChannel
 
@@ -269,8 +303,8 @@ Function LoadSettings()
 	If FileType(settingsPath) <> 1 Then Return
 	Local file = ReadFile(settingsPath)
 	If Not file Then Return
-	Local t, l
-	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
+	Local t, l, k, version = ReadInt(file) ; A version number, so a changed file format can be recognised.
+	If version = 1 Or version = 2
 		optCamera = ReadInt(file)
 		optFov = ReadInt(file)
 		optVolume = ReadInt(file)
@@ -279,12 +313,26 @@ Function LoadSettings()
 		setupTrack = ReadInt(file)
 		setupLaps = ReadInt(file)
 		setupRivals = ReadInt(file)
-		For t = 0 To TRACKS - 1
-			recordLap(t) = ReadInt(file)
-			For l = 0 To 2
-				recordRace(t, l) = ReadInt(file)
+		If version = 1
+			; Before the classes and craft designs: every record was set in the slowest class.
+			For t = 0 To TRACKS - 1
+				recordLap(t, 0) = ReadInt(file)
+				For l = 0 To 2
+					recordRace(t, l, 0) = ReadInt(file)
+				Next
 			Next
-		Next
+		Else
+			setupClass = ReadInt(file)
+			setupShip = ReadInt(file)
+			For k = 0 To CLASSES - 1
+				For t = 0 To TRACKS - 1
+					recordLap(t, k) = ReadInt(file)
+					For l = 0 To 2
+						recordRace(t, l, k) = ReadInt(file)
+					Next
+				Next
+			Next
+		EndIf
 	EndIf
 	CloseFile file
 	; Never trust a file: someone may have edited it.
@@ -294,10 +342,14 @@ Function LoadSettings()
 	If setupTrack < 0 Or setupTrack >= TRACKS Then setupTrack = 0
 	If setupLaps < 0 Or setupLaps > 2 Then setupLaps = 0
 	If setupRivals < 0 Or setupRivals > 2 Then setupRivals = 1
-	For t = 0 To TRACKS - 1
-		If recordLap(t) < 0 Then recordLap(t) = 0
-		For l = 0 To 2
-			If recordRace(t, l) < 0 Then recordRace(t, l) = 0
+	If setupClass < 0 Or setupClass >= CLASSES Then setupClass = 0
+	If setupShip < 0 Or setupShip >= SHIPS Then setupShip = 0
+	For k = 0 To CLASSES - 1
+		For t = 0 To TRACKS - 1
+			If recordLap(t, k) < 0 Then recordLap(t, k) = 0
+			For l = 0 To 2
+				If recordRace(t, l, k) < 0 Then recordRace(t, l, k) = 0
+			Next
 		Next
 	Next
 End Function
@@ -305,7 +357,7 @@ End Function
 Function SaveSettings()
 	Local file = WriteFile(settingsPath)
 	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
-	WriteInt file, 1
+	WriteInt file, 2
 	WriteInt file, optCamera
 	WriteInt file, optFov
 	WriteInt file, optVolume
@@ -314,11 +366,15 @@ Function SaveSettings()
 	WriteInt file, setupTrack
 	WriteInt file, setupLaps
 	WriteInt file, setupRivals
-	Local t, l
-	For t = 0 To TRACKS - 1
-		WriteInt file, recordLap(t)
-		For l = 0 To 2
-			WriteInt file, recordRace(t, l)
+	WriteInt file, setupClass
+	WriteInt file, setupShip
+	Local t, l, k
+	For k = 0 To CLASSES - 1
+		For t = 0 To TRACKS - 1
+			WriteInt file, recordLap(t, k)
+			For l = 0 To 2
+				WriteInt file, recordRace(t, l, k)
+			Next
 		Next
 	Next
 	CloseFile file
@@ -438,6 +494,34 @@ Function BuildTrack(index)
 	Read fromPart, toPart, chargeLat
 	chargeFrom = Int(fromPart * slices)
 	chargeTo = Int(toPart * slices)
+
+	; Jumps: a ramp that rises at the end, then a gap with no road. Open parts: road without walls.
+	For i = 0 To slices - 1
+		sliceKind(i) = KIND_ROAD
+	Next
+	Local jumps, lift#, gapSlices, s0
+	Read jumps
+	For j = 1 To jumps
+		Read f, lift, gapSlices
+		s0 = Int(f * slices)
+		For k = 0 To RAMP_SLICES - 1
+			t = Float(k + 1) / RAMP_SLICES
+			; Only the height changes, not the directions, so the road under the ramp stays where it was.
+			tY((s0 + k) Mod slices) = tY((s0 + k) Mod slices) + lift * t * t
+			sliceKind((s0 + k) Mod slices) = KIND_RAMP
+		Next
+		For k = 0 To gapSlices - 1
+			sliceKind((s0 + RAMP_SLICES + k) Mod slices) = KIND_GAP
+		Next
+	Next
+	Local opens
+	Read opens
+	For j = 1 To opens
+		Read fromPart, toPart
+		For i = Int(fromPart * slices) To Int(toPart * slices)
+			sliceKind(i Mod slices) = KIND_OPEN
+		Next
+	Next
 
 	BuildRoad()
 	BuildWalls()
@@ -565,17 +649,42 @@ Function BuildRoad()
 	Local i, n, base, v0#, v1#
 	For i = 0 To slices - 1
 		n = (i + 1) Mod slices
-		base = CountVertices(top)
-		v0 = i / 8.0 : v1 = (i + 1) / 8.0
-		FramePoint(i, -TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 0, v0
-		FramePoint(n, -TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 0, v1
-		FramePoint(n, TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 1, v1
-		FramePoint(i, TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 1, v0
-		AddTriangle top, base, base + 1, base + 2
-		AddTriangle top, base, base + 2, base + 3
+		If HasRoad(i)
+			base = CountVertices(top)
+			v0 = i / 8.0 : v1 = (i + 1) / 8.0
+			FramePoint(i, -TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 0, v0
+			FramePoint(n, -TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 0, v1
+			FramePoint(n, TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 1, v1
+			FramePoint(i, TRACK_HALF, 0, 0) : AddVertex top, gX, gY, gZ, 1, v0
+			AddTriangle top, base, base + 1, base + 2
+			AddTriangle top, base, base + 2, base + 3
+		EndIf
 	Next
 	EntityTexture road, roadTex
 	EntityFX road, 1
+
+	; Red and white stripes along the edges where there are no walls, and across the end of every ramp.
+	Local stripes = CreateMesh(trackRoot)
+	Local stripeSurface = CreateSurface(stripes)
+	Local sideSign, edge#, red#, x#, k
+	For i = 0 To slices - 1
+		If sliceKind(i) = KIND_OPEN
+			n = (i + 1) Mod slices
+			red = Float((i Mod 2) = 0)
+			For sideSign = -1 To 1 Step 2
+				edge = TRACK_HALF * sideSign
+				FrameBox(stripeSurface, i, edge - 0.6, edge + 0.6, 0, 0.12, 0, sliceLength, 255 - red * 15, 255 - red * 215, 255 - red * 215)
+			Next
+		EndIf
+		If sliceKind(i) = KIND_RAMP And sliceKind((i + 1) Mod slices) = KIND_GAP
+			For k = 0 To 8
+				red = Float((k Mod 2) = 0)
+				x = -TRACK_HALF + k * TRACK_HALF * 2 / 9
+				FrameBox(stripeSurface, i, x, x + TRACK_HALF * 2 / 9, 0, 0.12, -1.5, 0, 255 - red * 15, 255 - red * 215, 255 - red * 215)
+			Next
+		EndIf
+	Next
+	EntityFX stripes, 1 + 2
 
 	; The start line: a chequered band across the road.
 	Local startLine = CreateMesh(trackRoot)
@@ -593,7 +702,7 @@ Function BuildRoad()
 	; Boost pads and the charging strip glow, so they are added to the picture instead of covering it.
 	Local overlay = CreateMesh(trackRoot)
 	surface = CreateSurface(overlay)
-	Local p, k, s
+	Local p, s
 	For p = 0 To pads - 1
 		For k = 0 To 3
 			s = (padSlice(p) + k) Mod slices
@@ -630,24 +739,26 @@ Function BuildRoad()
 	; Underneath: the bottom and both edges of the road, in dark colours.
 	Local under = CreateMesh(trackRoot)
 	surface = CreateSurface(under)
-	Local x1#, y1#, z1#, x2#, y2#, z2#, x3#, y3#, z3#, x4#, y4#, z4#, sideSign, edge#
+	Local x1#, y1#, z1#, x2#, y2#, z2#, x3#, y3#, z3#, x4#, y4#, z4#
 	For i = 0 To slices - 1
 		n = (i + 1) Mod slices
-		FramePoint(i, -TRACK_HALF, -0.8, 0) : x1 = gX : y1 = gY : z1 = gZ
-		FramePoint(i, TRACK_HALF, -0.8, 0) : x2 = gX : y2 = gY : z2 = gZ
-		FramePoint(n, TRACK_HALF, -0.8, 0) : x3 = gX : y3 = gY : z3 = gZ
-		FramePoint(n, -TRACK_HALF, -0.8, 0) : x4 = gX : y4 = gY : z4 = gZ
-		base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-		ColorQuad(surface, base, 22, 18, 38, 22, 18, 38)
-		For sideSign = -1 To 1 Step 2
-			edge = TRACK_HALF * sideSign
-			FramePoint(i, edge, -0.8, 0) : x1 = gX : y1 = gY : z1 = gZ
-			FramePoint(i, edge, 0, 0) : x2 = gX : y2 = gY : z2 = gZ
-			FramePoint(n, edge, 0, 0) : x3 = gX : y3 = gY : z3 = gZ
-			FramePoint(n, edge, -0.8, 0) : x4 = gX : y4 = gY : z4 = gZ
+		If HasRoad(i)
+			FramePoint(i, -TRACK_HALF, -0.8, 0) : x1 = gX : y1 = gY : z1 = gZ
+			FramePoint(i, TRACK_HALF, -0.8, 0) : x2 = gX : y2 = gY : z2 = gZ
+			FramePoint(n, TRACK_HALF, -0.8, 0) : x3 = gX : y3 = gY : z3 = gZ
+			FramePoint(n, -TRACK_HALF, -0.8, 0) : x4 = gX : y4 = gY : z4 = gZ
 			base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-			ColorQuad(surface, base, 30, 26, 52, accentR / 3, accentG / 3, accentB / 3)
-		Next
+			ColorQuad(surface, base, 22, 18, 38, 22, 18, 38)
+			For sideSign = -1 To 1 Step 2
+				edge = TRACK_HALF * sideSign
+				FramePoint(i, edge, -0.8, 0) : x1 = gX : y1 = gY : z1 = gZ
+				FramePoint(i, edge, 0, 0) : x2 = gX : y2 = gY : z2 = gZ
+				FramePoint(n, edge, 0, 0) : x3 = gX : y3 = gY : z3 = gZ
+				FramePoint(n, edge, -0.8, 0) : x4 = gX : y4 = gY : z4 = gZ
+				base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
+				ColorQuad(surface, base, 30, 26, 52, accentR / 3, accentG / 3, accentB / 3)
+			Next
+		EndIf
 	Next
 	EntityFX under, 1 + 2 + 16
 End Function
@@ -661,26 +772,37 @@ Function BuildWalls()
 	Local x1#, y1#, z1#, x2#, y2#, z2#, x3#, y3#, z3#, x4#, y4#, z4#
 	For i = 0 To slices - 1
 		n = (i + 1) Mod slices
-		For sideSign = -1 To 1 Step 2
-			edge = TRACK_HALF * sideSign
-			FramePoint(i, edge, 0, 0) : x1 = gX : y1 = gY : z1 = gZ
-			FramePoint(i, edge, WALL_HEIGHT, 0) : x2 = gX : y2 = gY : z2 = gZ
-			FramePoint(n, edge, WALL_HEIGHT, 0) : x3 = gX : y3 = gY : z3 = gZ
-			FramePoint(n, edge, 0, 0) : x4 = gX : y4 = gY : z4 = gZ
-			base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-			ColorQuad(surface, base, accentR * 3 / 4, accentG * 3 / 4, accentB * 3 / 4, accentR / 10, accentG / 10, accentB / 10)
+		If HasWalls(i)
+			For sideSign = -1 To 1 Step 2
+				edge = TRACK_HALF * sideSign
+				FramePoint(i, edge, 0, 0) : x1 = gX : y1 = gY : z1 = gZ
+				FramePoint(i, edge, WALL_HEIGHT, 0) : x2 = gX : y2 = gY : z2 = gZ
+				FramePoint(n, edge, WALL_HEIGHT, 0) : x3 = gX : y3 = gY : z3 = gZ
+				FramePoint(n, edge, 0, 0) : x4 = gX : y4 = gY : z4 = gZ
+				base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
+				ColorQuad(surface, base, accentR * 3 / 4, accentG * 3 / 4, accentB * 3 / 4, accentR / 10, accentG / 10, accentB / 10)
 
-			rail = edge + 0.3 * sideSign
-			FramePoint(i, edge, WALL_HEIGHT, 0) : x1 = gX : y1 = gY : z1 = gZ
-			FramePoint(i, rail, WALL_HEIGHT, 0) : x2 = gX : y2 = gY : z2 = gZ
-			FramePoint(n, rail, WALL_HEIGHT, 0) : x3 = gX : y3 = gY : z3 = gZ
-			FramePoint(n, edge, WALL_HEIGHT, 0) : x4 = gX : y4 = gY : z4 = gZ
-			base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
-			ColorQuad(surface, base, 255, 255, 255, 255, 255, 255)
-		Next
+				rail = edge + 0.3 * sideSign
+				FramePoint(i, edge, WALL_HEIGHT, 0) : x1 = gX : y1 = gY : z1 = gZ
+				FramePoint(i, rail, WALL_HEIGHT, 0) : x2 = gX : y2 = gY : z2 = gZ
+				FramePoint(n, rail, WALL_HEIGHT, 0) : x3 = gX : y3 = gY : z3 = gZ
+				FramePoint(n, edge, WALL_HEIGHT, 0) : x4 = gX : y4 = gY : z4 = gZ
+				base = AddQuad(surface, x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
+				ColorQuad(surface, base, 255, 255, 255, 255, 255, 255)
+			Next
+		EndIf
 	Next
 	EntityFX walls, 1 + 2 + 16
 	EntityBlend walls, 3
+End Function
+
+; True where slice i has road up to the next slice: not in a gap, and not the last slice before one.
+Function HasRoad(i)
+	Return sliceKind(i) <> KIND_GAP And sliceKind((i + 1) Mod slices) <> KIND_GAP
+End Function
+
+Function HasWalls(i)
+	Return HasRoad(i) And sliceKind(i) <> KIND_OPEN
 End Function
 
 ; Arches over the road, the start gate, and pillars that hold the road up.
@@ -689,9 +811,11 @@ Function BuildDecoration()
 	Local surface = CreateSurface(deco)
 	Local i, k, every = slices / 10, post# = TRACK_HALF + 0.9
 	For i = every / 2 To slices - every / 2 Step every
-		FrameBox(surface, i, -post - 0.5, -post + 0.5, -0.8, 8.5, -0.5, 0.5, 40, 34, 70)
-		FrameBox(surface, i, post - 0.5, post + 0.5, -0.8, 8.5, -0.5, 0.5, 40, 34, 70)
-		FrameBox(surface, i, -post - 0.5, post + 0.5, 8.5, 9.2, -0.5, 0.5, accentR, accentG, accentB)
+		If HasWalls(i)
+			FrameBox(surface, i, -post - 0.5, -post + 0.5, -0.8, 8.5, -0.5, 0.5, 40, 34, 70)
+			FrameBox(surface, i, post - 0.5, post + 0.5, -0.8, 8.5, -0.5, 0.5, 40, 34, 70)
+			FrameBox(surface, i, -post - 0.5, post + 0.5, 8.5, 9.2, -0.5, 0.5, accentR, accentG, accentB)
+		EndIf
 	Next
 
 	; The start gate: tall posts and a chequered beam.
@@ -709,9 +833,24 @@ Function BuildDecoration()
 		Next
 	Next
 
+	; A warning arch where every ramp starts, red and white.
+	For i = 0 To slices - 1
+		If sliceKind(i) = KIND_RAMP And sliceKind((i + slices - 1) Mod slices) <> KIND_RAMP
+			FrameBox(surface, i, -post - 0.5, -post + 0.5, -0.8, 8.5, -0.5, 0.5, 240, 60, 60)
+			FrameBox(surface, i, post - 0.5, post + 0.5, -0.8, 8.5, -0.5, 0.5, 240, 60, 60)
+			For k = 0 To 7
+				If k Mod 2 = 0
+					FrameBox(surface, i, -post - 0.5 + k * (post * 2 + 1) / 8, -post - 0.5 + (k + 1) * (post * 2 + 1) / 8, 8.5, 9.4, -0.5, 0.5, 250, 250, 250)
+				Else
+					FrameBox(surface, i, -post - 0.5 + k * (post * 2 + 1) / 8, -post - 0.5 + (k + 1) * (post * 2 + 1) / 8, 8.5, 9.4, -0.5, 0.5, 240, 50, 50)
+				EndIf
+			Next
+		EndIf
+	Next
+
 	; Pillars from the ground up to the road, except where they would go through a lower part of the track.
 	For i = 0 To slices - 1 Step 9
-		If tY(i) > 2.5 And Not TrackBelow(i)
+		If tY(i) > 2.5 And HasRoad(i) And sliceKind(i) <> KIND_RAMP And Not TrackBelow(i)
 			WorldBox(surface, tX(i) - 1.2, 0, tZ(i) - 1.2, tX(i) + 1.2, tY(i) - 1.0, tZ(i) + 1.2, 34, 30, 58, 1)
 			WorldBox(surface, tX(i) - 1.4, tY(i) - 1.6, tZ(i) - 1.4, tX(i) + 1.4, tY(i) - 1.2, tZ(i) + 1.4, accentR, accentG, accentB, 1)
 		EndIf
@@ -782,8 +921,9 @@ End Function
 
 ; --- Crafts ----------------------------------------------------------------------------------------------------------
 
-Function NewCraft.Craft(name$, r, g, b, computer, skill#)
+Function NewCraft.Craft(name$, r, g, b, computer, skill#, ship)
 	Local c.Craft = New Craft
+	SetShip(c, ship)
 	c\name = name
 	c\r = r : c\g = g : c\b = b
 	c\computer = computer
@@ -837,6 +977,7 @@ Function MakeCraftMesh(c.Craft)
 	AddTriangle s, 0, 2, 3
 	EntityTexture shadow, shadowTex
 	EntityFX shadow, 1
+	c\shadow = shadow
 	c\mesh = mesh
 End Function
 
@@ -862,7 +1003,8 @@ End Function
 ; Puts the mesh where the craft is: up along the road's up, the nose where the craft points, leaning into turns.
 Function PlaceCraft(c.Craft)
 	Local bob# = Sin(frame * 4 + c\lat * 40) * 0.06
-	TrackPoint(c\d, c\lat, HOVER + bob)
+	If c\airborne Then bob = 0
+	CraftPoint(c, HOVER + bob)
 	PositionEntity c\mesh, gX, gY, gZ
 	Local i = SliceAt(c\d)
 	RotateEntity c\mesh, 0, 0, 0
@@ -870,50 +1012,88 @@ Function PlaceCraft(c.Craft)
 	CraftHeading(c, c\ang)
 	TFormVector hX, hY, hZ, 0, c\mesh
 	TurnEntity c\mesh, 0, ATan2(-TFormedX(), TFormedZ()), 0
-	TurnEntity c\mesh, 0, 0, c\steer * 14
-	Local glowSize# = 0.6 + c\spd * 0.35
+	; The nose follows the climb or the fall, beyond the slope of the road itself.
+	Local slope# = c\vy - fY(i) * c\spd * Cos(c\vang)
+	TurnEntity c\mesh, -Clamp(ATan2(slope, Max(c\spd, 0.3)), -30, 30), 0, c\steer * 14
+	If c\airborne And c\y > Ground(c\d, c\lat) + 2 Then HideEntity c\shadow Else ShowEntity c\shadow
+	Local glowSize# = 0.6 + c\spd / classScale * 0.35
 	If c\boosting Or c\padTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
 	ScaleSprite c\glow, glowSize, glowSize
 End Function
 
+; The height of the road under a point of the track, which goes on past the edges where there is no road.
+Function Ground#(dist#, lat#)
+	TrackPoint(dist, lat, 0)
+	Return gY
+End Function
+
+; Where a craft is, into gX, gY and gZ: on the track, then moved up or down by how far it is above or below the road.
+Function CraftPoint(c.Craft, height#)
+	Local above# = c\y - Ground(c\d, c\lat)
+	TrackPoint(c\d, c\lat, height)
+	gY = gY + above
+End Function
+
+; Gives a craft one of the designs. The strengths go from 2 to 8, and 5 is the middle.
+Function SetShip(c.Craft, ship)
+	c\ship = ship
+	c\accelMul = 0.6 + shipAccel(ship) * 0.08
+	c\topMul = 0.9 + shipSpeed(ship) * 0.02
+	c\maxEnergy = shipEnergy(ship) * 20.0
+	c\brakeMul = 0.6 + shipBrake(ship) * 0.08
+End Function
+
+; The speed class changes every speed in the game, and how fast the crafts can turn.
+Function SetClass(k)
+	setupClass = k
+	topSpeed = classTop(k)
+	classScale = topSpeed / classTop(0)
+End Function
+
 ; Moves a craft for one update. throttle and brake are True or False, steer goes from -1 (right) to 1 (left).
-Function DriveCraft(c.Craft, throttle, brake, steer#, boost)
+Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
+	; air goes from -1 (the right air brake) to 1 (the left one).
 	c\boosting = False
 	If c\respawn > 0
 		c\respawn = c\respawn - 1
-		If c\respawn = 0
-			ShowEntity c\mesh
-			c\lat = 0 : c\ang = 0 : c\vang = 0 : c\spd = 0.3 : c\energy = 50
-		EndIf
+		If c\respawn = 0 Then Respawn(c)
 		Return
 	EndIf
 
-	Local top# = TOP_SPEED * c\skill, push# = ACCELERATION
+	Local top# = topSpeed * c\skill * c\topMul, push# = ACCELERATION * classScale * c\accelMul
 	If c\padTimer > 0
-		top = top + PAD_SPEED
+		top = top + PAD_SPEED * classScale
 		push = push * 3
 		c\padTimer = c\padTimer - 1
 	EndIf
 	If boost And c\energy > 10
-		top = top + BOOST_SPEED
+		top = top + BOOST_SPEED * classScale
 		push = push * 2.5
 		c\energy = c\energy - 0.35
 		c\boosting = True
 	EndIf
-	If throttle
+	If c\airborne
+		c\spd = c\spd * 0.999 ; Nothing to push against in the air.
+	ElseIf throttle
 		If c\spd < top Then c\spd = Min(top, c\spd + push) Else c\spd = c\spd - (c\spd - top) * 0.03
 	Else
 		c\spd = c\spd * 0.985
 	EndIf
-	If brake Then c\spd = Max(0, c\spd - 0.03)
+	If brake Then c\spd = Max(0, c\spd - 0.03 * classScale * c\brakeMul)
+	If air <> 0 Then c\spd = c\spd * (1 - 0.006 * c\brakeMul)
 
-	; Steering: quicker at low speed, and the air brake turns tighter.
-	Local rate# = 2.7 - c\spd * 0.45
-	If brake Then rate = rate + 1.3
-	c\ang = c\ang + steer * rate
-	c\steer = c\steer + (steer - c\steer) * 0.12
+	; Steering: quicker at low speed. Both air brakes turn tighter; one air brake turns the craft hard to its side and
+	; lets it slide. The faster classes turn faster too, but not as much faster as they go.
+	Local grip# = Sqr(classScale)
+	Local rate# = (2.7 - 0.45 * c\spd / classScale) * grip
+	If brake Then rate = rate + 1.3 * grip * c\brakeMul
+	Local follow# = 0.15
+	If air <> 0 Then follow = 0.09
+	If c\airborne Then rate = rate * 0.5 : follow = 0.04
+	c\ang = c\ang + steer * rate + air * AIR_BRAKE * grip * c\brakeMul
+	c\steer = c\steer + (Clamp(steer + air, -1, 1) - c\steer) * 0.12
 	; The craft slides: the way it moves follows the nose only bit by bit.
-	c\vang = c\vang + WrapAngle(c\ang - c\vang) * 0.15
+	c\vang = c\vang + WrapAngle(c\ang - c\vang) * follow
 
 	; Move along the track. The craft keeps its heading in the world while the track turns under it.
 	Local oldD# = c\d, oldYaw# = TrackYaw(c\d)
@@ -925,15 +1105,17 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost)
 	c\ang = WrapAngle(c\ang - turned)
 	c\vang = WrapAngle(c\vang - turned)
 	CheckLap(c, oldD)
+	Local s = SliceAt(c\d), ground# = Ground(c\d, c\lat)
 
 	; The walls. A craft touches a wall when it is against it and not clearly moving away. Touching slows it down
-	; and costs a little energy, crashing into it costs a lot, and with no energy left the craft breaks.
+	; and costs a little energy, crashing into it costs a lot, and with no energy left the craft breaks. A craft that
+	; is already beside the road or below it misses the walls.
 	Local limit# = TRACK_HALF - CRAFT_HALF
-	If Abs(c\lat) >= limit - 0.05
+	If HasWalls(s) And Abs(c\lat) >= limit - 0.05 And Abs(c\lat) < TRACK_HALF + 1 And c\y > ground - 1
 		Local toward# = -Sin(c\vang) * Sgn(c\lat) ; More than 0 when moving towards this wall.
 		If Abs(c\lat) > limit Then c\lat = Sgn(c\lat) * limit
 		If toward > -0.02
-			Local impact# = c\spd * Max(0, toward)
+			Local impact# = c\spd * Max(0, toward) / classScale
 			If toward > 0
 				c\vang = -c\vang * 0.3
 				c\ang = c\ang * 0.5
@@ -944,7 +1126,7 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost)
 				Return
 			EndIf
 			c\energy = Max(0, c\energy - 0.15 - impact * 30)
-			If (impact > 0.05 And frame - c\lastHit > 10) Or (c\spd > 0.6 And frame Mod 6 = 0)
+			If (impact > 0.05 And frame - c\lastHit > 10) Or (c\spd > 0.6 * classScale And frame Mod 6 = 0)
 				TrackPoint(c\d, c\lat + Sgn(c\lat) * CRAFT_HALF, HOVER * 0.6)
 				If impact > 0.05
 					BurstSparks(gX, gY, gZ, 255, 220, 140, 12, 0.25, 0.5)
@@ -955,21 +1137,85 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost)
 				EndIf
 			EndIf
 		EndIf
+		ground = Ground(c\d, c\lat)
 	EndIf
 
-	; Boost pads and the charging strip.
-	Local s = SliceAt(c\d), p
-	For p = 0 To pads - 1
-		If (s - padSlice(p) + slices) Mod slices < 4 And Abs(c\lat - padLat(p)) < 3
-			If c\padTimer < PAD_TIME - 20 And c = player Then PlaySfx(soundPad)
-			c\padTimer = PAD_TIME
+	; Up and down. On the road the craft follows it, unless the road drops away faster than gravity pulls: then it
+	; flies. In the air it falls, lands on road, or falls past it and is out.
+	Local pull# = GRAVITY * classScale
+	Local onRoad = HasRoad(s) And (sliceKind(s) <> KIND_OPEN Or Abs(c\lat) <= TRACK_HALF + 0.2)
+	If Not c\airborne
+		Local climb# = ground - c\y
+		If onRoad And climb >= c\vy - pull * 1.5
+			c\vy = climb
+			c\y = ground
+		Else
+			c\airborne = True
+			c\vy = c\vy - pull
+			c\y = c\y + c\vy
 		EndIf
-	Next
-	If s >= chargeFrom And s < chargeTo And Abs(c\lat - chargeLat) < 3.5
-		c\energy = Min(100, c\energy + 0.6)
 	Else
-		c\energy = Min(100, c\energy + 0.02)
+		c\vy = c\vy - pull
+		c\y = c\y + c\vy
+		If onRoad And c\y <= ground And c\y > ground - 2.5
+			If c\vy < -0.45 * classScale
+				c\spd = c\spd * 0.93
+				CraftPoint(c, 0)
+				BurstSparks(gX, gY, gZ, 255, 220, 160, 10, 0.3, 0.6)
+				If c = player Then PlaySfx(soundBump)
+			EndIf
+			c\y = ground
+			c\vy = 0
+			c\airborne = False
+		ElseIf c\y < ground - 14
+			FallOff(c)
+			Return
+		EndIf
 	EndIf
+
+	; Boost pads and the charging strip work only on the road.
+	If Not c\airborne
+		Local p
+		For p = 0 To pads - 1
+			If (s - padSlice(p) + slices) Mod slices < 4 And Abs(c\lat - padLat(p)) < 3
+				If c\padTimer < PAD_TIME - 20 And c = player Then PlaySfx(soundPad)
+				c\padTimer = PAD_TIME
+			EndIf
+		Next
+	EndIf
+	If s >= chargeFrom And s < chargeTo And Abs(c\lat - chargeLat) < 3.5 And Not c\airborne
+		c\energy = Min(c\maxEnergy, c\energy + 0.6)
+	Else
+		c\energy = Min(c\maxEnergy, c\energy + 0.02)
+	EndIf
+End Function
+
+; A craft that fell off the track: out for a second, then back on the road.
+Function FallOff(c.Craft)
+	c\fell = True
+	c\respawn = 60
+	c\padTimer = 0
+	HideEntity c\mesh
+	If c = player
+		PlaySfx(soundFall)
+		ShowMessage("Fell off the track!")
+	EndIf
+End Function
+
+; Brings back a craft that broke or fell, in the middle of the road. One that fell into a gap comes back after it.
+Function Respawn(c.Craft)
+	Local s = SliceAt(c\d), tries = 0
+	While (Not HasRoad(s) Or sliceKind(s) = KIND_RAMP) And tries < slices
+		s = (s + 1) Mod slices
+		tries = tries + 1
+	Wend
+	If s <> SliceAt(c\d) Then c\d = (s + 0.5) * sliceLength
+	c\lat = 0 : c\ang = 0 : c\vang = 0 : c\spd = 0.3 * classScale
+	If Not c\fell Then c\energy = c\maxEnergy / 2
+	c\fell = False
+	c\airborne = False
+	c\y = Ground(c\d, 0) : c\vy = 0
+	ShowEntity c\mesh
 End Function
 
 ; Counts laps when a craft crosses the start line going forwards, but only after it went round: it must have passed
@@ -999,8 +1245,8 @@ End Function
 
 Function PlayerLap()
 	PlaySfx(soundLap)
-	If recordLap(setupTrack) = 0 Or player\lastLap < recordLap(setupTrack)
-		recordLap(setupTrack) = player\lastLap
+	If recordLap(setupTrack, setupClass) = 0 Or player\lastLap < recordLap(setupTrack, setupClass)
+		recordLap(setupTrack, setupClass) = player\lastLap
 		newLapRecord = True
 		ShowMessage("Track record!  " + TimeText(player\lastLap))
 	ElseIf player\lastLap = player\bestLap
@@ -1018,8 +1264,8 @@ Function PlayerLap()
 			StopEngine()
 			state = STATE_FINISHED
 			finishTimer = 240
-			If recordRace(setupTrack, setupLaps) = 0 Or raceFrames < recordRace(setupTrack, setupLaps)
-				recordRace(setupTrack, setupLaps) = raceFrames
+			If recordRace(setupTrack, setupLaps, setupClass) = 0 Or raceFrames < recordRace(setupTrack, setupLaps, setupClass)
+				recordRace(setupTrack, setupLaps, setupClass) = raceFrames
 				newRaceRecord = True
 			EndIf
 			SaveSettings()
@@ -1034,7 +1280,7 @@ Function BreakCraft(c.Craft)
 	c\spd = 0
 	c\padTimer = 0
 	HideEntity c\mesh
-	TrackPoint(c\d, c\lat, HOVER)
+	CraftPoint(c, HOVER)
 	BurstSparks(gX, gY, gZ, 255, 150, 60, 40, 0.5, 1.5)
 	BurstSparks(gX, gY, gZ, 255, 240, 200, 20, 0.3, 2.5)
 	If c = player
@@ -1046,15 +1292,29 @@ End Function
 ; The computer drives by looking ahead along the track: it keeps to the inside of the corners that come, slows down
 ; for sharp ones, steers round crafts in front of it, and boosts on straights when it has energy to spare.
 Function DriveComputer(c.Craft)
-	Local s = SliceAt(c\d), k, near#, far#
+	Local s = SliceAt(c\d), k, near#
 	For k = 3 To 22
 		near = near + tTurn((s + k) Mod slices)
 	Next
-	For k = 6 To 40
-		far = far + tTurn((s + k) Mod slices)
+	; Look ahead as far as the craft needs to slow down, for the sharpest bend and for jumps and open edges.
+	Local look = Int(c\spd * 30 / sliceLength) + 6, sum#, worst#, jumpAhead = False, openAhead = False, kind
+	If look > 150 Then look = 150
+	For k = 0 To 5
+		sum = sum + tTurn((s + k) Mod slices)
 	Next
+	For k = 0 To look
+		worst = Max(worst, Abs(sum))
+		sum = sum + tTurn((s + k + 6) Mod slices) - tTurn((s + k) Mod slices)
+		kind = sliceKind((s + k) Mod slices)
+		If k < 40 And (kind = KIND_RAMP Or kind = KIND_GAP) Then jumpAhead = True
+		If k < 25 And kind = KIND_OPEN Then openAhead = True
+	Next
+	Local bend# = worst / (6 * sliceLength) ; Degrees of turn for every unit of track.
+
 	Local limit# = TRACK_HALF - CRAFT_HALF - 0.6
+	If openAhead Or sliceKind(s) = KIND_OPEN Then limit = TRACK_HALF - 3.5
 	Local target# = Clamp(-near / 45.0, -1, 1) * (limit - 2.5) + c\lineOffset
+	If jumpAhead Then target = c\lineOffset * 0.5 ; Straight over the middle of a jump.
 
 	; Make room for crafts close in front.
 	Local o.Craft, gap#
@@ -1063,7 +1323,7 @@ Function DriveComputer(c.Craft)
 			gap = o\d - c\d
 			If gap < -trackLength / 2 Then gap = gap + trackLength
 			If gap > trackLength / 2 Then gap = gap - trackLength
-			If gap > 0 And gap < 14 And Abs(o\lat - target) < 2.8
+			If gap > 0 And gap < 14 * classScale And Abs(o\lat - target) < 2.8
 				If o\lat > 0 Then target = o\lat - 3 Else target = o\lat + 3
 			EndIf
 		EndIf
@@ -1072,6 +1332,9 @@ Function DriveComputer(c.Craft)
 
 	Local wanted# = Clamp((c\lat - target) * 2.2, -22, 22)
 	Local steer# = Clamp((wanted - c\ang) * 0.4, -1, 1)
+	; When steering alone cannot turn fast enough, an air brake helps.
+	Local air# = 0
+	If Abs(wanted - c\ang) > 7 And c\spd > 0.8 * classScale Then air = Sgn(wanted - c\ang)
 
 	; Catching up a little when far behind the player, and easing off a little when far in front.
 	Local pace# = 1.0
@@ -1082,12 +1345,17 @@ Function DriveComputer(c.Craft)
 			If gap < -150 Then pace = 1.03
 		EndIf
 	EndIf
-	Local wantSpeed# = TOP_SPEED * c\skill * pace * (1 - Clamp((Abs(far) - 20) / 120.0, 0, 0.55))
+	; The fastest speed at which the craft can still turn as much as the bend ahead needs.
+	Local grip# = Sqr(classScale)
+	Local canTurn# = (2.7 + AIR_BRAKE * c\brakeMul * 0.5) * grip * 0.8
+	Local wantSpeed# = Min(topSpeed * c\skill * c\topMul * pace, canTurn / (bend + 0.45 * grip / classScale + 0.001))
+	If jumpAhead Then wantSpeed = topSpeed * c\skill * c\topMul
 	If c\aiBoost > 0 Then c\aiBoost = c\aiBoost - 1
-	If c\aiBoost = 0 And c\energy > 70 And Abs(far) < 12 And Rand(120) = 1 Then c\aiBoost = 50
-	If c\aiBoost > 0 Or c\padTimer > 0 Then wantSpeed = wantSpeed + PAD_SPEED
+	If c\aiBoost = 0 And c\energy > c\maxEnergy * 0.7 And bend < 0.15 And Rand(120) = 1 Then c\aiBoost = 50
+	; Boost only where the road ahead is straight enough for the extra speed.
+	If (c\aiBoost > 0 Or c\padTimer > 0) And bend < 0.15 Then wantSpeed = wantSpeed + PAD_SPEED * classScale
 
-	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.2, steer, c\aiBoost > 0)
+	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.15 * classScale, steer, c\aiBoost > 0, air)
 End Function
 
 ; Crafts that touch push each other apart; the one behind loses a little speed and the one in front gains a little.
@@ -1096,7 +1364,7 @@ Function BumpCrafts()
 	For a = Each Craft
 		b = After a
 		While b <> Null
-			If a\respawn = 0 And b\respawn = 0
+			If a\respawn = 0 And b\respawn = 0 And Abs(a\y - b\y) < 2
 				gap = b\d - a\d
 				If gap < -trackLength / 2 Then gap = gap + trackLength
 				If gap > trackLength / 2 Then gap = gap - trackLength
@@ -1173,7 +1441,8 @@ Function GridCrafts()
 	For c = Each Craft
 		c\d = trackLength - 12 - (n / 2) * 10
 		If n Mod 2 = 0 Then c\lat = -3.5 Else c\lat = 3.5
-		c\ang = 0 : c\vang = 0 : c\spd = 0 : c\energy = 100
+		c\ang = 0 : c\vang = 0 : c\spd = 0 : c\energy = c\maxEnergy
+		c\y = Ground(c\d, c\lat) : c\vy = 0 : c\airborne = False : c\fell = False
 		c\lap = 0 : c\halfway = True : c\lapStart = 0 : c\lastLap = 0 : c\bestLap = 0
 		c\finished = False : c\finishTime = 0 : c\respawn = 0 : c\padTimer = 0 : c\aiBoost = 0
 		c\lineOffset = Rnd(-1.5, 1.5)
@@ -1235,8 +1504,10 @@ Function ChaseCamera(c.Craft, back#, height#, drop#)
 		camUpY = camUpY + (uY(i) - camUpY) * 0.08
 		camUpZ = camUpZ + (uZ(i) - camUpZ) * 0.08
 	EndIf
+	; Up and down with the craft, but the camera stays near the road when a craft falls.
+	Local above# = Max(-4, c\y - Ground(c\d, c\lat))
 	TrackPoint(c\d, c\lat, HOVER)
-	Local px# = gX, py# = gY, pz# = gZ
+	Local px# = gX, py# = gY + above, pz# = gZ
 	PositionEntity camera, px - camHeadX * back + camUpX * height, py - camHeadY * back + camUpY * height, pz - camHeadZ * back + camUpZ * height
 	LookAt(px + camHeadX * 5 + camUpX * (1 - drop), py + camHeadY * 5 + camUpY * (1 - drop), pz + camHeadZ * 5 + camUpZ * (1 - drop))
 	PositionEntity mountains, EntityX(camera), 0, EntityZ(camera)
@@ -1268,7 +1539,7 @@ End Function
 
 Function UpdateEngine()
 	If engineChannel = 0 Then Return
-	Local pitch# = 0.6 + player\spd * 0.55
+	Local pitch# = 0.6 + player\spd / classScale * 0.4 + (classScale - 1) * 0.2
 	If player\boosting Or player\padTimer > 0 Then pitch = pitch + 0.25
 	If player\respawn > 0 Then pitch = 0.4
 	ChannelPitch engineChannel, Int(22050 * pitch)
@@ -1318,13 +1589,14 @@ Function StartDemo()
 	StopEngine()
 	Local k, c.Craft
 	For k = 0 To RACERS - 1
-		NewCraft(RacerName(k), RacerR(k), RacerG(k), RacerB(k), True, 0.95 + k * 0.01)
+		NewCraft(RacerName(k), RacerR(k), RacerG(k), RacerB(k), True, 0.95 + k * 0.01, k Mod SHIPS)
 	Next
 	GridCrafts()
 	k = 0
 	For c = Each Craft
 		c\d = Float(k) * trackLength / RACERS
-		c\spd = 1.2
+		c\spd = 1.2 * classScale
+		c\y = Ground(c\d, c\lat)
 		k = k + 1
 	Next
 	demoTarget = First Craft
@@ -1379,16 +1651,18 @@ End Function
 
 Function GoToSetup(newMode)
 	raceMode = newMode
-	If raceMode = MODE_RACE Then OpenMenu(STATE_SETUP, 5, 250) Else OpenMenu(STATE_SETUP, 3, 250)
+	If raceMode = MODE_RACE Then OpenMenu(STATE_SETUP, 7, SETUP_TOP) Else OpenMenu(STATE_SETUP, 5, SETUP_TOP)
 	RefreshSetupText()
 	menuSelected = menuCount - 2 ; Start.
 End Function
 
 Function RefreshSetupText()
 	menuText(0) = "Track: " + trackNames(setupTrack)
+	menuText(1) = "Class: " + classNames(setupClass) + "  (" + Int(classTop(setupClass) * 200) + " km/h)"
+	menuText(2) = "Craft: " + shipNames(setupShip)
 	If raceMode = MODE_RACE
-		menuText(1) = "Laps: " + lapChoices(setupLaps)
-		menuText(2) = "Rivals: " + rivalNames(setupRivals)
+		menuText(3) = "Laps: " + lapChoices(setupLaps)
+		menuText(4) = "Rivals: " + rivalNames(setupRivals)
 	EndIf
 	menuText(menuCount - 2) = "Start"
 	menuText(menuCount - 1) = "Back"
@@ -1419,8 +1693,12 @@ Function UpdateSetup()
 			setupTrack = (setupTrack + change + TRACKS) Mod TRACKS
 			BuildTrack(setupTrack)
 			StartDemo()
-		Case 1 : setupLaps = (setupLaps + change + 3) Mod 3
-		Case 2 : setupRivals = (setupRivals + change + 3) Mod 3
+		Case 1
+			SetClass((setupClass + change + CLASSES) Mod CLASSES)
+			StartDemo()
+		Case 2 : setupShip = (setupShip + change + SHIPS) Mod SHIPS
+		Case 3 : setupLaps = (setupLaps + change + 3) Mod 3
+		Case 4 : setupRivals = (setupRivals + change + 3) Mod 3
 	End Select
 	PlaySfx(soundClick)
 	RefreshSetupText()
@@ -1548,14 +1826,18 @@ Function StartRace()
 	raceLaps = lapChoices(setupLaps)
 	Local k, count = RACERS
 	If raceMode = MODE_TRIAL Then count = 1
-	player = NewCraft(RacerName(0), RacerR(0), RacerG(0), RacerB(0), False, 1.0)
+	player = NewCraft(RacerName(0), RacerR(0), RacerG(0), RacerB(0), False, 1.0, setupShip)
 	For k = 1 To count - 1
-		NewCraft(RacerName(k), RacerR(k), RacerG(k), RacerB(k), True, rivalSkill(setupRivals) + (k - 2) * 0.012)
+		; Each rival flies a different design from the player's.
+		NewCraft(RacerName(k), RacerR(k), RacerG(k), RacerB(k), True, rivalSkill(setupRivals) + (k - 2) * 0.012, (setupShip + k) Mod SHIPS)
 	Next
 	; The player starts at the back of the grid in a race. In a time trial the lap starts at the line.
 	If raceMode = MODE_RACE Then Insert player After Last Craft
 	GridCrafts()
-	If raceMode = MODE_TRIAL Then player\d = trackLength - 40 : player\lat = 0 : PlaceCraft(player)
+	If raceMode = MODE_TRIAL
+		player\d = trackLength - 40 : player\lat = 0 : player\y = Ground(player\d, 0)
+		PlaceCraft(player)
+	EndIf
 	RankCrafts()
 	raceFrames = 0
 	countdown = 0
@@ -1605,7 +1887,10 @@ Function UpdateRace()
 			Local steer# = 0
 			If KeyDown(KEY_LEFT) Or KeyDown(KEY_A) Then steer = steer + 1
 			If KeyDown(KEY_RIGHT) Or KeyDown(KEY_D) Then steer = steer - 1
-			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, KeyDown(KEY_SPACE))
+			Local air# = 0
+			If KeyDown(KEY_Q) Then air = air + 1
+			If KeyDown(KEY_E) Then air = air - 1
+			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, KeyDown(KEY_SPACE), air)
 		EndIf
 	Next
 	BumpCrafts()
@@ -1668,9 +1953,10 @@ Function DrawGame()
 			DrawMenu()
 		Case STATE_SETUP
 			ShadeScreen()
-			If raceMode = MODE_RACE Then DrawTitle("Race", 170) Else DrawTitle("Time trial", 170)
+			If raceMode = MODE_RACE Then DrawTitle("Race", 115) Else DrawTitle("Time trial", 115)
 			DrawMenu()
-			DrawRecords(250 + menuCount * 32 + 30)
+			DrawShipStats(SETUP_TOP + menuCount * 32 + 14)
+			DrawRecords(SETUP_TOP + menuCount * 32 + 92)
 		Case STATE_OPTIONS
 			ShadeScreen()
 			DrawTitle("Options", 170)
@@ -1724,20 +2010,22 @@ Function DrawHud()
 	Local best$ = "Best lap  --"
 	If player\bestLap > 0 Then best = "Best lap  " + TimeText(player\bestLap)
 	ShadowText(SCREEN_W - 20 - StringWidth(best), 46, best, False)
-	If recordLap(setupTrack) > 0
-		best = "Record  " + TimeText(recordLap(setupTrack))
+	If recordLap(setupTrack, setupClass) > 0
+		best = "Record  " + TimeText(recordLap(setupTrack, setupClass))
 		ShadowText(SCREEN_W - 20 - StringWidth(best), 64, best, False)
 	EndIf
 
 	; Speed and energy at the bottom left.
 	SetFont hudFont
 	ShadowText(20, SCREEN_H - 84, Int(player\spd * 200) + " km/h", False)
-	Local barW = 220, x = 20, y = SCREEN_H - 44, filled = Int(barW * player\energy / 100)
+	; The bar is as long as the craft's energy can be, so a tougher craft has a longer bar.
+	Local barW = 40 + Int(player\maxEnergy * 1.6), x = 20, y = SCREEN_H - 44, filled = Int(barW * player\energy / player\maxEnergy)
+	Local part# = player\energy / player\maxEnergy
 	Color 20, 16, 36
 	Rect x - 2, y - 2, barW + 4, 18, 1
-	If player\energy > 40
+	If part > 0.4
 		Color 90, 230, 160
-	ElseIf player\energy > 15 Or frame Mod 20 < 10
+	ElseIf part > 0.15 Or frame Mod 20 < 10
 		Color 255, 120, 80
 	Else
 		Color 120, 50, 40
@@ -1818,7 +2106,7 @@ Function MakeMinimap()
 		For i = 0 To slices - 1
 			n = (i + 1) Mod slices
 			light = (tY(i) - minY) / Max(1, maxY - minY)
-			If (light > 0.5) = (pass = 1)
+			If (light > 0.5) = (pass = 1) And HasRoad(i)
 				x1 = MapX(tX(i)) : y1 = MapY(tZ(i)) : x2 = MapX(tX(n)) : y2 = MapY(tZ(n))
 				Color 10, 8, 20
 				For dx = -2 To 2
@@ -1839,11 +2127,32 @@ Function MakeMinimap()
 	SetBuffer BackBuffer()
 End Function
 
+; The four strengths of the chosen craft, as bars of 8 blocks.
+Function DrawShipStats(y)
+	Local k, block, x, value
+	SetFont smallFont
+	For k = 0 To 3
+		x = SCREEN_W / 2 - 200 + (k Mod 2) * 210
+		Local rowY = y + (k / 2) * 26
+		Select k
+			Case 0 : value = shipAccel(setupShip) : ShadowText(x, rowY, "Acceleration", False)
+			Case 1 : value = shipSpeed(setupShip) : ShadowText(x, rowY, "Top speed", False)
+			Case 2 : value = shipEnergy(setupShip) : ShadowText(x, rowY, "Energy", False)
+			Default : value = shipBrake(setupShip) : ShadowText(x, rowY, "Brakes", False)
+		End Select
+		For block = 0 To 7
+			If block < value Then Color 255, 150, 90 Else Color 50, 40, 80
+			Rect x + 104 + block * 11, rowY + 3, 9, 12, 1
+		Next
+	Next
+	SetFont 0
+End Function
+
 Function DrawRecords(y)
 	Local lap$ = "--", race$ = "--"
-	If recordLap(setupTrack) > 0 Then lap = TimeText(recordLap(setupTrack))
-	If recordRace(setupTrack, setupLaps) > 0 Then race = TimeText(recordRace(setupTrack, setupLaps))
-	SmallText(SCREEN_W / 2, y, "Best lap on this track:  " + lap)
+	If recordLap(setupTrack, setupClass) > 0 Then lap = TimeText(recordLap(setupTrack, setupClass))
+	If recordRace(setupTrack, setupLaps, setupClass) > 0 Then race = TimeText(recordRace(setupTrack, setupLaps, setupClass))
+	SmallText(SCREEN_W / 2, y, "Best " + classNames(setupClass) + " lap on this track:  " + lap)
 	If raceMode = MODE_RACE Then SmallText(SCREEN_W / 2, y + 22, "Best " + lapChoices(setupLaps) + " lap race:  " + race)
 End Function
 
@@ -1971,11 +2280,11 @@ End Function
 
 Function DrawHelp()
 	DrawTitle("How to play", 100)
-	Local y = 160, i
+	Local y = 150, i
 	Restore HelpText
 	Local helpLine$
 	SetFont smallFont
-	For i = 1 To 15
+	For i = 1 To 16
 		Read helpLine
 		Color 230, 225, 245
 		Text 110, y, helpLine
@@ -2253,45 +2562,67 @@ Data 5, 7, 6, 4
 Data 0, 2, 3, 1
 
 ; Each track: its name, how many points the curve goes through, the colour of its walls, then the points (x, height,
-; z). Then the boost pads: how many, and for each the part of the lap and the distance right of the middle. Last the
-; charging strip: where it starts and ends as parts of the lap, and its distance right of the middle.
+; z). Then the boost pads: how many, and for each the part of the lap and the distance right of the middle. Then the
+; charging strip: where it starts and ends as parts of the lap, and its distance right of the middle. Then the jumps:
+; how many, and for each where its ramp starts as a part of the lap, how high the ramp lifts, and how many slices the
+; gap after it is long. Last the parts without walls: how many, and where each starts and ends.
 .TrackHarbour
 Data "Harbour Loop", 12, 70, 200, 255
-Data 0, 4, -390,  270, 4, -375,  435, 6, -240,  450, 8, 0,  375, 10, 210,  180, 12, 300
-Data 60, 10, 210,  -60, 8, 300,  -270, 8, 360,  -435, 6, 210,  -450, 4, -60,  -330, 4, -300
+Data 0, 24, -390,  270, 24, -375,  435, 26, -240,  450, 28, 0,  375, 30, 210,  180, 32, 300
+Data 60, 30, 210,  -60, 28, 300,  -270, 28, 360,  -435, 26, 210,  -450, 24, -60,  -330, 24, -300
 Data 3
 Data 0.17, -4.0,  0.47, 4.0,  0.78, 0.0
 Data 0.91, 0.985, 5.0
+Data 1
+Data 0.235, 3.5, 6
+Data 1
+Data 0.72, 0.80
 
 .TrackCanyon
 Data "Canyon Climb", 12, 255, 150, 60
-Data 0, 10, -450,  300, 14, -420,  480, 30, -225,  390, 50, 15,  495, 60, 255,  270, 64, 450
-Data 0, 50, 345,  -120, 35, 150,  -300, 38, 375,  -495, 30, 225,  -450, 16, -90,  -300, 10, -375
+Data 0, 30, -450,  300, 34, -420,  480, 50, -225,  390, 70, 15,  495, 80, 255,  270, 84, 450
+Data 0, 70, 345,  -120, 55, 150,  -300, 58, 375,  -495, 50, 225,  -450, 36, -90,  -300, 30, -375
 Data 4
 Data 0.08, 0.0,  0.30, -4.0,  0.55, 4.0,  0.84, 0.0
 Data 0.92, 0.985, -5.0
+Data 1
+Data 0.785, 3.5, 6
+Data 1
+Data 0.42, 0.48
 
 .TrackKnot
 Data "Neon Knot", 12, 255, 80, 210
-Data -90, 8, -90,  90, 10, 90,  270, 14, 300,  450, 20, 270,  480, 26, 60,  270, 32, -120
-Data 90, 34, -90,  -90, 34, 90,  -270, 30, 120,  -480, 24, -60,  -450, 18, -270,  -270, 12, -300
+Data -90, 28, -90,  90, 30, 90,  270, 34, 300,  450, 40, 270,  480, 46, 60,  270, 52, -120
+Data 90, 54, -90,  -90, 54, 90,  -270, 50, 120,  -480, 44, -60,  -450, 38, -270,  -270, 32, -300
 Data 4
 Data 0.05, 3.0,  0.27, -3.0,  0.52, 0.0,  0.74, 4.0
 Data 0.88, 0.97, -5.0
+Data 1
+Data 0.10, 3.5, 6
+Data 1
+Data 0.50, 0.57
+
+.Ships
+; Name, then acceleration, top speed, energy and brakes. Each adds up to 20.
+Data "Vesper", 5, 5, 5, 5
+Data "Swift", 8, 4, 3, 5
+Data "Lance", 3, 8, 4, 5
+Data "Bastion", 4, 5, 8, 3
 
 .HelpText
-Data "Race three rivals round a track high above the city. Up or W speeds up,"
-Data "Left and Right (or A and D) steer, and Down or S is the air brake: it slows"
-Data "you down and lets you turn much tighter, for the sharp corners."
+Data "Race three rivals round a track high above the city. Up or W speeds up, Left"
+Data "and Right (or A and D) steer. Down or S works both air brakes: it slows you"
+Data "and turns tighter. Q and E are the left and the right air brake: each turns"
+Data "you hard to its side and lets the craft slide, for the sharpest corners."
 Data ""
-Data "Your craft slides a little, so start turning before the corner."
+Data "Yellow arrows are boost pads. Space boosts too, but uses energy. Walls cost"
+Data "energy, and with none left a wall breaks your craft for two seconds. Drive"
+Data "over the green strip before the start line to charge up again."
 Data ""
-Data "Yellow arrows on the road are boost pads. Space boosts too, but uses energy."
-Data "Hitting a wall also costs energy, and with no energy left a wall breaks"
-Data "your craft: it comes back after two seconds, but the others don't wait."
-Data "Drive over the green strip before the start line to charge up again."
+Data "Red and white arches warn of a jump: keep your speed to clear the gap. Where"
+Data "red and white stripes line the road there are no walls, so mind the edges."
+Data "Fall off and you are back after a second, but the others don't wait."
 Data ""
-Data "In a time trial you race alone, for the best lap on each track."
-Data "The best times are kept for every track."
-Data ""
+Data "Pick a class from Spark to Pulsar for more speed, and a craft whose 20 points"
+Data "suit you. Time trials keep the best lap for every track and class."
 Data "Escape or P pauses the race."
