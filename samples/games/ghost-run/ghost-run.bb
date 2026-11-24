@@ -9,7 +9,7 @@
 ; Controls:
 ;   Up or W          accelerate
 ;   Down or S        brake, and reverse once stopped
-;   Left/Right, A/D  steer, in the air too
+;   Left/Right, A/D  steer (only on the road, not in the air)
 ;   Space            handbrake: the back of the car slides out, for drifting round tight corners
 ;   Backspace        back to the last checkpoint (the clock keeps running)
 ;   R                start the run again
@@ -858,8 +858,7 @@ Function DriveCar(c.Car, throttle#, steer#, handbrake)
 		TurnEntity c\ent, 0, rate, 0
 	Else
 		c\airTime = c\airTime + 1
-		; In the air the car can still be turned a little, and slowly levels out for the landing.
-		TurnEntity c\ent, 0, c\steer * 1.2, 0
+		; In the air the car can not be steered; it only levels out slowly for the landing.
 		AlignToVector c\ent, 0, 1, 0, 2, 0.015
 	EndIf
 	c\grounded = hits
@@ -2006,7 +2005,7 @@ Data "checkpoint on the way: the blue banners turn green once you have."
 Data ""
 Data "Up or W accelerates, Down or S brakes and then reverses, and Left/Right"
 Data "or A/D steer. Hold Space for the handbrake: the back of the car slides"
-Data "out, which swings it round tight corners. You can steer in the air too."
+Data "out, which swings it round tight corners. In the air you can not steer."
 Data ""
 Data "Orange arrows are boost pads. Ramps throw you over gaps, so take them"
 Data "fast. If you fall off, the car comes back at the last checkpoint, but"
