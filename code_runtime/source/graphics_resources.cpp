@@ -818,6 +818,9 @@ namespace bb::gfx {
 		desc.height     = uint32_t(h);
 		desc.vsync      = s.vsync;
 		desc.own_thread = (s.show != nullptr);
+#if defined(_WIN32)
+		desc.native_window = SDL_GetPointerProperty(SDL_GetWindowProperties(s.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+#endif
 		if (bb::rhi::create_swapchain(s.chain, desc)) {
 			s.resized = false;
 		}
