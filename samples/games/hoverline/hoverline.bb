@@ -10,7 +10,6 @@
 ;   Down or S        both air brakes: slows down, and turns tighter
 ;   Q and E          the left and the right air brake: turn much tighter that way, and slide
 ;   Left/Right, A/D  steer
-;   Space            boost, which uses energy
 ;   Ctrl or F        use the weapon or ability picked up from a rainbow field
 ;   Escape or P      the pause menu
 ;   Menus            Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
@@ -40,7 +39,6 @@ Const WALL_HEIGHT# = 1.6
 ; Speeds are in units per update (there are 60 updates every second), for the slowest class. The faster classes
 ; multiply them by classScale.
 Const ACCELERATION# = 0.022
-Const BOOST_SPEED# = 0.55    ; Extra top speed while Space is held.
 Const PAD_SPEED# = 0.8       ; Extra top speed after crossing a boost pad.
 Const PAD_TIME = 70
 Const AIR_BRAKE# = 2.4       ; Extra turning, in degrees per update, from one air brake.
@@ -66,6 +64,7 @@ Const WEAPON_NONE = 0, WEAPON_GATLING = 1, WEAPON_MISSILE = 2, WEAPON_QUAKE = 3,
 Const WEAPON_SHIELD = 5, WEAPON_AUTOPILOT = 6, WEAPON_PULSE = 7, WEAPON_PLASMA = 8, WEAPONS = 8
 Const LOCK_TIME = 150       ; A missile needs 2.5 seconds on the same target before it locks on.
 Const SHIELD_TIME = 300, AUTOPILOT_TIME = 150, GATLING_ROUNDS = 36
+Const PLASMA_CHARGE = 60, PULSE_RADIUS# = 14    ; The plasma charges for a second before it fires.
 Const SHOT_BULLET = 0, SHOT_MISSILE = 1, SHOT_PLASMA = 2
 Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_ENTER = 28, KEY_SPACE = 57
 Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
@@ -76,10 +75,8 @@ Type Craft
 	Field d#, lat#      ; How far along the track, and how far right of the middle.
 	Field ang#, vang#   ; Where the nose points, and where the craft moves, in degrees left of the track direction.
 	Field spd#
-	Field energy#       ; 0 to maxEnergy. Hitting a wall costs energy, so does boosting. At 0 a wall breaks the craft.
+	Field energy#       ; 0 to maxEnergy. Hitting a wall or a weapon hit costs energy. At 0 a wall breaks the craft.
 	Field padTimer      ; Updates of boost left from a boost pad.
-	Field boosting      ; True while boosting this update.
-	Field aiBoost       ; Updates of boost the computer decided on.
 	Field respawn       ; Updates until a broken craft comes back.
 	Field lap, halfway, lapStart, lastLap, bestLap
 	Field finished, finishTime, place
@@ -96,6 +93,8 @@ Type Craft
 	Field weapon, aiHold           ; The weapon held, and how long the computer waits before using it.
 	Field lockTarget.Craft, lockTimer
 	Field burst, shield, autopilot ; Gatling rounds left to fire, updates of shield and of autopilot left.
+	Field boostTimer               ; Updates left of the Boost pickup.
+	Field charge                   ; Updates the plasma has been charging, 0 when it is not.
 	Field r, g, b
 	Field name$
 End Type
@@ -105,6 +104,7 @@ Type Shot
 	Field x#, y#, z#, vx#, vy#, vz#
 	Field life, damage#, radius#
 	Field owner.Craft, target.Craft
+	Field slice                    ; The slice of the track the shot is over, for the walls.
 End Type
 
 ; The quake: a wave that runs forwards along the track and throws grounded crafts up.
@@ -236,6 +236,8 @@ Global soundShot = MakeSound(1400, 600, 50, WAVE_NOISE, 0.12)
 Global soundMissile = MakeSound(200, 700, 500, WAVE_NOISE, 0.2)
 Global soundBlast = MakeSound(180, 40, 500, WAVE_NOISE, 0.4)
 Global soundPlasma = MakeSound(2000, 300, 350, WAVE_SINE, 0.3)
+Global soundCharge = MakeSound(200, 1600, 1000, WAVE_SINE, 0.2)
+Global soundWarning = MakeSound(1200, 1200, 80, WAVE_SQUARE, 0.12)
 Global soundShield = MakeSound(300, 900, 400, WAVE_SINE, 0.2)
 Global soundPulse = MakeSound(120, 60, 400, WAVE_SQUARE, 0.3)
 Global soundLock = MakeSound(1800, 1800, 60, WAVE_SINE, 0.12)
@@ -1119,7 +1121,7 @@ Function PlaceCraft(c.Craft)
 	If c\airborne And c\y > Ground(c\d, c\lat) + 2 Then HideEntity c\shadow Else ShowEntity c\shadow
 	If c\shield > 0 And (c\shield > 60 Or frame Mod 8 < 5) Then ShowEntity c\shieldBubble Else HideEntity c\shieldBubble
 	Local glowSize# = 0.6 + c\spd / classScale * 0.35
-	If c\boosting Or c\padTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
+	If c\padTimer > 0 Or c\boostTimer > 0 Then glowSize = glowSize + 0.6 + Rnd(0.2)
 	ScaleSprite c\glow, glowSize, glowSize
 End Function
 
@@ -1153,9 +1155,8 @@ Function SetClass(k)
 End Function
 
 ; Moves a craft for one update. throttle and brake are True or False, steer goes from -1 (right) to 1 (left).
-Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
+Function DriveCraft(c.Craft, throttle, brake, steer#, air#)
 	; air goes from -1 (the right air brake) to 1 (the left one).
-	c\boosting = False
 	If c\respawn > 0
 		c\respawn = c\respawn - 1
 		If c\respawn = 0 Then Respawn(c)
@@ -1168,16 +1169,16 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
 	EndIf
 
 	Local top# = topSpeed * c\skill * c\topMul, push# = ACCELERATION * classScale * c\accelMul
+	; A boost pad and the Boost pickup add up: each one raises the top speed and the push.
 	If c\padTimer > 0
 		top = top + PAD_SPEED * classScale
 		push = push * 3
 		c\padTimer = c\padTimer - 1
 	EndIf
-	If boost And c\energy > 10
-		top = top + BOOST_SPEED * classScale
-		push = push * 2.5
-		c\energy = c\energy - 0.35
-		c\boosting = True
+	If c\boostTimer > 0
+		top = top + PAD_SPEED * classScale
+		push = push * 3
+		c\boostTimer = c\boostTimer - 1
 	EndIf
 	If c\airborne
 		c\spd = c\spd * 0.999 ; Nothing to push against in the air.
@@ -1286,7 +1287,7 @@ Function DriveCraft(c.Craft, throttle, brake, steer#, boost, air#)
 		For p = 0 To pads - 1
 			If (s - padSlice(p) + slices) Mod slices < 4 And Abs(c\lat - padLat(p)) < 3
 				If c\padTimer < PAD_TIME - 20 And c = player Then PlaySfx(soundPad)
-				c\padTimer = PAD_TIME
+				c\padTimer = Max(c\padTimer, PAD_TIME)
 			EndIf
 		Next
 	EndIf
@@ -1457,12 +1458,10 @@ Function DriveComputer(c.Craft)
 	Local canTurn# = (2.7 + AIR_BRAKE * c\brakeMul * 0.5) * grip * 0.8
 	Local wantSpeed# = Min(topSpeed * c\skill * c\topMul * pace, canTurn / (bend + 0.45 * grip / classScale + 0.001))
 	If jumpAhead Then wantSpeed = topSpeed * c\skill * c\topMul
-	If c\aiBoost > 0 Then c\aiBoost = c\aiBoost - 1
-	If c\aiBoost = 0 And c\energy > c\maxEnergy * 0.7 And bend < 0.15 And Rand(120) = 1 Then c\aiBoost = 50
 	; Boost only where the road ahead is straight enough for the extra speed.
-	If (c\aiBoost > 0 Or c\padTimer > 0) And bend < 0.15 Then wantSpeed = wantSpeed + PAD_SPEED * classScale
+	If (c\padTimer > 0 Or c\boostTimer > 0) And bend < 0.15 Then wantSpeed = wantSpeed + PAD_SPEED * classScale
 
-	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.15 * classScale, steer, c\aiBoost > 0, air)
+	DriveCraft(c, c\spd < wantSpeed, c\spd > wantSpeed + 0.15 * classScale, steer, air)
 End Function
 
 ; Crafts that touch push each other apart; the one behind loses a little speed and the one in front gains a little.
@@ -1553,7 +1552,7 @@ Function GridCrafts()
 		c\y = Ground(c\d, c\lat) : c\vy = 0 : c\airborne = False : c\fell = False
 		c\weapon = 0 : c\burst = 0 : c\shield = 0 : c\autopilot = 0 : c\lockTimer = 0 : c\lockTarget = Null
 		c\lap = 0 : c\halfway = True : c\lapStart = 0 : c\lastLap = 0 : c\bestLap = 0
-		c\finished = False : c\finishTime = 0 : c\respawn = 0 : c\padTimer = 0 : c\aiBoost = 0
+		c\finished = False : c\finishTime = 0 : c\respawn = 0 : c\padTimer = 0 : c\boostTimer = 0 : c\charge = 0
 		c\lineOffset = Rnd(-1.5, 1.5)
 		ShowEntity c\mesh
 		PlaceCraft(c)
@@ -1658,7 +1657,7 @@ Function FireWeapon(c.Craft)
 			ShowEntity wv\ent
 			If loud Then PlaySfx(soundBlast)
 		Case WEAPON_BOOST
-			c\padTimer = 150
+			c\boostTimer = 150
 			c\spd = c\spd + 0.4 * classScale
 			If loud Then PlaySfx(soundPad)
 		Case WEAPON_SHIELD
@@ -1680,8 +1679,12 @@ Function FireWeapon(c.Craft)
 			AlignToVector pl\ent, uX(i), uY(i), uZ(i), 2, 1
 			If loud Then PlaySfx(soundPulse)
 		Case WEAPON_PLASMA
-			NewShot(c, SHOT_PLASMA)
-			If loud Then PlaySfx(soundPlasma)
+			; Starts charging; UpdateWeapons fires it when it is full. It keeps the weapon until then.
+			If c\charge = 0
+				c\charge = 1
+				If loud Then PlaySfx(soundCharge)
+			EndIf
+			Return
 	End Select
 	c\weapon = WEAPON_NONE
 	c\lockTarget = Null
@@ -1709,7 +1712,7 @@ Function NewShot.Shot(c.Craft, kind)
 			ScaleSprite sh\ent, 0.45, 0.45
 		Case SHOT_MISSILE
 			speed = topSpeed * 1.35 + 1
-			sh\life = 300 : sh\damage = 35 : sh\radius = 2.2
+			sh\life = 300 : sh\damage = 20 : sh\radius = 2.2
 			EntityColor sh\ent, 255, 90, 60
 			ScaleSprite sh\ent, 0.9, 0.9
 		Default
@@ -1720,6 +1723,7 @@ Function NewShot.Shot(c.Craft, kind)
 			ScaleSprite sh\ent, 1.6, 1.6
 	End Select
 	sh\vx = dirX * speed : sh\vy = dirY * speed : sh\vz = dirZ * speed
+	sh\slice = SliceAt(c\d)
 	PositionEntity sh\ent, sh\x, sh\y, sh\z
 	Return sh
 End Function
@@ -1734,6 +1738,8 @@ Function DamageCraft(c.Craft, amount#, by.Craft, what$)
 	EndIf
 	BurstSparks(gX, gY, gZ, 255, 160, 80, 10, 0.3, 0.8)
 	If c = player Or by = player Then PlaySfx(soundWall)
+	; The harder the hit, the more speed it knocks off: a bullet a little, a missile a lot, plasma most of it.
+	c\spd = c\spd * (1 - Clamp(amount * 0.025, 0.04, 0.7))
 	c\energy = c\energy - amount
 	If c\energy <= 0
 		c\energy = 0
@@ -1764,6 +1770,10 @@ Function DriveAutopilot(c.Craft)
 	If c\padTimer > 0
 		speed = speed + PAD_SPEED * classScale
 		c\padTimer = c\padTimer - 1
+	EndIf
+	If c\boostTimer > 0
+		speed = speed + PAD_SPEED * classScale
+		c\boostTimer = c\boostTimer - 1
 	EndIf
 	c\spd = Max(c\spd, speed)
 	Local oldD# = c\d
@@ -1804,6 +1814,23 @@ Function UpdateWeapons()
 			c\burst = c\burst - 1
 			If c = player Then PlaySfx(soundShot)
 		EndIf
+		If c\charge > 0
+			c\charge = c\charge + 1
+			If c\respawn > 0
+				c\charge = 0
+			ElseIf c\charge >= PLASMA_CHARGE
+				c\charge = 0
+				c\weapon = WEAPON_NONE
+				NewShot(c, SHOT_PLASMA)
+				If c = player Then PlaySfx(soundPlasma)
+			ElseIf frame Mod 2 = 0
+				; Light gathers at the nose while it charges.
+				CraftHeading(c, c\ang)
+				Local nx# = hX, ny# = hY, nz# = hZ
+				CraftPoint(c, HOVER)
+				BurstSparks(gX + nx * 2.6, gY + ny * 2.6, gZ + nz * 2.6, 120, 230, 255, 1, 0.04, 0.4 + c\charge * 0.03)
+			EndIf
+		EndIf
 		If c\weapon = WEAPON_MISSILE
 			Local target.Craft = CraftAhead(c, 700)
 			If target = Null Or target <> c\lockTarget
@@ -1812,6 +1839,7 @@ Function UpdateWeapons()
 			Else
 				c\lockTimer = c\lockTimer + 1
 				If c\lockTimer = LOCK_TIME And c = player Then PlaySfx(soundLock)
+				If target = player And frame Mod 20 = 0 Then PlaySfx(soundWarning)
 			EndIf
 		EndIf
 		If c\computer And c\weapon <> WEAPON_NONE Then ComputerWeapon(c)
@@ -1823,8 +1851,9 @@ Function UpdateWeapons()
 End Function
 
 Function UpdateShots()
-	Local sh.Shot, o.Craft, dx#, dy#, dz#, length#, speed#, hit
+	Local sh.Shot, o.Craft, dx#, dy#, dz#, length#, speed#, hit, wall, along#, lat#, up#, i, n, dot#
 	For sh = Each Shot
+		If sh\target = player And frame Mod 10 = 0 Then PlaySfx(soundWarning)
 		If sh\kind = SHOT_MISSILE And sh\target <> Null
 			If sh\target\respawn = 0
 				; Turn towards the target, keeping the speed.
@@ -1846,6 +1875,42 @@ Function UpdateShots()
 		EndIf
 		sh\life = sh\life - 1
 		hit = False
+
+		; Which slice the shot is over: start from the last one and step along until the shot lies within it.
+		i = sh\slice
+		For n = 1 To 8
+			along = (sh\x - tX(i)) * fX(i) + (sh\y - tY(i)) * fY(i) + (sh\z - tZ(i)) * fZ(i)
+			If along > sliceLength
+				i = (i + 1) Mod slices
+			ElseIf along < 0
+				i = (i + slices - 1) Mod slices
+			Else
+				Exit
+			EndIf
+		Next
+		sh\slice = i
+		lat = (sh\x - tX(i)) * rX(i) + (sh\y - tY(i)) * rY(i) + (sh\z - tZ(i)) * rZ(i)
+		up = (sh\x - tX(i)) * uX(i) + (sh\y - tY(i)) * uY(i) + (sh\z - tZ(i)) * uZ(i)
+		; The walls: past the edge of the road, below the top of the wall, where there is a wall.
+		wall = HasWalls(i) And Abs(lat) > TRACK_HALF And Abs(lat) < TRACK_HALF + 3 And up < WALL_HEIGHT + 0.3 And up > -1
+		If wall
+			If sh\kind = SHOT_BULLET
+				; Bullets bounce: the part of the movement towards the wall turns round.
+				dot = sh\vx * rX(i) + sh\vy * rY(i) + sh\vz * rZ(i)
+				If dot * lat > 0
+					sh\vx = sh\vx - 2 * dot * rX(i) : sh\vy = sh\vy - 2 * dot * rY(i) : sh\vz = sh\vz - 2 * dot * rZ(i)
+					BurstSparks(sh\x, sh\y, sh\z, 255, 230, 140, 2, 0.15, 0.3)
+				EndIf
+			Else
+				Explode(sh)
+				hit = True
+			EndIf
+		ElseIf HasRoad(i) And Abs(lat) < TRACK_HALF And up < -0.2 And up > -2
+			; Into the road.
+			If sh\kind <> SHOT_BULLET Then Explode(sh)
+			hit = True
+		EndIf
+
 		For o = Each Craft
 			If o <> sh\owner And o\respawn = 0 And Not hit
 				CraftPoint(o, HOVER)
@@ -1854,15 +1919,10 @@ Function UpdateShots()
 					hit = True
 					Select sh\kind
 						Case SHOT_BULLET : DamageCraft(o, sh\damage, sh\owner, "gatling gun")
-						Case SHOT_MISSILE
-							DamageCraft(o, sh\damage, sh\owner, "missile")
-							BurstSparks(sh\x, sh\y, sh\z, 255, 140, 60, 25, 0.4, 1.2)
-							If o = player Or sh\owner = player Then PlaySfx(soundBlast)
-						Default
-							DamageCraft(o, sh\damage, sh\owner, "plasma")
-							BurstSparks(sh\x, sh\y, sh\z, 140, 230, 255, 30, 0.5, 1.4)
-							If o = player Or sh\owner = player Then PlaySfx(soundBlast)
+						Case SHOT_MISSILE : DamageCraft(o, sh\damage, sh\owner, "missile")
+						Default : DamageCraft(o, sh\damage, sh\owner, "plasma")
 					End Select
+					If sh\kind <> SHOT_BULLET Then Explode(sh)
 				EndIf
 			EndIf
 		Next
@@ -1871,6 +1931,21 @@ Function UpdateShots()
 			Delete sh
 		EndIf
 	Next
+End Function
+
+; The blast where a missile or a plasma bolt ends: plasma's is much bigger.
+Function Explode(sh.Shot)
+	If sh\kind = SHOT_PLASMA
+		BurstSparks(sh\x, sh\y, sh\z, 140, 230, 255, 40, 0.7, 2.2)
+		BurstSparks(sh\x, sh\y, sh\z, 255, 255, 255, 20, 0.4, 3.5)
+		BurstSparks(sh\x, sh\y, sh\z, 80, 140, 255, 25, 1.0, 1.4)
+	Else
+		BurstSparks(sh\x, sh\y, sh\z, 255, 140, 60, 25, 0.4, 1.2)
+		BurstSparks(sh\x, sh\y, sh\z, 255, 230, 160, 10, 0.25, 2.0)
+	EndIf
+	; Loud enough to hear when it is near the camera.
+	Local dx# = sh\x - EntityX(camera), dy# = sh\y - EntityY(camera), dz# = sh\z - EntityZ(camera)
+	If dx * dx + dy * dy + dz * dz < 120 * 120 Then PlaySfx(soundBlast)
 End Function
 
 Function UpdateWaves()
@@ -1889,7 +1964,6 @@ Function UpdateWaves()
 						DamageCraft(o, 25, wv\owner, "quake")
 						o\airborne = True
 						o\vy = 0.4 * classScale
-						o\spd = o\spd * 0.6
 					Else
 						DamageCraft(o, 0, wv\owner, "quake")
 					EndIf
@@ -1920,7 +1994,7 @@ End Function
 Function UpdatePulses()
 	Local pl.Pulse, o.Craft, dx#, dy#, dz#, side#
 	For pl = Each Pulse
-		pl\radius = pl\radius + 1.1
+		pl\radius = pl\radius + 0.7
 		; The ring stays round the craft that set it off.
 		If pl\owner <> Null
 			If pl\owner\respawn = 0
@@ -1930,7 +2004,7 @@ Function UpdatePulses()
 			EndIf
 		EndIf
 		ScaleEntity pl\ent, pl\radius, 1, pl\radius
-		EntityAlpha pl\ent, 1 - pl\radius / 30
+		EntityAlpha pl\ent, 1 - pl\radius / PULSE_RADIUS
 		For o = Each Craft
 			If o\respawn = 0 And (pl\hits And (1 Shl o\index)) = 0
 				CraftPoint(o, HOVER)
@@ -1943,13 +2017,12 @@ Function UpdatePulses()
 							If o\lat < pl\owner\lat Then side = -1.6
 						EndIf
 						o\lat = o\lat + side
-						o\spd = o\spd * 0.75
 					EndIf
 					DamageCraft(o, 20, pl\owner, "pulse")
 				EndIf
 			EndIf
 		Next
-		If pl\radius > 28
+		If pl\radius > PULSE_RADIUS
 			FreeEntity pl\ent
 			Delete pl
 		EndIf
@@ -1959,7 +2032,7 @@ End Function
 ; The computer waits a moment after a pickup, then uses it when it is likely to help.
 Function ComputerWeapon(c.Craft)
 	c\aiHold = c\aiHold - 1
-	If c\aiHold > 0 Then Return
+	If c\aiHold > 0 Or c\charge > 0 Then Return
 	Local fire = c\aiHold < -600 ; Held for ten seconds: use it anyway.
 	Local t.Craft = CraftAhead(c, 300), gap#, k, s = SliceAt(c\d), bends#
 	For k = 0 To 40
@@ -1972,7 +2045,7 @@ Function ComputerWeapon(c.Craft)
 			EndIf
 		Case WEAPON_PLASMA
 			If t <> Null
-				If GapTo(c, t) < 90 And Abs(t\lat - c\lat) < 1.0 And Abs(c\ang) < 3 And bends < 10 Then fire = True
+				If GapTo(c, t) < 130 And GapTo(c, t) > 30 And Abs(t\lat - c\lat) < 1.5 And bends < 10 Then fire = True
 			EndIf
 		Case WEAPON_MISSILE
 			If c\lockTimer >= LOCK_TIME Then fire = True
@@ -2022,6 +2095,7 @@ Function DrawWeaponHud()
 	ElseIf player\autopilot > 0
 		text = "Autopilot"
 	EndIf
+	If player\charge > 0 Then text = "Plasma charging " + Int(player\charge * 100 / PLASMA_CHARGE) + "%"
 	If text <> ""
 		SetFont menuFont
 		Local w = StringWidth(text) + 30
@@ -2033,6 +2107,25 @@ Function DrawWeaponHud()
 		Text x, 29, text, True, True
 		SetFont 0
 	EndIf
+	; Warnings when a rival's missile locks on to the player, or one is flying at them.
+	Local warn$ = "", o.Craft, sh.Shot
+	For o = Each Craft
+		If o\weapon = WEAPON_MISSILE And o\lockTarget = player And o <> player
+			If o\lockTimer >= LOCK_TIME Then warn = o\name + " has a missile lock on you!" Else warn = o\name + " is locking on..."
+		EndIf
+	Next
+	For sh = Each Shot
+		If sh\target = player Then warn = "MISSILE INCOMING!"
+	Next
+	If warn <> "" And frame Mod 30 < 22
+		SetFont menuFont
+		Color 20, 4, 8
+		Text x + 2, 64, warn, True, True
+		Color 255, 70, 60
+		Text x, 62, warn, True, True
+		SetFont 0
+	EndIf
+
 	If player\weapon = WEAPON_MISSILE And player\lockTarget <> Null
 		CraftPoint(player\lockTarget, HOVER)
 		CameraProject camera, gX, gY, gZ
@@ -2137,7 +2230,7 @@ End Function
 Function UpdateEngine()
 	If engineChannel = 0 Then Return
 	Local pitch# = 0.6 + player\spd / classScale * 0.4 + (classScale - 1) * 0.2
-	If player\boosting Or player\padTimer > 0 Then pitch = pitch + 0.25
+	If player\padTimer > 0 Or player\boostTimer > 0 Then pitch = pitch + 0.25
 	If player\respawn > 0 Then pitch = 0.4
 	ChannelPitch engineChannel, Int(22050 * pitch)
 End Function
@@ -2492,7 +2585,7 @@ Function UpdateRace()
 			Local air# = 0
 			If KeyDown(KEY_Q) Then air = air + 1
 			If KeyDown(KEY_E) Then air = air - 1
-			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, KeyDown(KEY_SPACE), air)
+			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, air)
 			If KeyHit(KEY_LCTRL) Or KeyHit(KEY_RCTRL) Or KeyHit(KEY_F) Then FireWeapon(c)
 		EndIf
 	Next
@@ -2654,7 +2747,7 @@ Function DrawHud()
 		Color 255, 80, 80
 		Text SCREEN_W / 2, 170, "Wrong way", True, True
 	EndIf
-	If player\padTimer > 0 Or player\boosting
+	If player\padTimer > 0 Or player\boostTimer > 0
 		SetFont smallFont
 		ShadowText(20, SCREEN_H - 108, "Boost", False)
 	EndIf
@@ -3246,9 +3339,9 @@ Data "and Right (or A and D) steer. Down or S works both air brakes: it slows yo
 Data "and turns tighter. Q and E are the left and the right air brake: each turns"
 Data "you hard to its side and lets the craft slide, for the sharpest corners."
 Data ""
-Data "Yellow arrows are boost pads. Space boosts too, but uses energy. Walls and"
-Data "hits cost energy, and with none left your craft breaks for two seconds. The"
-Data "green strip before the start line charges you up again."
+Data "Yellow arrows are boost pads. Walls and weapon hits cost energy, and with"
+Data "none left your craft breaks for two seconds. The green strip before the"
+Data "start line charges you up again."
 Data ""
 Data "Red and white arches warn of a jump: keep your speed to clear the gap. Red"
 Data "and white stripes mean no walls. Fall off and you are back after a second."
