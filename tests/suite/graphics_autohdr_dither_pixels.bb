@@ -42,10 +42,9 @@ Rect 0, 0, W, H, 1
 Flip 2
 Check "Dither 1 does not make the picture black", Shown(10, 10, 1), 0.4316, 0.02
 AutoHDR 2
-AutoHDRPeak 1000
 Flip 2
-Check "Dither 1 in mode 2 does not make the picture black", Shown(10, 10, 1), 0.53733, 0.1
-; A buffer of 30 bits always goes through the 8 bit picture in modes 1 and 2.
+Check "Dither 1 in mode 2 does not make the picture black", Shown(10, 10, 1), 0.4316, 0.02
+; A buffer of 30 bits always goes through the 8 bit picture in mode 1.
 EndGraphics
 AutoHDR 1
 Dither 0

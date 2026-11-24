@@ -145,8 +145,6 @@
 		{ "dithertemporal", "bb_dither_temporal", 'v', "i", 1, {}, false },
 		{ "autohdr", "bb_auto_hdr", 'v', "i", 1, {}, false },
 		{ "autohdrwhite", "bb_auto_hdr_white", 'v', "f", 1, {}, false },
-		{ "autohdrpeak", "bb_auto_hdr_peak", 'v', "f", 1, {}, false },
-		{ "autohdrexpand", "bb_auto_hdr_expand", 'v', "f", 1, {}, false },
 		{ "autohdrmetadata", "bb_auto_hdr_metadata", 'v', "fff", 3, {}, false },
 		{ "transparencydistancesortmode", "bb_transparency_distance_sort_mode", 'v', "i", 1, {}, false },
 		{ "dithermode", "bb_dither_mode", 'v', "ii", 1, { 0, 1 }, false },

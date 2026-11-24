@@ -12,9 +12,7 @@
 
 // AutoHDR. The window shows its picture in HDR where the display has HDR switched on and the driver offers scRGB (a 16 bit
 // floating point swapchain, linear, 1.0 is 80 nits, in the extended sRGB colorspace). The picture that is shown is RGBA8 (see
-// apply_gamma), so it is made linear and scaled so that SDR white lands where the system has it, and with AutoHDR 2 the highlights
-// are stretched toward the peak of the display (the look of the AutoHDR of Windows, which can only be told apart from this by
-// eye: its algorithm is not public). Where there is no HDR the swapchain is the one it was, and nothing here runs.
+// apply_gamma), so it is made linear and scaled so that SDR white lands where the system has it. Where there is no HDR the swapchain is the one it was, and nothing here runs.
 
 #include <algorithm>
 #include <string>
@@ -38,10 +36,8 @@ using namespace bb::gfx;
 namespace {
 	constexpr float scrgb_white_nits = 80.0f; // 1.0 in scRGB.
 
-	int   mode         = -1;    // AutoHDR: -1 until BLITZLLVM_AUTOHDR was read (2 if it is not set).
+	int   mode         = -1;    // AutoHDR: -1 until BLITZLLVM_AUTOHDR was read (1 if it is not set).
 	float white_nits   = -1.0f; // AutoHDRWhite: 0 for the SDR white level of the system. -1 until BLITZLLVM_AUTOHDR_WHITE was read.
-	float peak_nits    = -1.0f; // AutoHDRPeak: 0 for the peak of the display.
-	float expand       = -1.0f; // AutoHDRExpand: how far the highlights are stretched toward the peak with AutoHDR 2, 0 to 1.
 	float meta_min     = 0.0f;  // AutoHDRMetadata: what the system is told about the picture, 0 for the default of each.
 	float meta_average = 0.0f;
 	float meta_max     = 0.0f;
@@ -94,16 +90,10 @@ namespace {
 	void read_environment()
 	{
 		if (mode < 0) {
-			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 2), 0, 3);
+			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 1), 0, 2);
 		}
 		if (white_nits < 0.0f) {
 			white_nits = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_WHITE", 0.0)), 0.0f, 10000.0f);
-		}
-		if (peak_nits < 0.0f) {
-			peak_nits = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_PEAK", 0.0)), 0.0f, 10000.0f);
-		}
-		if (expand < 0.0f) {
-			expand = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_EXPAND", 1.0)), 0.0f, 1.0f);
 		}
 	}
 
@@ -278,10 +268,10 @@ namespace {
 		return (white_nits > 0.0f) ? white_nits : ((levels.white > 0.0f) ? levels.white : 203.0f);
 	}
 
-	// The brightest the display shows in nits: asked for, else what the system says, else 1000.
+	// The brightest the display shows in nits: what the system says, else 1000.
 	float effective_peak(const system_levels& levels, float white)
 	{
-		float peak = (peak_nits > 0.0f) ? peak_nits : ((levels.hdr && (levels.headroom > 1.0f) && (levels.white > 0.0f)) ? levels.white * levels.headroom : 1000.0f);
+		float peak = ((levels.hdr && (levels.headroom > 1.0f) && (levels.white > 0.0f)) ? levels.white * levels.headroom : 1000.0f);
 		return std::max(peak, white);
 	}
 
@@ -290,7 +280,7 @@ namespace {
 		bb::rhi::layout_desc desc; // A sampled image.
 		desc.sets[0]     = bb::rhi::group_kind::texture;
 		desc.set_count   = 1;
-		desc.push_size   = 3 * sizeof(float); // The SDR white, how far the highlights go beyond it, and the peak.
+		desc.push_size   = 2 * sizeof(float); // The SDR white and the peak.
 		desc.push_stages = bb::rhi::stage_fragment;
 		layout           = bb::rhi::get_layout(desc);
 
@@ -375,10 +365,10 @@ namespace bb::gfx {
 
 	bool hdr_reads_directly(const gpu_image& front)
 	{
-		// AutoHDR 3: a buffer of more than 8 bits goes to the HDR pass as it is, instead of through the 8 bit picture of the gamma pass, so that
+		// AutoHDR 2: a buffer of more than 8 bits goes to the HDR pass as it is, instead of through the 8 bit picture of the gamma pass, so that
 		// its precision, and values above 1, are kept. The gamma tables and a palette need that 8 bit picture.
 		bool deep = (front.format == bb::rhi::format::rgba16f) || (front.format == bb::rhi::format::a2bgr10);
-		return (mode == 3) && deep && (surface().chain.hdr || hdr_test()) && gamma_plain();
+		return (mode == 2) && deep && (surface().chain.hdr || hdr_test()) && gamma_plain();
 	}
 
 	gpu_image* apply_hdr(gpu_image& picture)
@@ -408,8 +398,7 @@ namespace bb::gfx {
 		system_levels levels = ask_system();
 		float         white  = effective_white(levels);
 		float         peak   = effective_peak(levels, white);
-		// The brightest color, white, ends at white * (1 + boost): never beyond the peak.
-		float push[3] = { white / scrgb_white_nits, (mode == 2) ? expand * (peak / white - 1.0f) : 0.0f, peak / scrgb_white_nits };
+		float push[2] = { white / scrgb_white_nits, peak / scrgb_white_nits }; // Values above the peak are cut.
 
 		barrier(picture.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
 		barrier(scrgb.image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);
@@ -497,13 +486,13 @@ namespace bb::gfx {
 
 extern "C" {
 
-// AutoHDR mode: 0 shows the window as it always was. It is 2 by default, which does nothing where there is no HDR. 1 shows it in HDR where the display has HDR switched on and the driver offers it
-// (HWHDRSupported): the same picture, with SDR white at the brightness the system has set. 2 also stretches the highlights toward
-// the peak of the display, which is the look of the AutoHDR of Windows. Where there is no HDR it does nothing. Can be set before Graphics.
+// AutoHDR mode: 0 shows the window as it always was. 1 is the default: where the display has HDR switched on and the driver offers it
+// (HWHDRSupported) the window is shown in HDR, the same picture with SDR white at the brightness the system has set; elsewhere it does
+// nothing. 2 also shows 64 bit and 30 bit buffers directly. Can be set before Graphics.
 void bb_auto_hdr(int32_t value)
 {
 	read_environment();
-	int level = std::clamp(value, 0, 3);
+	int level = std::clamp(value, 0, 2);
 	if (level != mode) {
 		bool was = mode > 0;
 		mode     = level;
@@ -519,21 +508,6 @@ void bb_auto_hdr_white(float nits)
 	read_environment();
 	white_nits = std::clamp(nits, 0.0f, 10000.0f);
 	meta_dirty = true;
-}
-
-// AutoHDRPeak: the brightest the picture may be in nits with AutoHDR 2, or 0 for what the display says (1000 if it does not).
-void bb_auto_hdr_peak(float nits)
-{
-	read_environment();
-	peak_nits  = std::clamp(nits, 0.0f, 10000.0f);
-	meta_dirty = true;
-}
-
-// AutoHDRExpand: how far the highlights go toward the peak with AutoHDR 2, from 0 (none) to 1 (white reaches the peak, the default).
-void bb_auto_hdr_expand(float strength)
-{
-	read_environment();
-	expand = std::clamp(strength, 0.0f, 1.0f);
 }
 
 // AutoHDRMetadata: the darkest, average and brightest value in nits that the system is told the picture has. 0 keeps the default of each

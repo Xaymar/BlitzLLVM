@@ -69,30 +69,21 @@ AutoHDRWhite 320
 Show
 Check "white at 320 nits", Shown(10, 10, 0), 4, 0.01
 
-; Mode 2 lifts the highlights: with the strength 1 white reaches the peak (1000 nits is 12.5), mid tones are lifted less.
+; Mode 2 shows an 8 bit buffer as mode 1 does.
 AutoHDR 2
 AutoHDRWhite 160
-AutoHDRPeak 1000
-AutoHDRExpand 1
-Show
-Check "white reaches the peak", Shown(10, 10, 0), 12.5, 0.05
-Fill 128, 128, 128
-Show
-Check "mid grey is lifted a little", Shown(10, 10, 1), 0.53733, 0.01
 Fill 100, 150, 200
 Show
-Check "a color is lifted by its luminance", Shown(10, 10, 2), 1.65442, 0.02
-
-; Without the lift the picture is as in mode 1 again.
-AutoHDRExpand 0
+Check "mode 2 shows 8 bits as mode 1", Shown(10, 10, 2), 0.577580 * 2, 0.005
+Fill 255, 255, 255
 Show
-Check "no strength, no lift", Shown(10, 10, 2), 0.577580 * 2, 0.005
+Check "white stays SDR white", Shown(10, 10, 0), 2, 0.005
 
 ; The metadata is only told to the system, and any value is taken.
 AutoHDRMetadata 0.01, 100, 1000
 AutoHDRMetadata 0, 0, 0
 Show
-Check "still the same picture", Shown(10, 10, 2), 0.577580 * 2, 0.005
+Check "still the same picture", Shown(10, 10, 0), 2, 0.005
 
 DeleteFile "hdr.tmp"
 Done "graphics_autohdr_pixels"
