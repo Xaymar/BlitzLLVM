@@ -596,6 +596,10 @@
 		{ "setcameraviewmatrix", "bb_set_camera_view_matrix", 'v', "iN", 2, {}, false },
 		{ "getcameraviewmatrix", "bb_get_camera_view_matrix", 'N', "i", 1, {}, false },
 		{ "resetcameraviewmatrix", "bb_reset_camera_view_matrix", 'v', "i", 1, {}, false },
+		{ "setcameraclipplane", "bb_set_camera_clip_plane", 'v', "iiffff", 6, {}, false },
+		{ "getcameraclipplane", "bb_get_camera_clip_plane", 'V', "ii", 2, {}, false },
+		{ "setcameraclipplaneenabled", "bb_set_camera_clip_plane_enabled", 'v', "iii", 3, {}, false },
+		{ "getcameraclipplaneenabled", "bb_get_camera_clip_plane_enabled", 'i', "ii", 2, {}, false },
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },

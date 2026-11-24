@@ -416,11 +416,24 @@ MAX_LIGHTS = 128
 SCENE_LIGHTS = 176
 
 
-def declare_scene(b):
-    """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
+# The user clip planes of a camera (SetCameraClipPlane): after the steps of the Bayer pattern, see scene_data in graphics_internal.hpp.
+CLIP_PLANES = 6
+
+
+def declare_scene(b, clip_planes=False):
+    """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp. With clip_planes it also has the
+    planes of SetCameraClipPlane, which only the vertex shader of the 3D world reads."""
     v4 = b.vec(4)
     lights = b.array(v4, MAX_LIGHTS, "lights")
-    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4, v4, v4)
+    members = [b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4, v4, v4]
+    if clip_planes:
+        planes = b.array(v4, CLIP_PLANES, "clip_planes")
+        members.append(planes)
+        b.m.annotations += [
+            Module.inst("MemberDecorate", b.struct("scene_clip", *members), 13, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 48 + 32),
+            Module.inst("Decorate", planes, DECORATION["ArrayStride"], 16),
+        ]
+    scene = b.struct("scene_clip" if clip_planes else "scene", *members)
     b.m.annotations += [
         Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
         Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
@@ -670,7 +683,7 @@ def cube_sheet_uv(b, uv, look):
     return b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
 
 
-def vertex_shader_3d():
+def vertex_shader_3d(clip_planes=True):
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
     the eight that are nearest to the draw out of the table of the camera (entity.lights picks them).
@@ -730,7 +743,7 @@ def vertex_shader_3d():
     void, fn = b.void(), b.fn()
     c0, c1 = b.const_float(0.0), b.const_float(1.0)
 
-    ubo = declare_scene(b)
+    ubo = declare_scene(b, clip_planes)
 
     # What differs for each draw
     entities, _ = declare_entities(b)
@@ -757,7 +770,13 @@ def vertex_shader_3d():
     out_pixel = b.variable("Output", f, [(DECORATION["Location"], 12), (DECORATION["Flat"],)])  # EntityLighting: 1 if the fragment shader lights.
     out_layers = b.variable("Output", v4, [(DECORATION["Location"], 13), (DECORATION["Flat"],)])  # Where the texture layers after the first are (x, y), see declare_layers.
     out_uvs = b.variable("Output", v4, [(DECORATION["Location"], 14)])  # Both sets of coordinates as the mesh has them, for the layers.
-    per_vertex = b.struct("pervertex", v4)
+    if clip_planes:
+        # gl_ClipDistance: the distance to each plane of SetCameraClipPlane, negative on the side that is cut away.
+        b.m.header.insert(1, Module.inst("Capability", 32))  # ClipDistance
+        per_vertex = b.struct("pervertex", v4, b.array(f, CLIP_PLANES, "clip_distance"))
+        b.m.annotations += [Module.inst("MemberDecorate", per_vertex, 1, DECORATION["BuiltIn"], 3)]
+    else:
+        per_vertex = b.struct("pervertex", v4)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
         Module.inst("Decorate", per_vertex, DECORATION["Block"]),
@@ -792,6 +811,11 @@ def vertex_shader_3d():
     world4 = b.construct(4, b.extract(world, 0), b.extract(world, 1), b.extract(world, 2), c1)
     clip = b.emit("MatrixTimesVector", v4, vp, world4)
     b.store(b.access("Output", v4, out_vertex, b.const_int(0)), clip)
+    if clip_planes:
+        # The planes are relative to the camera, like world. One that is off is 0, 0, 0, 1: always 1 away, never cut.
+        for i in range(CLIP_PLANES):
+            plane = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(13), b.const_int(i)))
+            b.store(b.access("Output", f, out_vertex, b.const_int(1), b.const_int(i)), b.dot(plane, world4))
 
     # soft.z is the place of the entity among the see-through ones (0 far, 1 near) and soft.w the places per unit of distance there are
     # between the nearest and the farthest of them. The place of a fragment is soft.z - soft.w * depth: the entity's own place plus how much
@@ -2148,6 +2172,8 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex", vertex_shader(), out)
     emit("bb_shader_fragment", fragment_shader_masked(16), out)
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
+    # For Vulkan devices without the feature shaderClipDistance: the same without the clip planes.
+    emit("bb_shader_vertex_3d_noclip", vertex_shader_3d(clip_planes=False), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_fragment_3d_oit", fragment_shader_masked(96, fog=True, oit=1), out)

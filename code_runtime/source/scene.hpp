@@ -305,6 +305,8 @@ namespace bb {
 		bool  cam_custom_view       = false; // SetCameraViewMatrix: cam_view_matrix replaces where the camera entity is.
 		float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
 		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
+		float cam_clip_planes[6][4] = {};   // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
+		int   cam_clip_enabled      = 0;    // SetCameraClipPlaneEnabled: one bit for each plane.
 		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };

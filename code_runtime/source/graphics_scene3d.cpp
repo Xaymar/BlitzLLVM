@@ -846,7 +846,7 @@ namespace bb::gfx {
 
 	void build_pipelines_3d()
 	{
-		bb::rhi::shader vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
+		bb::rhi::shader vs = g.can_clip_planes ? create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d)) : create_shader(bb_shader_vertex_3d_noclip, sizeof(bb_shader_vertex_3d_noclip));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		bb::rhi::shader fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
@@ -4130,6 +4130,20 @@ namespace bb::gfx {
 			}
 		}
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
+		// The clip planes move with everything else to be relative to the camera: d grows by the distance of the camera along the normal.
+		for (int i = 0; i < 6; i++) {
+			const float* plane = cam.cam_clip_planes[i];
+			if (cam.cam_clip_enabled & (1 << i)) {
+				double shift = double(plane[0]) * double(current_origin[0]) + double(plane[1]) * double(current_origin[1]) + double(plane[2]) * double(current_origin[2]);
+				data.clip_planes[i][0] = plane[0];
+				data.clip_planes[i][1] = plane[1];
+				data.clip_planes[i][2] = plane[2];
+				data.clip_planes[i][3] = float(double(plane[3]) + shift);
+			} else {
+				data.clip_planes[i][0] = data.clip_planes[i][1] = data.clip_planes[i][2] = 0;
+				data.clip_planes[i][3] = 1;
+			}
+		}
 
 		scene_record scene = {};
 		scene.slot         = scenes.size;
@@ -4825,6 +4839,50 @@ void bb_get_camera_view_matrix(float* out, int32_t camera)
 void bb_reset_camera_view_matrix(int32_t camera)
 {
 	need_camera(camera, "ResetCameraViewMatrix")->cam_custom_view = false;
+}
+
+static int clip_plane_index(int32_t index, const char* what)
+{
+	if ((index < 0) || (index > 5)) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the clip plane has to be 0 to 5, not %d.", what, int(index));
+		bb_runtime_error(message);
+	}
+	return int(index);
+}
+
+// SetCameraClipPlane camera, index, a, b, c, d: one of the 6 clip planes of a camera, in the world. What has a*x + b*y + c*z + d below 0 is
+// cut away. SetCameraClipPlaneEnabled turns it on. A BlitzLLVM extension.
+void bb_set_camera_clip_plane(int32_t camera, int32_t index, float a, float b, float c, float d)
+{
+	bb::entity* cam   = need_camera(camera, "SetCameraClipPlane");
+	float*      plane = cam->cam_clip_planes[clip_plane_index(index, "SetCameraClipPlane")];
+	plane[0]          = a;
+	plane[1]          = b;
+	plane[2]          = c;
+	plane[3]          = d;
+}
+
+// GetCameraClipPlane(camera, index): the plane as a FloatVector4 of a, b, c and d.
+void bb_get_camera_clip_plane(float* out, int32_t camera, int32_t index)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraClipPlane");
+	memcpy(out, cam->cam_clip_planes[clip_plane_index(index, "GetCameraClipPlane")], sizeof(float) * 4);
+}
+
+// SetCameraClipPlaneEnabled camera, index, enabled: turns a clip plane on or off.
+void bb_set_camera_clip_plane_enabled(int32_t camera, int32_t index, int32_t enabled)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraClipPlaneEnabled");
+	int         bit = 1 << clip_plane_index(index, "SetCameraClipPlaneEnabled");
+	cam->cam_clip_enabled = enabled ? (cam->cam_clip_enabled | bit) : (cam->cam_clip_enabled & ~bit);
+}
+
+// GetCameraClipPlaneEnabled(camera, index): 1 if the clip plane is on.
+int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
+{
+	bb::entity* cam = need_camera(camera, "GetCameraClipPlaneEnabled");
+	return (cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.

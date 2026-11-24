@@ -1,0 +1,32 @@
+{
+ "registers": [
+  {
+   "set": 1,
+   "binding": 0,
+   "kind": "b",
+   "register": 0
+  },
+  {
+   "set": 2,
+   "binding": 0,
+   "kind": "t",
+   "register": 0
+  }
+ ],
+ "constants": [
+  {
+   "id": 0,
+   "type": "float",
+   "offset": 0,
+   "default": "0.0f"
+  },
+  {
+   "id": 1,
+   "type": "float",
+   "offset": 4,
+   "default": "1.0f"
+  }
+ ],
+ "constants_register": 1,
+ "push_register": null
+}
