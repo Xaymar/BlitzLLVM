@@ -95,7 +95,8 @@ The program itself reads `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH
 
 It reports the time to make the entities, the milliseconds per frame (average, minimum, median, 95th percentile, maximum; a frame is
 `RenderWorld` and `Flip`), the frames per second, and per frame the triangles (`TrisRendered`) and the draw calls, pipeline, texture
-and buffer binds (`Stats3D(1000..1003)`). The first `BENCH_WARMUP` frames (default 5) are not counted, they build the GPU buffers.
+and buffer binds (`Stats3D(1000..1003)`). BlitzLLVM counts the triangles it draws: a sprite drawn as an octagon (see Sprite shapes in the
+GPU optimizations wiki page) is 6 triangles where the original counts 2, so sprite benchmarks report more triangles than the original. The first `BENCH_WARMUP` frames (default 5) are not counted, they build the GPU buffers.
 
 Every run is saved in `benchmarks/results/` (ignored by git): a JSON file with the build configuration, the compiler version, the
 platform and the time of every frame, and a line in `flythrough.csv`. Compare runs only when the build configuration (`-O3` or `-d`, `--profile`),
