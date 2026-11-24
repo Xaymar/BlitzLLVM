@@ -102,6 +102,10 @@ namespace bb::wnd {
 
 	bool init(SDL_InitFlags flags)
 	{
+		// The click that brings a window to the front is a click like any other, as it was on Win32 in the original: a canvas in a window
+		// that is not in front gets its $201 (and MouseHit counts it), so a program can start dragging or pressing at once. SDL drops that
+		// click unless this is set. A value in the environment still wins, since a hint set here does not override it.
+		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 		bool ok = false;
 		run([&] { ok = SDL_InitSubSystem(flags); });
 		return ok;
