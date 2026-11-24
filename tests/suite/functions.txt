@@ -558,8 +558,8 @@ gfxmodeexists	graphics	done	%GfxModeExists%width%height%depth
 gfxmodeheight	graphics	done	%GfxModeHeight%mode
 gfxmodewidth	graphics	done	%GfxModeWidth%mode
 grabimage	graphics	done	GrabImage%image%x%y%frame=0
-graphics	graphics	done	Graphics%width%height%depth=0%mode=0
-graphics3d	graphics	done	Graphics3D%width%height%depth=0%mode=0
+graphics	graphics	done	Graphics%width%height%depth=0%mode=0%keep=0
+graphics3d	graphics	done	Graphics3D%width%height%depth=0%mode=0%keep=0
 graphicsbuffer	graphics	done	%GraphicsBuffer
 graphicsdepth	graphics	done	%GraphicsDepth
 graphicspalette	graphics	done	GraphicsPalette$imagefile

@@ -49,9 +49,9 @@
 		{ "microseconds", "bb_microseconds", 'u', "", 0, {}, false },
 		{ "delay", "bb_delay", 'v', "i", 1, {}, false },
 		// Graphics
-		{ "graphics", "bb_graphics", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
-		{ "graphics3d", "bb_graphics", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
-		{ "endgraphics", "bb_end_graphics", 'v', "", 0, {}, false },
+		{ "graphics", "bb_graphics", 'v', "iiiii", 2, { 0, 0, 0, 0, 0 }, false },
+		{ "graphics3d", "bb_graphics", 'v', "iiiii", 2, { 0, 0, 0, 0, 0 }, false },
+		{ "endgraphics", "bb_close_graphics", 'v', "", 0, {}, false },
 		{ "apptitle", "bb_app_title", 'v', "ss", 1, {}, false },
 		{ "graphicswidth", "bb_graphics_width", 'i', "", 0, {}, false },
 		{ "graphicsheight", "bb_graphics_height", 'i', "", 0, {}, false },

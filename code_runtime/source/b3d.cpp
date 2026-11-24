@@ -1179,4 +1179,11 @@ void bb_loader_matrix(const char* extension, float xx, float xy, float xz, float
 		x_matrix_set = true;
 	}
 }
+
+// Graphics and EndGraphics forget what LoaderMatrix set, as the original did.
+void bb_reset_loader_matrix(void)
+{
+	std::lock_guard<std::mutex> guard(x_matrix_lock);
+	x_matrix_set = false;
+}
 }
