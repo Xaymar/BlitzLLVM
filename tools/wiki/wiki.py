@@ -326,7 +326,7 @@ def category_page(dialect, category, cmds):
 # The groups of the sidebar, in order, and the hand written pages in each. A page that is in no group and is not a
 # command, a category or a difference is listed last, under "More", so that a new page never goes missing.
 GROUPS = [("Getting started", ["Installation", "Building"]),
-          ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Userlib-Declarations"]),
+          ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Include-Files", "Userlib-Declarations"]),
           ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
 
 
