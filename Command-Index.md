@@ -716,6 +716,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
 * [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕
 * [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+* [PhysicsBoxCast](PhysicsBoxCast) 〔BlitzLLVM〕
+* [PhysicsCapsuleCast](PhysicsCapsuleCast) 〔BlitzLLVM〕
 * [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce) 〔BlitzLLVM〕
 * [PhysicsConstraintLimits](PhysicsConstraintLimits) 〔BlitzLLVM〕
 * [PhysicsConstraintMotor](PhysicsConstraintMotor) 〔BlitzLLVM〕
@@ -747,6 +749,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PhysicsSleepThreshold](PhysicsSleepThreshold) 〔BlitzLLVM〕
 * [PhysicsSolver](PhysicsSolver) 〔BlitzLLVM〕
 * [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance) 〔BlitzLLVM〕
+* [PhysicsSphereCast](PhysicsSphereCast) 〔BlitzLLVM〕
 * [PhysicsSubsteps](PhysicsSubsteps) 〔BlitzLLVM〕
 * [PhysicsThreads](PhysicsThreads) 〔BlitzLLVM〕
 * [PhysicsUpdate](PhysicsUpdate) 〔BlitzLLVM〕

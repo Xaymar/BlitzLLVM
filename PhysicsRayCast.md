@@ -55,7 +55,7 @@ EndIf
 
 ## Related Commands
 
-[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕, [PhysicsApplyTorque](PhysicsApplyTorque) 〔BlitzLLVM〕
+[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsBoxCast](PhysicsBoxCast) 〔BlitzLLVM〕, [PhysicsCapsuleCast](PhysicsCapsuleCast) 〔BlitzLLVM〕, [PhysicsSphereCast](PhysicsSphereCast) 〔BlitzLLVM〕
 
 <div align="center">
 

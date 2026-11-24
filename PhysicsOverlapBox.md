@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-PhysicsOverlapBox:Int32 x:Float32, y:Float32, z:Float32, half_x:Float32, half_y:Float32, half_z:Float32, mask_low:Int32=-1, mask_high:Int32=-1, sensors:Int32=0, world:Int32=0
+PhysicsOverlapBox:Int32 x:Float32, y:Float32, z:Float32, half_x:Float32, half_y:Float32, half_z:Float32, pitch:Float32=0, yaw:Float32=0, roll:Float32=0, mask_low:Int32=-1, mask_high:Int32=-1, sensors:Int32=0, world:Int32=0
 ```
 
 | Parameter | Mode | Type | Default | Description |
@@ -25,6 +25,9 @@ PhysicsOverlapBox:Int32 x:Float32, y:Float32, z:Float32, half_x:Float32, half_y:
 | `half_x` | In | Float32 | required | Half of the width of the box, more than 0. |
 | `half_y` | In | Float32 | required | Half of the height of the box, more than 0. |
 | `half_z` | In | Float32 | required | Half of the depth of the box, more than 0. |
+| `pitch` | In | Float32 | `0` | The turn of the box around x, in degrees, as `TurnEntity` takes them. 0 (default) is not turned. |
+| `yaw` | In | Float32 | `0` | The turn around y, in degrees. 0 (default) is not turned. |
+| `roll` | In | Float32 | `0` | The turn around z, in degrees. 0 (default) is not turned. |
 | `mask_low` | In | Int32 | `-1` | The layers to look at, as bits 0 to 31 of a mask (bit n is layer n). -1 (default) looks at all layers. |
 | `mask_high` | In | Int32 | `-1` | The layers 32 to 63, as bits 0 to 31 of a mask. -1 (default) looks at all layers. |
 | `sensors` | In | Int32 | `0` | 1 also finds sensors (see `PhysicsSensor`); 0 (default) leaves them out. |
@@ -36,7 +39,7 @@ PhysicsOverlapBox:Int32 x:Float32, y:Float32, z:Float32, half_x:Float32, half_y:
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Finds the bodies of a physics world that touch a box that is lined up with the world. The bodies are kept in the order they were made; read them with `GetPhysicsOverlap` until the next overlap query.
+Finds the bodies of a physics world that touch a box, which is lined up with the world unless it is given a turn. The bodies are kept in the order they were made; read them with `GetPhysicsOverlap` until the next overlap query.
 
 ## Differences
 
@@ -44,7 +47,7 @@ Finds the bodies of a physics world that touch a box that is lined up with the w
 
 ## Related Commands
 
-[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕, [PhysicsOverlapSphere](PhysicsOverlapSphere) 〔BlitzLLVM〕
+[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsBoxCast](PhysicsBoxCast) 〔BlitzLLVM〕, [PhysicsOverlapSphere](PhysicsOverlapSphere) 〔BlitzLLVM〕
 
 <div align="center">
 

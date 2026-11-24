@@ -42,7 +42,7 @@ Finds the bodies of a physics world that touch a sphere. The bodies are kept in 
 
 ## Related Commands
 
-[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsApplyImpulseAt](PhysicsApplyImpulseAt) 〔BlitzLLVM〕, [PhysicsOverlapBox](PhysicsOverlapBox) 〔BlitzLLVM〕
+[PhysicsAngularDamping](PhysicsAngularDamping) 〔BlitzLLVM〕, [PhysicsAngularVelocity](PhysicsAngularVelocity) 〔BlitzLLVM〕, [PhysicsApplyAngularImpulse](PhysicsApplyAngularImpulse) 〔BlitzLLVM〕, [PhysicsApplyForce](PhysicsApplyForce) 〔BlitzLLVM〕, [PhysicsApplyForceAt](PhysicsApplyForceAt) 〔BlitzLLVM〕, [PhysicsApplyImpulse](PhysicsApplyImpulse) 〔BlitzLLVM〕, [PhysicsOverlapBox](PhysicsOverlapBox) 〔BlitzLLVM〕, [PhysicsSphereCast](PhysicsSphereCast) 〔BlitzLLVM〕
 
 <div align="center">
 

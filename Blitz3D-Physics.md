@@ -93,6 +93,8 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [PhysicsBaumgarte](PhysicsBaumgarte) 〔BlitzLLVM〕
 * [PhysicsBodyMotion](PhysicsBodyMotion) 〔BlitzLLVM〕
 * [PhysicsBodyWorld](PhysicsBodyWorld) 〔BlitzLLVM〕
+* [PhysicsBoxCast](PhysicsBoxCast) 〔BlitzLLVM〕
+* [PhysicsCapsuleCast](PhysicsCapsuleCast) 〔BlitzLLVM〕
 * [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce) 〔BlitzLLVM〕
 * [PhysicsConstraintLimits](PhysicsConstraintLimits) 〔BlitzLLVM〕
 * [PhysicsConstraintMotor](PhysicsConstraintMotor) 〔BlitzLLVM〕
@@ -124,6 +126,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [PhysicsSleepThreshold](PhysicsSleepThreshold) 〔BlitzLLVM〕
 * [PhysicsSolver](PhysicsSolver) 〔BlitzLLVM〕
 * [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance) 〔BlitzLLVM〕
+* [PhysicsSphereCast](PhysicsSphereCast) 〔BlitzLLVM〕
 * [PhysicsSubsteps](PhysicsSubsteps) 〔BlitzLLVM〕
 * [PhysicsThreads](PhysicsThreads) 〔BlitzLLVM〕
 * [PhysicsUpdate](PhysicsUpdate) 〔BlitzLLVM〕

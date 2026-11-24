@@ -823,7 +823,7 @@
 <li><a href="ScaleMesh">ScaleMesh</a></li>
 </ul>
 </details></li>
-<li><details><summary>Physics (121)</summary>
+<li><details><summary>Physics (124)</summary>
 <ul>
 <li><a href="Blitz3D-Physics">Overview</a></li>
 <li><a href="CreatePhysicsBody">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
@@ -910,6 +910,8 @@
 <li><a href="PhysicsBaumgarte">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsBoxCast">PhysicsBoxCast</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsCapsuleCast">PhysicsCapsuleCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintBreakForce">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintLimits">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintMotor">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
@@ -941,6 +943,7 @@
 <li><a href="PhysicsSleepThreshold">PhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSolver">PhysicsSolver</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSpeculativeDistance">PhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsSphereCast">PhysicsSphereCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSubsteps">PhysicsSubsteps</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsThreads">PhysicsThreads</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsUpdate">PhysicsUpdate</a> 〔BlitzLLVM〕</li>
@@ -1382,7 +1385,7 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (460)</summary>
+<li><details><summary>Commands (463)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1677,6 +1680,8 @@
 <li><a href="PhysicsBaumgarte#differences">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyMotion#differences">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsBodyWorld#differences">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsBoxCast#differences">PhysicsBoxCast</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsCapsuleCast#differences">PhysicsCapsuleCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintBreakForce#differences">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintLimits#differences">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsConstraintMotor#differences">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
@@ -1708,6 +1713,7 @@
 <li><a href="PhysicsSleepThreshold#differences">PhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSolver#differences">PhysicsSolver</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSpeculativeDistance#differences">PhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
+<li><a href="PhysicsSphereCast#differences">PhysicsSphereCast</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsSubsteps#differences">PhysicsSubsteps</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsThreads#differences">PhysicsThreads</a> 〔BlitzLLVM〕</li>
 <li><a href="PhysicsUpdate#differences">PhysicsUpdate</a> 〔BlitzLLVM〕</li>

@@ -342,6 +342,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [PhysicsBaumgarte](PhysicsBaumgarte#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsBodyMotion](PhysicsBodyMotion#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsBodyWorld](PhysicsBodyWorld#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsBoxCast](PhysicsBoxCast#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsCapsuleCast](PhysicsCapsuleCast#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsConstraintBreakForce](PhysicsConstraintBreakForce#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsConstraintLimits](PhysicsConstraintLimits#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsConstraintMotor](PhysicsConstraintMotor#differences) 〔BlitzLLVM〕: The original has no such command.
@@ -373,6 +375,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [PhysicsSleepThreshold](PhysicsSleepThreshold#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsSolver](PhysicsSolver#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsSpeculativeDistance](PhysicsSpeculativeDistance#differences) 〔BlitzLLVM〕: The original has no such command.
+* [PhysicsSphereCast](PhysicsSphereCast#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsSubsteps](PhysicsSubsteps#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsThreads](PhysicsThreads#differences) 〔BlitzLLVM〕: The original has no such command.
 * [PhysicsUpdate](PhysicsUpdate#differences) 〔BlitzLLVM〕: The original has no such command.
