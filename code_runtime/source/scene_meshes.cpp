@@ -13,6 +13,7 @@
 // Meshes and surfaces: making them, changing them and looking at them.
 
 #include "scene_internal.hpp"
+#include "parallel.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -413,6 +414,32 @@ namespace {
 		}
 #endif
 	}
+
+	// The box of a surface. Big ones are split over the threads of the work pool: grass that moves in the wind has millions of vertices to
+	// go over in every frame. The parts leave out what is not a number as the whole does, so the box is the same. Only the thread of the
+	// program comes here (the renderer, collisions and the commands that ask for the size of a mesh), which is the one that may use the pool.
+	void surface_bounds(surface const& s, float* lo, float* hi)
+	{
+		constexpr uint32_t grain   = 4096;
+		bb::work_pool&     threads = bb::pool();
+		const uint32_t     parts   = (s.vertices.size >= 4 * grain) ? threads.parts(s.vertices.size, grain) : 1;
+		if (parts <= 1) {
+			vertex_bounds(s.vertices.data, s.vertices.size, lo, hi);
+			return;
+		}
+		float part_lo[16][3], part_hi[16][3];
+		threads.split(parts, s.vertices.size, [&](uint32_t part, uint32_t first, uint32_t last) {
+			vertex_bounds(s.vertices.data + first, last - first, part_lo[part], part_hi[part]);
+		});
+		lo[0] = lo[1] = lo[2] = 1e30f;
+		hi[0] = hi[1] = hi[2] = -1e30f;
+		for (uint32_t part = 0; part < parts; part++) {
+			for (int k = 0; k < 3; k++) {
+				lo[k] = part_lo[part][k] < lo[k] ? part_lo[part][k] : lo[k];
+				hi[k] = part_hi[part][k] > hi[k] ? part_hi[part][k] : hi[k];
+			}
+		}
+	}
 } // namespace
 
 bool bb::mesh_bounds(entity& e, float* lo, float* hi)
@@ -428,7 +455,7 @@ bool bb::mesh_bounds(entity& e, float* lo, float* hi)
 		// The box of a surface is kept until it changes, which is when surface_changed makes it invalid.
 		if (!s.bound_valid) {
 			float slo[3], shi[3];
-			vertex_bounds(s.vertices.data, s.vertices.size, slo, shi);
+			surface_bounds(s, slo, shi);
 			memcpy(s.bound_min, slo, sizeof(slo));
 			memcpy(s.bound_max, shi, sizeof(shi));
 			s.bound_valid = true;
