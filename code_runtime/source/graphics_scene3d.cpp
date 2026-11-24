@@ -93,8 +93,21 @@ namespace bb::gfx {
 		}
 	}
 
+	// The size of a vertex buffer for that many vertices, and where the second set of texture coordinates goes in it: after the vertices,
+	// at a cache line (bb::vertex_alignment). Without a second set it is only the vertices.
+	static uint64_t vertex_buffer_size(uint32_t capacity, bool second, uint64_t& second_offset)
+	{
+		uint64_t main = uint64_t(capacity) * sizeof(bb::vertex3d);
+		if (!second) {
+			second_offset = 0;
+			return main;
+		}
+		second_offset = (main + bb::vertex_alignment - 1) / bb::vertex_alignment * bb::vertex_alignment;
+		return second_offset + uint64_t(capacity) * sizeof(bb::vertex3d_second);
+	}
+
 	// Makes sure the GPU has the current geometry of the surface.
-	void* surface_prebuild(const bb::vertex3d* vertices, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count)
+	void* surface_prebuild(const bb::vertex3d* vertices, const bb::vertex3d_second* second, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count)
 	{
 		// Any thread: the buffers are made by the backend, which holds what it needs for as long as this runs (see close_prebuild).
 		if (!vertex_count || !index_count) {
@@ -103,13 +116,17 @@ namespace bb::gfx {
 		surface_gpu* gpu     = new surface_gpu();
 		gpu->vertex_capacity = vertex_count + vertex_count / 4 + 16;
 		gpu->index_capacity  = index_count + index_count / 4 + 48;
-		if (!rhi::create_buffer_any_thread(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh)
+		uint64_t vertex_bytes = vertex_buffer_size(gpu->vertex_capacity, second != nullptr, gpu->second_offset);
+		if (!rhi::create_buffer_any_thread(gpu->vertex_buffer, vertex_bytes, rhi::vertex_data, rhi::memory::mesh)
 			|| !rhi::create_buffer_any_thread(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh)) {
 			rhi::destroy_buffer_any_thread(gpu->vertex_buffer);
 			delete gpu;
 			return nullptr;
 		}
 		memcpy(gpu->vertex_buffer.mapped, vertices, size_t(vertex_count) * sizeof(bb::vertex3d));
+		if (second) {
+			memcpy(static_cast<uint8_t*>(gpu->vertex_buffer.mapped) + gpu->second_offset, second, size_t(vertex_count) * sizeof(bb::vertex3d_second));
+		}
 		memcpy(gpu->index_buffer.mapped, indices, size_t(index_count) * sizeof(uint32_t));
 		gpu->index_count = index_count;
 
@@ -230,8 +247,13 @@ namespace bb::gfx {
 			&& (s.indices.size == gpu->index_count);
 		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
 		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
-		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
+		// A surface that gets or loses its second set of texture coordinates gets a new buffer, so that draws of one buffer always read it the same way.
+		bool second = s.has_second;
+		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity) && (second == (gpu->second_offset != 0))) {
 			copy_vertices(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
+			if (second) {
+				copy_vertices(static_cast<uint8_t*>(gpu->vertex_buffer.mapped) + gpu->second_offset, s.second.data, size_t(s.vertices.size) * sizeof(bb::vertex3d_second));
+			}
 			if (!same_triangles) {
 				memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
 			}
@@ -271,8 +293,11 @@ namespace bb::gfx {
 
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
-		rhi::create_buffer(gpu->vertex_buffer, uint64_t(gpu->vertex_capacity) * sizeof(bb::vertex3d), rhi::vertex_data, rhi::memory::mesh);
+		rhi::create_buffer(gpu->vertex_buffer, vertex_buffer_size(gpu->vertex_capacity, second, gpu->second_offset), rhi::vertex_data, rhi::memory::mesh);
 		copy_vertices(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
+		if (second) {
+			copy_vertices(static_cast<uint8_t*>(gpu->vertex_buffer.mapped) + gpu->second_offset, s.second.data, size_t(s.vertices.size) * sizeof(bb::vertex3d_second));
+		}
 
 		if (!same_triangles) {
 			gpu->index_capacity = s.indices.size + s.indices.size / 4 + 48;
@@ -497,6 +522,7 @@ namespace bb::gfx {
 			int          texture; // The handle that the draw was made with.
 			uintptr_t    texture_set;
 			uint64_t     vertex_buffer, index_buffer;
+			uint64_t     vertex_second; // See draw_record.
 			surface_gpu* gpu;
 			bool         cull, depth_test, depth_write;
 		};
@@ -1595,7 +1621,7 @@ namespace bb::gfx {
 					stats3d.textures++;
 				}
 				if ((k.vertex_buffer != bound_vertices) || (k.index_buffer != bound_indices)) {
-					bb::rhi::bind_vertex_buffer(uint64_t(k.vertex_buffer));
+					bb::rhi::bind_vertex_buffer(uint64_t(k.vertex_buffer), k.vertex_second);
 					bb::rhi::bind_index_buffer(uint64_t(k.index_buffer));
 					bound_vertices = k.vertex_buffer;
 					bound_indices  = k.index_buffer;
@@ -1866,7 +1892,7 @@ namespace bb::gfx {
 				stats3d.textures++;
 			}
 			if ((d.vertex_buffer != bound_vertices) || (d.index_buffer != bound_indices)) {
-				bb::rhi::bind_vertex_buffer(uint64_t(d.vertex_buffer));
+				bb::rhi::bind_vertex_buffer(uint64_t(d.vertex_buffer), d.vertex_second);
 				bb::rhi::bind_index_buffer(uint64_t(d.index_buffer));
 				bound_vertices = d.vertex_buffer;
 				bound_indices  = d.index_buffer;
@@ -3117,6 +3143,15 @@ namespace bb::gfx {
 		out.vertices.reserve(count);
 		memcpy(out.vertices.data, src.vertices.data, size_t(count) * sizeof(bb::vertex3d));
 		out.vertices.size = count;
+		if (src.has_second) {
+			out.second.clear();
+			out.second.reserve(count);
+			memcpy(out.second.data, src.second.data, size_t(count) * sizeof(bb::vertex3d_second));
+			out.second.size = count;
+		} else {
+			bb::second_drop(out);
+		}
+		out.has_second = src.has_second;
 		out.indices.reserve(src.indices.size);
 		src.clip_key[39] = 1.0f;
 
@@ -3154,7 +3189,8 @@ namespace bb::gfx {
 				float n[3], color[4];
 				v.get_normal(n);
 				v.get_color(color);
-				const double values[10] = { v.x, v.y, v.z, n[0], n[1], n[2], v.u, v.v, v.u2, v.v2 };
+				bb::vertex3d_second second = bb::second_of(src, ids[k]);
+				const double        values[10] = { v.x, v.y, v.z, n[0], n[1], n[2], v.u, v.v, second.u, second.v };
 				memcpy(p.v, values, sizeof(values));
 				for (int c = 0; c < 4; c++) {
 					p.color[c] = color[c];
@@ -3211,9 +3247,9 @@ namespace bb::gfx {
 					bb::vertex3d v = {};
 					v.x = float(p.v[0]); v.y = float(p.v[1]); v.z = float(p.v[2]);
 					v.set_normal(float(p.v[3]), float(p.v[4]), float(p.v[5]));
-					v.u = float(p.v[6]); v.v = float(p.v[7]); v.u2 = float(p.v[8]); v.v2 = float(p.v[9]);
+					v.u = float(p.v[6]); v.v = float(p.v[7]);
 					v.set_color(float(p.color[0]), float(p.color[1]), float(p.color[2]), float(p.color[3]));
-					out.vertices.push(v);
+					bb::push_vertex(out, v, { float(p.v[8]), float(p.v[9]), 0, 0 });
 					out.indices.push(first + uint32_t(k));
 				}
 			}
@@ -3536,6 +3572,7 @@ namespace bb::gfx {
 			pushes.push(push);
 			record.layer_group  = layer_count ? layer_group_of(layer_handles, layer_count) : 0;
 			record.vertex_buffer = shape->vertex_buffer.vk;
+			record.vertex_second = shape->second_offset;
 			record.index_buffer = shape->index_buffer.vk;
 			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
@@ -4024,6 +4061,7 @@ namespace bb::gfx {
 			f.key.texture       = rec.texture;
 			f.key.texture_set   = rec.texture_set;
 			f.key.vertex_buffer = rec.vertex_buffer;
+			f.key.vertex_second = rec.vertex_second;
 			f.key.index_buffer  = rec.index_buffer;
 			f.key.cull          = rec.cull;
 			f.key.depth_test    = rec.depth_test;

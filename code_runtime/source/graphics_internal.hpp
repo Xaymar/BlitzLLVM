@@ -589,6 +589,8 @@ namespace bb::gfx {
 		rhi::gpu_buffer index_buffer;
 		uint32_t       index_count   = 0;
 		uint32_t       vertex_capacity = 0, index_capacity = 0;
+		// Where the second set of texture coordinates is in the vertex buffer (after the vertices, at a cache line), 0 if the surface has none.
+		uint64_t       second_offset   = 0;
 		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
 		// What the surface was when the buffers were filled last: when only its vertices changed since (see surface_vertices_changed), the
 		// indices in the buffer are still right and only the vertices are copied again.
@@ -615,6 +617,7 @@ namespace bb::gfx {
 	struct draw_record {
 		uint32_t    push_index; // Where its data is, in the order the draws were made.
 		uint64_t    vertex_buffer; // Handles of the backend.
+		uint64_t    vertex_second; // Where the second set of texture coordinates is in it, 0 for none (surface_gpu::second_offset).
 		uint64_t    index_buffer;
 		uint32_t    index_count;
 		int         texture; // Handle, 0 for none.

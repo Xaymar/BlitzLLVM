@@ -32,7 +32,7 @@ BB_RHI_CALL(void, bind_compute_group, (pipeline_layout layout, uint32_t index, b
 BB_RHI_CALL(void, bind_group, (pipeline_layout layout, uint32_t index, binding_group group), (layout, index, group))
 BB_RHI_CALL(void, bind_group_at, (pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset), (layout, index, group, offset))
 BB_RHI_CALL(void, push_constants, (pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data), (layout, stages, offset, size, data))
-BB_RHI_CALL(void, bind_vertex_buffer, (uint64_t buffer), (buffer))
+BB_RHI_CALL(void, bind_vertex_buffer, (uint64_t buffer, uint64_t second), (buffer, second))
 BB_RHI_CALL(void, bind_index_buffer, (uint64_t buffer), (buffer))
 BB_RHI_CALL(void, set_cull, (cull_mode mode), (mode))
 BB_RHI_CALL(void, set_depth_test, (bool enable), (enable))

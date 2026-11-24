@@ -54,8 +54,7 @@ namespace bb::scene {
 
 	uint32_t add_vertex(surface* s, float x, float y, float z, float nx, float ny, float nz, float u, float v)
 	{
-		vertex3d vert = vertex3d::make(x, y, z, nx, ny, nz, u, v);
-		s->vertices.push(vert);
+		push_vertex(*s, vertex3d::make(x, y, z, nx, ny, nz, u, v));
 		s->dirty = true;
 		bb::surface_epoch++;
 		bb::surface_changed(*s);
@@ -529,10 +528,15 @@ void bb_vertex_tex_coords(int32_t handle, int32_t index, float u, float v, float
 	(void)w;
 	vertex3d& vert = vertex_of(handle, index, "VertexTexCoords");
 	check_set(set);
+	surface& s = *need_surface(handle, "VertexTexCoords");
 	if (set == 1) {
-		vert.u2 = u;
-		vert.v2 = v;
+		second_make(s); // Only now does the surface need a second set of its own.
+		s.second[uint32_t(index)].u = u;
+		s.second[uint32_t(index)].v = v;
 	} else {
+		if (!s.has_second && ((vert.u != u) || (vert.v != v))) {
+			second_make(s); // The second set keeps what the first was.
+		}
 		vert.u = u;
 		vert.v = v;
 	}
@@ -643,8 +647,18 @@ static float vertex_normal(int32_t surface, int32_t index, int axis, const char*
 float bb_vertex_nx(int32_t surface, int32_t index) { return vertex_normal(surface, index, 0, "VertexNX"); }
 float bb_vertex_ny(int32_t surface, int32_t index) { return vertex_normal(surface, index, 1, "VertexNY"); }
 float bb_vertex_nz(int32_t surface, int32_t index) { return vertex_normal(surface, index, 2, "VertexNZ"); }
-float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexU"); check_set(set); return set == 1 ? v.u2 : v.u; }
-float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexV"); check_set(set); return set == 1 ? v.v2 : v.v; }
+float bb_vertex_u(int32_t surface, int32_t index, int32_t set)
+{
+	vertex3d const& v = read_vertex(surface, index, "VertexU");
+	check_set(set);
+	return set == 1 ? second_of(*need_surface(surface, "VertexU"), uint32_t(index)).u : v.u;
+}
+float bb_vertex_v(int32_t surface, int32_t index, int32_t set)
+{
+	vertex3d const& v = read_vertex(surface, index, "VertexV");
+	check_set(set);
+	return set == 1 ? second_of(*need_surface(surface, "VertexV"), uint32_t(index)).v : v.v;
+}
 float bb_vertex_red(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexRed").color_255(0)); }
 float bb_vertex_green(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexGreen").color_255(1)); }
 float bb_vertex_blue(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexBlue").color_255(2)); }
@@ -694,7 +708,7 @@ static void add_surfaces(int32_t destination, entity const& source)
 		}
 		uint32_t base = into->vertices.size;
 		for (uint32_t v = 0; v < from.vertices.size; v++) {
-			into->vertices.push(from.vertices[v]);
+			push_vertex(*into, from.vertices[v], second_of(from, v));
 		}
 		for (uint32_t t = 0; t < from.indices.size; t++) {
 			into->indices.push(from.indices[t] + base);
@@ -792,6 +806,7 @@ void bb_clear_surface(int32_t handle, int32_t vertices, int32_t triangles)
 	surface* s = need_surface(handle, "ClearSurface");
 	if (vertices) {
 		s->vertices.clear();
+		second_drop(*s);
 	}
 	if (triangles) {
 		s->indices.clear();

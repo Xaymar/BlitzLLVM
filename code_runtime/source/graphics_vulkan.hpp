@@ -114,6 +114,7 @@
 	X(vkCmdDrawIndexed) \
 	X(vkCmdBindIndexBuffer) \
 	X(vkCmdSetCullMode) \
+	X(vkCmdBindVertexBuffers2) \
 	X(vkCmdSetDepthWriteEnable) \
 	X(vkFreeDescriptorSets) \
 	X(vkCmdCopyImageToBuffer) \

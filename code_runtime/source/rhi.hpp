@@ -490,7 +490,9 @@ namespace bb::rhi {
 	void bind_group(pipeline_layout layout, uint32_t index, binding_group group);
 	void bind_group_at(pipeline_layout layout, uint32_t index, binding_group group, uint32_t offset);
 	void push_constants(pipeline_layout layout, uint32_t stages, uint32_t offset, uint32_t size, const void* data);
-	void bind_vertex_buffer(uint64_t buffer);
+	/** The vertices that the draws read. For a pipeline of vertex3d, second is where in the buffer the second set of texture coordinates
+	 * of the surface is (one vertex3d_second for each vertex), or 0 for a surface without one, whose first set is read for it. */
+	void bind_vertex_buffer(uint64_t buffer, uint64_t second = 0);
 	void bind_index_buffer(uint64_t buffer); // 32-bit indices.
 	void set_cull(cull_mode mode);
 	void set_depth_test(bool enable);
