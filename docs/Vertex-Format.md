@@ -95,6 +95,34 @@ A quaternion frame (normal plus tangent in 32 bits) is not needed: normal maps (
 screen-space derivatives in the fragment shader, so meshes carry no tangents. If per-vertex tangents are ever added, a 32-bit
 quaternion can replace the octahedral normal in the same 4 bytes, so this layout does not block that.
 
+### Cache lines and alignment
+
+Xaymar's rule (24 Nov): a vertex either fits in one cache line or is padded to two, and vertex memory is allocated at the SIMD alignment
+of the CPU (AVX on x86-64, NEON on ARM64).
+
+- Today's 48 bytes break it: 48 does not divide 64, so every fourth vertex starts in one 64-byte line and ends in the next, and a
+  run of vertices does not start on a line either (see below).
+- The 32-byte main stream and the 16-byte extra stream both divide 64, so with the start of the array on a 64-byte boundary no vertex
+  ever crosses a line (two main vertices, or four extra entries, per line). That also holds on CPUs with 128-byte lines (Apple arm64).
+- A single 40-byte vertex (choice 2 below without the split) would cross lines and would have to be padded to 64 bytes, which is
+  more than today. So the split is no longer just the smaller option, it is the one that keeps the rule without padding. If one
+  buffer is preferred anyway, it becomes a 64-byte vertex (main 32 + uv2, w, w2 16 + 16 spare), twice the size of the split main stream.
+
+Alignment: one constant, `bb::vertex_alignment = 64`, for every vertex array on every platform. 64 covers AVX and AVX2 (32), AVX-512
+(64), NEON (16) and the cache line, so one value meets all of them and there is nothing per platform to get wrong. Where that has to
+be done:
+
+| Memory                                  | Today                                                    | Change                                          |
+|-----------------------------------------|----------------------------------------------------------|-------------------------------------------------|
+| `surface::vertices` (`buffer` in scene.hpp) | `bb_realloc`, the runtime's own allocator, 16-byte granules | `buffer` gets an alignment parameter; aligned growth is `bb_aligned_alloc` + copy + `bb_aligned_free` (there is no aligned realloc) |
+| `skin_data` bind and posed arrays       | `buffer<float>`, same                                    | same aligned `buffer`                           |
+| Vulkan mesh buffers                     | `graphics_vulkan_memory.cpp`, alignment from the buffer's memory requirements | at least 64 for `memory::mesh` vertex buffers, so the mapped pointer is aligned too |
+| Direct3D 11 mesh buffers                | a system-memory shadow copy (`gpu_buffer::mapped`)       | shadow allocated with `bb_aligned_alloc(64, ...)` |
+| OpenGL mesh buffers                     | `glMapBufferRange`                                        | already at least 64 (`GL_MIN_MAP_BUFFER_ALIGNMENT` is at least 64 since 4.2); check and assert |
+
+With both sides aligned and the same layout, the upload copy runs on whole lines and full-width aligned vector loads and stores.
+A `static_assert` on `sizeof(vertex3d)` and `sizeof(vertex3d_extra)` dividing 64 keeps later changes from breaking the rule.
+
 ### What reads and writes vertices
 
 - Writers of normals: `VertexNormal`, `UpdateNormals`/`compute_normals`, `FlipMesh`, `RotateMesh`/`ScaleMesh` style transforms in
@@ -134,8 +162,8 @@ same source as they do today.
 
 1. **Normal encoding.** oct32P (recommended: 4 bytes, worst error 0.0025°, a few shader instructions), or oct24P (3 bytes plus a
    padding byte, worst 0.039°, needs integer unpacking in the shader), or plain int8 x 4 (no unfolding, worst 0.39°).
-2. **Second set as an extra stream.** Split it out (recommended: 32 bytes for most surfaces), or keep it in the vertex and only pack the
-   normal (40 bytes, one buffer, simpler).
+2. **Second set as an extra stream.** Split it out (recommended: 32 bytes for most surfaces, and both streams fit the cache-line rule
+   without padding), or one buffer, which the cache-line rule makes a 64-byte vertex.
 3. **Vertex colors.** Keep half floats (recommended: they were chosen so colors are not rounded to steps of 1/255, and 32 bytes is a
    good size), or go to 8-bit RGBA like the original (4 bytes saved, 28-byte vertex, brings the 1/255 steps back).
 4. **w in this change or later.** Add w and w2 to the extra stream now, since the stream is being made anyway (recommended), or leave
