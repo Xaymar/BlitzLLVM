@@ -137,6 +137,27 @@ namespace bb::wnd {
 		run([&] { SDL_SyncWindow(window); });
 	}
 
+	void set_cursor_visible(bool visible)
+	{
+		run([&] {
+			if (visible) {
+				SDL_ShowCursor();
+			} else {
+				SDL_HideCursor();
+			}
+		});
+	}
+
+	void set_cursor(SDL_Cursor* cursor)
+	{
+		run([&] { SDL_SetCursor(cursor); });
+	}
+
+	void set_relative_mouse_mode(SDL_Window* window, bool enabled)
+	{
+		run([&] { SDL_SetWindowRelativeMouseMode(window, enabled); });
+	}
+
 	bool poll_event(SDL_Event* event)
 	{
 		if (!thread_id.load()) {
