@@ -374,9 +374,14 @@ namespace blitz {
 		value       load_address(address const& addr);
 		void        collect_constants(ast::block const& block);
 		void        collect_globals(ast::block const& block);
+		bool        is_constant_expression(ast::expression const* expr, std::set<std::string>& visiting);
+		void        hoist_constant(std::string const& key, std::set<std::string>& visiting);
+		void        gen_constants();
 		bool                  _collecting_function = false;
 		std::vector<std::string>                              _const_order;   // Lower case names of all Consts, in the order they appear.
 		std::map<std::string, ast::declaration const*>        _const_decls;   // The declaration of each Const.
+		std::map<std::string, bool>                           _const_known;   // Whether the value of a Const is known at compile time.
+		std::set<ast::declaration const*>                     _const_hoisted; // Consts that get their value at the start of the program.
 		std::vector<std::pair<std::string, ast::location>> _struct_uses; // Types named by Global and Dim declarations, checked once all Types are known.
 		std::set<std::string> _redim_in_function; // Arrays that a function of the program makes again with Dim.
 

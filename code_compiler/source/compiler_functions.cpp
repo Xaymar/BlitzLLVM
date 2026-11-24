@@ -794,6 +794,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 		// Bit 0: time the runtime. Bit 1: the program has symbols, so BLITZLLVM_PROFILE_SAMPLE also records call stacks.
 		call_runtime("bb_set_profile", type::UNKNOWN, { { debug_info ? "3" : "1", type::INT32 } });
 	}
+	gen_constants();
 	gen_block(program.main);
 	report_unused(_locals);
 	if (!_terminated) {

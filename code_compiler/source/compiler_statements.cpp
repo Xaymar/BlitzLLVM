@@ -13,6 +13,7 @@
 #include "compiler.hpp"
 #include <algorithm>
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include "compiler_internal.hpp"
 #include "util.hpp"
@@ -166,9 +167,94 @@ void blitz::compiler::gen_statement_inner(ast::statement const* node)
 	}
 }
 
+bool blitz::compiler::is_constant_expression(ast::expression const* expr, std::set<std::string>& visiting)
+{
+	// The original only takes constants for a Const: numbers, strings, other Consts, and math and casts on them.
+	if (!expr) {
+		return false;
+	} else if (dynamic_cast<ast::literal const*>(expr)) {
+		return true;
+	} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+		auto key = lower(r->name);
+		auto decl = _const_decls.find(key);
+		if (decl == _const_decls.end()) {
+			return key == "pi";
+		}
+		auto known = _const_known.find(key);
+		if (known != _const_known.end()) {
+			return known->second;
+		}
+		if (!visiting.insert(key).second) {
+			throw err(r->where, "The value of the Const '" + r->name + "' depends on itself.");
+		}
+		bool result = is_constant_expression(decl->second->initial.get(), visiting);
+		visiting.erase(key);
+		_const_known[key] = result;
+		return result;
+	} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+		return is_constant_expression(u->operand.get(), visiting);
+	} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
+		return is_constant_expression(b->lhs.get(), visiting) && is_constant_expression(b->rhs.get(), visiting);
+	} else if (auto c = dynamic_cast<ast::call const*>(expr)) {
+		auto key = lower(c->name);
+		if (((key == "int") || (key == "float") || (key == "str")) && (c->arguments.size() == 1) && !_functions.count(key)) {
+			return is_constant_expression(c->arguments[0].get(), visiting);
+		}
+	}
+	return false;
+}
+
+void blitz::compiler::hoist_constant(std::string const& key, std::set<std::string>& visiting)
+{
+	auto decl = _const_decls.at(key);
+	if (_const_hoisted.count(decl) || !decl->initial || !is_constant_expression(decl->initial.get(), visiting)) {
+		return;
+	}
+	auto var = _global_variables.at(key);
+	if (var.count || !var.shape.empty()) {
+		return; // gen_declare reports these.
+	}
+	_const_hoisted.insert(decl);
+
+	// The Consts this one uses get their value first.
+	std::function<void(ast::expression const*)> uses = [&](ast::expression const* expr) {
+		if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+			if (_const_decls.count(lower(r->name))) {
+				hoist_constant(lower(r->name), visiting);
+			}
+		} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+			uses(u->operand.get());
+		} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
+			uses(b->lhs.get());
+			uses(b->rhs.get());
+		} else if (auto c = dynamic_cast<ast::call const*>(expr)) {
+			for (auto const& arg : c->arguments) {
+				uses(arg.get());
+			}
+		}
+	};
+	uses(decl->initial.get());
+
+	auto v = convert(gen(decl->initial.get()), var.type, decl->initial->where, true, var.sname, &decl->initial->covers);
+	store_value({ var.pointer, var.type, var.sname, 0, false }, v);
+}
+
+void blitz::compiler::gen_constants()
+{
+	// A Const has its value from the start of the program, like in the original where it is known when compiling. Only a Const that
+	// is not a constant expression (which the original refuses) gets its value where it is declared.
+	std::set<std::string> visiting;
+	for (auto const& key : _const_order) {
+		hoist_constant(key, visiting);
+	}
+}
+
 void blitz::compiler::gen_declare(ast::declare const* node)
 {
 	for (auto const& decl : node->variables) {
+		if (node->constant && _const_hoisted.count(&decl)) {
+			continue;
+		}
 		variable var;
 		if (node->global || node->constant) {
 			var = _global_variables.at(lower(decl.name));
