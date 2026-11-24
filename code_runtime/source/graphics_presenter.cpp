@@ -58,6 +58,7 @@ namespace bb::gfx {
 		bool            needs_swapchain = false;   // The thread makes the swapchain again before it shows anything.
 		uint32_t        chain_w = 0, chain_h = 0;  // The size of the swapchain, and of the last picture that was shown in it (for the
 		uint32_t        shown_w = 0, shown_h = 0;  // other threads, under the lock: only this thread touches the swapchain).
+		uint32_t        shown_picture_w = 0, shown_picture_h = 0; // The size the last picture shown was drawn at.
 		bool            busy = false;              // The thread is showing a picture right now.
 		bool            quit = false;
 		uint32_t        presents = 0;              // How many times a picture was shown, counting the times the window asked for it again.
@@ -187,6 +188,15 @@ namespace bb::gfx {
 				}
 				bool submitted = (shown.stage == bb::rhi::show_result::stage::submitted);
 				if (submitted) {
+					// The size it went out at, at once: the thread of the window system may wait for it, and the display may only take the
+					// picture once that thread is done with the message it waits in.
+					SDL_LockMutex(p.mutex);
+					p.shown_w         = chain_w;
+					p.shown_h         = chain_h;
+					p.shown_picture_w = frame_w;
+					p.shown_picture_h = frame_h;
+					SDL_BroadcastCondition(p.cond);
+					SDL_UnlockMutex(p.mutex);
 					// Pacing, outside of every lock: the next picture goes out one refresh after this one was shown. With present_wait, that
 					// is when the display has it; without, when the timer says the display should. A handover that waits returns after this.
 					bool ok = (shown.presented == bb::rhi::present_status::ok) || (shown.presented == bb::rhi::present_status::suboptimal);
@@ -205,8 +215,6 @@ namespace bb::gfx {
 					p.presents++;
 					p.shows += fresh ? 1 : 0;
 					p.presented = number;
-					p.shown_w   = chain_w;
-					p.shown_h   = chain_h;
 				}
 				if ((shown.presented == bb::rhi::present_status::out_of_date) || (shown.presented == bb::rhi::present_status::suboptimal)) {
 					p.needs_swapchain = true;
@@ -226,10 +234,13 @@ namespace bb::gfx {
 
 		// A window got another size in pixels. The watch is called by the thread that took the event from the window system, the
 		// moment it did: on Windows that is the thread of the window system, inside the loop of a window that is being dragged or
-		// resized, where the program's thread has nothing to do with it. The thread of the window makes the swapchain again at once,
-		// and the thread of the window system waits a little, up to two refreshes, for it to show the last picture at the new size:
-		// Windows shows the window at its new size when the message returns, and what has no picture in it yet is black. The
-		// program's thread never waits here (where it takes the events itself, the thread of the window is only told).
+		// resized, where the program's thread has nothing to do with it. The thread of the window makes the swapchain again at once
+		// and shows the last picture stretched. Windows shows the window at its new size when the message returns, and what has no
+		// picture in it then is black, so the thread of the window system waits a little, up to two refreshes: for a picture the
+		// program drew at the new size (it is told with $802 and draws at the new size from then on), else for the stretched one.
+		// When the program waits for this thread (it resized the window itself, with SetGadgetShape), it draws nothing, so then only
+		// the stretched picture is waited for. The program's thread never waits here (where it takes the events itself, the thread of
+		// the window is only told).
 		bool SDLCALL watch_window_size(void*, SDL_Event* event)
 		{
 			if (event->type != SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
@@ -253,12 +264,17 @@ namespace bb::gfx {
 				p->dirty           = true;
 				SDL_BroadcastCondition(p->cond);
 			}
-			// Only while there is a picture to show at the new size (the program may just be making new ones, of the new size).
-			bool     wait  = bb::wnd::on_thread() && (w > 0) && (h > 0);
-			uint64_t limit = 2 * p->period_ns;
-			limit          = (limit < 20000000ull) ? 20000000ull : ((limit > 50000000ull) ? 50000000ull : limit);
-			uint64_t until = SDL_GetTicksNS() + limit;
-			while (wait && !p->quit && ((p->showing >= 0) || (p->ready >= 0)) && ((p->shown_w != w) || (p->shown_h != h)) && (SDL_GetTicksNS() < until)) {
+			// Only where there is a picture to show at the new size.
+			bool     wait     = bb::wnd::on_thread() && (w > 0) && (h > 0) && ((p->showing >= 0) || (p->ready >= 0));
+			bool     drawn    = !bb::wnd::program_waiting(); // Whether the program can draw a picture of the new size meanwhile.
+			uint64_t limit    = 2 * p->period_ns;
+			limit             = (limit < 20000000ull) ? 20000000ull : ((limit > 50000000ull) ? 50000000ull : limit);
+			uint64_t until    = SDL_GetTicksNS() + limit;
+			auto     finished = [&] {
+				bool fits = (p->shown_w == w) && (p->shown_h == h);
+				return fits && (!drawn || ((p->shown_picture_w == w) && (p->shown_picture_h == h)));
+			};
+			while (wait && !p->quit && !finished() && (SDL_GetTicksNS() < until)) {
 				SDL_WaitConditionTimeout(p->cond, p->mutex, 1);
 				// Making a swapchain can send a message to the window (Direct3D does), which this thread has to take, or both would wait.
 				SDL_UnlockMutex(p->mutex);

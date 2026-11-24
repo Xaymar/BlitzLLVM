@@ -43,6 +43,9 @@ namespace bb::wnd {
 	// True on the thread of the window system itself.
 	bool on_thread();
 
+	// True while a call of run waits for the thread of the window system (it may wait for a window that is being dragged).
+	bool program_waiting();
+
 	// Handles the messages that other threads sent to the windows of this thread and wait for it to take (SendMessage on Windows; a
 	// swapchain may be made that way). For the thread of the window system while it waits for another thread. Nothing elsewhere.
 	void handle_sent_messages();

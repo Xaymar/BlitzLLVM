@@ -44,6 +44,7 @@ namespace bb::wnd {
 		std::atomic<SDL_ThreadID> thread_id{ 0 };
 		bool                    started = false;
 		std::atomic<bool>       cursor_owned{ true }; // The last change of the pointer was made on the thread that owns the windows.
+		std::atomic<int>        waiting{ 0 }; // Calls of run that wait for the thread: the program's thread draws nothing meanwhile.
 
 		int thread_main(void*)
 		{
@@ -77,6 +78,11 @@ namespace bb::wnd {
 	bool on_thread()
 	{
 		return thread_id.load() && (SDL_GetCurrentThreadID() == thread_id.load());
+	}
+
+	bool program_waiting()
+	{
+		return waiting.load() > 0;
 	}
 
 	void handle_sent_messages()
@@ -118,7 +124,9 @@ namespace bb::wnd {
 		}
 		jobs.push_back(&todo);
 		wake.notify_all();
+		waiting++;
 		finished.wait(guard, [&] { return todo.done; });
+		waiting--;
 	}
 
 	bool init(SDL_InitFlags flags)
