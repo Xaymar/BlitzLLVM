@@ -413,7 +413,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 * [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [RenderWorld](RenderWorld#differences): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
-* [RequestColor](RequestColor#differences): The picker is drawn by the runtime inside the program's active window (the window of `Graphics` where there is none) and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
+* [RequestColor](RequestColor#differences): The picker is drawn by the runtime inside the program's active window (in a window of its own where there is none) and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
 * [RequestDir](RequestDir#differences): It is the folder dialog of the operating system, in front of the program's active window, which differs between Windows, macOS and Linux.
 * [RequestFile](RequestFile#differences): It is the file dialog of the operating system, in front of the program's active window, so it looks different on each system.
 * [RequestFont](RequestFont#differences): Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font.

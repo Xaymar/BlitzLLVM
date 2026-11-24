@@ -27,7 +27,7 @@ CreateWindow:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, gro
 | `group` | In | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
 | `style` | In | Int32 | `15` | Sum of the flags above. Defaults to 15. |
 
-**Returns:** A handle for the window.
+**Returns:** A handle for the window, or 0 where no window of the operating system can be made for a window on the desktop.
 
 ## Description
 
@@ -48,7 +48,7 @@ Windows send events when they move ($801), change size ($802), are closed ($803)
 
 ## Differences
 
-* Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that never calls `Graphics` opens exactly the windows it makes and runs until it ends; one that calls `Graphics` as well has that window too, which is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program. `Graphics` called after windows were made keeps them. On a display with a high density of pixels (Windows at 150 %, a Retina display) a window has that many times more pixels than the width and height say, and its gadgets are drawn that many times bigger, sharp: the program keeps counting in its own units for the sizes and positions of gadgets, the mouse and the buffers of canvases, as it does in the original, whose windows the system scales. `BLITZLLVM_GUI_SCALE` sets the scale by hand, `0` turns it off.
+* Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or the system refuses one) `CreateWindow` returns 0: nothing of the GUI is ever drawn inside the window of `Graphics`. A program that never calls `Graphics` opens exactly the windows it makes and runs until it ends; one that calls `Graphics` as well has that window too, which is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program. `Graphics` called after windows were made keeps them. On a display with a high density of pixels (Windows at 150 %, a Retina display) a window has that many times more pixels than the width and height say, and its gadgets are drawn that many times bigger, sharp: the program keeps counting in its own units for the sizes and positions of gadgets, the mouse and the buffers of canvases, as it does in the original, whose windows the system scales. `BLITZLLVM_GUI_SCALE` sets the scale by hand, `0` turns it off.
 
 ## Examples
 
