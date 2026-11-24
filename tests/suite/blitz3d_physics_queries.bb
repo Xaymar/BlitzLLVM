@@ -23,6 +23,20 @@ region = CreatePhysicsBody(1, 1, 1, 1, 1)
 PositionEntity region, 10, 1, 0
 PhysicsSensor region, True
 PhysicsLayer region, 4, -1, -1
+PhysicsUpdate 0 ; Queries see the bodies as the last update left them.
+
+; ---- A moved body is found at its new place after the next update, not before
+mover = CreatePhysicsBody(1, 3, 1, 1, 1)
+PositionEntity mover, 30, 1, 0
+PhysicsUpdate 0
+Check "found where it was put", PhysicsPointInside(30, 1, 0), mover
+PositionEntity mover, 40, 1, 0
+Check "not moved yet", PhysicsPointInside(40, 1, 0), 0
+Check "still at the old place", PhysicsPointInside(30, 1, 0), mover
+PhysicsUpdate 0
+Check "moved after the update", PhysicsPointInside(40, 1, 0), mover
+Check "gone from the old place", PhysicsPointInside(30, 1, 0), 0
+FreeEntity mover
 
 ; ---- Rays
 hit = PhysicsRayCast(0, 5, 0, 0, -5, 0)
@@ -69,6 +83,7 @@ other = CreatePhysicsWorld()
 Check "nothing in the other world", PhysicsRayCast(0, 5, 0, 0, -5, 0, -1, -1, 0, other), 0
 alone = CreatePhysicsBody(1, 1, 1, 1, 1, 0, other)
 PositionEntity alone, 0, 3, 0
+PhysicsUpdate 0, other
 Check "the other world finds its body", PhysicsPointInside(0, 3, 0, -1, -1, 0, other), alone
 Check "the default world does not", PhysicsPointInside(0, 3, 0), 0
 FreeEntity alone

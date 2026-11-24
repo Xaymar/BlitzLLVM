@@ -1150,7 +1150,6 @@ int32_t bb_physics_ray_cast(float x1, float y1, float z1, float x2, float y2, fl
 {
 	world_rec&          w = world_of(world, "PhysicsRayCast");
 	physics::api const& l = lib("PhysicsRayCast");
-	sync_poses(w, l);
 	float               from[3] = { x1, y1, z1 }, along[3] = { x2 - x1, y2 - y1, z2 - z1 };
 	bp_query_hit        hit{};
 	clear_hit();
@@ -1173,7 +1172,6 @@ static int32_t shape_cast(const char* name, uint32_t kind, const float size[3], 
 {
 	world_rec&          w = world_of(world, name);
 	physics::api const& l = lib(name);
-	sync_poses(w, l);
 	float        from[3] = { x1, y1, z1 }, along[3] = { x2 - x1, y2 - y1, z2 - z1 };
 	bp_query_hit hit{};
 	clear_hit();
@@ -1208,7 +1206,6 @@ int32_t bb_physics_point_inside(float x, float y, float z, int32_t mask_low, int
 {
 	world_rec&          w = world_of(world, "PhysicsPointInside");
 	physics::api const& l = lib("PhysicsPointInside");
-	sync_poses(w, l);
 	float               p[3] = { x, y, z };
 	bp_query_hit        hit{};
 	clear_hit();
@@ -1232,7 +1229,6 @@ int32_t bb_physics_overlap_sphere(float x, float y, float z, float radius, int32
 {
 	world_rec&          w = world_of(world, "PhysicsOverlapSphere");
 	physics::api const& l = lib("PhysicsOverlapSphere");
-	sync_poses(w, l);
 	float               c[3] = { x, y, z };
 	uint64_t            mask = layer_mask(mask_low, mask_high);
 	uint32_t            flags = sensors ? BP_QUERY_SENSORS : 0;
@@ -1248,7 +1244,6 @@ int32_t bb_physics_overlap_box(float x, float y, float z, float half_x, float ha
 {
 	world_rec&          w = world_of(world, "PhysicsOverlapBox");
 	physics::api const& l = lib("PhysicsOverlapBox");
-	sync_poses(w, l);
 	float               c[3] = { x, y, z }, half[3] = { half_x, half_y, half_z }, q[4];
 	euler_quat(pitch, yaw, roll, q);
 	uint64_t            mask = layer_mask(mask_low, mask_high);
