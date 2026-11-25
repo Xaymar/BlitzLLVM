@@ -864,6 +864,13 @@ static int compiler_main(int argc, char** argv)
 				command.push_back("-Wl,/entry:mainCRTStartup");
 			} else {
 				command.push_back(opt.console ? "-mconsole" : "-mwindows");
+				// The MinGW linkers keep the DWARF of the libraries and a COFF symbol table in the program unless they strip them
+				// (lld in MinGW mode defaults to -debug:dwarf). Without -g nothing reads them: the debug information of Windows
+				// programs is the CodeView in the .pdb. Their sections have long names ("/4") that only the symbol table resolves,
+				// which some tools that read PE files don't handle.
+				if (!opt.debug_info) {
+					command.push_back("-s");
+				}
 			}
 			// The manifest makes the program DPI aware (Windows would otherwise scale its window), and the icon is the one that every
 			// program has until it gets one of its own, as a resource file for the linker. The linkers of LLVM take those; the GNU
