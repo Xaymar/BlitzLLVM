@@ -328,6 +328,7 @@ HideEntity debristemplate
 ; targetgen the generation of that ship when it was chosen, so a target that died and came back is not followed.
 Dim shipent(ships - 1), shipteam(ships - 1), shipkind(ships - 1), shiphp(ships - 1), shipgen(ships - 1)
 Dim shiptarget(ships - 1), shiptargetgen(ships - 1), shipcool(ships - 1), shipgoal(ships - 1), shipdead(ships - 1)
+Dim shipbreak(ships - 1)
 Dim shipx#(ships - 1), shipy#(ships - 1), shipz#(ships - 1)
 ; The neighbour grid: gridhead(cell) is the first ship in a cell, gridnext(ship) the next one in the same cell.
 Dim gridhead(GRID * GRID - 1), gridnext(ships - 1), shipcell(ships - 1)
@@ -382,6 +383,7 @@ Function SpawnShip(i, initial)
 	shiptarget(i) = -1
 	shipcool(i) = SBRndInt(0, 30)
 	shipdead(i) = 0
+	shipbreak(i) = 0
 	If shipkind(i) = 1 Then shipgoal(i) = STATIONS + ((i / (TEAMS * 10)) Mod PLANETS) Else shipgoal(i) = 0
 End Function
 
@@ -487,7 +489,7 @@ Function UpdateShips(f)
 				If tg >= 0 Then
 					If shipdead(tg) <> 0 Or shipgen(tg) <> shiptargetgen(i) Then tg = -1
 				EndIf
-				If (i + f) Mod 4 = 0 Then
+				If (i + f) Mod 4 = 0 And shipbreak(i) = 0 Then
 					n = FindTarget(i)
 					If n >= 0 Then
 						tg = n
@@ -495,8 +497,22 @@ Function UpdateShips(f)
 					EndIf
 				EndIf
 				shiptarget(i) = tg
+				; A fighter that came too close to its target, or chased it too far from the battle, breaks off: it lets the target go and
+				; flies its round for a while before it looks for a new one. Without that, two ships of the same speed end up inside each
+				; other, turning back and forth, and fly off together.
+				If shipbreak(i) > 0 Then
+					shipbreak(i) = shipbreak(i) - 1
+					tg = -1
+				ElseIf tg >= 0 Then
+					dx# = shipx(tg) - x : dy# = shipy(tg) - y : dz# = shipz(tg) - z
+					If dx * dx + dy * dy + dz * dz < 25 * 25 Or Abs(x) > 1100 Or Abs(y) > 500 Or Abs(z) > 1100 Then
+						shipbreak(i) = 40 + (i Mod 23)
+						tg = -1
+					EndIf
+				EndIf
+				shiptarget(i) = tg
 				If tg >= 0 Then
-					; Aims a little ahead of the target and asks for a line of sight check every 8th frame.
+					; Aims at the target and asks for a line of sight check every 8th frame.
 					dx# = shipx(tg) - x : dy# = shipy(tg) - y : dz# = shipz(tg) - z
 					If (i + f) Mod 8 = 4 Then
 						losship(loscount) = i
@@ -506,17 +522,20 @@ Function UpdateShips(f)
 					g = shipgoal(i)
 					If g = 0 Then
 						k = (i / TEAMS) Mod 4
-						gx# = frontx(k) + (i Mod 7) * 8 - 24 : gy# = fronty(k) : gz# = frontz(k) + (i Mod 5) * 8 - 16
+						m = i / TEAMS
+						gx# = frontx(k) + (m Mod 7) * 12 - 36 : gy# = fronty(k) + ((m / 7) Mod 9) * 10 - 40 : gz# = frontz(k) + ((m / 63) Mod 5) * 12 - 24
 					Else
 						If g = 1 Then home = (1 - t) * STATIONS + ((i / TEAMS) Mod STATIONS) Else home = t * STATIONS + ((i / TEAMS) Mod STATIONS)
 						side# = 1 - 2 * t
 						If g = 1 Then side = -side
-						gx# = stationx(home) + side * 140 : gy# = stationy(home) + 60 : gz# = stationz(home)
+						m = i / TEAMS
+						gx# = stationx(home) + side * (140 + (m Mod 5) * 10) : gy# = stationy(home) + 60 + ((m / 5) Mod 7) * 10 - 30 : gz# = stationz(home) + ((m / 35) Mod 7) * 10 - 30
 					EndIf
 					dx# = gx - x : dy# = gy - y : dz# = gz - z
 					If dx * dx + dy * dy + dz * dz < 70 * 70 Then shipgoal(i) = (g + 1) Mod 3
 				EndIf
-				speed# = FIGHTER_SPEED
+				; Fighters differ a little in speed, so that one that chases another catches up or falls behind.
+				speed# = FIGHTER_SPEED * (0.85 + 0.05 * (i Mod 7))
 			EndIf
 			AlignToVector e, dx, dy, dz, 3, 0.08
 			MoveEntity e, 0, 0, speed
