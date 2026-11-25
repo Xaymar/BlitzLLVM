@@ -5,26 +5,27 @@
 ;
 ; A canvas is a gadget to draw on with the 2D commands of chapter 2. CanvasBuffer gives its buffer for SetBuffer, and
 ; FlipCanvas shows what was drawn, like Flip does for the window of Graphics. A canvas also tells about the mouse:
-; $201 when a button goes down on it, $202 when it comes up and $203 when the mouse moves, with EventX and EventY
-; counted from the top left corner of the canvas and EventData the button.
+; BB_EVENT_MOUSE_DOWN when a button goes down on it, BB_EVENT_MOUSE_UP when it comes up and BB_EVENT_MOUSE_MOVE when
+; the mouse moves, with EventX and EventY counted from the top left corner of the canvas and EventData the button
+; (BB_MOUSE_LEFT, BB_MOUSE_RIGHT, ...).
 ;
 ; This is a small paint program. The picture is kept in an image. The canvas shows the image, and on top of it a
 ; preview of the line or box that is being dragged, which only goes into the image once the mouse button comes up.
 ;
 ; New things here:
 ;   CreateCanvas, CanvasBuffer and FlipCanvas.
-;   Mouse events from a canvas: $201, $202 and $203.
+;   Mouse events from a canvas: BB_EVENT_MOUSE_DOWN, BB_EVENT_MOUSE_UP and BB_EVENT_MOUSE_MOVE.
 ;   A second canvas used as a palette of colours, and RequestColor for any other colour.
 ;   Drawing into an image with SetBuffer ImageBuffer, and SaveImage with RequestFile.
 ;   One step of undo, by keeping a copy of the picture from before the last change.
 
-Const EVENT_MOUSE_DOWN = $201, EVENT_MOUSE_UP = $202, EVENT_MOUSE_MOVE = $203
-Const EVENT_GADGET = $401, EVENT_WINDOW_CLOSE = $803
+Include "<mouse.bb>"
+Include "<gui.bb>"
 
 Const PICTURE_W = 480, PICTURE_H = 360
 Const TOOL_PEN = 0, TOOL_LINE = 1, TOOL_BOX = 2, TOOL_ROUND = 3
 
-Local window = CreateWindow("Tutorial 5.04: Painting on a Canvas", 80, 60, 640, 400, 0, 1)
+Local window = CreateWindow("Tutorial 5.04: Painting on a Canvas", 80, 60, 640, 400, 0, BB_WINDOW_TITLEBAR)
 
 ; --- The tools on the left -------------------------------------------------------------------------------------------
 CreateLabel "Tool:", 10, 10, 120, 18, window
@@ -39,7 +40,7 @@ CreateLabel "Size:", 10, 112, 40, 18, window
 Local sizeSlider = CreateSlider(10, 130, 130, 22, window)
 SetSliderRange sizeSlider, 1, 20
 SetSliderValue sizeSlider, 2 ; The slider goes from 0 to 19, the size from 1 to 20.
-Local filledBox = CreateButton("Filled", 10, 158, 130, 20, window, 2)
+Local filledBox = CreateButton("Filled", 10, 158, 130, 20, window, BB_BUTTON_CHECKBOX)
 
 ; The palette: a small canvas with 16 colours, 4 by 4. A click on it picks the colour under the mouse. The last one
 ; is the colour of the paper, which rubs out.
@@ -73,8 +74,8 @@ ShowPicture()
 
 Repeat
 	Select WaitEvent()
-		Case EVENT_MOUSE_DOWN
-			If EventSource() = canvas And EventData() = 1
+		Case BB_EVENT_MOUSE_DOWN
+			If EventSource() = canvas And EventData() = BB_MOUSE_LEFT
 				CopyRect 0, 0, PICTURE_W, PICTURE_H, 0, 0, ImageBuffer(picture), ImageBuffer(backup)
 				EnableGadget undoButton
 				dragging = True
@@ -90,7 +91,7 @@ Repeat
 				ShowPalette()
 			EndIf
 
-		Case EVENT_MOUSE_MOVE
+		Case BB_EVENT_MOUSE_MOVE
 			If EventSource() = canvas And dragging
 				mouseX = EventX() : mouseY = EventY()
 				If tool = TOOL_PEN
@@ -101,7 +102,7 @@ Repeat
 				ShowPicture()
 			EndIf
 
-		Case EVENT_MOUSE_UP
+		Case BB_EVENT_MOUSE_UP
 			If EventSource() = canvas And dragging
 				dragging = False
 				; Lines and boxes go into the picture now, where the mouse let go.
@@ -110,7 +111,7 @@ Repeat
 				ShowPicture()
 			EndIf
 
-		Case EVENT_GADGET
+		Case BB_EVENT_GADGET
 			Select EventSource()
 				Case toolList
 					tool = SelectedGadgetItem(toolList)
@@ -140,7 +141,7 @@ Repeat
 					EndIf
 			End Select
 
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			Exit
 	End Select
 Forever

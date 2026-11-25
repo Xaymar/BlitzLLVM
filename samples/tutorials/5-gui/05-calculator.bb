@@ -8,8 +8,8 @@
 ; finished programs need:
 ;
 ;   - The keyboard works as well as the mouse. A canvas can have the keyboard's focus, and while it has, the keys that
-;     are typed come as $103 events with the character in EventData. After every click the program gives the focus
-;     back to the display, so typing always reaches it.
+;     are typed come as BB_EVENT_KEY_CHAR events with the character in EventData. After every click the program gives
+;     the focus back to the display, so typing always reaches it.
 ;   - The window grows and shrinks with SetGadgetShape when the extra keys or the history are turned on or off.
 ;   - The choices in the View menu are saved in a file, so the calculator looks the same the next time.
 ;
@@ -19,14 +19,15 @@
 ;
 ; New things here:
 ;   Double numbers, and Long for whole numbers that do not fit in an Int.
-;   Key characters from a canvas ($103), and ActivateGadget to give it the focus.
+;   Key characters from a canvas (BB_EVENT_KEY_CHAR), and ActivateGadget to give it the focus.
 ;   Many buttons kept in an array, and a Select on which one was pressed.
 ;   SetGadgetShape to change the size of a window, and options saved to a file.
 ;
 ; Keys: 0 to 9 and . type numbers, + - * / calculate, Enter or = gives the result, Backspace takes back the last digit,
 ; Delete clears the entry, Escape clears everything, % is percent.
 
-Const EVENT_KEY_CHAR = $103, EVENT_GADGET = $401, EVENT_WINDOW_CLOSE = $803, EVENT_MENU = $1001
+Include "<gui.bb>"
+
 Const MENU_EXTRA = 1, MENU_HISTORY = 2, MENU_GROUPING = 3, MENU_CLEAR_HISTORY = 4, MENU_QUIT = 5
 Const MENU_KEYS = 10, MENU_ABOUT = 11
 
@@ -52,7 +53,7 @@ Dim key(KEY_COUNT - 1)
 ; The characters for times, divided by and plus or minus. They are in the 256 characters that Blitz strings know.
 Global TIMES$ = Chr(215), DIVIDED$ = Chr(247), PLUS_MINUS$ = Chr(177)
 
-Global window = CreateWindow("Calculator", 200, 120, 400, 400, 0, 1 + 4)
+Global window = CreateWindow("Calculator", 200, 120, 400, 400, 0, BB_WINDOW_TITLEBAR + BB_WINDOW_MENU)
 
 ; The display is a canvas: it can show the numbers big and to the right, and it takes the keys that are typed.
 Global display = CreateCanvas(MARGIN, MARGIN, 10, DISPLAY_H, window)
@@ -114,10 +115,10 @@ Global extraKeys = False, showHistory = False, grouping = True
 
 ; When the window changes its size, every gadget keeps its distance to the top left corner. Without this, they would
 ; keep their place relative to the middle of the window, and move when ApplyLayout makes the window bigger or smaller.
-SetGadgetLayout display, 1, 0, 1, 0
-SetGadgetLayout historyList, 1, 0, 1, 0
+SetGadgetLayout display, BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout historyList, BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE
 For i = 0 To KEY_COUNT - 1
-	SetGadgetLayout key(i), 1, 0, 1, 0
+	SetGadgetLayout key(i), BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE
 Next
 
 LoadOptions()
@@ -127,7 +128,7 @@ ActivateGadget display
 
 Repeat
 	Select WaitEvent()
-		Case EVENT_GADGET
+		Case BB_EVENT_GADGET
 			If EventSource() = historyList
 				i = SelectedGadgetItem(historyList)
 				If i >= 0 Then RecallNumber(Double(historyResult(i)))
@@ -141,11 +142,11 @@ Repeat
 			EndIf
 			ActivateGadget display ; Back to the display, so the keyboard keeps working.
 
-		Case EVENT_KEY_CHAR
+		Case BB_EVENT_KEY_CHAR
 			i = KeyOfCharacter(EventData())
 			If i >= 0 Then PressKey(i)
 
-		Case EVENT_MENU
+		Case BB_EVENT_MENU
 			Select EventData()
 				Case MENU_EXTRA
 					extraKeys = Not extraKeys
@@ -171,7 +172,7 @@ Repeat
 			End Select
 			ActivateGadget display
 
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			Exit
 	End Select
 Forever

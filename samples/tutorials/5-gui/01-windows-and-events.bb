@@ -8,13 +8,16 @@
 ; are called gadgets, and the program sleeps until the user does something. Each thing the user does, such as a click
 ; on a button or a closed window, becomes an event. WaitEvent waits for the next event and says what kind it is.
 ;
-; The kinds are numbers, written in hexadecimal ($ in front) like in the original BlitzPlus. Naming them with Const
-; makes the program much easier to read:
+; The kinds are numbers, written in hexadecimal ($ in front) like in the original BlitzPlus. gui.bb, which comes with
+; BlitzLLVM, gives them names, which makes the program much easier to read:
 ;
-;   $401  a gadget was used: a button pressed, a text changed, an item picked.
-;   $801  a window was moved.               $802  a window changed its size.
-;   $803  the close button of a window.     $804  a window became the active one.
-;   $1001 a menu item was picked.           $4001 a timer ticked.
+;   BB_EVENT_GADGET ($401)          a gadget was used: a button pressed, a text changed, an item picked.
+;   BB_EVENT_WINDOW_MOVE ($801)     a window was moved.
+;   BB_EVENT_WINDOW_SIZE ($802)     a window changed its size.
+;   BB_EVENT_WINDOW_CLOSE ($803)    the close button of a window.
+;   BB_EVENT_WINDOW_ACTIVATE ($804) a window became the active one.
+;   BB_EVENT_MENU ($1001)           a menu item was picked.
+;   BB_EVENT_TIMER ($4001)          a timer ticked.
 ;
 ; After WaitEvent, EventSource says which gadget or window the event came from, and EventData, EventX and EventY
 ; tell more, such as the new size of a window.
@@ -26,18 +29,17 @@
 ;   SetGadgetText to change the text of a gadget, GadgetWidth and GadgetHeight.
 ;   SetGadgetLayout, so gadgets stay in place when the window changes its size.
 
-Const EVENT_GADGET = $401, EVENT_WINDOW_MOVE = $801, EVENT_WINDOW_SIZE = $802, EVENT_WINDOW_CLOSE = $803
-Const EVENT_WINDOW_ACTIVE = $804, EVENT_TIMER = $4001
+Include "<gui.bb>"
 
 ; The style of a window adds up flags: 1 a title bar, 2 the window can change its size, 4 a menu bar, 8 a status bar.
 ; Without a parent (the 0) the window is a window of its own on the desktop.
-Local window = CreateWindow("Tutorial 5.01: Windows and Events", 120, 100, 420, 260, 0, 1 + 2 + 8)
+Local window = CreateWindow("Tutorial 5.01: Windows and Events", 120, 100, 420, 260, 0, BB_WINDOW_TITLEBAR + BB_WINDOW_RESIZABLE + BB_WINDOW_STATUS)
 SetMinWindowSize window, 320, 200
 
 ; Gadgets are placed in a group, here the window, with x and y counted from the top left corner of its inside. The
 ; last number of CreateLabel is its style: 0 plain, 1 with a line around it, 3 sunken into the window.
 Local title = CreateLabel("Nothing has happened yet. Press a button, move the window or change its size.", 10, 10, 400, 36, window)
-Local lastEvent = CreateLabel("", 10, 56, 400, 20, window, 3)
+Local lastEvent = CreateLabel("", 10, 56, 400, 20, window, BB_LABEL_FRAME_SUNKEN)
 Local clock = CreateLabel("", 10, 84, 400, 20, window)
 
 ; Buttons. The style of CreateButton is 1 for a push button; 2 and 3 make check boxes and radio buttons, which
@@ -51,12 +53,12 @@ Local quit = CreateButton("Quit", 310, 190, 100, 28, window)
 ; 0 it is free, and the gadget keeps its size. The labels keep both side edges, so they stretch with the window, the
 ; two buttons stay in the top left corner, and Quit keeps its right and bottom edge, so it stays in the bottom right
 ; corner. A gadget without a layout keeps its place relative to the middle of the window.
-SetGadgetLayout title, 1, 1, 1, 0
-SetGadgetLayout lastEvent, 1, 1, 1, 0
-SetGadgetLayout clock, 1, 1, 1, 0
-SetGadgetLayout hello, 1, 0, 1, 0
-SetGadgetLayout count, 1, 0, 1, 0
-SetGadgetLayout quit, 0, 1, 0, 1
+SetGadgetLayout title, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout lastEvent, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout clock, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout hello, BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout count, BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE
+SetGadgetLayout quit, BB_EDGE_FREE, BB_EDGE_ALIGNED, BB_EDGE_FREE, BB_EDGE_ALIGNED
 
 ; A timer that ticks twice a second. Each tick is an event, so the clock below is updated even though the program
 ; spends all of its time inside WaitEvent.
@@ -68,7 +70,7 @@ SetStatusText window, "The status bar: flag 8 of the window style."
 Repeat
 	; WaitEvent sleeps until there is an event. The program uses no time at all while nobody does anything.
 	Select WaitEvent()
-		Case EVENT_GADGET
+		Case BB_EVENT_GADGET
 			Select EventSource()
 				Case hello
 					SetGadgetText lastEvent, "$401 from the button 'Say hello'. Hello!"
@@ -80,22 +82,22 @@ Repeat
 					Exit
 			End Select
 
-		Case EVENT_WINDOW_MOVE
+		Case BB_EVENT_WINDOW_MOVE
 			SetGadgetText lastEvent, "$801: the window moved to " + EventX() + ", " + EventY() + "."
 
-		Case EVENT_WINDOW_SIZE
+		Case BB_EVENT_WINDOW_SIZE
 			; EventX and EventY are the new width and height of the window.
 			SetGadgetText lastEvent, "$802: the window is now " + EventX() + " x " + EventY() + "."
 			SetStatusText window, "The labels are " + GadgetWidth(lastEvent) + " wide now; SetGadgetLayout stretched them."
 
-		Case EVENT_WINDOW_ACTIVE
+		Case BB_EVENT_WINDOW_ACTIVATE
 			SetGadgetText lastEvent, "$804: the window became the active one."
 
-		Case EVENT_TIMER
+		Case BB_EVENT_TIMER
 			ticks = ticks + 1
 			SetGadgetText clock, "The timer ticked " + ticks + " times: " + CurrentTime$()
 
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			; The close button only sends this event. The window stays open until the program closes it, so a
 			; program can ask first whether to save (tutorial 5.03 does).
 			Exit

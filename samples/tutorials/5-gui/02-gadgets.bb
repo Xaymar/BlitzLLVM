@@ -4,20 +4,21 @@
 ; Tutorial 5.02: Gadgets
 ;
 ; A tour of the gadgets that forms are made of, in a small form that puts together a hero for a game. Every gadget
-; sends the event $401 when the user changes it, with EventSource saying which one it was. What it holds is then read
-; with the function that belongs to it: TextFieldText for a text field, SelectedGadgetItem for a list, ButtonState
-; for a check box, SliderValue for a slider.
+; sends the event BB_EVENT_GADGET when the user changes it, with EventSource saying which one it was. What it holds is
+; then read with the function that belongs to it: TextFieldText for a text field, SelectedGadgetItem for a list,
+; ButtonState for a check box, SliderValue for a slider.
 ;
 ; New things here:
 ;   CreateTextField, CreateComboBox, CreateListBox, CreateSlider, CreateProgBar and CreatePanel.
-;   Check boxes and radio buttons: CreateButton with style 2 and 3, ButtonState and SetButtonState.
+;   Check boxes and radio buttons: CreateButton with the styles BB_BUTTON_CHECKBOX and BB_BUTTON_RADIO, ButtonState
+;   and SetButtonState.
 ;   AddGadgetItem, RemoveGadgetItem, CountGadgetItems, GadgetItemText and SelectGadgetItem for lists.
 ;   A tabber with one panel per page, shown and hidden with ShowGadget and HideGadget.
 ;   DisableGadget and EnableGadget, and Notify for a small message box.
 
-Const EVENT_GADGET = $401, EVENT_WINDOW_CLOSE = $803
+Include "<gui.bb>"
 
-Local window = CreateWindow("Tutorial 5.02: Gadgets", 140, 90, 440, 400, 0, 1)
+Local window = CreateWindow("Tutorial 5.02: Gadgets", 140, 90, 440, 400, 0, BB_WINDOW_TITLEBAR)
 
 ; --- The tabber ------------------------------------------------------------------------------------------------------
 ; A tabber only draws the tabs. What is on each page goes on a panel of its own, and the program shows the panel of
@@ -44,18 +45,18 @@ AddGadgetItem kindBox, "Wizard"
 AddGadgetItem kindBox, "Thief"
 SelectGadgetItem kindBox, 0
 
-; Radio buttons (style 3) on the same panel belong together: picking one takes the dot from the others. A panel with
-; style 1 has a line around it, which shows the user that the buttons in it belong together.
+; Radio buttons (BB_BUTTON_RADIO) on the same panel belong together: picking one takes the dot from the others. A
+; panel with style 1 has a line around it, which shows the user that the buttons in it belong together.
 CreateLabel "How hard:", 10, 78, 70, 20, heroPage
 Local hardPanel = CreatePanel(90, 74, 200, 30, heroPage, 1)
-Local easy = CreateButton("Easy", 6, 5, 60, 20, hardPanel, 3)
-Local normal = CreateButton("Normal", 70, 5, 66, 20, hardPanel, 3)
-Local hard = CreateButton("Hard", 140, 5, 56, 20, hardPanel, 3)
+Local easy = CreateButton("Easy", 6, 5, 60, 20, hardPanel, BB_BUTTON_RADIO)
+Local normal = CreateButton("Normal", 70, 5, 66, 20, hardPanel, BB_BUTTON_RADIO)
+Local hard = CreateButton("Hard", 140, 5, 56, 20, hardPanel, BB_BUTTON_RADIO)
 SetButtonState normal, True
 
-; Check boxes (style 2) are each on or off on their own.
-Local mapBox = CreateButton("Starts with a map", 90, 114, 200, 20, heroPage, 2)
-Local petBox = CreateButton("Has a pet", 90, 138, 200, 20, heroPage, 2)
+; Check boxes (BB_BUTTON_CHECKBOX) are each on or off on their own.
+Local mapBox = CreateButton("Starts with a map", 90, 114, 200, 20, heroPage, BB_BUTTON_CHECKBOX)
+Local petBox = CreateButton("Has a pet", 90, 138, 200, 20, heroPage, BB_BUTTON_CHECKBOX)
 SetButtonState mapBox, True
 
 ; A slider. SetSliderRange takes how much of it is shown at once (1 for a slider) and the total, so this one goes from
@@ -95,7 +96,7 @@ ShowBagCount(bagCount, bagList)
 Local picked, text$
 Repeat
 	Select WaitEvent()
-		Case EVENT_GADGET
+		Case BB_EVENT_GADGET
 			Select EventSource()
 				Case tabber
 					; EventData is the page that was picked.
@@ -128,7 +129,7 @@ Repeat
 				Case doneButton
 					Notify HeroText$(nameField, kindBox, easy, hard, mapBox, petBox, strengthSlider, bagList)
 			End Select
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			Exit
 	End Select
 Forever
