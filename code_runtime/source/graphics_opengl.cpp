@@ -2196,9 +2196,9 @@ namespace bb::rhi::opengl {
 		attribute(2, 4, GL_UNSIGNED_BYTE, true, offsetof(vertex, r));
 		gl::BindVertexArray(glc.vaos[int(vertex_layout::scene3d)]);
 		attribute(0, 3, GL_FLOAT, false, offsetof(bb::vertex3d, x));
-		attribute(1, 3, GL_FLOAT, false, offsetof(bb::vertex3d, nx));
+		attribute(1, 3, GL_FLOAT, false, offsetof(bb::vertex3d, stored_normal));
 		attribute(2, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u));
-		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, r));
+		attribute(3, 4, GL_HALF_FLOAT, false, offsetof(bb::vertex3d, stored_color));
 		attribute(4, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u2));
 		gl::BindVertexArray(glc.vaos[0]);
 
@@ -2358,6 +2358,14 @@ namespace bb::rhi::opengl {
 			buffer.mapped = gl::MapBufferRange(GL_COPY_WRITE_BUFFER, 0, GLsizeiptr(size), access);
 			if (!buffer.mapped) {
 				gfx::fail("Out of memory.");
+			}
+			// OpenGL 4.2 and later map at GL_MIN_MAP_BUFFER_ALIGNMENT, which is at least 64, so vertices copied here start on a cache line.
+			if ((uintptr_t(buffer.mapped) % bb::vertex_alignment) != 0) {
+				static bool told = false;
+				if (!told) {
+					told = true;
+					fprintf(stderr, "OpenGL: the driver mapped a buffer at %p, which is not on a %u-byte boundary.\n", buffer.mapped, unsigned(bb::vertex_alignment));
+				}
 			}
 		}
 		buffer_sizes[id] = size;

@@ -408,6 +408,16 @@ namespace bb::gfx {
 			fail("internal error: a shader that the Direct3D 11 backend itself draws with is missing.");
 		}
 
+		// The copy in system memory of a buffer (and of what was last sent of it), which starts at bb::vertex_alignment like the vertices copied into it.
+		uint8_t* zeroed_aligned(size_t size)
+		{
+			uint8_t* made = static_cast<uint8_t*>(bb_aligned_alloc(bb::vertex_alignment, size));
+			if (made) {
+				memset(made, 0, size);
+			}
+			return made;
+		}
+
 		// Sends what changed of a buffer that the CPU writes to the buffer of the device, once per play: what the shadow holds is what the GPU reads. Where the tape binds the buffer is where this is called.
 		void sync_buffer(d3d_buffer* b)
 		{
@@ -416,7 +426,7 @@ namespace bb::gfx {
 			}
 			b->synced = dx.play_number;
 			if (!b->sent) {
-				b->sent = static_cast<uint8_t*>(bb_calloc(size_t(b->size) + 1, 1));
+				b->sent = zeroed_aligned(size_t(b->size) + 1);
 			}
 			constexpr uint64_t chunk = 4096;
 			bool               first = true;
@@ -789,9 +799,9 @@ namespace bb::gfx {
 					add("TEXCOORD", 2, DXGI_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r));
 				} else {
 					add("TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, x));
-					add("TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, nx));
+					add("TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, offsetof(bb::vertex3d, stored_normal));
 					add("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u));
-					add("TEXCOORD", 3, DXGI_FORMAT_R16G16B16A16_FLOAT, offsetof(bb::vertex3d, r));
+					add("TEXCOORD", 3, DXGI_FORMAT_R16G16B16A16_FLOAT, offsetof(bb::vertex3d, stored_color));
 					add("TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u2));
 				}
 				if (p.vsi->uses_instance) {
@@ -2864,7 +2874,7 @@ namespace bb::rhi::d3d11 {
 			}
 		}
 		if (host) {
-			b->shadow = static_cast<uint8_t*>(bb_calloc(size_t(padded) + 1, 1));
+			b->shadow = zeroed_aligned(size_t(padded) + 1);
 			if (!b->shadow) {
 				gfx::fail("Out of memory.");
 			}
@@ -2890,8 +2900,8 @@ namespace bb::rhi::d3d11 {
 		release(b->srv);
 		release(b->uav);
 		release(b->gpu);
-		bb_free(b->shadow);
-		bb_free(b->sent);
+		bb_aligned_free(b->shadow);
+		bb_aligned_free(b->sent);
 		delete b;
 	}
 

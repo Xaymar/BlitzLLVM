@@ -54,7 +54,7 @@ namespace bb::scene {
 
 	uint32_t add_vertex(surface* s, float x, float y, float z, float nx, float ny, float nz, float u, float v)
 	{
-		vertex3d vert = { x, y, z, nx, ny, nz, u, v, half_one, half_one, half_one, half_one, u, v };
+		vertex3d vert = vertex3d::make(x, y, z, nx, ny, nz, u, v);
 		s->vertices.push(vert);
 		s->dirty = true;
 		bb::surface_epoch++;
@@ -69,7 +69,11 @@ namespace bb::scene {
 		vertex3d const &va = s->vertices[a], &vb = s->vertices[b], &vc = s->vertices[c];
 		float e1[3] = { vb.x - va.x, vb.y - va.y, vb.z - va.z }, e2[3] = { vc.x - va.x, vc.y - va.y, vc.z - va.z };
 		float n[3] = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
-		float facing = n[0] * (va.nx + vb.nx + vc.nx) + n[1] * (va.ny + vb.ny + vc.ny) + n[2] * (va.nz + vb.nz + vc.nz);
+		float na[3], nb[3], nc[3];
+		va.get_normal(na);
+		vb.get_normal(nb);
+		vc.get_normal(nc);
+		float facing = n[0] * (na[0] + nb[0] + nc[0]) + n[1] * (na[1] + nb[1] + nc[1]) + n[2] * (na[2] + nb[2] + nc[2]);
 		if (facing < 0) {
 			uint32_t t = b;
 			b          = c;
@@ -220,7 +224,7 @@ namespace bb::scene {
 		bb::surface_vertices_changed(*s);
 	}
 
-	static void compute_normals_impl(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+	static void compute_normals_impl(vertex_array& vertices, buffer<uint32_t> const& indices)
 	{
 		// Vertices at the same position share one normal. They are found by sorting the vertices by position and not by
 		// hashing it: positions are mostly whole numbers (grids), whose float bits only differ in the high bits, which makes
@@ -282,9 +286,7 @@ namespace bb::scene {
 				n[2] = sums[group[i]][2];
 			}
 			length_normalize(n);
-			v.nx = n[0];
-			v.ny = n[1];
-			v.nz = n[2];
+			v.set_normal(n);
 		}
 	}
 
@@ -373,7 +375,7 @@ bb::surface* bb::create_surface(int mesh_handle)
 	return surface_of(new_surface(mesh_handle));
 }
 
-void bb::compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+void bb::compute_normals(vertex_array& vertices, buffer<uint32_t> const& indices)
 {
 	compute_normals_impl(vertices, indices);
 }
@@ -513,18 +515,13 @@ int32_t bb_add_triangle(int32_t handle, int32_t a, int32_t b, int32_t c)
 void bb_vertex_color(int32_t handle, int32_t index, float r, float g, float b, float a)
 {
 	vertex3d& v = vertex_of(handle, index, "VertexColor");
-	v.r = float_to_half(clamp255(r));
-	v.g = float_to_half(clamp255(g));
-	v.b = float_to_half(clamp255(b));
-	v.a = float_to_half(a < 0 ? 0 : (a > 1 ? 1 : a));
+	v.set_color(clamp255(r), clamp255(g), clamp255(b), a < 0 ? 0 : (a > 1 ? 1 : a));
 }
 
 void bb_vertex_normal(int32_t handle, int32_t index, float x, float y, float z)
 {
 	vertex3d& v = vertex_of(handle, index, "VertexNormal");
-	v.nx = x;
-	v.ny = y;
-	v.nz = z;
+	v.set_normal(x, y, z);
 }
 
 void bb_vertex_tex_coords(int32_t handle, int32_t index, float u, float v, float w, int32_t set)
@@ -560,9 +557,9 @@ void bb_flip_mesh(int32_t mesh)
 			s->indices[t + 2]  = tmp;
 		}
 		for (uint32_t v = 0; v < s->vertices.size; v++) {
-			s->vertices[v].nx = -s->vertices[v].nx;
-			s->vertices[v].ny = -s->vertices[v].ny;
-			s->vertices[v].nz = -s->vertices[v].nz;
+			float n[3];
+			s->vertices[v].get_normal(n);
+			s->vertices[v].set_normal(-n[0], -n[1], -n[2]);
 		}
 		s->dirty = true;
 		bb::surface_epoch++;
@@ -592,11 +589,13 @@ void bb_rotate_mesh(int32_t mesh, float pitch, float yaw, float roll)
 		surface* s = e->surfaces[i];
 		for (uint32_t v = 0; v < s->vertices.size; v++) {
 			vertex3d& vert = s->vertices[v];
-			float     p[3] = { vert.x, vert.y, vert.z }, n[3] = { vert.nx, vert.ny, vert.nz };
+			float     p[3] = { vert.x, vert.y, vert.z }, n[3], turned[3];
+			vert.get_normal(n);
 			for (int row = 0; row < 3; row++) {
-				(&vert.x)[row]  = r[0 + row] * p[0] + r[3 + row] * p[1] + r[6 + row] * p[2];
-				(&vert.nx)[row] = r[0 + row] * n[0] + r[3 + row] * n[1] + r[6 + row] * n[2];
+				(&vert.x)[row] = r[0 + row] * p[0] + r[3 + row] * p[1] + r[6 + row] * p[2];
+				turned[row]    = r[0 + row] * n[0] + r[3 + row] * n[1] + r[6 + row] * n[2];
 			}
+			vert.set_normal(turned);
 		}
 		s->dirty = true;
 		bb::surface_epoch++;
@@ -635,15 +634,21 @@ int32_t bb_count_triangles(int32_t surface)
 float bb_vertex_x(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexX").x; }
 float bb_vertex_y(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexY").y; }
 float bb_vertex_z(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexZ").z; }
-float bb_vertex_nx(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNX").nx; }
-float bb_vertex_ny(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNY").ny; }
-float bb_vertex_nz(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNZ").nz; }
+static float vertex_normal(int32_t surface, int32_t index, int axis, const char* what)
+{
+	float n[3];
+	read_vertex(surface, index, what).get_normal(n);
+	return n[axis];
+}
+float bb_vertex_nx(int32_t surface, int32_t index) { return vertex_normal(surface, index, 0, "VertexNX"); }
+float bb_vertex_ny(int32_t surface, int32_t index) { return vertex_normal(surface, index, 1, "VertexNY"); }
+float bb_vertex_nz(int32_t surface, int32_t index) { return vertex_normal(surface, index, 2, "VertexNZ"); }
 float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexU"); check_set(set); return set == 1 ? v.u2 : v.u; }
 float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexV"); check_set(set); return set == 1 ? v.v2 : v.v; }
-float bb_vertex_red(int32_t surface, int32_t index) { return half_to_float(read_vertex(surface, index, "VertexRed").r) * 255.0f; }
-float bb_vertex_green(int32_t surface, int32_t index) { return half_to_float(read_vertex(surface, index, "VertexGreen").g) * 255.0f; }
-float bb_vertex_blue(int32_t surface, int32_t index) { return half_to_float(read_vertex(surface, index, "VertexBlue").b) * 255.0f; }
-float bb_vertex_alpha(int32_t surface, int32_t index) { return half_to_float(read_vertex(surface, index, "VertexAlpha").a); }
+float bb_vertex_red(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexRed").color(0) * 255.0f; }
+float bb_vertex_green(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexGreen").color(1) * 255.0f; }
+float bb_vertex_blue(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexBlue").color(2) * 255.0f; }
+float bb_vertex_alpha(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexAlpha").color(3); }
 
 // The vertex at a corner (0, 1 or 2) of a triangle.
 int32_t bb_triangle_vertex(int32_t handle, int32_t triangle, int32_t corner)
@@ -755,11 +760,13 @@ void bb_fit_mesh(int32_t mesh, float x, float y, float z, float w, float h, floa
 				p[k] = (p[k] - from[k]) * scale[k] + to[k];
 			}
 			// A normal turns by the inverse of how the mesh is stretched.
-			float n[3] = { vert.nx / scale[0], vert.ny / scale[1], vert.nz / scale[2] };
+			float n[3];
+			vert.get_normal(n);
+			n[0] /= scale[0];
+			n[1] /= scale[1];
+			n[2] /= scale[2];
 			length_normalize(n);
-			vert.nx = n[0];
-			vert.ny = n[1];
-			vert.nz = n[2];
+			vert.set_normal(n);
 		}
 		s->dirty       = true;
 		bb::surface_epoch++;
@@ -831,7 +838,8 @@ void bb_light_mesh(int32_t mesh, float r, float g, float b, float range, float x
 			float     amount = 1;
 			if (range != 0) {
 				float lv[3] = { x - vert.x, y - vert.y, z - vert.z };
-				float n[3]  = { vert.nx, vert.ny, vert.nz };
+				float n[3];
+				vert.get_normal(n);
 				length_normalize(n);
 				float dot = n[0] * lv[0] + n[1] * lv[1] + n[2] * lv[2];
 				if (dot <= 0) {
@@ -840,11 +848,13 @@ void bb_light_mesh(int32_t mesh, float r, float g, float b, float range, float x
 				float distance = sqrtf(lv[0] * lv[0] + lv[1] * lv[1] + lv[2] * lv[2]);
 				amount         = range / distance * (dot / distance);
 			}
-			uint16_t* color = &vert.r;
+			float color[4];
+			vert.get_color(color);
 			for (int k = 0; k < 3; k++) {
-				float value = half_to_float(color[k]) + light[k] * amount;
-				color[k]    = float_to_half(value < 0 ? 0 : (value > 1 ? 1 : value));
+				float value = color[k] + light[k] * amount;
+				color[k]    = value < 0 ? 0 : (value > 1 ? 1 : value);
 			}
+			vert.set_color(color[0], color[1], color[2], color[3]);
 		}
 		s->dirty = true;
 		bb::surface_epoch++;

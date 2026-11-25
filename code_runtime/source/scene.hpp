@@ -40,8 +40,13 @@ namespace bb {
 #endif
 	}
 
-	// A growable array for plain data, which avoids needing the C++ standard library in programs.
-	template<typename T>
+	// Where vertex arrays start, on the CPU and the GPU: a cache line, which is also more than AVX (32), AVX-512 (64) and NEON (16) need. A vertex
+	// whose size divides this never crosses a cache line, which costs two loads and two stalls on x86-64 (see docs/Vertex-Format.md).
+	constexpr size_t vertex_alignment = 64;
+
+	// A growable array for plain data, which avoids needing the C++ standard library in programs. With an alignment above 16 (what the
+	// allocator gives anyway), the memory starts at a multiple of it; up to 64 it grows in place when it can, like any other buffer.
+	template<typename T, size_t Align = 0>
 	struct buffer {
 		T*       data = nullptr;
 		uint32_t size = 0;
@@ -58,7 +63,14 @@ namespace bb {
 				grown          = grown > count ? grown : count;
 				grown          = grown > UINT32_MAX ? uint64_t(UINT32_MAX) : grown;
 				uint64_t bytes = grown * sizeof(T);
-				void*    made  = (bytes > SIZE_MAX) ? nullptr : bb_realloc(data, size_t(bytes));
+				void*    made  = nullptr;
+				if (bytes <= SIZE_MAX) {
+					if constexpr (Align > 16) {
+						made = bb_aligned_realloc(data, Align, size_t(bytes));
+					} else {
+						made = bb_realloc(data, size_t(bytes));
+					}
+				}
 				if (!made) {
 					bb_runtime_error("Out of memory.");
 				}
@@ -77,7 +89,11 @@ namespace bb {
 
 		void release()
 		{
-			bb_free(data);
+			if constexpr (Align > 16) {
+				bb_aligned_free(data);
+			} else {
+				bb_free(data);
+			}
 			data = nullptr;
 			size = cap = 0;
 		}
@@ -152,13 +168,66 @@ namespace bb {
 		return result;
 	}
 
+	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
+	// only reached through the functions below, so how they are stored can change without touching what uses them (docs/Vertex-Format.md).
 	struct vertex3d {
 		float    x, y, z;
-		float    nx, ny, nz;
+		float    stored_normal[3];
 		float    u, v;
-		uint16_t r, g, b, a; // 0 to 1 as half floats, so colors are not rounded to steps of 1/255.
-		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
+		uint16_t stored_color[4]; // 0 to 1 as half floats.
+		float    u2, v2; // The second set of texture coordinates, for textures that ask for it.
+
+		void set_normal(float nx, float ny, float nz)
+		{
+			stored_normal[0] = nx;
+			stored_normal[1] = ny;
+			stored_normal[2] = nz;
+		}
+		void set_normal(const float* n) { set_normal(n[0], n[1], n[2]); }
+		void get_normal(float* out) const
+		{
+			out[0] = stored_normal[0];
+			out[1] = stored_normal[1];
+			out[2] = stored_normal[2];
+		}
+
+		/** Red, green, blue and alpha from 0 to 1. */
+		void set_color(float r, float g, float b, float a)
+		{
+			stored_color[0] = float_to_half(r);
+			stored_color[1] = float_to_half(g);
+			stored_color[2] = float_to_half(b);
+			stored_color[3] = float_to_half(a);
+		}
+		void set_white() { stored_color[0] = stored_color[1] = stored_color[2] = stored_color[3] = half_one; }
+		void get_color(float* out) const
+		{
+			for (int k = 0; k < 4; k++) {
+				out[k] = half_to_float(stored_color[k]);
+			}
+		}
+		/** One of red (0), green (1), blue (2) and alpha (3), from 0 to 1. */
+		float color(int channel) const { return half_to_float(stored_color[channel]); }
+
+		/** A white vertex whose second set of texture coordinates is the first, which is what AddVertex makes. */
+		static vertex3d make(float x, float y, float z, float nx, float ny, float nz, float u, float v)
+		{
+			vertex3d made = {};
+			made.x        = x;
+			made.y        = y;
+			made.z        = z;
+			made.set_normal(nx, ny, nz);
+			made.u  = u;
+			made.v  = v;
+			made.u2 = u;
+			made.v2 = v;
+			made.set_white();
+			return made;
+		}
 	};
+
+	// The vertices of a surface, in an array that starts at vertex_alignment.
+	using vertex_array = buffer<vertex3d, vertex_alignment>;
 
 	// What a brush says about how something looks, and what a surface remembers of the brush it was painted with.
 	struct material {
@@ -186,7 +255,7 @@ namespace bb {
 		material paint;
 		int      lightmap = 0; // The texture of the lightmap of a face of a level, which BSPLighting puts on the first layer or takes off.
 
-		buffer<vertex3d> vertices;
+		vertex_array     vertices;
 		buffer<uint32_t> indices;
 
 		int refs = 1; // Copies of an entity share its surfaces.
@@ -438,7 +507,7 @@ namespace bb {
 	surface*  create_surface(int mesh_handle);
 	void      recalculate_normals(surface* s);
 	/** The normals of UpdateNormals for vertices that are not in a surface (yet), which loader threads may call. */
-	void      compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices);
+	void      compute_normals(vertex_array& vertices, buffer<uint32_t> const& indices);
 	void      euler_from_matrix(const float* m, float* euler);
 	void      destroy_animation(animation* a);
 	void      destroy_md2(md2_state* s);
