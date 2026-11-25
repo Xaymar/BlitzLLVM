@@ -951,6 +951,10 @@ namespace bb::gfx {
 	/** The same for any window that pictures are shown in. */
 	void create_swapchain(surface_state& s);
 	void destroy_swapchain(surface_state& s);
+	/** Whether the window has a size in pixels other than its swapchain's. A present that answers SUBOPTIMAL makes the swapchain
+	 *  again only then: Windows drivers answer it after the window was moved or got the focus as well, and making the swapchain
+	 *  again waits for the GPU, which stalled every window for as long as the window moved. */
+	bool swapchain_size_changed(surface_state& s);
 	/** The instance and the functions of it; then a device whose queue draws and shows pictures in the surface, with everything that is drawn with. */
 	void create_instance();
 	extern uint32_t devices_made; // How many devices create_device made so far, to tell a device from one that took its place.

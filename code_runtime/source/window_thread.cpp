@@ -17,6 +17,12 @@
 #include <deque>
 #include <condition_variable>
 #include <mutex>
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 namespace bb::wnd {
 	namespace {
@@ -34,6 +40,29 @@ namespace bb::wnd {
 		std::atomic<SDL_ThreadID> thread_id{ 0 };
 		bool                    started = false;
 		std::atomic<bool>       cursor_owned{ true }; // The last change of the pointer was made on the thread that owns the windows.
+#if defined(_WIN32)
+		HANDLE                  job_event = nullptr; // Set with each job, so that the wait for messages ends for it as well.
+#endif
+
+		// Waits for a job, or (on Windows) for a message to one of the windows, but no longer than a millisecond: SDL_PumpEvents
+		// also reads joysticks and the like, which send nothing. Called and returns with the lock held.
+		void wait_for_work(std::unique_lock<std::mutex>& guard)
+		{
+#if defined(_WIN32)
+			// Not the condition variable: that sleeps for the timer of Windows (often 15.6 ms), and a message that another thread
+			// sends to a window waits for it all that time. A present on the submission thread can send one to the window of
+			// Graphics (DXGI, which drivers present Vulkan through, does after the window was moved, got the focus and the like),
+			// and then the present, and the program's frame with it, waits. MsgWaitForMultipleObjectsEx ends as soon as a
+			// message comes; the SDL_PumpEvents after it handles it.
+			if (job_event) {
+				guard.unlock();
+				MsgWaitForMultipleObjectsEx(1, &job_event, 1, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+				guard.lock();
+				return;
+			}
+#endif
+			wake.wait_for(guard, std::chrono::milliseconds(1));
+		}
 
 		int thread_main(void*)
 		{
@@ -56,7 +85,7 @@ namespace bb::wnd {
 				}
 				guard.lock();
 				if (jobs.empty()) {
-					wake.wait_for(guard, std::chrono::milliseconds(1));
+					wait_for_work(guard);
 				}
 			}
 			return 0;
@@ -87,6 +116,9 @@ namespace bb::wnd {
 		std::unique_lock<std::mutex> guard(lock);
 		if (!started) {
 			started = true;
+#if defined(_WIN32)
+			job_event = CreateEventW(nullptr, FALSE, FALSE, nullptr); // Without it, the thread waits on the condition variable.
+#endif
 			thread  = SDL_CreateThread(thread_main, "BlitzLLVM windows", nullptr);
 			if (!thread) {
 				started = false;
@@ -98,6 +130,11 @@ namespace bb::wnd {
 		}
 		jobs.push_back(&todo);
 		wake.notify_all();
+#if defined(_WIN32)
+		if (job_event) {
+			SetEvent(job_event);
+		}
+#endif
 		finished.wait(guard, [&] { return todo.done; });
 	}
 

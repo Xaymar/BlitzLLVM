@@ -159,7 +159,8 @@ namespace bb::gfx {
 					p.shows += fresh ? 1 : 0;
 					p.presented = number;
 				}
-				if ((shown.presented == bb::rhi::present_status::out_of_date) || (shown.presented == bb::rhi::present_status::suboptimal)) {
+				if ((shown.presented == bb::rhi::present_status::out_of_date)
+				    || ((shown.presented == bb::rhi::present_status::suboptimal) && swapchain_size_changed(*p.s))) {
 					p.needs_swapchain = true;
 					p.dirty           = true; // Shown again at the new size.
 				}
