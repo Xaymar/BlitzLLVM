@@ -7,7 +7,9 @@
 ; tune. Read takes the next value, and Restore says where reading starts. This is a simple way to ship a game
 ; without any extra files.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; Read takes values in order, from the first Data line onwards. Each Read moves on by one value.
 ; Read needs variables to read into, so they are declared first.

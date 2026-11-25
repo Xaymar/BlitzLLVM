@@ -6,7 +6,9 @@
 ; Programs become interesting when they do different things in different situations. If and Select choose which
 ; code runs.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; --- Comparing values ---------------------------------------------------------------------------------------------
 ; A comparison is either true (1) or false (0):

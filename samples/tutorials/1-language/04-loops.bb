@@ -6,7 +6,9 @@
 ; A loop runs the same code many times. Blitz has three kinds, and every game has at least one: the main loop that
 ; runs once per frame until the player quits.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; --- For ... Next --------------------------------------------------------------------------------------------------
 ; For counts from a start value to an end value. Both ends are included.

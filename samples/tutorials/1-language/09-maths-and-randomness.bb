@@ -5,7 +5,9 @@
 ;
 ; Games use a handful of maths functions all the time: distances, angles, rounding and random numbers.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; --- Rounding and signs -------------------------------------------------------------------------------------------
 Print "Abs(-7)       = " + Abs(-7)       ; Drops the minus sign.

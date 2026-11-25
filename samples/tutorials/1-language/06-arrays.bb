@@ -6,7 +6,9 @@
 ; An array is a row of variables that share one name. Each one is found by its number, the "index". Arrays hold
 ; things like a high score table, the cells of a game board or the pixels of a picture.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; --- Dim arrays ---------------------------------------------------------------------------------------------------
 ; Dim makes an array that every function can use. Dim scores(4) makes FIVE elements, numbered 0 to 4: the number
