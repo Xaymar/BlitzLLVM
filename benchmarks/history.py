@@ -20,7 +20,7 @@ Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz
     audio      benchmarks/audio.bb: load time and CPU time of mixing              (Audio)
     flythrough benchmarks/flythrough.bb, waterfall.bb, dungeon.bb, loading.bb      (Scene)
     lights     benchmarks/many_lights.bb: 8, 32 and 127 lights                    (Scene)
-    gpu        GPU time of the passes of the waterfall, from BLITZ_FPS            (GPU)
+    gpu        GPU time of the passes of the waterfall, BLITZLLVM_PROFILE_FPS    (GPU)
     stranded2  third_party/Stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
 
 Without a display the programs run under xvfb-run, which with Mesa means llvmpipe, a software rasterizer: the milliseconds are then
@@ -352,35 +352,34 @@ def bench_lights(compiler, runs):
 
 
 def bench_gpu(compiler, runs):
-    """GPU time of the passes of the waterfall (BlitzLLVM only: it reports them with --profile and BLITZ_FPS=1)."""
+    """GPU time of the passes of the waterfall (BlitzLLVM only: it reports them with --profile and BLITZLLVM_PROFILE_FPS=1).
+
+    The runtime reports once a second and the first report is left out (see benchutil.parse_gpu), so a run must last more than two
+    seconds. 400 frames do on llvmpipe, but take less than a second on a real GPU, which then reported nothing. A run that reports
+    nothing is made again with as many frames as about 4 seconds take at its speed."""
     if not compiler.llvm:
         raise RuntimeError("the original has no GPU timers")
     with tempfile.TemporaryDirectory() as d:
         program, _ = build(compiler, d, "waterfall", counters="waterfall", extra=["--profile"])
         results = []
+        frames = 400
         for i in range(runs):
-            result_file = os.path.join(d, "result.txt")
-            if os.path.exists(result_file):
-                os.remove(result_file)
-            env = dict(SCENES["waterfall"]["env"], BENCH_FRAMES="400", BENCH_RESULT=result_file, BLITZ_FPS="1")
-            cpu, wall, output, code = run_program(compiler, program, env, d)
-            frames_shown, sums, shown, first = 0, {"scene": 0.0, "frame": 0.0}, None, True
-            for l in output.splitlines():
-                m = re.match(r"fps: (\d+),", l)
-                if m:
-                    shown = int(m.group(1))
-                    continue
-                m = re.match(r"\s+gpu passes: scene ([\d.]+) ms, 2d ([\d.]+) ms, copy ([\d.]+) ms, present ([\d.]+) ms, frame ([\d.]+) ms", l)
-                if m and shown:
-                    if first:
-                        first = False
-                        continue
-                    frames_shown += shown
-                    sums["scene"] += float(m.group(1))
-                    sums["frame"] += float(m.group(5))
-            if not frames_shown:
+            for attempt in range(2):
+                result_file = os.path.join(d, "result.txt")
+                if os.path.exists(result_file):
+                    os.remove(result_file)
+                # BLITZ_FPS is the name that older runtimes read.
+                env = dict(SCENES["waterfall"]["env"], BENCH_FRAMES=str(frames), BENCH_RESULT=compiler.native_path(result_file),
+                           BLITZLLVM_PROFILE_FPS="1", BLITZ_FPS="1")
+                cpu, wall, output, code = run_program(compiler, program, env, d)
+                gpu = benchutil.parse_gpu(output)
+                if gpu or attempt == 1 or not os.path.isfile(result_file):
+                    break
+                ms = parse_result(result_file).get("ms_avg", 0)
+                frames = min(100000, max(frames * 2, int(4000 / ms) if ms > 0 else frames * 10))
+            if not gpu:
                 raise RuntimeError("this build reports no GPU time")
-            results.append({"gpu_scene_ms": sums["scene"] / frames_shown, "gpu_frame_ms": sums["frame"] / frames_shown})
+            results.append({"gpu_scene_ms": gpu["gpu_scene_ms"], "gpu_frame_ms": gpu["gpu_frame_ms"]})
         return summarize(results)
 
 
