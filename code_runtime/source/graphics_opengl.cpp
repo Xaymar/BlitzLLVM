@@ -1842,7 +1842,7 @@ namespace bb::rhi::opengl {
 		return true;
 	}
 
-	// BLITZLLVM_DEBUG_OPENGL_FENCES=1 counts what the waits for frame slots and the ends of recordings found, and prints it every 200 waits.
+	// BLITZLLVM_DEBUG_OPENGL_FENCES=1 counts what the waits for frame slots and the ends of recordings found, and prints it every 50 waits.
 	static bool debug_fences()
 	{
 		static const bool value = bb_env_bool("BLITZLLVM_DEBUG_OPENGL_FENCES", false);
@@ -1854,11 +1854,20 @@ namespace bb::rhi::opengl {
 
 	static void print_fence_counts()
 	{
-		fprintf(stderr,
+		// Also into a file in the working directory, as benchmark runners keep what a program prints to themselves.
+		static FILE* log = fopen("blitzllvm_gl_fences.log", "w");
+		FILE* outputs[2] = { stderr, log };
+		for (FILE* out : outputs) {
+			if (!out) {
+				continue;
+			}
+		fprintf(out,
 			"OpenGL fences: %u waits (no fence %u, no sync %u, other thread %u; already signaled %u, satisfied %u, timeouts %u, failed %u, other %u), "
 			"%u ends of recordings (%u without a fence)\n",
 			fence_counts.waits, fence_counts.no_fence, fence_counts.no_sync, fence_counts.other_thread, fence_counts.already, fence_counts.satisfied,
 			fence_counts.timeouts, fence_counts.failed, fence_counts.other, fence_counts.ends, fence_counts.ends_without_fence);
+			fflush(out);
+		}
 		fence_counts = {};
 	}
 
@@ -1892,6 +1901,9 @@ namespace bb::rhi::opengl {
 		if (debug_fences()) {
 			fence_counts.ends++;
 			fence_counts.ends_without_fence += glc.fence ? 0 : 1;
+			if (fence_counts.ends >= 50) {
+				print_fence_counts();
+			}
 		}
 		if (glc.fence) {
 			drop_fence(glc.fence);
@@ -1998,7 +2010,7 @@ namespace bb::rhi::opengl {
 			}
 			drop_fence(fence);
 		}
-		if (counting && (fence_counts.waits >= 200)) {
+		if (counting && (fence_counts.waits >= 50)) {
 			print_fence_counts();
 		}
 	}
@@ -2292,6 +2304,8 @@ namespace bb::rhi::opengl {
 		g.can_memory_budget = false;
 		g.can_present_wait  = false;
 		devices_made++;
+		// The fences of the frame slots, which keep the program from writing to what the GPU still reads (see acquire_frame).
+		create_frame_slots();
 	}
 
 	void create_device()
