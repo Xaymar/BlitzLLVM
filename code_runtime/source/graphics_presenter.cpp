@@ -21,8 +21,9 @@
 // next, so a program that draws faster than the display only has its newest picture shown, and one that draws slower has its
 // last picture shown again whenever the window needs it. The thread only ever touches the pictures, the swapchain and the queue:
 // it knows nothing of gadgets or the drawing state (which belongs to the thread of the program), so nothing there needs a lock.
-// This is a prototype for the windows of BlitzPlus and their canvases (see BLITZLLVM_TEST_PRESENTERS); the swapchain is still
-// made by the program's thread, which the thread asks for when the window changed its size.
+// This is what the windows of BlitzPlus and their canvases show with (see BLITZLLVM_TEST_PRESENTERS). The thread makes the swapchain
+// again itself when the window changed its size, so the window shows its last picture, stretched, at once, and not only once the
+// program looks at its events again: until then, the new part of a window that grows would stay black.
 //
 // The pictures are images, so the program draws into one with SetBuffer and the 2D commands, as it does into the BackBuffer. A
 // handover sends what was drawn with a timeline semaphore signal of its number, which the blit of the thread waits for on the GPU,
@@ -36,6 +37,8 @@
 #include "affinity.h"
 #include "graphics_internal.hpp"
 #include "environment.h"
+
+#include <mutex>
 
 using namespace bb::gfx;
 
@@ -52,7 +55,10 @@ namespace bb::gfx {
 		uint64_t        handovers = 0;             // How many pictures the program handed over; the number of a picture is its handover.
 		uint64_t        ready_number = 0, showing_number = 0, presented = 0; // presented: the number of the last picture that was shown.
 		bool            dirty = false;             // The window wants its picture again (uncovered, moved, resized).
-		bool            needs_swapchain = false;   // The thread cannot show anything until the program's thread makes the swapchain again.
+		bool            needs_swapchain = false;   // The thread makes the swapchain again before it shows anything.
+		uint32_t        chain_w = 0, chain_h = 0;  // The size of the swapchain, and of the last picture that was shown in it (for the
+		uint32_t        shown_w = 0, shown_h = 0;  // other threads, under the lock: only this thread touches the swapchain).
+		uint32_t        shown_picture_w = 0, shown_picture_h = 0; // The size the last picture shown was drawn at.
 		bool            busy = false;              // The thread is showing a picture right now.
 		bool            quit = false;
 		uint32_t        presents = 0;              // How many times a picture was shown, counting the times the window asked for it again.
@@ -84,12 +90,33 @@ namespace bb::gfx {
 			}
 		}
 
-		// Tells the program's thread that the swapchain has to be made again, and waits until it was.
+		// Makes the swapchain of the window again, at the size the window has now, on the thread of the window: nothing else uses it.
+		// What the thread sent with the old one is waited for (its own queue), but not the program's thread or its work on the GPU.
+		// The graphics state belongs to the program's thread, so the device is the presenter's copy. A window without a size
+		// (minimized) gets none.
+		void remake_swapchain(presenter& p, surface_state& s)
+		{
+			if (s.chain.handle) {
+				bb::rhi::wait_presenter_idle(p.wp);
+				bb::rhi::destroy_swapchain(s.chain);
+			}
+			int w = 0, h = 0;
+			SDL_GetWindowSizeInPixels(s.window, &w, &h);
+			bb::rhi::swapchain_desc desc;
+			desc.surface    = uint64_t(s.surface);
+			desc.width      = uint32_t(w > 0 ? w : 0);
+			desc.height     = uint32_t(h > 0 ? h : 0);
+			desc.vsync      = s.vsync;
+			desc.own_thread = true;
+			desc.device     = p.wp.device;
+			desc.physical   = p.wp.physical;
+			bb::rhi::create_swapchain(s.chain, desc);
+		}
+
 		void ask_for_swapchain(presenter& p)
 		{
 			SDL_LockMutex(p.mutex);
 			p.needs_swapchain = true;
-			SDL_BroadcastCondition(p.cond);
 			SDL_UnlockMutex(p.mutex);
 		}
 
@@ -101,12 +128,32 @@ namespace bb::gfx {
 				SDL_LockMutex(p.mutex);
 				p.busy = false;
 				SDL_BroadcastCondition(p.cond);
-				while (!p.quit && (p.needs_swapchain || ((p.ready < 0) && !(p.dirty && (p.showing >= 0))))) {
-					SDL_WaitCondition(p.cond, p.mutex);
+				for (;;) {
+					bool has_chain = p.s->chain.handle != 0;
+					if (p.quit || p.needs_swapchain || (has_chain && ((p.ready >= 0) || (p.dirty && (p.showing >= 0))))) {
+						break;
+					}
+					if (has_chain) {
+						SDL_WaitCondition(p.cond, p.mutex);
+					} else if (!SDL_WaitConditionTimeout(p.cond, p.mutex, 100)) {
+						p.needs_swapchain = true; // Minimized, or the device was lost: tried again now and then.
+					}
 				}
 				if (p.quit) {
 					SDL_UnlockMutex(p.mutex);
 					return 0;
+				}
+				if (p.needs_swapchain) {
+					p.needs_swapchain = false;
+					p.busy            = true;
+					SDL_UnlockMutex(p.mutex);
+					remake_swapchain(p, *p.s);
+					SDL_LockMutex(p.mutex);
+					p.chain_w = p.s->chain.width;
+					p.chain_h = p.s->chain.height;
+					p.dirty   = true; // Shown again at the new size.
+					SDL_UnlockMutex(p.mutex);
+					continue;
 				}
 				bool fresh = p.ready >= 0;
 				if (fresh) {
@@ -121,6 +168,7 @@ namespace bb::gfx {
 				uint64_t       swapchain = p.s->chain.handle;
 				uint64_t       frame     = p.frame_images[showing]; // Taken under the lock: presenter_resize replaces the pictures while the thread is not busy.
 				uint32_t       frame_w   = p.frame_w, frame_h = p.frame_h;
+				uint32_t       chain_w   = p.s->chain.width, chain_h = p.s->chain.height;
 				SDL_UnlockMutex(p.mutex);
 
 				if (swapchain == 0) {
@@ -140,6 +188,15 @@ namespace bb::gfx {
 				}
 				bool submitted = (shown.stage == bb::rhi::show_result::stage::submitted);
 				if (submitted) {
+					// The size it went out at, at once: the thread of the window system may wait for it, and the display may only take the
+					// picture once that thread is done with the message it waits in.
+					SDL_LockMutex(p.mutex);
+					p.shown_w         = chain_w;
+					p.shown_h         = chain_h;
+					p.shown_picture_w = frame_w;
+					p.shown_picture_h = frame_h;
+					SDL_BroadcastCondition(p.cond);
+					SDL_UnlockMutex(p.mutex);
 					// Pacing, outside of every lock: the next picture goes out one refresh after this one was shown. With present_wait, that
 					// is when the display has it; without, when the timer says the display should. A handover that waits returns after this.
 					bool ok = (shown.presented == bb::rhi::present_status::ok) || (shown.presented == bb::rhi::present_status::suboptimal);
@@ -165,6 +222,89 @@ namespace bb::gfx {
 				}
 				SDL_BroadcastCondition(p.cond);
 				SDL_UnlockMutex(p.mutex);
+			}
+		}
+	} // namespace
+
+	namespace {
+		// The windows that have a thread, for the watch of the events below, which the thread of the window system calls.
+		std::recursive_mutex presenters_lock; // Recursive: the watch can be called again while it handles the messages sent to it.
+		presenter*           presenters[max_extra_surfaces] = {};
+		uint32_t             presenter_count = 0;
+
+		// A window got another size in pixels. The watch is called by the thread that took the event from the window system, the
+		// moment it did: on Windows that is the thread of the window system, inside the loop of a window that is being dragged or
+		// resized, where the program's thread has nothing to do with it. The thread of the window makes the swapchain again at once
+		// and shows the last picture stretched. Windows shows the window at its new size when the message returns, and what has no
+		// picture in it then is black, so the thread of the window system waits a little, up to two refreshes: for a picture the
+		// program drew at the new size (it is told with $802 and draws at the new size from then on), else for the stretched one.
+		// When the program waits for this thread (it resized the window itself, with SetGadgetShape), it draws nothing, so then only
+		// the stretched picture is waited for. The program's thread never waits here (where it takes the events itself, the thread of
+		// the window is only told).
+		bool SDLCALL watch_window_size(void*, SDL_Event* event)
+		{
+			if (event->type != SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+				return true;
+			}
+			std::lock_guard<std::recursive_mutex> guard(presenters_lock);
+			presenter* p = nullptr;
+			for (uint32_t i = 0; i < presenter_count; i++) {
+				if (SDL_GetWindowID(presenters[i]->s->window) == event->window.windowID) {
+					p = presenters[i];
+				}
+			}
+			if (!p) {
+				return true;
+			}
+			uint32_t w = uint32_t(event->window.data1 > 0 ? event->window.data1 : 0);
+			uint32_t h = uint32_t(event->window.data2 > 0 ? event->window.data2 : 0);
+			SDL_LockMutex(p->mutex);
+			if ((p->chain_w != w) || (p->chain_h != h)) {
+				p->needs_swapchain = true;
+				p->dirty           = true;
+				SDL_BroadcastCondition(p->cond);
+			}
+			// Only where there is a picture to show at the new size.
+			bool     wait     = bb::wnd::on_thread() && (w > 0) && (h > 0) && ((p->showing >= 0) || (p->ready >= 0));
+			bool     drawn    = !bb::wnd::program_waiting(); // Whether the program can draw a picture of the new size meanwhile.
+			uint64_t limit    = 2 * p->period_ns;
+			limit             = (limit < 20000000ull) ? 20000000ull : ((limit > 50000000ull) ? 50000000ull : limit);
+			uint64_t until    = SDL_GetTicksNS() + limit;
+			auto     finished = [&] {
+				bool fits = (p->shown_w == w) && (p->shown_h == h);
+				return fits && (!drawn || ((p->shown_picture_w == w) && (p->shown_picture_h == h)));
+			};
+			while (wait && !p->quit && !finished() && (SDL_GetTicksNS() < until)) {
+				SDL_WaitConditionTimeout(p->cond, p->mutex, 1);
+				// Making a swapchain can send a message to the window (Direct3D does), which this thread has to take, or both would wait.
+				SDL_UnlockMutex(p->mutex);
+				bb::wnd::handle_sent_messages();
+				SDL_LockMutex(p->mutex);
+			}
+			SDL_UnlockMutex(p->mutex);
+			return true;
+		}
+
+		void add_presenter(presenter* p)
+		{
+			std::lock_guard<std::recursive_mutex> guard(presenters_lock);
+			if (presenter_count == 0) {
+				SDL_AddEventWatch(watch_window_size, nullptr);
+			}
+			presenters[presenter_count++] = p;
+		}
+
+		void remove_presenter(presenter* p)
+		{
+			std::lock_guard<std::recursive_mutex> guard(presenters_lock);
+			for (uint32_t i = 0; i < presenter_count; i++) {
+				if (presenters[i] == p) {
+					presenters[i] = presenters[--presenter_count];
+					break;
+				}
+			}
+			if (presenter_count == 0) {
+				SDL_RemoveEventWatch(watch_window_size, nullptr);
 			}
 		}
 	} // namespace
@@ -196,10 +336,13 @@ namespace bb::gfx {
 		// The swapchain the window has was made for Flip: the thread wants one that never waits for the display (create_swapchain).
 		destroy_swapchain(s);
 		create_swapchain(s);
+		p->chain_w = s.chain.width;
+		p->chain_h = s.chain.height;
 		p->thread = SDL_CreateThread(presenter_main, "BlitzLLVM window", p);
 		if (!p->thread) {
 			fail("The thread of the window could not be started.");
 		}
+		add_presenter(p);
 		return true;
 	}
 
@@ -209,6 +352,7 @@ namespace bb::gfx {
 		if (!p) {
 			return;
 		}
+		remove_presenter(p);
 		SDL_LockMutex(p->mutex);
 		p->quit = true;
 		SDL_BroadcastCondition(p->cond);
@@ -301,8 +445,11 @@ namespace bb::gfx {
 		SDL_LockMutex(p->mutex);
 		switch (event.type) {
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-			p->needs_swapchain = true;
-			p->dirty           = true;
+			// The watch of the events usually had the swapchain made again already, when the event came from the window system.
+			if ((p->chain_w != uint32_t(event.window.data1)) || (p->chain_h != uint32_t(event.window.data2))) {
+				p->needs_swapchain = true;
+			}
+			p->dirty = true;
 			break;
 		case SDL_EVENT_WINDOW_EXPOSED:
 		case SDL_EVENT_WINDOW_MOVED:
@@ -315,31 +462,6 @@ namespace bb::gfx {
 		}
 		SDL_BroadcastCondition(p->cond);
 		SDL_UnlockMutex(p->mutex);
-	}
-
-	// The program's thread, at the places where it looks at the window system: makes the swapchains again that the threads asked for.
-	void presenter_service()
-	{
-		for (int handle = 1; handle <= max_extra_surfaces; handle++) {
-			surface_state* s = extra_surface(handle);
-			presenter*     p = s ? s->show : nullptr;
-			if (!p) {
-				continue;
-			}
-			SDL_LockMutex(p->mutex);
-			bool wanted = p->needs_swapchain;
-			while (wanted && p->busy) {
-				SDL_WaitCondition(p->cond, p->mutex); // It finishes what it shows first.
-			}
-			if (wanted) {
-				destroy_swapchain(*s);
-				create_swapchain(*s);
-				p->needs_swapchain = false;
-				p->dirty           = true;
-				SDL_BroadcastCondition(p->cond);
-			}
-			SDL_UnlockMutex(p->mutex);
-		}
 	}
 
 	void presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents, uint32_t* shows)
@@ -367,12 +489,21 @@ namespace bb::gfx {
 			bb_set_buffer(saved);
 		}
 
+		// The width of the swapchain of the window that the last picture was shown in.
+		uint32_t shown_width(surface_state& s)
+		{
+			presenter& p = *s.show;
+			SDL_LockMutex(p.mutex);
+			uint32_t width = p.shown_w;
+			SDL_UnlockMutex(p.mutex);
+			return width;
+		}
+
 		void idle_for(Uint32 ms)
 		{
 			Uint64 until = SDL_GetTicks() + ms;
 			while (SDL_GetTicks() < until) {
 				pump();
-				presenter_service();
 				SDL_Delay(1);
 			}
 		}
@@ -383,7 +514,8 @@ namespace bb::gfx {
 	// shown; then it resizes the first window. One number per line: pictures handed to the first window, times it was shown,
 	// pictures handed to the second, times it was shown, times either was shown while the program did nothing, whether the
 	// last pictures, waited for, were shown, the width of the first window's swapchain after the resize, and whether it was shown
-	// then. A window is shown once more than it got pictures when the window system asked for it (it was uncovered).
+	// then, and whether, resized once more, it was shown at the new size while the program did not look at its events. A window is
+	// shown once more than it got pictures when the window system asked for it (it was uncovered).
 	void test_presenters(const char* path)
 	{
 		int            a = create_extra_surface("BlitzLLVM A", 200, 150, 1, 0);
@@ -411,7 +543,6 @@ namespace bb::gfx {
 				frames_b++;
 			}
 			pump();
-			presenter_service();
 		}
 		// A last picture for each, waited for: everything handed over was shown when the counts are taken. Counted are the new pictures
 		// shown (shows), not the times the window system asked for the picture again, which other windows passing over cause at will.
@@ -436,14 +567,23 @@ namespace bb::gfx {
 		Uint64 resize_start = SDL_GetTicks();
 		do {
 			pump();
-			presenter_service();
 			presenter_counts(*A, &handed_a, &shown_number, &presents_resized, &shows_resized);
 			SDL_Delay(1);
-		} while ((SDL_GetTicks() - resize_start < 3000) && ((A->chain.width != 300) || (presents_resized == presents_a)));
-		int shown_resized = (presents_resized > presents_a) ? 1 : 0;
+		} while ((SDL_GetTicks() - resize_start < 3000) && ((shown_width(*A) != 300) || (presents_resized == presents_a)));
+		int      shown_resized = (presents_resized > presents_a) ? 1 : 0;
+		uint32_t width         = shown_width(*A);
+
+		// Resized again the way a gadget is, and the program then does nothing at all: it does not look at the events. The thread
+		// of the window still shows the last picture at the new size (it used to wait for the program to make the swapchain).
+		bb::wnd::set_window_size(A->window, 320, 220);
+		resize_start = SDL_GetTicks();
+		while ((SDL_GetTicks() - resize_start < 3000) && (shown_width(*A) != 320)) {
+			SDL_Delay(1);
+		}
+		int shown_alone = (shown_width(*A) == 320) ? 1 : 0;
 
 		if (FILE* file = fopen(path, "w")) {
-			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n", (unsigned long long)frames_a, shows_a, (unsigned long long)frames_b, shows_b, idle_shows, waited, A->chain.width, shown_resized);
+			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n%d\n", (unsigned long long)frames_a, shows_a, (unsigned long long)frames_b, shows_b, idle_shows, waited, width, shown_resized, shown_alone);
 			fclose(file);
 		}
 		destroy_extra_surface(a);

@@ -18,6 +18,16 @@
 #include <condition_variable>
 #include <mutex>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 namespace bb::wnd {
 	namespace {
 		struct job {
@@ -34,6 +44,7 @@ namespace bb::wnd {
 		std::atomic<SDL_ThreadID> thread_id{ 0 };
 		bool                    started = false;
 		std::atomic<bool>       cursor_owned{ true }; // The last change of the pointer was made on the thread that owns the windows.
+		std::atomic<int>        waiting{ 0 }; // Calls of run that wait for the thread: the program's thread draws nothing meanwhile.
 
 		int thread_main(void*)
 		{
@@ -62,11 +73,26 @@ namespace bb::wnd {
 			return 0;
 		}
 
-		bool on_thread()
-		{
-			return thread_id.load() && (SDL_GetCurrentThreadID() == thread_id.load());
-		}
 	} // namespace
+
+	bool on_thread()
+	{
+		return thread_id.load() && (SDL_GetCurrentThreadID() == thread_id.load());
+	}
+
+	bool program_waiting()
+	{
+		return waiting.load() > 0;
+	}
+
+	void handle_sent_messages()
+	{
+#if defined(_WIN32)
+		// Only the messages other threads sent (SendMessage), which wait for this thread: nothing is taken from the queue.
+		MSG message;
+		PeekMessageW(&message, nullptr, 0, 0, PM_NOREMOVE | PM_QS_SENDMESSAGE);
+#endif
+	}
 
 	bool enabled()
 	{
@@ -98,7 +124,9 @@ namespace bb::wnd {
 		}
 		jobs.push_back(&todo);
 		wake.notify_all();
+		waiting++;
 		finished.wait(guard, [&] { return todo.done; });
+		waiting--;
 	}
 
 	bool init(SDL_InitFlags flags)
