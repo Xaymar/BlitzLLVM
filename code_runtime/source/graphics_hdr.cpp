@@ -391,7 +391,7 @@ namespace bb::gfx {
 		if ((scrgb.width != picture.width) || (scrgb.height != picture.height)) {
 			wait_gpu(); // The frame before may still read it.
 			destroy_image(scrgb);
-			scrgb = create_image(picture.width, picture.height, bb::rhi::image_color_target | bb::rhi::image_copy_source, bb::rhi::format::rgba16f);
+			scrgb = create_image(picture.width, picture.height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_sampled, bb::rhi::format::rgba16f); // Sampled: a resized window stretches it with a draw.
 		}
 
 		system_levels levels = ask_system();
