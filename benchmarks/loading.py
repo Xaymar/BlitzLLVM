@@ -6,28 +6,18 @@
 Builds benchmarks/loading.bb, makes the pictures it loads, and runs it once with blocking loads and once with loading on
 other threads (BlitzLLVM only), a few times each, and prints the median of every step.
 
-    python3 benchmarks/loading.py [--blitzcc PATH] [--textures N] [--size PIXELS] [--work N] [--runs N] [--format png|jpg] [--label NAME]
+    python3 benchmarks/loading.py [--textures N] [--picture PIXELS] [--work N] [--runs N] [--label NAME] [common options, see --help]
 
 The pictures are noise made by a fixed generator, so they do not compress and their decoding is real work, and they are the
 same on every run. With the original Blitz3D only the blocking run is made. Without a display it runs under xvfb-run, which
 with Mesa means llvmpipe.
 """
-import argparse
 import os
-import platform
-import re
-import shutil
 import statistics
 import struct
-import sys
 import tempfile
 import zlib
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
-import procutil  # noqa: E402
-import benchutil  # noqa: E402
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+import benchutil
 
 
 def png(path, size, seed):
@@ -48,54 +38,30 @@ def png(path, size, seed):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--blitzcc")
-    parser.add_argument("--textures", type=int, default=64)
-    parser.add_argument("--size", type=int, default=512, help="width and height of every picture")
-    parser.add_argument("--work", type=int, default=0, help="iterations of work between loading and using, 5000000 is a few ms")
-    parser.add_argument("--flip-every", type=int, default=0, help="show a frame every this many iterations of the work, as a loading screen does")
-    parser.add_argument("--runs", type=int, default=5)
-    parser.add_argument("--flags", type=int, default=9)
-    args = parser.parse_args()
-
-    compiler = args.blitzcc
-    if not compiler:
-        for c in (os.path.join(ROOT, "build", "code_compiler", "blitzcc"), os.path.join(ROOT, "build", "distrib", "bin", "blitzcc.exe")):
-            if os.path.isfile(c):
-                compiler = c
-                break
-    compiler = compiler or shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
-    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
-    if not llvm:
-        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
-    runner = [] if os.environ.get("DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 320x180x24"]
-
+    runner = benchutil.Runner("loading", __doc__, size="320x180")
+    p = runner.parser
+    p.add_argument("--textures", type=int, default=64)
+    p.add_argument("--picture", type=int, default=512, help="width and height of every picture (default %(default)s)")
+    p.add_argument("--work", type=int, default=0, help="iterations of work between loading and using, 5000000 is a few ms")
+    p.add_argument("--flip-every", type=int, default=0, help="show a frame every this many iterations of the work, as a loading screen does")
+    p.add_argument("--runs", type=int, default=5)
+    p.add_argument("--flags", type=int, default=9)
+    args = runner.parse()
+    if args.quick:
+        args.textures, args.runs = 8, 1
     with tempfile.TemporaryDirectory() as directory:
         for i in range(args.textures):
-            png(os.path.join(directory, "tex%d.png" % i), args.size, i + 1)
-        program = benchutil.program_path(directory)
-        shutil.copy(os.path.join(HERE, "loading.bb"), os.path.join(directory, "loading.bb"))
-        shutil.copy(os.path.join(HERE, "loading_llvm.bi" if llvm else "loading_original.bi"), os.path.join(directory, "loading_counters.bi"))
-        build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, os.path.join(directory, "loading.bb")], cwd=directory, capture_output=True, text=True)
-        if build.returncode != 0:
-            sys.exit("Building the benchmark failed:\n" + (build.stdout + build.stderr)[-2000:])
-        print("%d pictures of %dx%d, %d runs each, %s" % (args.textures, args.size, args.size, args.runs, version or "unknown compiler"))
+            png(os.path.join(directory, "tex%d.png" % i), args.picture, i + 1)
+        program = runner.build(directory)
+        print("%d pictures of %dx%d, %d runs each, %s" % (args.textures, args.picture, args.picture, args.runs, runner.version or "unknown compiler"))
         print("%-10s %10s %10s %10s %10s" % ("mode", "load ms", "work ms", "use ms", "total ms"))
-        for mode in (["blocking", "async"] if llvm else ["blocking"]):
+        for mode in (["blocking", "async"] if runner.llvm else ["blocking"]):
             results = []
             for run in range(args.runs + 1):
-                result_file = os.path.join(directory, "result.txt")
-                if os.path.exists(result_file):
-                    os.remove(result_file)
-                env = dict(os.environ, BENCH_DIR=directory, BENCH_TEXTURES=str(args.textures), BENCH_WORK=str(args.work), BENCH_FLIP_EVERY=str(args.flip_every), BENCH_FLAGS=str(args.flags),
-                           BENCH_ASYNC="1" if mode == "async" else "0", BENCH_RESULT=result_file)
-                procutil.run(runner + [program], env=env, capture_output=True, text=True)
-                if not os.path.isfile(result_file):
-                    sys.exit("The benchmark failed in mode " + mode)
+                values = runner.execute(program, directory, dict(BENCH_TEXTURES=args.textures, BENCH_WORK=args.work, BENCH_FLIP_EVERY=args.flip_every, BENCH_FLAGS=args.flags, BENCH_DIR=directory, BENCH_ASYNC=1 if mode == "async" else 0))
                 if run == 0:
-                    continue # The first run warms the file cache.
-                results.append({k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", open(result_file).read())})
+                    continue  # The first run warms the file cache.
+                results.append(dict(values))
             med = lambda key: statistics.median(r[key] for r in results)
             print("%-10s %10.1f %10.1f %10.1f %10.1f" % (mode, med("load_ms"), med("work_ms"), med("use_ms"), med("total_ms")))
 

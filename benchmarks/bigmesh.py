@@ -6,118 +6,40 @@
 Builds benchmarks/bigmesh.bb with blitzcc, runs it and prints the frame times: a camera over one terrain mesh of over a million
 triangles, which is what CameraCulling flag 2 (culling of faces on the GPU) is for.
 
-    python3 benchmarks/bigmesh.py [--blitzcc PATH] [--cull FLAGS] [--surfaces N] [--grid N] [--frames N] [--size WxH]
+    python3 benchmarks/bigmesh.py [--cull FLAGS] [--surfaces N] [--grid N] [--camera circle|above] [common options, see --help]
 
---cull is the CameraCulling flags of BlitzLLVM (3 by default here, which has the GPU cull faces too; 1, the default of cameras, is meshes only) and is ignored by the original Blitz3D, which can
-also be used with --blitzcc (see flythrough.py). Without a display the program runs under xvfb-run, which with Mesa means llvmpipe:
-the times are then mostly the CPU rasterizing and only a smoke test. Run each setting a few times and alternate them.
+--cull is the CameraCulling flags of BlitzLLVM (3 by default here, which has the GPU cull faces too; 1, the default of cameras, is
+meshes only) and is ignored by the original Blitz3D, which can also be used with --blitzcc (see flythrough.py). A surface of the
+original has at most 65535 vertices, so --grid is at most 255 with it. "pixels" is a hash of the last picture, so that runs with
+different culling can be told to draw the same.
+
+Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU rasterizing
+and only a smoke test. Run each setting a few times and alternate them. --profile adds the GPU time of the passes per frame
+(read with ProfileValue).
 """
-import argparse
-import os
-import platform
-import re
-import shutil
-import sys
-import tempfile
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
-import procutil  # noqa: E402
-import benchutil  # noqa: E402
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
-ORIGINAL_MAX_SIZE = 2048  # Direct3D 7, see flythrough.py
-
-
-def find_compiler(given):
-    if given:
-        return given
-    for candidate in (os.path.join(ROOT, "build", "code_compiler", "blitzcc"), os.path.join(ROOT, "build", "code_compiler", "blitzcc.exe"),
-                      os.path.join(ROOT, "build", "distrib", "bin", "blitzcc.exe")):
-        if os.path.isfile(candidate):
-            return candidate
-    return shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
+import benchutil
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--blitzcc")
-    parser.add_argument("--cull", default="3")
-    parser.add_argument("--surfaces", type=int, default=6)
-    parser.add_argument("--grid", type=int, default=128)
-    parser.add_argument("--frames", type=int, default=60)
-    parser.add_argument("--size", default="640x360")
-    parser.add_argument("--shot", help="save the last picture to this file (a .bmp)")
-    parser.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZLLVM_PROFILE_FPS=1), which a fast GPU does not hide")
-    parser.add_argument("--camera", default="circle", choices=("circle", "above"), help="above: the whole mesh is in view")
-    args = parser.parse_args()
-    width, height = args.size.lower().split("x")
-
-    compiler = find_compiler(args.blitzcc)
-    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
-    if not llvm:
-        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
-        if int(width) > ORIGINAL_MAX_SIZE or int(height) > ORIGINAL_MAX_SIZE:
-            sys.exit("The original Blitz3D cannot open a window above %dx%d." % (ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE))
-        if args.grid > 255:
-            sys.exit("A surface of the original Blitz3D has at most 65535 vertices: use --grid 255 or less.")
-    runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
-    if runner and not shutil.which("xvfb-run"):
-        sys.exit("There is no display and no xvfb-run.")
-
-    with tempfile.TemporaryDirectory() as directory:
-        program = benchutil.program_path(directory)
-        source = os.path.join(directory, "bigmesh.bb")
-        shutil.copy(os.path.join(HERE, "bigmesh.bb"), source)
-        shutil.copy(os.path.join(HERE, "bigmesh_llvm.bi" if llvm else "bigmesh_original.bi"), os.path.join(directory, "bigmesh_counters.bi"))
-        build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + (["--profile"] if args.profile and llvm else []) + ["-o", program, source], cwd=directory, capture_output=True, text=True)
-        if build.returncode != 0:
-            sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        result_file = os.path.join(directory, "result.txt")
-        env = dict(os.environ, BENCH_SURFACES=str(args.surfaces), BENCH_GRID=str(args.grid), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height,
-                   BENCH_CULL=args.cull, BENCH_RESULT=result_file, BENCH_CAMERA=args.camera)
-        shot_file = os.path.join(directory, "shot.bmp")
-        if args.shot:
-            env["BENCH_SHOT"] = shot_file
-        if args.profile and llvm:
-            env["BENCH_FPS_ON"] = "1"
-            env["BLITZLLVM_PROFILE_FPS"] = "1"
-        print("Running %dx%d surfaces of %dx%d squares, %d frames, %sx%s, CameraCulling %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.frames, width, height, args.cull if llvm else "n/a"), flush=True)
-        result = procutil.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
-        line = None
-        if os.path.isfile(result_file):
-            line = next((l for l in open(result_file).read().splitlines() if "RESULT " in l), None)
-        output = result.stdout + result.stderr
-        if result.returncode != 0 or line is None:
-            sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, (result.stdout + result.stderr)[-2000:]))
-        if args.shot and os.path.isfile(shot_file):
-            shutil.copy(shot_file, args.shot)
-    values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
-    # With --profile the runtime reports the GPU time of the passes once a second, summed over the frames of that second; the first
-    # second (making the mesh) is left out.
-    gpu_frames, gpu_sums, shown, first = 0, {"scene": 0.0, "frame": 0.0}, None, True
-    if args.profile and llvm:
-        for l in output.splitlines():
-            m = re.match(r"fps: (\d+),", l)
-            if m:
-                shown = int(m.group(1))
-                continue
-            m = re.match(r"\s+gpu passes: scene ([\d.]+) ms, 2d ([\d.]+) ms, copy ([\d.]+) ms, present ([\d.]+) ms, frame ([\d.]+) ms", l)
-            if m and shown:
-                if first:
-                    first = False
-                    continue
-                gpu_frames += shown
-                gpu_sums["scene"] += float(m.group(1))
-                gpu_sums["frame"] += float(m.group(5))
-    print("  ms/frame    avg %.2f  min %.2f  max %.2f" % (values["ms_avg"], values["ms_min"], values["ms_max"]))
-    print("  per frame   %.0f triangles given to the GPU, %.0f clusters decided by the GPU" % (values["tris"], values["clusters"]))
-    print("  picture     hash %d" % values["pixels"])
-    if args.profile and llvm and not gpu_frames:
-        print("  gpu         no time yet: the runtime reports once a second and leaves the first out, so use --frames 3000 or more")
-    if gpu_frames:
-        print("  gpu         scene %.3f ms, frame %.3f ms per frame (%d frames, from BLITZLLVM_PROFILE_FPS)" % (gpu_sums["scene"] / gpu_frames, gpu_sums["frame"] / gpu_frames, gpu_frames))
-    print("  build       %s" % (version or "unknown compiler"))
+    runner = benchutil.Runner("bigmesh", __doc__, frames=60, quick_frames=10, warmup=3)
+    p = runner.parser
+    p.add_argument("--cull", default="3", help="CameraCulling flags of BlitzLLVM (default %(default)s)")
+    p.add_argument("--surfaces", type=int, default=6, help="surfaces per side of the terrain (default %(default)s)")
+    p.add_argument("--grid", type=int, default=128, help="squares per side of a surface (default %(default)s)")
+    p.add_argument("--camera", default="circle", choices=("circle", "above"), help="above: the whole mesh is in view")
+    args = runner.parse()
+    if args.quick:
+        args.surfaces, args.grid = 2, 32
+    runner.original_limit(args.grid > 255, "A surface of the original Blitz3D has at most 65535 vertices: use --grid 255 or less.")
+    env = {"BENCH_SURFACES": args.surfaces, "BENCH_GRID": args.grid, "BENCH_CULL": args.cull, "BENCH_CAMERA": args.camera}
+    what = "%dx%d surfaces of %dx%d squares, camera %s, CameraCulling %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.camera,
+                                                                          args.cull if runner.llvm else "n/a")
+    values = runner.run(env, what)
+    runner.report(["terrain     %dx%d surfaces of %dx%d squares, camera %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.camera),
+                   "culling     %s, %.0f clusters decided by the GPU per frame" % (args.cull if runner.llvm else "n/a", values.get("clusters", 0)),
+                   "picture     hash %d" % values.get("pixels", 0)])
+    runner.save("%s-%dx%d-cull%s" % (args.camera, args.surfaces, args.grid, args.cull), ("surfaces", "grid", "cull", "clusters", "pixels"))
 
 
-main()
+if __name__ == "__main__":
+    main()

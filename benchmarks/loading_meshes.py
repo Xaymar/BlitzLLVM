@@ -6,27 +6,16 @@
 Builds benchmarks/loading_meshes.bb, makes the models it loads, and runs it once with blocking loads and once with loading on
 other threads (BlitzLLVM only), a few times each, and prints the median of every step.
 
-    python3 benchmarks/loading_meshes.py [--blitzcc PATH] [--meshes N] [--triangles N] [--work N] [--runs N]
+    python3 benchmarks/loading_meshes.py [--meshes N] [--triangles N] [--work N] [--runs N] [common options, see --help]
 
 The models are grids of triangles with heights from a fixed generator, the same on every run. With the original Blitz3D only the blocking run is made. Without a display it runs under xvfb-run, which
 with Mesa means llvmpipe.
 """
-import argparse
 import os
-import platform
-import re
-import shutil
 import statistics
 import struct
-import sys
 import tempfile
-import zlib
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
-import procutil  # noqa: E402
-import benchutil  # noqa: E402
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+import benchutil
 
 
 def b3d(path, triangles, seed):
@@ -58,52 +47,28 @@ def b3d(path, triangles, seed):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--blitzcc")
-    parser.add_argument("--meshes", type=int, default=32)
-    parser.add_argument("--triangles", type=int, default=50000, help="triangles in every model")
-    parser.add_argument("--work", type=int, default=0, help="iterations of work between loading and using, 5000000 is a few ms")
-    parser.add_argument("--runs", type=int, default=5)
-    args = parser.parse_args()
-
-    compiler = args.blitzcc
-    if not compiler:
-        for c in (os.path.join(ROOT, "build", "code_compiler", "blitzcc"), os.path.join(ROOT, "build", "distrib", "bin", "blitzcc.exe")):
-            if os.path.isfile(c):
-                compiler = c
-                break
-    compiler = compiler or shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
-    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
-    if not llvm:
-        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
-    runner = [] if os.environ.get("DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 320x180x24"]
-
+    runner = benchutil.Runner("loading_meshes", __doc__, size="320x180", own="loading")
+    p = runner.parser
+    p.add_argument("--meshes", type=int, default=32)
+    p.add_argument("--triangles", type=int, default=50000, help="triangles in every model")
+    p.add_argument("--work", type=int, default=0, help="iterations of work between loading and using, 5000000 is a few ms")
+    p.add_argument("--runs", type=int, default=5)
+    args = runner.parse()
+    if args.quick:
+        args.meshes, args.runs = 4, 1
     with tempfile.TemporaryDirectory() as directory:
         for i in range(args.meshes):
             b3d(os.path.join(directory, "mesh%d.b3d" % i), args.triangles, i + 1)
-        program = benchutil.program_path(directory)
-        shutil.copy(os.path.join(HERE, "loading_meshes.bb"), os.path.join(directory, "loading_meshes.bb"))
-        shutil.copy(os.path.join(HERE, "loading_llvm.bi" if llvm else "loading_original.bi"), os.path.join(directory, "loading_counters.bi"))
-        build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, os.path.join(directory, "loading_meshes.bb")], cwd=directory, capture_output=True, text=True)
-        if build.returncode != 0:
-            sys.exit("Building the benchmark failed:\n" + (build.stdout + build.stderr)[-2000:])
-        print("%d models of %d triangles, %d runs each, %s" % (args.meshes, args.triangles, args.runs, version or "unknown compiler"))
+        program = runner.build(directory)
+        print("%d models of %d triangles, %d runs each, %s" % (args.meshes, args.triangles, args.runs, runner.version or "unknown compiler"))
         print("%-10s %10s %10s %10s %10s %10s" % ("mode", "load ms", "work ms", "build ms", "use ms", "total ms"))
-        for mode in (["blocking", "async"] if llvm else ["blocking"]):
+        for mode in (["blocking", "async"] if runner.llvm else ["blocking"]):
             results = []
             for run in range(args.runs + 1):
-                result_file = os.path.join(directory, "result.txt")
-                if os.path.exists(result_file):
-                    os.remove(result_file)
-                env = dict(os.environ, BENCH_DIR=directory, BENCH_MESHES=str(args.meshes), BENCH_WORK=str(args.work),
-                           BENCH_ASYNC="1" if mode == "async" else "0", BENCH_RESULT=result_file)
-                procutil.run(runner + [program], env=env, capture_output=True, text=True)
-                if not os.path.isfile(result_file):
-                    sys.exit("The benchmark failed in mode " + mode)
+                values = runner.execute(program, directory, dict(BENCH_MESHES=args.meshes, BENCH_WORK=args.work, BENCH_DIR=directory, BENCH_ASYNC=1 if mode == "async" else 0))
                 if run == 0:
-                    continue # The first run warms the file cache.
-                results.append({k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", open(result_file).read())})
+                    continue  # The first run warms the file cache.
+                results.append(dict(values))
             med = lambda key: statistics.median(r[key] for r in results)
             print("%-10s %10.1f %10.1f %10.1f %10.1f %10.1f" % (mode, med("load_ms"), med("work_ms"), med("build_ms"), med("use_ms"), med("total_ms")))
 

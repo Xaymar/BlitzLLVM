@@ -28,6 +28,42 @@ executable, and a known name can get a frame rate cap or another present path th
 Auto HDR on for `dungeon.exe` on a 180 Hz HDR display, and `dungeon.exe` and `bigmesh.exe` were then held to the refresh rate with
 BlitzLLVM and with the original Blitz3D. New runners must use `benchutil.program_path` too.
 
+== How a benchmark is built
+
+Every benchmark has the same frame: the parts that all benchmarks share are in a few files, and the benchmark itself is only its setup
+and what it does every frame.
+
+* `benchutil.py` is the shared part of the runners. `benchutil.Runner` has the options every benchmark has (`--blitzcc`, `--frames`,
+  `--warmup`, `--seed`, `--size`, `--depth`, `--gpu`, `--quick`, `--debug`, `--profile`, `--label`, `--shot`, `--no-save`), tells
+  BlitzLLVM from the original Blitz3D by `blitzcc -v` (and then leaves out `-O3` and `--profile`, sets `BLITZPATH`, checks the window
+  size), builds the program under a random name, runs it (under `xvfb-run` without a display), reads its RESULT line and prints and
+  saves it. A runner adds its own options and lines.
+* `bench_llvm.bi` and `bench_original.bi` are what differs between the compilers: the timer (`Microseconds`, or `MilliSecs` in the
+  original), the draw counters of `Stats3D` (0 in the original) and `BenchFlip`, which is `Flip 0` in both, so that no frame waits for
+  the display. The runner copies the one of the compiler next to the program as `bench_compiler.bi`.
+* `bench_begin.bi` reads the settings (`BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_DEPTH`, `BENCH_GPU`),
+  has the random number generator that gives the same numbers in both compilers (`BenchRnd`), and opens the window (always windowed;
+  `SetGfxDriver` when `BENCH_GPU` is given).
+* `bench_profile_on.bi` and `bench_profile_off.bi`: with `--profile` (BlitzLLVM only) the program reads the GPU time of the passes,
+  the CPU time of `RenderWorld` and the wait for the GPU with `ProfileValue` after every timed frame, which is not tied to the
+  once-a-second report of `BLITZLLVM_PROFILE_FPS`, so a short run has numbers too. The runner copies one of them as `bench_profile.bi`.
+  The GPU times come back some frames late (the faster the program runs, the more frames), one frame's per `Flip` once they do, so
+  the n-th GPU time that comes back is counted as the one of frame n: only those of the timed frames are added up, and after the timed
+  frames the last picture is drawn again (untimed, at most 10 seconds) until all of them are back. `gpu_frames` says how many came
+  back and `gpu_lag` at the `Flip` of which frame the first one did.
+* `bench_end.bi` draws the frames and times them, and writes the RESULT line: frames, window, `create_ms`, `update_ms`, `ms_avg`,
+  `ms_min`, `ms_median`, `ms_p95`, `ms_max`, `fps`, and per frame the triangles and the draw counters, followed by the values of the
+  benchmark. It calls the functions of the benchmark: `BenchUpdate` (not timed), `BenchTimedUpdate` (timed, also on its own as
+  `update_ms`), `BenchRender`, `BenchAfterFrame` (not timed), `BenchFinish` and `BenchResult$`.
+* `<name>_llvm.bi` and `<name>_original.bi`, when a benchmark has them, are what differs between the compilers for that benchmark
+  only (the culling setting of bigmesh, the sampler of the forest, the sprite limit of the dungeon). The runner copies the right one
+  as `<name>_compiler.bi`.
+
+A new benchmark is a `.bb` file that includes `bench_compiler.bi`, its own `<name>_compiler.bi` if it has one, and `bench_begin.bi`,
+makes its scene, includes `bench_end.bi` and defines the six functions; and a runner that makes a `benchutil.Runner`. A benchmark
+that does not time frames (`loading.bb`) leaves out `bench_end.bi` and writes its RESULT line with `BenchWriteResult`. Variables of the
+setup that the functions use must be `Global`, as in every Blitz program.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The
@@ -96,8 +132,8 @@ python3 benchmarks/flythrough.py --objects 1000000 --frames 600 # the full run
 
 The runner builds the program with `build/code_compiler/blitzcc` (or `--blitzcc PATH`), runs it and prints one table. Options:
 `--objects`, `--frames`, `--seed`, `--size WxH`, `--shot FILE` (saves the last frame), `--label NAME` (such as the GPU, it
-is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile`, so that `BLITZLLVM_PROFILE_FPS=1` prints
-the timers of the runtime), and `--no-save`. The defaults can be set with `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_SEED` and `BENCH_SIZE`.
+is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile` and reads the GPU time of the passes, the CPU time of `RenderWorld` and the wait for the GPU
+with `ProfileValue` after every frame, see <<How a benchmark is built>>), and `--no-save`. The defaults can be set with `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_SEED` and `BENCH_SIZE`.
 The program itself reads `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_RANGE`, `BENCH_MOVING` (how many objects are moved every frame, to see what the spatial grid costs when things move), `BENCH_MODEL`,
 `BENCH_SHOT` and `BENCH_FRAMETIMES`, see the top of `flythrough.bb`. `BENCH_FOG=0|1|2` turns on `CameraFogMode` (2 is BlitzLLVM only), `BENCH_DITHER=2` sets the Dither level and `BENCH_GPU=2` the graphics driver (also for the waterfall).
 
@@ -117,10 +153,10 @@ entities need several GB of memory and a long time to create on a slow computer.
 === With the original Blitz3D
 
 `flythrough.bb` uses only commands that the original Blitz3D has as well, so that the speed of BlitzLLVM can be compared with it.
-The two things the original does not have are in `flythrough_llvm.bi` (the microsecond timer and the draw counters of `Stats3D`) and
-`flythrough_original.bi` (`MilliSecs`, and draw counters of 0). The runner looks at `blitzcc -v`, builds with the right one, leaves
-out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result from a file because
-the original has no output to a console:
+The two things the original does not have, the microsecond timer and the draw counters of `Stats3D`, are in `bench_llvm.bi` and
+`bench_original.bi` (`MilliSecs`, and draw counters of 0), see <<How a benchmark is built>>. The runner looks at `blitzcc -v`, builds
+with the right one, leaves out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the
+result from a file because the original has no output to a console:
 
 [source,bat]
 ----
@@ -186,10 +222,10 @@ as `benchmarks/results/waterfall-*.json` and `waterfall.csv`.
 === With the original Blitz3D
 
 To compare the speed of BlitzLLVM with the original, `waterfall.bb` uses only commands that the original Blitz3D has as well. The
-two things it does not have are in `waterfall_llvm.bi` (the microsecond timer and the draw counters of `Stats3D`) and
-`waterfall_original.bi` (`MilliSecs`, and draw counters of 0). The runner looks at `blitzcc -v`, builds with the right one,
-leaves out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result from a file
-because the original has no output to a console:
+timer and the draw counters are in `bench_llvm.bi` and `bench_original.bi`, as for every benchmark; `waterfall_llvm.bi` only has the
+saving of the raw picture (`BENCH_RAW`), which `waterfall_original.bi` leaves out. The runner looks at `blitzcc -v`, builds with the
+right ones, leaves out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result
+from a file because the original has no output to a console:
 
 [source,bat]
 ----
@@ -249,8 +285,9 @@ and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
 === GPU time
 
 `ms/frame` is the time of the program, and `Flip` does not wait for the GPU, so it can miss what the GPU saves (for instance with early-Z).
-With `--profile` the runner builds with `--profile` and runs with `BLITZLLVM_PROFILE_FPS=1`, reads the GPU timestamps of the passes that the runtime reports
-once a second (the first second, which makes the dungeon, is left out) and prints the GPU time per frame (`scene`, `2d`, `frame`).
+With `--profile` the runner builds with `--profile` and the program reads the GPU time of the passes with `ProfileValue` after every
+timed frame (the frames whose GPU times are not back yet are left out); the runner prints them per frame (`scene`, `2d`, `copy`,
+`present`, `frame`).
 Use a size that is limited by the GPU (`--size 1920x1080`) and compare the `scene` time.
 
 The dungeon costs the GPU very little (the sprites are small), so the speed is limited by the CPU. `--sprite-scale 6` draws every flame and
@@ -261,9 +298,9 @@ the time that early-Z saves can show in `ms/frame` as well. The original Blitz3D
 
 === With the original Blitz3D
 
-As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
-counters are in `dungeon_llvm.bi`, and `dungeon_original.bi` has `MilliSecs` and counters of 0. The runner picks the right one by
-`blitzcc -v` and leaves out `-O3` and `--profile` for the original:
+As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The timer and the draw counters are
+in `bench_llvm.bi` and `bench_original.bi`; `dungeon_llvm.bi` and `dungeon_original.bi` only have `SpriteDepthFade` (BlitzLLVM) and the
+most sprites the original can draw. The runner picks the right ones by `blitzcc -v` and leaves out `-O3` and `--profile` for the original:
 
 [source,bat]
 ----
@@ -317,9 +354,9 @@ puts the camera on the bridge or at the torch, for screenshots.
 
 === With the original Blitz3D
 
-`forest.bb` uses only commands that the original Blitz3D has as well. The BlitzLLVM-only commands are in `forest_llvm.bi` (the microsecond timer, the draw
-counters of `Stats3D` and anisotropic filtering with a sampler for every texture) and `forest_original.bi` (`MilliSecs`, draw counters of 0, no sampler). The
-runner picks the right one, as for the other benchmarks:
+`forest.bb` uses only commands that the original Blitz3D has as well. The timer and the draw counters are in `bench_llvm.bi` and `bench_original.bi`, as for
+every benchmark, and `forest_llvm.bi` has the anisotropic filtering with a sampler for every texture, which `forest_original.bi` leaves out. The runner picks
+the right ones, as for the other benchmarks:
 
 [source,bat]
 ----
@@ -345,7 +382,7 @@ python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that a
 python3 benchmarks/bigmesh.py --surfaces 4 --grid 255 --frames 120
 ----
 
-`Flip` does not wait for the GPU or the screen here (`Flip 0`), so use `--profile` (BLITZLLVM_PROFILE_FPS=1, as the other benchmarks) for the GPU time of a frame, and `--camera above` for the worst case, where the whole mesh is in view. It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
+`Flip` does not wait for the GPU or the screen here (`Flip 0`), so use `--profile` (as for the other benchmarks) for the GPU time of a frame, and `--camera above` for the worst case, where the whole mesh is in view. It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
 clusters of faces that the GPU decided about. Without a display it runs under llvmpipe, where the CPU rasterizes and the numbers say
 little about a real GPU; run it on one and alternate the settings a few times.
 
@@ -355,7 +392,7 @@ same rules as for the other benchmarks apply: windowed, at most 2048 in each dir
 == frontbuffer: drawing to FrontBuffer() or BackBuffer()
 
 `frontbuffer.bb` clears the buffer, draws a fixed set of rectangles, lines, ovals and text (`--draws`, 2000 by default) and calls
-`Flip`, every frame. `python3 benchmarks/frontbuffer.py` builds it, runs it drawing to `BackBuffer()` and to `FrontBuffer()` in turns
+`Flip 0` (`BenchFlip`), every frame. `python3 benchmarks/frontbuffer.py` builds it, runs it drawing to `BackBuffer()` and to `FrontBuffer()` in turns
 (`--rounds` times) and prints the median microseconds per frame of each. In BlitzLLVM `FrontBuffer()` is the back buffer, so both
 should be the same; in the original Blitz3D the front buffer is the picture on the screen. It works with both compilers
 (`--blitzcc`), and runs windowed only.
