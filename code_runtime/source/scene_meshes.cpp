@@ -515,7 +515,7 @@ int32_t bb_add_triangle(int32_t handle, int32_t a, int32_t b, int32_t c)
 void bb_vertex_color(int32_t handle, int32_t index, float r, float g, float b, float a)
 {
 	vertex3d& v = vertex_of(handle, index, "VertexColor");
-	v.set_color(clamp255(r), clamp255(g), clamp255(b), a < 0 ? 0 : (a > 1 ? 1 : a));
+	v.set_color_255(r, g, b, a * 255.0f); // Cut to whole steps of 1/255, as the original does.
 }
 
 void bb_vertex_normal(int32_t handle, int32_t index, float x, float y, float z)
@@ -645,9 +645,9 @@ float bb_vertex_ny(int32_t surface, int32_t index) { return vertex_normal(surfac
 float bb_vertex_nz(int32_t surface, int32_t index) { return vertex_normal(surface, index, 2, "VertexNZ"); }
 float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexU"); check_set(set); return set == 1 ? v.u2 : v.u; }
 float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexV"); check_set(set); return set == 1 ? v.v2 : v.v; }
-float bb_vertex_red(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexRed").color(0) * 255.0f; }
-float bb_vertex_green(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexGreen").color(1) * 255.0f; }
-float bb_vertex_blue(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexBlue").color(2) * 255.0f; }
+float bb_vertex_red(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexRed").color_255(0)); }
+float bb_vertex_green(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexGreen").color_255(1)); }
+float bb_vertex_blue(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexBlue").color_255(2)); }
 float bb_vertex_alpha(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexAlpha").color(3); }
 
 // The vertex at a corner (0, 1 or 2) of a triangle.

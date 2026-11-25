@@ -42,7 +42,7 @@ Main stream, 32 bytes, two vertices to a 64-byte cache line:
 | Bytes | Field          | Kept as                                                       |
 |------:|----------------|---------------------------------------------------------------|
 | 12    | x, y, z        | 3 floats, unchanged                                           |
-| 4     | normal         | octahedral, 2 x 16-bit signed normalized, precise (oct32P)    |
+| 4     | normal         | octahedral, 2 x 16-bit signed normalized (oct32)              |
 |       | 16-byte boundary (SSE, NEON) |                                                 |
 | 4     | r, g, b, a     | 4 x 8-bit unsigned normalized (RGBA8), as in the original     |
 | 12    | u, v, w        | 3 floats (w is new)                                           |
@@ -119,12 +119,19 @@ The paper's own summary is that octahedral is the best of the cheap encodings at
 same 3 bytes, and at 32 bits it is visually lossless (their Figure 6 shows hardly any shading difference even for 16-bit encodings
 under per-pixel Lambert lighting; Blitz3D lights per vertex, which hides it further).
 
-oct32P is the recommendation: 4 bytes, worst error 0.0025°, and two 16-bit snorm components are a vertex format every backend reads
+oct32P was the recommendation: 4 bytes, worst error 0.0025°, and two 16-bit snorm components are a vertex format every backend reads
 natively (the hardware turns them into floats from -1 to 1). oct24P would save one more byte, but there is no 3-byte or 12-bit vertex
 format, so it would need integer unpacking in the shader, and vertex attributes are aligned to 4 bytes anyway: the byte saved would
 be padding. Axis-aligned normals (0, 1, 0 and so on, which planes, cubes and terrain mostly have) come back exactly. The cost is a few
 shader instructions to unfold it (one `abs`, one subtraction, a `max` and two sign-aware subtractions, then the normalize the shader
-already does), and the precise encoder on the CPU when a normal is written.
+already does), and the encoder on the CPU when a normal is written.
+
+The runtime uses oct32 (rounding to the nearest) after all. With the precise encoder, forest.py with 10 million blades of grass (50
+million normals set) took 0.5 s longer to build its scene on Windows than before; rounding to the nearest built a scene with 3 million
+blades 13% faster on Linux. In float it is also not more precise
+unless the four candidates are compared by the sine of their angle instead of the cosine, since float cannot tell cosines that close to
+1 apart. Done that way it reached 0.0025°, but at four times the time of rounding to the nearest (about 55 against 14 ns per normal).
+The difference to oct32 is 0.0012° at worst, far below what per vertex lighting in 8-bit colors can show.
 
 A quaternion frame (normal plus tangent in 32 bits) is not needed: normal maps (TextureBlend 6 and 7) build their tangent frame from
 screen-space derivatives in the fragment shader, so meshes carry no tangents. If per-vertex tangents are ever added, a 32-bit

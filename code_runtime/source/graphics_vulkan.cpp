@@ -602,9 +602,9 @@ namespace bb::gfx {
 		} else if (desc.vertices == bb::rhi::vertex_layout::scene3d) {
 			binding         = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
 			attributes[0]   = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) };
-			attributes[1]   = { 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, stored_normal) };
+			attributes[1]   = { 1, 0, VK_FORMAT_R16G16_SINT, offsetof(bb::vertex3d, stored_normal) }; // Octahedral, see bb::normal_encode.
 			attributes[2]   = { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) };
-			attributes[3]   = { 3, 0, VK_FORMAT_R16G16B16A16_SFLOAT, offsetof(bb::vertex3d, stored_color) };
+			attributes[3]   = { 3, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, stored_color) };
 			attributes[4]   = { 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) };
 			attribute_count = 5;
 		}
