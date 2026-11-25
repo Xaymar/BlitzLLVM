@@ -541,6 +541,10 @@ def check(commands, blitzcc):
     for c in commands:
         if (c.dialect, c.category) == (categories.BASIC, "Other"):
             errors.append("%s has no category" % c.name)
+        for _, n, d in c.params:
+            # A default is a value as a program writes it; a backslash is a C escape that was cut out of its string.
+            if "\\" in (d or ""):
+                errors.append("%s has the default %s for %s, which is not a BlitzBasic value" % (c.name, d, n))
     pages = {fn[:-3] for fn in os.listdir(OUT) if fn.endswith(".md")}
     for fn in sorted(os.listdir(OUT)):
         if not fn.endswith(".md"):
