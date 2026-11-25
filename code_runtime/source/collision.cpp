@@ -676,6 +676,7 @@ namespace bb::collision {
 		uint32_t               surfaces = 0; // surface_epoch when the tree last looked: a mesh whose vertices changed is not in pick_touched_list.
 		uint32_t               picks_since_build = 0;
 		uint32_t               cooldown = 0; // Picks that are not given a tree, as the tree was made again and again.
+		uint32_t               pause    = 0; // How long the last cooldown was, 0 once a tree lasted.
 		bool                   valid = false;
 		// For BLITZLLVM_PICK_STATS: what the tree did.
 		uint64_t               calls = 0, used = 0, builds = 0, overflow = 0, count_changed = 0, cooled = 0, few = 0, disabled = 0, found_total = 0;
@@ -877,7 +878,6 @@ namespace bb::collision {
 		uint32_t n = uint32_t(entity_count());
 		if (pick_tree.cooldown) {
 			pick_tree.cooldown--;
-			return false;
 		}
 		if (pick_tree.valid && (n > pick_tree.count) && (pick_tree.surfaces == surface_epoch)) {
 			// New entities beyond the old end (a program that makes more than it ever had) are not in the tree yet: they start with an
@@ -937,11 +937,21 @@ namespace bb::collision {
 		if (pick_tree.valid && (n != pick_tree.count)) {
 			pick_tree.count_changed++;
 		}
-		// Made again straight after it was made is the sign of a scene that changes between all picks, which a tree does not help.
+		// While the tree is paused (see below), a tree that still fits is used, but none is made.
+		if (pick_tree.cooldown) {
+			pick_tree.valid = false;
+			return false;
+		}
+		// Made again straight after it was made is the sign of a scene that changes between all picks, which a tree does not help. The
+		// pause grows from 8 to 64 picks while that goes on, and is short again once a tree lasted: a scene that picks once a frame and
+		// then a few hundred times (a battle that starts) does not do the first 64 of those without the tree.
 		bool churn = pick_tree.picks_since_build < 4 && pick_tree.count != 0;
 		build_pick_phase();
 		if (churn) {
-			pick_tree.cooldown = 64;
+			pick_tree.pause    = pick_tree.pause ? (pick_tree.pause * 2 > 64 ? 64 : pick_tree.pause * 2) : 8;
+			pick_tree.cooldown = pick_tree.pause;
+		} else {
+			pick_tree.pause = 0;
 		}
 		return true;
 	}
