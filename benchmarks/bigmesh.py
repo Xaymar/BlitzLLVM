@@ -21,6 +21,7 @@ import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -65,7 +66,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "bigmesh" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         source = os.path.join(directory, "bigmesh.bb")
         shutil.copy(os.path.join(HERE, "bigmesh.bb"), source)
         shutil.copy(os.path.join(HERE, "bigmesh_llvm.bi" if llvm else "bigmesh_original.bi"), os.path.join(directory, "bigmesh_counters.bi"))

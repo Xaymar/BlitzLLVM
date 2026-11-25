@@ -31,6 +31,7 @@ import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 # Most objects the original Blitz3D can have: it can have 16128 sprites (see README.adoc), 4 of them are the hidden templates, and
 # entity i is a sprite when i Mod 16 is 12 to 15. 64508 objects have 4031 * 4 = 16124 sprites, one more object would be one sprite too many.
@@ -98,7 +99,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "flythrough" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
         # includes from.
         source = os.path.join(directory, "flythrough.bb")

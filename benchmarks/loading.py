@@ -24,6 +24,7 @@ import tempfile
 import zlib
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -73,7 +74,7 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         for i in range(args.textures):
             png(os.path.join(directory, "tex%d.png" % i), args.size, i + 1)
-        program = os.path.join(directory, "loading" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         shutil.copy(os.path.join(HERE, "loading.bb"), os.path.join(directory, "loading.bb"))
         shutil.copy(os.path.join(HERE, "loading_llvm.bi" if llvm else "loading_original.bi"), os.path.join(directory, "loading_counters.bi"))
         build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, os.path.join(directory, "loading.bb")], cwd=directory, capture_output=True, text=True)
