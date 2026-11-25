@@ -20,6 +20,7 @@ import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -44,7 +45,7 @@ def main():
     runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
     print("Compiler: %s" % version)
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "texture_layers" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         source = os.path.join(directory, "texture_layers.bb")
         shutil.copy(os.path.join(HERE, "texture_layers.bb"), source)
         shutil.copy(os.path.join(HERE, "flythrough_llvm.bi" if llvm else "flythrough_original.bi"), os.path.join(directory, "flythrough_counters.bi"))

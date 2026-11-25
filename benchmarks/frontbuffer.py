@@ -19,6 +19,7 @@ import statistics
 import subprocess
 import sys
 import tempfile
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -55,7 +56,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "frontbuffer" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         source = os.path.join(directory, "frontbuffer.bb")
         shutil.copy(os.path.join(HERE, "frontbuffer.bb"), source)
         shutil.copy(os.path.join(HERE, "frontbuffer_llvm.bi" if llvm else "frontbuffer_original.bi"), os.path.join(directory, "frontbuffer_counters.bi"))

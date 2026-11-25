@@ -35,6 +35,7 @@ import tempfile
 import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -119,7 +120,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "forest" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
         # includes from.
         source = os.path.join(directory, "forest.bb")

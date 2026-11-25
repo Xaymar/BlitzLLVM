@@ -20,6 +20,14 @@ On Windows the children live in a Job Object that is killed with the script; els
 the script and by a small watcher process if the script dies without cleaning up. `tests/cli/procutil.py` (the `procutil` test) proves
 this for exit, exception, kill, interrupt and timeout. New scripts that start programs must use `procutil`, not `subprocess` directly.
 
+== Program names
+
+The runners build every benchmark program under a random file name (`benchutil.program_path`), never as `dungeon.exe` and the like.
+Windows (Auto HDR, the game detection of Game Bar) and graphics drivers (application profiles) choose settings by the name of the
+executable, and a known name can get a frame rate cap or another present path that has nothing to do with the program: Windows turned
+Auto HDR on for `dungeon.exe` on a 180 Hz HDR display, and `dungeon.exe` and `bigmesh.exe` were then held to the refresh rate with
+BlitzLLVM and with the original Blitz3D. New runners must use `benchutil.program_path` too.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The

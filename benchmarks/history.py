@@ -49,6 +49,7 @@ import zlib
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -111,7 +112,8 @@ class Compiler:
         return (["wine"] + cmd) if self.wine else cmd
 
     def program_path(self, directory, name):
-        return os.path.join(directory, name + (".exe" if self.wine else ""))
+        """Where to build the program called name: under a random file name (see benchutil.py), name is only for reading the code."""
+        return benchutil.program_path(directory, exe=self.wine)
 
     def run_cmd(self, program):
         return self.display + ((["wine", program]) if self.wine else [program])

@@ -31,6 +31,7 @@ import sys
 import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
+import benchutil  # noqa: E402
 
 # Most water sprites the original Blitz3D 1.118 can have (measured by Xaymar: 16125 runs, more crashes). All sprites share one vertex
 # buffer of 4 vertices each, Sprite::allocIndex grows it 256 sprites at a time, and Direct3D 7 buffers hold at most 65535 vertices:
@@ -98,7 +99,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
-        program = os.path.join(directory, "waterfall" + (".exe" if platform.system() == "Windows" else ""))
+        program = benchutil.program_path(directory)
         # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
         # includes from.
         source = os.path.join(directory, "waterfall.bb")
