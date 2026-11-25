@@ -30,7 +30,7 @@ def suite_names():
 
 def run(*files, force=None):
     selection = sel.select(CFG, list(files), force)
-    selected, skipped = sel.split_tests(CFG, selection, suite_names() + ["audio-output", "audio-output-debug", "cli-run", "format-check_diff", "tidy-fix", "gui-autosuspend-on", "close-prompt_pixels", "profile-on_pixels"])
+    selected, skipped = sel.split_tests(CFG, selection, suite_names() + ["audio-output", "audio-output-debug", "cli-run", "format-check_diff", "tidy-fix", "gui-autosuspend-on", "close-prompt_pixels", "profile-on_pixels", "samples-compile-games-rally-rally"])
     return selection, set(selected), skipped
 
 
@@ -61,7 +61,7 @@ class Selection(unittest.TestCase):
         self.assertEqual(run()[0]["mode"], "all")
         selection, selected, skipped = run("docs/wiki/Home.md", force="label")
         self.assertEqual((selection["mode"], skipped), ("all", {}))
-        self.assertEqual(len(selected), len(suite_names()) + 8)
+        self.assertEqual(len(selected), len(suite_names()) + 9)
 
     def test_audio_change_skips_graphics_and_3d(self):
         selection, selected, skipped = run("code_runtime/source/sound.c")
@@ -123,6 +123,13 @@ class Selection(unittest.TestCase):
         self.assertEqual(sel.area_of(CFG, "suite-run-graphics_pixels"), "graphics")
         _, selected, _ = run("code_runtime/source/movie.cpp")
         self.assertNotIn("suite-run-graphics_pixels", selected)
+
+    def test_sample_change_only_compiles_the_samples(self):
+        selection, selected, skipped = run("samples/games/rally/rally.bb")
+        self.assertEqual(selection["areas"], ["samples"])
+        self.assertIn("samples-compile-games-rally-rally", selected)
+        self.assertTrue("suite-run-blitz3d_world" in skipped)
+        self.assertEqual(run("samples/games/rally/screenshot-race.png")[0]["mode"], "none")
 
     def test_every_suite_program_has_an_area(self):
         orphans = [n for n in suite_names() if n.startswith("suite-run-") and sel.area_of(CFG, n) is None]
