@@ -1111,8 +1111,11 @@ Function PlayerPassed(i)
 	Else
 		yaw = VectorYaw(-ux, 0, -uz)
 	EndIf
-	; Out of a gate the eyes are turned most of the way back to level, so nobody comes out staring at a ceiling.
-	pitch = Max(-45, Min(45, VectorPitch(fx, fy, fz) * 0.5))
+	; Between two walls, or a floor and a ceiling, the view goes through exactly. Between a wall and a floor or
+	; ceiling it turns by a quarter, so the eyes are brought halfway back to level, and nobody comes out staring at
+	; a ceiling.
+	pitch = Max(-89, Min(89, VectorPitch(fx, fy, fz)))
+	If (faceY(gateSide(i)) <> 0) <> (faceY(gateSide(o)) <> 0) Then pitch = Max(-45, Min(45, pitch * 0.5))
 	PlaySfx(sndPass)
 	If carried <> Null
 		; The cube is still on the far side; bring it to the player, it slides out to the hold point from there.
