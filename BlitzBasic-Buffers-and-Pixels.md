@@ -22,7 +22,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [ReadPixel64](ReadPixel64) 〔BlitzLLVM〕
 * [ReadPixelFast](ReadPixelFast)
 * [ReadPixelFast64](ReadPixelFast64) 〔BlitzLLVM〕
-* [SaveBuffer](SaveBuffer) 〔BlitzLLVM〕
+* [SaveBuffer](SaveBuffer)
 * [SetBuffer](SetBuffer)
 * [UnlockBuffer](UnlockBuffer)
 * [WritePixel](WritePixel)

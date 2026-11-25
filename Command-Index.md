@@ -163,7 +163,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CreateCube](CreateCube)
 * [CreateCylinder](CreateCylinder)
 * [CreateDir](CreateDir)
-* [CreateHtmlView](CreateHtmlView) 〔BlitzLLVM〕
+* [CreateHtmlView](CreateHtmlView)
 * [CreateImage](CreateImage)
 * [CreateLabel](CreateLabel)
 * [CreateLight](CreateLight)
@@ -507,13 +507,13 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HostIP](HostIP)
 * [HostNetGame](HostNetGame)
 * [HotKeyEvent](HotKeyEvent)
-* [HtmlViewBack](HtmlViewBack) 〔BlitzLLVM〕
-* [HtmlViewCurrentURL](HtmlViewCurrentURL) 〔BlitzLLVM〕
-* [HtmlViewEventURL](HtmlViewEventURL) 〔BlitzLLVM〕
-* [HtmlViewForward](HtmlViewForward) 〔BlitzLLVM〕
-* [HtmlViewGo](HtmlViewGo) 〔BlitzLLVM〕
-* [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕
-* [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
+* [HtmlViewBack](HtmlViewBack)
+* [HtmlViewCurrentURL](HtmlViewCurrentURL)
+* [HtmlViewEventURL](HtmlViewEventURL)
+* [HtmlViewForward](HtmlViewForward)
+* [HtmlViewGo](HtmlViewGo)
+* [HtmlViewRun](HtmlViewRun)
+* [HtmlViewStatus](HtmlViewStatus)
 * [HWDither](HWDither)
 * [HWHDRActive](HWHDRActive)
 * [HWHDRPeakNits](HWHDRPeakNits)
@@ -880,8 +880,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SatUInt](SatUInt) 〔BlitzLLVM〕
 * [SatULong](SatULong) 〔BlitzLLVM〕
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [SaveBuffer](SaveBuffer) 〔BlitzLLVM〕
-* [SaveImage](SaveImage) 〔BlitzLLVM〕
+* [SaveBuffer](SaveBuffer)
+* [SaveImage](SaveImage)
 * [SavesFailed](SavesFailed) 〔BlitzLLVM〕
 * [SavesPending](SavesPending) 〔BlitzLLVM〕
 * [SaveTexture](SaveTexture) 〔BlitzLLVM〕

@@ -95,7 +95,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateComboBox](CreateComboBox#differences): The user cannot type into it, only pick from the list.
 * [CreateCone](CreateCone#differences): The original allows 3 to 100 segments.
 * [CreateCylinder](CreateCylinder#differences): The original allows 3 to 100 segments.
-* [CreateHtmlView](CreateHtmlView#differences) 〔BlitzLLVM〕: There is no web browser inside the window yet: the gadget is a frame that shows the address it was sent to, and no page is loaded.
+* [CreateHtmlView](CreateHtmlView#differences): There is no web browser inside the window yet: the gadget is a frame that shows the address it was sent to, and no page is loaded.
 * [CreateImage](CreateImage#differences): A graphics window must be open, because images live in video memory.
 * [CreateLabel](CreateLabel#differences): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
 * [CreateListBox](CreateListBox#differences): Only one entry can be selected at a time.
@@ -255,9 +255,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [HidePointer](HidePointer#differences): BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
-* [HtmlViewEventURL](HtmlViewEventURL#differences) 〔BlitzLLVM〕: Always an empty text, as links cannot be clicked.
-* [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
-* [HtmlViewStatus](HtmlViewStatus#differences) 〔BlitzLLVM〕: Always 0, as no page is ever loaded or loading.
+* [HtmlViewEventURL](HtmlViewEventURL#differences): Always an empty text, as links cannot be clicked.
+* [HtmlViewRun](HtmlViewRun#differences): The script is not run, as there is no page.
+* [HtmlViewStatus](HtmlViewStatus#differences): Always 0, as no page is ever loaded or loading.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
 * [HWRawInput](HWRawInput#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.
@@ -431,8 +431,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [SatUInt](SatUInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatULong](SatULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatUShort](SatUShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SaveBuffer](SaveBuffer#differences) 〔BlitzLLVM〕: The original only writes BMP files.
-* [SaveImage](SaveImage#differences) 〔BlitzLLVM〕: The original only writes BMP files.
+* [SaveBuffer](SaveBuffer#differences): The original only writes BMP files.
+* [SaveImage](SaveImage#differences): The original only writes BMP files.
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.
 * [SeekMovie](SeekMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).

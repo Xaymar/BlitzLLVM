@@ -16,7 +16,7 @@ Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 * [CountGadgetItems](CountGadgetItems)
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)
-* [CreateHtmlView](CreateHtmlView) 〔BlitzLLVM〕
+* [CreateHtmlView](CreateHtmlView)
 * [CreateLabel](CreateLabel)
 * [CreateListBox](CreateListBox)
 * [CreatePanel](CreatePanel)
@@ -35,13 +35,13 @@ Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 * [GadgetX](GadgetX)
 * [GadgetY](GadgetY)
 * [HideGadget](HideGadget)
-* [HtmlViewBack](HtmlViewBack) 〔BlitzLLVM〕
-* [HtmlViewCurrentURL](HtmlViewCurrentURL) 〔BlitzLLVM〕
-* [HtmlViewEventURL](HtmlViewEventURL) 〔BlitzLLVM〕
-* [HtmlViewForward](HtmlViewForward) 〔BlitzLLVM〕
-* [HtmlViewGo](HtmlViewGo) 〔BlitzLLVM〕
-* [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕
-* [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
+* [HtmlViewBack](HtmlViewBack)
+* [HtmlViewCurrentURL](HtmlViewCurrentURL)
+* [HtmlViewEventURL](HtmlViewEventURL)
+* [HtmlViewForward](HtmlViewForward)
+* [HtmlViewGo](HtmlViewGo)
+* [HtmlViewRun](HtmlViewRun)
+* [HtmlViewStatus](HtmlViewStatus)
 * [InsertGadgetItem](InsertGadgetItem)
 * [ModifyGadgetItem](ModifyGadgetItem)
 * [RemoveGadgetItem](RemoveGadgetItem)
