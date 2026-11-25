@@ -20,3 +20,4 @@ The logo is a stylized cube, bolt and graph. It is not the LLVM logo and does no
 The screenshots of the samples in `samples/` live in `samples/` here, in the same folders as their sample, so that they are not installed with the samples.
 
 * `samples/games/<name>/screenshot-*.png`: screenshots of the sample games.
+* `samples/tutorials/<chapter>/overview.png`: an overview of the programs of each tutorial chapter.
