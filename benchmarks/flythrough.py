@@ -6,161 +6,46 @@
 Builds benchmarks/flythrough.bb with blitzcc, runs it and prints the frame times and what the frames cost. The result is
 also saved as JSON (and added to a CSV) in benchmarks/results/.
 
-    python3 benchmarks/flythrough.py [--blitzcc PATH] [--objects N] [--frames N] [--seed N] [--size WxH]
-                                     [--debug] [--profile] [--label NAME] [--shot FILE] [--no-save]
+    python3 benchmarks/flythrough.py [--objects N] [common options, see --help]
 
 --objects defaults to $BENCH_OBJECTS or 20000, --frames to $BENCH_FRAMES or 300; "--objects 1000000" is the full run, and
 "--quick" is 2000 objects and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
+BENCH_DITHER, BENCH_ANTIALIAS, BENCH_RANGE, BENCH_MOVING and BENCH_FOG are passed on to the program (see flythrough.bb).
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
-folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0), and it can have at most 65532 objects.
+folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0), and it can have at most 64508 objects.
 
 Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU
 rasterizing and only a smoke test. The counts (draws, triangles) are exact on any GPU.
 """
-import argparse
-import csv
-import datetime
-import json
 import os
-import platform
-import re
-import shutil
-import sys
-import tempfile
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
-import procutil  # noqa: E402
-import benchutil  # noqa: E402
+import benchutil
 
 # Most objects the original Blitz3D can have: it can have 16128 sprites (see README.adoc), 4 of them are the hidden templates, and
 # entity i is a sprite when i Mod 16 is 12 to 15. 64508 objects have 4031 * 4 = 16124 sprites, one more object would be one sprite too many.
 ORIGINAL_MAX_SPRITES = 16128
 ORIGINAL_MAX_OBJECTS = 64508
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
-MODEL = os.path.join(ROOT, "tests", "suite", "models", "textured.3ds")
-
-
-# Direct3D 7 limits the window to 2048 in each direction (measured on Areldir: 2048x2048 works, 2049x1080 and 500x3000 fail): the original Blitz3D then stops with
-# "Unable to create 3D Scene".
-ORIGINAL_MAX_SIZE = 2048
-
-def find_compiler(given):
-    if given:
-        return given
-    for candidate in (os.path.join(ROOT, "build", "code_compiler", "blitzcc"), os.path.join(ROOT, "build", "code_compiler", "blitzcc.exe"),
-                      os.path.join(ROOT, "build", "distrib", "bin", "blitzcc.exe")):
-        if os.path.isfile(candidate):
-            return candidate
-    return shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
+MODEL = os.path.join(benchutil.ROOT, "tests", "suite", "models", "textured.3ds")
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--blitzcc")
-    parser.add_argument("--objects", type=int, default=int(os.environ.get("BENCH_OBJECTS", 20000)))
-    parser.add_argument("--frames", type=int, default=int(os.environ.get("BENCH_FRAMES", 300)))
-    parser.add_argument("--seed", type=int, default=int(os.environ.get("BENCH_SEED", 1)))
-    parser.add_argument("--size", default=os.environ.get("BENCH_SIZE", "640x360"))
-    parser.add_argument("--quick", action="store_true", help="2000 objects, 30 frames")
-    parser.add_argument("--debug", action="store_true", help="build with -d (no optimization)")
-    parser.add_argument("--profile", action="store_true", help="build with --profile, for BLITZLLVM_PROFILE_FPS=1")
-    parser.add_argument("--label", default="", help="name of this run in the result, such as the GPU")
-    parser.add_argument("--shot", help="save the last frame to this file")
-    parser.add_argument("--no-save", action="store_true", help="don't write benchmarks/results/")
-    args = parser.parse_args()
+    runner = benchutil.Runner("flythrough", __doc__, frames=300)
+    runner.parser.add_argument("--objects", type=int, default=int(os.environ.get("BENCH_OBJECTS", 20000)))
+    args = runner.parse()
     if args.quick:
-        args.objects, args.frames = 2000, 30
-    width, height = args.size.lower().split("x")
-
-    compiler = find_compiler(args.blitzcc)
-    # The original Blitz3D has no optimization level or profiling, and prints no "Compiler version:20xx." for -v. The same program
-    # is built with either, so that their speeds can be compared.
-    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
-    flags = ["-d"] if args.debug else (["-O3"] if llvm else [])
-    if args.profile and llvm:
-        flags.append("--profile")
-    if not llvm and args.objects > ORIGINAL_MAX_OBJECTS:
-        sys.exit("The original Blitz3D can draw only %d sprites, and a quarter of the objects are sprites (they share one vertex buffer of "
-                 "4 vertices each that grows 256 sprites at a time, and Direct3D 7 buffers have at most 65535 vertices); use --objects %d or less "
-                 "with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_OBJECTS))
-    if not llvm and (int(width) > ORIGINAL_MAX_SIZE or int(height) > ORIGINAL_MAX_SIZE):
-        sys.exit("The original Blitz3D (Direct3D 7) cannot open a window above %dx%d, it stops with \"Unable to create 3D Scene\" (asked for %sx%s); "
-                 "use --size %dx%d or less with it, or BlitzLLVM for larger windows." % (ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE, width, height, ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE))
-    if not llvm:
-        # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
-        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
-        # Without BLITZPATH the original prints an error instead of its version.
-        version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
-    if runner and not shutil.which("xvfb-run"):
-        sys.exit("There is no display and no xvfb-run.")
-
-    with tempfile.TemporaryDirectory() as directory:
-        program = benchutil.program_path(directory)
-        # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
-        # includes from.
-        source = os.path.join(directory, "flythrough.bb")
-        shutil.copy(os.path.join(HERE, "flythrough.bb"), source)
-        shutil.copy(os.path.join(HERE, "flythrough_llvm.bi" if llvm else "flythrough_original.bi"), os.path.join(directory, "flythrough_counters.bi"))
-        build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
-        if build.returncode != 0:
-            sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        env = dict(os.environ, BENCH_OBJECTS=str(args.objects), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
-                   BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
-        if os.path.isfile(MODEL):
-            env["BENCH_MODEL"] = MODEL
-        if args.shot:
-            env["BENCH_SHOT"] = os.path.abspath(args.shot)
-        print("Running %d objects, %d frames, %sx%s, build %s" % (args.objects, args.frames, width, height, " ".join(flags)), flush=True)
-        result = procutil.run(runner + [program], env=env, capture_output=True, text=True)
-        output = result.stdout + result.stderr
-        # The original Blitz3D has no stdout for a program, so the result is read from a file.
-        line = None
-        if os.path.isfile(env["BENCH_RESULT"]):
-            line = next((l for l in open(env["BENCH_RESULT"]).read().splitlines() if "RESULT " in l), None)
-        if result.returncode != 0 or line is None:
-            sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, output[-2000:]))
-        values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
-        frametimes = []
-        if os.path.isfile(env["BENCH_FRAMETIMES"]):
-            frametimes = [int(l) for l in open(env["BENCH_FRAMETIMES"]).read().split()]
-
-    record = {
-        "date": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "label": args.label,
-        "compiler": version if llvm else "Blitz3D " + version,
-        "build": " ".join(flags),
-        "platform": platform.platform(),
-        "display": "xvfb" if runner else "native",
-        "blitz_fps_hint": "BLITZLLVM_PROFILE_FPS=1 prints the runtime timers once a second" if args.profile else "",
-        "result": values,
-    }
-    print("\n  objects     %12d" % values["objects"])
-    print("  created in  %12.0f ms" % values["create_ms"])
-    print("  ms/frame    avg %.2f  min %.2f  median %.2f  p95 %.2f  max %.2f" % (values["ms_avg"], values["ms_min"], values["ms_median"], values["ms_p95"], values["ms_max"]))
-    print("  fps         %12.1f" % values["fps"])
-    print("  per frame   %.0f triangles, %.0f draw calls, %.0f pipeline binds, %.0f texture binds, %.0f buffer binds"
-          % (values["tris"], values["draws"], values["pipelines"], values["textures"], values["buffers"]))
-    print("  build       %s (%s)" % (record["build"] or "no options", version or "unknown compiler"))
-
-    if not args.no_save:
-        out = os.path.join(HERE, "results")
-        os.makedirs(out, exist_ok=True)
-        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        name = "flythrough-%s-%d" % (stamp, args.objects)
-        with open(os.path.join(out, name + ".json"), "w") as f:
-            json.dump(dict(record, frame_times_us=frametimes), f, indent=1)
-        csv_path = os.path.join(out, "flythrough.csv")
-        new = not os.path.isfile(csv_path)
-        with open(csv_path, "a", newline="") as f:
-            writer = csv.writer(f)
-            if new:
-                writer.writerow(["date", "label", "build", "display", "objects", "frames", "seed", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers"])
-            writer.writerow([record["date"], args.label, record["build"], record["display"]] + [values[k] for k in ("objects", "frames", "seed", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers")])
-        print("  saved       benchmarks/results/%s.json and flythrough.csv" % name)
+        args.objects = 2000
+    runner.original_limit(args.objects > ORIGINAL_MAX_OBJECTS,
+                          "The original Blitz3D can draw only %d sprites, and a quarter of the objects are sprites (they share one vertex buffer of "
+                          "4 vertices each that grows 256 sprites at a time, and Direct3D 7 buffers have at most 65535 vertices); use --objects %d or less "
+                          "with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_OBJECTS))
+    env = {"BENCH_OBJECTS": args.objects}
+    if os.path.isfile(MODEL):
+        env["BENCH_MODEL"] = MODEL
+    values = runner.run(env, "%d objects" % args.objects)
+    runner.report(["objects     %12d" % values["objects"]])
+    runner.save(str(args.objects), ("objects",))
 
 
-main()
+if __name__ == "__main__":
+    main()
