@@ -191,6 +191,8 @@ namespace bb::gfx {
 			uint32_t                 feature_level = 0;
 			ID3D11BlendState*        clear_blend = nullptr; // The states of the draw that clears a part of the depth attachment.
 			ID3D11DepthStencilState* clear_depth_state = nullptr;
+			ID3D11DepthStencilState* clear_stencil_state = nullptr; // The draw that clears a part of the stencil.
+			std::unordered_map<uint64_t, ID3D11DepthStencilState*> stencil_states; // The depth and stencil states of 3D draws with stencil, by depth_stencil_key.
 			ID3D11RasterizerState*   clear_raster = nullptr;
 
 			ID3D11Buffer*            push_buffer = nullptr;
@@ -209,6 +211,8 @@ namespace bb::gfx {
 			d3d_buffer*              index_buffer  = nullptr;
 			bb::rhi::cull_mode       cull = bb::rhi::cull_mode::back;
 			bool                     depth_test = true, depth_write = true;
+			bb::rhi::stencil_state   stencil;
+			bool                     pass_stencil = false; // The depth attachment of the pass has stencil.
 			D3D11_VIEWPORT           viewport = {};
 			D3D11_RECT               scissor  = {};
 			d3d_view*                colors[4] = {};
@@ -325,6 +329,9 @@ namespace bb::gfx {
 			{ bb::rhi::format::bc5, DXGI_FORMAT_BC5_UNORM, DXGI_FORMAT_BC5_UNORM, DXGI_FORMAT_UNKNOWN, 16, true, true },
 			{ bb::rhi::format::bc7, DXGI_FORMAT_BC7_UNORM, DXGI_FORMAT_BC7_UNORM, DXGI_FORMAT_UNKNOWN, 16, true, true },
 			{ bb::rhi::format::bc7_srgb, DXGI_FORMAT_BC7_UNORM_SRGB, DXGI_FORMAT_BC7_UNORM_SRGB, DXGI_FORMAT_UNKNOWN, 16, true, true },
+			// Depth with stencil: the depth is sampled, the stencil is not.
+			{ bb::rhi::format::d32f_s8, DXGI_FORMAT_R32G8X24_TYPELESS, DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS, DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 8, false, true },
+			{ bb::rhi::format::d24s8, DXGI_FORMAT_R24G8_TYPELESS, DXGI_FORMAT_R24_UNORM_X8_TYPELESS, DXGI_FORMAT_D24_UNORM_S8_UINT, 4, false, true },
 		};
 
 		const format_info* info_of(bb::rhi::format format)
@@ -565,6 +572,42 @@ namespace bb::gfx {
 			}
 		}
 
+		// The depth and stencil state of a 3D draw with stencil, made the first time that it is needed. The reference is not part of it.
+		ID3D11DepthStencilState* stencil_state_for(const bb::rhi::pipeline_desc& desc)
+		{
+			const bb::rhi::stencil_state& st   = dx.stencil;
+			auto face_bits = [](const bb::rhi::stencil_face& f) { return uint64_t(f.compare) | (uint64_t(f.fail) << 3) | (uint64_t(f.depth_fail) << 6) | (uint64_t(f.pass) << 9); };
+			uint64_t key = (dx.depth_test ? 1u : 0u) | (dx.depth_write ? 2u : 0u) | ((desc.depth_compare == bb::rhi::compare::less) ? 4u : 0u);
+			key |= face_bits(st.front) << 3;
+			key |= face_bits(st.back) << 15;
+			key |= uint64_t(st.read_mask) << 27;
+			key |= uint64_t(st.write_mask) << 35;
+			auto found = dx.stencil_states.find(key);
+			if (found != dx.stencil_states.end()) {
+				return found->second;
+			}
+			auto face = [](const bb::rhi::stencil_face& f) {
+				D3D11_DEPTH_STENCILOP_DESC out = {};
+				out.StencilFailOp      = D3D11_STENCIL_OP(int(f.fail) + 1); // The same order, from 1.
+				out.StencilDepthFailOp = D3D11_STENCIL_OP(int(f.depth_fail) + 1);
+				out.StencilPassOp      = D3D11_STENCIL_OP(int(f.pass) + 1);
+				out.StencilFunc        = D3D11_COMPARISON_FUNC(int(f.compare) + 1);
+				return out;
+			};
+			D3D11_DEPTH_STENCIL_DESC ds = {};
+			ds.DepthEnable              = dx.depth_test ? TRUE : FALSE;
+			ds.DepthWriteMask           = dx.depth_write ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+			ds.DepthFunc                = (desc.depth_compare == bb::rhi::compare::less) ? D3D11_COMPARISON_LESS : D3D11_COMPARISON_GREATER_EQUAL;
+			ds.StencilEnable            = TRUE;
+			ds.StencilReadMask          = st.read_mask;
+			ds.StencilWriteMask         = st.write_mask;
+			ds.FrontFace                = face(st.front);
+			ds.BackFace                 = face(st.back);
+			ID3D11DepthStencilState* made = nullptr;
+			check(dx.device->CreateDepthStencilState(&ds, &made), "CreateDepthStencilState (stencil)");
+			return dx.stencil_states[key] = made;
+		}
+
 		// Readies everything for a draw of the pipeline that is bound.
 		void apply_draw_state(bool indexed)
 		{
@@ -578,7 +621,11 @@ namespace bb::gfx {
 			static const float factor[4] = { 1, 1, 1, 1 };
 			c->OMSetBlendState(p->blend, factor, 0xFFFFFFFFu);
 			uint32_t ds = p->desc.depth ? ((dx.depth_test ? 1u : 0u) | (dx.depth_write ? 2u : 0u)) : 0u;
-			c->OMSetDepthStencilState(p->depth[ds], 0);
+			if (p->desc.depth && dx.pass_stencil && dx.stencil.enable) {
+				c->OMSetDepthStencilState(stencil_state_for(p->desc), dx.stencil.reference);
+			} else {
+				c->OMSetDepthStencilState(p->depth[ds], 0);
+			}
 			uint32_t rs = p->desc.depth ? uint32_t(dx.cull) : 0u;
 			c->RSSetState(p->raster[rs + (p->desc.wire ? 3 : 0)]);
 			if (p->desc.vertices != bb::rhi::vertex_layout::none) {
@@ -913,7 +960,7 @@ namespace bb::gfx {
 			img.recipe->samples = samples;
 			img.recipe->usage   = usage;
 			img.recipe->format  = format;
-			img.recipe->aspect  = (format == bb::rhi::format::d32f) ? 2 : 1;
+			img.recipe->aspect  = bb::rhi::is_depth(format) ? 2 : 1;
 			if (components) {
 				const bb::rhi::channel channels[4] = { components->r, components->g, components->b, components->a };
 				for (int i = 0; i < 4; i++) {
@@ -938,7 +985,7 @@ namespace bb::gfx {
 			image->mips      = mips;
 			image->layers    = layers;
 			image->samples   = samples;
-			image->depth     = (format == bb::rhi::format::d32f);
+			image->depth     = bb::rhi::is_depth(format);
 
 			D3D11_TEXTURE2D_DESC desc = {};
 			desc.Width                = width;
@@ -990,11 +1037,11 @@ namespace bb::gfx {
 			}
 			if (image->depth) {
 				D3D11_DEPTH_STENCIL_VIEW_DESC dd = {};
-				dd.Format                        = DXGI_FORMAT_D32_FLOAT;
+				dd.Format                        = info->target;
 				// A view of a multisampled texture has its own dimension, Direct3D refuses the other one (E_INVALIDARG).
 				dd.ViewDimension = (samples > 1) ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
 				check(dx.device->CreateDepthStencilView(image->texture, &dd, &whole->dsv), "CreateDepthStencilView");
-				dd.Flags = D3D11_DSV_READ_ONLY_DEPTH;
+				dd.Flags = D3D11_DSV_READ_ONLY_DEPTH; // The stencil stays writable.
 				check(dx.device->CreateDepthStencilView(image->texture, &dd, &whole->dsv_read), "CreateDepthStencilView (read only)");
 			} else if (!info->block) {
 				whole->rtv = make_rtv(image, info, 0, 0);
@@ -1666,6 +1713,8 @@ namespace bb::rhi::d3d11 {
 			dx.depth_view      = desc.has_depth ? view_of(desc.depth.view) : nullptr;
 			dx.depth_read_only = desc.has_depth && desc.depth.read_only;
 			dx.pass_depth      = desc.has_depth;
+			dx.pass_stencil    = dx.depth_view && dx.depth_view->image && bb::rhi::has_stencil(dx.depth_view->image->format);
+			dx.stencil         = bb::rhi::stencil_state();
 			dx.pass_w          = desc.width;
 			dx.pass_h          = desc.height;
 			dx.viewport        = { desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3], 0.0f, 1.0f };
@@ -1677,7 +1726,7 @@ namespace bb::rhi::d3d11 {
 				}
 			}
 			if (dx.depth_view && dx.depth_view->dsv && !dx.depth_read_only && (desc.depth.load == load_op::clear)) {
-				dx.context->ClearDepthStencilView(dx.depth_view->dsv, D3D11_CLEAR_DEPTH, desc.depth.clear[0], 0);
+				dx.context->ClearDepthStencilView(dx.depth_view->dsv, D3D11_CLEAR_DEPTH | (dx.pass_stencil ? D3D11_CLEAR_STENCIL : 0), desc.depth.clear[0], desc.stencil_clear);
 			}
 		}
 
@@ -1713,6 +1762,7 @@ namespace bb::rhi::d3d11 {
 		void set_cull(cull_mode mode) { dx.cull = mode; }
 		void set_depth_test(bool enable) { dx.depth_test = enable; }
 		void set_depth_write(bool enable) { dx.depth_write = enable; }
+		void set_stencil(const bb::rhi::stencil_state& state) { dx.stencil = state; }
 
 		void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
 		{
@@ -1729,6 +1779,79 @@ namespace bb::rhi::d3d11 {
 			}
 		}
 
+		// The states of the draws that clear a part of the depth or the stencil attachment, made when the first one is needed.
+		void make_clear_states()
+		{
+			if (dx.clear_blend) {
+				return;
+			}
+			D3D11_BLEND_DESC bd       = {};
+			bd.IndependentBlendEnable = TRUE;
+			for (auto& t : bd.RenderTarget) {
+				t.SrcBlend = t.SrcBlendAlpha = D3D11_BLEND_ONE;
+				t.DestBlend = t.DestBlendAlpha = D3D11_BLEND_ZERO;
+				t.BlendOp = t.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				t.RenderTargetWriteMask = 0;
+			}
+			check(dx.device->CreateBlendState(&bd, &dx.clear_blend), "CreateBlendState (depth clear)");
+			D3D11_DEPTH_STENCIL_DESC ds = {};
+			ds.DepthEnable    = TRUE;
+			ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			ds.DepthFunc      = D3D11_COMPARISON_ALWAYS;
+			check(dx.device->CreateDepthStencilState(&ds, &dx.clear_depth_state), "CreateDepthStencilState (depth clear)");
+			// The stencil clear writes the reference (the value) to every stencil it covers, and leaves the depth.
+			D3D11_DEPTH_STENCIL_DESC ss = {};
+			ss.DepthEnable              = FALSE;
+			ss.DepthWriteMask           = D3D11_DEPTH_WRITE_MASK_ZERO;
+			ss.DepthFunc                = D3D11_COMPARISON_ALWAYS;
+			ss.StencilEnable            = TRUE;
+			ss.StencilReadMask          = 0xFF;
+			ss.StencilWriteMask         = 0xFF;
+			ss.FrontFace.StencilFailOp = ss.FrontFace.StencilDepthFailOp = ss.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+			ss.FrontFace.StencilFunc    = D3D11_COMPARISON_ALWAYS;
+			ss.BackFace                 = ss.FrontFace;
+			check(dx.device->CreateDepthStencilState(&ss, &dx.clear_stencil_state), "CreateDepthStencilState (stencil clear)");
+			D3D11_RASTERIZER_DESC rs = {};
+			rs.FillMode        = D3D11_FILL_SOLID;
+			rs.CullMode        = D3D11_CULL_NONE;
+			rs.DepthClipEnable = FALSE;
+			rs.ScissorEnable   = TRUE;
+			check(dx.device->CreateRasterizerState(&rs, &dx.clear_raster), "CreateRasterizerState (depth clear)");
+		}
+
+		// A part of the depth attachment: ClearDepthStencilView takes no rectangle, and CopySubresourceRegion may not copy a part of a depth image, so it is drawn:
+		// a triangle over the pass with the fullscreen vertex shader (which writes depth 0 at every vertex), no pixel shader and no color written, with the depth
+		// and stencil state given. The viewport maps that 0 to the depth (MinDepth = MaxDepth = depth), and the scissor is the rectangle. What a draw sets again
+		// is not restored here, only the viewport and scissor of the tape.
+		void clear_part(ID3D11DepthStencilState* state, UINT reference, float depth, int32_t x, int32_t y, int32_t w, int32_t h)
+		{
+			ID3D11DeviceContext* c = dx.context;
+			make_clear_states();
+			ID3D11DepthStencilView* dsv = dx.depth_view->dsv;
+			ID3D11RenderTargetView* rtvs[4] = {};
+			for (uint32_t i = 0; i < dx.color_count; i++) {
+				rtvs[i] = dx.colors[i] ? dx.colors[i]->rtv : nullptr;
+			}
+			c->OMSetRenderTargets(dx.color_count, rtvs, dsv); // The pass may have bound its depth read only.
+			D3D11_VIEWPORT viewport = dx.viewport;
+			viewport.MinDepth       = viewport.MaxDepth = depth;
+			D3D11_RECT rect         = { LONG(std::max<int32_t>(x, 0)), LONG(std::max<int32_t>(y, 0)), LONG(x + w), LONG(y + h) };
+			c->RSSetViewports(1, &viewport);
+			c->RSSetScissorRects(1, &rect);
+			c->VSSetShader(static_cast<ID3D11VertexShader*>(shader_object(shader_named("bb_shader_vertex_fullscreen"), stage_kind::vertex)), nullptr, 0);
+			c->PSSetShader(nullptr, nullptr, 0);
+			c->IASetInputLayout(nullptr);
+			c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			static const float factor[4] = { 1, 1, 1, 1 };
+			c->OMSetBlendState(dx.clear_blend, factor, 0xFFFFFFFFu);
+			c->OMSetDepthStencilState(state, reference);
+			c->RSSetState(dx.clear_raster);
+			c->Draw(3, 0);
+			c->RSSetViewports(1, &dx.viewport);
+			c->RSSetScissorRects(1, &dx.scissor);
+			apply_pass_state(); // The render targets of the pass again, with the depth as the pass has it (read only or not).
+		}
+
 		void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h)
 		{
 			if (!dx.depth_view || !dx.depth_view->dsv) {
@@ -1737,55 +1860,21 @@ namespace bb::rhi::d3d11 {
 			if ((x <= 0) && (y <= 0) && (uint32_t(x + w) >= dx.pass_w) && (uint32_t(y + h) >= dx.pass_h)) {
 				dx.context->ClearDepthStencilView(dx.depth_view->dsv, D3D11_CLEAR_DEPTH, depth, 0);
 			} else {
-				// A part of the depth attachment: ClearDepthStencilView takes no rectangle, and CopySubresourceRegion may not copy a part of a depth image, so it is drawn:
-				// a triangle over the pass with the fullscreen vertex shader (which writes depth 0 at every vertex), no pixel shader, the depth test always passing, depth writes on and no color written. The viewport
-				// maps that 0 to the clear value (MinDepth = MaxDepth = depth), and the scissor is the rectangle. What a draw sets again is not restored here, only the viewport and scissor of the tape.
-				ID3D11DeviceContext* c = dx.context;
-				if (!dx.clear_blend) {
-					D3D11_BLEND_DESC bd       = {};
-					bd.IndependentBlendEnable = TRUE;
-					for (auto& t : bd.RenderTarget) {
-						t.SrcBlend = t.SrcBlendAlpha = D3D11_BLEND_ONE;
-						t.DestBlend = t.DestBlendAlpha = D3D11_BLEND_ZERO;
-						t.BlendOp = t.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-						t.RenderTargetWriteMask = 0;
-					}
-					check(dx.device->CreateBlendState(&bd, &dx.clear_blend), "CreateBlendState (depth clear)");
-					D3D11_DEPTH_STENCIL_DESC ds = {};
-					ds.DepthEnable    = TRUE;
-					ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-					ds.DepthFunc      = D3D11_COMPARISON_ALWAYS;
-					check(dx.device->CreateDepthStencilState(&ds, &dx.clear_depth_state), "CreateDepthStencilState (depth clear)");
-					D3D11_RASTERIZER_DESC rs = {};
-					rs.FillMode        = D3D11_FILL_SOLID;
-					rs.CullMode        = D3D11_CULL_NONE;
-					rs.DepthClipEnable = FALSE;
-					rs.ScissorEnable   = TRUE;
-					check(dx.device->CreateRasterizerState(&rs, &dx.clear_raster), "CreateRasterizerState (depth clear)");
-				}
-				ID3D11DepthStencilView* dsv = dx.depth_view->dsv;
-				ID3D11RenderTargetView* rtvs[4] = {};
-				for (uint32_t i = 0; i < dx.color_count; i++) {
-					rtvs[i] = dx.colors[i] ? dx.colors[i]->rtv : nullptr;
-				}
-				c->OMSetRenderTargets(dx.color_count, rtvs, dsv); // The pass may have bound its depth read only.
-				D3D11_VIEWPORT viewport = dx.viewport;
-				viewport.MinDepth       = viewport.MaxDepth = depth;
-				D3D11_RECT rect         = { LONG(std::max<int32_t>(x, 0)), LONG(std::max<int32_t>(y, 0)), LONG(x + w), LONG(y + h) };
-				c->RSSetViewports(1, &viewport);
-				c->RSSetScissorRects(1, &rect);
-				c->VSSetShader(static_cast<ID3D11VertexShader*>(shader_object(shader_named("bb_shader_vertex_fullscreen"), stage_kind::vertex)), nullptr, 0);
-				c->PSSetShader(nullptr, nullptr, 0);
-				c->IASetInputLayout(nullptr);
-				c->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				static const float factor[4] = { 1, 1, 1, 1 };
-				c->OMSetBlendState(dx.clear_blend, factor, 0xFFFFFFFFu);
-				c->OMSetDepthStencilState(dx.clear_depth_state, 0);
-				c->RSSetState(dx.clear_raster);
-				c->Draw(3, 0);
-				c->RSSetViewports(1, &dx.viewport);
-				c->RSSetScissorRects(1, &dx.scissor);
-				apply_pass_state(); // The render targets of the pass again, with the depth as the pass has it (read only or not).
+				make_clear_states();
+				clear_part(dx.clear_depth_state, 0, depth, x, y, w, h);
+			}
+		}
+
+		void clear_stencil(uint8_t value, int32_t x, int32_t y, int32_t w, int32_t h)
+		{
+			if (!dx.pass_stencil || !dx.depth_view->dsv) {
+				return;
+			}
+			if ((x <= 0) && (y <= 0) && (uint32_t(x + w) >= dx.pass_w) && (uint32_t(y + h) >= dx.pass_h)) {
+				dx.context->ClearDepthStencilView(dx.depth_view->dsv, D3D11_CLEAR_STENCIL, 0.0f, value);
+			} else {
+				make_clear_states();
+				clear_part(dx.clear_stencil_state, value, 0.0f, x, y, w, h);
 			}
 		}
 
@@ -2084,6 +2173,8 @@ namespace bb::rhi::d3d11 {
 	void set_cull(cull_mode mode) { record([=] { direct::set_cull(mode); }); }
 	void set_depth_test(bool enable) { record([=] { direct::set_depth_test(enable); }); }
 	void set_depth_write(bool enable) { record([=] { direct::set_depth_write(enable); }); }
+	void set_stencil(const stencil_state& state) { record([=] { direct::set_stencil(state); }); }
+	format depth_stencil_format() { return format::d32f_s8; } // Every Direct3D 11 device has it.
 
 	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
 	{
@@ -2092,6 +2183,7 @@ namespace bb::rhi::d3d11 {
 	}
 
 	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h) { record([=] { direct::clear_depth(depth, x, y, w, h); }); }
+	void clear_stencil(uint8_t value, int32_t x, int32_t y, int32_t w, int32_t h) { record([=] { direct::clear_stencil(value, x, y, w, h); }); }
 	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance) { record([=] { direct::draw(vertices, instances, first_vertex, first_instance); }); }
 	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance) { record([=] { direct::draw_indexed(indices, instances, first_index, base_vertex, first_instance); }); }
 	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride) { record([=] { direct::draw_indexed_indirect(buffer, offset, count, stride); }); }
@@ -2614,7 +2706,7 @@ namespace bb::rhi::d3d11 {
 	bool format_fits_buffers(format f)
 	{
 		const format_info* info = info_of(f);
-		return info && info->supported && !info->block && (f != format::d32f);
+		return info && info->supported && !info->block && !is_depth(f);
 	}
 
 	void forget_backend_state()
@@ -2690,6 +2782,11 @@ namespace bb::rhi::d3d11 {
 		if (free) {
 			release(dx.clear_blend);
 			release(dx.clear_depth_state);
+			release(dx.clear_stencil_state);
+			for (auto& state : dx.stencil_states) {
+				release(state.second);
+			}
+			dx.stencil_states.clear();
 			release(dx.clear_raster);
 			release(dx.push_buffer);
 			release(dx.ramp);

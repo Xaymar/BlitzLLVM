@@ -46,7 +46,7 @@
 
 // The functions of OpenGL that are used, loaded from the context (nothing links to the OpenGL library). gl::Name is glName.
 #define BB_GL_FUNCTIONS(X) \
-	X(GetString) X(GetStringi) X(GetIntegerv) X(GetFloatv) X(Enable) X(Disable) X(Enablei) X(Disablei) X(ViewportIndexedf) X(Scissor) X(ClearBufferfv) \
+	X(GetString) X(GetStringi) X(GetIntegerv) X(GetFloatv) X(Enable) X(Disable) X(Enablei) X(Disablei) X(ViewportIndexedf) X(Scissor) X(ClearBufferfv) X(ClearBufferiv) \
 	X(ColorMaski) X(DepthMask) X(DepthFunc) X(CullFace) X(FrontFace) X(PolygonMode) X(BlendFuncSeparatei) X(Finish) X(Flush) X(PixelStorei) X(ReadPixels) \
 	X(DrawBuffers) X(ClipControl) X(GenTextures) X(DeleteTextures) X(BindTexture) X(ActiveTexture) X(TexStorage2D) X(TexStorage3D) X(TexStorage2DMultisample) \
 	X(TexSubImage2D) X(TexSubImage3D) X(CompressedTexSubImage2D) X(CompressedTexSubImage3D) X(GetCompressedTexImage) X(TexParameteri) X(TexParameteriv) \
@@ -58,7 +58,8 @@
 	X(GetProgramResourceName) X(UniformBlockBinding) X(ShaderStorageBlockBinding) X(GetActiveUniformBlockName) X(GenVertexArrays) X(DeleteVertexArrays) \
 	X(BindVertexArray) X(EnableVertexAttribArray) X(VertexAttribFormat) X(VertexAttribBinding) X(BindVertexBuffer) X(DrawArraysInstancedBaseInstance) \
 	X(DrawElementsInstancedBaseVertexBaseInstance) X(MultiDrawElementsIndirect) X(DispatchCompute) X(MemoryBarrier) X(GenQueries) X(DeleteQueries) \
-	X(QueryCounter) X(GetQueryObjectui64v) X(GetQueryObjectiv) X(FenceSync) X(ClientWaitSync) X(DeleteSync) X(DebugMessageCallback) X(ProvokingVertex)
+	X(QueryCounter) X(GetQueryObjectui64v) X(GetQueryObjectiv) X(FenceSync) X(ClientWaitSync) X(DeleteSync) X(DebugMessageCallback) X(ProvokingVertex) \
+	X(StencilFuncSeparate) X(StencilOpSeparate) X(StencilMask)
 
 namespace gl {
 #define BB_GL_DECLARE(name) static decltype(&::gl##name) name = nullptr;
@@ -78,6 +79,22 @@ namespace gl {
 #endif
 #ifndef GL_CLIP_DISTANCE0
 #define GL_CLIP_DISTANCE0 0x3000
+#endif
+#ifndef GL_DEPTH32F_STENCIL8
+#define GL_DEPTH32F_STENCIL8 0x8CAD
+#define GL_FLOAT_32_UNSIGNED_INT_24_8_REV 0x8DAD
+#endif
+#ifndef GL_DEPTH_STENCIL
+#define GL_DEPTH_STENCIL 0x84F9
+#define GL_UNSIGNED_INT_24_8 0x84FA
+#define GL_DEPTH24_STENCIL8 0x88F0
+#endif
+#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#endif
+#ifndef GL_INCR_WRAP
+#define GL_INCR_WRAP 0x8507
+#define GL_DECR_WRAP 0x8508
 #endif
 #ifndef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT
 #define GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT 0x8C4D
@@ -218,6 +235,8 @@ namespace bb::gfx {
 			bool               depth_test = true, depth_write = true;
 			int32_t            scissor[4] = {};
 			bool               pass_depth = false;
+			bool               pass_stencil = false; // The depth attachment of the pass has stencil.
+			bb::rhi::stencil_state stencil;
 
 			uint64_t  cmd   = 0; // Of the frame slot in use: a number that only says there is one, and its fence.
 			gl_fence* fence = nullptr;
@@ -315,6 +334,8 @@ namespace bb::gfx {
 			{ bb::rhi::format::r8, GL_R8, GL_RED, GL_UNSIGNED_BYTE, 1 },
 			{ bb::rhi::format::r32f, GL_R32F, GL_RED, GL_FLOAT, 4 },
 			{ bb::rhi::format::d32f, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 4 },
+			{ bb::rhi::format::d32f_s8, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 8 },
+			{ bb::rhi::format::d24s8, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 4 },
 			{ bb::rhi::format::r5g6b5, GL_RGB565, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 2 },
 			{ bb::rhi::format::a1r5g5b5, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, 2 },
 			{ bb::rhi::format::r5g5b5a1, GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 2 },
@@ -433,7 +454,25 @@ namespace bb::gfx {
 			}
 			gl::BindFramebuffer(framebuffer, (framebuffer == GL_READ_FRAMEBUFFER) ? glc.read_fbo : glc.draw_fbo);
 			attach(framebuffer, GL_COLOR_ATTACHMENT0, image->depth ? nullptr : image, mip, layer);
-			attach(framebuffer, GL_DEPTH_ATTACHMENT, image->depth ? image : nullptr, mip, layer);
+			attach(framebuffer, GL_DEPTH_STENCIL_ATTACHMENT, nullptr, mip, layer); // Nothing of a depth image with stencil that was attached before.
+			attach(framebuffer, (image->depth && bb::rhi::has_stencil(image->format)) ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, image->depth ? image : nullptr, mip, layer);
+		}
+
+		// The stencil of a 3D draw: the test and the operations in the order of OpenGL (GL_NEVER + the comparison), only in a pass with stencil.
+		void apply_stencil()
+		{
+			const bb::rhi::stencil_state& st = glc.stencil;
+			if (!glc.pass_stencil || !st.enable) {
+				gl::Disable(GL_STENCIL_TEST);
+				return;
+			}
+			static const GLenum ops[8] = { GL_KEEP, GL_ZERO, GL_REPLACE, GL_INCR, GL_DECR, GL_INVERT, GL_INCR_WRAP, GL_DECR_WRAP };
+			gl::Enable(GL_STENCIL_TEST);
+			gl::StencilFuncSeparate(GL_FRONT, GLenum(GL_NEVER + int(st.front.compare)), GLint(st.reference), st.read_mask);
+			gl::StencilFuncSeparate(GL_BACK, GLenum(GL_NEVER + int(st.back.compare)), GLint(st.reference), st.read_mask);
+			gl::StencilOpSeparate(GL_FRONT, ops[int(st.front.fail)], ops[int(st.front.depth_fail)], ops[int(st.front.pass)]);
+			gl::StencilOpSeparate(GL_BACK, ops[int(st.back.fail)], ops[int(st.back.depth_fail)], ops[int(st.back.pass)]);
+			gl::StencilMask(st.write_mask);
 		}
 
 		// The state of the pipeline that is bound, set again after something changed it for a clear or a copy.
@@ -472,10 +511,12 @@ namespace bb::gfx {
 					gl::Enable(GL_CULL_FACE);
 					gl::CullFace((glc.cull == bb::rhi::cull_mode::front) ? GL_FRONT : GL_BACK);
 				}
+				apply_stencil();
 			} else {
 				gl::Disable(GL_DEPTH_TEST);
 				gl::DepthMask(GL_FALSE);
 				gl::Disable(GL_CULL_FACE);
+				gl::Disable(GL_STENCIL_TEST);
 			}
 		}
 
@@ -493,6 +534,19 @@ namespace bb::gfx {
 				gl::DepthMask(GL_TRUE);
 			}
 			gl::ClearBufferfv(buffer, index, value);
+			apply_state();
+		}
+
+		void clear_stencil_attachment(uint8_t value, const int32_t* rect)
+		{
+			if (rect) {
+				gl::Scissor(rect[0], rect[1], rect[2], rect[3]);
+			} else {
+				gl::Disable(GL_SCISSOR_TEST);
+			}
+			gl::StencilMask(0xFF);
+			GLint stencil = value;
+			gl::ClearBufferiv(GL_STENCIL, 0, &stencil);
 			apply_state();
 		}
 
@@ -805,7 +859,7 @@ namespace bb::gfx {
 			img.recipe->samples = samples;
 			img.recipe->usage   = usage;
 			img.recipe->format  = format;
-			img.recipe->aspect  = (format == bb::rhi::format::d32f) ? 2 : 1;
+			img.recipe->aspect  = bb::rhi::is_depth(format) ? 2 : 1;
 			if (components) {
 				const bb::rhi::channel channels[4] = { components->r, components->g, components->b, components->a };
 				for (int i = 0; i < 4; i++) {
@@ -822,7 +876,7 @@ namespace bb::gfx {
 			image->mips     = mips;
 			image->layers   = layers;
 			image->samples  = samples;
-			image->depth    = (format == bb::rhi::format::d32f);
+			image->depth    = bb::rhi::is_depth(format);
 			image->target   = (samples > 1) ? GL_TEXTURE_2D_MULTISAMPLE : (image->depth ? GL_TEXTURE_2D : GL_TEXTURE_2D_ARRAY);
 			gl::GenTextures(1, &image->texture);
 			gl::ActiveTexture(GL_TEXTURE0 + scratch_unit);
@@ -1291,12 +1345,14 @@ namespace bb::rhi::opengl {
 				buffers[i] = views[i] ? buffers[i] : GL_NONE;
 			}
 			if (views[4]) {
-				attach(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, views[4]->image, 0, views[4]->layer);
+				attach(GL_DRAW_FRAMEBUFFER, bb::rhi::has_stencil(views[4]->image->format) ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, views[4]->image, 0, views[4]->layer);
 			}
 			gl::DrawBuffers(GLsizei(desc.color_count), buffers);
 			glc.framebuffers.push_back(wanted);
 		}
-		glc.pass_depth = desc.has_depth;
+		glc.pass_depth   = desc.has_depth;
+		glc.pass_stencil = views[4] && bb::rhi::has_stencil(views[4]->image->format);
+		glc.stencil      = bb::rhi::stencil_state();
 		set_viewport(desc.viewport[0], desc.viewport[1], desc.viewport[2], desc.viewport[3]);
 		set_scissor(desc.scissor[0], desc.scissor[1], desc.scissor[2], desc.scissor[3]);
 		for (uint32_t i = 0; i < desc.color_count; i++) {
@@ -1306,6 +1362,9 @@ namespace bb::rhi::opengl {
 		}
 		if (views[4] && (desc.depth.load == load_op::clear)) {
 			clear_attachment(GL_DEPTH, 0, desc.depth.clear, nullptr);
+			if (glc.pass_stencil) {
+				clear_stencil_attachment(desc.stencil_clear, nullptr);
+			}
 		}
 		apply_state();
 	}
@@ -1365,6 +1424,20 @@ namespace bb::rhi::opengl {
 	{
 		glc.depth_write = enable;
 		apply_state();
+	}
+
+	void set_stencil(const stencil_state& state)
+	{
+		glc.stencil = state;
+		apply_state();
+	}
+
+	void clear_stencil(uint8_t value, int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		if (glc.pass_stencil) {
+			const int32_t rect[4] = { x, y, w, h };
+			clear_stencil_attachment(value, rect);
+		}
 	}
 
 	void clear_color(const float rgba[4], int32_t x, int32_t y, int32_t w, int32_t h)
@@ -1641,6 +1714,21 @@ namespace bb::rhi::opengl {
 	void clear_depth(float depth, int32_t x, int32_t y, int32_t w, int32_t h)
 	{
 		record([=] { direct::clear_depth(depth, x, y, w, h); });
+	}
+
+	void set_stencil(const stencil_state& state)
+	{
+		record([=] { direct::set_stencil(state); });
+	}
+
+	void clear_stencil(uint8_t value, int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+		record([=] { direct::clear_stencil(value, x, y, w, h); });
+	}
+
+	format depth_stencil_format()
+	{
+		return format::d32f_s8; // Required by OpenGL 3.0 and later.
 	}
 
 	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
@@ -2153,7 +2241,7 @@ namespace bb::rhi::opengl {
 	bool format_fits_buffers(format f)
 	{
 		const format_info* info = info_of(f);
-		return info && (info->type != 0) && (f != format::d32f);
+		return info && (info->type != 0) && !is_depth(f);
 	}
 
 	void forget_backend_state()

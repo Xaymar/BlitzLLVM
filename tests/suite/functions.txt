@@ -93,6 +93,9 @@ setcameraclipplane	blitz3d	done	SetCameraClipPlane%camera%index#a#b#c#d
 getcameraclipplane	blitz3d	done	@GetCameraClipPlane%camera%index
 setcameraclipplaneenabled	blitz3d	done	SetCameraClipPlaneEnabled%camera%index%enabled
 getcameraclipplaneenabled	blitz3d	done	%GetCameraClipPlaneEnabled%camera%index
+setcamerastencil	blitz3d	done	SetCameraStencil%camera%enabled
+getcamerastencil	blitz3d	done	%GetCameraStencil%camera
+setcamerastencilclear	blitz3d	done	SetCameraStencilClear%camera%clear%value=0
 cameraprojmode	blitz3d	done	CameraProjMode%camera%mode
 camerarange	blitz3d	done	CameraRange%camera#near#far
 cameraviewport	blitz3d	done	CameraViewport%camera%x%y%width%height
@@ -163,6 +166,8 @@ entitylighting	blitz3d	done	EntityLighting%entity%mode
 entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
 entityname	blitz3d	done	$EntityName%entity
 entityorder	blitz3d	done	EntityOrder%entity%order
+setentitystencil	blitz3d	done	SetEntityStencil%entity%compare%reference=0%read_mask=255%write_mask=255%fail=0%depth_fail=0%pass=0
+setentitystencilback	blitz3d	done	SetEntityStencilBack%entity%compare%fail=0%depth_fail=0%pass=0
 entitystatic	blitz3d	done	EntityStatic%entity%is_static
 entityparent	blitz3d	done	EntityParent%entity%parent%global=1
 entitypick	blitz3d	done	%EntityPick%entity#range

@@ -847,6 +847,58 @@ void bb_entity_order(int32_t handle, int32_t order)
 	need(handle, "EntityOrder")->order = order;
 }
 
+// The numbers of the stencil commands: a comparison (0 never, 1 less, 2 equal, 3 less or equal, 4 greater, 5 not equal, 6 greater or equal,
+// 7 always) or an operation (0 keep, 1 zero, 2 replace, 3 increment, 4 decrement, 5 invert, 6 increment and wrap, 7 decrement and wrap).
+static uint8_t stencil_code(int32_t value, const char* what, const char* name)
+{
+	if ((value < 0) || (value > 7)) {
+		char message[128];
+		snprintf(message, sizeof(message), "%s: the %s has to be 0 to 7, not %d.", what, name, int(value));
+		bb_runtime_error(message);
+	}
+	return uint8_t(value);
+}
+
+static uint8_t stencil_byte(int32_t value, const char* what, const char* name)
+{
+	if ((value < 0) || (value > 255)) {
+		char message[128];
+		snprintf(message, sizeof(message), "%s: the %s has to be 0 to 255, not %d.", what, name, int(value));
+		bb_runtime_error(message);
+	}
+	return uint8_t(value);
+}
+
+// SetEntityStencil entity, compare, reference, read_mask, write_mask, fail, depth_fail, pass: the stencil test of the entity, for cameras with
+// SetCameraStencil. A pixel of it is drawn when (reference & read_mask) compares as asked with (stencil & read_mask); then the stencil gets
+// the operation of fail (the test failed), depth_fail (it passed, the depth test did not) or pass, in the bits of write_mask. It is for both
+// sides of the triangles; SetEntityStencilBack gives the back faces their own. Compare 7 (always) with every operation 0 (keep), the default,
+// is no stencil. A BlitzLLVM extension.
+void bb_set_entity_stencil(int32_t handle, int32_t compare, int32_t reference, int32_t read_mask, int32_t write_mask, int32_t fail, int32_t depth_fail, int32_t pass)
+{
+	const char* what = "SetEntityStencil";
+	entity*     e    = need(handle, what);
+	e->stencil_compare[0] = e->stencil_compare[1] = stencil_code(compare, what, "comparison");
+	e->stencil_fail[0] = e->stencil_fail[1] = stencil_code(fail, what, "fail operation");
+	e->stencil_depth_fail[0] = e->stencil_depth_fail[1] = stencil_code(depth_fail, what, "depth fail operation");
+	e->stencil_pass[0] = e->stencil_pass[1] = stencil_code(pass, what, "pass operation");
+	e->stencil_reference  = stencil_byte(reference, what, "reference");
+	e->stencil_read_mask  = stencil_byte(read_mask, what, "read mask");
+	e->stencil_write_mask = stencil_byte(write_mask, what, "write mask");
+}
+
+// SetEntityStencilBack entity, compare, fail, depth_fail, pass: the test and the operations for the back faces of the entity (those that
+// face away from the camera, drawn when the entity has EntityFX 16), after SetEntityStencil, which sets both. For shadow volumes and the like.
+void bb_set_entity_stencil_back(int32_t handle, int32_t compare, int32_t fail, int32_t depth_fail, int32_t pass)
+{
+	const char* what = "SetEntityStencilBack";
+	entity*     e    = need(handle, what);
+	e->stencil_compare[1]    = stencil_code(compare, what, "comparison");
+	e->stencil_fail[1]       = stencil_code(fail, what, "fail operation");
+	e->stencil_depth_fail[1] = stencil_code(depth_fail, what, "depth fail operation");
+	e->stencil_pass[1]       = stencil_code(pass, what, "pass operation");
+}
+
 void bb_entity_static(int32_t handle, int32_t is_static)
 {
 	need(handle, "EntityStatic")->static_mode = (is_static > 0) - (is_static < 0);

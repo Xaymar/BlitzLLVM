@@ -446,6 +446,10 @@ namespace bb::gfx {
 	}
 
 	/** A pipeline of the order independent transparency passes: it draws to its own images, so it has one version only. The shader can be destroyed once this is made. */
+	// The fragment shaders of the pipelines for order-independent transparency stay until destroy_pipelines_3d: the versions of the pipelines for a
+	// pass with stencil (SetCameraStencil) are made from them when they are first needed.
+	static std::vector<bb::rhi::shader> kept_oit_shaders;
+
 	static bb::rhi::pipeline create_oit_pipeline_3d(bb::rhi::shader vs, bb::rhi::shader fs, int mode, bb::rhi::format target, int oit)
 	{
 		bb::rhi::pipeline pipeline = bb::rhi::create_pipeline([=](bb::rhi::format) { return describe_3d(vs, fs, mode, false, target, oit, true); });
@@ -974,25 +978,25 @@ namespace bb::gfx {
 				for (int mode = 1; mode <= 4; mode++) {
 					g.oit3dm[mode - 1] = create_oit_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, bb::rhi::format::rgba8, 3);
 				}
-				destroy_shader(fs_moments);
-				destroy_shader(fs_color);
+				kept_oit_shaders.push_back(fs_moments);
+				kept_oit_shaders.push_back(fs_color);
 			} else {
 				for (int mode = 1; mode <= 4; mode++) {
 					g.oit3d[mode - 1] = create_oit_pipeline_3d(vs, fs_oit, mode, bb::rhi::format::rgba8, 1);
 				}
 			}
-			destroy_shader(fs_oit);
+			kept_oit_shaders.push_back(fs_oit);
 		}
 		if (oit_slots()) {
 			// The alpha-blended things go to the slots, the multiplied and added ones to the sums as before.
 			bb::rhi::shader fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
 			g.oit_slots3d = create_oit_pipeline_3d(vs, fs_slots, 1, bb::rhi::format::rgba16f, 4);
-			destroy_shader(fs_slots);
+			kept_oit_shaders.push_back(fs_slots);
 		}
 		if (oit_peel()) {
 			bb::rhi::shader fs_peel = create_shader(bb_shader_fragment_3d_oit_peel, sizeof(bb_shader_fragment_3d_oit_peel));
 			g.oit_peel3d = create_oit_pipeline_3d(vs, fs_peel, 1, bb::rhi::format::rgba16f, 5);
-			destroy_shader(fs_peel);
+			kept_oit_shaders.push_back(fs_peel);
 		}
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
@@ -1007,6 +1011,7 @@ namespace bb::gfx {
 	{
 		layered_pipelines.clear();
 		layered_sources.clear();
+		kept_oit_shaders.clear();
 	}
 
 	void destroy_pipelines_3d()
@@ -1020,6 +1025,10 @@ namespace bb::gfx {
 			modules.insert(source.second.vs);
 			modules.insert(source.second.fs);
 		}
+		for (bb::rhi::shader module : kept_oit_shaders) {
+			modules.insert(module);
+		}
+		kept_oit_shaders.clear();
 		for (bb::rhi::shader module : modules) {
 			destroy_shader(module);
 		}
@@ -1081,6 +1090,42 @@ namespace bb::gfx {
 			}
 		}
 		fail("Too many different sizes of things are drawn to in 3D.");
+	}
+
+	void want_stencil_depth(uint32_t width, uint32_t height)
+	{
+		const bb::rhi::format format = bb::rhi::depth_stencil_format();
+		for (uint32_t i = 0; i < max_depths; i++) {
+			gpu_image& depth = depth_cache[i];
+			if (depth.image && (depth.width == width) && (depth.height == height)) {
+				if (bb::rhi::has_stencil(depth.format)) {
+					return;
+				}
+				// The depth buffer of this size has no stencil: what waits is drawn with it, and it is made again with stencil, once, for
+				// every camera of this size (they share it, so a camera that does not clear the depth still sees what the one before drew).
+				flush();
+				wait_gpu();
+				destroy_image(depth);
+				depth = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, format);
+				if (depth_sets[i]) {
+					bb::rhi::set_group_image(depth_sets[i], 0, uint64_t(depth.view), g.sampler_clamp, true);
+				}
+				return;
+			}
+		}
+		for (uint32_t i = 0; i < max_depths; i++) {
+			if (!depth_cache[i].image) {
+				depth_cache[i] = create_image(width, height, bb::rhi::image_depth_target | bb::rhi::image_sampled, format);
+				return;
+			}
+		}
+		fail("Too many different sizes of things are drawn to in 3D.");
+	}
+
+	// The view that a pass draws to a depth buffer through: one of both depth and stencil, where the backend has a view of the depth alone for sampling.
+	static uint64_t depth_target_view(gpu_image const& depth)
+	{
+		return depth.target_view ? uint64_t(depth.target_view) : uint64_t(depth.view);
 	}
 
 	bb::buffer<draw_record>  draws;
@@ -1147,7 +1192,7 @@ namespace bb::gfx {
 	static bool same_draw_state(draw_record const& a, draw_record const& b)
 	{
 		return !a.cluster_count && !b.cluster_count && (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
-			&& (a.texture_set == b.texture_set) && (a.layer_group == b.layer_group) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write) && (a.oit == b.oit);
+			&& (a.texture_set == b.texture_set) && (a.layer_group == b.layer_group) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write) && (a.oit == b.oit) && (a.stencil == b.stencil);
 	}
 
 	// Copies the faces of a cube map into its sheet, where 3D samples them from.
@@ -1365,7 +1410,7 @@ namespace bb::gfx {
 
 		// The depth is shared by the passes of the scene: its state (loaded or cleared, read only) follows what has happened so far.
 		bb::rhi::pass_attachment depth;
-		depth.view     = uint64_t(depth_image.view);
+		depth.view     = depth_target_view(depth_image);
 		depth.load     = fresh_depth ? bb::rhi::load_op::clear : bb::rhi::load_op::load;
 		depth.clear[0] = 0.0f;
 
@@ -1373,6 +1418,7 @@ namespace bb::gfx {
 		info.colors[0].view = uint64_t(target_view_of(*target.image, target.layer));
 		info.color_count    = 1;
 		info.has_depth      = true;
+		info.stencil_clear  = scene.stencil_value;
 		info.width          = target.image->width;
 		info.height         = target.image->height;
 		info.viewport[0]    = viewport.x;
@@ -1383,9 +1429,18 @@ namespace bb::gfx {
 		info.scissor[1]     = scene.y;
 		info.scissor[2]     = scene.w;
 		info.scissor[3]     = scene.h;
+		// The stencil state that the backend has: every pass starts without one.
+		bb::rhi::stencil_state bound_stencil;
+		auto use_stencil = [&](bb::rhi::stencil_state const& wanted) {
+			if (wanted != bound_stencil) {
+				bb::rhi::set_stencil(wanted);
+				bound_stencil = wanted;
+			}
+		};
 		auto begin_shared = [&](bb::rhi::pass_desc desc) {
 			desc.depth = depth;
 			bb::rhi::begin_pass(desc);
+			bound_stencil = bb::rhi::stencil_state();
 		};
 		begin_shared(info);
 
@@ -1403,6 +1458,9 @@ namespace bb::gfx {
 		}
 		if (scene.clear_depth) {
 			bb::rhi::clear_depth(0.0f, scene.x, scene.y, scene.w, scene.h);
+		}
+		if (scene.stencil && scene.clear_stencil) {
+			bb::rhi::clear_stencil(scene.stencil_value, scene.x, scene.y, scene.w, scene.h);
 		}
 
 		uint32_t scene_offset = scene.slot * scene_stride;
@@ -1528,6 +1586,7 @@ namespace bb::gfx {
 					bb::rhi::set_depth_write(write);
 					bound_write = write;
 				}
+				use_stencil(bb::rhi::stencil_state()); // Entities with stencil are not in the table of the GPU.
 				texture_entry*  tex = texture_of(k.texture);
 				bb::rhi::binding_group set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
 				if (set != bound_set) {
@@ -1799,6 +1858,7 @@ namespace bb::gfx {
 				bb::rhi::set_depth_write(write);
 				bound_write = write;
 			}
+			use_stencil(d.stencil);
 			bb::rhi::binding_group set = set_for_draw(d.texture, d.layer_group);
 			if (set != bound_set) {
 				bb::rhi::bind_group(g.layout3d, 0, set);
@@ -2213,10 +2273,11 @@ namespace bb::gfx {
 			uintptr_t texture_set;
 			uint32_t  layer_group;
 			bool      cull, depth_write;
+			bb::rhi::stencil_state stencil;
 			bool operator==(state_key const& o) const
 			{
 				return (pipeline == o.pipeline) && (vertex_buffer == o.vertex_buffer) && (index_buffer == o.index_buffer) && (index_count == o.index_count)
-					&& (texture_set == o.texture_set) && (layer_group == o.layer_group) && (cull == o.cull) && (depth_write == o.depth_write);
+					&& (texture_set == o.texture_set) && (layer_group == o.layer_group) && (cull == o.cull) && (depth_write == o.depth_write) && (stencil == o.stencil);
 			}
 		};
 		struct state_hash {
@@ -2238,7 +2299,7 @@ namespace bb::gfx {
 				h        = mix(h, k.index_count);
 				h        = mix(h, k.texture_set);
 				h        = mix(h, k.layer_group);
-				return mix(h, (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0));
+				return mix(h, (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0) + (k.stencil.enable ? 4 : 0));
 			}
 		};
 		std::unordered_map<state_key, int, state_hash> states;
@@ -2251,7 +2312,7 @@ namespace bb::gfx {
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state_key k = { uintptr_t(d.pipeline.id), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write };
+			state_key k = { uintptr_t(d.pipeline.id), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.layer_group, d.cull, d.depth_write, d.stencil };
 			// The same few states come again and again, so the last ones are looked at before the table is.
 			int found = -1;
 			for (int r = 0; r < recent_count; r++) {
@@ -2326,7 +2387,7 @@ namespace bb::gfx {
 	// What is solid does not depend on the order it is drawn in, so the draws that are the same in what the GPU has to be
 	// told are put next to each other, which makes the calls and changes of state fewer. A surface and the layers that are
 	// drawn over it stay together, in the order they were in.
-	static void group_draws(uint32_t first, uint32_t last)
+	static void group_draws_between(uint32_t first, uint32_t last)
 	{
 		if (last - first < 2) {
 			return;
@@ -2355,11 +2416,65 @@ namespace bb::gfx {
 		}
 	}
 
+	// Draws with stencil depend on the order they are drawn in (one marks the stencil, the next tests it), so they stay where they were, and
+	// only the runs of draws between them are grouped.
+	static void group_draws(uint32_t first, uint32_t last)
+	{
+		uint32_t run = first;
+		for (uint32_t i = first; i < last; i++) {
+			if (draws[i].unit_start && draws[i].stencil.enable) {
+				group_draws_between(run, i);
+				uint32_t next = i + 1;
+				while ((next < last) && !draws[next].unit_start) {
+					next++;
+				}
+				run = next;
+				i   = next - 1;
+			}
+		}
+		group_draws_between(run, last);
+	}
+
 	// A sprite that covers fewer pixels than this keeps the square: two big triangles fill the 8x8 or so pixel blocks that the GPU works
 	// in better than six small ones, and the edges of an octagon are not worth it, nor are the faint halos it would cut off.
 	constexpr float sprite_hull_min_pixels = 128.0f;
 
 	static bool  current_reflected;  // Whether the camera is the mirrored one of a mirror, which turns the other way around.
+	static bool  current_stencil;    // Whether the camera has stencil (SetCameraStencil), which the stencil of the entities needs.
+
+	// The stencil of an entity as the backend wants it, for the camera that draws: none if the camera has no stencil or the entity asked for none.
+	// Seen in a mirror the triangles turn around, so the front faces are the ones that were the back ones.
+	static bb::rhi::stencil_state entity_stencil(bb::entity const& e)
+	{
+		bb::rhi::stencil_state st;
+		bb::rhi::stencil_face  faces[2];
+		bool                   used = false;
+		for (int i = 0; i < 2; i++) {
+			faces[i].compare    = bb::rhi::stencil_compare(e.stencil_compare[i] & 7);
+			faces[i].fail       = bb::rhi::stencil_op(e.stencil_fail[i] & 7);
+			faces[i].depth_fail = bb::rhi::stencil_op(e.stencil_depth_fail[i] & 7);
+			faces[i].pass       = bb::rhi::stencil_op(e.stencil_pass[i] & 7);
+			used                = used || (faces[i] != bb::rhi::stencil_face());
+		}
+		if (!current_stencil || !used) {
+			return st;
+		}
+		st.enable     = true;
+		st.front      = faces[current_reflected ? 1 : 0];
+		st.back       = faces[current_reflected ? 0 : 1];
+		st.reference  = e.stencil_reference;
+		st.read_mask  = e.stencil_read_mask;
+		st.write_mask = e.stencil_write_mask;
+		return st;
+	}
+
+	// The stencil of a draw that goes over another one of the same surface (a tint, the ambient light of a level): the same test, and nothing written again.
+	static bb::rhi::stencil_state stencil_test_only(bb::rhi::stencil_state st)
+	{
+		st.front.fail = st.front.depth_fail = st.front.pass = bb::rhi::stencil_op::keep;
+		st.back.fail = st.back.depth_fail = st.back.pass = bb::rhi::stencil_op::keep;
+		return st;
+	}
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
 
 	static scene_data* current_lights;      // The lights of the camera that is being collected for, relative to it.
@@ -3431,6 +3546,7 @@ namespace bb::gfx {
 			record.depth_test   = depth_test;
 			record.depth_write  = (!surface_blended && depth_test);
 			record.oit          = surface_blended && (pass != 2) && oit_active() && !(g.wireframe && g.wire3d[mode]);
+			record.stencil      = record.oit ? bb::rhi::stencil_state() : entity_stencil(*e); // The passes of order-independent transparency have no stencil.
 			record.depth        = item.depth;
 			record.unit_start   = true;
 			memcpy(record.screen, screen, sizeof(screen));
@@ -3506,6 +3622,7 @@ namespace bb::gfx {
 				tint.texture_set      = 0;
 				tint.pipeline         = g.mul3d;
 				tint.depth_write      = false;
+				tint.stencil          = stencil_test_only(tint.stencil);
 				tint.unit_start       = false;
 				tint.push_index = pushes.size;
 				pushes.push(tint_push);
@@ -3534,6 +3651,7 @@ namespace bb::gfx {
 				ambient.layer_group      = 0;
 				ambient.pipeline         = g.add3d;
 				ambient.depth_write      = false;
+				ambient.stencil          = stencil_test_only(ambient.stencil);
 				ambient.unit_start       = false;
 				ambient.push_index = pushes.size;
 				pushes.push(ambient_push);
@@ -3579,10 +3697,20 @@ namespace bb::gfx {
 
 	// Whether the draws of a mesh can be kept: only solid meshes that stand alone and are drawn the same way by every camera.
 	// EntityStatic -1 keeps a mesh out of the table. 1 does not make a mesh eligible that is not, because those can not be drawn from it.
+	static bool entity_has_stencil(bb::entity const& e)
+	{
+		for (int i = 0; i < 2; i++) {
+			if ((e.stencil_compare[i] != 7) || e.stencil_fail[i] || e.stencil_depth_fail[i] || e.stencil_pass[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	static bool static_eligible(bb::entity& e)
 	{
 		if ((e.static_mode < 0) || (e.kind != bb::MESH) || e.hidden || e.parent || e.captured || e.order || e.sprite_mode || e.plane_divs || e.terrain || e.cls || e.has_cull_box
-			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.alpha <= 0.001f) || (e.surfaces.size == 0)) {
+			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.alpha <= 0.001f) || (e.surfaces.size == 0) || entity_has_stencil(e)) {
 			return false;
 		}
 		if (!static_texture_ready(e.texture)) {
@@ -4167,7 +4295,7 @@ namespace bb::gfx {
 	static float          aa_vp[16];   // The view and projection of the camera without the jitter, and where it is.
 	static double         aa_origin[3];
 
-	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
+	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, bool clear_stencil, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
 		bool use_static = gpu_static::enabled && !reflected; // Seen in a mirror, everything is drawn the usual way.
 		if (use_static) {
@@ -4182,6 +4310,7 @@ namespace bb::gfx {
 		float proj[16];
 		memcpy(current_camera, cam_world, sizeof(float) * 16);
 		current_reflected = reflected;
+		current_stencil   = cam.cam_stencil;
 		camera_lens lens = lens_of(cam, float(vw), float(vh));
 		current_view[0] = lens.zoom;
 		current_view[1] = lens.far_plane;
@@ -4373,6 +4502,9 @@ namespace bb::gfx {
 		scene.draw_count  = draws.size - scene.first_draw;
 		scene.clear_color = clear_color;
 		scene.clear_depth = clear_depth;
+		scene.stencil       = cam.cam_stencil;
+		scene.clear_stencil = clear_stencil;
+		scene.stencil_value = cam.cam_stencil_value;
 		memcpy(scene.color, cam.cam_color, sizeof(scene.color));
 		scene.x = target.x + vx;
 		scene.y = target.y + vy;
@@ -4427,6 +4559,10 @@ namespace bb::gfx {
 		if (!target.image) {
 			return;
 		}
+		// A camera with stencil draws with a depth buffer that has it (made again with it the first time, before anything of this camera is recorded).
+		if (cam.cam_stencil) {
+			want_stencil_depth(target.image->width, target.image->height);
+		}
 
 		int vx, vy, vw, vh;
 		if (!camera_viewport(cam, target.w, target.h, vx, vy, vw, vh)) {
@@ -4439,7 +4575,7 @@ namespace bb::gfx {
 		aa_plan = antialias_begin(handle, int(g.target), target, vx, vy, vw, vh);
 
 		// The camera is cleared once, before anything is drawn.
-		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;
+		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth, clear_stencil = cam.cam_stencil && cam.cam_stencil_clear;
 		for (uint32_t i = 0; i < mirrors.size; i++) {
 			// Where the camera would have to be to see what a mirror shows: on the other side of its ground.
 			float t[16], inverse[16], flip[16], reflect[16], steps[16], mirrored[16], mirrored_view[16];
@@ -4451,10 +4587,10 @@ namespace bb::gfx {
 			bb::mat_multiply(reflect, steps, inverse);
 			bb::mat_multiply(mirrored, reflect, world);
 			bb::mat_affine_inverse(mirrored, mirrored_view);
-			render_pass(cam, culling, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
-			clear_color = clear_depth = false;
+			render_pass(cam, culling, data, mirrored, mirrored_view, true, clear_color, clear_depth, clear_stencil, vx, vy, vw, vh, target);
+			clear_color = clear_depth = clear_stencil = false;
 		}
-		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
+		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, clear_stencil, vx, vy, vw, vh, target);
 		if (aa_plan.mode) {
 			antialias_end(aa_plan, handle, int(g.target), target, vx, vy, vw, vh, aa_vp, aa_origin, !cam.cam_clear_color);
 			aa_plan = antialias_plan();
@@ -4993,6 +5129,34 @@ int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
 {
 	bb::entity* cam = need_camera(camera, "GetCameraClipPlaneEnabled");
 	return (cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
+}
+
+// SetCameraStencil camera, enabled: the depth buffer that the camera draws with gets a stencil (8 bits per pixel), which the entities
+// with SetEntityStencil test and change. Cameras that draw to targets of the same size share the depth buffer, and so the stencil.
+// A BlitzLLVM extension.
+void bb_set_camera_stencil(int32_t camera, int32_t enabled)
+{
+	need_camera(camera, "SetCameraStencil")->cam_stencil = enabled != 0;
+}
+
+// GetCameraStencil(camera): 1 if the camera has a stencil.
+int32_t bb_get_camera_stencil(int32_t camera)
+{
+	return need_camera(camera, "GetCameraStencil")->cam_stencil ? 1 : 0;
+}
+
+// SetCameraStencilClear camera, clear, value: whether the camera clears the stencil of its viewport when it starts drawing (it does by
+// default), and to what (0 to 255, 0 by default).
+void bb_set_camera_stencil_clear(int32_t camera, int32_t clear, int32_t value)
+{
+	bb::entity* cam = need_camera(camera, "SetCameraStencilClear");
+	if ((value < 0) || (value > 255)) {
+		char message[96];
+		snprintf(message, sizeof(message), "SetCameraStencilClear: the value has to be 0 to 255, not %d.", int(value));
+		bb_runtime_error(message);
+	}
+	cam->cam_stencil_clear = clear != 0;
+	cam->cam_stencil_value = uint8_t(value);
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.

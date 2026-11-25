@@ -631,6 +631,7 @@ namespace bb::gfx {
 		float       growth; // How much its matrix lengthens a vector, at most.
 		bool        cone;   // Whether the GPU can leave out clusters of faces that all look away (CameraCulling bit 4), see record_culling.
 		bool        oit;    // Blended by the pass of order-independent transparency (see graphics_oit.cpp), with the pipeline of its blend mode in oit3d.
+		bb::rhi::stencil_state stencil; // SetEntityStencil, for a camera with SetCameraStencil; disabled otherwise.
 	};
 
 
@@ -639,6 +640,8 @@ namespace bb::gfx {
 		uint32_t first_draw, draw_count;
 		uint32_t slot; // Where its scene data is.
 		bool     clear_color, clear_depth;
+		bool     stencil, clear_stencil; // SetCameraStencil: the depth buffer has stencil; SetCameraStencilClear: it is cleared to stencil_value first.
+		uint8_t  stencil_value;
 		bool     reflected; // Seen in a mirror, which turns the triangles around.
 		float    color[3];
 		int      x, y, w, h; // Area of the target image that it draws to.
@@ -1115,6 +1118,8 @@ namespace bb::gfx {
 	void record_copy(uint32_t index);
 	/** The depth of 3D drawing to a target of that size. */
 	gpu_image& depth_for(uint32_t width, uint32_t height);
+	/** Makes the depth buffer of that size one with stencil (SetCameraStencil), for every camera that draws to a target of the size from now on. */
+	void want_stencil_depth(uint32_t width, uint32_t height);
 	/** Decides what AntiAlias does for the camera about to be drawn to the target, which is the shift its projection gets. */
 	antialias_plan antialias_begin(int camera, int target_handle, target_ref const& target, int vx, int vy, int vw, int vh);
 	/** Queues the smoothing of what the camera drew: vp is its view and projection without the shift, origin where it is. */

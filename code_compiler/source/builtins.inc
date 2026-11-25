@@ -360,6 +360,8 @@
 		{ "addanimseq", "bb_add_anim_seq", 'i', "ii", 2, {}, false },
 		{ "copyentity", "bb_copy_entity", 'i', "ii", 1, { 0, 0 }, false },
 		{ "entityorder", "bb_entity_order", 'v', "ii", 2, {}, false },
+		{ "setentitystencil", "bb_set_entity_stencil", 'v', "iiiiiiii", 2, { 0, 0, 0, 255, 255, 0, 0, 0 }, false },
+		{ "setentitystencilback", "bb_set_entity_stencil_back", 'v', "iiiii", 2, { 0, 0, 0, 0, 0 }, false },
 		{ "entitystatic", "bb_entity_static", 'v', "ii", 2, {}, false },
 		{ "entityblend", "bb_entity_blend", 'v', "ii", 2, {}, false },
 		{ "entityshininess", "bb_entity_shininess", 'v', "if", 2, {}, false },
@@ -600,6 +602,9 @@
 		{ "getcameraclipplane", "bb_get_camera_clip_plane", 'V', "ii", 2, {}, false },
 		{ "setcameraclipplaneenabled", "bb_set_camera_clip_plane_enabled", 'v', "iii", 3, {}, false },
 		{ "getcameraclipplaneenabled", "bb_get_camera_clip_plane_enabled", 'i', "ii", 2, {}, false },
+		{ "setcamerastencil", "bb_set_camera_stencil", 'v', "ii", 2, {}, false },
+		{ "getcamerastencil", "bb_get_camera_stencil", 'i', "i", 1, {}, false },
+		{ "setcamerastencilclear", "bb_set_camera_stencil_clear", 'v', "iii", 2, { 0, 0, 0 }, false },
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },
