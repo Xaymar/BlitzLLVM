@@ -305,7 +305,7 @@ textureready	blitz3d	done	%TextureReady%texture
 imageready	graphics	done	%ImageReady%image
 entityready	blitz3d	done	%EntityReady%entity
 asyncloading	graphics	done	AsyncLoading%enabled
-savetexture	blitz3d	done	%SaveTexture%texture$file%frame=0$settings=\
+savetexture	blitz3d	done	%SaveTexture%texture$file%frame=0$settings=""
 asyncsaving	graphics	done	AsyncSaving%enabled
 savespending	graphics	done	%SavesPending
 savesfailed	graphics	done	%SavesFailed
@@ -589,7 +589,7 @@ imagesoverlap	graphics	done	%ImagesOverlap%image1%x1%y1%image2%x2%y2
 imagewidth	graphics	done	%ImageWidth%image
 imagexhandle	graphics	done	%ImageXHandle%image
 imageyhandle	graphics	done	%ImageYHandle%image
-input	graphics	done	$Input$prompt=\
+input	graphics	done	$Input$prompt=""
 line	graphics	done	Line%x1%y1%x2%y2
 loadanimimage	graphics	done	%LoadAnimImage$bmpfile%cellwidth%cellheight%first%count
 loadbuffer	graphics	done	%LoadBuffer%buffer$bmpfile
@@ -613,7 +613,7 @@ pausemovie	graphics	done	PauseMovie%movie
 playmovie	graphics	done	PlayMovie%movie
 plot	graphics	done	Plot%x%y
 primarydisplay	graphics	done	%PrimaryDisplay
-print	graphics	done	Print$string=\
+print	graphics	done	Print$string=""
 readpixel	graphics	done	%ReadPixel%x%y%buffer=0
 readpixel64	graphics	done	!ReadPixel64%x%y%buffer=0>~red=0>~green=0>~blue=0>~alpha=0
 readpixelfast	graphics	done	%ReadPixelFast%x%y%buffer=0
@@ -623,8 +623,8 @@ rectsoverlap	graphics	done	%RectsOverlap%x1%y1%width1%height1%x2%y2%width2%heigh
 refreshrateat	graphics	done	%RefreshRateAt%display%width%height%index
 resizeimage	graphics	done	ResizeImage%image#width#height
 rotateimage	graphics	done	RotateImage%image#angle
-savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile$settings=\
-saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0$settings=\
+savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile$settings=""
+saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0$settings=""
 scaleimage	graphics	done	ScaleImage%image#xscale#yscale
 scanline	graphics	done	%ScanLine
 seekmovie	graphics	done	SeekMovie%movie#seconds
@@ -870,11 +870,11 @@ modifygadgetitem	plusgui	done	ModifyGadgetItem%gadget%index$item%icon=-1
 modifytreeviewnode	plusgui	done	ModifyTreeViewNode%node$text%icon=-1
 removegadgetitem	plusgui	done	RemoveGadgetItem%gadget%index
 requestcolor	plusgui	done	%RequestColor%red=255%green=255%blue=255
-requestdir	plusgui	done	$RequestDir$prompt=\
+requestdir	plusgui	done	$RequestDir$prompt=""$path=""
 requestedblue	plusgui	done	%RequestedBlue
 requestedgreen	plusgui	done	%RequestedGreen
 requestedred	plusgui	done	%RequestedRed
-requestfile	plusgui	done	$RequestFile$prompt=\
+requestfile	plusgui	done	$RequestFile$prompt=""$exts=""%save=0$defname=""
 requestfont	plusgui	done	%RequestFont
 restorewindow	plusgui	done	RestoreWindow%window
 selectedgadgetitem	plusgui	done	%SelectedGadgetItem%gadget
@@ -941,7 +941,7 @@ queryobject	plussystem	done	%QueryObject%object%query_id
 resettimer	plussystem	done	ResetTimer%timer
 resumetimer	plussystem	done	ResumeTimer%timer
 timerticks	plussystem	done	%TimerTicks%timer
-apptitle	runtime	done	AppTitle$title$close_prompt=\
+apptitle	runtime	done	AppTitle$title$close_prompt=""
 commandline	runtime	done	$CommandLine
 createtimer	runtime	done	%CreateTimer%hertz
 debuglog	runtime	done	DebugLog$text
