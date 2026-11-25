@@ -19,7 +19,7 @@
 # Which version of LLVM do we want to have (or newer)?
 set(LLVM_VERSION "19.1.7")
 
-cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.28...4.2 FATAL_ERROR)
 include_guard(GLOBAL)
 list(APPEND CMAKE_MESSAGE_INDENT "[LLVM] ")
 
