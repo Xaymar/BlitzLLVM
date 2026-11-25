@@ -6,7 +6,9 @@
 ; Files keep data after the program ends: save games, settings and high score tables. This tutorial writes a
 ; small save file, reads it back and then deletes it again.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; SystemProperty$("tempdir") gives a folder where programs may put files they do not need for long. Real games
 ; usually save next to the program or in the user's documents instead.

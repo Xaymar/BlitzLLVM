@@ -6,9 +6,10 @@
 ; A small text editor, with what nearly every program on a desktop has: a menu bar, keys like Ctrl+S that do the same
 ; as a menu item, a window that asks for the name of a file, and a question before unsaved work is lost.
 ;
-; A window gets a menu bar from style flag 4. WindowMenu gives the bar, and CreateMenu adds the menus to it and the
-; items to the menus. Each item has a number of its own, chosen by the program. When an item is picked, WaitEvent
-; returns $1001 and EventData is that number. After changing the menus, UpdateWindowMenu shows the changes.
+; A window gets a menu bar from the style flag BB_WINDOW_MENU. WindowMenu gives the bar, and CreateMenu adds the menus
+; to it and the items to the menus. Each item has a number of its own, chosen by the program. When an item is
+; picked, WaitEvent returns BB_EVENT_MENU and EventData is that number. After changing the menus, UpdateWindowMenu
+; shows the changes.
 ;
 ; Requesters are the small windows that ask the user something: RequestFile for the name of a file, RequestFont for
 ; a font, Notify for a message, Confirm for yes or no, and Proceed for yes, no or cancel. The program waits until the
@@ -23,7 +24,7 @@
 ;
 ; Keys: Ctrl+N new, Ctrl+O open, Ctrl+S save, Ctrl+Q quit.
 
-Const EVENT_GADGET = $401, EVENT_WINDOW_CLOSE = $803, EVENT_MENU = $1001
+Include "<gui.bb>"
 
 ; The numbers of the menu items. Any numbers will do, as long as each item has its own.
 Const MENU_NEW = 1, MENU_OPEN = 2, MENU_SAVE = 3, MENU_SAVE_AS = 4, MENU_QUIT = 5
@@ -32,13 +33,13 @@ Const MENU_FONT = 10, MENU_STATUS = 11, MENU_ABOUT = 20
 Const TITLE$ = "Tutorial 5.03: Notes"
 
 ; Flags 1 title bar, 2 resizable, 4 menu bar, 8 status bar.
-Global window = CreateWindow(TITLE, 100, 80, 560, 420, 0, 1 + 2 + 4 + 8)
+Global window = CreateWindow(TITLE, 100, 80, 560, 420, 0, BB_WINDOW_TITLEBAR + BB_WINDOW_RESIZABLE + BB_WINDOW_MENU + BB_WINDOW_STATUS)
 SetMinWindowSize window, 300, 200
 
 ; The text area fills the whole inside of the window, and SetGadgetLayout keeps it that way when the window changes
 ; its size: all four edges keep their distance to the sides of the window.
 Global area = CreateTextArea(0, 0, ClientWidth(window), ClientHeight(window), window)
-SetGadgetLayout area, 1, 1, 1, 1
+SetGadgetLayout area, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED
 
 ; --- The menus -------------------------------------------------------------------------------------------------------
 ; CreateMenu takes the text, the number of the item, and the menu it goes in. The menus on the bar get 0 as their
@@ -67,10 +68,10 @@ UpdateWindowMenu window
 ; HotKeyEvent makes a key into an event of the program's choice. The first number is the key (the same numbers as
 ; KeyHit uses), the second the keys held with it: 1 Shift, 2 Ctrl, 4 Alt. Making Ctrl+S send the event of the Save
 ; item means that the code below needs to handle it only once.
-HotKeyEvent 49, 2, EVENT_MENU, MENU_NEW
-HotKeyEvent 24, 2, EVENT_MENU, MENU_OPEN
-HotKeyEvent 31, 2, EVENT_MENU, MENU_SAVE
-HotKeyEvent 16, 2, EVENT_MENU, MENU_QUIT
+HotKeyEvent 49, 2, BB_EVENT_MENU, MENU_NEW
+HotKeyEvent 24, 2, BB_EVENT_MENU, MENU_OPEN
+HotKeyEvent 31, 2, BB_EVENT_MENU, MENU_SAVE
+HotKeyEvent 16, 2, BB_EVENT_MENU, MENU_QUIT
 
 ; --- What the editor knows -------------------------------------------------------------------------------------------
 Global fileName$ = ""     ; Empty while the text has never been saved.
@@ -84,14 +85,14 @@ ActivateGadget area ; Puts the cursor into the text, so the user can start to ty
 
 Repeat
 	Select WaitEvent()
-		Case EVENT_GADGET
-			; A text area sends $401 whenever its text changes.
+		Case BB_EVENT_GADGET
+			; A text area sends BB_EVENT_GADGET whenever its text changes.
 			If EventSource() = area
 				changed = True
 				ShowTitle()
 			EndIf
 
-		Case EVENT_MENU
+		Case BB_EVENT_MENU
 			Select EventData()
 				Case MENU_NEW
 					If MayDropText()
@@ -116,7 +117,7 @@ Repeat
 					Notify "Notes, a small text editor." + Chr(10) + Chr(10) + "Tutorial 5.03 of BlitzLLVM."
 			End Select
 
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			If MayDropText() Then Exit
 	End Select
 Forever

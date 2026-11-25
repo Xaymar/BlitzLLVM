@@ -6,10 +6,16 @@
 ; Every game opens a graphics mode and then runs a main loop: once per frame it reads the input, updates the game
 ; and draws a new picture. This tutorial shows that loop with a square that slides across the window.
 
+; The files that come with BlitzLLVM give names to the numbers that commands take: keys.bb names every key,
+; graphics.bb the graphics modes. All of these names start with BB_.
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
 ; Graphics width, height, depth, mode
 ;   depth 0 picks the best colour depth by itself.
-;   mode 2 is a window. Mode 1 would be fullscreen, and mode 0 lets Blitz choose (a window while debugging).
-Graphics 640, 480, 0, 2
+;   BB_GRAPHICS_WINDOWED (2) is a window. BB_GRAPHICS_FULLSCREEN (1) would be fullscreen, and BB_GRAPHICS_DEFAULT (0)
+;   lets Blitz choose (a window while debugging).
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.01: Graphics and the Main Loop"
 
 ; Blitz draws into one of two pictures: the front buffer is what you see, the back buffer is hidden. Drawing into
@@ -19,8 +25,8 @@ SetBuffer BackBuffer()
 Local x# = 0
 Local frames = 0
 
-; The main loop. KeyHit(1) is true once each time Escape (scan code 1) is pressed, so Escape ends the loop.
-While Not KeyHit(1)
+; The main loop. KeyHit(BB_KEY_ESCAPE) is true once each time Escape is pressed, so Escape ends the loop.
+While Not KeyHit(BB_KEY_ESCAPE)
 	; 1. Update: move the square, and wrap it around when it leaves the window.
 	x = x + 2.5
 	If x > GraphicsWidth() Then x = -40

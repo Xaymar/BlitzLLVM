@@ -20,6 +20,10 @@
 ; Controls: Left / Right move, Up or X turns clockwise, Z turns the other way, Down drops faster, Space drops at once,
 ; C holds a piece for later. Escape or P pauses.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const COLUMNS = 10, ROWS = 22
 Const HIDDEN_ROWS = 2              ; The top two rows are above the well: new pieces appear there.
@@ -29,10 +33,6 @@ Const KINDS = 7                    ; Seven different pieces.
 
 Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_SCORES = 2, STATE_HELP = 3
 Const STATE_PLAY = 4, STATE_PAUSED = 5, STATE_OVER = 6
-
-Const KEY_ESCAPE = 1, KEY_ENTER = 28, KEY_SPACE = 57, KEY_P = 25
-Const KEY_Z = 44, KEY_X = 45, KEY_C = 46, KEY_LSHIFT = 42, KEY_RSHIFT = 54, KEY_LCTRL = 29
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 ; --- The pieces --------------------------------------------------------------------------------------------------
 ; Every piece sits in a square box: 4 by 4 for the long one, 2 by 2 for the square, 3 by 3 for the rest. For each kind
@@ -140,7 +140,7 @@ While Not quit
 		Case STATE_OPTIONS
 			UpdateOptions()
 		Case STATE_SCORES, STATE_HELP
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1)
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT)
 				Local fromScores = (state = STATE_SCORES)
 				GoToMenu()
 				If fromScores Then menuSelected = 2 Else menuSelected = 3 ; Back on the line that was chosen.
@@ -171,7 +171,7 @@ End
 
 ; Graphics frees all images, so the blocks are drawn again every time the screen opens.
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Block Drop"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -230,14 +230,14 @@ End Function
 ; The same menu code as in tutorials 2.09 and 2.10: a list of lines, the selected one, keys and mouse.
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
 
 	Local entry = MenuLineAt(MouseX(), MouseY())
 	If entry >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = entry
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And entry >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And entry >= 0
 		menuSelected = entry
 		Return entry
 	EndIf
@@ -275,7 +275,7 @@ End Function
 
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : StartGame()
 		Case 1 : GoToOptions()
@@ -312,12 +312,12 @@ End Function
 
 Function UpdateOptions()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local chosen = MenuInput()
 	If chosen >= 0 Then change = 1
 
-	If KeyHit(KEY_ESCAPE) Or chosen = 5
+	If KeyHit(BB_KEY_ESCAPE) Or chosen = 5
 		SaveSettings()
 		GoToMenu()
 		menuSelected = 1
@@ -419,7 +419,7 @@ Function GoToPause()
 End Function
 
 Function UpdatePause()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P)
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P)
 		state = STATE_PLAY
 		FlushKeys
 		Return
@@ -565,7 +565,7 @@ Function HoldPiece()
 End Function
 
 Function UpdatePlay()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P)
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P)
 		GoToPause()
 		Return
 	EndIf
@@ -583,9 +583,9 @@ Function UpdatePlay()
 
 	; Left / Right: KeyHit moves one step for every press, even a tap so short that it falls between two frames.
 	; KeyDown then repeats the step while the key is held: after 10 frames, one step every 3 frames.
-	If KeyHit(KEY_LEFT) Then MoveSideways(-1)
-	If KeyHit(KEY_RIGHT) Then MoveSideways(1)
-	Local dir = KeyDown(KEY_RIGHT) - KeyDown(KEY_LEFT)
+	If KeyHit(BB_KEY_LEFT) Then MoveSideways(-1)
+	If KeyHit(BB_KEY_RIGHT) Then MoveSideways(1)
+	Local dir = KeyDown(BB_KEY_RIGHT) - KeyDown(BB_KEY_LEFT)
 	If dir <> heldDir Then repeatFrames = 0
 	heldDir = dir
 	If dir <> 0
@@ -593,15 +593,15 @@ Function UpdatePlay()
 		If repeatFrames >= 10 And (repeatFrames - 10) Mod 3 = 0 Then MoveSideways(dir)
 	EndIf
 
-	If KeyHit(KEY_UP) Or KeyHit(KEY_X) Then TryTurn(1)
-	If KeyHit(KEY_Z) Or KeyHit(KEY_LCTRL) Then TryTurn(-1)
-	If KeyHit(KEY_C) Or KeyHit(KEY_LSHIFT) Or KeyHit(KEY_RSHIFT)
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_X) Then TryTurn(1)
+	If KeyHit(BB_KEY_Z) Or KeyHit(BB_KEY_LCTRL) Then TryTurn(-1)
+	If KeyHit(BB_KEY_C) Or KeyHit(BB_KEY_LSHIFT) Or KeyHit(BB_KEY_RSHIFT)
 		HoldPiece()
 		If state <> STATE_PLAY Then Return ; The held piece had no room: game over.
 	EndIf
 
 	; Space drops the piece all the way and locks it at once. Each row is worth 2 points.
-	If KeyHit(KEY_SPACE)
+	If KeyHit(BB_KEY_SPACE)
 		While Fits(kind, turn, pieceX, pieceY + 1)
 			pieceY = pieceY + 1
 			score = score + 2
@@ -613,7 +613,7 @@ Function UpdatePlay()
 	; Falling. The time for one row starts at 1 second and shrinks with every level. ^ raises to a power:
 	; level 1 gives 0.8 ^ 0 = 1, level 5 0.772 ^ 4 = 0.36, level 15 0.702 ^ 14 = 0.007 seconds.
 	Local rowTime# = (0.8 - (level - 1) * 0.007) ^ (level - 1)
-	Local soft = KeyDown(KEY_DOWN)
+	Local soft = KeyDown(BB_KEY_DOWN)
 	If soft Then rowTime = rowTime / 20 ; Down makes it twenty times faster, for 1 point per row.
 
 	fallTime = fallTime + 1.0 / 60
@@ -747,7 +747,7 @@ Function UpdateOver()
 		FlushMouse
 		Return
 	EndIf
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1)
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT)
 		If newRank >= 0
 			GoToMenu()
 			state = STATE_SCORES ; Show the table with the new score in it.

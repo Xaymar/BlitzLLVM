@@ -10,7 +10,11 @@
 ; Texture coordinates (u and v) say which part of the texture lands on which vertex. They go from 0 to 1 across the
 ; texture, and values past 1 repeat it. ScaleTexture, PositionTexture and RotateTexture change them all at once.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.04: Textures Made in Code"
 SetBuffer BackBuffer()
 
@@ -51,7 +55,7 @@ Rect 32, 32, 32, 32, 1
 ; --- Water, pixel by pixel ----------------------------------------------------------------------------------------
 ; Flag 2 gives the texture an alpha channel: each pixel says how see-through it is. WritePixelFast writes a whole
 ; pixel as one number, $AARRGGBB, so the alpha is the highest byte. It needs LockBuffer around it.
-Local water = CreateTexture(64, 64, 1 + 2)
+Local water = CreateTexture(64, 64, BB_TEXTURE_COLOR + BB_TEXTURE_ALPHA)
 Local x, y, wave#, alpha, blue
 LockBuffer TextureBuffer(water)
 For y = 0 To 63
@@ -94,7 +98,7 @@ ScaleTexture water, 0.5, 0.5
 
 Local scroll# = 0
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	TurnEntity cube, 0.3, 0.7, 0
 
 	; PositionTexture moves the texture over the surface. Moving it a little every frame makes the water flow.

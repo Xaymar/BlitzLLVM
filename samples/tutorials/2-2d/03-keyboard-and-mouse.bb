@@ -6,12 +6,19 @@
 ; KeyDown asks "is this key held right now?", which is what you want for movement. KeyHit asks "how often was this
 ; key pressed since I last asked?", which is what you want for things that happen once per press, like jumping or
 ; opening a menu. Keys are named by their scan code, a number for each key's position on the keyboard (so the
-; same codes work on every keyboard layout). Common ones:
+; same codes work on every keyboard layout). keys.bb, which comes with BlitzLLVM, has a name for each of them:
 ;
-;   1 Escape    57 Space    28 Enter    200 Up    208 Down    203 Left    205 Right
-;   17 W        30 A        31 S        32 D      2 to 11 are the number keys 1 to 9 and 0
+;   BB_KEY_ESCAPE (1)   BB_KEY_SPACE (57)   BB_KEY_ENTER (28)   BB_KEY_UP (200)   BB_KEY_DOWN (208)
+;   BB_KEY_LEFT (203)   BB_KEY_RIGHT (205)  BB_KEY_W (17)       BB_KEY_A (30)     BB_KEY_1 to BB_KEY_0 (2 to 11)
+;
+; The letters name where a key sits on a US keyboard: BB_KEY_Z is the key left of X, even where that key says Y.
+; mouse.bb names the mouse buttons in the same way.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.03: Keyboard and Mouse"
 SetBuffer BackBuffer()
 
@@ -21,24 +28,25 @@ Local colourIndex = 0, presses = 0
 Local trailX[31], trailY[31], trailCount = 0 ; [31] holds 32 marks, numbered 0 to 31.
 Local i, wheel
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; --- Keyboard ------------------------------------------------------------------------------------------------
 	; KeyDown gives 1 while a key is held and 0 otherwise, so "right minus left" is -1, 0 or 1: a direction.
-	playerX = playerX + (KeyDown(205) - KeyDown(203)) * speed
-	playerY = playerY + (KeyDown(208) - KeyDown(200)) * speed
+	playerX = playerX + (KeyDown(BB_KEY_RIGHT) - KeyDown(BB_KEY_LEFT)) * speed
+	playerY = playerY + (KeyDown(BB_KEY_DOWN) - KeyDown(BB_KEY_UP)) * speed
 
 	; KeyHit counts presses, so holding Space changes the colour only once.
-	If KeyHit(57) Then colourIndex = (colourIndex + 1) Mod 4 : presses = presses + 1
+	If KeyHit(BB_KEY_SPACE) Then colourIndex = (colourIndex + 1) Mod 4 : presses = presses + 1
 
 	; --- Mouse ---------------------------------------------------------------------------------------------------
-	; MouseDown(1) is the left button held, MouseHit(1) counts clicks. Button 2 is the right one, 3 the middle.
-	If MouseDown(1)
+	; MouseDown(BB_MOUSE_LEFT) is the left button held, MouseHit(BB_MOUSE_LEFT) counts clicks. BB_MOUSE_RIGHT and
+	; BB_MOUSE_MIDDLE are the other two.
+	If MouseDown(BB_MOUSE_LEFT)
 		playerX = playerX + (MouseX() - playerX) * 0.1 ; Glide towards the mouse while the button is held.
 		playerY = playerY + (MouseY() - playerY) * 0.1
 	EndIf
 
 	; Every right click leaves a mark at the mouse.
-	If MouseHit(2) And trailCount < 32
+	If MouseHit(BB_MOUSE_RIGHT) And trailCount < 32
 		trailX[trailCount] = MouseX()
 		trailY[trailCount] = MouseY()
 		trailCount = trailCount + 1
@@ -79,7 +87,7 @@ While Not KeyHit(1)
 	Text 10, 10, "Arrow keys move, Space changes colour (" + presses + " presses so far)."
 	Text 10, 30, "Hold the left button to pull the ball, right click to leave a mark."
 	Text 10, 50, "Mouse wheel: speed " + speed + "   Mouse at " + MouseX() + ", " + MouseY()
-	If KeyDown(42) Or KeyDown(54) Then Text 10, 70, "A Shift key is held." ; 42 is left Shift, 54 right Shift.
+	If KeyDown(BB_KEY_LSHIFT) Or KeyDown(BB_KEY_RSHIFT) Then Text 10, 70, "A Shift key is held."
 	Flip
 Wend
 End

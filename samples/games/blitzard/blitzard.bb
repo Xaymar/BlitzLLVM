@@ -20,6 +20,10 @@
 ;
 ; The options are saved in blitzard.cfg and the game in blitzard.sav, both next to the program.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const TILE = 32
 Const MAP_W = 40, MAP_H = 66
@@ -33,10 +37,6 @@ Const STATE_TITLE = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_STARTER = 3, STA
 Const STATE_FIELD_MENU = 6, STATE_TEAM = 7, STATE_BAG = 8, STATE_JOURNAL = 9, STATE_SHOP = 10, STATE_CHOICE = 11
 Const STATE_TRANSITION = 12, STATE_BATTLE = 13, STATE_EVOLVE = 14, STATE_CREDITS = 15, STATE_DEN = 16
 Const STATE_SUMMARY = 17, STATE_APPROACH = 18
-
-Const KEY_ESCAPE = 1, KEY_BACKSPACE = 14, KEY_W = 17, KEY_ENTER = 28, KEY_A = 30, KEY_S = 31, KEY_D = 32
-Const KEY_Z = 44, KEY_X = 45, KEY_SPACE = 57, KEY_LSHIFT = 42, KEY_RSHIFT = 54
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 Const DIR_DOWN = 0, DIR_UP = 1, DIR_LEFT = 2, DIR_RIGHT = 3
 Const GRASS_R = 104, GRASS_G = 176, GRASS_B = 72 ; The colour under plain and tall grass.
@@ -536,7 +536,7 @@ Data 0, 0, "", 0, 0, 0, 0, 0, 0, "", "", ""
 
 ; Opens the window or full screen, as the option says. Graphics frees all images and fonts, so they are made again.
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Blitzard"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -903,24 +903,24 @@ Function ForgetInput()
 End Function
 
 Function ConfirmHit()
-	Return KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or KeyHit(KEY_Z)
+	Return KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or KeyHit(BB_KEY_Z)
 End Function
 
 Function BackHit()
-	Return KeyHit(KEY_ESCAPE) Or KeyHit(KEY_BACKSPACE) Or KeyHit(KEY_X) Or MouseHit(2)
+	Return KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_BACKSPACE) Or KeyHit(BB_KEY_X) Or MouseHit(BB_MOUSE_RIGHT)
 End Function
 
 Function MenuInput()
 	If menuCount = 0 Then Return -1
-	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundMove)
-	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_W) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_DOWN) Or KeyHit(BB_KEY_S) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundMove)
 
 	Local line = MenuLineAt(MouseX(), MouseY())
 	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
 
 	If BackHit() Then Return -2
 	If ConfirmHit() Then PlaySfx(soundSelect) : Return menuSelected
-	If MouseHit(1) And line >= 0
+	If MouseHit(BB_MOUSE_LEFT) And line >= 0
 		menuSelected = line
 		PlaySfx(soundSelect)
 		Return line
@@ -1026,8 +1026,8 @@ End Function
 
 Function UpdateOptions()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Then change = -1
-	If KeyHit(KEY_RIGHT) Or KeyHit(KEY_D) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Or KeyHit(BB_KEY_A) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Or KeyHit(BB_KEY_D) Then change = 1
 	Local chosen = MenuInput()
 	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
@@ -1069,7 +1069,7 @@ Function GoToHelp(from)
 End Function
 
 Function UpdateHelp()
-	If BackHit() Or ConfirmHit() Or MouseHit(1)
+	If BackHit() Or ConfirmHit() Or MouseHit(BB_MOUSE_LEFT)
 		PlaySfx(soundSelect)
 		If returnState = STATE_TITLE
 			GoToTitle()
@@ -1084,8 +1084,8 @@ End Function
 ; --- Choosing the first blitzling ----------------------------------------------------------------------------------------
 
 Function UpdateStarter()
-	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Then starterCursor = (starterCursor + 2) Mod 3 : PlaySfx(soundMove)
-	If KeyHit(KEY_RIGHT) Or KeyHit(KEY_D) Then starterCursor = (starterCursor + 1) Mod 3 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_LEFT) Or KeyHit(BB_KEY_A) Then starterCursor = (starterCursor + 2) Mod 3 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_RIGHT) Or KeyHit(BB_KEY_D) Then starterCursor = (starterCursor + 1) Mod 3 : PlaySfx(soundMove)
 	Local i, over = -1
 	For i = 0 To 2
 		If MouseX() >= 70 + i * 230 And MouseX() < 70 + i * 230 + 200 And MouseY() >= 140 And MouseY() < 470 Then over = i
@@ -1094,7 +1094,7 @@ Function UpdateStarter()
 	If BackHit() Then GoToTitle() : Return
 	Local chosen = False
 	If ConfirmHit() Then chosen = True
-	If MouseHit(1) And over >= 0 Then starterCursor = over : chosen = True
+	If MouseHit(BB_MOUSE_LEFT) And over >= 0 Then starterCursor = over : chosen = True
 	If Not chosen Then Return
 
 	PlaySfx(soundSelect)
@@ -1159,21 +1159,21 @@ End Function
 
 Function DirectionDown(d)
 	Select d
-		Case DIR_UP : Return KeyDown(KEY_UP) Or KeyDown(KEY_W)
-		Case DIR_DOWN : Return KeyDown(KEY_DOWN) Or KeyDown(KEY_S)
-		Case DIR_LEFT : Return KeyDown(KEY_LEFT) Or KeyDown(KEY_A)
+		Case DIR_UP : Return KeyDown(BB_KEY_UP) Or KeyDown(BB_KEY_W)
+		Case DIR_DOWN : Return KeyDown(BB_KEY_DOWN) Or KeyDown(BB_KEY_S)
+		Case DIR_LEFT : Return KeyDown(BB_KEY_LEFT) Or KeyDown(BB_KEY_A)
 	End Select
-	Return KeyDown(KEY_RIGHT) Or KeyDown(KEY_D)
+	Return KeyDown(BB_KEY_RIGHT) Or KeyDown(BB_KEY_D)
 End Function
 
 ; Called every field frame. A newly pressed key takes over from one that is still held, and a tap shorter
 ; than a frame still counts.
 Function HeldDirection()
 	Local hit = -1
-	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then hit = DIR_UP
-	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then hit = DIR_DOWN
-	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Then hit = DIR_LEFT
-	If KeyHit(KEY_RIGHT) Or KeyHit(KEY_D) Then hit = DIR_RIGHT
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_W) Then hit = DIR_UP
+	If KeyHit(BB_KEY_DOWN) Or KeyHit(BB_KEY_S) Then hit = DIR_DOWN
+	If KeyHit(BB_KEY_LEFT) Or KeyHit(BB_KEY_A) Then hit = DIR_LEFT
+	If KeyHit(BB_KEY_RIGHT) Or KeyHit(BB_KEY_D) Then hit = DIR_RIGHT
 	If hit >= 0 Then lastDirection = hit : Return hit
 	If lastDirection >= 0 And DirectionDown(lastDirection) Then Return lastDirection
 	lastDirection = -1
@@ -1207,7 +1207,7 @@ Function UpdateField()
 	If Walkable(nx, ny)
 		playerX = nx : playerY = ny
 		playerStep = TILE
-		If KeyDown(KEY_LSHIFT) Or KeyDown(KEY_RSHIFT) Then stepLength = TILE / 6.0 Else stepLength = TILE / 11.0
+		If KeyDown(BB_KEY_LSHIFT) Or KeyDown(BB_KEY_RSHIFT) Then stepLength = TILE / 6.0 Else stepLength = TILE / 11.0
 		walkFrame = 1 - walkFrame
 	Else
 		bumpTimer = bumpTimer - 1
@@ -1360,7 +1360,7 @@ End Function
 Function UpdateDialog()
 	Local length = Len(dialogPage(dialogIndex))
 	dialogTyped = dialogTyped + TextSpeed()
-	Local pressed = ConfirmHit() Or MouseHit(1) Or BackHit()
+	Local pressed = ConfirmHit() Or MouseHit(BB_MOUSE_LEFT) Or BackHit()
 	If Not pressed Then Return
 	If dialogTyped < length Then dialogTyped = Float(length) : Return ; The first press shows the whole page.
 	PlaySfx(soundMove)
@@ -1492,8 +1492,8 @@ Function TeamRowAt(x, y)
 End Function
 
 Function UpdateTeam()
-	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then teamPick = (teamPick + teamCount - 1) Mod teamCount : PlaySfx(soundMove)
-	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then teamPick = (teamPick + 1) Mod teamCount : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_W) Then teamPick = (teamPick + teamCount - 1) Mod teamCount : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_DOWN) Or KeyHit(BB_KEY_S) Then teamPick = (teamPick + 1) Mod teamCount : PlaySfx(soundMove)
 	Local over = TeamRowAt(MouseX(), MouseY())
 	If over >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then teamPick = over
 
@@ -1509,7 +1509,7 @@ Function UpdateTeam()
 	EndIf
 
 	Local chosen = ConfirmHit()
-	If MouseHit(1) And over >= 0 Then teamPick = over : chosen = True
+	If MouseHit(BB_MOUSE_LEFT) And over >= 0 Then teamPick = over : chosen = True
 	If Not chosen Then Return
 	PlaySfx(soundSelect)
 
@@ -1544,7 +1544,7 @@ Function TeamSendOut()
 End Function
 
 Function UpdateSummary()
-	If BackHit() Or ConfirmHit() Or MouseHit(1)
+	If BackHit() Or ConfirmHit() Or MouseHit(BB_MOUSE_LEFT)
 		PlaySfx(soundSelect)
 		state = STATE_TEAM
 		ForgetInput()
@@ -1621,16 +1621,16 @@ End Function
 ; --- Journal ---------------------------------------------------------------------------------------------------------------
 
 Function UpdateJournal()
-	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Then journalCursor = journalCursor - 1 : PlaySfx(soundMove)
-	If KeyHit(KEY_RIGHT) Or KeyHit(KEY_D) Then journalCursor = journalCursor + 1 : PlaySfx(soundMove)
-	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then journalCursor = journalCursor - 4 : PlaySfx(soundMove)
-	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then journalCursor = journalCursor + 4 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_LEFT) Or KeyHit(BB_KEY_A) Then journalCursor = journalCursor - 1 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_RIGHT) Or KeyHit(BB_KEY_D) Then journalCursor = journalCursor + 1 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_W) Then journalCursor = journalCursor - 4 : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_DOWN) Or KeyHit(BB_KEY_S) Then journalCursor = journalCursor + 4 : PlaySfx(soundMove)
 	journalCursor = (journalCursor - 1 + SPECIES_COUNT) Mod SPECIES_COUNT + 1
 	Local mx = MouseX() - 40, my = MouseY() - 110
 	If mx >= 0 And mx < 4 * 90 And my >= 0 And my < 4 * 100 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0)
 		journalCursor = 1 + (my / 100) * 4 + mx / 90
 	EndIf
-	If BackHit() Or ConfirmHit() Or MouseHit(1) Then PlaySfx(soundSelect) : OpenFieldMenu() : menuSelected = 2
+	If BackHit() Or ConfirmHit() Or MouseHit(BB_MOUSE_LEFT) Then PlaySfx(soundSelect) : OpenFieldMenu() : menuSelected = 2
 End Function
 
 ; --- Shop --------------------------------------------------------------------------------------------------------------------
@@ -1681,9 +1681,9 @@ Function UpdateDen()
 	If denColumn = 1 Then count = Max(1, denCount)
 	Local cursor = teamPick
 	If denColumn = 1 Then cursor = denCursor
-	If KeyHit(KEY_UP) Or KeyHit(KEY_W) Then cursor = (cursor + count - 1) Mod count : PlaySfx(soundMove)
-	If KeyHit(KEY_DOWN) Or KeyHit(KEY_S) Then cursor = (cursor + 1) Mod count : PlaySfx(soundMove)
-	If KeyHit(KEY_LEFT) Or KeyHit(KEY_A) Or KeyHit(KEY_RIGHT) Or KeyHit(KEY_D)
+	If KeyHit(BB_KEY_UP) Or KeyHit(BB_KEY_W) Then cursor = (cursor + count - 1) Mod count : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_DOWN) Or KeyHit(BB_KEY_S) Then cursor = (cursor + 1) Mod count : PlaySfx(soundMove)
+	If KeyHit(BB_KEY_LEFT) Or KeyHit(BB_KEY_A) Or KeyHit(BB_KEY_RIGHT) Or KeyHit(BB_KEY_D)
 		denColumn = 1 - denColumn
 		PlaySfx(soundMove)
 		If denColumn = 1 Then cursor = denCursor Else cursor = teamPick
@@ -1702,7 +1702,7 @@ Function UpdateDen()
 	If denColumn = 0 Then teamPick = Min(cursor, teamCount - 1) Else denCursor = cursor
 
 	If BackHit() Then PlaySfx(soundSelect) : EnterField() : Return
-	If Not (ConfirmHit() Or MouseHit(1)) Then Return
+	If Not (ConfirmHit() Or MouseHit(BB_MOUSE_LEFT)) Then Return
 
 	Local i, c.Creature
 	If denColumn = 0
@@ -2010,7 +2010,7 @@ Function RunStep(s.BattleStep)
 	Select s\kind
 		Case STEP_TEXT
 			stepTyped = stepTyped + TextSpeed()
-			Local pressed = ConfirmHit() Or MouseHit(1)
+			Local pressed = ConfirmHit() Or MouseHit(BB_MOUSE_LEFT)
 			If stepTyped < Len(s\text)
 				If pressed Then stepTyped = Float(Len(s\text))
 				Return False
@@ -2461,7 +2461,7 @@ Function UpdateEvolve()
 		PlaySfx(soundCaught)
 		ForgetInput()
 	EndIf
-	If evolveTimer > 200 And (ConfirmHit() Or MouseHit(1) Or BackHit())
+	If evolveTimer > 200 And (ConfirmHit() Or MouseHit(BB_MOUSE_LEFT) Or BackHit())
 		team(evolveIndex)\evolvePending = False
 		EnterField()
 		NextEvolution()
@@ -2470,7 +2470,7 @@ End Function
 
 Function UpdateCredits()
 	creditsTimer = creditsTimer + 1
-	If creditsTimer > 120 And (ConfirmHit() Or MouseHit(1) Or BackHit())
+	If creditsTimer > 120 And (ConfirmHit() Or MouseHit(BB_MOUSE_LEFT) Or BackHit())
 		SaveGame()
 		EnterField()
 		Notice("The game was saved.")

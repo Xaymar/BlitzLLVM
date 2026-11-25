@@ -24,6 +24,12 @@
 ; The world is saved in blockwright.world next to the program when you go back to the menu or quit, and the options
 ; in blockwright.cfg.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 
 ; --- The world -------------------------------------------------------------------------------------------------------
@@ -39,10 +45,6 @@ Const B_LEAVES = 8, B_BRICK = 9, B_GLASS = 10, B_LAMP = 11, B_SNOW = 12, B_WATER
 Const BLOCK_KINDS = 14
 
 Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_CONFIRM = 3, STATE_PLAY = 4, STATE_PAUSED = 5
-
-Const KEY_ESCAPE = 1, KEY_1 = 2, KEY_0 = 11, KEY_W = 17, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_F = 33
-Const KEY_SHIFT = 42, KEY_SPACE = 57, KEY_ENTER = 28
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 ; The blocks are kept in a bank, one byte each. Index = (y * WORLD_Z + z) * WORLD_X + x.
 Global world = CreateBank(WORLD_X * WORLD_Y * WORLD_Z)
@@ -144,13 +146,13 @@ While Not quit
 			UpdateOptions()
 		Case STATE_HELP
 			UpdateMenuCamera()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu() : menuSelected = 3
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu() : menuSelected = 3
 		Case STATE_CONFIRM
 			UpdateConfirm()
 		Case STATE_PLAY
 			UpdatePlayer()
 			UpdateBuilding()
-			If KeyHit(KEY_ESCAPE) Then GoToPause()
+			If KeyHit(BB_KEY_ESCAPE) Then GoToPause()
 		Case STATE_PAUSED
 			quit = UpdatePause()
 	End Select
@@ -168,7 +170,7 @@ End
 ; Opens the window or full screen, as the option says. Graphics3D frees every entity and texture, so the camera, the
 ; texture and all the chunk meshes are made again here. The world itself is in a bank, which stays.
 Function OpenScreen()
-	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, 1 Else Graphics3D SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Blockwright"
 	SetBuffer BackBuffer()
 
@@ -450,12 +452,12 @@ Function BuildChunk(index)
 		mesh = CreateMesh(worldPivot)
 		surface = CreateSurface(mesh)
 		EntityTexture mesh, atlas
-		EntityFX mesh, 1 + 2 ; Light comes from the vertex colours, worked out here.
+		EntityFX mesh, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS ; Light comes from the vertex colours, worked out here.
 		chunkMesh(index) = mesh
 		water = CreateMesh(worldPivot)
 		waterSurface = CreateSurface(water)
 		EntityTexture water, atlas
-		EntityFX water, 1 + 2 + 16 ; Both sides, so the water surface is seen from below too.
+		EntityFX water, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_TWO_SIDED ; Both sides, so the water surface is seen from below too.
 		EntityAlpha water, 0.7
 		chunkWater(index) = water
 	Else
@@ -568,7 +570,7 @@ Function MakeOutline()
 		End Select
 	Next
 	EntityColor mesh, 20, 20, 20
-	EntityFX mesh, 1
+	EntityFX mesh, BB_FX_FULLBRIGHT
 	HideEntity mesh
 	Return mesh
 End Function
@@ -642,7 +644,7 @@ Function UpdatePlayer()
 	If pitch < -89 Then pitch = -89
 	MoveMouse SCREEN_W / 2, SCREEN_H / 2
 
-	If KeyHit(KEY_F)
+	If KeyHit(BB_KEY_F)
 		flying = Not flying
 		velocityY = 0
 		If flying Then ShowMessage("Flying: Space goes up, Shift goes down. F to land.") Else ShowMessage("Walking.")
@@ -651,11 +653,11 @@ Function UpdatePlayer()
 	Local wheel = MouseZSpeed(), k
 	If wheel <> 0 Then chosen = (chosen - Sgn(wheel) + BAR_SLOTS) Mod BAR_SLOTS : PlaySfx(soundClick)
 	For k = 0 To 9
-		If KeyHit(KEY_1 + k) And k < BAR_SLOTS Then chosen = k : PlaySfx(soundClick)
+		If KeyHit(BB_KEY_1 + k) And k < BAR_SLOTS Then chosen = k : PlaySfx(soundClick)
 	Next
 
 	; Walking: W and S along the view, A and D to the side, in the flat plane whatever the pitch is.
-	Local forward# = Float(KeyDown(KEY_W) - KeyDown(KEY_S)), sideways# = Float(KeyDown(KEY_D) - KeyDown(KEY_A))
+	Local forward# = Float(KeyDown(BB_KEY_W) - KeyDown(BB_KEY_S)), sideways# = Float(KeyDown(BB_KEY_D) - KeyDown(BB_KEY_A))
 	Local speed# = 0.075
 	Local wasInWater = inWater
 	inWater = BlockAt(Int(Floor(playerX)), Int(Floor(playerY + 0.4)), Int(Floor(playerZ))) = B_WATER
@@ -667,15 +669,15 @@ Function UpdatePlayer()
 	Local moveZ# = (Cos(yaw) * forward + Sin(yaw) * sideways) * speed
 
 	If flying
-		velocityY = (KeyDown(KEY_SPACE) - KeyDown(KEY_SHIFT)) * 0.14
+		velocityY = (KeyDown(BB_KEY_SPACE) - KeyDown(BB_KEY_LSHIFT)) * 0.14
 	ElseIf inWater
 		velocityY = velocityY * 0.85 - 0.004
-		If KeyDown(KEY_SPACE) Then velocityY = velocityY + 0.012
+		If KeyDown(BB_KEY_SPACE) Then velocityY = velocityY + 0.012
 		If velocityY < -0.06 Then velocityY = -0.06
 	Else
 		velocityY = velocityY - 0.012 ; Gravity.
 		If velocityY < -0.6 Then velocityY = -0.6
-		If KeyDown(KEY_SPACE) And onGround Then velocityY = 0.2
+		If KeyDown(BB_KEY_SPACE) And onGround Then velocityY = 0.2
 	EndIf
 
 	; Move along one axis at a time, and stop at the base block in the way. Doing the axes one by one lets the
@@ -735,7 +737,7 @@ Function UpdateBuilding()
 		HideEntity outline
 	EndIf
 
-	If MouseHit(1) And lookHit
+	If MouseHit(BB_MOUSE_LEFT) And lookHit
 		If lookY = 0
 			ShowMessage("The bottom of the world stays.")
 		Else
@@ -744,7 +746,7 @@ Function UpdateBuilding()
 			PlaySfx(soundBreak)
 		EndIf
 	EndIf
-	If MouseHit(2) And lookHit
+	If MouseHit(BB_MOUSE_RIGHT) And lookHit
 		Local kind = barBlock(chosen)
 		If placeY >= WORLD_Y
 			ShowMessage("That is too high: the sky is the limit.")
@@ -776,14 +778,14 @@ End Function
 ; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
 
 	Local row = MenuLineAt(MouseX(), MouseY())
 	If row >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = row
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And row >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And row >= 0
 		menuSelected = row
 		Return row
 	EndIf
@@ -828,7 +830,7 @@ End Function
 Function UpdateMenu()
 	UpdateMenuCamera()
 
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : StartPlaying()
 		Case 1
@@ -846,7 +848,7 @@ End Function
 Function UpdateConfirm()
 	UpdateMenuCamera()
 	Local answer = MenuInput()
-	If KeyHit(KEY_ESCAPE) Then answer = 1
+	If KeyHit(BB_KEY_ESCAPE) Then answer = 1
 	If answer = 0
 		NewWorld(MilliSecs())
 		Local i
@@ -901,7 +903,7 @@ Function UpdatePause()
 			SaveWorld()
 			GoToMenu()
 	End Select
-	If KeyHit(KEY_ESCAPE) And state = STATE_PAUSED Then StartPlaying()
+	If KeyHit(BB_KEY_ESCAPE) And state = STATE_PAUSED Then StartPlaying()
 	Return False
 End Function
 
@@ -924,12 +926,12 @@ End Function
 Function UpdateOptions()
 	If Not optionsFromPause Then UpdateMenuCamera()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
 	If picked >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
-	If KeyHit(KEY_ESCAPE) Or picked = 6
+	If KeyHit(BB_KEY_ESCAPE) Or picked = 6
 		SaveSettings()
 		If optionsFromPause
 			GoToPause()
@@ -1244,7 +1246,7 @@ End Function
 ; The texture of all blocks: the 16 tiles in a 4 x 4 grid. Flag 4 makes black see-through. The sampler picks the
 ; nearest pixel instead of blending, so the blocks keep their sharp, pixelated look up close.
 Function MakeAtlas()
-	atlas = CreateTexture(64, 64, 1 + 4)
+	atlas = CreateTexture(64, 64, BB_TEXTURE_COLOR + BB_TEXTURE_MASKED)
 	Local buffer = TextureBuffer(atlas), tile, x, y
 	LockBuffer buffer
 	For tile = 0 To 15

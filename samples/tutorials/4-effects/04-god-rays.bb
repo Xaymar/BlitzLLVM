@@ -23,7 +23,12 @@
 ; Controls: R turns the rays on and off, Up / Down change how strong they are, Left / Right turn the camera, Space
 ; stops and starts the swaying of the camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 4.04: Rays of Light"
 SetBuffer BackBuffer()
 SeedRnd 7 ; Always the same forest.
@@ -71,7 +76,7 @@ For i = 1 To 40
 Next
 
 ; The sun: a big glowing sprite far away, low over the trees.
-Local glow = CreateTexture(64, 64, 1 + 2), px, py, distance#, alpha#
+Local glow = CreateTexture(64, 64, BB_TEXTURE_COLOR + BB_TEXTURE_ALPHA), px, py, distance#, alpha#
 LockBuffer TextureBuffer(glow)
 For py = 0 To 63
 	For px = 0 To 63
@@ -88,33 +93,33 @@ EntityTexture sun, glow
 ScaleSprite sun, 16, 16
 PositionEntity sun, 0, 16, 80
 EntityColor sun, 255, 235, 190
-EntityFX sun, 1 + 8 ; Full bright and no fog, so the sun is never dimmed.
-EntityBlend sun, 3
+EntityFX sun, BB_FX_FULLBRIGHT + BB_FX_NO_FOG ; Full bright and no fog, so the sun is never dimmed.
+EntityBlend sun, BB_BLEND_ADD
 
 ; --- Ray texture and overlays ----------------------------------------------------------------------------------------
-Global rayTexture = CreateTexture(RAY_W, RAY_H, 1 + 16 + 32 + 256 + 4096)
+Global rayTexture = CreateTexture(RAY_W, RAY_H, BB_TEXTURE_COLOR + BB_TEXTURE_CLAMP_U + BB_TEXTURE_CLAMP_V + BB_TEXTURE_VRAM + BB_TEXTURE_RENDER_TARGET)
 Dim overlay(RAY_LAYERS - 1)
 For i = 0 To RAY_LAYERS - 1
 	overlay(i) = CreateSprite(camera)
 	EntityTexture overlay(i), rayTexture
-	EntityBlend overlay(i), 3
-	EntityFX overlay(i), 1 + 8
+	EntityBlend overlay(i), BB_BLEND_ADD
+	EntityFX overlay(i), BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 	EntityOrder overlay(i), -1
 Next
 
 Local raysOn = True, strength# = 0.7, sway = True, swayTime#
 Local sunX#, sunY#, scale#, visible
 
-While Not KeyHit(1)
-	If KeyHit(19) Then raysOn = Not raysOn
-	If KeyHit(57) Then sway = Not sway
-	If KeyDown(200) Then strength = strength + 0.01
-	If KeyDown(208) Then strength = strength - 0.01
+While Not KeyHit(BB_KEY_ESCAPE)
+	If KeyHit(BB_KEY_R) Then raysOn = Not raysOn
+	If KeyHit(BB_KEY_SPACE) Then sway = Not sway
+	If KeyDown(BB_KEY_UP) Then strength = strength + 0.01
+	If KeyDown(BB_KEY_DOWN) Then strength = strength - 0.01
 	If strength < 0.1 Then strength = 0.1
 	If strength > 1 Then strength = 1
 	If sway Then swayTime = swayTime + 1.0 / 60
 	RotateEntity cameraPivot, 0, Sin(swayTime * 15) * 25, 0
-	TurnEntity camera, 0, (KeyDown(203) - KeyDown(205)) * 1.0, 0
+	TurnEntity camera, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.0, 0
 
 	visible = raysOn And EntityInView(sun, camera)
 	If visible
@@ -180,7 +185,7 @@ Function SetDarkBlack(black)
 	For d = Each Dark
 		If black
 			EntityColor d\entity, 0, 0, 0
-			EntityFX d\entity, 1
+			EntityFX d\entity, BB_FX_FULLBRIGHT
 		Else
 			EntityColor d\entity, Float(d\red), Float(d\green), Float(d\blue)
 			EntityFX d\entity, 0

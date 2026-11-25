@@ -13,7 +13,12 @@
 ;
 ; Controls: click a block to paint it, right-click to remove it. The red laser in the middle shows LinePick.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.07: Picking"
 SetBuffer BackBuffer()
 
@@ -31,7 +36,7 @@ Local ground = CreateCube()
 ScaleEntity ground, 8, 0.2, 8
 PositionEntity ground, 0, -0.2, 0
 EntityColor ground, 80, 90, 80
-EntityPickMode ground, 2
+EntityPickMode ground, BB_PICK_POLYGON
 
 ; A grid of blocks, picked as boxes.
 Local x, z, block, height#
@@ -43,7 +48,7 @@ For x = -3 To 3
 			ScaleEntity block, 0.45, height, 0.45
 			PositionEntity block, x * 1.1, height, z * 1.1 ; A cube is 2 high, so this puts it on the floor.
 			EntityColor block, 200, 200, 200
-			EntityPickMode block, 3
+			EntityPickMode block, BB_PICK_BOX
 			NameEntity block, "Block " + (x + 4) + "/" + (z + 4) ; A name, to show what was picked.
 		EndIf
 	Next
@@ -53,19 +58,19 @@ Next
 Local marker = CreateSphere(8)
 ScaleEntity marker, 0.12, 0.12, 0.12
 EntityColor marker, 255, 255, 0
-EntityFX marker, 1
+EntityFX marker, BB_FX_FULLBRIGHT
 
 ; The laser: a thin, long cube that is stretched to the length of the LinePick.
 Local laser = CreateCube()
 EntityColor laser, 255, 40, 40
-EntityFX laser, 1
+EntityFX laser, BB_FX_FULLBRIGHT
 
 Local picked, name$, angle# = 0, length#, hitX#, hitY#, hitZ#, leftClick, rightClick
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; Read the clicks every frame, so that a click is not saved up for later.
-	leftClick = MouseHit(1)
-	rightClick = MouseHit(2)
+	leftClick = MouseHit(BB_MOUSE_LEFT)
+	rightClick = MouseHit(BB_MOUSE_RIGHT)
 
 	; --- Mouse picking ---
 	picked = CameraPick(camera, Float(MouseX()), Float(MouseY()))

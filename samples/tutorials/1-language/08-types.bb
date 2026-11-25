@@ -7,7 +7,9 @@
 ; enemy. Every "New" makes another object of that Type, and Blitz keeps all objects of a Type in a list, so you
 ; can make and remove as many as the game needs.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; A Type lists its Fields. Fields use the same suffixes as variables.
 Type Monster

@@ -12,9 +12,13 @@
 ;
 ; You only need the suffix the first time you use a variable. After that Blitz remembers its kind.
 
+; Include pulls the lines of another file into the program. The name in angle brackets is a file that comes with
+; BlitzLLVM. graphics.bb names the graphics modes, so the program can say BB_GRAPHICS_WINDOWED instead of 2.
+Include "<graphics.bb>"
+
 ; Print opens a small window by itself, but this program prints more than fits into it. Graphics opens a
-; bigger one first: 800 by 600 pixels, colour depth 0 (the best there is) and mode 2 (a window).
-Graphics 800, 600, 0, 2
+; bigger one first: 800 by 600 pixels, colour depth 0 (the best there is) and a window.
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED
 
 ; Local makes a new variable and = gives it a value.
 ;

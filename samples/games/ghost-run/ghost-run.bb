@@ -29,6 +29,11 @@
 ;
 ; The options and best times are saved in ghost-run.cfg, the ghosts in ghost-run-1.ghost and so on.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const MAX_SLICES = 3000, MAX_GATES = 16, TRACKS = 3, MAX_FRAMES = 21600, MINIMAP = 140
 Const START_SLICE = 6       ; Where the car waits for the start.
@@ -50,9 +55,6 @@ Const DT# = 0.0166667       ; One update in seconds.
 ; The states the game can be in. The main loop asks the current state what to do.
 Const STATE_MENU = 0, STATE_TRACKS = 1, STATE_OPTIONS = 2, STATE_HELP = 3, STATE_COUNTDOWN = 4, STATE_RACE = 5
 Const STATE_PAUSED = 6, STATE_FINISHED = 7, STATE_RESULTS = 8
-
-Const KEY_ESCAPE = 1, KEY_BACKSPACE = 14, KEY_W = 17, KEY_R = 19, KEY_P = 25, KEY_ENTER = 28, KEY_A = 30
-Const KEY_S = 31, KEY_D = 32, KEY_SPACE = 57, KEY_UP = 200, KEY_LEFT = 203, KEY_RIGHT = 205, KEY_DOWN = 208
 
 Const SKY_R = 120, SKY_G = 176, SKY_B = 232
 
@@ -174,7 +176,7 @@ While Not quit
 			UpdateOptions()
 		Case STATE_HELP
 			UpdateDemo()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu() : menuSelected = 2
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu() : menuSelected = 2
 		Case STATE_COUNTDOWN
 			UpdateCountdown()
 		Case STATE_RACE
@@ -212,7 +214,7 @@ Function OpenScreen()
 		If watermark <> 0 Then FreeImage watermark
 	EndIf
 	screenOpen = True
-	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, 1 Else Graphics3D SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Ghost Run"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -627,7 +629,7 @@ Function MakeScenery()
 	Local pads = CreateMesh(scenery)
 	Local brush = CreateBrush()
 	BrushTexture brush, padTex
-	BrushFX brush, 1
+	BrushFX brush, BB_FX_FULLBRIGHT
 	padSurface = CreateSurface(pads, brush)
 	FreeBrush brush
 	For i = 0 To slices - 2
@@ -658,7 +660,7 @@ Function MakeScenery()
 			EntityColor part, 60, 140, 255
 			gateBanner(k) = part
 		EndIf
-		EntityFX part, 1
+		EntityFX part, BB_FX_FULLBRIGHT
 	Next
 
 	; Pillars under the road.
@@ -1008,14 +1010,14 @@ End Function
 ; --- Menus -----------------------------------------------------------------------------------------------------------
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
 
 	Local row = MenuLineAt(MouseX(), MouseY())
 	If row >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = row
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And row >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And row >= 0
 		menuSelected = row
 		Return row
 	EndIf
@@ -1074,7 +1076,7 @@ End Function
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
 	UpdateDemo()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : GoToTracks()
 		Case 1 : GoToOptions()
@@ -1099,10 +1101,10 @@ End Function
 Function UpdateTracks()
 	UpdateDemo()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
-	If KeyHit(KEY_ESCAPE) Or picked = 2
+	If KeyHit(BB_KEY_ESCAPE) Or picked = 2
 		SaveSettings()
 		GoToMenu()
 		Return
@@ -1140,12 +1142,12 @@ End Function
 Function UpdateOptions()
 	If Not optionsFromPause Then UpdateDemo()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
 	If picked >= 0 Then change = 1
 
-	If KeyHit(KEY_ESCAPE) Or picked = 6
+	If KeyHit(BB_KEY_ESCAPE) Or picked = 6
 		SaveSettings()
 		If optionsFromPause Then GoToPause() Else GoToMenu()
 		menuSelected = 1 + optionsFromPause
@@ -1223,7 +1225,7 @@ End Function
 
 Function UpdatePause()
 	Local picked = MenuInput()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then picked = 0
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then picked = 0
 	Select picked
 		Case 0
 			HidePointer
@@ -1278,16 +1280,16 @@ Function UpdateCountdown()
 	ShowGhost(0)
 	ChaseCamera(player, False)
 	UpdateEngine()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then GoToPause()
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then GoToPause()
 End Function
 
 Function PlayerInput()
 	Local throttle# = 0, steer# = 0
-	If KeyDown(KEY_UP) Or KeyDown(KEY_W) Then throttle = 1
-	If KeyDown(KEY_DOWN) Or KeyDown(KEY_S) Then throttle = -1
-	If KeyDown(KEY_LEFT) Or KeyDown(KEY_A) Then steer = steer + 1
-	If KeyDown(KEY_RIGHT) Or KeyDown(KEY_D) Then steer = steer - 1
-	DriveCar(player, throttle, steer, KeyDown(KEY_SPACE))
+	If KeyDown(BB_KEY_UP) Or KeyDown(BB_KEY_W) Then throttle = 1
+	If KeyDown(BB_KEY_DOWN) Or KeyDown(BB_KEY_S) Then throttle = -1
+	If KeyDown(BB_KEY_LEFT) Or KeyDown(BB_KEY_A) Then steer = steer + 1
+	If KeyDown(BB_KEY_RIGHT) Or KeyDown(BB_KEY_D) Then steer = steer - 1
+	DriveCar(player, throttle, steer, KeyDown(BB_KEY_SPACE))
 End Function
 
 Function UpdateRace()
@@ -1304,11 +1306,11 @@ Function UpdateRace()
 	If EntityY(player\ent) < sY(player\near) - 12 Or player\airTime > 360 Or EntityY(player\ent) < 1
 		Respawn("Back to the checkpoint")
 	EndIf
-	If KeyHit(KEY_BACKSPACE) Then Respawn("")
-	If KeyHit(KEY_R) Then StartRun() : Return
+	If KeyHit(BB_KEY_BACKSPACE) Then Respawn("")
+	If KeyHit(BB_KEY_R) Then StartRun() : Return
 	ChaseCamera(player, False)
 	UpdateEngine()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then GoToPause()
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then GoToPause()
 End Function
 
 Function Respawn(text$)
@@ -1408,7 +1410,7 @@ Function UpdateFinished()
 	ChaseCamera(player, False)
 	UpdateEngine()
 	finishTimer = finishTimer - 1
-	If finishTimer <= 0 Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then GoToResults()
+	If finishTimer <= 0 Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then GoToResults()
 End Function
 
 Function GoToResults()
@@ -1435,7 +1437,7 @@ Function UpdateResults()
 			StartRun()
 		Case 2 : GoToMenu()
 	End Select
-	If KeyHit(KEY_ESCAPE) Then GoToMenu()
+	If KeyHit(BB_KEY_ESCAPE) Then GoToMenu()
 End Function
 
 ; The medal a time earns: 3 gold, 2 silver, 1 bronze, 0 none.

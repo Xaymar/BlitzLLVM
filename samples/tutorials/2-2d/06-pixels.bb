@@ -9,7 +9,10 @@
 ;
 ; This tutorial draws a moving "plasma" into an image, from sine waves.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.06: Pixels"
 SetBuffer BackBuffer()
 
@@ -36,7 +39,7 @@ Next
 Local t = 0, x, y, value, buffer
 Local mouseRGB, pixel
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	t = t + 2
 	buffer = ImageBuffer(plasma)
 

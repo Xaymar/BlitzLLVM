@@ -12,7 +12,10 @@
 ;   1 2 3 4           choose the wave shape
 ;   Left / Right      pan the sound,  Up / Down  change the volume
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.07: Making Sounds"
 SetBuffer BackBuffer()
 
@@ -26,7 +29,7 @@ For wave = 1 To 4
 	sounds(wave) = MakeTone(440, 600, wave)
 Next
 
-; The scan codes of A S D F G H J K and how much each note's pitch differs from A.
+; The key codes of A S D F G H J K and how much each note's pitch differs from A.
 Dim keys(7), ratios#(7)
 Restore scale
 Local i
@@ -38,14 +41,14 @@ Local current = WAVE_SINE, pan# = 0, volume# = 0.8
 Local channel, lastNote = -1
 Local name$, x, y, lastY
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	For wave = 1 To 4
-		If KeyHit(wave + 1) Then current = wave ; Keys 1 to 4 have the scan codes 2 to 5.
+		If KeyHit(BB_KEY_1 + wave - 1) Then current = wave ; The number keys 1 to 9 have codes that follow each other.
 	Next
-	If KeyHit(203) And pan > -1 Then pan = pan - 0.5
-	If KeyHit(205) And pan < 1 Then pan = pan + 0.5
-	If KeyHit(200) And volume < 1 Then volume = volume + 0.1
-	If KeyHit(208) And volume > 0.15 Then volume = volume - 0.1
+	If KeyHit(BB_KEY_LEFT) And pan > -1 Then pan = pan - 0.5
+	If KeyHit(BB_KEY_RIGHT) And pan < 1 Then pan = pan + 0.5
+	If KeyHit(BB_KEY_UP) And volume < 1 Then volume = volume + 0.1
+	If KeyHit(BB_KEY_DOWN) And volume > 0.15 Then volume = volume - 0.1
 
 	For i = 0 To 7
 		If KeyHit(keys(i))
@@ -154,6 +157,7 @@ Function PokeText(bank, offset, text$)
 	Next
 End Function
 
-; Scan code and pitch ratio of each note, from A (440 Hz) up: C5 D5 E5 F5 G5 A5 B5 C6, as ratios of the A4 sample.
+; Key and pitch ratio of each note, from A (440 Hz) up: C5 D5 E5 F5 G5 A5 B5 C6, as ratios of the A4 sample.
 .scale
-Data 30, 1.189, 31, 1.335, 32, 1.498, 33, 1.587, 34, 1.782, 35, 2.0, 36, 2.245, 37, 2.378
+Data BB_KEY_A, 1.189, BB_KEY_S, 1.335, BB_KEY_D, 1.498, BB_KEY_F, 1.587, BB_KEY_G, 1.782, BB_KEY_H, 2.0, BB_KEY_J, 2.245
+Data BB_KEY_K, 2.378

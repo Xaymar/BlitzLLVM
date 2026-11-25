@@ -6,7 +6,9 @@
 ; Strings hold text. Blitz has many functions to look inside text, cut it up and build new text from pieces.
 ; Positions in a string start at 1 for the first character.
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 Local sentence$ = "The quick brown fox jumps over the lazy dog"
 Print sentence$

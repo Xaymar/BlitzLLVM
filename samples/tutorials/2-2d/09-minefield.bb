@@ -20,6 +20,10 @@
 ; Controls: left click uncovers a square, right click puts a flag on it (or a question mark, if that option is on).
 ; Left click on a number whose mines are all flagged uncovers the squares around it. Escape goes back to the menu.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
 ; --- Constants and settings ---------------------------------------------------------------------------------------
 
 Const SCREEN_W = 640, SCREEN_H = 480
@@ -31,10 +35,6 @@ Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_BEST = 2, STATE_PLAY = 3, STATE_W
 
 ; What the player put on a covered square.
 Const MARK_NONE = 0, MARK_FLAG = 1, MARK_QUESTION = 2
-
-; Key scan codes used below.
-Const KEY_ESCAPE = 1, KEY_ENTER = 28, KEY_SPACE = 57, KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
-Const KEY_R = 19
 
 ; The three field sizes: columns, rows and mines. Data keeps them together and easy to change.
 Dim sizeName$(2), sizeCols(2), sizeRows(2), sizeMines(2)
@@ -104,12 +104,12 @@ While Not quit
 		Case STATE_OPTIONS
 			UpdateOptions()
 		Case STATE_BEST
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or MouseHit(1) Then state = STATE_MENU
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or MouseHit(BB_MOUSE_LEFT) Then state = STATE_MENU
 		Case STATE_PLAY
 			UpdatePlay()
 		Case STATE_WON, STATE_LOST
-			If KeyHit(KEY_R) Then StartGame()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or MouseHit(1) Then GoToMenu()
+			If KeyHit(BB_KEY_R) Then StartGame()
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu()
 	End Select
 
 	Cls
@@ -142,7 +142,7 @@ End
 ; frees all images and fonts, so a game that has any loads them again afterwards. This one draws everything with
 ; Rect, Oval and Text every frame, so there is nothing to reload. Sounds and timers survive.
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Minefield"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -191,14 +191,14 @@ End Function
 ; -1 if nothing was chosen this frame.
 
 Function MenuInput(top)
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
 
 	Local line = MenuLineAt(top, MouseX(), MouseY())
 	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line ; Only when the mouse moves.
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And line >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And line >= 0
 		menuSelected = line
 		Return line
 	EndIf
@@ -259,7 +259,7 @@ End Function
 ; Gives back True when the player chose Quit.
 Function UpdateMainMenu()
 	If menuCount = 0 Then GoToMenu() ; The very first frame.
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput(240)
 		Case 0
 			StartGame()
@@ -299,12 +299,12 @@ End Function
 
 Function UpdateOptions()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local chosen = MenuInput(200)
 	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
-	If KeyHit(KEY_ESCAPE) Or (chosen = 4)
+	If KeyHit(BB_KEY_ESCAPE) Or (chosen = 4)
 		SaveSettings()
 		GoToMenu()
 		Return
@@ -407,7 +407,7 @@ Function InField(x, y)
 End Function
 
 Function UpdatePlay()
-	If KeyHit(KEY_ESCAPE)
+	If KeyHit(BB_KEY_ESCAPE)
 		GoToMenu()
 		Return
 	EndIf
@@ -420,7 +420,7 @@ Function UpdatePlay()
 		x = mx / TILE
 		y = my / TILE
 	EndIf
-	Local leftClick = MouseHit(1), rightClick = MouseHit(2)
+	Local leftClick = MouseHit(BB_MOUSE_LEFT), rightClick = MouseHit(BB_MOUSE_RIGHT)
 	If Not InField(x, y) Then Return
 
 	If rightClick And Not open(x, y)

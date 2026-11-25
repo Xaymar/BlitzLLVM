@@ -6,7 +6,9 @@
 ; A function is a named piece of code you can run from anywhere, as often as you like. Functions keep programs
 ; short (write it once, use it many times) and easy to read (a good name says what the code does).
 
-Graphics 800, 600, 0, 2 ; A bigger window, so that everything printed fits.
+Include "<graphics.bb>"
+
+Graphics 800, 600, 0, BB_GRAPHICS_WINDOWED ; A bigger window, so that everything printed fits.
 
 ; Functions can be written anywhere in the file, even after the code that calls them. These tutorials put them at
 ; the bottom, after End, so the program itself comes first.

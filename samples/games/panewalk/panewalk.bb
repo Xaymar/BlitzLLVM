@@ -22,12 +22,9 @@
 ;
 ; The options and the progress are saved in panewalk.cfg next to the program.
 
-Const EVENT_KEY_DOWN = $101, EVENT_MOUSE_DOWN = $201, EVENT_MOUSE_UP = $202, EVENT_MOUSE_MOVE = $203
-Const EVENT_WINDOW_CLOSE = $803, EVENT_TIMER = $4001
-
-; Scan codes of the keys we use.
-Const KEY_ESCAPE = 1, KEY_R = 19, KEY_P = 25, KEY_H = 35, KEY_ENTER = 28, KEY_SPACE = 57
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<gui.bb>"
 
 ; The levels are laid out on a board of this size, in the middle of the desktop. The Panewalk window sits in its top
 ; left corner while a level is played, so no room starts there.
@@ -101,13 +98,13 @@ Global desktopW = ClientWidth(Desktop()), desktopH = ClientHeight(Desktop())
 Global boardX = Max((desktopW - BOARD_W) / 2, 0), boardY = Max((desktopH - BOARD_H) / 2, 0)
 
 AppTitle "Panewalk"
-Global panel = CreateWindow("Panewalk", (desktopW - PANEL_BIG_W) / 2, (desktopH - PANEL_BIG_H) / 2, PANEL_BIG_W, PANEL_BIG_H, Desktop(), 1)
+Global panel = CreateWindow("Panewalk", (desktopW - PANEL_BIG_W) / 2, (desktopH - PANEL_BIG_H) / 2, PANEL_BIG_W, PANEL_BIG_H, Desktop(), BB_WINDOW_TITLEBAR)
 If panel = 0
 	Notify "Panewalk needs windows of its own, and none could be made here.", True
 	End
 EndIf
 Global screen = CreateCanvas(0, 0, ClientWidth(panel), ClientHeight(panel), panel)
-SetGadgetLayout screen, 1, 1, 1, 1
+SetGadgetLayout screen, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED
 ActivateGadget screen
 
 ; --- Game --------------------------------------------------------------------------------------------------------
@@ -149,29 +146,29 @@ Local timer = CreateTimer(60)
 Local quit = False
 Repeat
 	Select WaitEvent()
-		Case EVENT_TIMER
+		Case BB_EVENT_TIMER
 			Tick()
-		Case EVENT_MOUSE_DOWN
+		Case BB_EVENT_MOUSE_DOWN
 			If EventSource() = screen
 				Local hit = ButtonAt(EventX(), EventY())
 				If hit >= 0
 					buttonSelected = hit
-					quit = Press(buttonId(hit), EventData() = 2)
+					quit = Press(buttonId(hit), EventData() = BB_MOUSE_RIGHT)
 				EndIf
-			ElseIf EventData() = 1
+			ElseIf EventData() = BB_MOUSE_LEFT
 				StartDrag(EventSource(), EventX(), EventY())
 			EndIf
-		Case EVENT_MOUSE_MOVE
+		Case BB_EVENT_MOUSE_MOVE
 			If EventSource() = screen
 				buttonHover = ButtonAt(EventX(), EventY())
 			ElseIf dragRoom <> Null
 				If EventSource() = dragRoom\canvas Then Drag(EventX(), EventY())
 			EndIf
-		Case EVENT_MOUSE_UP
+		Case BB_EVENT_MOUSE_UP
 			dragRoom = Null
-		Case EVENT_KEY_DOWN
+		Case BB_EVENT_KEY_DOWN
 			quit = KeyDown(EventData())
-		Case EVENT_WINDOW_CLOSE
+		Case BB_EVENT_WINDOW_CLOSE
 			; The close box of the Panewalk window leaves a level, or the game. The rooms cannot be closed.
 			If EventSource() = panel
 				If state = STATE_PLAY Then GoToMenu() Else quit = True
@@ -537,7 +534,7 @@ End Function
 
 Function Drag(x, y)
 	; The button may have come up outside of every window of the game, where no event tells about it.
-	If Not MouseDown(1)
+	If Not MouseDown(BB_MOUSE_LEFT)
 		dragRoom = Null
 		Return
 	EndIf
@@ -611,12 +608,12 @@ End Function
 ; moved; blue rooms have one; green ones can also be resized.
 Function OpenRoom(r.Room)
 	Local style = 0
-	If r\kind = ROOM_FREE Then style = 1
-	If r\kind = ROOM_STRETCH Then style = 1 + 2
+	If r\kind = ROOM_FREE Then style = BB_WINDOW_TITLEBAR
+	If r\kind = ROOM_STRETCH Then style = BB_WINDOW_TITLEBAR + BB_WINDOW_RESIZABLE
 	r\win = CreateWindow(r\title, r\x, r\y, r\w, r\h, Desktop(), style)
 	If r\win = 0 Then RuntimeError "Could not open the window of the room " + r\title + "."
 	r\canvas = CreateCanvas(0, 0, r\w, r\h, r\win)
-	SetGadgetLayout r\canvas, 1, 1, 1, 1
+	SetGadgetLayout r\canvas, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED, BB_EDGE_ALIGNED
 	; The computer may have put the window somewhere else than asked: it goes where the level says.
 	If GadgetX(r\win) <> r\x Or GadgetY(r\win) <> r\y Then SetGadgetShape r\win, r\x, r\y, r\w, r\h
 	; The computer may also keep a window bigger than asked, as a window with a title bar has a smallest width of its
@@ -1220,31 +1217,31 @@ End Function
 ; A key went down in the Panewalk window. Gives back True when the game should end.
 Function KeyDown(key)
 	Select key
-		Case KEY_UP
+		Case BB_KEY_UP
 			If buttonCount > 0 Then buttonSelected = (buttonSelected + buttonCount - 1) Mod buttonCount
-		Case KEY_DOWN
+		Case BB_KEY_DOWN
 			If buttonCount > 0 Then buttonSelected = (buttonSelected + 1) Mod buttonCount
-		Case KEY_LEFT, KEY_RIGHT
+		Case BB_KEY_LEFT, BB_KEY_RIGHT
 			If state = STATE_OPTIONS And buttonSelected >= 0 And buttonSelected < buttonCount
-				If buttonId(buttonSelected) <> BUTTON_BACK Then Return Press(buttonId(buttonSelected), key = KEY_LEFT)
+				If buttonId(buttonSelected) <> BUTTON_BACK Then Return Press(buttonId(buttonSelected), key = BB_KEY_LEFT)
 			ElseIf buttonCount > 0
-				If key = KEY_LEFT Then buttonSelected = (buttonSelected + buttonCount - 1) Mod buttonCount Else buttonSelected = (buttonSelected + 1) Mod buttonCount
+				If key = BB_KEY_LEFT Then buttonSelected = (buttonSelected + buttonCount - 1) Mod buttonCount Else buttonSelected = (buttonSelected + 1) Mod buttonCount
 			EndIf
-		Case KEY_ENTER
+		Case BB_KEY_ENTER
 			If buttonSelected >= 0 And buttonSelected < buttonCount Then Return Press(buttonId(buttonSelected), False)
-		Case KEY_SPACE
+		Case BB_KEY_SPACE
 			If state = STATE_PLAY
 				If pipState = PIP_HOME Then Return Press(buttonId(0), False)
 				Return Press(BUTTON_GO, False)
 			EndIf
 			If buttonSelected >= 0 And buttonSelected < buttonCount Then Return Press(buttonId(buttonSelected), False)
-		Case KEY_P
+		Case BB_KEY_P
 			If state = STATE_PLAY And pipState = PIP_WALKING Then Return Press(BUTTON_GO, False)
-		Case KEY_R
+		Case BB_KEY_R
 			If state = STATE_PLAY Then RestartLevel()
-		Case KEY_H
+		Case BB_KEY_H
 			showHint = Not showHint
-		Case KEY_ESCAPE
+		Case BB_KEY_ESCAPE
 			If state = STATE_MENU Then Return True
 			If state = STATE_OPTIONS Then SaveSettings()
 			GoToMenu()

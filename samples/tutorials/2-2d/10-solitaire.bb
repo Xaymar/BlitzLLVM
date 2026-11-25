@@ -21,6 +21,10 @@
 ; Controls: drag cards with the left mouse button. Double click a card to send it to its suit pile. U undoes the last
 ; move, Escape goes back to the menu.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const CARD_W = 72, CARD_H = 100
 Const COLUMN_STEP = 104            ; From one column to the next.
@@ -36,9 +40,6 @@ Const PILE_STOCK = 0, PILE_WASTE = 1, PILE_FOUNDATION = 2, PILE_TABLEAU = 6, PIL
 Const SUIT_SPADES = 0, SUIT_HEARTS = 1, SUIT_DIAMONDS = 2, SUIT_CLUBS = 3
 
 Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_STATS = 2, STATE_HELP = 3, STATE_PLAY = 4, STATE_WON = 5
-
-Const KEY_ESCAPE = 1, KEY_U = 22, KEY_ENTER = 28, KEY_SPACE = 57
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 ; --- The game's data -----------------------------------------------------------------------------------------------
 Dim pileCard(PILE_COUNT - 1, 51)   ; pileCard(pile, 0) is the bottom card of a pile.
@@ -99,11 +100,11 @@ While Not quit
 		Case STATE_OPTIONS
 			UpdateOptions()
 		Case STATE_STATS, STATE_HELP
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu()
 		Case STATE_PLAY
 			UpdatePlay()
 		Case STATE_WON
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu()
 	End Select
 
 	ClsColor 20, 90, 55
@@ -126,7 +127,7 @@ End
 
 ; Graphics frees all images, so the cards are drawn again every time the screen opens.
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Solitaire"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -177,14 +178,14 @@ End Function
 ; The same menu code as in tutorial 2.09: a list of lines, the selected one, keys and mouse.
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount
 
 	Local line = MenuLineAt(MouseX(), MouseY())
 	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And line >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And line >= 0
 		menuSelected = line
 		Return line
 	EndIf
@@ -217,7 +218,7 @@ End Function
 
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : StartGame()
 		Case 1 : GoToOptions()
@@ -257,12 +258,12 @@ End Function
 
 Function UpdateOptions()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local chosen = MenuInput()
 	If chosen >= 0 Then change = 1
 
-	If KeyHit(KEY_ESCAPE) Or chosen = 4
+	If KeyHit(BB_KEY_ESCAPE) Or chosen = 4
 		SaveSettings()
 		GoToMenu()
 		menuSelected = 1
@@ -478,11 +479,11 @@ End Function
 ; --- Playing ---------------------------------------------------------------------------------------------------------
 
 Function UpdatePlay()
-	If KeyHit(KEY_ESCAPE)
+	If KeyHit(BB_KEY_ESCAPE)
 		GoToMenu()
 		Return
 	EndIf
-	If KeyHit(KEY_U) And undoValid And Not dragging Then RestoreUndo()
+	If KeyHit(BB_KEY_U) And undoValid And Not dragging Then RestoreUndo()
 
 	If finishing
 		UpdateFinishing()
@@ -491,11 +492,11 @@ Function UpdatePlay()
 
 	If dragging
 		; The button is still held: the cards follow the mouse, nothing else to do. Letting go drops them.
-		If Not MouseDown(1) Then DropCards()
+		If Not MouseDown(BB_MOUSE_LEFT) Then DropCards()
 		Return
 	EndIf
 
-	If Not MouseHit(1) Then Return
+	If Not MouseHit(BB_MOUSE_LEFT) Then Return
 	Local pile = PileAt(MouseX(), MouseY())
 	If pile = -1 Then Return
 

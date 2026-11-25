@@ -18,6 +18,10 @@
 ;
 ; The options and the best scores are saved in ion-tide.cfg next to the program.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const SCROLL_SPEED# = 2.0
 Const WALL_SEGMENT = 16                       ; The cavern is made of strips this wide.
@@ -27,10 +31,6 @@ Const FIRE_DELAY = 7                          ; Frames between shots.
 
 Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_PLAY = 3, STATE_PAUSED = 4, STATE_DEAD = 5
 Const STATE_OVER = 6, STATE_WON = 7
-
-Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_CTRL = 29, KEY_SPACE = 57
-Const KEY_ENTER = 28
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 Const ENEMY_DRIFTER = 1, ENEMY_GUNNER = 2, ENEMY_DIVER = 3, ENEMY_MINE = 4, ENEMY_GUARDIAN = 5
 Const ORB_POWER = 1, ORB_SHIELD = 2
@@ -141,7 +141,7 @@ While Not quit
 			UpdateOptions()
 		Case STATE_HELP
 			ScrollCavern()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu()
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu()
 		Case STATE_PLAY
 			ScrollCavern()
 			UpdatePlayer()
@@ -149,9 +149,9 @@ While Not quit
 			UpdateEnemies()
 			UpdateBullets()
 			UpdateOrbs()
-			If KeyHit(KEY_P) Then state = STATE_PAUSED
+			If KeyHit(BB_KEY_P) Then state = STATE_PAUSED
 		Case STATE_PAUSED
-			If KeyHit(KEY_P) Then state = STATE_PLAY
+			If KeyHit(BB_KEY_P) Then state = STATE_PLAY
 		Case STATE_DEAD
 			; Keep the world moving for a moment after the ship is lost.
 			ScrollCavern()
@@ -169,9 +169,9 @@ While Not quit
 			ScrollCavern()
 			UpdateEnemies()
 			UpdateBullets()
-			If KeyHit(KEY_SPACE) Or KeyHit(KEY_ENTER) Or MouseHit(1) Then GoToMenu()
+			If KeyHit(BB_KEY_SPACE) Or KeyHit(BB_KEY_ENTER) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu()
 	End Select
-	If state >= STATE_PLAY And KeyHit(KEY_ESCAPE)
+	If state >= STATE_PLAY And KeyHit(BB_KEY_ESCAPE)
 		SaveBest()
 		GoToMenu()
 	EndIf
@@ -188,7 +188,7 @@ End
 
 ; Opens the window or full screen, as the option says. Graphics frees all images, so they are all made again here.
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, 1 Else Graphics SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Ion Tide"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -256,14 +256,14 @@ End Function
 ; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundShot)
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundShot)
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundShot)
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundShot)
 
 	Local line = MenuLineAt(MouseX(), MouseY())
 	If line >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = line
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And line >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And line >= 0
 		menuSelected = line
 		Return line
 	EndIf
@@ -312,7 +312,7 @@ End Function
 
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : StartGame()
 		Case 1 : GoToOptions()
@@ -346,12 +346,12 @@ End Function
 
 Function UpdateOptions()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local chosen = MenuInput()
 	If chosen >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
-	If KeyHit(KEY_ESCAPE) Or chosen = 4
+	If KeyHit(BB_KEY_ESCAPE) Or chosen = 4
 		SaveSettings()
 		GoToMenu()
 		menuSelected = 1 ; Back on "Options".
@@ -485,8 +485,8 @@ End Function
 ; --- Player ----------------------------------------------------------------------------------------------------------
 
 Function UpdatePlayer()
-	Local dx# = Float((KeyDown(KEY_RIGHT) Or KeyDown(KEY_D)) - (KeyDown(KEY_LEFT) Or KeyDown(KEY_A)))
-	Local dy# = Float((KeyDown(KEY_DOWN) Or KeyDown(KEY_S)) - (KeyDown(KEY_UP) Or KeyDown(KEY_W)))
+	Local dx# = Float((KeyDown(BB_KEY_RIGHT) Or KeyDown(BB_KEY_D)) - (KeyDown(BB_KEY_LEFT) Or KeyDown(BB_KEY_A)))
+	Local dy# = Float((KeyDown(BB_KEY_DOWN) Or KeyDown(BB_KEY_S)) - (KeyDown(BB_KEY_UP) Or KeyDown(BB_KEY_W)))
 	; Moving diagonally should not be faster than moving straight.
 	If dx <> 0 And dy <> 0 Then dx = dx * 0.7071 : dy = dy * 0.7071
 	playerX = playerX + dx * PLAYER_SPEED
@@ -508,7 +508,7 @@ Function UpdatePlayer()
 	EndIf
 
 	If fireTimer > 0 Then fireTimer = fireTimer - 1
-	If (KeyDown(KEY_SPACE) Or KeyDown(KEY_CTRL)) And fireTimer = 0
+	If (KeyDown(BB_KEY_SPACE) Or KeyDown(BB_KEY_LCTRL)) And fireTimer = 0
 		FireGun()
 		fireTimer = FIRE_DELAY
 	EndIf
