@@ -346,9 +346,9 @@ puts the camera on the bridge or at the torch, for screenshots.
 
 === With the original Blitz3D
 
-`forest.bb` uses only commands that the original Blitz3D has as well. The BlitzLLVM-only commands are in `forest_llvm.bi` (the microsecond timer, the draw
-counters of `Stats3D` and anisotropic filtering with a sampler for every texture) and `forest_original.bi` (`MilliSecs`, draw counters of 0, no sampler). The
-runner picks the right one, as for the other benchmarks:
+`forest.bb` uses only commands that the original Blitz3D has as well. The timer and the draw counters are in `bench_llvm.bi` and `bench_original.bi`, as for
+every benchmark, and `forest_llvm.bi` has the anisotropic filtering with a sampler for every texture, which `forest_original.bi` leaves out. The runner picks
+the right ones, as for the other benchmarks:
 
 [source,bat]
 ----
