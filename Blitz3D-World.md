@@ -17,13 +17,18 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [Dither](Dither)
 * [DitherMode](DitherMode)
 * [DitherTemporal](DitherTemporal)
+* [GetGraphicsHDR](GetGraphicsHDR) 〔BlitzLLVM〕
 * [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency)
 * [HWDither](HWDither)
+* [HWHDRActive](HWHDRActive)
+* [HWHDRPeakNits](HWHDRPeakNits)
+* [HWHDRSupported](HWHDRSupported)
 * [HWMultiTex](HWMultiTex)
 * [HWOrderIndependentTransparency](HWOrderIndependentTransparency)
 * [HWTexUnits](HWTexUnits)
 * [RenderCamera](RenderCamera)
 * [RenderWorld](RenderWorld)
+* [SetGraphicsHDR](SetGraphicsHDR) 〔BlitzLLVM〕
 * [Stats3D](Stats3D)
 * [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
 * [TrisRendered](TrisRendered)

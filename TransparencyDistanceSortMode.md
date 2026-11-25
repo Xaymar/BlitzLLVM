@@ -26,7 +26,7 @@ A BlitzLLVM extension: chooses how see-through entities and sprites are put in o
 
 ## Related Commands
 
-[DitherMode](DitherMode), [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [RenderWorld](RenderWorld)
+[DitherMode](DitherMode), [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [SetGraphicsHDR](SetGraphicsHDR) 〔BlitzLLVM〕
 
 <div align="center">
 

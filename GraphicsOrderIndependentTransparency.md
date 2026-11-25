@@ -36,7 +36,7 @@ It costs four more images the size of the picture (28 bytes per pixel, 44 with 2
 
 ## Related Commands
 
-[DitherMode](DitherMode), [DitherTemporal](DitherTemporal), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
+[GetGraphicsHDR](GetGraphicsHDR) 〔BlitzLLVM〕, [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [SetGraphicsHDR](SetGraphicsHDR) 〔BlitzLLVM〕, [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
 
 <div align="center">
 

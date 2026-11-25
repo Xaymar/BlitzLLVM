@@ -377,6 +377,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetEntityType](GetEntityType)
 * [GetEnv](GetEnv)
 * [GetFalloff](GetFalloff)
+* [GetGraphicsHDR](GetGraphicsHDR) 〔BlitzLLVM〕
 * [GetHostAddress](GetHostAddress)
 * [GetJoy](GetJoy)
 * [GetKey](GetKey)
@@ -514,6 +515,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕
 * [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
 * [HWDither](HWDither)
+* [HWHDRActive](HWHDRActive)
+* [HWHDRPeakNits](HWHDRPeakNits)
+* [HWHDRSupported](HWHDRSupported)
 * [HWMultiTex](HWMultiTex)
 * [HWOrderIndependentTransparency](HWOrderIndependentTransparency)
 * [HWRawInput](HWRawInput)
@@ -924,6 +928,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetGadgetText](SetGadgetText)
 * [SetGamma](SetGamma)
 * [SetGfxDriver](SetGfxDriver)
+* [SetGraphicsHDR](SetGraphicsHDR) 〔BlitzLLVM〕
 * [SetMenuText](SetMenuText)
 * [SetMinWindowSize](SetMinWindowSize)
 * [SetPanelColor](SetPanelColor)

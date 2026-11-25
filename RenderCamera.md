@@ -51,7 +51,7 @@ Flip
 
 ## Related Commands
 
-[HWOrderIndependentTransparency](HWOrderIndependentTransparency), [HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld), [Stats3D](Stats3D)
+[HWOrderIndependentTransparency](HWOrderIndependentTransparency), [HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld), [SetGraphicsHDR](SetGraphicsHDR) 〔BlitzLLVM〕
 
 <div align="center">
 

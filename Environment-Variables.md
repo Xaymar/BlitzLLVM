@@ -39,6 +39,9 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_NET_IPV6` | `1` | `0` makes the network commands use IPv4 only, see [[IPv6]]. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |
 | `BLITZLLVM_WINDOW_THREAD` | `1` on Windows, `0` elsewhere | Has a thread of its own make the windows and handle their messages. On Windows this keeps the program running while a window is dragged or sized, which stops the program in the original. `0` goes back to the program's own thread doing it; `1` turns it on where it is off (tests use it). |
+| `BLITZLLVM_AUTOHDR` | `1` | The mode `SetGraphicsHDR` starts with: 0 off, 1 HDR output, 2 also buffers of more than 8 bits as they are. It does nothing without an HDR display. |
+| `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for the `average` of `SetGraphicsHDR`, 0 follows the system. |
+| `BLITZLLVM_AUTOHDR_DEBUG` | `0` | Prints to the console, and adds to `autohdr_debug.txt` in the folder of the program, what AutoHDR knew about the display each time the window's swapchain is made, for finding out why a display is not shown in HDR. |
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_OIT` | `0` | Adds up blended things without looking at their order, like `GraphicsOrderIndependentTransparency 1`; `2` is the moment based kind, `3` the sorted samples of a pixel with a weighted tail (4 samples), `4` the same with 8, `5` the exact reference by depth peeling (slow, for reference pictures). |
@@ -119,6 +122,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 The tests of BlitzLLVM use `BLITZLLVM_TEST_*` variables that the runtime reads. They let the tests look at what a window shows, press keys, open more windows than `Graphics` has, and save what the windows of the BlitzPlus GUI show as a picture. They can change at any time and are not for programs.
 
 The variables are `BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS`, `BLITZLLVM_TEST_POINTER` and `BLITZLLVM_TEST_WINDOW_SHOTS`. The test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...).
+The variables are `BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_HDR`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS`, `BLITZLLVM_TEST_EXTRA_SURFACES`, `BLITZLLVM_TEST_LAZY_DEVICE`, `BLITZLLVM_TEST_PRESENTERS` and `BLITZLLVM_TEST_WINDOW_SHOTS`. The test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...).
 
 The tests set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program, so that the program can set these with `SetEnv`. That variable is read at the start as well and is not for programs either.
 ## Old names

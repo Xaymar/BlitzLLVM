@@ -1117,7 +1117,7 @@
 <li><a href="VectorYaw">VectorYaw</a></li>
 </ul>
 </details></li>
-<li><details><summary>World (21)</summary>
+<li><details><summary>World (26)</summary>
 <ul>
 <li><a href="Blitz3D-World">Overview</a></li>
 <li><a href="ActiveTextures">ActiveTextures</a></li>
@@ -1128,13 +1128,18 @@
 <li><a href="Dither">Dither</a></li>
 <li><a href="DitherMode">DitherMode</a></li>
 <li><a href="DitherTemporal">DitherTemporal</a></li>
+<li><a href="GetGraphicsHDR">GetGraphicsHDR</a> 〔BlitzLLVM〕</li>
 <li><a href="GraphicsOrderIndependentTransparency">GraphicsOrderIndependentTransparency</a></li>
 <li><a href="HWDither">HWDither</a></li>
+<li><a href="HWHDRActive">HWHDRActive</a></li>
+<li><a href="HWHDRPeakNits">HWHDRPeakNits</a></li>
+<li><a href="HWHDRSupported">HWHDRSupported</a></li>
 <li><a href="HWMultiTex">HWMultiTex</a></li>
 <li><a href="HWOrderIndependentTransparency">HWOrderIndependentTransparency</a></li>
 <li><a href="HWTexUnits">HWTexUnits</a></li>
 <li><a href="RenderCamera">RenderCamera</a></li>
 <li><a href="RenderWorld">RenderWorld</a></li>
+<li><a href="SetGraphicsHDR">SetGraphicsHDR</a> 〔BlitzLLVM〕</li>
 <li><a href="Stats3D">Stats3D</a></li>
 <li><a href="TransparencyDistanceSortMode">TransparencyDistanceSortMode</a></li>
 <li><a href="TrisRendered">TrisRendered</a></li>

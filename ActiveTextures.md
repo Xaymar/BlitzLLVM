@@ -25,7 +25,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[AmbientLight](AmbientLight), [AntiAlias](AntiAlias)
+[AmbientLight](AmbientLight), [AntiAlias](AntiAlias), [HWHDRActive](HWHDRActive)
 
 <div align="center">
 
