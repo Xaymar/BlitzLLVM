@@ -1906,6 +1906,42 @@ namespace bb::rhi::vulkan {
 }
 
 namespace bb::rhi::vulkan {
+	namespace {
+		gfx::vk_timeline* make_timeline()
+		{
+			VkSemaphoreTypeCreateInfo type = { VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
+			type.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
+			type.initialValue              = 0;
+			VkSemaphoreCreateInfo info     = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+			info.pNext                     = &type;
+			gfx::vk_timeline* timeline     = new gfx::vk_timeline();
+			gfx::check(vkCreateSemaphore(gfx::vkd.device, &info, nullptr, &timeline->semaphore), "vkCreateSemaphore");
+			return timeline;
+		}
+
+		void free_timeline(gfx::vk_timeline* timeline)
+		{
+			if (timeline) {
+				vkDestroySemaphore(gfx::vkd.device, timeline->semaphore, nullptr);
+				delete timeline;
+			}
+		}
+
+		// Waits until the GPU did the last submission that signals the timeline. Nothing to wait for when there was none.
+		VkResult wait_timeline_done(VkDevice device, const gfx::vk_timeline* timeline)
+		{
+			uint64_t value = timeline ? timeline->submitted.load() : 0;
+			if (!value) {
+				return VK_SUCCESS;
+			}
+			VkSemaphoreWaitInfo info = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
+			info.semaphoreCount      = 1;
+			info.pSemaphores         = &timeline->semaphore;
+			info.pValues             = &value;
+			return vkWaitSemaphores(device, &info, UINT64_MAX);
+		}
+	} // namespace
+
 	bool submit_and_wait(uint64_t wait_semaphore, uint64_t signal_semaphore)
 	{
 		gfx::check(vkEndCommandBuffer(gfx::vkd.cmd), "vkEndCommandBuffer");
@@ -1921,15 +1957,40 @@ namespace bb::rhi::vulkan {
 		info.pWaitDstStageMask      = &stage;
 		info.commandBufferCount     = 1;
 		info.pCommandBuffers        = &gfx::vkd.cmd;
-		info.signalSemaphoreCount   = signal ? 1 : 0;
-		info.pSignalSemaphores      = &signal;
-		vkResetFences(gfx::vkd.device, 1, &gfx::vkd.fence);
+		gfx::vk_timeline* timeline = gfx::vkd.timeline;
+		if (!timeline) { // No frame slot is in use (they are being made or freed): wait for the whole queue instead.
+			info.signalSemaphoreCount = signal ? 1 : 0;
+			info.pSignalSemaphores    = &signal;
+			gfx::queue_lock();
+			VkResult submitted = vkQueueSubmit(gfx::vkd.queue, 1, &info, VK_NULL_HANDLE);
+			if (submitted == VK_SUCCESS) {
+				submitted = vkQueueWaitIdle(gfx::vkd.queue);
+			}
+			gfx::queue_unlock();
+			gfx::check(submitted, "vkQueueSubmit");
+			return true;
+		}
+		VkSemaphore                   signals[2] = { signal, timeline->semaphore };
+		uint64_t                      values[2]  = { 0, 0 }; // The value of a binary semaphore is ignored.
+		VkTimelineSemaphoreSubmitInfo timeline_info = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+		timeline_info.signalSemaphoreValueCount     = 2;
+		timeline_info.pSignalSemaphoreValues        = values;
+		info.pNext                                  = &timeline_info;
+		info.signalSemaphoreCount                   = 2;
+		info.pSignalSemaphores                      = signals;
+		if (!signal) {
+			signals[0] = timeline->semaphore;
+			timeline_info.signalSemaphoreValueCount = info.signalSemaphoreCount = 1;
+		}
 		gfx::queue_lock();
-		VkResult submitted = vkQueueSubmit(gfx::vkd.queue, 1, &info, gfx::vkd.fence);
+		values[info.signalSemaphoreCount - 1] = timeline->submitted.load() + 1;
+		VkResult submitted                    = vkQueueSubmit(gfx::vkd.queue, 1, &info, VK_NULL_HANDLE);
+		if (submitted == VK_SUCCESS) {
+			timeline->submitted.store(values[info.signalSemaphoreCount - 1]);
+		}
 		gfx::queue_unlock();
 		gfx::check(submitted, "vkQueueSubmit");
-		gfx::check(vkWaitForFences(gfx::vkd.device, 1, &gfx::vkd.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		gfx::check(vkResetFences(gfx::vkd.device, 1, &gfx::vkd.fence), "vkResetFences");
+		gfx::check(wait_timeline_done(gfx::vkd.device, timeline), "vkWaitSemaphores");
 		return true;
 	}
 }
@@ -1955,14 +2016,14 @@ namespace bb::rhi::vulkan {
 
 	void use_frame_sync(const frame_sync& sync)
 	{
-		gfx::vkd.cmd   = VkCommandBuffer(sync.cmd);
-		gfx::vkd.fence = VkFence(sync.fence);
+		gfx::vkd.cmd      = VkCommandBuffer(sync.cmd);
+		gfx::vkd.timeline = reinterpret_cast<gfx::vk_timeline*>(uintptr_t(sync.fence));
 	}
 
 	void store_frame_sync(frame_sync& sync)
 	{
 		sync.cmd   = uint64_t(gfx::vkd.cmd);
-		sync.fence = uint64_t(gfx::vkd.fence);
+		sync.fence = uint64_t(uintptr_t(gfx::vkd.timeline));
 	}
 
 	uint64_t main_queue()
@@ -1981,10 +2042,12 @@ namespace bb::rhi::vulkan {
 		info.commandBufferCount    = 1;
 		VkCommandBuffer cmd        = VkCommandBuffer(sync.cmd);
 		info.pCommandBuffers       = &cmd;
-		// The binary semaphore of the present and the timeline semaphore of a handover; the value of a binary one is ignored.
-		VkSemaphore signals[2];
-		uint64_t    values[2];
-		uint32_t    signal_count = 0;
+		// The binary semaphore of the present, the timeline semaphore of a handover and the one of the slot; the value of a binary
+		// one is ignored.
+		gfx::vk_timeline* slot = reinterpret_cast<gfx::vk_timeline*>(uintptr_t(sync.fence));
+		VkSemaphore       signals[3];
+		uint64_t          values[3];
+		uint32_t          signal_count = 0;
 		if (what.signal) {
 			signals[signal_count]  = VkSemaphore(what.signal);
 			values[signal_count++] = 0;
@@ -1993,16 +2056,20 @@ namespace bb::rhi::vulkan {
 			signals[signal_count]  = VkSemaphore(what.timeline);
 			values[signal_count++] = what.timeline_value;
 		}
+		const uint32_t slot_index = signal_count;
+		signals[signal_count++]   = slot->semaphore;
 		VkTimelineSemaphoreSubmitInfo timeline = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
 		timeline.signalSemaphoreValueCount     = signal_count;
 		timeline.pSignalSemaphoreValues        = values;
 		info.signalSemaphoreCount              = signal_count;
 		info.pSignalSemaphores                 = signals;
-		if (what.timeline) {
-			info.pNext = &timeline;
-		}
+		info.pNext                             = &timeline;
 		gfx::queue_lock();
-		VkResult result = vkQueueSubmit(VkQueue(queue), 1, &info, VkFence(sync.fence));
+		values[slot_index] = slot->submitted.load() + 1;
+		VkResult result    = vkQueueSubmit(VkQueue(queue), 1, &info, VK_NULL_HANDLE);
+		if (result == VK_SUCCESS) {
+			slot->submitted.store(values[slot_index]); // A submission that failed signals nothing, so it is not waited for.
+		}
 		gfx::queue_unlock();
 		return int32_t(result);
 	}
@@ -2016,14 +2083,11 @@ namespace bb::rhi::vulkan {
 		cmd_info.commandBufferCount          = 1;
 		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
 		gfx::check(vkAllocateCommandBuffers(gfx::vkd.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
-		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-		VkFence           fence      = VK_NULL_HANDLE;
-		gfx::check(vkCreateFence(gfx::vkd.device, &fence_info, nullptr, &fence), "vkCreateFence");
 		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkSemaphore           acquired = VK_NULL_HANDLE;
 		gfx::check(vkCreateSemaphore(gfx::vkd.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
 		sync.cmd      = uint64_t(cmd);
-		sync.fence    = uint64_t(fence);
+		sync.fence    = uint64_t(uintptr_t(make_timeline())); // A timeline semaphore, not a fence (vk_timeline).
 		sync.acquired = uint64_t(acquired);
 		return sync;
 	}
@@ -2031,15 +2095,17 @@ namespace bb::rhi::vulkan {
 	void destroy_frame_sync(frame_sync& sync)
 	{
 		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(sync.acquired), nullptr);
-		vkDestroyFence(gfx::vkd.device, VkFence(sync.fence), nullptr);
+		gfx::vk_timeline* timeline = reinterpret_cast<gfx::vk_timeline*>(uintptr_t(sync.fence));
+		if (gfx::vkd.timeline == timeline) {
+			gfx::vkd.timeline = nullptr;
+		}
+		free_timeline(timeline);
 		sync = frame_sync(); // The command buffer goes with its pool.
 	}
 
 	void wait_frame_sync(const frame_sync& sync)
 	{
-		VkFence fence = VkFence(sync.fence);
-		gfx::check(vkWaitForFences(gfx::vkd.device, 1, &fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
-		gfx::check(vkResetFences(gfx::vkd.device, 1, &fence), "vkResetFences");
+		gfx::check(wait_timeline_done(gfx::vkd.device, reinterpret_cast<gfx::vk_timeline*>(uintptr_t(sync.fence))), "vkWaitSemaphores");
 	}
 }
 
@@ -2294,10 +2360,7 @@ namespace bb::rhi::vulkan {
 		VkCommandBuffer cmd                  = VK_NULL_HANDLE;
 		check(vkAllocateCommandBuffers(vkd.device, &cmd_info, &cmd), "vkAllocateCommandBuffers");
 		presenter.cmd = uint64_t(cmd);
-		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-		VkFence           fence      = VK_NULL_HANDLE;
-		check(vkCreateFence(vkd.device, &fence_info, nullptr, &fence), "vkCreateFence");
-		presenter.fence = uint64_t(fence);
+		presenter.fence = uint64_t(uintptr_t(make_timeline())); // A timeline semaphore, not a fence (vk_timeline).
 		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 		VkSemaphore           acquired = VK_NULL_HANDLE;
 		check(vkCreateSemaphore(vkd.device, &sem_info, nullptr, &acquired), "vkCreateSemaphore");
@@ -2308,7 +2371,7 @@ namespace bb::rhi::vulkan {
 	{
 		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(presenter.timeline), nullptr);
 		vkDestroySemaphore(gfx::vkd.device, VkSemaphore(presenter.acquired), nullptr);
-		vkDestroyFence(gfx::vkd.device, VkFence(presenter.fence), nullptr);
+		free_timeline(reinterpret_cast<gfx::vk_timeline*>(uintptr_t(presenter.fence)));
 		vkDestroyCommandPool(gfx::vkd.device, VkCommandPool(presenter.pool), nullptr);
 		presenter = {};
 	}
@@ -2335,7 +2398,7 @@ namespace bb::rhi::vulkan {
 		VkSwapchainKHR    swapchain = VkSwapchainKHR(chain.handle);
 		VkSemaphore       acquired  = VkSemaphore(presenter.acquired);
 		VkCommandBuffer   cmd       = VkCommandBuffer(presenter.cmd);
-		VkFence           fence     = VkFence(presenter.fence);
+		vk_timeline*      blitted   = reinterpret_cast<vk_timeline*>(uintptr_t(presenter.fence));
 		VkQueue           queue     = VkQueue(presenter.queue);
 
 		// The thread is the only one that uses this swapchain, so it can wait for an image as long as it takes: in FIFO
@@ -2369,9 +2432,15 @@ namespace bb::rhi::vulkan {
 		info.pWaitDstStageMask     = &stage;
 		info.commandBufferCount    = 1;
 		info.pCommandBuffers       = &cmd;
-		info.signalSemaphoreCount  = 1;
-		VkSemaphore done_semaphore = VkSemaphore(chain.done[index]);
-		info.pSignalSemaphores     = &done_semaphore;
+		VkSemaphore                   done_semaphore = VkSemaphore(chain.done[index]);
+		VkSemaphore                   signals[2]     = { done_semaphore, blitted->semaphore };
+		uint64_t                      values[2]      = { 0, blitted->submitted.load() + 1 }; // The value of a binary semaphore is ignored.
+		VkTimelineSemaphoreSubmitInfo timeline_info  = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+		timeline_info.signalSemaphoreValueCount      = 2;
+		timeline_info.pSignalSemaphoreValues         = values;
+		info.pNext                                   = &timeline_info;
+		info.signalSemaphoreCount                    = 2;
+		info.pSignalSemaphores                       = signals;
 		VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
 		present.waitSemaphoreCount = 1;
 		present.pWaitSemaphores    = &done_semaphore;
@@ -2388,7 +2457,10 @@ namespace bb::rhi::vulkan {
 		// Without a queue of its own, the thread shares queue 0 with the program's thread and the submission thread. Neither call
 		// waits for the display: the swapchain is MAILBOX or IMMEDIATE, so the lock is held for the calls themselves only.
 		queue_lock(presenter.queue_index);
-		result             = vkQueueSubmit(queue, 1, &info, fence);
+		result             = vkQueueSubmit(queue, 1, &info, VK_NULL_HANDLE);
+		if (result == VK_SUCCESS) {
+			blitted->submitted.store(values[1]);
+		}
 		VkResult presented = (result == VK_SUCCESS) ? vkQueuePresentKHR(queue, &present) : result;
 		queue_unlock(presenter.queue_index);
 		shown.presented = vk_present_result(presented).status;
@@ -2398,8 +2470,7 @@ namespace bb::rhi::vulkan {
 		}
 		shown.stage          = show_result::stage::submitted;
 		presenter.present_id = this_id;
-		vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX); // The picture may be drawn into again once the blit is done.
-		vkResetFences(device, 1, &fence);
+		wait_timeline_done(device, blitted); // The picture may be drawn into again once the blit is done.
 		return shown;
 	}
 
@@ -2572,7 +2643,7 @@ namespace bb::rhi::vulkan {
 		vkd.memory   = {};
 		vkd.pool     = VK_NULL_HANDLE;
 		vkd.cmd      = VK_NULL_HANDLE;
-		vkd.fence    = VK_NULL_HANDLE;
+		vkd.timeline = nullptr;
 		vkd.set_layout = VK_NULL_HANDLE;
 		kind_layouts.images3 = kind_layouts.images8 = VK_NULL_HANDLE;
 		vkd.set_pool   = VK_NULL_HANDLE;
