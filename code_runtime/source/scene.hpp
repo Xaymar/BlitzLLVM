@@ -300,7 +300,7 @@ namespace bb {
 		bool  cam_clear_color = true, cam_clear_depth = true;
 		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
 		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
-		int   cam_cull_flags = 3; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 3.
+		int   cam_cull_flags = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 1.
 		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
 		int   cam_buffer = 0;      // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
 		bool  cam_custom_projection = false; // SetCameraProjectionMatrix: cam_projection_matrix replaces CameraRange, CameraZoom and CameraProjMode.
