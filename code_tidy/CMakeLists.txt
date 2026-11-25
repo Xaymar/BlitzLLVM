@@ -17,7 +17,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/rules.cpp"
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE blitzfront tools)
-target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${BlitzLLVM_VERSION_FULL}")
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)

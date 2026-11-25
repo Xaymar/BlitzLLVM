@@ -688,7 +688,7 @@ foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent key
 			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
 			"-DTESTS=${TEST_DIRECTORY}"
 			"-DWORK=${PROJECT_BINARY_DIR}/format/${_CASE}"
-			"-DVERSION=${CMAKE_PROJECT_VERSION}"
+			"-DVERSION=${BlitzLLVM_VERSION_FULL}"
 			-P "${TEST_DIRECTORY}/format/format.cmake"
 	)
 	set_tests_properties("format-${_CASE}" PROPERTIES LABELS "tools")
@@ -704,7 +704,7 @@ foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes 
 			"-DTIDY=$<TARGET_FILE:tidy>"
 			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
 			"-DTESTS=${TEST_DIRECTORY}/tidy"
-			"-DVERSION=${CMAKE_PROJECT_VERSION}"
+			"-DVERSION=${BlitzLLVM_VERSION_FULL}"
 			"-DWORK=${PROJECT_BINARY_DIR}/tidy/${_CASE}"
 			-P "${TEST_DIRECTORY}/tidy/tidy.cmake"
 	)
