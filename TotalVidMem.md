@@ -35,7 +35,7 @@ WaitKey
 
 ## Related Commands
 
-[AvailVidMem](AvailVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [AvailVidMem64](AvailVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [SetGfxDriver](SetGfxDriver) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [TotalVidMem64](TotalVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[AvailVidMem](AvailVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [AvailVidMem64](AvailVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [SetGraphicsRefreshRate](SetGraphicsRefreshRate), [TotalVidMem64](TotalVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

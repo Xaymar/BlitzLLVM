@@ -284,7 +284,7 @@
 <li><a href="WritePixelFast64">WritePixelFast64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
-<li><details><summary>Display (48)</summary>
+<li><details><summary>Display (50)</summary>
 <ul>
 <li><a href="BlitzBasic-Display">Overview</a></li>
 <li><a href="AvailVidMem">AvailVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
@@ -311,6 +311,7 @@
 <li><a href="GammaBlue">GammaBlue</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="GammaGreen">GammaGreen</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="GammaRed">GammaRed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
+<li><a href="GetGraphicsRefreshRate">GetGraphicsRefreshRate</a></li>
 <li><a href="GfxDriver">GfxDriver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GfxDriverName">GfxDriverName</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="GfxModeDepth">GfxModeDepth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
@@ -330,6 +331,7 @@
 <li><a href="RefreshRateAt">RefreshRateAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="SetGamma">SetGamma</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="SetGfxDriver">SetGfxDriver</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
+<li><a href="SetGraphicsRefreshRate">SetGraphicsRefreshRate</a></li>
 <li><a href="ShowPointer">ShowPointer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="TotalVidMem">TotalVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="TotalVidMem64">TotalVidMem64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>

@@ -67,6 +67,10 @@ Where the system has no mode that can do this, the display is still synced and t
 
 A program written for the original should keep `Flip` or `Flip False`. Values other than 0 and 2 act like 1.
 
+## Frame rate limit
+
+[SetGraphicsRefreshRate](SetGraphicsRefreshRate) sets a most frames per second. `Flip 0` ignores it, `Flip 1` waits for the display and keeps it, and `Flip 2` never waits: it shows the newest frame at most that often and drops the frames in between.
+
 ## Media
 
 ![Flip](media/display/flip.webp)

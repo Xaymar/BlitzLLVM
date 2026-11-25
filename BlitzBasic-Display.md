@@ -33,6 +33,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GammaBlue](GammaBlue) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GammaGreen](GammaGreen) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GammaRed](GammaRed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GetGraphicsRefreshRate](GetGraphicsRefreshRate)
 * [GfxDriver](GfxDriver) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [GfxDriverName](GfxDriverName) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GfxModeDepth](GfxModeDepth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
@@ -52,6 +53,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [RefreshRateAt](RefreshRateAt) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [SetGamma](SetGamma) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [SetGfxDriver](SetGfxDriver) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [SetGraphicsRefreshRate](SetGraphicsRefreshRate)
 * [ShowPointer](ShowPointer) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [TotalVidMem](TotalVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [TotalVidMem64](TotalVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
