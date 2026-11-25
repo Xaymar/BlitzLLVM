@@ -128,6 +128,7 @@ namespace bb::rhi::vulkan::dxgi {
 			timing                                acquire_wait, copy, latency_wait, present_call;
 			std::chrono::steady_clock::time_point stats_since = std::chrono::steady_clock::now();
 			UINT                                  stats_present_count = 0, stats_refresh_count = 0;
+			uint32_t                              stats_skipped = 0;
 		};
 		std::mutex          chains_lock;
 		std::vector<chain*> chains;
@@ -484,14 +485,15 @@ namespace bb::rhi::vulkan::dxgi {
 			bool   first      = c.stats_present_count == 0;
 			auto   avg = [](const chain::timing& t) { return t.count ? t.sum / t.count : 0.0; };
 			fprintf(stderr,
-			        "[dxgi] %p: %u presents in %.0f ms (interval %u, flags 0x%x, latency %u); displayed %s%u, refreshes %s%u; waits avg/max ms: acquire %.2f/%.2f, copy %.2f/%.2f, latency %.2f/%.2f, Present %.2f/%.2f\n",
-			        (void*)&c, c.present_call.count, elapsed, c.interval, c.flags, frame_latency(), first ? "~" : "", presented, first ? "~" : "", refreshes,
+			        "[dxgi] %p: %u presents, %u replaced, in %.0f ms (interval %u, flags 0x%x, latency %u); displayed %s%u, refreshes %s%u; waits avg/max ms: acquire %.2f/%.2f, copy %.2f/%.2f, latency %.2f/%.2f, Present %.2f/%.2f\n",
+			        (void*)&c, c.present_call.count, c.stats_skipped, elapsed, c.interval, c.flags, frame_latency(), first ? "~" : "", presented, first ? "~" : "", refreshes,
 			        avg(c.acquire_wait), c.acquire_wait.max, avg(c.copy), c.copy.max, avg(c.latency_wait), c.latency_wait.max, avg(c.present_call), c.present_call.max);
 			if (have_frame) {
 				c.stats_present_count = frame.PresentCount;
 				c.stats_refresh_count = frame.SyncRefreshCount;
 			}
 			c.acquire_wait = c.copy = c.latency_wait = c.present_call = {};
+			c.stats_skipped = 0;
 			c.stats_since  = std::chrono::steady_clock::now();
 		}
 	} // namespace
@@ -824,7 +826,18 @@ namespace bb::rhi::vulkan::dxgi {
 		// Not under d3d_lock, and only once the swapchain can take the picture: with a sync interval of 1 that waits for the
 		// display, which the other windows must not wait for. A second at most, for a window that is hidden.
 		auto waited = std::chrono::steady_clock::now();
-		if (c->latency) {
+		if (c->latency && (c->interval == 0) && !(c->flags & DXGI_PRESENT_ALLOW_TEARING)) {
+			// Flip 2 and the threads of windows: the newest picture replaces the one that waits, and nothing waits for the display.
+			// DXGI would queue the picture in a window that is shown without the compositor (independent flip), so a picture that
+			// comes while the swapchain is full is not presented: it stays in the back buffer, and the next copy replaces it.
+			if (WaitForSingleObjectEx(c->latency, 0, TRUE) != WAIT_OBJECT_0) {
+				if (debug()) {
+					std::lock_guard<std::mutex> stats_guard(c->stats_lock);
+					c->stats_skipped++;
+				}
+				return { present_status::ok, int32_t(VK_SUCCESS) };
+			}
+		} else if (c->latency) {
 			WaitForSingleObjectEx(c->latency, 1000, TRUE);
 		}
 		auto presenting = std::chrono::steady_clock::now();
