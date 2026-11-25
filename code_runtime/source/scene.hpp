@@ -45,7 +45,7 @@ namespace bb {
 	constexpr size_t vertex_alignment = 64;
 
 	// A growable array for plain data, which avoids needing the C++ standard library in programs. With an alignment above 16 (what the
-	// allocator gives anyway), the memory starts at a multiple of it, which needs a copy when it grows, as there is no aligned realloc.
+	// allocator gives anyway), the memory starts at a multiple of it; up to 64 it grows in place when it can, like any other buffer.
 	template<typename T, size_t Align = 0>
 	struct buffer {
 		T*       data = nullptr;
@@ -66,11 +66,7 @@ namespace bb {
 				void*    made  = nullptr;
 				if (bytes <= SIZE_MAX) {
 					if constexpr (Align > 16) {
-						made = bb_aligned_alloc(Align, size_t(bytes));
-						if (made && data) {
-							memcpy(made, data, size_t(size) * sizeof(T));
-							bb_aligned_free(data);
-						}
+						made = bb_aligned_realloc(data, Align, size_t(bytes));
 					} else {
 						made = bb_realloc(data, size_t(bytes));
 					}
