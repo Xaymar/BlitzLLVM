@@ -401,6 +401,56 @@ NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direc
 surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
 The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
 
+== spacebattle: two fleets, stations, asteroids and traders
+
+`spacebattle.bb` is the benchmark for what a game does besides drawing: the code of its actors, picking, collisions, physics and entities
+that come and go. Two fleets (`--ships`, 2000 by default, every tenth a trader) fight between their stations (4 each, turning, one mesh of
+about 800 triangles), with two belts of asteroids (`--asteroids`, 1500) in the middle, five planets and a sun around them. Every frame:
+
+[cols="1,3"]
+|===
+| Part | What it does
+
+| `ai` | Puts every ship into a grid of cells (Blitz arrays), lets every fighter look for the nearest enemy in the cells around it every 4th frame
+(the ships in turns), steers every ship (`AlignToVector`, `MoveEntity`). Fighters fly from the front to an enemy station and home again
+when they have no target, traders fly between the stations of their team and the planets.
+| `picks` | A line of sight check (`EntityVisible`) for every fighter with a target every 8th frame (a few hundred per frame, asteroids,
+stations and ships are in the way), a `LinePick` for every shot (a ship whose target is in front of it and in range, then a pause of
+about 20 frames), and a `CameraPick` at the middle of the screen. A shot that hits an enemy takes one of its hit points (3 for a fighter,
+5 for a trader).
+| `effects` | Laser bolts (sprites, a `Type` list) fly and go, ships without hit points die, break into 4 pieces of debris (another list, at
+most `--debris` at once, the oldest go first) and come back at their home station 180 frames later: the entity is freed and copied again.
+The stations and asteroids turn.
+| `collisions` | `UpdateWorld`: ships slide along asteroids (sphere to sphere) and along the stations (sphere to polygon); then every ship
+reads its place and `CountCollisions`.
+| `physics` | BlitzLLVM only: the debris are dynamic Jolt bodies without gravity that bump into each other, into static bodies of the
+asteroids and into the hubs of the stations, `PhysicsUpdate 1.0 / 60` each frame. In the original, the debris fly in straight lines.
+| `render` | `RenderWorld` and `Flip 0`.
+|===
+
+The camera rides behind a trader for the first 1000 frames (on its way past the battle to a planet), behind a fighter in the fight for the
+next 1000, and circles a station for the last 1000; when the ship it rides behind dies, it takes the next one of the same kind.
+
+[source,sh]
+----
+python3 benchmarks/spacebattle.py --quick                         # 200 ships, 150 asteroids, 60 frames: does it work?
+python3 benchmarks/spacebattle.py                                 # 2000 ships, 1500 asteroids, 3000 frames
+python3 benchmarks/spacebattle.py --ships 6000 --asteroids 4000   # a bigger battle
+----
+
+It takes the same options as the others (`--frames`, `--seed`, `--size`, `--depth`, `--gpu`, `--shot`, `--label`, `--debug`, `--profile`, `--no-save`,
+and `BENCH_SHIPS`, `BENCH_ASTEROIDS`, `BENCH_DEBRIS`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and prints the frame times,
+the time of each part per frame (`ai`, `picks`, `effects`, `collisions`, `physics`, `render`, together `ms/frame`) and what happened in the
+game: kills, shots and hits, line of sight checks and how many were blocked, ship collisions, camera picks that hit.
+
+Every step is one frame, not a time, and the random numbers come from a small generator in the program, so two runs with the same compiler
+give the same frames and the same counts. Between compilers the rounding of floats differs a little, and a fight grows from such
+differences over thousands of frames: compare the counts to see how far two runs went apart before comparing their times.
+
+The original Blitz3D builds the same program (`spacebattle_original.bi`: milliseconds, no draw counters, no physics). Its collisions test
+every ship against every asteroid, so it is slow at the full size; its times have a resolution of one millisecond, which makes the times of
+the parts rough.
+
 == collision_oracle: a fixed course for the collision code
 
 `collision_oracle.bb` pushes seven movers (spheres and one ellipsoid) along fixed paths into spheres, polygon meshes (cube,
