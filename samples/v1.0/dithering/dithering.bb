@@ -5,8 +5,14 @@
 ; opts for an alternative: SMAA, and SMAA T2x. SMAA provides spatial AA, while
 ; SMAA T2x provides temporal AA - but without the smearing usually seen in TAA!
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
 ; First lets create our usual graphics buffers.
-Graphics3D 640, 480, 15, 2 ; 640x480, "15" bit (RGB at 5bit, Alpha at 1bit), Windowed
+Graphics3D 640, 480, 15, BB_GRAPHICS_WINDOWED ; 640x480, "15" bit (RGB at 5bit, Alpha at 1bit), Windowed
 SetBuffer BackBuffer() ; An old habit from BlitzBasic and Blitz3D where this was actually necessary.
 AntiAlias 0 ; No Anti-Aliasing today.
 
@@ -32,13 +38,13 @@ RotateEntity Sphere, 30, 40, 20 ; 30° Pitch, 40° Yaw, 20° Roll
 EntityLighting Sphere, 1 ; Per-Pixel Lighting
 
 ; As well as a nice light to keep us company.
-Local Light = CreateLight(2)
+Local Light = CreateLight(BB_LIGHT_POINT)
 LightColor Light, 204., 199., 51.
 PositionEntity Light, -4., 2, 3 ; 4 units left, 2 units up, 3 units forwards.
 LightRange Light, 10.
 
 ; And another light
-Local Light2 = CreateLight(2)
+Local Light2 = CreateLight(BB_LIGHT_POINT)
 LightColor Light2, 255., 0., 102.
 PositionEntity Light2, 2., 11, 3 ; 2 units right, 11 units up, 3 units forwards.
 LightRange Light2, 10.
@@ -50,60 +56,60 @@ RawInput True ; Enable raw input handling.
 Local lastTime:UInt64 = Microseconds()
 Local HasSaved = False
 Local ModeText$ = "Off"
-While Not KeyHit(1) ; Escape quits this.
+While Not KeyHit(BB_KEY_ESCAPE) ; Escape quits this.
 	Local nowTime:Uint64 = Microseconds()
 	Local deltaTime:Float = Float(nowTime - lastTime) / 1000.f ; Calculate delta between frames in Microseconds
 	Local deltaMul:Float = Float(16.67) / deltaTime ; We aim for 60.0 fps.
 	lastTime = nowTime
 
 	; Lets add some toggles so we can showcase each variant.
-	If (KeyHit(79) Or KeyHit(2)) ; Either 1 (Numpad or Number Row)
+	If (KeyHit(BB_KEY_KP_1) Or KeyHit(BB_KEY_1)) ; Either 1 (Numpad or Number Row)
 		Dither 0 ; No Dithering
 		HasSaved = False
 		ModeText = "Off"
-	ElseIf (KeyHit(80) Or KeyHit(3)) ; Either 2 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_2) Or KeyHit(BB_KEY_2)) ; Either 2 (Numpad or Number Row)
 		Dither 1 ; Interleaved Gradient Noise, without Temporal effect
 		DitherTemporal 0
 		DitherMode 0
 		HasSaved = False
 		ModeText = "IGN"
-	ElseIf (KeyHit(81) Or KeyHit(4)) ; Either 3 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_3) Or KeyHit(BB_KEY_3)) ; Either 3 (Numpad or Number Row)
 		Dither 1 ; Interleaved Gradient Noise, with Temporal effect
 		DitherTemporal 1
 		DitherMode 0
 		HasSaved = False
 		ModeText = "IGN+Temporal"
-	ElseIf (KeyHit(75) Or KeyHit(5)) ; Either 4 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_4) Or KeyHit(BB_KEY_4)) ; Either 4 (Numpad or Number Row)
 		Dither 1 ; Bayer, No Temporal, 1 Level
 		DitherTemporal 0
 		DitherMode 1, 1
 		HasSaved = False
 		ModeText = "Bayer (1 Level)"
-	ElseIf (KeyHit(76) Or KeyHit(6)) ; Either 5 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_5) Or KeyHit(BB_KEY_5)) ; Either 5 (Numpad or Number Row)
 		Dither 1 ; Bayer, No Temporal, 2 Levels
 		DitherTemporal 0
 		DitherMode 1, 2
 		HasSaved = False
 		ModeText = "Bayer (2 Levels)"
-	ElseIf (KeyHit(77) Or KeyHit(7)) ; Either 6 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_6) Or KeyHit(BB_KEY_6)) ; Either 6 (Numpad or Number Row)
 		Dither 1 ; Bayer, No Temporal, 3 Levels
 		DitherTemporal 0
 		DitherMode 1, 3
 		HasSaved = False
 		ModeText = "Bayer (3 Levels)"
-	ElseIf (KeyHit(71) Or KeyHit(8)) ; Either 7 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_7) Or KeyHit(BB_KEY_7)) ; Either 7 (Numpad or Number Row)
 		Dither 1 ; Bayer, Temporal, 1 Level
 		DitherTemporal 1
 		DitherMode 1, 1
 		HasSaved = False
 		ModeText = "Bayer (1 Level), Temporal"
-	ElseIf (KeyHit(72) Or KeyHit(9)) ; Either 8 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_8) Or KeyHit(BB_KEY_8)) ; Either 8 (Numpad or Number Row)
 		Dither 1 ; Bayer, Temporal, 2 Levels
 		DitherTemporal 1
 		DitherMode 1, 2
 		HasSaved = False
 		ModeText = "Bayer (2 Levels), Temporal"
-	ElseIf (KeyHit(73) Or KeyHit(10)) ; Either 9 (Numpad or Number Row)
+	ElseIf (KeyHit(BB_KEY_KP_9) Or KeyHit(BB_KEY_9)) ; Either 9 (Numpad or Number Row)
 		Dither 1 ; Bayer, Temporal, 3 Levels
 		DitherTemporal 1
 		DitherMode 1, 3
@@ -112,19 +118,19 @@ While Not KeyHit(1) ; Escape quits this.
 	EndIf
 
 	; Camera Movement logic
-	If MouseDown(2) Then ; While Right Mouse button is held
+	If MouseDown(BB_MOUSE_RIGHT) Then ; While Right Mouse button is held
 		HidePointer ; Hide The Mouse
 		LockMouse ; Lock it to the current window
 
 		; Mouse turns camera, WASDQE moves it.
 		TurnEntity Camera, MouseYSpeed() * deltaTime * 0.1, -MouseXSpeed() * deltaTime * 0.1, 0
-		MoveEntity Camera, (KeyDown(32) - KeyDown(30)) * deltaTime * 0.01, (KeyDown(18) - KeyDown(16)) * deltaTime * 0.01, (KeyDown(17) - KeyDown(31)) * deltaTime * 0.01
+		MoveEntity Camera, (KeyDown(BB_KEY_D) - KeyDown(BB_KEY_A)) * deltaTime * 0.01, (KeyDown(BB_KEY_E) - KeyDown(BB_KEY_Q)) * deltaTime * 0.01, (KeyDown(BB_KEY_W) - KeyDown(BB_KEY_S)) * deltaTime * 0.01
 	Else ; Otherwise
 		ShowPointer ; Show the Mouse
 		UnlockMouse ; And let it roam free.
 	EndIf
 
-	Wireframe KeyDown(57)
+	Wireframe KeyDown(BB_KEY_SPACE)
 	RenderWorld ; Draw to screen.
 	If Not HasSaved Then
 		;SaveBuffer(BackBuffer(), ModeText + ".png", "lossless")
@@ -140,7 +146,7 @@ Function CreateScene:Int32()
 	Local Scene = CreatePivot()
 
 	; Build a texture with alternating white and black squares, like a chess board.
-	Local ChessTex = CreateTexture(64, 64, 1 + 8) ; Only need Color for this demo.
+	Local ChessTex = CreateTexture(64, 64, BB_TEXTURE_COLOR + BB_TEXTURE_MIPMAPPED) ; Only need Color for this demo.
 	Local Buf = TextureBuffer(ChessTex)
 	LockBuffer(Buf)
 	For X = 0 To 63
@@ -162,7 +168,7 @@ Function CreateScene:Int32()
 
 	Local SkySphere = CreateSphere(8, Scene)
 	EntityColor SkySphere, 51, 155, 255
-	EntityFX SkySphere, 1 + 8 + 16 ; Full Bright (1), Ignore Fog (8), Draw both sides (16)
+	EntityFX SkySphere, BB_FX_FULLBRIGHT + BB_FX_NO_FOG + BB_FX_TWO_SIDED
 	ScaleEntity SkySphere, 512, 512, 512
 
 	; The default when mip-mapping (8) is enabled is Tri-Linear, but we can do more now.
