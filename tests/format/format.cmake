@@ -8,9 +8,6 @@
 # Variables: FORMAT (blitz-format), BLITZCC (the compiler), TESTS (the tests directory), WORK (an empty directory to write to).
 ################################################################################
 cmake_minimum_required(VERSION 3.20)
-if(POLICY CMP0219)
-	cmake_policy(SET CMP0219 NEW) # Macros keep backslashes in their arguments
-endif()
 
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
@@ -50,18 +47,20 @@ function(blitz_format_text)
 	set(ERR "${ERR}" PARENT_SCOPE)
 endfunction()
 
-macro(expect_rc WANT)
+# Functions, not macros: a macro pastes its arguments into its body as code, so a backslash or bracket in the expected text
+# would be read as CMake syntax by CMake versions without policy CMP0219.
+function(expect_rc WANT)
 	if(NOT RC EQUAL ${WANT})
 		message(FATAL_ERROR "Expected exit code ${WANT}, got '${RC}'.\nstdout: ${OUT}\nstderr: ${ERR}")
 	endif()
-endmacro()
+endfunction()
 
-macro(expect_out WANT)
+function(expect_out WANT)
 	string(HEX "${WANT}" _WANT_HEX)
 	if(NOT OUT_HEX STREQUAL _WANT_HEX)
 		message(FATAL_ERROR "Expected the output:\n${WANT}\n---- got:\n${OUT}\n---- hex of want:\n${_WANT_HEX}\n---- hex of got:\n${OUT_HEX}\n---- stderr:\n${ERR}")
 	endif()
-endmacro()
+endfunction()
 
 # Write the text as it is (file(WRITE) adds no line break), format it from stdin with the arguments and expect the output.
 function(expect_format SOURCE WANT)
