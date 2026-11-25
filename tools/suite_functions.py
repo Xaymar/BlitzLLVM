@@ -59,6 +59,11 @@ UNREGISTERED = {
 EXTENDED = {
     "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\"\""),
     "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\"\""),
+    "playmusic": ("audio", "%PlayMusic$midifile%flags=0"),
+    "keydown": ("input", "%KeyDown%key%device=-1"),
+    "keyhit": ("input", "%KeyHit%key%device=-1"),
+    "mousedown": ("input", "%MouseDown%button%device=-1"),
+    "mousehit": ("input", "%MouseHit%button%device=-1"),
 }
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
