@@ -33,7 +33,7 @@ PhysicsPointInside:Int32 x:Float32, y:Float32, z:Float32, mask_low:Int32=-1, mas
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Finds out which body of a physics world contains a point of the world. If several do, the one that was made first is returned. With sensors included this is how a region that does something once something is in it (a trigger volume) is asked.
+Finds out which body of a physics world contains a point of the world. If several do, the one that was made first is returned. The query sees the bodies as `PhysicsUpdate` last left them. A body that the program moved since then is only found at its new place after the next `PhysicsUpdate`, and `PhysicsUpdate 0` takes the moves over without a step. With sensors included this is how a region that does something once something is in it (a trigger volume) is asked.
 
 The body is kept for `GetPhysicsHitEntity`; the point is `GetPhysicsHitX`, `GetPhysicsHitY` and `GetPhysicsHitZ`, and the normal and the distance are 0.
 

@@ -34,7 +34,7 @@ PhysicsOverlapSphere:Int32 x:Float32, y:Float32, z:Float32, radius:Float32, mask
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Finds the bodies of a physics world that touch a sphere. The bodies are kept in the order they were made; read them with `GetPhysicsOverlap` until the next overlap query.
+Finds the bodies of a physics world that touch a sphere. The bodies are kept in the order they were made; read them with `GetPhysicsOverlap` until the next overlap query. The query sees the bodies as `PhysicsUpdate` last left them. A body that the program moved since then is only found at its new place after the next `PhysicsUpdate`, and `PhysicsUpdate 0` takes the moves over without a step.
 
 ## Differences
 

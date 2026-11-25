@@ -23,7 +23,7 @@ GetPhysicsHitNY:Float32
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Gives the y of the normal that the last `PhysicsRayCast` or `PhysicsPointInside` found. A normal points out of the body, and the distance is how far from the start of the ray the hit is, in units of the world. The values stay until the next such query and are 0 after one that found nothing.
+Gives the y of the normal that the last `PhysicsRayCast`, `PhysicsSphereCast`, `PhysicsBoxCast`, `PhysicsCapsuleCast` or `PhysicsPointInside` found. A normal points out of the body, and the distance is how far from the start of the ray the hit is, in units of the world. The values stay until the next such query and are 0 after one that found nothing.
 
 ## Differences
 
