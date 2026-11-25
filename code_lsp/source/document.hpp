@@ -119,6 +119,14 @@ namespace blitz::lsp {
 		/** The files named by `Include "..."`, as written. */
 		std::vector<std::string> includes() const;
 
+		/** The same, with the byte range of each name inside its quotes. */
+		struct include_name {
+			std::string name;
+			size_t      begin = 0;
+			size_t      end   = 0;
+		};
+		std::vector<include_name> include_names() const;
+
 		private:
 		void build();
 		void find_functions();

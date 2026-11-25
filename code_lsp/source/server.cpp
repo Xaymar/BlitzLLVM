@@ -247,6 +247,8 @@ namespace blitz::lsp {
 				reply(id, references(params));
 			} else if (method == "textDocument/codeAction") {
 				reply(id, code_actions(params));
+			} else if (method == "textDocument/documentLink") {
+				reply(id, document_links(params));
 			} else if (request) {
 				fail(id, -32601, "Method not found: " + method);
 			}
@@ -275,6 +277,9 @@ namespace blitz::lsp {
 		caps.set("hoverProvider", true);
 		json completion = json::object();
 		completion.set("resolveProvider", false);
+		json completion_triggers = json::array();
+		completion_triggers.push("<").push("/");
+		completion.set("triggerCharacters", completion_triggers);
 		caps.set("completionProvider", completion);
 		caps.set("definitionProvider", true);
 		caps.set("referencesProvider", true);
@@ -302,6 +307,9 @@ namespace blitz::lsp {
 		kinds.push("quickfix").push("source.fixAll").push("source.fixAll.blitz");
 		actions.set("codeActionKinds", kinds);
 		caps.set("codeActionProvider", actions);
+		json links = json::object();
+		links.set("resolveProvider", false);
+		caps.set("documentLinkProvider", links);
 		json info = json::object();
 		info.set("name", "blitz-lsp");
 		json result = json::object();
@@ -330,6 +338,37 @@ namespace blitz::lsp {
 			std::filesystem::path active = o["activeProject"].as_string();
 			if (active != _active_project) {
 				_active_project = active;
+				for (auto const& [uri, s] : _states) _dirty.insert(uri);
+			}
+		}
+		// The folders of the shipped includes (Include "<keys.bb>"): blitz.includeDirectories, then -I and --include-dir of the arguments
+		// of blitzcc, then the one of the installation, the same order as blitzcc.
+		if (!_installed_include_known) {
+			_installed_include_dirs  = blitz::parser::default_include_dirs;
+			_installed_include_known = true;
+		}
+		if (o["includeDirectories"].is_array() || o["compilerArguments"].is_array()) {
+			if (o["includeDirectories"].is_array()) {
+				_include_dirs.clear();
+				for (auto const& d : o["includeDirectories"].items()) {
+					if (d.is_string() && !d.as_string().empty()) _include_dirs.emplace_back(d.as_string());
+				}
+			}
+			if (o["compilerArguments"].is_array()) {
+				_argument_include_dirs.clear();
+				auto const& args = o["compilerArguments"].items();
+				for (size_t i = 0; i < args.size(); i++) {
+					std::string a = args[i].is_string() ? args[i].as_string() : std::string();
+					if ((a == "-I" || a == "--include-dir") && i + 1 < args.size() && args[i + 1].is_string()) {
+						_argument_include_dirs.emplace_back(args[++i].as_string());
+					}
+				}
+			}
+			std::vector<std::filesystem::path> dirs = _include_dirs;
+			dirs.insert(dirs.end(), _argument_include_dirs.begin(), _argument_include_dirs.end());
+			dirs.insert(dirs.end(), _installed_include_dirs.begin(), _installed_include_dirs.end());
+			if (dirs != blitz::parser::default_include_dirs) {
+				blitz::parser::default_include_dirs = std::move(dirs);
 				for (auto const& [uri, s] : _states) _dirty.insert(uri);
 			}
 		}
@@ -869,9 +908,68 @@ namespace blitz::lsp {
 		return h;
 	}
 
+	// The names of Include "..." as links to the files they read, so that a click opens "<keys.bb>" from the installation too.
+	json server::document_links(json const& params)
+	{
+		json  out = json::array();
+		auto* s   = find(params["textDocument"]["uri"].as_string());
+		if (!s) return out;
+		auto includes = s->doc->include_names();
+		if (includes.empty()) return out;
+		const std::filesystem::path root = std::filesystem::absolute(analysis_root(*s)).parent_path();
+		for (auto const& include : includes) {
+			std::string why;
+			auto        target = blitz::parser::find_include(include.name, std::filesystem::absolute(s->path).parent_path(), root,
+			                                                 blitz::parser::default_include_dirs, why);
+			if (target.empty()) continue;
+			target = std::filesystem::absolute(target).lexically_normal();
+			json l = json::object();
+			l.set("range", range_json(s->doc->to_range(include.begin, include.end)));
+			l.set("target", uri_from_path(target.generic_string()));
+			l.set("tooltip", target.string());
+			out.push(std::move(l));
+		}
+		return out;
+	}
+
+	// The shipped includes for `Include "<`: the .bb files of the include folders, the first folder that has a name wins.
+	json server::shipped_completion(state& s, size_t offset)
+	{
+		for (auto const& include : s.doc->include_names()) {
+			if (include.name.empty() || include.name.front() != '<' || offset <= include.begin || offset > include.end) continue;
+			std::string typed = include.name.substr(1, offset - include.begin - 1);
+			std::replace(typed.begin(), typed.end(), '\\', '/');
+			json                  items = json::array();
+			std::set<std::string> seen;
+			for (auto const& dir : blitz::parser::default_include_dirs) {
+				std::error_code ec;
+				for (std::filesystem::recursive_directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec)) {
+					if (!it->is_regular_file(ec) || lower(it->path().extension().string()) != ".bb") continue;
+					std::string name = it->path().lexically_relative(dir).generic_string();
+					if (lower(name).compare(0, typed.size(), lower(typed)) != 0 || !seen.insert(lower(name)).second) continue;
+					// The whole name inside the quotes is replaced, with the closing '>' if it is not there yet.
+					json edit = json::object();
+					edit.set("range", range_json(s.doc->to_range(include.begin + 1, include.end)));
+					edit.set("newText", name + ">");
+					json i = json::object();
+					i.set("label", name).set("kind", 17).set("detail", it->path().generic_string()).set("filterText", "<" + name).set("textEdit", edit);
+					items.push(std::move(i));
+				}
+			}
+			json r = json::object();
+			r.set("isIncomplete", false).set("items", items);
+			return r;
+		}
+		return json();
+	}
+
 	json server::completion(json const& params)
 	{
 		auto* s = find(params["textDocument"]["uri"].as_string());
+		if (s) {
+			json shipped = shipped_completion(*s, s->doc->to_offset(position_from(params["position"])));
+			if (!shipped.is_null()) return shipped;
+		}
 		json  items = json::array();
 		std::set<std::string> seen;
 		auto add = [&](std::string const& label, int kind, std::string const& detail) {

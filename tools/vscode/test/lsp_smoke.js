@@ -321,6 +321,47 @@ function stage(name) {
 
   stage('errors');
 
+  // Shipped includes: "<keys.bb>" of the installation (next to blitz-lsp in a build tree) and "<mine.bb>" of blitz.includeDirectories
+  const shippedDir = path.join(dir, 'shipped');
+  fs.mkdirSync(path.join(shippedDir, 'sub'), { recursive: true });
+  fs.writeFileSync(path.join(shippedDir, 'mine.bb'), 'Const MY_THING = 5\n');
+  fs.writeFileSync(path.join(shippedDir, 'sub', 'Deep.bb'), 'Const MY_DEEP = 6\n');
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { includeDirectories: [shippedDir] } } });
+  const shipped = 'Include "<keys.bb>"\nInclude "<MINE.BB>"\nInclude "<sub\\deep.bb>"\nPrint BB_KEY_ESCAPE + MY_THING + MY_DEEP\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 30 }, contentChanges: [{ text: shipped }] });
+  diagnostics = await diagnosticsFor(uri);
+  assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), [], JSON.stringify(diagnostics));
+  // Go to definition reaches the constants in the shipped files
+  result = await request('textDocument/definition', { textDocument: { uri }, position: position(shipped, 'MY_THING', 0, 1) });
+  assert(result.result && /mine\.bb$/i.test(result.result[0].uri), JSON.stringify(result));
+  result = await request('textDocument/definition', { textDocument: { uri }, position: position(shipped, 'BB_KEY_ESCAPE', 0, 1) });
+  assert(result.result && /\/keys\.bb$/.test(result.result[0].uri), JSON.stringify(result));
+  // The names are links to the files
+  result = await request('textDocument/documentLink', { textDocument: { uri } });
+  const targets = result.result.map((l) => path.basename(new URL(l.target).pathname).toLowerCase()).sort();
+  assert.deepStrictEqual(targets, ['deep.bb', 'keys.bb', 'mine.bb'], JSON.stringify(result));
+  const keysLink = result.result.find((l) => /keys\.bb$/.test(l.target));
+  assert.deepStrictEqual(keysLink.range, { start: { line: 0, character: 9 }, end: { line: 0, character: 18 } }, JSON.stringify(keysLink));
+  // Completion inside Include "<" lists the shipped files, of the installation and of the setting
+  const opened = 'Include "<\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 31 }, contentChanges: [{ text: opened }] });
+  await diagnosticsFor(uri);
+  result = await request('textDocument/completion', { textDocument: { uri }, position: { line: 0, character: 10 } });
+  const shippedLabels = result.result.items.map((i) => i.label);
+  for (const l of ['keys.bb', 'all.bb', 'mine.bb', 'sub/Deep.bb']) assert(shippedLabels.includes(l), l + ' in ' + shippedLabels);
+  assert(!shippedLabels.includes('Print'), 'only files inside the quotes');
+  assert.strictEqual(result.result.items.find((i) => i.label === 'mine.bb').textEdit.newText, 'mine.bb>');
+  // -I of the compiler arguments does the same as the setting, and a missing shipped file is an error
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { includeDirectories: [], compilerArguments: ['-I', shippedDir] } } });
+  notify('textDocument/didChange', { textDocument: { uri, version: 32 }, contentChanges: [{ text: 'Include "<mine.bb>"\nPrint MY_THING\n' }] });
+  diagnostics = await diagnosticsFor(uri);
+  assert.deepStrictEqual(diagnostics.filter((d) => d.severity === 1), [], JSON.stringify(diagnostics));
+  notify('workspace/didChangeConfiguration', { settings: { blitz: { compilerArguments: [] } } });
+  diagnostics = await diagnosticsFor(uri);
+  assert(diagnostics.some((d) => d.severity === 1 && /mine\.bb/.test(d.message)), JSON.stringify(diagnostics));
+
+  stage('shipped');
+
   // Tidy
   notify('textDocument/didChange', { textDocument: { uri, version: 5 }, contentChanges: [{ text: 'Local x% = 1.5\nPrint x\n' }] });
   await diagnosticsFor(uri);

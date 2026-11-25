@@ -41,6 +41,11 @@ set(_COMMANDS "${PROJECT_SOURCE_DIR}/../tests/suite/functions.txt")
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_COMMANDS}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/commands.txt")
 
+# The include files shipped with BlitzLLVM (Include "<keys.bb>"), next to the executable of a build tree like for blitzcc. An installation has
+# them in <prefix>/include or share/blitzllvm/include, where the compiler installs them.
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${PROJECT_SOURCE_DIR}/../code_compiler/include" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/include")
+
 # The short help of the commands (hover and signature help), made from the texts of the wiki. Without Python there is no help, which is fine.
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_FOUND)

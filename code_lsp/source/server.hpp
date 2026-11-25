@@ -107,6 +107,8 @@ namespace blitz::lsp {
 		void                  ensure_graph(bool force);
 		json           references(json const& params);
 		json           code_actions(json const& params);
+		json           document_links(json const& params);
+		json           shipped_completion(state& s, size_t offset);
 		json           edit_to(state& s, std::string const& result);
 		std::string    tidy(state& s, bool& ok);
 		json           range_json(range r) const;
@@ -133,6 +135,10 @@ namespace blitz::lsp {
 		std::vector<std::filesystem::path> _projects;    // The entry files of the projects (blitz.projects)
 		std::filesystem::path           _active_project; // The one that is selected, empty if none
 		std::vector<std::string>        _warning_options; // -W... of blitz.compiler.arguments
+		std::vector<std::filesystem::path> _include_dirs;           // blitz.includeDirectories
+		std::vector<std::filesystem::path> _argument_include_dirs;  // -I and --include-dir of blitz.compiler.arguments
+		std::vector<std::filesystem::path> _installed_include_dirs; // The installation's, found at the start
+		bool                            _installed_include_known = false;
 		bool                            _refresh_semantic = false; // The editor can be told to ask for the colours again
 		int                             _requests      = 0;
 		bool                            _shutdown      = false;
