@@ -103,6 +103,7 @@ namespace bb::rhi::vulkan::wgl {
 			GLuint          framebuffer = 0;
 			VkCommandPool   pool = VK_NULL_HANDLE;
 			VkCommandBuffer release[image_count] = {};
+			std::vector<HANDLE> imported; // NT handles of the imports, closed after their OpenGL objects are deleted (see close_imported).
 
 			std::mutex              lock;
 			std::condition_variable presented;
@@ -336,7 +337,7 @@ namespace bb::rhi::vulkan::wgl {
 			w.bind_texture(GL_TEXTURE_2D, c.textures[i]);
 			c.gl.tex_storage_mem_2d(GL_TEXTURE_2D, 1, gl_rgba8, GLsizei(c.width), GLsizei(c.height), c.gl_memory[i], 0);
 			w.bind_texture(GL_TEXTURE_2D, 0);
-			CloseHandle(handle); // OpenGL keeps a reference of its own.
+			c.imported.push_back(handle); // Closed by close_imported, not here: AMD still uses it after the import returned.
 			GLenum error = w.get_error();
 			if (error != GL_NO_ERROR) {
 				warn("importing the memory of an image into OpenGL", long(error));
@@ -366,13 +367,25 @@ namespace bb::rhi::vulkan::wgl {
 			}
 			c.gl.gen_semaphores(1, &gl_semaphore);
 			c.gl.import_semaphore_win32_handle(gl_semaphore, gl_handle_type_opaque_win32, handle);
-			CloseHandle(handle);
+			c.imported.push_back(handle);
 			GLenum error = w.get_error();
 			if (error != GL_NO_ERROR) {
 				warn("importing a semaphore into OpenGL", long(error));
 				return false;
 			}
 			return true;
+		}
+
+		// The extensions let a program close the handles once they are imported, but AMD's OpenGL driver (seen with 26.5.2 and
+		// 26.11.2 on Windows) still uses them on a thread of its own after the import calls returned: a memory or semaphore handle
+		// closed early crashes the driver (atio6axx.dll, writing near 0) at the first glWaitSemaphoreEXT or glFinish. So the
+		// handles stay open as long as their OpenGL objects exist, and are closed after those were deleted.
+		void close_imported(chain& c)
+		{
+			for (HANDLE handle : c.imported) {
+				CloseHandle(handle);
+			}
+			c.imported.clear();
 		}
 
 		bool make_context(chain& c)
@@ -449,6 +462,7 @@ namespace bb::rhi::vulkan::wgl {
 			if (c.pool) {
 				vkDestroyCommandPool(c.device, c.pool, nullptr);
 			}
+			close_imported(c); // After the OpenGL objects that use them.
 			if (c.context) {
 				w.make_current(nullptr, nullptr);
 				w.delete_context(c.context);
