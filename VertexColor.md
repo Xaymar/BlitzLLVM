@@ -28,7 +28,7 @@ VertexColor:Void surface:Int32, index:Int32, red:Float32, green:Float32, blue:Fl
 
 ## Description
 
-Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. The values can be floats and are kept exactly, instead of being rounded to whole numbers. Alpha per vertex needs `EntityFX 32` on the entity in the original.
+Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. Like in the original, a color is kept as whole numbers: the fraction of red, green and blue is cut off, and the alpha is kept in steps of 1/255. Alpha per vertex needs `EntityFX 32` on the entity in the original.
 
 ## Examples
 

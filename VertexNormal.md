@@ -27,7 +27,7 @@ VertexNormal:Void surface:Int32, index:Int32, nx:Float32, ny:Float32, nz:Float32
 
 ## Description
 
-Sets the normal of a vertex: the direction it faces, which decides how light hits it. The normal should have a length of 1. Set it yourself for hard control over shading, for example to make a flat quad look rounded. [UpdateNormals](UpdateNormals) overwrites all normals of a mesh.
+Sets the normal of a vertex: the direction it faces, which decides how light hits it. The normal should have a length of 1. Only its direction is kept, so [VertexNX](VertexNX) and the others read back a normal of length 1 (or 0, 0, 0 for none). Set it yourself for hard control over shading, for example to make a flat quad look rounded. [UpdateNormals](UpdateNormals) overwrites all normals of a mesh.
 
 ## Related Commands
 

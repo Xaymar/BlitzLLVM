@@ -22,7 +22,7 @@ VertexRed:Float32 surface:Int32, index:Int32
 | `surface` | In | Int32 | required | Surface handle. |
 | `index` | In | Int32 | required | Index of the vertex, from 0. |
 
-**Returns:** The red part of the vertex color, 0 to 255, with the fractions that were set.
+**Returns:** The red part of the vertex color, a whole number from 0 to 255.
 
 ## Description
 

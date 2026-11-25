@@ -22,7 +22,7 @@ VertexNZ:Float32 surface:Int32, index:Int32
 | `surface` | In | Int32 | required | Surface handle. |
 | `index` | In | Int32 | required | Index of the vertex, from 0. |
 
-**Returns:** The Z part of the normal of the vertex.
+**Returns:** The Z part of the normal of the vertex, as a direction of length 1 (0 if the vertex has no normal).
 
 ## Description
 
