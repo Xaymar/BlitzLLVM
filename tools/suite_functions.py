@@ -54,6 +54,13 @@ UNREGISTERED = {
     "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
 }
 
+# Original functions that BlitzLLVM gives more parameters: their signature here replaces the one the originals register.
+# They are not extensions, as programs written for the originals call them the same way.
+EXTENDED = {
+    "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\\"),
+    "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\\"),
+}
+
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
 # Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
 # one it reads and writes with a '<' (InOut). Parameters without a mark are In.
@@ -135,8 +142,6 @@ EXTENSIONS = {
     "entityready": ("blitz3d", "%EntityReady%entity"),
     "asyncloading": ("graphics", "AsyncLoading%enabled"),
     "savetexture": ("blitz3d", "%SaveTexture%texture$file%frame=0$settings=\\"),
-    "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\\"),
-    "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\\"),
     "asyncsaving": ("graphics", "AsyncSaving%enabled"),
     "savespending": ("graphics", "%SavesPending"),
     "savesfailed": ("graphics", "%SavesFailed"),
@@ -313,6 +318,7 @@ def originals():
                     found.setdefault(n.group(1).lower(), (MODULES[name], match.group(1)))
     for name, entry in UNREGISTERED.items():
         found.setdefault(name, entry)
+    found.update(EXTENDED)
     for name, entry in EXTENSIONS.items():
         found.setdefault(name, entry)
     return found
