@@ -29,6 +29,10 @@
 #include <unordered_map>
 #include <vector>
 #include "environment.h"
+
+#if defined(__x86_64__) || defined(_M_X64)
+#include <emmintrin.h>
+#endif
 extern "C" int32_t bb_is_debug(void);
 
 using namespace bb::gfx;
@@ -179,6 +183,39 @@ namespace bb::gfx {
 
 	// Copies a lot of vertices to a buffer that the GPU reads with all threads of the pool: one thread does not reach what the memory can do,
 	// least of all for video memory that the CPU writes over PCIe. Small copies are not worth waking the threads for.
+	// Copies into mapped GPU memory with non-temporal stores on x86-64: the lines are written whole through the write-combining buffers, without
+	// reading them into the cache first and without pushing the program's own data out of it. The C library's memcpy only does that above a
+	// size of its own (often a few MiB), which the parts of copy_vertices are below. BLITZLLVM_STREAM_COPY=0 uses memcpy instead. Other CPUs
+	// use memcpy.
+	static void stream_copy(char* to, const char* from, size_t bytes)
+	{
+#if defined(__x86_64__) || defined(_M_X64)
+		static const bool streaming = bb_env_bool("BLITZLLVM_STREAM_COPY", 1) != 0;
+		if (streaming && (bytes >= 256)) {
+			const size_t head = (0 - reinterpret_cast<uintptr_t>(to)) & 63; // Up to the first cache line of the target.
+			memcpy(to, from, head);
+			to += head;
+			from += head;
+			bytes -= head;
+			const size_t lines = bytes / 64;
+			for (size_t i = 0; i < lines; i++, to += 64, from += 64) {
+				const __m128i a = _mm_loadu_si128(reinterpret_cast<const __m128i*>(from));
+				const __m128i b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(from + 16));
+				const __m128i c = _mm_loadu_si128(reinterpret_cast<const __m128i*>(from + 32));
+				const __m128i d = _mm_loadu_si128(reinterpret_cast<const __m128i*>(from + 48));
+				_mm_stream_si128(reinterpret_cast<__m128i*>(to), a);
+				_mm_stream_si128(reinterpret_cast<__m128i*>(to + 16), b);
+				_mm_stream_si128(reinterpret_cast<__m128i*>(to + 32), c);
+				_mm_stream_si128(reinterpret_cast<__m128i*>(to + 48), d);
+			}
+			_mm_sfence(); // The stores are weakly ordered: they have to be done before another thread hands the buffer to the GPU.
+			memcpy(to, from, bytes - lines * 64);
+			return;
+		}
+#endif
+		memcpy(to, from, bytes);
+	}
+
 	static void copy_vertices(void* to, const void* from, size_t bytes)
 	{
 		constexpr size_t grain = 256 * 1024;
@@ -187,7 +224,7 @@ namespace bb::gfx {
 		threads.split(threads.parts(chunks, 2), chunks, [&](uint32_t, uint32_t first, uint32_t last) {
 			const size_t begin = size_t(first) * grain;
 			const size_t end   = std::min(bytes, size_t(last) * grain);
-			memcpy(static_cast<char*>(to) + begin, static_cast<const char*>(from) + begin, end - begin);
+			stream_copy(static_cast<char*>(to) + begin, static_cast<const char*>(from) + begin, end - begin);
 		});
 	}
 
