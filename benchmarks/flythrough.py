@@ -9,8 +9,7 @@ also saved as JSON (and added to a CSV) in benchmarks/results/.
     python3 benchmarks/flythrough.py [--objects N] [common options, see --help]
 
 --objects defaults to $BENCH_OBJECTS or 20000, --frames to $BENCH_FRAMES or 300; "--objects 1000000" is the full run, and
-"--quick" is 2000 objects and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
-profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
+"--quick" is 2000 objects and 30 frames for a look whether it works. -d builds without optimization; the build configuration is part of the result so runs are not mixed up.
 BENCH_DITHER, BENCH_ANTIALIAS, BENCH_RANGE, BENCH_MOVING and BENCH_FOG are passed on to the program (see flythrough.bb).
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the

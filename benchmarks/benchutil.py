@@ -83,10 +83,12 @@ def copy_synced(source, target):
     sys.exit("Could not read back %s." % target)
 
 
-def copy_includes(directory, name, llvm):
+def copy_includes(directory, name, llvm, profile=False):
     """Copies the Blitz include files of benchmark name next to its source in directory: the shared ones, the one of the compiler as
-    bench_compiler.bi, and the benchmark's own part for the compiler (<name>_llvm.bi or <name>_original.bi) as <name>_compiler.bi."""
+    bench_compiler.bi, the benchmark's own part for the compiler (<name>_llvm.bi or <name>_original.bi) as <name>_compiler.bi, and
+    bench_profile_on.bi (a BlitzLLVM build with --profile) or bench_profile_off.bi as bench_profile.bi."""
     variant = "llvm" if llvm else "original"
+    copy_synced(os.path.join(HERE, "bench_profile_%s.bi" % ("on" if llvm and profile else "off")), os.path.join(directory, "bench_profile.bi"))
     for f in SHARED_INCLUDES:
         copy_synced(os.path.join(HERE, f), os.path.join(directory, f))
     copy_synced(os.path.join(HERE, "bench_%s.bi" % variant), os.path.join(directory, "bench_compiler.bi"))
@@ -96,8 +98,9 @@ def copy_includes(directory, name, llvm):
 
 
 def parse_gpu(output):
-    """With --profile the runtime reports the GPU time of the passes once a second (BLITZLLVM_PROFILE_FPS=1), summed over the frames of
-    that second: the first second (making the scene) is left out, the others are averaged per frame. Empty without such lines."""
+    """The GPU time of the passes from the once-a-second report of BLITZLLVM_PROFILE_FPS=1 (summed over the frames of that second; the
+    first second, making the scene, is left out, the others are averaged per frame). Empty without such lines. The benchmarks read
+    ProfileValue after every frame instead (bench_profile_on.bi); this is for history.py and builds from before ProfileValue."""
     frames_shown = 0
     sums = {"scene": 0.0, "2d": 0.0, "copy": 0.0, "present": 0.0, "frame": 0.0}
     shown = None
@@ -141,7 +144,7 @@ class Runner:
         p.add_argument("--gpu", type=int, default=int(os.environ.get("BENCH_GPU", 0)), help="graphics driver for SetGfxDriver (0, the default, is what the program picks)")
         p.add_argument("--quick", action="store_true", help="a small run (%d frames) for a look whether it works" % quick_frames)
         p.add_argument("--debug", action="store_true", help="build with -d (no optimization)")
-        p.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZLLVM_PROFILE_FPS=1); BlitzLLVM only")
+        p.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes with ProfileValue every frame; BlitzLLVM only")
         p.add_argument("--label", default="", help="name of this run in the result, such as the GPU")
         p.add_argument("--shot", help="save the last frame to this file")
         p.add_argument("--no-save", action="store_true", help="don't write benchmarks/results/")
@@ -203,7 +206,7 @@ class Runner:
         # includes from.
         source = os.path.join(directory, self.name + ".bb")
         copy_synced(os.path.join(HERE, self.name + ".bb"), source)
-        copy_includes(directory, self.own, self.llvm)
+        copy_includes(directory, self.own, self.llvm, self.args.profile)
         for f in files:
             shutil.copy(f, directory)
         # A build that fails with an include error (a file that is not visible yet right after it was written, seen with the
@@ -227,8 +230,6 @@ class Runner:
         full.update({k: str(v) for k, v in env.items()})
         if args.shot:
             full["BENCH_SHOT"] = os.path.abspath(args.shot)
-        if args.profile and self.llvm:
-            full["BLITZLLVM_PROFILE_FPS"] = "1"
         for f in (full["BENCH_RESULT"], full["BENCH_FRAMETIMES"]):
             if os.path.isfile(f):
                 os.remove(f)
@@ -243,7 +244,7 @@ class Runner:
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, self.output[-2000:]))
         self.values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
-        self.gpu = parse_gpu(self.output) if args.profile and self.llvm else {}
+        self.gpu = {k: v for k, v in self.values.items() if k.startswith("gpu_") or k == "renderworld_ms"}
         self.frametimes = []
         if os.path.isfile(full["BENCH_FRAMETIMES"]):
             self.frametimes = [int(float(l)) for l in open(full["BENCH_FRAMETIMES"]).read().split()]
@@ -276,8 +277,12 @@ class Runner:
         print("  per frame   %.0f triangles, %.0f draw calls, %.0f pipeline binds, %.0f texture binds, %.0f buffer binds"
               % (v["tris"], v["draws"], v["pipelines"], v["textures"], v["buffers"]))
         if self.gpu:
-            print("  gpu         scene %.3f ms, 2d %.3f ms, frame %.3f ms per frame (%d frames, from BLITZLLVM_PROFILE_FPS, summed GPU passes)"
-                  % (self.gpu["gpu_scene_ms"], self.gpu["gpu_2d_ms"], self.gpu["gpu_frame_ms"], self.gpu["gpu_frames"]))
+            if "gpu_frames" in self.gpu:
+                print("  gpu         scene %.3f ms, 2d %.3f ms, copy %.3f ms, present %.3f ms, frame %.3f ms per frame (%d frames, ProfileValue)"
+                      % (self.gpu["gpu_scene_ms"], self.gpu["gpu_2d_ms"], self.gpu["gpu_copy_ms"], self.gpu["gpu_present_ms"], self.gpu["gpu_frame_ms"], self.gpu["gpu_frames"]))
+            else:
+                print("  gpu         no GPU time came back (no GPU timestamps on this device?)")
+            print("  cpu         RenderWorld %.3f ms, waiting for the GPU %.3f ms per frame (ProfileValue)" % (self.gpu.get("renderworld_ms", 0), self.gpu.get("gpu_wait_ms", 0)))
         print("  window      %.0fx%.0f, depth %.0f" % (v.get("width", 0), v.get("height", 0), v.get("depth", 0)))
         print("  build       %s (%s)" % (" ".join(self.flags) or "no options", self.version or "unknown compiler"))
 

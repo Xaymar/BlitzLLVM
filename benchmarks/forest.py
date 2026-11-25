@@ -11,8 +11,8 @@ fullscreen bloom (all with render targets). The result is also saved as JSON (an
 
 --trees defaults to $BENCH_TREES or 1800, --grass (blades) to $BENCH_GRASS or 600000, --pebbles to $BENCH_PEBBLES or 14000, --insects to $BENCH_INSECTS or 40,
 --frames to $BENCH_FRAMES or 600. "--quick" is a small scene and 30 frames for a look whether it works. The camera walks along the path to the bridge and
-back (1200 frames), so a result is the same for the same --frames and --seed. -d builds without optimization (which BLITZLLVM_PROFILE_FPS profiling needs
-together with --profile); the build configuration is part of the result so runs are not mixed up.
+back (1200 frames), so a result is the same for the same --frames and --seed. -d builds without optimization;
+the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the folder with bin\\ in
 it unless it is set). It has no -O3 and no --profile, no draw counters (they are 0), no samplers (the BlitzLLVM build filters the textures anisotropically),

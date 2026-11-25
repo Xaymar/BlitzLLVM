@@ -25,6 +25,9 @@
 ;   BENCH_RESULT      file to write the RESULT line to (optional, it is also in the debug log)
 ;   BENCH_FRAMETIMES  file to write the time of every frame to, in microseconds, one per line (optional)
 
+; BenchProfiling and BenchProfile: bench_profile_on.bi or bench_profile_off.bi, copied by the runner.
+Include "bench_profile.bi"
+
 Function Env$(name$, fallback$)
 	value$ = GetEnv$(name$)
 	If value$ = "" Then value$ = fallback$

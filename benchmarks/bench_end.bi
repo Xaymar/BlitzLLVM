@@ -12,13 +12,18 @@
 ;   BenchResult$()           the benchmark's own values for the RESULT line, as " name=value name=value" (numbers only)
 ;
 ; The RESULT line has frames, warmup, seed, width, height, depth, create_ms, update_ms, ms_avg, ms_min, ms_median, ms_p95, ms_max, fps,
-; and per frame tris (TrisRendered), draws, pipelines, textures and buffers (the Stats3D counters, 0 in the original).
+; and per frame tris (TrisRendered), draws, pipelines, textures and buffers (the Stats3D counters, 0 in the original). With profiling
+; (bench_profile_on.bi) it also has the CPU time of RenderWorld and of waiting for the GPU per frame (renderworld_ms, gpu_wait_ms),
+; and gpu_frames and the average GPU time of the passes: gpu_scene_ms, gpu_2d_ms, gpu_copy_ms,
+; gpu_present_ms, gpu_frame_ms.
 
 If BenchCreateMs < 0 Then BenchEndCreation
 
 Dim BenchTimes#(BenchFrames - 1)
 bench_total# = 0 : bench_updates# = 0
 bench_draws# = 0 : bench_pipelines# = 0 : bench_textures# = 0 : bench_buffers# = 0 : bench_tris# = 0
+bench_prof_renderworld# = 0 : bench_prof_wait# = 0 : bench_gpu_frames = 0
+bench_gpu_frame# = 0 : bench_gpu_scene# = 0 : bench_gpu_2d# = 0 : bench_gpu_copy# = 0 : bench_gpu_present# = 0
 
 For bench_frame = 0 To BenchWarmup + BenchFrames - 1
 	BenchUpdate bench_frame
@@ -36,6 +41,20 @@ For bench_frame = 0 To BenchWarmup + BenchFrames - 1
 		bench_pipelines = bench_pipelines + BenchPipelines()
 		bench_textures = bench_textures + BenchTextures()
 		bench_buffers = bench_buffers + BenchBuffers()
+		; With profiling, the GPU time of the passes of the frame that just ended (0 while they are not back yet, those frames are left out).
+		If BenchProfiling() Then
+			bench_prof_renderworld# = bench_prof_renderworld + BenchProfile("RenderWorld")
+			bench_prof_wait# = bench_prof_wait + BenchProfile("waiting for the GPU")
+			bench_gpu_now# = BenchProfile("gpu frame")
+			If bench_gpu_now > 0 Then
+				bench_gpu_frames = bench_gpu_frames + 1
+				bench_gpu_frame# = bench_gpu_frame + bench_gpu_now
+				bench_gpu_scene# = bench_gpu_scene + BenchProfile("gpu scene")
+				bench_gpu_2d# = bench_gpu_2d + BenchProfile("gpu 2d")
+				bench_gpu_copy# = bench_gpu_copy + BenchProfile("gpu copy")
+				bench_gpu_present# = bench_gpu_present + BenchProfile("gpu present")
+			EndIf
+		EndIf
 		; Graphics (BenchGraphics2D) has no 3D scene to count.
 		If BenchGraphics2D = 0 Then
 			If BenchSceneTris >= 0 Then bench_tris = bench_tris + BenchSceneTris Else bench_tris = bench_tris + TrisRendered()
@@ -88,6 +107,11 @@ bench_result$ = "RESULT frames=" + BenchFrames + " warmup=" + BenchWarmup + " se
 bench_result$ = bench_result$ + " create_ms=" + BenchCreateMs + " update_ms=" + (bench_updates / BenchFrames / 1000)
 bench_result$ = bench_result$ + " ms_avg=" + bench_avg + " ms_min=" + (BenchSorted(0) / 1000) + " ms_median=" + (BenchSorted(BenchFrames / 2) / 1000) + " ms_p95=" + (BenchSorted(bench_p95) / 1000) + " ms_max=" + (BenchSorted(BenchFrames - 1) / 1000) + " fps=" + (1000 / bench_avg)
 bench_result$ = bench_result$ + " tris=" + Int(bench_tris / BenchFrames) + " draws=" + Int(bench_draws / BenchFrames) + " pipelines=" + Int(bench_pipelines / BenchFrames) + " textures=" + Int(bench_textures / BenchFrames) + " buffers=" + Int(bench_buffers / BenchFrames)
+If BenchProfiling() Then bench_result$ = bench_result$ + " renderworld_ms=" + (bench_prof_renderworld / BenchFrames) + " gpu_wait_ms=" + (bench_prof_wait / BenchFrames)
+If bench_gpu_frames > 0 Then
+	bench_result$ = bench_result$ + " gpu_frames=" + bench_gpu_frames + " gpu_scene_ms=" + (bench_gpu_scene / bench_gpu_frames) + " gpu_2d_ms=" + (bench_gpu_2d / bench_gpu_frames)
+	bench_result$ = bench_result$ + " gpu_copy_ms=" + (bench_gpu_copy / bench_gpu_frames) + " gpu_present_ms=" + (bench_gpu_present / bench_gpu_frames) + " gpu_frame_ms=" + (bench_gpu_frame / bench_gpu_frames)
+EndIf
 bench_result$ = bench_result$ + BenchResult$()
 BenchWriteResult bench_result$
 End

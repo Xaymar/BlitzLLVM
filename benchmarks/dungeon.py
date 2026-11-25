@@ -11,8 +11,7 @@ a dungeon of rooms and corridors, lit by torches with flames and smoke. The resu
 
 --rooms defaults to $BENCH_ROOMS or 16, --torches (per room) to 4, --particles (flame and smoke sprites per torch) to 12,
 --props (loose barrels, crates and balls per room) to 6, --frames to $BENCH_FRAMES or 600; "--rooms 100 --torches 6" is the heavy run, and
-"--quick" is 4 rooms and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
-profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
+"--quick" is 4 rooms and 30 frames for a look whether it works. -d builds without optimization; the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
 folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0).
