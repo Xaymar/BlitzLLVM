@@ -437,6 +437,7 @@ next 1000, and circles a station for the last 1000; when the ship it rides behin
 python3 benchmarks/spacebattle.py --quick                         # 200 ships, 150 asteroids, 60 frames: does it work?
 python3 benchmarks/spacebattle.py                                 # 2000 ships, 1500 asteroids, 3000 frames
 python3 benchmarks/spacebattle.py --ships 6000 --asteroids 4000   # a bigger battle
+python3 benchmarks/spacebattle.py --no-physics                    # BlitzLLVM without physics, as the original (for 1.0)
 ----
 
 It takes the options of every benchmark (see <<How a benchmark is built>>; `--warmup` is 30 here) and `BENCH_SHIPS`, `BENCH_ASTEROIDS`,
