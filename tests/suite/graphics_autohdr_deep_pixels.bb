@@ -54,7 +54,12 @@ Flip 2
 Flip 2
 Check "cut at the maximum that was set", Shown(10, 10, 0), 5, 0.02
 
-; The other modes go through the 8 bit picture: 1.0 is the most it has.
+; Mode 1 goes through the gamma pass, which in HDR is in 16 bit floating point: the precision is kept, but 1.0 is the most it has.
+SetGraphicsHDR 1, 0, 160
+WritePixel64 10, 10, 0, 0.25, 0.25, 0.25, 1.0
+Flip 2
+Flip 2
+Check "mode 1 keeps the precision", Shown(10, 10, 1), 0.101752, 0.0003
 SetGraphicsHDR 1, 0, 160
 WritePixel64 10, 10, 0, 2.0, 0.0, 0.0, 1.0
 Flip 2
