@@ -88,7 +88,6 @@ namespace blitz::lsp {
 					while (at < signature.size() && !is_sigil(signature[at]) && signature[at] != '>') at++;
 					p.optional = true;
 					p.fallback = signature.substr(d, at - d);
-					if (p.fallback == "\\") p.fallback = "\"\"";
 					if (p.fallback == "0") p.fallback.clear();
 				}
 				c.parameters.push_back(std::move(p));

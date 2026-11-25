@@ -57,8 +57,8 @@ UNREGISTERED = {
 # Original functions that BlitzLLVM gives more parameters: their signature here replaces the one the originals register.
 # They are not extensions, as programs written for the originals call them the same way.
 EXTENDED = {
-    "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\\"),
-    "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\\"),
+    "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\"\""),
+    "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\"\""),
 }
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
@@ -141,7 +141,7 @@ EXTENSIONS = {
     "imageready": ("graphics", "%ImageReady%image"),
     "entityready": ("blitz3d", "%EntityReady%entity"),
     "asyncloading": ("graphics", "AsyncLoading%enabled"),
-    "savetexture": ("blitz3d", "%SaveTexture%texture$file%frame=0$settings=\\"),
+    "savetexture": ("blitz3d", "%SaveTexture%texture$file%frame=0$settings=\"\""),
     "asyncsaving": ("graphics", "AsyncSaving%enabled"),
     "savespending": ("graphics", "%SavesPending"),
     "savesfailed": ("graphics", "%SavesFailed"),
@@ -295,7 +295,8 @@ EXTENSIONS = {
     "physicsapplyangularimpulse": ("blitz3d", "PhysicsApplyAngularImpulse%entity#x#y#z%global=0"),
 }
 
-SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
+# The signature is a C string literal: an escaped quote (the "" default of a string parameter) belongs to it.
+SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"((?:[^"\\]|\\.)+)"')
 NAME = re.compile(r"^[%#$&!@|^]?([A-Za-z_][A-Za-z0-9_]*)")
 
 
@@ -315,7 +316,7 @@ def originals():
                     n = NAME.match(match.group(1))
                     if not n or n.group(1).startswith("_"):
                         continue
-                    found.setdefault(n.group(1).lower(), (MODULES[name], match.group(1)))
+                    found.setdefault(n.group(1).lower(), (MODULES[name], re.sub(r"\\(.)", r"\1", match.group(1))))
     for name, entry in UNREGISTERED.items():
         found.setdefault(name, entry)
     found.update(EXTENDED)
