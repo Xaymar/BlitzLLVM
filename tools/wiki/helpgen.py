@@ -197,7 +197,7 @@ def command_html(c, siblings, links, media, doc, free, split_text, related, prod
     m = re.search(r"^```", free, re.M)
     description, examples = (free[:m.start()], free[m.start():]) if m else (free, "")
     sig = c.signature()
-    out = ["<h1>%s%s</h1>" % (ESC(sig), ESC(c.mark))]
+    out = ["<h1>%s%s</h1>" % (ESC(sig), c.marks(links.prefix))]
     if c.params:
         rows = ["<b>%s</b> (%s%s) - %s" % (ESC(n), t if " " in t else "In " + t, ", optional, default %s" % ESC(d) if d else "",
                                            inline(doc["param"].get(n, ""), links, media)) for t, n, d in c.params]
@@ -207,8 +207,8 @@ def command_html(c, siblings, links, media, doc, free, split_text, related, prod
     out += ["<h1>Description</h1>",
             table(markdown(description, links, media) if description.strip() else "Not documented yet.")]
     if c.extension:
-        out[-1] = table("<b>%s</b> This command does not exist in the original Blitz products. BlitzLLVM adds it."
-                        % ESC(c.mark.strip()) + markdown(description, links, media))
+        out[-1] = table("%s This command does not exist in the original Blitz products. BlitzLLVM adds it."
+                        % c.marks(links.prefix).strip() + markdown(description, links, media))
     if doc["gap"]:
         out += ["<h1>Differences</h1>", table("<ul>%s</ul>" % "".join("<li>%s</li>" % inline(g, links, media)
                                                                        for g in doc["gap"]))]
@@ -258,7 +258,7 @@ def command_list(out, commands):
                   for k in cats}
 
         def items(cs):
-            return "<ul>%s</ul>" % "".join('<li><a href=%s_commands/%s.htm target=main>%s</a><br>' % (s, c.name, ESC(c.name + c.mark))
+            return "<ul>%s</ul>" % "".join('<li><a href=%s_commands/%s.htm target=main>%s</a><br>' % (s, c.name, ESC(c.name) + c.marks("../"))
                                            for c in cs)
 
         head = "".join("<li><a href=command_list_%s_cat_%d.htm>%s</a><br>\n" % (s, n + 1, ESC(categories.display(k[1])))
@@ -310,6 +310,12 @@ ul
 {
 	margin-left: 12px;
 	padding-left: 12px;
+}
+
+img.product
+{
+	image-rendering: pixelated;
+	max-width: none;
 }
 """
 
@@ -401,6 +407,12 @@ img
 {
 	max-width: 100%;
 }
+
+img.product
+{
+	image-rendering: pixelated;
+	max-width: none;
+}
 """
 
 FRAMES = ("<html>\n<head>\n<title>%s</title>\n</head>\n\n%s\n\n</html>\n")
@@ -409,7 +421,8 @@ FRAMES = ("<html>\n<head>\n<title>%s</title>\n</head>\n\n%s\n\n</html>\n")
 def build_help(commands, out, wiki):
     """Writes the whole help into out. wiki is the wiki module (its text and page functions are used)."""
     shutil.rmtree(out, ignore_errors=True)
-    media = set()
+    # The product icons are in the lists and titles of the commands, which do not go through markdown().
+    media = {"media/%s.png" % image for _, image in wiki.ICONS.values()}
     cats = {}
     for c in commands:
         cats.setdefault((c.dialect, c.category), []).append(c)
@@ -441,8 +454,10 @@ def build_help(commands, out, wiki):
     write(os.path.join(out, "commands", "main.htm"), PAGE % {
         "title": "BlitzLLVM Docs", "css": "css/menu.css",
         "body": "<h1>Command Reference</h1>\nThe commands of BlitzBasic, Blitz3D and BlitzPlus as BlitzLLVM implements them. "
-                "Pick a list on the left. Commands that BlitzLLVM adds are marked %s. "
-                "<a href=../language/Differences.html>How BlitzLLVM differs from the originals</a>." % ESC(wiki.EXTENSION_MARK)})
+                "Pick a list on the left. Each command is marked with the products that have it: %s, %s, %s, "
+                "and %s for the commands that BlitzLLVM adds. "
+                "<a href=../language/Differences.html>How BlitzLLVM differs from the originals</a>." %
+                tuple(wiki.icon(p, "../") for p in wiki.ICONS)})
 
     # Language reference: every page that is not a command, with the original frameset around it.
     links = Links(commands, page_names, "../")
