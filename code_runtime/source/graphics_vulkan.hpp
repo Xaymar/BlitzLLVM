@@ -15,6 +15,7 @@
 #pragma once
 #define VK_NO_PROTOTYPES
 #include "rhi_backend.hpp"
+#include <atomic>
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <SDL3/SDL_vulkan.h>
@@ -130,6 +131,14 @@ BB_VK_INSTANCE(BB_VK_DECLARE)
 BB_VK_DEVICE(BB_VK_DECLARE)
 
 namespace bb::gfx {
+	/** What a frame slot (or a presenter) waits for: a timeline semaphore and the value its last submission signals. The GPU-CPU
+	 *  sync uses these instead of fences, which made NVIDIA's swapchain stutter more (nvpro-samples/vk_minimal_latest does the same).
+	 *  Each slot has its own, so the values that are signalled always grow, whichever thread submits. */
+	struct vk_timeline {
+		VkSemaphore           semaphore = VK_NULL_HANDLE;
+		std::atomic<uint64_t> submitted { 0 }; // The value of the last submission that was made, 0 for none.
+	};
+
 	/** What the Vulkan backend keeps of the device. Like the graphics state it belongs to the thread that runs the program. */
 	struct vk_state {
 		VkInstance       instance = VK_NULL_HANDLE;
@@ -141,8 +150,8 @@ namespace bb::gfx {
 		VkPhysicalDeviceMemoryProperties memory = {};
 
 		VkCommandPool   pool  = VK_NULL_HANDLE;
-		VkCommandBuffer cmd   = VK_NULL_HANDLE;
-		VkFence         fence = VK_NULL_HANDLE;
+		VkCommandBuffer cmd      = VK_NULL_HANDLE;
+		vk_timeline*    timeline = nullptr; // Of the slot that is recorded into (frame_sync::fence).
 
 		VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
 		VkDescriptorPool      set_pool   = VK_NULL_HANDLE;
