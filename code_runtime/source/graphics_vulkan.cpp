@@ -484,6 +484,7 @@ namespace bb::gfx {
 			bool                                                     alive = false;
 			bool                                                     fixed = false; // One description for whatever format it is bound with.
 			bool                                                     depth_known = false, has_depth = false; // Whether it draws in passes with depth, once it was first built.
+			bool                                                     scene3d = false; // Reads vertex3d, whose strides are set with the buffers (see bind_vertex_buffer).
 		};
 		std::vector<pipeline_object> pipeline_objects;
 	} // namespace
@@ -503,6 +504,7 @@ namespace bb::gfx {
 		bb::rhi::pipeline_desc desc = object.recipe(target);
 		object.depth_known          = true;
 		object.has_depth            = desc.depth || desc.depth_unused;
+		object.scene3d              = desc.vertices == bb::rhi::vertex_layout::scene3d;
 		if (stencil && !object.has_depth) {
 			return vk_built_pipeline(pipeline, format, false);
 		}
@@ -591,27 +593,32 @@ namespace bb::gfx {
 			stages[0].pSpecializationInfo = &vertex_specialization;
 		}
 
-		VkVertexInputBindingDescription   binding       = {};
-		VkVertexInputAttributeDescription attributes[5] = {};
-		uint32_t                          attribute_count = 0;
+		VkVertexInputBindingDescription   bindings[2]     = {};
+		VkVertexInputAttributeDescription attributes[5]   = {};
+		uint32_t                          attribute_count = 0, binding_count = 0;
 		if (desc.vertices == bb::rhi::vertex_layout::flat) {
-			binding             = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
+			bindings[0]         = { 0, sizeof(vertex), VK_VERTEX_INPUT_RATE_VERTEX };
+			binding_count       = 1;
 			attributes[0]       = { 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, x) };
 			attributes[1]       = { 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(vertex, u) };
 			attributes[2]       = { 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) };
 			attribute_count     = 3;
 		} else if (desc.vertices == bb::rhi::vertex_layout::scene3d) {
-			binding         = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
+			// The second set of texture coordinates has a binding of its own: the block of the surface, or the first set of the vertices
+			// for a surface without one. The strides of both are dynamic (see bind_vertex_buffer).
+			bindings[0]     = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
+			bindings[1]     = { 1, sizeof(bb::vertex3d_second), VK_VERTEX_INPUT_RATE_VERTEX };
+			binding_count   = 2;
 			attributes[0]   = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) };
 			attributes[1]   = { 1, 0, VK_FORMAT_R16G16_SINT, offsetof(bb::vertex3d, stored_normal) }; // Octahedral, see bb::normal_encode.
 			attributes[2]   = { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) };
 			attributes[3]   = { 3, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, stored_color) };
-			attributes[4]   = { 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) };
+			attributes[4]   = { 4, 1, VK_FORMAT_R32G32_SFLOAT, 0 };
 			attribute_count = 5;
 		}
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-		input.vertexBindingDescriptionCount        = attribute_count ? 1 : 0;
-		input.pVertexBindingDescriptions           = &binding;
+		input.vertexBindingDescriptionCount        = binding_count;
+		input.pVertexBindingDescriptions           = bindings;
 		input.vertexAttributeDescriptionCount      = attribute_count;
 		input.pVertexAttributeDescriptions         = attributes;
 
@@ -658,10 +665,14 @@ namespace bb::gfx {
 		blending.pAttachments                        = blend;
 
 		// A 3D pipeline for a pass with stencil has all of the stencil state dynamic (core in Vulkan 1.3), so stencil makes no more pipelines than one per pass kind.
-		VkDynamicState dynamic_states[10]        = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
+		VkDynamicState dynamic_states[11]        = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
 			VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE, VK_DYNAMIC_STATE_STENCIL_OP, VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK, VK_DYNAMIC_STATE_STENCIL_WRITE_MASK, VK_DYNAMIC_STATE_STENCIL_REFERENCE };
+		uint32_t       dynamic_count             = desc.depth ? (stencil ? 10 : 5) : 2;
+		if (desc.vertices == bb::rhi::vertex_layout::scene3d) {
+			dynamic_states[dynamic_count++] = VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE;
+		}
 		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                = desc.depth ? (stencil ? 10 : 5) : 2;
+		dynamic.dynamicStateCount                = dynamic_count;
 		dynamic.pDynamicStates                   = dynamic_states;
 
 		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
@@ -1604,13 +1615,46 @@ namespace bb::rhi::vulkan {
 }
 
 namespace bb::rhi::vulkan {
+	// The vertex buffer that the draws read. The strides of a pipeline of vertex3d are dynamic, and binding a pipeline whose strides
+	// are not forgets them, so the buffers are bound again before a draw when they or the kind of pipeline changed.
+	namespace {
+		struct {
+			VkBuffer buffer = VK_NULL_HANDLE;
+			uint64_t second = 0;     // Where the second set of texture coordinates is, 0 for none.
+			bool     scene3d = false; // The pipeline that is bound reads vertex3d.
+			bool     dirty   = true;
+		} vertices;
+
+		void flush_vertices()
+		{
+			if (!vertices.dirty || !vertices.buffer) {
+				return;
+			}
+			vertices.dirty = false;
+			if (!vertices.scene3d) {
+				VkDeviceSize offset = 0;
+				vkCmdBindVertexBuffers(gfx::vkd.cmd, 0, 1, &vertices.buffer, &offset);
+				return;
+			}
+			VkBuffer     buffers[2] = { vertices.buffer, vertices.buffer };
+			VkDeviceSize offsets[2] = { 0, vertices.second ? vertices.second : VkDeviceSize(offsetof(bb::vertex3d, u)) };
+			VkDeviceSize strides[2] = { sizeof(bb::vertex3d), vertices.second ? sizeof(bb::vertex3d_second) : sizeof(bb::vertex3d) };
+			vkCmdBindVertexBuffers2(gfx::vkd.cmd, 0, 2, buffers, offsets, nullptr, strides);
+		}
+	}
+
 	void bind_pipeline(pipeline p, format target)
 	{
-		const gfx::built_pipeline& built = gfx::vk_built_pipeline(p, target, pass_stencil);
+		const gfx::built_pipeline& built   = gfx::vk_built_pipeline(p, target, pass_stencil);
+		bool                       scene3d = gfx::pipeline_objects[p.id - 1].scene3d;
 		vkCmdBindPipeline(gfx::vkd.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, built.pipeline);
 		bound_stencil = built.stencil;
 		if (bound_stencil) {
 			apply_stencil(); // Dynamic state that the pipeline before may not have had.
+		}
+		if (scene3d != vertices.scene3d) {
+			vertices.scene3d = scene3d;
+			vertices.dirty   = true;
 		}
 	}
 
@@ -1654,11 +1698,11 @@ namespace bb::rhi::vulkan {
 		vkCmdPushConstants(gfx::vkd.cmd, gfx::vk_layout(layout), flags, offset, size, data);
 	}
 
-	void bind_vertex_buffer(uint64_t buffer)
+	void bind_vertex_buffer(uint64_t buffer, uint64_t second)
 	{
-		VkBuffer     vk     = VkBuffer(buffer);
-		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(gfx::vkd.cmd, 0, 1, &vk, &offset);
+		vertices.buffer = VkBuffer(buffer);
+		vertices.second = second;
+		vertices.dirty  = true;
 	}
 
 	void bind_index_buffer(uint64_t buffer)
@@ -1713,16 +1757,19 @@ namespace bb::rhi::vulkan {
 
 	void draw(uint32_t vertices, uint32_t instances, uint32_t first_vertex, uint32_t first_instance)
 	{
+		flush_vertices();
 		vkCmdDraw(gfx::vkd.cmd, vertices, instances, first_vertex, first_instance);
 	}
 
 	void draw_indexed(uint32_t indices, uint32_t instances, uint32_t first_index, int32_t base_vertex, uint32_t first_instance)
 	{
+		flush_vertices();
 		vkCmdDrawIndexed(gfx::vkd.cmd, indices, instances, first_index, base_vertex, first_instance);
 	}
 
 	void draw_indexed_indirect(uint64_t buffer, uint64_t offset, uint32_t count, uint32_t stride)
 	{
+		flush_vertices();
 		vkCmdDrawIndexedIndirect(gfx::vkd.cmd, VkBuffer(buffer), offset, count, stride);
 	}
 
@@ -2020,6 +2067,7 @@ namespace bb::rhi::vulkan {
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		gfx::check(vkBeginCommandBuffer(gfx::vkd.cmd, &info), "vkBeginCommandBuffer");
+		vertices = {}; // A new command buffer has nothing bound.
 	}
 
 	void end_commands()

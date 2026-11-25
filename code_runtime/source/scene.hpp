@@ -225,8 +225,7 @@ namespace bb {
 		float    x, y, z;
 		int16_t  stored_normal[2];
 		uint8_t  stored_color[4]; // Red, green, blue, alpha.
-		float    u, v;
-		float    u2, v2;          // The second set of texture coordinates, for textures that ask for it.
+		float    u, v, w;         // The first set of texture coordinates. w is kept for 3D textures; nothing reads it yet.
 
 		void set_normal(float nx, float ny, float nz) { normal_encode(nx, ny, nz, stored_normal); }
 		void set_normal(const float* n) { set_normal(n[0], n[1], n[2]); }
@@ -270,14 +269,22 @@ namespace bb {
 			made.y        = y;
 			made.z        = z;
 			made.set_normal(nx, ny, nz);
-			made.u  = u;
-			made.v  = v;
-			made.u2 = u;
-			made.v2 = v;
+			made.u = u;
+			made.v = v;
 			made.set_white();
 			return made;
 		}
 	};
+	static_assert(sizeof(vertex3d) == 32 && (vertex_alignment % sizeof(vertex3d)) == 0, "A vertex has to stay within a cache line (docs/Vertex-Format.md).");
+
+	// The second set of texture coordinates of a vertex, which only surfaces that have one keep (surface::second), in an array of its own
+	// next to the vertices. A surface without it uses the first set where the second is asked for, which is what AddVertex makes.
+	struct vertex3d_second {
+		float u, v, w;
+		float unused; // So that the size divides a cache line.
+	};
+	static_assert(sizeof(vertex3d_second) == 16 && (vertex_alignment % sizeof(vertex3d_second)) == 0, "The second set has to stay within a cache line.");
+	using second_array = buffer<vertex3d_second, vertex_alignment>;
 
 	// The vertices of a surface, in an array that starts at vertex_alignment.
 	using vertex_array = buffer<vertex3d, vertex_alignment>;
@@ -309,6 +316,8 @@ namespace bb {
 		int      lightmap = 0; // The texture of the lightmap of a face of a level, which BSPLighting puts on the first layer or takes off.
 
 		vertex_array     vertices;
+		second_array     second;             // One for each vertex while has_second: see vertex3d_second.
+		bool             has_second = false; // The surface keeps a second set of texture coordinates of its own.
 		buffer<uint32_t> indices;
 
 		int refs = 1; // Copies of an entity share its surfaces.
@@ -335,6 +344,60 @@ namespace bb {
 		uint32_t clip_key_version  = 0;
 		float    clip_key[40]      = {};
 	};
+
+	// The second set of texture coordinates of a surface (see vertex3d_second): what it is for a vertex, and how it is changed.
+	inline vertex3d_second second_of(surface const& s, uint32_t index)
+	{
+		if (s.has_second) {
+			return s.second[index];
+		}
+		vertex3d const& v = s.vertices[index];
+		return { v.u, v.v, v.w, 0 };
+	}
+
+	/** Gives the surface its own second set (a copy of the first) if it has none yet, so that it can be changed. */
+	inline void second_make(surface& s)
+	{
+		if (s.has_second) {
+			return;
+		}
+		s.second.clear();
+		s.second.reserve(s.vertices.size);
+		for (uint32_t i = 0; i < s.vertices.size; i++) {
+			vertex3d const& v = s.vertices[i];
+			s.second.data[i]  = { v.u, v.v, v.w, 0 };
+		}
+		s.second.size = s.vertices.size;
+		s.has_second  = true;
+	}
+
+	/** Takes the second set off a surface, which then uses its first set for both. */
+	inline void second_drop(surface& s)
+	{
+		s.second.release();
+		s.has_second = false;
+	}
+
+	/** Adds a vertex whose second set is its first, and keeps the second set of the surface as long as the vertices. */
+	inline void push_vertex(surface& s, vertex3d const& v)
+	{
+		s.vertices.push(v);
+		if (s.has_second) {
+			s.second.push({ v.u, v.v, v.w, 0 });
+		}
+	}
+
+	/** Adds a vertex with a second set of its own. */
+	inline void push_vertex(surface& s, vertex3d const& v, vertex3d_second const& second)
+	{
+		if (!s.has_second && ((second.u != v.u) || (second.v != v.v) || (second.w != v.w))) {
+			second_make(s);
+		}
+		s.vertices.push(v);
+		if (s.has_second) {
+			s.second.push(second);
+		}
+	}
 
 	// A texture that has frames is bound by a number that has the frame above the handle.
 	constexpr int texture_frame_shift = 20;

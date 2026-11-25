@@ -215,6 +215,7 @@ namespace bb::gfx {
 
 			GLuint vaos[3] = {};             // By vertex_layout.
 			GLuint vao_vertices[3] = {}, vao_indices[3] = {};
+			uint64_t vertex_second = 0, vao_second = 0; // Where the second set of texture coordinates is (see bind_vertex_buffer), as asked and as bound.
 			GLuint read_fbo = 0, draw_fbo = 0; // For copies.
 			GLuint push_buffer = 0;
 			uint8_t push_data[push_bytes] = {};
@@ -767,8 +768,14 @@ namespace bb::gfx {
 			}
 			uint32_t vao = uint32_t(pipeline->desc.vertices);
 			gl::BindVertexArray(glc.vaos[vao]);
-			if ((vao != 0) && (glc.vao_vertices[vao] != glc.vertex_buffer)) {
-				gl::BindVertexBuffer(0, glc.vertex_buffer, 0, (pipeline->desc.vertices == bb::rhi::vertex_layout::flat) ? GLsizei(sizeof(vertex)) : GLsizei(sizeof(bb::vertex3d)));
+			bool scene3d = pipeline->desc.vertices == bb::rhi::vertex_layout::scene3d;
+			if ((vao != 0) && ((glc.vao_vertices[vao] != glc.vertex_buffer) || (scene3d && (glc.vao_second != glc.vertex_second)))) {
+				gl::BindVertexBuffer(0, glc.vertex_buffer, 0, scene3d ? GLsizei(sizeof(bb::vertex3d)) : GLsizei(sizeof(vertex)));
+				if (scene3d) { // The second set of texture coordinates: the block of the surface, or the first set.
+					uint64_t second = glc.vertex_second;
+					gl::BindVertexBuffer(1, glc.vertex_buffer, GLintptr(second ? second : offsetof(bb::vertex3d, u)), second ? GLsizei(sizeof(bb::vertex3d_second)) : GLsizei(sizeof(bb::vertex3d)));
+					glc.vao_second = second;
+				}
 				glc.vao_vertices[vao] = glc.vertex_buffer;
 			}
 			if (glc.vao_indices[vao] != glc.index_buffer) {
@@ -1398,9 +1405,10 @@ namespace bb::rhi::opengl {
 		glc.push_dirty = true;
 	}
 
-	void bind_vertex_buffer(uint64_t buffer)
+	void bind_vertex_buffer(uint64_t buffer, uint64_t second)
 	{
 		glc.vertex_buffer = GLuint(buffer);
+		glc.vertex_second = second;
 	}
 
 	void bind_index_buffer(uint64_t buffer)
@@ -1680,9 +1688,9 @@ namespace bb::rhi::opengl {
 		}
 	}
 
-	void bind_vertex_buffer(uint64_t buffer)
+	void bind_vertex_buffer(uint64_t buffer, uint64_t second)
 	{
-		record([=] { direct::bind_vertex_buffer(buffer); });
+		record([=] { direct::bind_vertex_buffer(buffer, second); });
 	}
 
 	void bind_index_buffer(uint64_t buffer)
@@ -2206,7 +2214,8 @@ namespace bb::rhi::opengl {
 		gl::VertexAttribBinding(1, 0);
 		attribute(2, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u));
 		attribute(3, 4, GL_UNSIGNED_BYTE, true, offsetof(bb::vertex3d, stored_color));
-		attribute(4, 2, GL_FLOAT, false, offsetof(bb::vertex3d, u2));
+		attribute(4, 2, GL_FLOAT, false, 0);
+		gl::VertexAttribBinding(4, 1); // The second set has a buffer binding of its own, see prepare_draw.
 		gl::BindVertexArray(glc.vaos[0]);
 
 		gl::GenFramebuffers(1, &glc.read_fbo);

@@ -143,12 +143,10 @@ namespace {
 		v.y = c[1];
 		v.z = c[2];
 		v.set_normal(n);
-		v.u  = b.v[3];
-		v.v  = b.v[4];
-		v.u2 = b.v[5]; // Where the lightmap is.
-		v.v2 = b.v[6];
+		v.u = b.v[3];
+		v.v = b.v[4];
 		v.set_color(b.v[10] / 255.0f, b.v[11] / 255.0f, b.v[12] / 255.0f, 1);
-		s.vertices.push(v);
+		push_vertex(s, v, { b.v[5], b.v[6], 0, 0 }); // The second set is where the lightmap is.
 	}
 
 	// The texture of one lightmap of the level, with the gamma of LoadBSP applied.

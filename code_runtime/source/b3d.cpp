@@ -412,6 +412,8 @@ namespace {
 	// The vertices and indices of one surface, made from a triangle group without touching the scene.
 	struct prepared_group {
 		vertex_array     vertices;
+		second_array     second;             // The second set of texture coordinates, if has_second.
+		bool             has_second = false; // Only when a vertex has a second set that is not its first.
 		buffer<uint32_t> indices;
 		buffer<uint32_t> source; // Which vertex of the node each vertex came from.
 		void*            gpu = nullptr; // The buffers for the graphics card, if a loader thread made them.
@@ -430,6 +432,7 @@ namespace {
 			for (uint32_t i = 0; i < nodes.size; i++) {
 				for (uint32_t g = 0; g < nodes[i].groups.size; g++) {
 					nodes[i].groups[g].vertices.release();
+					nodes[i].groups[g].second.release();
 					nodes[i].groups[g].indices.release();
 					nodes[i].groups[g].source.release();
 					if (nodes[i].groups[g].gpu) {
@@ -489,21 +492,24 @@ namespace {
 					}
 					out.u = v.uv[0];
 					out.v = v.uv[1];
-					out.u2 = v.uv2[0];
-					out.v2 = v.uv2[1];
 					out.set_color(v.color[0], v.color[1], v.color[2], v.color[3]);
 					remap[original] = int(made.vertices.size);
 					made.vertices.push(out);
+					made.second.push({ v.uv2[0], v.uv2[1], 0, 0 });
+					made.has_second = made.has_second || (v.uv2[0] != v.uv[0]) || (v.uv2[1] != v.uv[1]);
 					made.source.push(original);
 				}
 				made.indices.push(uint32_t(remap[original]));
 			}
 			remap.release();
+			if (!made.has_second) { // The second set is the first: the surface does not keep it.
+				made.second.release();
+			}
 			if (!node.has_normals) {
 				compute_normals(made.vertices, made.indices);
 			}
 			if (upload) {
-				made.gpu = gfx::surface_prebuild(made.vertices.data, made.vertices.size, made.indices.data, made.indices.size);
+				made.gpu = gfx::surface_prebuild(made.vertices.data, made.has_second ? made.second.data : nullptr, made.vertices.size, made.indices.data, made.indices.size);
 			}
 			into.groups.push(made);
 		}
@@ -540,8 +546,11 @@ namespace {
 			prepared_group& from  = prepared.groups[g];
 			surface*        s     = create_surface(entity_handle);
 			s->vertices           = from.vertices;
+			s->second             = from.second;
+			s->has_second         = from.has_second;
 			s->indices            = from.indices;
 			from.vertices         = {};
+			from.second           = {};
 			from.indices          = {};
 			s->dirty = true;
 			bb::surface_epoch++;
@@ -888,13 +897,17 @@ namespace {
 				surface* s = t.s;
 				if (t.groups == 1) {
 					s->vertices   = part.vertices;
+					s->second     = part.second;
+					s->has_second = part.has_second;
 					s->indices    = part.indices;
 					part.vertices = {};
+					part.second   = {};
 					part.indices  = {};
 				} else {
 					uint32_t base = s->vertices.size;
 					for (uint32_t i = 0; i < part.vertices.size; i++) {
-						s->vertices.push(part.vertices[i]);
+						vertex3d const& v = part.vertices[i];
+						push_vertex(*s, v, part.has_second ? part.second[i] : vertex3d_second{ v.u, v.v, v.w, 0 });
 					}
 					for (uint32_t i = 0; i < part.indices.size; i++) {
 						s->indices.push(base + part.indices[i]);

@@ -210,6 +210,7 @@ namespace bb::gfx {
 			uint32_t                 offsets[5] = {};
 			d3d_group*               compute_groups[5] = {};
 			d3d_buffer*              vertex_buffer = nullptr;
+			uint64_t                 vertex_second = 0; // Where the second set of texture coordinates is in it, 0 for none (see bind_vertex_buffer).
 			d3d_buffer*              index_buffer  = nullptr;
 			bb::rhi::cull_mode       cull = bb::rhi::cull_mode::back;
 			bool                     depth_test = true, depth_write = true;
@@ -646,6 +647,12 @@ namespace bb::gfx {
 				sync_buffer(dx.vertex_buffer);
 				ID3D11Buffer* vb = dx.vertex_buffer ? dx.vertex_buffer->gpu : nullptr;
 				c->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+				if (p->desc.vertices == bb::rhi::vertex_layout::scene3d) {
+					// The second set of texture coordinates is slot 2 (1 is the instance numbers): the block of the surface, or the first set.
+					UINT second_stride = dx.vertex_second ? UINT(sizeof(bb::vertex3d_second)) : UINT(sizeof(bb::vertex3d));
+					UINT second_offset = dx.vertex_second ? UINT(dx.vertex_second) : UINT(offsetof(bb::vertex3d, u));
+					c->IASetVertexBuffers(2, 1, &vb, &second_stride, &second_offset);
+				}
 				if (p->vsi->uses_instance) {
 					if (!dx.ramp) { // The instance numbers that BBINSTANCE reads: 0, 1, 2, ... from the first instance of a draw on.
 						std::vector<uint32_t> numbers(ramp_size);
@@ -792,8 +799,8 @@ namespace bb::gfx {
 			if (desc.vertices != bb::rhi::vertex_layout::none) {
 				D3D11_INPUT_ELEMENT_DESC elements[6] = {};
 				UINT                     count       = 0;
-				auto add = [&](const char* name, UINT index, DXGI_FORMAT format, UINT offset) {
-					elements[count++] = { name, index, format, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+				auto add = [&](const char* name, UINT index, DXGI_FORMAT format, UINT offset, UINT slot = 0) {
+					elements[count++] = { name, index, format, slot, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 };
 				};
 				if (desc.vertices == bb::rhi::vertex_layout::flat) {
 					add("TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, offsetof(vertex, x));
@@ -804,7 +811,7 @@ namespace bb::gfx {
 					add("TEXCOORD", 1, DXGI_FORMAT_R16G16_SINT, offsetof(bb::vertex3d, stored_normal)); // Octahedral, see bb::normal_encode.
 					add("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u));
 					add("TEXCOORD", 3, DXGI_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, stored_color));
-					add("TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, offsetof(bb::vertex3d, u2));
+					add("TEXCOORD", 4, DXGI_FORMAT_R32G32_FLOAT, 0, 2); // The second set, see apply_draw_state.
 				}
 				if (p.vsi->uses_instance) {
 					elements[count++] = { "BBINSTANCE", 0, DXGI_FORMAT_R32_UINT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 };
@@ -1769,7 +1776,11 @@ namespace bb::rhi::d3d11 {
 			dx.push_dirty = true;
 		}
 
-		void bind_vertex_buffer(uint64_t buffer) { dx.vertex_buffer = buffer_of(buffer); }
+		void bind_vertex_buffer(uint64_t buffer, uint64_t second)
+		{
+			dx.vertex_buffer = buffer_of(buffer);
+			dx.vertex_second = second;
+		}
 		void bind_index_buffer(uint64_t buffer) { dx.index_buffer = buffer_of(buffer); }
 		void set_cull(cull_mode mode) { dx.cull = mode; }
 		void set_depth_test(bool enable) { dx.depth_test = enable; }
@@ -2180,7 +2191,7 @@ namespace bb::rhi::d3d11 {
 		}
 	}
 
-	void bind_vertex_buffer(uint64_t buffer) { record([=] { direct::bind_vertex_buffer(buffer); }); }
+	void bind_vertex_buffer(uint64_t buffer, uint64_t second) { record([=] { direct::bind_vertex_buffer(buffer, second); }); }
 	void bind_index_buffer(uint64_t buffer) { record([=] { direct::bind_index_buffer(buffer); }); }
 	void set_cull(cull_mode mode) { record([=] { direct::set_cull(mode); }); }
 	void set_depth_test(bool enable) { record([=] { direct::set_depth_test(enable); }); }
