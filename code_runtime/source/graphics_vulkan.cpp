@@ -1187,7 +1187,7 @@ namespace bb::gfx {
 			features13.pNext            = &present_id_features;
 		}
 
-		const char* device_extensions[8] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		const char* device_extensions[10] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
 		if (g.can_custom_border) {
 			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
@@ -1199,6 +1199,7 @@ namespace bb::gfx {
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_ID_EXTENSION_NAME;
 			device_extensions[device_extension_total++] = VK_KHR_PRESENT_WAIT_EXTENSION_NAME;
 		}
+		bb::rhi::vulkan::dxgi::choose_extensions(available.data(), uint32_t(available.size()), device_extensions, device_extension_total);
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
 		device_info.pEnabledFeatures           = &enabled;
@@ -1211,6 +1212,7 @@ namespace bb::gfx {
 
 #define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(vkd.device, #name));
 		BB_VK_DEVICE(BB_VK_LOAD_DEVICE)
+		bb::rhi::vulkan::dxgi::device_made(vkd.instance, vkd.physical, vkd.device);
 		for (uint32_t i = 0; i < g.queue_count; i++) {
 			vkGetDeviceQueue(vkd.device, g.family, i, &vkd.queues[i]);
 		}
@@ -2056,6 +2058,9 @@ namespace bb::rhi::vulkan {
 	bool create_swapchain(swapchain& sc, const swapchain_desc& d)
 	{
 		using namespace gfx;
+		if (dxgi::create(sc, d)) {
+			return true; // Shown through DXGI (graphics_vulkan_dxgi.cpp).
+		}
 		const VkSurfaceKHR surface = VkSurfaceKHR(d.surface);
 		VkSurfaceCapabilitiesKHR caps;
 		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkd.physical, surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
@@ -2165,6 +2170,10 @@ namespace bb::rhi::vulkan {
 
 	void destroy_swapchain(swapchain& sc)
 	{
+		if (dxgi::owns(sc.handle)) {
+			dxgi::destroy(sc);
+			return;
+		}
 		for (uint32_t i = 0; i < sc.count; i++) {
 			vkDestroySemaphore(gfx::vkd.device, VkSemaphore(sc.done[i]), nullptr);
 			sc.images[i] = 0;
@@ -2202,6 +2211,9 @@ namespace bb::rhi::vulkan {
 
 	present_result acquire_image(swapchain& chain, uint64_t signal_semaphore, uint64_t timeout_ns, bool serialize, uint32_t& index)
 	{
+		if (dxgi::owns(chain.handle)) {
+			return dxgi::acquire(chain.handle, VkSemaphore(signal_semaphore), gfx::vkd.queue, 0, timeout_ns, index); // Needs no lock of the swapchain.
+		}
 		if (serialize) {
 			gfx::swapchain_lock();
 		}
@@ -2214,6 +2226,9 @@ namespace bb::rhi::vulkan {
 
 	present_result present_image(swapchain& chain, uint64_t queue_handle, uint64_t wait_semaphore, uint32_t index, bool serialize, bool wait_queue)
 	{
+		if (dxgi::owns(chain.handle)) {
+			return dxgi::present(chain.handle, VkQueue(queue_handle), 0, VkSemaphore(wait_semaphore), index, wait_queue); // Queue 0: the one of Graphics.
+		}
 		VkSemaphore      wait    = VkSemaphore(wait_semaphore);
 		VkSwapchainKHR   handle  = VkSwapchainKHR(chain.handle);
 		VkPresentInfoKHR present = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
@@ -2341,7 +2356,9 @@ namespace bb::rhi::vulkan {
 		// The thread is the only one that uses this swapchain, so it can wait for an image as long as it takes: in FIFO
 		// mode, that is until the display has shown one, which is what paces it.
 		uint32_t index  = 0;
-		VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, acquired, VK_NULL_HANDLE, &index);
+		const bool through_dxgi = dxgi::owns(chain.handle);
+		VkResult   result       = through_dxgi ? VkResult(dxgi::acquire(chain.handle, acquired, queue, presenter.queue_index, UINT64_MAX, index).native)
+		                                       : vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, acquired, VK_NULL_HANDLE, &index);
 		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || ((result != VK_SUCCESS) && (result != VK_SUBOPTIMAL_KHR))) {
 			return shown; // Or the device is lost, which the program's thread finds out on its own.
 		}
@@ -2380,7 +2397,7 @@ namespace bb::rhi::vulkan {
 		present.pImageIndices      = &index;
 		VkPresentIdKHR present_id  = { VK_STRUCTURE_TYPE_PRESENT_ID_KHR };
 		uint64_t       this_id     = presenter.present_id + 1;
-		if (presenter.present_wait) {
+		if (presenter.present_wait && !through_dxgi) {
 			present_id.swapchainCount = 1;
 			present_id.pPresentIds    = &this_id;
 			present.pNext             = &present_id;
@@ -2389,8 +2406,11 @@ namespace bb::rhi::vulkan {
 		// waits for the display: the swapchain is MAILBOX or IMMEDIATE, so the lock is held for the calls themselves only.
 		queue_lock(presenter.queue_index);
 		result             = vkQueueSubmit(queue, 1, &info, fence);
-		VkResult presented = (result == VK_SUCCESS) ? vkQueuePresentKHR(queue, &present) : result;
+		VkResult presented = ((result == VK_SUCCESS) && !through_dxgi) ? vkQueuePresentKHR(queue, &present) : result;
 		queue_unlock(presenter.queue_index);
+		if ((result == VK_SUCCESS) && through_dxgi) {
+			presented = VkResult(dxgi::present(chain.handle, queue, presenter.queue_index, done_semaphore, index, false).native);
+		}
 		shown.presented = vk_present_result(presented).status;
 		if (result != VK_SUCCESS) {
 			shown.stage = show_result::stage::submit_failed;
@@ -2405,8 +2425,8 @@ namespace bb::rhi::vulkan {
 
 	bool wait_present(const window_presenter& presenter, const swapchain& chain, uint64_t timeout_ns)
 	{
-		if (!presenter.present_wait || !vkWaitForPresentKHR) {
-			return false;
+		if (!presenter.present_wait || !vkWaitForPresentKHR || dxgi::owns(chain.handle)) {
+			return false; // A DXGI swapchain has no present ids: the thread paces itself with the timer.
 		}
 		vkWaitForPresentKHR(VkDevice(presenter.device), VkSwapchainKHR(chain.handle), presenter.present_id, timeout_ns);
 		return true;

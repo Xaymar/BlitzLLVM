@@ -65,6 +65,8 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_backend.cpp"
 	"source/graphics_resources.cpp"
 	"source/graphics_vulkan.cpp"
+	"source/graphics_vulkan_dxgi.cpp"
+	"source/graphics_vulkan_wgl.cpp"
 	"source/graphics_streaming.cpp"
 	"source/graphics_vulkan_memory.cpp"
 	"source/graphics_commands.cpp"

@@ -551,6 +551,7 @@ namespace bb::rhi {
 		uint32_t height     = 0;
 		int      vsync      = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		bool     own_thread = false; // A thread of its own shows the pictures, so a present must never wait for the display.
+		void*    native_window = nullptr; // Windows: the HWND, which Vulkan shows its pictures in through DXGI (graphics_vulkan_dxgi.cpp).
 	};
 
 	/** Makes the swapchain (replacing nothing: destroy_swapchain it first). Sets the size even if no images are made because the window is minimized (size 0). False if the device is lost, with nothing set. */
