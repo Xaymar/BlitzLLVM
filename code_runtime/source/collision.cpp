@@ -879,6 +879,18 @@ namespace bb::collision {
 			pick_tree.cooldown--;
 			return false;
 		}
+		if (pick_tree.valid && (n > pick_tree.count) && (pick_tree.surfaces == surface_epoch)) {
+			// New entities beyond the old end (a program that makes more than it ever had) are not in the tree yet: they start with an
+			// empty signature and are in pick_touched_list, so the check below puts those that can be picked on the loose list. Made
+			// again for them, the tree would be made again for every entity that is made between two picks.
+			while (pick_tree.signatures.size < n) {
+				pick_signature none;
+				memset(&none, 0, sizeof(none));
+				pick_tree.signatures.push(none);
+				pick_tree.loose.push(0);
+			}
+			pick_tree.count = n;
+		}
 		if (pick_tree.valid && (n == pick_tree.count)) {
 			uint32_t limit = n / 16 > 32 ? n / 16 : 32;
 			if (pick_tree.surfaces != surface_epoch) {
