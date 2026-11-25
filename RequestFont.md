@@ -39,7 +39,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![RequestFont](media/dialogs/requestfont.gif)
+![RequestFont](media/dialogs/requestfont.webp)
 
 ## Related Commands
 

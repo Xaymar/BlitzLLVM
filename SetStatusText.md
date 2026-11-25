@@ -36,7 +36,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetStatusText](media/windows/setstatustext.png)
+![SetStatusText](media/windows/setstatustext.webp)
 
 ## Related Commands
 

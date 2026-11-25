@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![CopyRect](media/buffers/copyrect.png)
+![CopyRect](media/buffers/copyrect.webp)
 
 ## Related Commands
 

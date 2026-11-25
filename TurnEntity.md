@@ -47,7 +47,7 @@ Wend
 
 ## Media
 
-![TurnEntity](media/blitz3d/turnentity.gif)
+![TurnEntity](media/blitz3d/turnentity.webp)
 
 ## Related Commands
 

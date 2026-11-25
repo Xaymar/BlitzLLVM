@@ -117,7 +117,7 @@ WaitKey
 
 ## Media
 
-![LoadBSP](media/bsp/loadbsp.png)
+![LoadBSP](media/bsp/loadbsp.webp)
 
 ## Related Commands
 

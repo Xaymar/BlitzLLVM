@@ -47,7 +47,7 @@ WaitKey
 
 ## Media
 
-![LightRange](media/blitz3d/lightrange.png)
+![LightRange](media/blitz3d/lightrange.webp)
 
 ## Related Commands
 

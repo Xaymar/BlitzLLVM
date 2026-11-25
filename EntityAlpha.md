@@ -47,7 +47,7 @@ WaitKey
 
 ## Media
 
-![EntityAlpha](media/blitz3d/entityalpha.png)
+![EntityAlpha](media/blitz3d/entityalpha.webp)
 
 ## Related Commands
 

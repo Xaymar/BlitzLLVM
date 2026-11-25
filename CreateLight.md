@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![CreateLight](media/blitz3d/createlight.png)
+![CreateLight](media/blitz3d/createlight.webp)
 
 ## Related Commands
 

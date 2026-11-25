@@ -56,7 +56,7 @@ WaitKey
 
 ## Media
 
-![LightMesh](media/blitz3d/lightmesh.png)
+![LightMesh](media/blitz3d/lightmesh.webp)
 
 ## Related Commands
 

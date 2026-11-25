@@ -95,7 +95,7 @@ Next
 
 ## Media
 
-![Collisions](media/collisions/collisions.gif)
+![Collisions](media/collisions/collisions.webp)
 
 ## Related Commands
 

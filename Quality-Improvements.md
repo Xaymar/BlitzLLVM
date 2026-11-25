@@ -36,7 +36,7 @@ A scene with eight lights or fewer is lit exactly as before. Batching does not s
 
 A surface made with [CreateSurface](CreateSurface), [AddVertex](AddVertex) and [AddTriangle](AddTriangle) can hold more than 65535 vertices, and a triangle can use any of them. The original Blitz3D and Blitz3D_Soloud keep triangle corners as 16 bit numbers, so a surface with more vertices crashes in `RenderWorld`. Here the corners are 32 bit numbers, so `CountVertices` and `CountTriangles` count everything you added and every triangle is drawn.
 
-![A grid of 78000 vertices, red up to vertex 65535 and blue after it](media/meshes/large-mesh.png)
+![A grid of 78000 vertices, red up to vertex 65535 and blue after it](media/meshes/large-mesh.webp)
 
 ## Mip maps
 

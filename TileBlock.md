@@ -49,7 +49,7 @@ Wend
 
 ## Media
 
-![TileBlock](media/images/tileblock.gif)
+![TileBlock](media/images/tileblock.webp)
 
 ## Related Commands
 

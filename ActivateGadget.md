@@ -37,7 +37,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![ActivateGadget](media/gadgets/activategadget.gif)
+![ActivateGadget](media/gadgets/activategadget.webp)
 
 ## Related Commands
 

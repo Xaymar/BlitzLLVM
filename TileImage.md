@@ -48,7 +48,7 @@ WaitKey
 
 ## Media
 
-![TileImage](media/images/tileimage.png)
+![TileImage](media/images/tileimage.webp)
 
 ## Related Commands
 

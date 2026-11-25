@@ -55,7 +55,7 @@ WaitKey
 
 ## Media
 
-![ScaleImage](media/images/scaleimage.png)
+![ScaleImage](media/images/scaleimage.webp)
 
 ## Related Commands
 

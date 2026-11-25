@@ -65,7 +65,7 @@ WaitKey
 
 ## Media
 
-![TerrainY](media/terrain/terrainy.png)
+![TerrainY](media/terrain/terrainy.webp)
 
 ## Related Commands
 

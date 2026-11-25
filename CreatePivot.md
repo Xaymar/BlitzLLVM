@@ -51,7 +51,7 @@ Wend
 
 ## Media
 
-![CreatePivot](media/blitz3d/createpivot.gif)
+![CreatePivot](media/blitz3d/createpivot.webp)
 
 ## Related Commands
 

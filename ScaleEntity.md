@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![ScaleEntity](media/blitz3d/scaleentity.png)
+![ScaleEntity](media/blitz3d/scaleentity.webp)
 
 ## Related Commands
 

@@ -54,7 +54,7 @@ WaitKey
 
 ## Media
 
-![CameraViewport](media/blitz3d/cameraviewport.png)
+![CameraViewport](media/blitz3d/cameraviewport.webp)
 
 ## Related Commands
 

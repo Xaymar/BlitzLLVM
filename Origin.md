@@ -44,7 +44,7 @@ WaitKey
 
 ## Media
 
-![Origin](media/drawing/origin.png)
+![Origin](media/drawing/origin.webp)
 
 ## Related Commands
 

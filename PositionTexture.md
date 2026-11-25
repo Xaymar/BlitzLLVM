@@ -56,7 +56,7 @@ Next
 
 ## Media
 
-![PositionTexture](media/textures/positiontexture.gif)
+![PositionTexture](media/textures/positiontexture.webp)
 
 ## Related Commands
 

@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![CameraClsMode](media/blitz3d/cameraclsmode.png)
+![CameraClsMode](media/blitz3d/cameraclsmode.webp)
 
 ## Related Commands
 

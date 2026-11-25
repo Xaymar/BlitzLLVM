@@ -51,7 +51,7 @@ WaitKey
 
 ## Media
 
-![CopyEntity](media/blitz3d/copyentity.png)
+![CopyEntity](media/blitz3d/copyentity.webp)
 
 ## Related Commands
 

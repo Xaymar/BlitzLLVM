@@ -54,7 +54,7 @@ WaitKey
 
 ## Media
 
-![AutoMidHandle](media/images/automidhandle.png)
+![AutoMidHandle](media/images/automidhandle.webp)
 
 ## Related Commands
 

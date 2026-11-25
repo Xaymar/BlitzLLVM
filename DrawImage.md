@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![DrawImage](media/images/drawimage.png)
+![DrawImage](media/images/drawimage.webp)
 
 ## Related Commands
 

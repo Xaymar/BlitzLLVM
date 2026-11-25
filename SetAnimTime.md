@@ -58,7 +58,7 @@ Next
 
 ## Media
 
-![SetAnimTime](media/animation/setanimtime.gif)
+![SetAnimTime](media/animation/setanimtime.webp)
 
 ## Related Commands
 

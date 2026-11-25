@@ -40,7 +40,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![ActivateWindow](media/windows/activatewindow.png)
+![ActivateWindow](media/windows/activatewindow.webp)
 
 ## Related Commands
 

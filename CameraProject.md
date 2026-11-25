@@ -49,7 +49,7 @@ WaitKey
 
 ## Media
 
-![CameraProject](media/blitz3d/cameraproject.png)
+![CameraProject](media/blitz3d/cameraproject.webp)
 
 ## Related Commands
 

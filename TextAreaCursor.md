@@ -41,7 +41,7 @@ Until e = $803
 
 ## Media
 
-![TextAreaCursor](media/textareas/textareacursor.gif)
+![TextAreaCursor](media/textareas/textareacursor.webp)
 
 ## Related Commands
 

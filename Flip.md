@@ -69,7 +69,7 @@ A program written for the original should keep `Flip` or `Flip False`. Values ot
 
 ## Media
 
-![Flip](media/display/flip.gif)
+![Flip](media/display/flip.webp)
 
 ## Related Commands
 

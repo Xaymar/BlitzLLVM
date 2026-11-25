@@ -47,7 +47,7 @@ Until e = $803
 
 ## Media
 
-![CreateTextField](media/textareas/createtextfield.gif)
+![CreateTextField](media/textareas/createtextfield.webp)
 
 ## Related Commands
 

@@ -71,7 +71,7 @@ WaitKey
 
 ## Media
 
-![LoadAtlas](media/textures/loadatlas.png)
+![LoadAtlas](media/textures/loadatlas.webp)
 
 ## Related Commands
 

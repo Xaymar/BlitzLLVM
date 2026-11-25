@@ -57,7 +57,7 @@ WaitKey
 
 ## Media
 
-![UpdateNormals](media/blitz3d/updatenormals.png)
+![UpdateNormals](media/blitz3d/updatenormals.webp)
 
 ## Related Commands
 

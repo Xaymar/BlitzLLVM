@@ -59,7 +59,7 @@ Until e = $803
 
 ## Media
 
-![CreateToolBar](media/toolbars/createtoolbar.gif)
+![CreateToolBar](media/toolbars/createtoolbar.webp)
 
 ## Related Commands
 

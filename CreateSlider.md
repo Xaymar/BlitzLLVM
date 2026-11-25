@@ -45,7 +45,7 @@ Until e = $803
 
 ## Media
 
-![CreateSlider](media/gadgets/createslider.gif)
+![CreateSlider](media/gadgets/createslider.webp)
 
 ## Related Commands
 

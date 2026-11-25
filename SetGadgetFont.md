@@ -42,7 +42,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetGadgetFont](media/gadgets/setgadgetfont.png)
+![SetGadgetFont](media/gadgets/setgadgetfont.webp)
 
 ## Related Commands
 

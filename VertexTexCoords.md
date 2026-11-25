@@ -70,7 +70,7 @@ WaitKey
 
 ## Media
 
-![VertexTexCoords](media/blitz3d/vertextexcoords.png)
+![VertexTexCoords](media/blitz3d/vertextexcoords.webp)
 
 ## Related Commands
 

@@ -43,7 +43,7 @@ WaitKey
 
 ## Media
 
-![Oval](media/drawing/oval.png)
+![Oval](media/drawing/oval.webp)
 
 ## Related Commands
 

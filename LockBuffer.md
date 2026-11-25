@@ -47,7 +47,7 @@ WaitKey
 
 ## Media
 
-![LockBuffer](media/buffers/lockbuffer.png)
+![LockBuffer](media/buffers/lockbuffer.webp)
 
 ## Related Commands
 

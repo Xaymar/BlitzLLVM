@@ -43,7 +43,7 @@ WaitKey
 
 ## Media
 
-![JoyX](media/joystick/joyx.png)
+![JoyX](media/joystick/joyx.webp)
 
 ## Related Commands
 

@@ -67,7 +67,7 @@ WaitKey
 
 ## Media
 
-![CreateTerrain](media/terrain/createterrain.png)
+![CreateTerrain](media/terrain/createterrain.webp)
 
 ## Related Commands
 

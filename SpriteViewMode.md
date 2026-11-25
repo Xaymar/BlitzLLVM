@@ -78,7 +78,7 @@ Next
 
 ## Media
 
-![SpriteViewMode](media/sprites/spriteviewmode.gif)
+![SpriteViewMode](media/sprites/spriteviewmode.webp)
 
 ## Related Commands
 

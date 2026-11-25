@@ -44,7 +44,7 @@ Next
 
 ## Media
 
-![Rect](media/drawing/rect.gif)
+![Rect](media/drawing/rect.webp)
 
 ## Related Commands
 

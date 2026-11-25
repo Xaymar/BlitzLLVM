@@ -64,7 +64,7 @@ WaitKey
 
 ## Media
 
-![ScaleTexture](media/textures/scaletexture.png)
+![ScaleTexture](media/textures/scaletexture.webp)
 
 ## Related Commands
 

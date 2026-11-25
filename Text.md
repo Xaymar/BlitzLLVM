@@ -49,7 +49,7 @@ WaitKey
 
 ## Media
 
-![Text](media/fonts/text.png)
+![Text](media/fonts/text.webp)
 
 ## Related Commands
 

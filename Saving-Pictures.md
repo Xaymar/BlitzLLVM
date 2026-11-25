@@ -22,7 +22,7 @@ AVIF can be read but not written (the AV1 encoder would about double the size of
 
 The same 640x360 screenshot (921,738 bytes as BMP), cut to the area that shows the differences and saved with different settings, then loaded again. Lossless files are the same as the original, the lossy ones lose detail where it is sharp (JPEG at quality 40 shows blocks and smeared colors):
 
-![The same picture saved as PNG, JPEG, WebP and JPEG XL with different settings](media/saving/formats.png)
+![The same picture saved as PNG, JPEG, WebP and JPEG XL with different settings](media/saving/formats.webp)
 
 ## Settings
 

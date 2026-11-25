@@ -46,7 +46,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![CreatePanel](media/gadgets/createpanel.png)
+![CreatePanel](media/gadgets/createpanel.webp)
 
 ## Related Commands
 

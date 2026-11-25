@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![EntityColor](media/blitz3d/entitycolor.png)
+![EntityColor](media/blitz3d/entitycolor.webp)
 
 ## Related Commands
 

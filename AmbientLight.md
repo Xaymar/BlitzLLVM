@@ -53,7 +53,7 @@ Next
 
 ## Media
 
-![AmbientLight](media/world/ambientlight.gif)
+![AmbientLight](media/world/ambientlight.webp)
 
 ## Related Commands
 

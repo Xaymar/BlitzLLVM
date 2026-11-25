@@ -55,7 +55,7 @@ WaitKey
 
 ## Media
 
-![CreateCylinder](media/blitz3d/createcylinder.png)
+![CreateCylinder](media/blitz3d/createcylinder.webp)
 
 ## Related Commands
 

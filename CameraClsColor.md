@@ -45,7 +45,7 @@ WaitKey
 
 ## Media
 
-![CameraClsColor](media/blitz3d/cameraclscolor.png)
+![CameraClsColor](media/blitz3d/cameraclscolor.webp)
 
 ## Related Commands
 

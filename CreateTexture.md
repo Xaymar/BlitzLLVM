@@ -90,7 +90,7 @@ WaitKey
 
 ## Media
 
-![CreateTexture](media/textures/createtexture.png)
+![CreateTexture](media/textures/createtexture.webp)
 
 ## Related Commands
 

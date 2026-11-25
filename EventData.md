@@ -59,7 +59,7 @@ Until e = $803
 
 ## Media
 
-![EventData](media/events/eventdata.png)
+![EventData](media/events/eventdata.webp)
 
 ## Related Commands
 

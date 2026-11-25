@@ -55,7 +55,7 @@ WaitKey
 
 ## Media
 
-![ResizeImage](media/images/resizeimage.png)
+![ResizeImage](media/images/resizeimage.webp)
 
 ## Related Commands
 

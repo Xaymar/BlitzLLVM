@@ -42,7 +42,7 @@ Until e = $803
 
 ## Media
 
-![CheckMenu](media/menus/checkmenu.gif)
+![CheckMenu](media/menus/checkmenu.webp)
 
 ## Related Commands
 

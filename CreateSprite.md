@@ -61,7 +61,7 @@ WaitKey
 
 ## Media
 
-![CreateSprite](media/sprites/createsprite.png)
+![CreateSprite](media/sprites/createsprite.webp)
 
 ## Related Commands
 

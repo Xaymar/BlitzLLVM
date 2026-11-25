@@ -68,7 +68,7 @@ WaitKey
 
 ## Media
 
-![CameraPick](media/picking/camerapick.png)
+![CameraPick](media/picking/camerapick.webp)
 
 ## Related Commands
 

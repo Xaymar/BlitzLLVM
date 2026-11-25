@@ -47,7 +47,7 @@ Until e = $803
 
 ## Media
 
-![CreateProgBar](media/gadgets/createprogbar.gif)
+![CreateProgBar](media/gadgets/createprogbar.webp)
 
 ## Related Commands
 

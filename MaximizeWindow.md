@@ -39,7 +39,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![MaximizeWindow](media/windows/maximizewindow.png)
+![MaximizeWindow](media/windows/maximizewindow.webp)
 
 ## Related Commands
 

@@ -37,7 +37,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![DisableGadget](media/gadgets/disablegadget.png)
+![DisableGadget](media/gadgets/disablegadget.webp)
 
 ## Related Commands
 

@@ -48,7 +48,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetToolBarTips](media/toolbars/settoolbartips.png)
+![SetToolBarTips](media/toolbars/settoolbartips.webp)
 
 ## Related Commands
 

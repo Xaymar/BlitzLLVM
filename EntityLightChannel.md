@@ -68,9 +68,9 @@ This is a BlitzLLVM extension: the originals have no light channels.
 
 ## Media
 
-![EntityLightChannel](media/blitz3d/entitylightchannel.png)
+![EntityLightChannel](media/blitz3d/entitylightchannel.webp)
 
-![EntityLightChannel before and after](media/blitz3d/entitylightchannel_before_after.png)
+![EntityLightChannel before and after](media/blitz3d/entitylightchannel_before_after.webp)
 
 ## Related Commands
 

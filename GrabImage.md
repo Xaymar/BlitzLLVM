@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![GrabImage](media/images/grabimage.png)
+![GrabImage](media/images/grabimage.webp)
 
 ## Related Commands
 

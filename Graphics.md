@@ -98,11 +98,11 @@ The windows of BlitzPlus are scaled, see [Windows of BlitzPlus](Windows-of-Blitz
 
 ## Media
 
-![Graphics](media/display/graphics.png)
+![Graphics](media/display/graphics.webp)
 
-![A lit sphere and two gradients with the depths 32, 16, 15, 12 and 8 from top to bottom, without Dither (left) and with Dither (right)](media/graphics/color-depth-low.png)
+![A lit sphere and two gradients with the depths 32, 16, 15, 12 and 8 from top to bottom, without Dither (left) and with Dither (right)](media/graphics/color-depth-low.webp)
 
-![The same 16 columns of 100 faint layers drawn with the depths 32, 24, 30 and 64, from top to bottom](media/graphics/color-depth-ramp.png)
+![The same 16 columns of 100 faint layers drawn with the depths 32, 24, 30 and 64, from top to bottom](media/graphics/color-depth-ramp.webp)
 
 ## Related Commands
 

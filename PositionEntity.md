@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![PositionEntity](media/blitz3d/positionentity.png)
+![PositionEntity](media/blitz3d/positionentity.webp)
 
 ## Related Commands
 

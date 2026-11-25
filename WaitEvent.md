@@ -41,7 +41,7 @@ Until e = $803
 
 ## Media
 
-![WaitEvent](media/events/waitevent.png)
+![WaitEvent](media/events/waitevent.webp)
 
 ## Related Commands
 

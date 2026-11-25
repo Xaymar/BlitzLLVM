@@ -55,7 +55,7 @@ Wend
 
 ## Media
 
-![EntityParent](media/blitz3d/entityparent.gif)
+![EntityParent](media/blitz3d/entityparent.webp)
 
 ## Related Commands
 

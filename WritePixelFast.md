@@ -53,7 +53,7 @@ Wend
 
 ## Media
 
-![WritePixelFast](media/buffers/writepixelfast.gif)
+![WritePixelFast](media/buffers/writepixelfast.webp)
 
 ## Related Commands
 

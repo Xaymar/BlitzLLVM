@@ -52,7 +52,7 @@ Until e = $803
 
 ## Media
 
-![CreateComboBox](media/gadgets/createcombobox.gif)
+![CreateComboBox](media/gadgets/createcombobox.webp)
 
 ## Related Commands
 

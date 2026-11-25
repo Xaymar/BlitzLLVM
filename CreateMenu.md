@@ -51,7 +51,7 @@ Until e = $803 Or (e = $1001 And EventData() = 2)
 
 ## Media
 
-![CreateMenu](media/menus/createmenu.gif)
+![CreateMenu](media/menus/createmenu.webp)
 
 ## Related Commands
 

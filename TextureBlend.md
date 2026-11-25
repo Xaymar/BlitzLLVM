@@ -78,7 +78,7 @@ WaitKey
 
 ## Media
 
-![TextureBlend](media/textures/textureblend.png)
+![TextureBlend](media/textures/textureblend.webp)
 
 ## Related Commands
 

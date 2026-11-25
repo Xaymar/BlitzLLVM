@@ -55,7 +55,7 @@ WaitKey
 
 ## Media
 
-![TFormImage](media/images/tformimage.png)
+![TFormImage](media/images/tformimage.webp)
 
 ## Related Commands
 

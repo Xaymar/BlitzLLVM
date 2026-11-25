@@ -42,7 +42,7 @@ WaitKey
 
 ## Media
 
-![Line](media/drawing/line.png)
+![Line](media/drawing/line.webp)
 
 ## Related Commands
 

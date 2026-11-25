@@ -56,7 +56,7 @@ WaitKey
 
 ## Media
 
-![CreateCone](media/blitz3d/createcone.png)
+![CreateCone](media/blitz3d/createcone.webp)
 
 ## Related Commands
 

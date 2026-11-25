@@ -58,7 +58,7 @@ WaitKey
 
 ## Media
 
-![EntityTexture](media/blitz3d/entitytexture.png)
+![EntityTexture](media/blitz3d/entitytexture.webp)
 
 ## Related Commands
 

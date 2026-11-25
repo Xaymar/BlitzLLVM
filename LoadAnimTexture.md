@@ -80,7 +80,7 @@ Next
 
 ## Media
 
-![LoadAnimTexture](media/textures/loadanimtexture.gif)
+![LoadAnimTexture](media/textures/loadanimtexture.webp)
 
 ## Related Commands
 

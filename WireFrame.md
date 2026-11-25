@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![WireFrame](media/world/wireframe.png)
+![WireFrame](media/world/wireframe.webp)
 
 ## Related Commands
 

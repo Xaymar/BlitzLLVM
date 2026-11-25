@@ -42,7 +42,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetTextAreaColor](media/textareas/settextareacolor.png)
+![SetTextAreaColor](media/textareas/settextareacolor.webp)
 
 ## Related Commands
 

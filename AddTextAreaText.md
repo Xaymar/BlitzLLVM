@@ -39,7 +39,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![AddTextAreaText](media/textareas/addtextareatext.png)
+![AddTextAreaText](media/textareas/addtextareatext.webp)
 
 ## Related Commands
 

@@ -63,7 +63,7 @@ WaitKey
 
 ## Media
 
-![BrushTexture](media/brushes/brushtexture.png)
+![BrushTexture](media/brushes/brushtexture.webp)
 
 ## Related Commands
 

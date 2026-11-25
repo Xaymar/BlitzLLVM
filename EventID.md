@@ -40,7 +40,7 @@ Forever
 
 ## Media
 
-![EventID](media/events/eventid.png)
+![EventID](media/events/eventid.webp)
 
 ## Related Commands
 

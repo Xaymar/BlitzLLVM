@@ -58,7 +58,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![CreateLabel](media/gadgets/createlabel.png)
+![CreateLabel](media/gadgets/createlabel.webp)
 
 ## Related Commands
 

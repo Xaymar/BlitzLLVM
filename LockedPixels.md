@@ -53,7 +53,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![LockedPixels](media/canvas/lockedpixels.png)
+![LockedPixels](media/canvas/lockedpixels.webp)
 
 ## Related Commands
 

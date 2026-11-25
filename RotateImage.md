@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![RotateImage](media/images/rotateimage.png)
+![RotateImage](media/images/rotateimage.webp)
 
 ## Related Commands
 

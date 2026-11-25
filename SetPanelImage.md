@@ -45,7 +45,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetPanelImage](media/gadgets/setpanelimage.png)
+![SetPanelImage](media/gadgets/setpanelimage.webp)
 
 ## Related Commands
 

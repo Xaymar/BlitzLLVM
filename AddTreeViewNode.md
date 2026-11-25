@@ -45,7 +45,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![AddTreeViewNode](media/treeviews/addtreeviewnode.png)
+![AddTreeViewNode](media/treeviews/addtreeviewnode.webp)
 
 ## Related Commands
 

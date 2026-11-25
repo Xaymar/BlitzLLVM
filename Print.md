@@ -43,7 +43,7 @@ WaitKey
 
 ## Media
 
-![Print](media/fonts/print.png)
+![Print](media/fonts/print.webp)
 
 ## Related Commands
 

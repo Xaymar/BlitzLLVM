@@ -56,7 +56,7 @@ WaitKey
 
 ## Media
 
-![EntityFX](media/blitz3d/entityfx.png)
+![EntityFX](media/blitz3d/entityfx.webp)
 
 ## Related Commands
 

@@ -47,7 +47,7 @@ WaitKey
 
 ## Media
 
-![CreateCamera](media/blitz3d/createcamera.png)
+![CreateCamera](media/blitz3d/createcamera.webp)
 
 ## Related Commands
 

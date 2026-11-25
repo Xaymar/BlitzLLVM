@@ -59,7 +59,7 @@ WaitKey
 
 ## Media
 
-![LoadFont](media/fonts/loadfont.png)
+![LoadFont](media/fonts/loadfont.webp)
 
 ## Related Commands
 

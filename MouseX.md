@@ -43,7 +43,7 @@ WaitKey
 
 ## Media
 
-![MouseX](media/mouse/mousex.png)
+![MouseX](media/mouse/mousex.webp)
 
 ## Related Commands
 

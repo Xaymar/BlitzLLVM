@@ -41,7 +41,7 @@ WaitKey
 
 ## Media
 
-![Color](media/drawing/color.png)
+![Color](media/drawing/color.webp)
 
 ## Related Commands
 

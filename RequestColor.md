@@ -46,7 +46,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![RequestColor](media/dialogs/requestcolor.gif)
+![RequestColor](media/dialogs/requestcolor.webp)
 
 ## Related Commands
 

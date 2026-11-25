@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![DrawBlock](media/images/drawblock.png)
+![DrawBlock](media/images/drawblock.webp)
 
 ## Related Commands
 

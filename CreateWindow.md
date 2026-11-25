@@ -67,7 +67,7 @@ Until asked = 2
 
 ## Media
 
-![CreateWindow](media/windows/createwindow.gif)
+![CreateWindow](media/windows/createwindow.webp)
 
 ## Related Commands
 

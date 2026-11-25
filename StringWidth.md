@@ -48,7 +48,7 @@ WaitKey
 
 ## Media
 
-![StringWidth](media/fonts/stringwidth.png)
+![StringWidth](media/fonts/stringwidth.webp)
 
 ## Related Commands
 

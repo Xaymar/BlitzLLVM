@@ -58,7 +58,7 @@ WaitKey
 
 ## Media
 
-![LoadSprite](media/sprites/loadsprite.png)
+![LoadSprite](media/sprites/loadsprite.webp)
 
 ## Related Commands
 

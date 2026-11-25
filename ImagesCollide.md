@@ -59,7 +59,7 @@ WaitKey
 
 ## Media
 
-![ImagesCollide](media/images/imagescollide.png)
+![ImagesCollide](media/images/imagescollide.webp)
 
 ## Related Commands
 

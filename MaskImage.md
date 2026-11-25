@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![MaskImage](media/images/maskimage.png)
+![MaskImage](media/images/maskimage.webp)
 
 ## Related Commands
 

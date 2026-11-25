@@ -41,7 +41,7 @@ Until e = $803
 
 ## Media
 
-![TextAreaSelLen](media/textareas/textareasellen.png)
+![TextAreaSelLen](media/textareas/textareasellen.webp)
 
 ## Related Commands
 

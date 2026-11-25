@@ -62,9 +62,9 @@ Until WaitEvent() = $803
 
 ## Media
 
-![CreateTextArea](media/textareas/createtextarea.gif)
+![CreateTextArea](media/textareas/createtextarea.webp)
 
-![A text area with a bar](media/textareas/createtextarea_bar.png)
+![A text area with a bar](media/textareas/createtextarea_bar.webp)
 
 ## Related Commands
 

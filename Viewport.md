@@ -43,7 +43,7 @@ WaitKey
 
 ## Media
 
-![Viewport](media/drawing/viewport.png)
+![Viewport](media/drawing/viewport.webp)
 
 ## Related Commands
 

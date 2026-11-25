@@ -58,7 +58,7 @@ Until e = $803
 
 ## Media
 
-![CreateTabber](media/gadgets/createtabber.gif)
+![CreateTabber](media/gadgets/createtabber.webp)
 
 ## Related Commands
 

@@ -54,7 +54,7 @@ A movie of a test pattern on a turning cube (the program above, made with `tools
 
 ## Media
 
-![A movie on a cube](media/movies/movietexture.gif)
+![A movie on a cube](media/movies/movietexture.webp)
 
 ## Related Commands
 

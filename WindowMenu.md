@@ -42,7 +42,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![WindowMenu](media/windows/windowmenu.png)
+![WindowMenu](media/windows/windowmenu.webp)
 
 ## Related Commands
 

@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![HandleImage](media/images/handleimage.png)
+![HandleImage](media/images/handleimage.webp)
 
 ## Related Commands
 

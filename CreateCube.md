@@ -45,7 +45,7 @@ WaitKey
 
 ## Media
 
-![CreateCube](media/blitz3d/createcube.png)
+![CreateCube](media/blitz3d/createcube.webp)
 
 ## Related Commands
 

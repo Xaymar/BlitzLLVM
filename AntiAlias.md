@@ -65,7 +65,7 @@ Enlarged eight times, the edge of a sphere (top) and of thin bars (bottom) with 
 
 ## Media
 
-![AntiAlias 0, 1 and 2](media/world/antialias.png)
+![AntiAlias 0, 1 and 2](media/world/antialias.webp)
 
 ## Related Commands
 

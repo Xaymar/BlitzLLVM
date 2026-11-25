@@ -51,7 +51,7 @@ WaitKey
 
 ## Media
 
-![CameraRange](media/blitz3d/camerarange.png)
+![CameraRange](media/blitz3d/camerarange.webp)
 
 ## Related Commands
 

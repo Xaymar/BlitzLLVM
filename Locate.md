@@ -44,7 +44,7 @@ WaitKey
 
 ## Media
 
-![Locate](media/fonts/locate.png)
+![Locate](media/fonts/locate.webp)
 
 ## Related Commands
 

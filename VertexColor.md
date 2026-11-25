@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![VertexColor](media/blitz3d/vertexcolor.png)
+![VertexColor](media/blitz3d/vertexcolor.webp)
 
 ## Related Commands
 

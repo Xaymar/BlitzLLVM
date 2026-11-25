@@ -40,7 +40,7 @@ Until e = $803
 
 ## Media
 
-![EventSource](media/events/eventsource.png)
+![EventSource](media/events/eventsource.webp)
 
 ## Related Commands
 

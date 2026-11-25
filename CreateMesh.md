@@ -50,7 +50,7 @@ WaitKey
 
 ## Media
 
-![CreateMesh](media/blitz3d/createmesh.png)
+![CreateMesh](media/blitz3d/createmesh.webp)
 
 ## Related Commands
 

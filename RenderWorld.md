@@ -58,7 +58,7 @@ Next
 
 ## Media
 
-![RenderWorld](media/world/renderworld.gif)
+![RenderWorld](media/world/renderworld.webp)
 
 ## Related Commands
 

@@ -52,7 +52,7 @@ Until e = $803
 
 ## Media
 
-![CreateListBox](media/gadgets/createlistbox.gif)
+![CreateListBox](media/gadgets/createlistbox.webp)
 
 ## Related Commands
 

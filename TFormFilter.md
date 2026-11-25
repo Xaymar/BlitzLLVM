@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![TFormFilter](media/images/tformfilter.png)
+![TFormFilter](media/images/tformfilter.webp)
 
 ## Related Commands
 

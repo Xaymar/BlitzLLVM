@@ -59,7 +59,7 @@ Until e = $803
 
 ## Media
 
-![CreateCanvas](media/canvas/createcanvas.gif)
+![CreateCanvas](media/canvas/createcanvas.webp)
 
 ## Related Commands
 

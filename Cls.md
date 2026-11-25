@@ -34,7 +34,7 @@ WaitKey
 
 ## Media
 
-![Cls](media/drawing/cls.png)
+![Cls](media/drawing/cls.webp)
 
 ## Related Commands
 

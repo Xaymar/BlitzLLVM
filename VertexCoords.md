@@ -66,7 +66,7 @@ Wend
 
 ## Media
 
-![VertexCoords](media/blitz3d/vertexcoords.gif)
+![VertexCoords](media/blitz3d/vertexcoords.webp)
 
 ## Related Commands
 

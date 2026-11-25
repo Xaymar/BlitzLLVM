@@ -58,7 +58,7 @@ Wend
 
 ## Media
 
-![CreateImage](media/images/createimage.gif)
+![CreateImage](media/images/createimage.webp)
 
 ## Related Commands
 

@@ -66,7 +66,7 @@ WaitKey
 
 ## Media
 
-![LoadTerrain](media/terrain/loadterrain.png)
+![LoadTerrain](media/terrain/loadterrain.webp)
 
 ## Related Commands
 

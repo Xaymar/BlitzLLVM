@@ -60,7 +60,7 @@ WaitKey
 
 ## Media
 
-![CreateSurface](media/blitz3d/createsurface.png)
+![CreateSurface](media/blitz3d/createsurface.webp)
 
 ## Related Commands
 

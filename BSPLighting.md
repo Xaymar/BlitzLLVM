@@ -98,7 +98,7 @@ WaitKey
 
 ## Media
 
-![BSPLighting](media/bsp/bsplighting.png)
+![BSPLighting](media/bsp/bsplighting.webp)
 
 ## Related Commands
 

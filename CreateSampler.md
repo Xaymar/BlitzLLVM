@@ -53,11 +53,11 @@ Anisotropic filtering on a floor that goes far into the distance:
 
 ## Media
 
-![Filters, address modes and border colors](media/samplers/samplers_filter_address_border.png)
+![Filters, address modes and border colors](media/samplers/samplers_filter_address_border.webp)
 
-![Mip level settings](media/samplers/samplers_lod.png)
+![Mip level settings](media/samplers/samplers_lod.webp)
 
-![Anisotropy](media/samplers/samplers_anisotropy.png)
+![Anisotropy](media/samplers/samplers_anisotropy.webp)
 
 ## Related Commands
 

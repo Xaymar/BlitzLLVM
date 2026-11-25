@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![AddMesh](media/blitz3d/addmesh.png)
+![AddMesh](media/blitz3d/addmesh.webp)
 
 ## Related Commands
 

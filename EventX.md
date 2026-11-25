@@ -40,7 +40,7 @@ Until e = $803
 
 ## Media
 
-![EventX](media/events/eventx.png)
+![EventX](media/events/eventx.webp)
 
 ## Related Commands
 

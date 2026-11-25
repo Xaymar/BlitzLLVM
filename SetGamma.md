@@ -57,7 +57,7 @@ Flip
 WaitKey
 ```
 
-![After SetGamma](media/display/setgamma_after.png)
+![After SetGamma](media/display/setgamma_after.webp)
 
 ## Related Commands
 

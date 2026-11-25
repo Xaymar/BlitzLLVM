@@ -42,7 +42,7 @@ WaitKey
 
 ## Media
 
-![Write](media/fonts/write.png)
+![Write](media/fonts/write.webp)
 
 ## Related Commands
 

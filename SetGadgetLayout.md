@@ -42,7 +42,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetGadgetLayout](media/gadgets/setgadgetlayout.gif)
+![SetGadgetLayout](media/gadgets/setgadgetlayout.webp)
 
 ## Related Commands
 

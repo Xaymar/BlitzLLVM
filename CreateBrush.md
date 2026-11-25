@@ -65,7 +65,7 @@ WaitKey
 
 ## Media
 
-![CreateBrush](media/brushes/createbrush.png)
+![CreateBrush](media/brushes/createbrush.webp)
 
 ## Related Commands
 

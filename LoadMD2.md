@@ -58,7 +58,7 @@ Next
 
 ## Media
 
-![LoadMD2](media/animation/loadmd2.gif)
+![LoadMD2](media/animation/loadmd2.webp)
 
 ## Related Commands
 

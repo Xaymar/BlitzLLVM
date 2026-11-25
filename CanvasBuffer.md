@@ -49,7 +49,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![CanvasBuffer](media/canvas/canvasbuffer.png)
+![CanvasBuffer](media/canvas/canvasbuffer.webp)
 
 ## Related Commands
 

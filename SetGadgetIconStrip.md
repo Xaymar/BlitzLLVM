@@ -46,7 +46,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![SetGadgetIconStrip](media/toolbars/setgadgeticonstrip.png)
+![SetGadgetIconStrip](media/toolbars/setgadgeticonstrip.webp)
 
 ## Related Commands
 

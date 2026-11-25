@@ -46,7 +46,7 @@ WaitKey
 
 ## Media
 
-![CameraZoom](media/blitz3d/camerazoom.png)
+![CameraZoom](media/blitz3d/camerazoom.webp)
 
 ## Related Commands
 

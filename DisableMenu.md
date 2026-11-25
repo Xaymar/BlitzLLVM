@@ -39,7 +39,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![DisableMenu](media/menus/disablemenu.png)
+![DisableMenu](media/menus/disablemenu.webp)
 
 ## Related Commands
 

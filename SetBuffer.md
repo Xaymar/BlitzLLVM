@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![SetBuffer](media/buffers/setbuffer.png)
+![SetBuffer](media/buffers/setbuffer.webp)
 
 ## Related Commands
 

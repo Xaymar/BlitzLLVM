@@ -45,7 +45,7 @@ WaitKey
 
 ## Media
 
-![FlipMesh](media/blitz3d/flipmesh.png)
+![FlipMesh](media/blitz3d/flipmesh.webp)
 
 ## Related Commands
 

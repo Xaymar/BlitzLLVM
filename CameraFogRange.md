@@ -52,7 +52,7 @@ WaitKey
 
 ## Media
 
-![CameraFogRange](media/blitz3d/camerafogrange.png)
+![CameraFogRange](media/blitz3d/camerafogrange.webp)
 
 ## Related Commands
 

@@ -51,7 +51,7 @@ WaitKey
 
 ## Media
 
-![CreateSphere](media/blitz3d/createsphere.png)
+![CreateSphere](media/blitz3d/createsphere.webp)
 
 ## Related Commands
 

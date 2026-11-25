@@ -42,7 +42,7 @@ Until e = $803
 
 ## Media
 
-![HideGadget](media/gadgets/hidegadget.gif)
+![HideGadget](media/gadgets/hidegadget.webp)
 
 ## Related Commands
 

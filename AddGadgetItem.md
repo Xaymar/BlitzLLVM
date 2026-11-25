@@ -41,7 +41,7 @@ Until WaitEvent() = $803
 
 ## Media
 
-![AddGadgetItem](media/gadgets/addgadgetitem.png)
+![AddGadgetItem](media/gadgets/addgadgetitem.webp)
 
 ## Related Commands
 

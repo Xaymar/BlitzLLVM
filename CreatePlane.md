@@ -53,7 +53,7 @@ WaitKey
 
 ## Media
 
-![CreatePlane](media/blitz3d/createplane.png)
+![CreatePlane](media/blitz3d/createplane.webp)
 
 ## Related Commands
 

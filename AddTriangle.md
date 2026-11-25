@@ -56,7 +56,7 @@ WaitKey
 
 ## Media
 
-![AddTriangle](media/blitz3d/addtriangle.png)
+![AddTriangle](media/blitz3d/addtriangle.webp)
 
 ## Related Commands
 

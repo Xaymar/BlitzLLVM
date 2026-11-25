@@ -59,7 +59,7 @@ WaitKey
 
 ## Media
 
-![CameraFogMode](media/blitz3d/camerafogmode.png)
+![CameraFogMode](media/blitz3d/camerafogmode.webp)
 
 ## Related Commands
 

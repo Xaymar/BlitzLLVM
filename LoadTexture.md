@@ -91,9 +91,9 @@ WaitKey
 
 ## Media
 
-![sRGB conversion](media/textures/loadtexture_srgb.png)
+![sRGB conversion](media/textures/loadtexture_srgb.webp)
 
-![LoadTexture](media/textures/loadtexture.png)
+![LoadTexture](media/textures/loadtexture.webp)
 
 ## Related Commands
 
