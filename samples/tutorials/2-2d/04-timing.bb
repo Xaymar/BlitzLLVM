@@ -12,7 +12,10 @@
 ;
 ; Press 1, 2 or 3 to change how fast the loop runs, and watch which balls keep their speed.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.04: Timing"
 SetBuffer BackBuffer()
 
@@ -33,11 +36,11 @@ Const STEP_SECONDS# = 1.0 / 60
 Local fpsFrames = 0, fpsTime = MilliSecs(), fps = 0
 Local now, seconds#
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; Change how often the loop runs, to see the effect.
-	If KeyHit(2) Then loopRate = 20 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
-	If KeyHit(3) Then loopRate = 60 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
-	If KeyHit(4) Then loopRate = 144 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
+	If KeyHit(BB_KEY_1) Then loopRate = 20 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
+	If KeyHit(BB_KEY_2) Then loopRate = 60 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
+	If KeyHit(BB_KEY_3) Then loopRate = 144 : FreeTimer timer : timer = CreateTimer(Float(loopRate))
 
 	; WaitTimer sleeps until the timer ticks again. Sleeping also leaves the CPU free for other programs.
 	WaitTimer timer

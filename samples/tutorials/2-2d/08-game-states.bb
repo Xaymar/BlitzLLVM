@@ -10,7 +10,10 @@
 ;
 ; This is a tiny but complete game: catch the falling stars with the basket, miss three and the game is over.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.08: Game States and Objects"
 SetBuffer BackBuffer()
 SeedRnd MilliSecs()
@@ -29,20 +32,20 @@ Global spawnTimer
 
 Local timer = CreateTimer(60)
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	WaitTimer timer
 
 	; Update: only the code of the current state runs.
 	Select state
 		Case STATE_TITLE
-			If KeyHit(57) Then StartGame()
+			If KeyHit(BB_KEY_SPACE) Then StartGame()
 		Case STATE_PLAY
 			UpdateGame()
-			If KeyHit(25) Then state = STATE_PAUSE ; P pauses.
+			If KeyHit(BB_KEY_P) Then state = STATE_PAUSE ; P pauses.
 		Case STATE_PAUSE
-			If KeyHit(25) Then state = STATE_PLAY
+			If KeyHit(BB_KEY_P) Then state = STATE_PLAY
 		Case STATE_OVER
-			If KeyHit(57) Then state = STATE_TITLE
+			If KeyHit(BB_KEY_SPACE) Then state = STATE_TITLE
 	End Select
 
 	; Draw: the playing field is drawn in every state, the text on top depends on the state.
@@ -73,7 +76,7 @@ Function StartGame()
 End Function
 
 Function UpdateGame()
-	basketX = basketX + (KeyDown(205) - KeyDown(203)) * 6
+	basketX = basketX + (KeyDown(BB_KEY_RIGHT) - KeyDown(BB_KEY_LEFT)) * 6
 	If basketX < 30 Then basketX = 30
 	If basketX > 610 Then basketX = 610
 

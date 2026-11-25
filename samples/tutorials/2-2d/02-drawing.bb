@@ -6,14 +6,17 @@
 ; The 2D drawing commands all use the current colour set by Color. Positions are in pixels: (0, 0) is the top left
 ; corner, x grows to the right and y grows downwards.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.02: Drawing"
 SetBuffer BackBuffer()
 
 Local i, x, y, pulse
 Local t# = 0
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	t = t + 1
 	ClsColor 16, 16, 32
 	Cls

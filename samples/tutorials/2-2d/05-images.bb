@@ -8,7 +8,10 @@
 ; an empty image, point the drawing commands at its buffer, and draw into it. That is what this tutorial does, so
 ; it needs no files.
 
-Graphics 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
+Graphics 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 2.05: Images"
 SetBuffer BackBuffer()
 
@@ -71,10 +74,10 @@ Local shipX# = 320, shipY# = 240, angle# = 0
 Local coinX = Rand(40, 600), coinY = Rand(40, 440), coins = 0
 Local frame = 0, scroll = 0, direction
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; Turn with Left/Right, fly forward with Up. 0 degrees points up here, so Sin and Cos swap their usual roles.
-	angle = angle + (KeyDown(205) - KeyDown(203)) * 4
-	If KeyDown(200)
+	angle = angle + (KeyDown(BB_KEY_RIGHT) - KeyDown(BB_KEY_LEFT)) * 4
+	If KeyDown(BB_KEY_UP)
 		shipX = shipX + Sin(angle) * 3
 		shipY = shipY - Cos(angle) * 3
 	EndIf
