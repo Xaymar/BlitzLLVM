@@ -89,14 +89,23 @@ else()
 	set(BLITZRT_ARCH_DIR "/${_ARCH}")
 endif()
 
-# The runtime library has to live next to the compiler, which links it into every program it produces.
-add_dependencies(${PROJECT_NAME} blitzrt blitzphysics)
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+# The runtime library has to live next to the compiler, which links it into every program it produces. The copy is its own step that
+# depends on the files it copies, so a build that only changes the runtime (or one of its inline sources) still updates the copy, which a
+# step after linking the compiler would skip. The stamp stands for the copied files, whose folder (that of the compiler) can not be named
+# in an OUTPUT.
+set(_RUNTIME_STAMP "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${PROJECT_NAME}_runtime$<CONFIG>.stamp")
+add_custom_command(OUTPUT "${_RUNTIME_STAMP}"
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE:blitzphysics>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}/"
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
+	COMMAND ${CMAKE_COMMAND} -E touch "${_RUNTIME_STAMP}"
+	DEPENDS blitzrt blitzphysics ${BLITZRT_LIBRARIES} ${BLITZRT_INLINE_FILES}
+	COMMENT "Copying the runtime next to blitzcc"
+	VERBATIM
 )
+add_custom_target(${PROJECT_NAME}_runtime ALL DEPENDS "${_RUNTIME_STAMP}")
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_runtime)
 
 # The include files shipped with BlitzLLVM (Include "<keys.bb>"), in 'include' next to the compiler, where it finds them in the build
 # directory. Copied on every build so that a changed file is used without relinking the compiler.
