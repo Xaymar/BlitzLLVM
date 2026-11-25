@@ -25,6 +25,9 @@ namespace bb {
 	uint32_t mesh_epoch = 1;
 	uint32_t surface_epoch = 1;
 	uint32_t entity_epoch  = 1;
+	bool            pick_touch_tracking = false;
+	buffer<int>     pick_touched_list;
+	buffer<uint8_t> pick_touched_flags;
 	uint32_t texture_epoch = 1;
 	bool     gpu_static_active = false;
 	bool     gpu_static_skip = false;
@@ -111,6 +114,7 @@ namespace bb::scene {
 				cull_records[i].epoch = 0;
 				first_free      = i + 1;
 				grid_entity_added(int(i) + 1, kind);
+				pick_touched(int(i) + 1);
 				handle = int(i) + 1;
 				break;
 			}
@@ -121,6 +125,7 @@ namespace bb::scene {
 			entity_kinds.push(uint8_t(kind + 1));
 			cull_records.push(cull_record{});
 			grid_entity_added(int(entities.size), kind);
+			pick_touched(int(entities.size));
 			handle = int(entities.size);
 		}
 		if (parent) {
@@ -207,6 +212,7 @@ namespace bb::scene {
 		collision_entity_destroyed(handle);
 		bb_free(e->name);
 		grid_entity_removed(handle, e->kind);
+		pick_touched(handle);
 		delete e;
 		entities[uint32_t(handle) - 1]     = nullptr;
 		entity_kinds[uint32_t(handle) - 1] = 0;
