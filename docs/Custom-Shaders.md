@@ -10,7 +10,8 @@ Open questions are collected at the end; the sections above them show what I rec
 ## Goal
 
 A program can give an entity, or a single surface of a mesh, its own vertex and fragment shader, feed that shader its own values and
-textures, draw many instances of one mesh with data per instance, and let a camera draw into several targets at once (MRT). Everything
+textures, use one shader with different values on many entities (shader instances) without losing batching, and let a camera draw into
+several targets at once (MRT). Everything
 works the same on Vulkan, OpenGL 4.3 and Direct3D 11. Entities without a custom shader draw exactly as they do today, and the original
 Blitz3D has none of these commands, so nothing changes for existing programs.
 
@@ -72,13 +73,14 @@ float4 bb_user_fragment(BB_FragmentData f)
   are documented in the wiki next to the commands.
 - The runtime's entry points wrap these, then do fog, clip distances, OIT output, dither and palette as they do now. A custom shader works
   with every `TransparencyMode`, stencil, mirror and camera setup without knowing about them.
-- MRT outputs: `bb_user_fragment_mrt(BB_FragmentData f, inout BB_Targets t)` writes `t.color[0..N-1]` instead of returning one colour
+- MRT outputs: `bb_user_fragment_mrt(BB_FragmentData f, inout BB_Targets t)` writes `t.color[0..3]` instead of returning one colour
   (see MRT below). Target 0 still goes through OIT, dither and palette.
 
-A raw mode where the program writes everything (no runtime wrapping) is possible as an escape hatch later, but I would leave it out of the
-first version (question 1).
+A raw mode where the program writes everything (no runtime wrapping) is left out of the first version (decided 25 Nov 2026). The uses
+seen so far fit the functions: moving vertices from their inputs (grass, foliage, leaves) and effects like water with refraction and
+reflection (see below). Raw mode can be added later if a real use needs it.
 
-Shader files use the extension `.bbfx` (question 7). `#include` in them is resolved by the runtime relative to the file, with
+Shader files use the extension `.bbfx` (question 5). `#include` in them is resolved by the runtime relative to the file, with
 `#line` directives so errors point at the right file and line.
 
 ## Commands
@@ -93,7 +95,6 @@ All names follow the existing style. Handles are 0 for none; a failed load retur
 | `CreateShader%(source$, defines$="")` | The same from a string, for shaders built in code or stored in a bank. |
 | `ShaderError$()` | The compiler log of the last `LoadShader` or `CreateShader` that failed, with file names and lines of the program's source. |
 | `FreeShader shader` | Frees it; entities and brushes that still use it fall back to the built-in shader. |
-| `CopyShader%(shader)` | A shader with the same code and its own parameter defaults. |
 
 In debug builds (`-d`) a failed compile is a runtime error that shows the log, since a silent fallback to the built-in shader hides the
 mistake. Release builds return 0 so a program can fall back on purpose.
@@ -101,55 +102,72 @@ mistake. Release builds return 0 so a program can fall back on purpose.
 Compiling happens on the calling thread at `LoadShader` for the variant that the current graphics state needs (about 1 to 20 ms per
 shader on Vulkan by the measurements in #591; D3D11 unknown until measured, then cached on disk). Other variants (an OIT mode switched
 later, a second uv set appearing, MRT count) compile the first time a draw needs them; a `PreloadShader shader` that compiles all
-variants up front is cheap to add if the hitch shows up (question 6).
+variants up front is cheap to add if the hitch shows up (question 4).
 
 ### Giving entities and surfaces a shader
 
 | Command | What it does |
 |---|---|
-| `EntityShader entity, shader` | All surfaces of the entity use it, unless their brush has its own. 0 removes it. |
-| `BrushShader brush, shader` | Surfaces painted with the brush (`PaintSurface`, `PaintMesh`, `PaintEntity`) use it. |
+| `EntityShader entity, shader` | All surfaces of the entity use it, unless their brush has its own. 0 removes it. `shader` is a shader or a shader instance (below). |
+| `BrushShader brush, shader` | Surfaces painted with the brush (`PaintSurface`, `PaintMesh`, `PaintEntity`) use it. Also a shader or a shader instance. |
 | `GetEntityShader%(entity)`, `GetBrushShader%(brush)` | What was set, 0 for none. `GetSurfaceBrush` copies it like the other brush values. |
 
 Priority, from strongest: the surface's brush, then the entity, then the built-in shader. This is the same order Blitz3D uses for
-`BrushFX` against `EntityFX` (the surface's own values come first). `CopyEntity` keeps the shader and the entity's parameters.
+`BrushFX` against `EntityFX` (the surface's own values come first). `CopyEntity` keeps the shader or shader instance (shared, not copied).
 `EntityFX`, `EntityBlend`, `EntityAlpha`, `EntityColor`, textures and stencil still apply; they become inputs of `bb_default_fragment`
 and of the pipeline, as now.
 
 Sprites, terrains and BSP levels are entities too and accept `EntityShader`. Terrain and BSP vertex data is the same 32 byte vertex, so
 nothing special is needed. 2D drawing (`DrawImage`, `Rect`, text) does not use these shaders; see "Screen passes" below.
 
-### Parameters
+### Parameters and shader instances
 
 Parameters are the values a shader declares in its `BB_PARAMETERS` list. Because the list is our own macro, the runtime knows every name,
 type and offset without asking the compiler, with the same layout on all three backends: each parameter starts on a 16 byte boundary,
-matrices take 16 bytes per row. The block is at most 256 bytes per draw (question 3).
+matrices take 16 bytes per row. The block is at most 256 bytes per draw (decided 25 Nov 2026), which is 16 `float4` or 4 matrices.
 
 Types: `float`, `float2`, `float3`, `float4`, `int`, `int4`, `float4x4`, `float4x3`.
+
+**Shader instances** are how one shader is used with different values. An instance is a handle of its own that belongs to a shader and
+holds its own parameter values and textures; anything it does not set comes from the shader's defaults. Ten trees with ten different
+wind strengths are one shader and ten instances (or one instance per kind of tree), not ten shaders.
+
+| Command | What it does |
+|---|---|
+| `CreateShaderInstance%(shader)` | A new instance of the shader, with nothing set of its own. |
+| `CopyShaderInstance%(instance)` | A new instance of the same shader with the same values and textures. |
+| `FreeShaderInstance instance` | Frees it; entities and brushes that use it fall back to the shader's defaults. |
+| `ShaderInstanceShader%(instance)` | The shader it belongs to. |
+
+The parameter commands take either a shader (to set its defaults, which every instance without a value of its own follows) or an
+instance (to set that instance's value):
 
 | Command | What it does |
 |---|---|
 | `ShaderParameterExists%(shader, name$)` | 1 if the shader declares a parameter of that name. |
-| `SetShaderFloat shader, name$, value#` | Sets the shader's default. The runtime keeps the last names it looked up per shader, so names in a loop stay cheap. |
+| `SetShaderFloat shader, name$, value#` | The runtime keeps the last names it looked up per shader, so names in a loop stay cheap. |
 | `SetShaderVector shader, name$, value@` | A `FloatVector4`; smaller vectors use the first components. |
 | `SetShaderMatrix shader, name$, value^` | A `FloatMatrix4x4` (or a `FloatMatrix4x3` through `SetShaderMatrix43`). |
 | `SetShaderInt shader, name$, value%` | |
-| `SetEntityShaderFloat entity, name$, value#` (and `Vector`, `Matrix`, `Int`) | Overrides the default for this entity only. |
-| `SetBrushShaderFloat brush, name$, value#` (and `Vector`, `Matrix`, `Int`) | Overrides it for surfaces painted with this brush. |
-| `ClearEntityShaderParameter entity, name$` / `ClearBrushShaderParameter` | Goes back to the default. |
-| `GetShaderFloat#(shader, name$)` etc., `GetEntityShaderFloat#` etc. | Read back. |
+| `ClearShaderParameter instance, name$` | The instance follows the shader's default again. |
+| `GetShaderFloat#(shader, name$)` etc. | Read back; for an instance without a value of its own, the shader's default. |
 
-Order for each parameter: brush override, then entity override, then the shader's default, then zero. A parameter that is not in the
-shader is a runtime error in debug builds and ignored in release builds.
+Order for each parameter: the instance's value, then the shader's default, then zero. A parameter that is not in the shader is a runtime
+error in debug builds and ignored in release builds.
 
-Built-in values that every shader can read without declaring them: the entity's model matrix and its inverse transpose, the camera view
-and projection matrices (as set by `SetCameraViewMatrix` and `SetCameraProjectionMatrix`), the camera position, the viewport size,
-`bb_time()` (seconds since `Graphics3D`, as a float that wraps every hour so it keeps its precision), the frame number, the entity's
-colour, alpha and shininess, the fog values and the lights of the draw.
+I would not add separate per-entity and per-brush overrides (`SetEntityShaderFloat` and so on) on top of instances: an entity that needs
+values of its own gets an instance of its own, which is one handle more and one concept less (question 2).
 
-**How it reaches the GPU.** The resolved block of each draw is written next to the existing per-draw data (`entity_push`) into the same
-kind of storage buffer, indexed by the draw. So two entities with the same shader and different parameters still merge into one
-instanced call, as `CopyEntity` copies do now. No uniform buffer per entity, no rebinding.
+Built-in values that every shader can read without declaring them, and which already differ per entity without any instance: the entity's
+model matrix and its inverse transpose, the camera view and projection matrices (as set by `SetCameraViewMatrix` and
+`SetCameraProjectionMatrix`), the camera position, the viewport size, `bb_time()` (seconds since `Graphics3D`, as a float that wraps every
+hour so it keeps its precision), the frame number, the entity's colour, alpha and shininess, the fog values and the lights of the draw.
+
+**How it reaches the GPU, and why instances keep batching.** The parameter block of each draw is written next to the existing per-draw
+data (`entity_push`) into the same kind of storage buffer, indexed by the draw: an instance is uploaded once per frame when it changed, and
+each draw points at its block. Draws only split by pipeline, textures and buffers, as now, so entities with the same shader merge into one
+instanced call even when every one of them has a different instance. That is the same mechanism that already merges `CopyEntity` copies,
+which keeps working as it is; there is no separate entity instancing command.
 
 ### Textures
 
@@ -159,58 +177,44 @@ addition to the 8 brush layers, which stay reachable through `bb_layer(i, uv)`.
 
 | Command | What it does |
 |---|---|
-| `SetShaderTexture shader, slot, texture, frame=0` | Default for the slot. `slot` is the number given in the shader's declaration. |
-| `SetEntityShaderTexture entity, slot, texture, frame=0` | Override for the entity. |
-| `SetBrushShaderTexture brush, slot, texture, frame=0` | Override for the brush. |
+| `SetShaderTexture shader, slot, texture, frame=0` | On a shader the default for the slot, on an instance its own texture. `slot` is the number given in the shader's declaration. |
+| `ClearShaderTexture instance, slot` | The instance follows the shader's texture again. |
 
-Each texture is sampled with its own sampler (`SetTextureSampler`), as layers are now. Textures count toward the draw state, so draws
-with different shader textures do not merge; that is the same rule as for brush textures today.
+Each texture is sampled with its own sampler (`SetTextureSampler`), as layers are now. Textures count toward the draw state, so instances
+with different textures do not merge into one call; that is the same rule as for brush textures today. Instances that differ only in
+parameters do merge. (Merging across textures would need bindless textures or texture arrays, a possible later step.)
 
 A texture that is also a target of the camera that is drawing (reading and writing the same image) is a runtime error in debug builds and
 draws undefined pixels otherwise, which is what every backend does.
 
-### Instancing
+### Refraction and reflection
 
-Today `CopyEntity` copies already merge into instanced draws, but each copy is a full entity with a handle, a place in the scene and
-per-frame CPU work. For thousands to millions of instances (grass, particles, crowds) a program needs to hand over the per-instance data
-directly. Recommendation:
+Water, glass and heat haze need what is behind the surface. Two built-in functions give it to a fragment function:
 
-| Command | What it does |
-|---|---|
-| `SetEntityInstances entity, bank, count, stride=64, offset=0` | Draws the mesh `count` times. Each instance reads `stride` bytes from the bank. `count` 0 turns it off. |
-| `UpdateEntityInstances entity, first=0, count=-1` | Says which part of the bank changed, so only that part is copied to the GPU. |
-| `SetEntityInstanceBox entity, x#, y#, z#, w#, h#, d#` | The box around all instances, in entity space, for culling. Without it the entity is never culled. |
+- `bb_scene_color(screen_uv)`: the camera's picture as it was after its opaque draws.
+- `bb_scene_depth(screen_uv)`: its depth at that point, as distance from the camera.
 
-- **Without a custom shader** the first 48 bytes of each instance are a `FloatMatrix4x3` (as `PokeMatrix` would write it), applied after
-  the entity's own matrix, and the next 16 bytes a colour (`FloatVector4`, multiplied with the vertex colour). That makes the default
-  stride 64, which keeps every instance on one 64 byte line like the vertex memory rule. So instancing works without writing a shader.
-- **With a custom shader** the shader declares its own layout with `BB_INSTANCE(I) I(float4x3, transform) I(float4, tint) ...
-  BB_END_INSTANCE` and reads it in `bb_user_vertex` with `bb_instance(tint)`. If the layout starts with a `float4x3` named `transform`
-  the runtime applies it the same way as above, so most shaders only add fields.
-- `stride` must be 16, 32, 64 or a multiple of 64 (the same rule as vertices). The data is read as a storage buffer, not as a vertex
-  stream, on all three backends (Vulkan and OpenGL 4.3 SSBO, D3D11 `StructuredBuffer`), so the layout has no format restrictions.
-- The bank is copied at `RenderWorld`, the same way surfaces are uploaded, with `UpdateEntityInstances` limiting the copy. A bank that is
-  freed or resized while set is a runtime error in debug builds.
-- Instances are all drawn with one call, opaque ones in any order. Blended (see-through) instances are not sorted against each other in
-  OIT 0; OIT 1 to 5 handle them as they handle any other blended draw.
-- Picking, collisions and physics see the entity once, not each instance. That is the point of the feature; question 4 asks whether
-  `LinePick` should be able to hit instances.
+When any draw of a camera uses a shader that calls them (the shader says so with `BB_USES_SCENE_COLOR` / `BB_USES_SCENE_DEPTH`, so the
+runtime knows before drawing), the camera copies its colour target and depth once after the opaque draws and before the blended ones.
+Cameras without such draws pay nothing (question 3).
 
-GPU-driven instance counts (a compute shader decides how many instances survive) come with compute shaders, not in the first version.
+Reflections need no new commands: a second camera renders the mirrored view into a texture (`SetCameraBuffer`, `SetCameraViewMatrix`,
+`SetCameraClipPlane` for the water plane), and the water shader gets that texture through `SetShaderTexture` and samples it at the
+screen position, distorted by its normal.
 
 ### Multiple render targets
 
 | Command | What it does |
 |---|---|
-| `SetCameraBuffer camera, buffer, target=0` | The existing command with a third parameter: target 0 is what it sets today; 1 to 7 add more colour targets. Buffer 0 removes a target. |
+| `SetCameraBuffer camera, buffer, target=0` | The existing command with a third parameter: target 0 is what it sets today; 1 to 3 add more colour targets. Buffer 0 removes a target. |
 | `GetCameraBuffer%(camera, target=0)` | |
 | `SetCameraDepthBuffer camera, buffer` | A depth texture (`CreateTextureEx` with `D32F`) used as the depth buffer of the camera, so a later pass can sample it. 0 is the built-in depth buffer. |
-| `CameraClsColor camera, r, g, b, target=0` (new optional parameter) | The clear colour of each target; targets 1 to 7 clear to 0, 0, 0, 0 by default. |
+| `CameraClsColor camera, r, g, b, target=0` (new optional parameter) | The clear colour of each target; targets 1 to 3 clear to 0, 0, 0, 0 by default. |
 
 - All targets must have the same size, which is a runtime error otherwise (all three backends need that; Vulkan with dynamic rendering
   could relax it but D3D11 cannot).
-- How many: D3D11 and OpenGL 4.3 guarantee 8; Vulkan 1.3 only guarantees 4 (`maxColorAttachments`), though every desktop GPU I know of
-  reports 8. I recommend 8 with a runtime error naming the device limit when a camera asks for more (question 5).
+- Four targets at most (decided 25 Nov 2026): that is what Vulkan 1.3 guarantees (`maxColorAttachments`), while D3D11 and OpenGL 4.3
+  guarantee 8, so four work on every device. A G-buffer of colour, normal, material and one more fits.
 - Shaders without `bb_user_fragment_mrt` write only target 0; the other targets keep what they had (their write mask is off for that
   draw). So a G-buffer camera can still draw ordinary entities without them scribbling over normals.
 - OIT, dither, palette and antialiasing (SMAA) act on target 0 only. Blended draws with OIT 1 to 5 write only target 0, since the extra
@@ -234,9 +238,9 @@ The shader reads its inputs through its own textures and parameters (`SetShaderT
 | | Vulkan | OpenGL 4.3 | Direct3D 11 |
 |---|---|---|---|
 | Compiling | glslang in `blitzshaders`, user source plus the Vulkan prelude and the runtime's entry points | the same text with the OpenGL prelude, `glShaderSource` | the same text with the D3D11 prelude, `D3DCompile`, disk cache |
-| Parameters, instance data | storage buffer, indexed by draw | SSBO | `StructuredBuffer` |
+| Parameters of shaders and instances | storage buffer, indexed by draw | SSBO | `StructuredBuffer` |
 | User textures | descriptor set of the draw (a second set next to the layer set) | texture units after the layers | `t` registers after the layers, from the prelude's table |
-| MRT | dynamic rendering with up to 8 attachments, one write mask per attachment | FBO with `glDrawBuffers`, `glColorMaski` | up to 8 RTVs, blend state with `IndependentBlendEnable` |
+| MRT | dynamic rendering with up to 4 attachments, one write mask per attachment | FBO with `glDrawBuffers`, `glColorMaski` | up to 4 RTVs, blend state with `IndependentBlendEnable` |
 | Depth target as texture | `D32_SFLOAT` image with sampled usage | `DEPTH_COMPONENT32F` texture | `R32_TYPELESS` with DSV and SRV |
 | Pipeline cache key | adds shader id, variant and target formats | program per variant | shader objects per variant, input layout shared |
 
@@ -260,36 +264,43 @@ dialect), not of this feature. Matrices are row vectors on all three, like the b
 
 After shader-sources steps 2, 3, 5 and 6 (and `CreateTextureEx` for the MRT and depth parts). Each its own PR:
 
-1. Shader objects: `LoadShader`, `CreateShader`, `ShaderError$`, `FreeShader`, `CopyShader`; the runtime entry points around
+1. Shader objects: `LoadShader`, `CreateShader`, `ShaderError$`, `FreeShader`; the runtime entry points around
    `bb_user_vertex` and `bb_user_fragment`; `EntityShader`, `BrushShader`; built-in values. Tests: a `_pixels` test per backend, and one
    per OIT mode.
-2. Parameters: `BB_PARAMETERS`, the `Set*Shader*` commands, the per-draw block in the storage buffer; batching test with the
-   `Stats3D(1000)` counters.
+2. Parameters and shader instances: `BB_PARAMETERS`, `CreateShaderInstance` and the rest, the `Set*Shader*` commands, the per-draw
+   block in the storage buffer; batching test with the `Stats3D(1000)` counters.
 3. Shader textures.
-4. Instancing: `SetEntityInstances`, `UpdateEntityInstances`, `SetEntityInstanceBox`, without and with a shader. Needs physical-machine
-   numbers (instancing against `CopyEntity` at 10k and 1M instances).
+4. Refraction: `bb_scene_color`, `bb_scene_depth` and the copy after the opaque draws. Needs physical-machine numbers for the
+   cost of the copy.
 5. MRT and depth targets.
 6. `DrawShader`.
-7. Samples and tutorial chapter: water, instanced grass, a deferred-lighting G-buffer, a bloom pass.
+7. Samples and tutorial chapter: water with refraction and reflection, wind on grass and leaves, a deferred-lighting G-buffer, a
+   bloom pass.
 
-Compute shaders (`CreateComputeShader`, `DispatchShader`, storage banks, GPU-driven instance counts) are a separate design later. Nothing
-above blocks them: they reuse the shader objects, parameters and textures.
+Compute shaders (`CreateComputeShader`, `DispatchShader`, storage banks) are a separate design later. Nothing
+above blocks them: they reuse the shader objects, instances, parameters and textures.
+
+## Decisions (Xaymar, 25 Nov 2026)
+
+- Shaders per entity and per surface ("per mesh" means that).
+- Functions only in the first version; a raw mode where the program writes `main` maybe later, if a use needs it.
+- "Instancing" means shader instances: one shader, different parameters per use. Entity instancing is already implicit (merged
+  `CopyEntity` draws) and gets no command.
+- 256 bytes of parameters per draw.
+- 4 render targets.
 
 ## Open questions
 
-1. **Functions or full shaders?** I recommend that programs write `bb_user_vertex` and `bb_user_fragment` and the runtime keeps `main`,
-   so OIT, fog, dither and the rest keep working. Should there also be a raw mode where the program writes the whole shader, now or later?
-2. **Priority**: surface brush over entity over built-in, as above?
-3. **Parameter block size**: 256 bytes per draw (16 `float4`, or 4 matrices) enough for a first version? Larger needs more memory per
-   draw in the storage buffer, or a second buffer for big blocks.
-4. **Instances and picking**: should `LinePick` and `EntityPick` be able to hit single instances (returning the instance number through a
-   `PickedInstance()`), or is "the entity counts once" fine?
-5. **MRT count**: 8 targets with an error on devices that report fewer, or 4 as the guaranteed maximum everywhere?
-6. **Compile timing**: compile the current variant at `LoadShader` and the rest when first needed, with an optional `PreloadShader`, or
+1. **Priority**: surface brush over entity over built-in, as above?
+2. **Instances only**: is it fine that an entity needing its own values gets its own shader instance, with no separate per-entity and
+   per-brush override commands?
+3. **Refraction**: is the automatic copy of colour and depth after the opaque draws (only for cameras that need it) the way you want
+   refraction, or should the program copy explicitly (for example `CopyRect` into a texture between two `RenderCamera` calls)?
+4. **Compile timing**: compile the current variant at `LoadShader` and the rest when first needed, with an optional `PreloadShader`, or
    compile every variant at `LoadShader` (slower load, no hitch later)?
-7. **File extension and language name**: `.bbfx` for shader files? And does the dialect get a user-facing name in the wiki (for example
+5. **File extension and language name**: `.bbfx` for shader files? And does the dialect get a user-facing name in the wiki (for example
    "BlitzLLVM shader language")?
-8. **Vertex inputs**: the user vertex function reads the fixed vertex (32 byte main plus the optional second set). Is that enough, or do you
+6. **Vertex inputs**: the user vertex function reads the fixed vertex (32 byte main plus the optional second set). Is that enough, or do you
    want user-defined vertex attributes per surface (an extra stream filled by new `VertexAttribute` commands)? That would be its own design.
-9. **Screen passes**: is `DrawShader` on the current buffer the right shape for post-processing, or do you want it tied to cameras
+7. **Screen passes**: is `DrawShader` on the current buffer the right shape for post-processing, or do you want it tied to cameras
    (`CameraShader camera, shader` running after the camera draws)?
