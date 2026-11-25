@@ -23,7 +23,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [EntityFX](EntityFX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [EntityInView](EntityInView) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [EntityLightChannel](EntityLightChannel) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [EntityLighting](EntityLighting)
+* [EntityLighting](EntityLighting) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [EntityName](EntityName) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [EntityOrder](EntityOrder) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [EntityParent](EntityParent) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
@@ -50,8 +50,8 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [PositionEntity](PositionEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [RotateEntity](RotateEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [ScaleEntity](ScaleEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [SetEntityStencil](SetEntityStencil)
-* [SetEntityStencilBack](SetEntityStencilBack)
+* [SetEntityStencil](SetEntityStencil) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetEntityStencilBack](SetEntityStencilBack) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [ShowEntity](ShowEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TranslateEntity](TranslateEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TurnEntity](TurnEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

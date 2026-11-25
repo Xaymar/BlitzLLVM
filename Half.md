@@ -44,7 +44,7 @@ Print Half(0.1) = 0.1
 
 ## Related Commands
 
-[EndType](EndType), [Float](Float) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [Handle](Handle) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [Int](Int) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+[EndType](EndType) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [Float](Float) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [Handle](Handle) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [Int](Int) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 
 <div align="center">
 

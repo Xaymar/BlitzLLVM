@@ -32,7 +32,7 @@ Index 1000 to 1004 count what the last [RenderWorld](RenderWorld) cost, which do
 
 ## Related Commands
 
-[RenderWorld](RenderWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [SetGraphicsHDR](SetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [TransparencyDistanceSortMode](TransparencyDistanceSortMode), [TrisRendered](TrisRendered) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+[RenderWorld](RenderWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [SetGraphicsHDR](SetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [TransparencyDistanceSortMode](TransparencyDistanceSortMode) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [TrisRendered](TrisRendered) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 
 <div align="center">
 

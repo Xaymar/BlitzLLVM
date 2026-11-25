@@ -9,12 +9,12 @@ Opening a graphics mode, listing drivers, displays and modes, gamma and video me
 
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
-* [AvailVidMem](AvailVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [AvailVidMem64](AvailVidMem64)
+* [AvailVidMem](AvailVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [AvailVidMem64](AvailVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [CountDisplayModes](CountDisplayModes) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [CountDisplays](CountDisplays) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [CountGfxDrivers](CountGfxDrivers) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [CountGfxModes](CountGfxModes) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CountGfxDrivers](CountGfxDrivers) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [CountGfxModes](CountGfxModes) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [CountRefreshRates](CountRefreshRates) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [DisplayDepth](DisplayDepth) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [DisplayHeight](DisplayHeight) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
@@ -28,32 +28,32 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [DisplayWidth](DisplayWidth) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [DisplayX](DisplayX) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [DisplayY](DisplayY) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [EndGraphics](EndGraphics) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [Flip](Flip) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GammaBlue](GammaBlue) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GammaGreen](GammaGreen) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GammaRed](GammaRed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EndGraphics](EndGraphics) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [Flip](Flip) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GammaBlue](GammaBlue) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GammaGreen](GammaGreen) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GammaRed](GammaRed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GfxDriver](GfxDriver) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [GfxDriverName](GfxDriverName) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GfxModeDepth](GfxModeDepth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GfxModeExists](GfxModeExists) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxDriverName](GfxDriverName) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GfxModeDepth](GfxModeDepth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GfxModeExists](GfxModeExists) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GfxModeFormat](GfxModeFormat) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
-* [GfxModeHeight](GfxModeHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GfxModeWidth](GfxModeWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [Graphics](Graphics) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GraphicsDepth](GraphicsDepth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GraphicsFormat](GraphicsFormat) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GraphicsHeight](GraphicsHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxModeHeight](GfxModeHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GfxModeWidth](GfxModeWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [Graphics](Graphics) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GraphicsDepth](GraphicsDepth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GraphicsFormat](GraphicsFormat) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GraphicsHeight](GraphicsHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [GraphicsLost](GraphicsLost) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GraphicsPalette](GraphicsPalette)
-* [GraphicsWidth](GraphicsWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [HidePointer](HidePointer) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GraphicsPalette](GraphicsPalette) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GraphicsWidth](GraphicsWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [HidePointer](HidePointer) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [PrimaryDisplay](PrimaryDisplay) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [RefreshRateAt](RefreshRateAt) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [SetGamma](SetGamma) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [SetGfxDriver](SetGfxDriver) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [ShowPointer](ShowPointer) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [TotalVidMem](TotalVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [TotalVidMem64](TotalVidMem64)
-* [UpdateGamma](UpdateGamma) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [VWait](VWait) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SetGamma](SetGamma) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [SetGfxDriver](SetGfxDriver) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [ShowPointer](ShowPointer) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [TotalVidMem](TotalVidMem) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [TotalVidMem64](TotalVidMem64) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [UpdateGamma](UpdateGamma) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [VWait](VWait) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">

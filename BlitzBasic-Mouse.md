@@ -9,28 +9,28 @@ Mouse position, speed and buttons.
 
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
-* [DirectInputEnabled](DirectInputEnabled) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [EnableDirectInput](EnableDirectInput) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [FlushMouse](FlushMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GetMouse](GetMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [HWRawInput](HWRawInput)
-* [LastMouseDevice](LastMouseDevice)
-* [LockMouse](LockMouse)
-* [MouseChanged](MouseChanged)
-* [MouseDeviceConnected](MouseDeviceConnected)
-* [MouseDeviceCount](MouseDeviceCount)
-* [MouseDeviceName](MouseDeviceName)
-* [MouseDown](MouseDown) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseHit](MouseHit) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseWait](MouseWait) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseX](MouseX) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseXSpeed](MouseXSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseY](MouseY) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseYSpeed](MouseYSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseZ](MouseZ) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MouseZSpeed](MouseZSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [MoveMouse](MoveMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [RawInput](RawInput)
-* [RawInputEnabled](RawInputEnabled)
-* [UnlockMouse](UnlockMouse)
-* [WaitMouse](WaitMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [DirectInputEnabled](DirectInputEnabled) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [EnableDirectInput](EnableDirectInput) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [FlushMouse](FlushMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [GetMouse](GetMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [HWRawInput](HWRawInput) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [LastMouseDevice](LastMouseDevice) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [LockMouse](LockMouse) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [MouseChanged](MouseChanged) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [MouseDeviceConnected](MouseDeviceConnected) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [MouseDeviceCount](MouseDeviceCount) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [MouseDeviceName](MouseDeviceName) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [MouseDown](MouseDown) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseHit](MouseHit) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseWait](MouseWait) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseX](MouseX) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseXSpeed](MouseXSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseY](MouseY) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseYSpeed](MouseYSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseZ](MouseZ) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MouseZSpeed](MouseZSpeed) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [MoveMouse](MoveMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [RawInput](RawInput) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [RawInputEnabled](RawInputEnabled) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [UnlockMouse](UnlockMouse) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [WaitMouse](WaitMouse) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">

@@ -45,7 +45,7 @@ Print Short(100000.0)
 
 ## Related Commands
 
-[Long](Long) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [Object](Object) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [Single](Single) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [UShort](UShort) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[Long](Long) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [Object](Object) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [Single](Single) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [UShort](UShort) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

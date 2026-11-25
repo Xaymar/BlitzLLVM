@@ -50,7 +50,7 @@ Print PopCount(ULong(-1))
 
 ## Related Commands
 
-[Mod](Mod) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [Pi](Pi) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [RotL](RotL) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [RotR](RotR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[Mod](Mod) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [Pi](Pi) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [RotL](RotL) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [RotR](RotR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

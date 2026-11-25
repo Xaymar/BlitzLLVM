@@ -15,22 +15,22 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [CaptureWorld](CaptureWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [ClearWorld](ClearWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [Dither](Dither) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [DitherMode](DitherMode)
-* [DitherTemporal](DitherTemporal)
+* [DitherMode](DitherMode) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [DitherTemporal](DitherTemporal) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [GetGraphicsHDR](GetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
-* [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency)
-* [HWDither](HWDither)
-* [HWHDRActive](HWHDRActive)
-* [HWHDRPeakNits](HWHDRPeakNits)
-* [HWHDRSupported](HWHDRSupported)
+* [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [HWDither](HWDither) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [HWHDRActive](HWHDRActive) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [HWHDRPeakNits](HWHDRPeakNits) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [HWHDRSupported](HWHDRSupported) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [HWMultiTex](HWMultiTex) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [HWOrderIndependentTransparency](HWOrderIndependentTransparency)
+* [HWOrderIndependentTransparency](HWOrderIndependentTransparency) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [HWTexUnits](HWTexUnits) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [RenderCamera](RenderCamera)
+* [RenderCamera](RenderCamera) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [RenderWorld](RenderWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [SetGraphicsHDR](SetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [Stats3D](Stats3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [TransparencyDistanceSortMode](TransparencyDistanceSortMode)
+* [TransparencyDistanceSortMode](TransparencyDistanceSortMode) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [TrisRendered](TrisRendered) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [UpdateWorld](UpdateWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [WBuffer](WBuffer) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

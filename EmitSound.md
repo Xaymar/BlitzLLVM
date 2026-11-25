@@ -34,7 +34,7 @@ The example is the one under [CreateListener](CreateListener).
 
 ## Related Commands
 
-[CreateListener](CreateListener) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [GetChannelFalloff](GetChannelFalloff), [GetFalloff](GetFalloff)
+[CreateListener](CreateListener) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [GetChannelFalloff](GetChannelFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GetFalloff](GetFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

@@ -30,7 +30,7 @@ A BlitzLLVM extension: gives back what [SetGraphicsHDR](SetGraphicsHDR) is set t
 
 ## Related Commands
 
-[DitherMode](DitherMode), [DitherTemporal](DitherTemporal), [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency), [SetGraphicsHDR](SetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[DitherMode](DitherMode) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [DitherTemporal](DitherTemporal) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [SetGraphicsHDR](SetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

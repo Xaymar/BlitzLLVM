@@ -20,7 +20,7 @@ Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 * [RestoreWindow](RestoreWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [SetMinWindowSize](SetMinWindowSize) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [SetStatusText](SetStatusText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
-* [SetWindowSizeLimit](SetWindowSizeLimit)
+* [SetWindowSizeLimit](SetWindowSizeLimit) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [UpdateWindowMenu](UpdateWindowMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [WindowMaximized](WindowMaximized) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [WindowMenu](WindowMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

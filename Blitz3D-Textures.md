@@ -9,7 +9,7 @@ Creating, loading, transforming and filtering textures.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [AtlasTexture](AtlasTexture)
+* [AtlasTexture](AtlasTexture) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [ClearTextureFilters](ClearTextureFilters) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [CreateSampler](CreateSampler) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [CreateTexture](CreateTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
@@ -30,7 +30,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [GetSamplerLodMax](GetSamplerLodMax) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [GetSamplerLodMin](GetSamplerLodMin) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [LoadAnimTexture](LoadAnimTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [LoadAtlas](LoadAtlas)
+* [LoadAtlas](LoadAtlas) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [LoadTexture](LoadTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [PositionTexture](PositionTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [RotateTexture](RotateTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
@@ -54,8 +54,8 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [TextureBuffer](TextureBuffer) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TextureCoords](TextureCoords) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TextureFilter](TextureFilter) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [TextureFrameDelay](TextureFrameDelay)
-* [TextureFrames](TextureFrames)
+* [TextureFrameDelay](TextureFrameDelay) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [TextureFrames](TextureFrames) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [TextureHeight](TextureHeight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TextureName](TextureName) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TextureReady](TextureReady) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">

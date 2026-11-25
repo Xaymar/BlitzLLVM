@@ -32,7 +32,7 @@ The other three values are in nits, and 0 keeps the default of each, so leaving 
 
 ## Related Commands
 
-[GetGraphicsHDR](GetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency), [RenderCamera](RenderCamera), [RenderWorld](RenderWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+[GetGraphicsHDR](GetGraphicsHDR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [RenderCamera](RenderCamera) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [RenderWorld](RenderWorld) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 
 <div align="center">
 

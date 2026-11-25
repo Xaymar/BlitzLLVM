@@ -29,7 +29,7 @@ Switches multitexturing on or off, so that a triangle with several textures is d
 
 ## Related Commands
 
-[HWDither](HWDither), [HWHDRPeakNits](HWHDRPeakNits), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [HWTexUnits](HWTexUnits) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+[HWDither](HWDither) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [HWHDRPeakNits](HWHDRPeakNits) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [HWOrderIndependentTransparency](HWOrderIndependentTransparency) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [HWTexUnits](HWTexUnits) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 
 <div align="center">
 

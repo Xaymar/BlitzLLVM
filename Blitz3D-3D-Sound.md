@@ -11,7 +11,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [CreateListener](CreateListener) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [EmitSound](EmitSound) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
-* [GetChannelFalloff](GetChannelFalloff)
-* [GetFalloff](GetFalloff)
-* [SetChannelFalloff](SetChannelFalloff)
-* [SetFalloff](SetFalloff)
+* [GetChannelFalloff](GetChannelFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetFalloff](GetFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetChannelFalloff](SetChannelFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetFalloff](SetFalloff) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">

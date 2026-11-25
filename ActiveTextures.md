@@ -23,7 +23,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[AmbientLight](AmbientLight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [AntiAlias](AntiAlias) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [HWHDRActive](HWHDRActive)
+[AmbientLight](AmbientLight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [AntiAlias](AntiAlias) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [HWHDRActive](HWHDRActive) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 
