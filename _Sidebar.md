@@ -1360,9 +1360,10 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (33)</summary>
+<li><details><summary>Features (34)</summary>
 <ul>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
+<li><a href="Blitz-Recompiler">Blitz-Recompiler</a></li>
 <li><a href="Colors">Colors</a></li>
 <li><a href="CPU-Optimizations">CPU optimizations</a></li>
 <li><a href="Debug-Handle-Checks">Debug handle checks</a></li>

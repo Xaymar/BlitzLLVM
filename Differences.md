@@ -13,6 +13,7 @@ This page is made from the pages it links to (see `tools/wiki/wiki.py`), so it i
 Differences that are not caused by one command.
 
 * [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
+* [Blitz-Recompiler](Blitz-Recompiler): Extension: `blitz-recompiler` turns an executable made by the original Blitz3D or BlitzPlus compiler into a BlitzLLVM program; the original has no such tool.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [CPU optimizations](CPU-Optimizations): Extension: the runtime uses optional CPU instruction sets, several threads and its own memory allocator to be faster.
 * [Debug handle checks](Debug-Handle-Checks): Extension: a program compiled with `-d` stops with an error when a command is given a handle that names nothing, and always loads and saves on the spot.
