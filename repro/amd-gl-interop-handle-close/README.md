@@ -32,9 +32,28 @@ clang++ -O1 -std=c++17 -I<Vulkan-Headers>/include main.cpp -o gl_interop_repro.e
 
 The only difference between the two is when `CloseHandle` is called. All GL calls report `GL_NO_ERROR` before the crash.
 
+Output of this program on the RX 6600M (2 of 2 runs each, exit code 0xC0000005 and 0):
+
+```
+mode: handles closed right after import
+GL_RENDERER AMD Radeon RX 6600M
+GL_VERSION  4.6.0 Compatibility Profile Context 26.11.2.261112
+Vulkan      AMD Radeon RX 6600M, driver 0x00800161 (same LUID as the OpenGL context)
+imported image, glGetError 0x0
+imported semaphores, glGetError 0x0
+frame 0
+CRASH: exception 0xc0000005 at ...\u0206089.inf_amd64_5593d468e2fdf941\B026794\atio6axx.dll+0x216c920 on thread 9416
+
+mode: handles kept open until the OpenGL objects are deleted
+...
+RESULT: OK, glGetError 0x0
+```
+
+On the Vega iGPU (selected with the Windows per-app GPU preference, 2 of 2 runs each), the driver thread faults at `atio6axx.dll+0x2155700` right after the semaphore handles are closed, before frame 0. `--keep-handles` prints `RESULT: OK` there too.
+
 ## Results
 
-From a larger variant of this program (scratch branch `claude/amd-gl-interop-repro`, `tools/repro/amd-gl-interop/`), run more than 30 times.
+The variants below come from a larger version of this program with more options (scratch branch `claude/amd-gl-interop-repro`, `tools/repro/amd-gl-interop/`), run more than 30 times.
 
 **System:** Windows 10.0.26300, laptop with AMD switchable graphics:
 
