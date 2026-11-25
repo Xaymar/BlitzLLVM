@@ -14,12 +14,13 @@
 
 
 ```blitzbasic
-RequestDir:String prompt:String=\
+RequestDir:String prompt:String="", path:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `prompt` | In | String | `\` | Text for the title of the dialog. Defaults to an empty string. |
+| `prompt` | In | String | `""` | Text for the title of the dialog. Defaults to an empty string. |
+| `path` | In | String | `""` | Folder to start in. Defaults to an empty string, which lets the system choose. |
 
 **Returns:** The full path of the folder, or an empty string if nothing was picked.
 

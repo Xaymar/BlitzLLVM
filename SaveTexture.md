@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-SaveTexture:Int32 texture:Int32, file:String, frame:Int32=0, settings:String=\
+SaveTexture:Int32 texture:Int32, file:String, frame:Int32=0, settings:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
@@ -22,7 +22,7 @@ SaveTexture:Int32 texture:Int32, file:String, frame:Int32=0, settings:String=\
 | `texture` | In | Int32 | required | The texture. |
 | `file` | In | String | required | The path of the file to write. |
 | `frame` | In | Int32 | `0` | The frame to save. Defaults to 0. |
-| `settings` | In | String | `\` | How to encode the file, such as `"quality=85"`. Defaults to an empty string. |
+| `settings` | In | String | `""` | How to encode the file, such as `"quality=85"`. Defaults to an empty string. |
 
 **Returns:** 1 if the file was written, otherwise 0 (also for a frame that the texture does not have). With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 

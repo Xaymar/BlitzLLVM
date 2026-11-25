@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-AppTitle:Void title:String, close_prompt:String=\
+AppTitle:Void title:String, close_prompt:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `title` | In | String | required | The window title. |
-| `close_prompt` | In | String | `\` | The question the original asked before closing the window. |
+| `close_prompt` | In | String | `""` | The question the original asked before closing the window. |
 
 ## Description
 

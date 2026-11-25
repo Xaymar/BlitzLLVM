@@ -14,12 +14,15 @@
 
 
 ```blitzbasic
-RequestFile:String prompt:String=\
+RequestFile:String prompt:String="", exts:String="", save:Int32=0, defname:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `prompt` | In | String | `\` |  |
+| `prompt` | In | String | `""` | Title of the dialog. Defaults to an empty string. |
+| `exts` | In | String | `""` | Comma separated file types to show, without dots. Defaults to an empty string, which shows all files. |
+| `save` | In | Int32 | `0` | 1 asks for a name to save to, 0 asks for an existing file. Defaults to 0. |
+| `defname` | In | String | `""` | File name or folder to start with. Defaults to an empty string. |
 
 **Returns:** The full path of the file, or an empty string if nothing was picked.
 

@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0, settings:String=\
+SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0, settings:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
@@ -22,7 +22,7 @@ SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0, settings:String=\
 | `image` | In | Int32 | required | The image. |
 | `bmpfile` | In | String | required |  |
 | `frame` | In | Int32 | `0` | The frame to save. Defaults to 0. |
-| `settings` | In | String | `\` | How to encode the file, such as `"quality=85"`. Defaults to an empty string. |
+| `settings` | In | String | `""` | How to encode the file, such as `"quality=85"`. Defaults to an empty string. |
 
 **Returns:** 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 

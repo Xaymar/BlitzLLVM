@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-Input:String prompt:String=\
+Input:String prompt:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `prompt` | In | String | `\` | Text to show before the input. Defaults to nothing. |
+| `prompt` | In | String | `""` | Text to show before the input. Defaults to nothing. |
 
 **Returns:** The line that was typed.
 

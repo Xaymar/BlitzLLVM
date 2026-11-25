@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-SaveBuffer:Int32 buffer:Int32, bmpfile:String, settings:String=\
+SaveBuffer:Int32 buffer:Int32, bmpfile:String, settings:String=""
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `buffer` | In | Int32 | required | The buffer to save. |
 | `bmpfile` | In | String | required | The path of the file to write. |
-| `settings` | In | String | `\` | How to encode the file, such as `"quality=85,subsampling=444"`. Settings that don't apply to the format of the file are ignored. Defaults to an empty string. |
+| `settings` | In | String | `""` | How to encode the file, such as `"quality=85,subsampling=444"`. Settings that don't apply to the format of the file are ignored. Defaults to an empty string. |
 
 **Returns:** 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 
