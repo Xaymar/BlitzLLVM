@@ -1176,6 +1176,34 @@ elseif(CASE STREQUAL "run")
 	if(NOT OUT STREQUAL "ran:\n")
 		message(FATAL_ERROR "Expected only the output of the program, got:\n${OUT}")
 	endif()
+	# The program that is run gets a name that is new for every build, as Windows and the drivers force VSync or Auto HDR on programs
+	# with names they know as games. Two builds keep two folders with one program each, named blitzllvm_ and 12 hexadecimal digits.
+	set(_TEMP "${WORK}/temp")
+	file(MAKE_DIRECTORY "${_TEMP}")
+	foreach(_RUN IN ITEMS 1 2)
+		execute_process(
+			COMMAND "${CMAKE_COMMAND}" -E env "TMPDIR=${_TEMP}" "TEMP=${_TEMP}" "TMP=${_TEMP}" "${BLITZCC}" +q --keep-temps "${TESTS}/cli/run.bb"
+			WORKING_DIRECTORY "${WORK}"
+			RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
+		)
+		expect_ok()
+	endforeach()
+	file(GLOB _PROGRAMS "${_TEMP}/blitzllvm-*/blitzllvm_*")
+	list(FILTER _PROGRAMS EXCLUDE REGEX "\\.(ll|pdb|res|o|obj)$")
+	set(_NAMES)
+	foreach(_PROGRAM IN LISTS _PROGRAMS)
+		get_filename_component(_NAME "${_PROGRAM}" NAME)
+		if(NOT _NAME MATCHES "^blitzllvm_[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f](\\.exe)?$")
+			message(FATAL_ERROR "The program that is run is named '${_NAME}', expected blitzllvm_ and 12 hexadecimal digits.")
+		endif()
+		list(APPEND _NAMES "${_NAME}")
+	endforeach()
+	list(REMOVE_DUPLICATES _NAMES)
+	list(LENGTH _NAMES _COUNT)
+	if(NOT _COUNT EQUAL 2)
+		message(FATAL_ERROR "Two runs should have built two programs with different names, found: ${_PROGRAMS}")
+	endif()
+	file(REMOVE_RECURSE "${_TEMP}")
 	# With -o it is built, but not run.
 	blitzcc("${TESTS}/cli/run.bb" -o "${EXE}")
 	expect_ok()
