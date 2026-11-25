@@ -282,6 +282,7 @@ namespace bb::gfx {
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_memory_budget = false; // VK_EXT_memory_budget is on: the allocator knows how much video memory is left.
+		bool                  can_present_timing = false; // VK_EXT_present_timing is on (BLITZLLVM_PRESENT_TIMING=1): a window thread can ask for a frame at a time.
 		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  can_hdr_metadata  = false; // VK_EXT_hdr_metadata is on: the luminance of the display can be told to the system.
 		bool                  wireframe      = false;
@@ -1437,6 +1438,8 @@ int32_t bb_set_buffer(int32_t buffer);
 int32_t bb_graphics_buffer(void);
 void bb_app_title(const char* title, const char* close_prompt);
 void bb_flip(int32_t vwait);
+void bb_set_graphics_refresh_rate(float rate);
+float bb_get_graphics_refresh_rate(void);
 int32_t bb_graphics_depth(void);
 int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth);
 int32_t bb_windowed_3d(void);

@@ -47,6 +47,7 @@ namespace bb::gfx {
 		surface_state*  s      = nullptr;
 		bb::rhi::window_presenter wp;              // What the thread shows pictures with: its own recording, fence, semaphores and queue (the backend's).
 		uint64_t        period_ns    = 16666667;   // One refresh of the display, for pacing without present_wait.
+		uint64_t        limit_deadline_ns = 0;     // SetGraphicsRefreshRate: when the next picture may go out, by SDL_GetTicksNS.
 		uint64_t        next_show_ns = 0;          // When the next picture may be shown, by SDL_GetTicksNS.
 		int             frames[3] = { 0, 0, 0 };    // The three pictures: images (make_internal_target), so that SetBuffer can draw to them.
 		uint64_t        frame_images[3] = {};       // Copies for the thread, which looks at no table.
@@ -181,6 +182,30 @@ namespace bb::gfx {
 				if (!wait_for_drawing(p, number)) {
 					continue; // Asked to quit, or the device is lost.
 				}
+				// SetGraphicsRefreshRate: absolute deadlines, one period of the limit apart, waited for before the present (a present can
+				// block until the display takes it, which would be time spent after the deadline). Far behind (a pause, a load): starts over,
+				// instead of rushing to catch up. A swapchain with timing asks for no time of its own: a time relative to the last present
+				// gave 47.9 for a limit of 60 and 71.9 for 20 on a 144 Hz display (Irkela), which looks like a rounding to whole refreshes.
+				const bool timing = p.s->chain.timing;
+				float      limit  = bb_get_graphics_refresh_rate();
+				p.wp.target_ns    = 0;
+				if (limit > 0.0f) {
+					uint64_t period = uint64_t(1000000000.0 / double(limit));
+					uint64_t now    = SDL_GetTicksNS();
+					if (p.limit_deadline_ns == 0) {
+						p.limit_deadline_ns = now + period;
+					}
+					if (now < p.limit_deadline_ns) {
+						SDL_DelayPrecise(p.limit_deadline_ns - now);
+						p.limit_deadline_ns += period;
+					} else if (now - p.limit_deadline_ns > period * 4) {
+						p.limit_deadline_ns = now + period;
+					} else {
+						p.limit_deadline_ns += period;
+					}
+				} else {
+					p.limit_deadline_ns = 0;
+				}
 				bb::rhi::show_result shown = bb::rhi::show_picture(p.wp, p.s->chain, frame, frame_w, frame_h);
 				if (shown.stage == bb::rhi::show_result::stage::acquire_failed) {
 					ask_for_swapchain(p);
@@ -200,7 +225,7 @@ namespace bb::gfx {
 					// Pacing, outside of every lock: the next picture goes out one refresh after this one was shown. With present_wait, that
 					// is when the display has it; without, when the timer says the display should. A handover that waits returns after this.
 					bool ok = (shown.presented == bb::rhi::present_status::ok) || (shown.presented == bb::rhi::present_status::suboptimal);
-					if (!(ok && bb::rhi::wait_present(p.wp, p.s->chain, 1000000000ull))) { // A second: a hidden window may never show it.
+					if (!timing && !(ok && bb::rhi::wait_present(p.wp, p.s->chain, 1000000000ull))) { // A second: a hidden window may never show it.
 						uint64_t now = SDL_GetTicksNS();
 						if (p.next_show_ns > now) {
 							SDL_DelayNS(p.next_show_ns - now);
