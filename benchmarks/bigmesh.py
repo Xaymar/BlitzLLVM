@@ -14,8 +14,8 @@ original has at most 65535 vertices, so --grid is at most 255 with it. "pixels" 
 different culling can be told to draw the same.
 
 Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU rasterizing
-and only a smoke test. Run each setting a few times and alternate them. With --profile, use --frames 3000 or more: the runtime
-reports the GPU time once a second and leaves the first second out.
+and only a smoke test. Run each setting a few times and alternate them. --profile adds the GPU time of the passes per frame
+(read with ProfileValue).
 """
 import benchutil
 
@@ -38,8 +38,6 @@ def main():
     runner.report(["terrain     %dx%d surfaces of %dx%d squares, camera %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.camera),
                    "culling     %s, %.0f clusters decided by the GPU per frame" % (args.cull if runner.llvm else "n/a", values.get("clusters", 0)),
                    "picture     hash %d" % values.get("pixels", 0)])
-    if args.profile and runner.llvm and not runner.gpu:
-        print("  gpu         no time yet: the runtime reports once a second and leaves the first out, so use --frames 3000 or more")
     runner.save("%s-%dx%d-cull%s" % (args.camera, args.surfaces, args.grid, args.cull), ("surfaces", "grid", "cull", "clusters", "pixels"))
 
 

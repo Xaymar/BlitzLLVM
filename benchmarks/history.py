@@ -20,7 +20,7 @@ Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz
     audio      benchmarks/audio.bb: load time and CPU time of mixing              (Audio)
     flythrough benchmarks/flythrough.bb, waterfall.bb, dungeon.bb, loading.bb      (Scene)
     lights     benchmarks/many_lights.bb: 8, 32 and 127 lights                    (Scene)
-    gpu        GPU time of the passes of the waterfall, from BLITZ_FPS            (GPU)
+    gpu        GPU time of the passes of the waterfall, from ProfileValue        (GPU)
     stranded2  third_party/Stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
 
 Without a display the programs run under xvfb-run, which with Mesa means llvmpipe, a software rasterizer: the milliseconds are then
@@ -125,16 +125,19 @@ class Compiler:
 
 def build(compiler, directory, name, counters=None, extra=(), source=None):
     """Builds benchmarks/<name>.bb. With counters (the name of the benchmark's own include files, see benchutil.copy_includes) the
-    include files of the compiler are put next to it: the shared ones and bench_compiler.bi with <counters>_compiler.bi. Falls back to
-    the ones of the original (MilliSecs only) when this compiler can't build the BlitzLLVM ones, which is the case for the first
-    commits (no Microseconds, no Stats3D)."""
+    include files of the compiler are put next to it: the shared ones and bench_compiler.bi with <counters>_compiler.bi, and with
+    --profile in extra the profiling of bench_profile_on.bi. Falls back to the same without the profiling (compilers from before
+    ProfileValue), and then to the ones of the original (MilliSecs only) when this compiler can't build the BlitzLLVM ones, which is the
+    case for the first commits (no Microseconds, no Stats3D). Returns the program and the variant: "llvm+profile", "llvm" or "original"."""
     src = os.path.join(directory, name + ".bb")
     benchutil.copy_synced(source or os.path.join(HERE, name + ".bb"), src)
     program = compiler.program_path(directory, name)
+    profile = "--profile" in extra
+    variants = (["llvm+profile"] if profile else []) + ["llvm", "original"] if compiler.llvm else ["original"]
     tried = []
-    for variant in (["llvm", "original"] if compiler.llvm else ["original"]):
+    for variant in variants:
         if counters:
-            benchutil.copy_includes(directory, counters, variant == "llvm")
+            benchutil.copy_includes(directory, counters, variant != "original", variant == "llvm+profile")
         r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
         if r.returncode == 0 and os.path.isfile(program):
             return program, variant
@@ -352,35 +355,38 @@ def bench_lights(compiler, runs):
 
 
 def bench_gpu(compiler, runs):
-    """GPU time of the passes of the waterfall (BlitzLLVM only: it reports them with --profile and BLITZ_FPS=1)."""
+    """GPU time of the passes of the waterfall (BlitzLLVM only, built with --profile). The program reads them with ProfileValue after
+    every frame (bench_profile_on.bi) and puts the average in its RESULT line.
+
+    Compilers from before ProfileValue only have the once-a-second report of BLITZLLVM_PROFILE_FPS (BLITZ_FPS in older ones), whose first
+    report is left out, so a run must last more than two seconds: 400 frames do on llvmpipe but not on a real GPU. For them a run
+    without a report is made again with as many frames as about 4 seconds take at its speed."""
     if not compiler.llvm:
         raise RuntimeError("the original has no GPU timers")
     with tempfile.TemporaryDirectory() as d:
-        program, _ = build(compiler, d, "waterfall", counters="waterfall", extra=["--profile"])
+        program, variant = build(compiler, d, "waterfall", counters="waterfall", extra=["--profile"])
         results = []
+        frames = 400
         for i in range(runs):
-            result_file = os.path.join(d, "result.txt")
-            if os.path.exists(result_file):
-                os.remove(result_file)
-            env = dict(SCENES["waterfall"]["env"], BENCH_FRAMES="400", BENCH_RESULT=result_file, BLITZ_FPS="1")
-            cpu, wall, output, code = run_program(compiler, program, env, d)
-            frames_shown, sums, shown, first = 0, {"scene": 0.0, "frame": 0.0}, None, True
-            for l in output.splitlines():
-                m = re.match(r"fps: (\d+),", l)
-                if m:
-                    shown = int(m.group(1))
-                    continue
-                m = re.match(r"\s+gpu passes: scene ([\d.]+) ms, 2d ([\d.]+) ms, copy ([\d.]+) ms, present ([\d.]+) ms, frame ([\d.]+) ms", l)
-                if m and shown:
-                    if first:
-                        first = False
-                        continue
-                    frames_shown += shown
-                    sums["scene"] += float(m.group(1))
-                    sums["frame"] += float(m.group(5))
-            if not frames_shown:
+            for attempt in range(2):
+                result_file = os.path.join(d, "result.txt")
+                if os.path.exists(result_file):
+                    os.remove(result_file)
+                env = dict(SCENES["waterfall"]["env"], BENCH_FRAMES=str(frames), BENCH_RESULT=compiler.native_path(result_file))
+                if variant != "llvm+profile":
+                    env.update(BLITZLLVM_PROFILE_FPS="1", BLITZ_FPS="1")
+                cpu, wall, output, code = run_program(compiler, program, env, d)
+                if not os.path.isfile(result_file):
+                    raise RuntimeError("no result (exit %s): %s" % (code, output[-300:]))
+                r = parse_result(result_file)
+                gpu = r if "gpu_frame_ms" in r else benchutil.parse_gpu(output)
+                if gpu or variant == "llvm+profile" or attempt == 1:
+                    break
+                ms = r.get("ms_avg", 0)
+                frames = min(100000, max(frames * 2, int(4000 / ms) if ms > 0 else frames * 10))
+            if not gpu:
                 raise RuntimeError("this build reports no GPU time")
-            results.append({"gpu_scene_ms": sums["scene"] / frames_shown, "gpu_frame_ms": sums["frame"] / frames_shown})
+            results.append({"gpu_scene_ms": gpu["gpu_scene_ms"], "gpu_frame_ms": gpu["gpu_frame_ms"]})
         return summarize(results)
 
 

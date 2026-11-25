@@ -9,8 +9,7 @@ over a cliff, made of thousands of see-through sprites. The result is also saved
     python3 benchmarks/waterfall.py [--sprites N] [--static] [common options, see --help]
 
 --sprites defaults to $BENCH_SPRITES or 5000, --frames to $BENCH_FRAMES or 300; "--sprites 50000" is the heavy run, and
-"--quick" is 500 sprites and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
-profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
+"--quick" is 500 sprites and 30 frames for a look whether it works. -d builds without optimization; the build configuration is part of the result so runs are not mixed up.
 BENCH_DITHER and BENCH_RAW are passed on to the program (see waterfall.bb); --depth 30 or 64 has more than 8 bits per channel in BlitzLLVM.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
