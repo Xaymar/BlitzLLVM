@@ -8,17 +8,17 @@ BlitzLLVM builds with CMake. The compiler is `blitzcc`, and it carries the runti
 
 ## Requirements
 
-* CMake 4.2 or newer.
+* CMake 3.28 or newer.
 * Git, for fetching the dependencies.
 * A C++20 compiler: Clang on Windows (LLVM, or llvm-mingw as the nightly builds use), Clang or GCC on Linux, Apple Clang on macOS.
-* Ninja on Linux and macOS.
+* Ninja. `tools/build.cmake` downloads it.
 * NASM on x86 and x64, optional. It builds the assembly of dav1d (AVIF images). Without it the build still works, with a warning, and AVIF images decode more slowly. Pass `-DBLITZLLVM_REQUIRE_NASM=ON` to make a missing NASM an error, as the nightly builds do. Install it with `winget install nasm` on Windows, `sudo apt-get install nasm` on Debian and Ubuntu or `brew install nasm` on macOS. It is found on `PATH`, in `%LOCALAPPDATA%\bin\NASM` or in `C:\Program Files\NASM`; set `BLITZLLVM_NASM` to its path if it is elsewhere.
 * Python 3, optional. It enables the `suite-coverage` test.
 * The dependencies (SDL3, SDL_image, SDL_mixer and FFmpeg) are built while CMake configures, FFmpeg at the same time as the others, and together they use as many compiler processes as the computer has logical cores. Pass `-DBLITZLLVM_DEPENDENCY_JOBS=<n>` to use fewer (or more). With the Visual Studio generator every project is built with all of its files at once (`/MP`).
 
 ### Windows
 
-The nightly builds use clang and lld with Ninja for the MinGW target (llvm-mingw), which needs neither Visual Studio nor the Windows SDK. The repository also has presets for the LLVM toolchain and for Visual Studio 17 2022 (see below); to use the Visual Studio generator, install Visual Studio with the "Desktop development with C++" workload.
+The nightly builds use clang and lld with Ninja for the MinGW target (llvm-mingw), which needs neither Visual Studio nor the Windows SDK; `tools/build.cmake` downloads llvm-mingw. FFmpeg is built in [MSYS2](https://www.msys2.org), which has to be installed; the script installs the packages it needs there (`make`, `diffutils`, and clang, winpthreads and NASM of the CLANG64 environment). The Direct3D 11 shaders are compiled with `fxc` of the Windows SDK.
 
 ### Linux
 
@@ -48,21 +48,34 @@ The submodules in `cmake/` and `third_party/` are required to build. The `third_
 
 ## Build
 
-Linux and macOS:
+`tools/build.cmake` builds BlitzLLVM the same way on every platform, and the CI workflows use it too, so a build of your own is made with the same tools and options as the nightly builds:
+
+```sh
+tools/build.sh --install-deps --install dist      # Linux and macOS
+```
+
+```bat
+tools\build.cmd --install-deps --install dist     :: Windows
+```
+
+Both run `cmake -P tools/build.cmake -- <options>`. The script:
+
+1. Downloads the pinned Ninja, and on Windows llvm-mingw, into `.tools/` (checked against their SHA-256). They are used instead of anything on `PATH`.
+2. Checks the packages the build needs: on Windows the MSYS2 packages for FFmpeg and NASM (MSYS2 itself has to be installed, in `C:\msys64` or where `--msys2 <dir>` or `BLITZLLVM_MSYS2` says), on Debian and Ubuntu the development packages, on macOS NASM. `--install-deps` installs the missing ones with `pacman`, `apt-get` (with `sudo`) or `brew`; without it the script prints what to install.
+3. Configures `build/` with Ninja and Release (on Windows with llvm-mingw's clang and lld for the MinGW target, on macOS for arm64 and x86_64, on Linux with every library from the submodules), builds, and with `--install <dir>` installs into `<dir>`.
+
+Like the nightly builds, it fails when NASM, Python (the help) or, on Windows, `fxc` of the Windows SDK (the Direct3D 11 shaders) is missing; `--relaxed` builds without them instead. `--test` runs the tests, `--gpu-tests` registers the ones that need a window and a GPU, `--config Debug` makes a Debug build, `--system-libraries` lets Linux use the distribution's libraries (see below), and `-D<var>=<value>` is passed to CMake. `tools/build.sh --help` lists all options.
+
+### By hand
+
+The script only runs CMake, so the same can be done by hand. Linux and macOS:
 
 ```sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-Windows:
-
-```bat
-cmake --preset windows-x64-llvm
-cmake --build --preset windows-x64-llvm --config Release
-```
-
-The `windows-x64-llvm` preset of `CMakePresets.json` uses Ninja Multi-Config with the LLVM toolchain from `cmake/toolchains/llvm.cmake`. The other preset, `windows-x64-msvc2022`, uses Visual Studio 17 2022, and you can also pick a Visual Studio generator yourself (`-G "Visual Studio 18 2026" -A x64`).
+On Windows the nightly builds pass llvm-mingw's compilers (`-DCMAKE_C_COMPILER=x86_64-w64-mingw32-clang -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-clang++ -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres -DCMAKE_LINKER_TYPE=LLD`). The presets in `CMakePresets.json` (`windows-x64-llvm` with `cmake/toolchains/llvm.cmake`, and `windows-x64-msvc2022`) are not what the nightly builds use, and FFmpeg can not be built with them at the moment.
 
 The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime in a `runtime` directory next to it (an install puts it in `lib/blitzllvm/runtime`).
 
