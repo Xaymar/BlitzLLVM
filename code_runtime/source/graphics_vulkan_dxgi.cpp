@@ -198,6 +198,18 @@ namespace bb::rhi::vulkan::dxgi {
 			return latency;
 		}
 
+		// BLITZLLVM_DXGI_SWAP_EFFECT=blit: the swapchain of the Direct3D 11 renderer (one buffer, DXGI_SWAP_EFFECT_DISCARD), which
+		// the compositor copies from and which does not wait while a window is dragged. No tearing (Flip 0 shows at the next
+		// composition) and no frame latency object then. Anything else: the flip model.
+		bool blit_model()
+		{
+			static const bool blit = [] {
+				const char* value = bb_env("BLITZLLVM_DXGI_SWAP_EFFECT");
+				return value && (_stricmp(value, "blit") == 0);
+			}();
+			return blit;
+		}
+
 		double ms_since(std::chrono::steady_clock::time_point start)
 		{
 			return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
@@ -571,11 +583,15 @@ namespace bb::rhi::vulkan::dxgi {
 		desc.Format                = DXGI_FORMAT_B8G8R8A8_UNORM;
 		desc.SampleDesc.Count      = 1;
 		desc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.BufferCount           = image_count;
+		const bool blit            = blit_model();
+		desc.BufferCount           = blit ? 1 : image_count;
 		desc.Scaling               = DXGI_SCALING_STRETCH;
-		desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		desc.SwapEffect            = blit ? DXGI_SWAP_EFFECT_DISCARD : DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode             = DXGI_ALPHA_MODE_IGNORE;
-		desc.Flags                 = (frame_latency() ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0) | (d3d.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
+		desc.Flags                 = blit ? 0 : ((frame_latency() ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0) | (d3d.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0));
+		if (blit) {
+			c->flags = 0;
+		}
 		HRESULT result             = E_FAIL;
 		prune_parked();
 		for (size_t i = 0; i < parked.size(); i++) {
@@ -605,7 +621,7 @@ namespace bb::rhi::vulkan::dxgi {
 		if (SUCCEEDED(result)) {
 			result = c->swap->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&c->back));
 		}
-		if (SUCCEEDED(result) && !resized && frame_latency()) {
+		if (SUCCEEDED(result) && !resized && frame_latency() && !blit) {
 			// The wait for the display happens on this object and not in Present: Present holds the lock of the device, which every
 			// window presents with.
 			IDXGISwapChain2* swap2 = nullptr;
