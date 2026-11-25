@@ -115,6 +115,15 @@
 					"default": "",
 					"markdownDescription": "Where the userlibs (`.decls` files) are, relative to the workspace folder like the build output (`${workspaceFolder}` works too). Empty: the ones of the installation."
 				},
+				"blitz.includeDirectories": {
+					"order": 4,
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"markdownDescription": "More folders for `Include \"<name>\"`, searched in this order before the include files of the installation (`-I` of `blitzcc`). Relative to the workspace folder like the build output (`${workspaceFolder}` works too)."
+				},
 				"blitz.projects": {
 					"order": 5,
 					"type": "array",

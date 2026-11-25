@@ -55,9 +55,14 @@ function findProgram(setting, name) {
   return { command: name, args: [] }; // PATH
 }
 
-/** What the language server needs of the settings: the warning level and the arguments of blitzcc (-Wno-unused-result ...). */
+/** What the language server needs of the settings: the warning level, the arguments of blitzcc (-Wno-unused-result ...) and the include folders. */
 function serverSettings() {
-  return { warningLevel: settings().get('warningLevel', 2), compilerArguments: settings().get('compiler.arguments', []), projects: projectFiles(), activeProject: activeProjectFile() || '' };
+  return { warningLevel: settings().get('warningLevel', 2), compilerArguments: settings().get('compiler.arguments', []), includeDirectories: includeDirectories(), projects: projectFiles(), activeProject: activeProjectFile() || '' };
+}
+
+/** The folders of blitz.includeDirectories, searched for Include "<name>" before the ones of the installation. */
+function includeDirectories(file) {
+  return (settings().get('includeDirectories', []) || []).filter((p) => typeof p === 'string' && p).map((p) => settingPath(p, file));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +166,7 @@ function compilerArguments(action, mode, file, extra) {
   const args = settings().get('compiler.arguments', []).slice();
   const userlibs = settings().get('userlibsDirectory', '');
   if (userlibs) args.push('--userlibs-dir', settingPath(userlibs, file));
+  for (const dir of includeDirectories(file)) args.push('-I', dir);
   if (mode === 'debug') args.push('-d', '-g');
   if (action === 'check') args.push('-c');
   if (action === 'build') args.push('-o', outputPath(file, mode));
