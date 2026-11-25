@@ -28,6 +28,35 @@ executable, and a known name can get a frame rate cap or another present path th
 Auto HDR on for `dungeon.exe` on a 180 Hz HDR display, and `dungeon.exe` and `bigmesh.exe` were then held to the refresh rate with
 BlitzLLVM and with the original Blitz3D. New runners must use `benchutil.program_path` too.
 
+== How a benchmark is built
+
+Every benchmark has the same frame: the parts that all benchmarks share are in a few files, and the benchmark itself is only its setup
+and what it does every frame.
+
+* `benchutil.py` is the shared part of the runners. `benchutil.Runner` has the options every benchmark has (`--blitzcc`, `--frames`,
+  `--warmup`, `--seed`, `--size`, `--depth`, `--gpu`, `--quick`, `--debug`, `--profile`, `--label`, `--shot`, `--no-save`), tells
+  BlitzLLVM from the original Blitz3D by `blitzcc -v` (and then leaves out `-O3` and `--profile`, sets `BLITZPATH`, checks the window
+  size), builds the program under a random name, runs it (under `xvfb-run` without a display), reads its RESULT line and prints and
+  saves it. A runner adds its own options and lines.
+* `bench_llvm.bi` and `bench_original.bi` are what differs between the compilers: the timer (`Microseconds`, or `MilliSecs` in the
+  original), the draw counters of `Stats3D` (0 in the original) and `BenchFlip`, which is `Flip 0` in both, so that no frame waits for
+  the display. The runner copies the one of the compiler next to the program as `bench_compiler.bi`.
+* `bench_begin.bi` reads the settings (`BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_DEPTH`, `BENCH_GPU`),
+  has the random number generator that gives the same numbers in both compilers (`BenchRnd`), and opens the window (always windowed;
+  `SetGfxDriver` when `BENCH_GPU` is given).
+* `bench_end.bi` draws the frames and times them, and writes the RESULT line: frames, window, `create_ms`, `update_ms`, `ms_avg`,
+  `ms_min`, `ms_median`, `ms_p95`, `ms_max`, `fps`, and per frame the triangles and the draw counters, followed by the values of the
+  benchmark. It calls the functions of the benchmark: `BenchUpdate` (not timed), `BenchTimedUpdate` (timed, also on its own as
+  `update_ms`), `BenchRender`, `BenchAfterFrame` (not timed), `BenchFinish` and `BenchResult$`.
+* `<name>_llvm.bi` and `<name>_original.bi`, when a benchmark has them, are what differs between the compilers for that benchmark
+  only (the culling setting of bigmesh, the sampler of the forest, the sprite limit of the dungeon). The runner copies the right one
+  as `<name>_compiler.bi`.
+
+A new benchmark is a `.bb` file that includes `bench_compiler.bi`, its own `<name>_compiler.bi` if it has one, and `bench_begin.bi`,
+makes its scene, includes `bench_end.bi` and defines the six functions; and a runner that makes a `benchutil.Runner`. A benchmark
+that does not time frames (`loading.bb`) leaves out `bench_end.bi` and writes its RESULT line with `BenchWriteResult`. Variables of the
+setup that the functions use must be `Global`, as in every Blitz program.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The
