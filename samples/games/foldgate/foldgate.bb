@@ -818,13 +818,14 @@ Function ShootGate(i)
 		Return
 	EndIf
 
-	; Up the gate: straight up on walls; on a floor or a ceiling, the way the player looks, turned to the nearest axis.
+	; Up the gate: straight up on walls; on a floor or a ceiling, the way the player faces, turned to the nearest axis.
+	; Floor and ceiling gates shot facing the same way then line up, so falling from one to the other keeps the way
+	; the player faces.
 	Local ux = 0, uy = 1, uz = 0
 	If f = 2 Or f = 3
 		uy = 0
 		If Abs(dx) > Abs(dz) Then ux = Int(Sgn(dx)) Else uz = Int(Sgn(dz))
 		If ux = 0 And uz = 0 Then uz = 1
-		If f = 3 Then ux = -ux : uz = -uz ; Seen from below, the far side of a ceiling gate is the other way.
 	EndIf
 	; A carried cube that the gate is shot through to stays where it is.
 	OpenGate(i, cx, cy, cz, f, ux, uy, uz)
