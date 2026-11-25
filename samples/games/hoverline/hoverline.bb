@@ -28,6 +28,12 @@
 ;
 ; The options and best times are saved in hoverline.cfg next to the program.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const MAX_POINTS = 16, POINT_STEPS = 40, MAX_SAMPLES = 1000, SLICE# = 4.0
 Const TRACKS = 3, RACERS = 4, MINIMAP = 150
@@ -57,8 +63,6 @@ Const STATE_PAUSED = 6, STATE_FINISHED = 7, STATE_RESULTS = 8
 Const MODE_RACE = 0, MODE_TRIAL = 1
 Const SETUP_TOP = 170
 
-Const KEY_Q = 16, KEY_E = 18, KEY_F = 33, KEY_LCTRL = 29, KEY_RCTRL = 157
-
 ; The weapons and abilities from the rainbow fields.
 Const WEAPON_NONE = 0, WEAPON_GATLING = 1, WEAPON_MISSILE = 2, WEAPON_QUAKE = 3, WEAPON_BOOST = 4
 Const WEAPON_SHIELD = 5, WEAPON_AUTOPILOT = 6, WEAPON_PULSE = 7, WEAPON_PLASMA = 8, WEAPONS = 8
@@ -66,8 +70,6 @@ Const LOCK_TIME = 150       ; A missile needs 2.5 seconds on the same target bef
 Const SHIELD_TIME = 300, AUTOPILOT_TIME = 150, GATLING_ROUNDS = 36
 Const PLASMA_CHARGE = 60, PULSE_RADIUS# = 14    ; The plasma charges for a second before it fires.
 Const SHOT_BULLET = 0, SHOT_MISSILE = 1, SHOT_PLASMA = 2
-Const KEY_ESCAPE = 1, KEY_W = 17, KEY_P = 25, KEY_A = 30, KEY_S = 31, KEY_D = 32, KEY_ENTER = 28, KEY_SPACE = 57
-Const KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 Const SKY_R = 36, SKY_G = 22, SKY_B = 64
 
@@ -266,18 +268,18 @@ While Not quit
 			UpdateOptions()
 		Case STATE_HELP
 			UpdateDemo()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu() : menuSelected = 3
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu() : menuSelected = 3
 		Case STATE_COUNTDOWN
 			UpdateCountdown()
 		Case STATE_RACE
 			UpdateRace()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then GoToPause()
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then GoToPause()
 		Case STATE_PAUSED
 			UpdatePause()
 		Case STATE_FINISHED
 			UpdateRace()
 			finishTimer = finishTimer - 1
-			If finishTimer <= 0 Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then GoToResults()
+			If finishTimer <= 0 Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then GoToResults()
 		Case STATE_RESULTS
 			UpdateResults()
 	End Select
@@ -299,7 +301,7 @@ End
 ; Opens the window or full screen, as the option says. Graphics3D frees every entity, texture and image, so all of
 ; them are made again here, and the crafts get new meshes.
 Function OpenScreen()
-	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, 1 Else Graphics3D SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Hoverline"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -328,14 +330,14 @@ Function OpenScreen()
 	MakeTextures()
 	sparkTemplate = CreateSprite()
 	EntityTexture sparkTemplate, glowTex
-	EntityBlend sparkTemplate, 3
-	EntityFX sparkTemplate, 1 + 8
+	EntityBlend sparkTemplate, BB_BLEND_ADD
+	EntityFX sparkTemplate, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 	HideEntity sparkTemplate
 	mountains = MakeMountains()
 
 	Local ground = CreatePlane()
 	EntityTexture ground, gridTex
-	EntityFX ground, 1
+	EntityFX ground, BB_FX_FULLBRIGHT
 
 	trackRoot = 0
 	minimapImage = 0
@@ -738,7 +740,7 @@ Function BuildRoad()
 		EndIf
 	Next
 	EntityTexture road, roadTex
-	EntityFX road, 1
+	EntityFX road, BB_FX_FULLBRIGHT
 
 	; Red and white stripes along the edges where there are no walls, and across the end of every ramp.
 	Local stripes = CreateMesh(trackRoot)
@@ -761,7 +763,7 @@ Function BuildRoad()
 			Next
 		EndIf
 	Next
-	EntityFX stripes, 1 + 2
+	EntityFX stripes, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS
 
 	; The start line: a chequered band across the road.
 	Local startLine = CreateMesh(trackRoot)
@@ -774,7 +776,7 @@ Function BuildRoad()
 	AddTriangle surface, base, base + 1, base + 2
 	AddTriangle surface, base, base + 2, base + 3
 	EntityTexture startLine, checkerTex
-	EntityFX startLine, 1
+	EntityFX startLine, BB_FX_FULLBRIGHT
 
 	; Boost pads and the charging strip glow, so they are added to the picture instead of covering it.
 	Local overlay = CreateMesh(trackRoot)
@@ -794,8 +796,8 @@ Function BuildRoad()
 		Next
 	Next
 	EntityTexture overlay, padTex
-	EntityFX overlay, 1
-	EntityBlend overlay, 3
+	EntityFX overlay, BB_FX_FULLBRIGHT
+	EntityBlend overlay, BB_BLEND_ADD
 
 	Local charge = CreateMesh(trackRoot)
 	surface = CreateSurface(charge)
@@ -810,8 +812,8 @@ Function BuildRoad()
 		AddTriangle surface, base, base + 2, base + 3
 	Next
 	EntityTexture charge, chargeTex
-	EntityFX charge, 1
-	EntityBlend charge, 3
+	EntityFX charge, BB_FX_FULLBRIGHT
+	EntityBlend charge, BB_BLEND_ADD
 
 	; The weapon fields: rainbow diamonds right across the road.
 	fieldMesh = CreateMesh(trackRoot)
@@ -830,8 +832,8 @@ Function BuildRoad()
 		Next
 	Next
 	EntityTexture fieldMesh, fieldTex
-	EntityFX fieldMesh, 1
-	EntityBlend fieldMesh, 3
+	EntityFX fieldMesh, BB_FX_FULLBRIGHT
+	EntityBlend fieldMesh, BB_BLEND_ADD
 	If Not raceWeapons Then HideEntity fieldMesh
 
 	; Underneath: the bottom and both edges of the road, in dark colours.
@@ -858,7 +860,7 @@ Function BuildRoad()
 			Next
 		EndIf
 	Next
-	EntityFX under, 1 + 2 + 16
+	EntityFX under, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_TWO_SIDED
 End Function
 
 ; The walls are see-through light: drawn added to the picture, bright at the bottom and fading out at the top, with
@@ -890,8 +892,8 @@ Function BuildWalls()
 			Next
 		EndIf
 	Next
-	EntityFX walls, 1 + 2 + 16
-	EntityBlend walls, 3
+	EntityFX walls, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_TWO_SIDED
+	EntityBlend walls, BB_BLEND_ADD
 End Function
 
 ; True where slice i has road up to the next slice: not in a gap, and not the last slice before one.
@@ -953,7 +955,7 @@ Function BuildDecoration()
 			WorldBox(surface, tX(i) - 1.4, tY(i) - 1.6, tZ(i) - 1.4, tX(i) + 1.4, tY(i) - 1.2, tZ(i) + 1.4, accentR, accentG, accentB, 1)
 		EndIf
 	Next
-	EntityFX deco, 1 + 2
+	EntityFX deco, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS
 End Function
 
 ; True if another, lower part of the track passes under slice i.
@@ -990,7 +992,7 @@ Function BuildCity()
 		EndIf
 	Wend
 	EntityTexture city, windowTex
-	EntityFX city, 1
+	EntityFX city, BB_FX_FULLBRIGHT
 	SeedRnd MilliSecs()
 End Function
 
@@ -1013,7 +1015,7 @@ Function MakeMountains()
 		h0 = h1
 	Next
 	SeedRnd MilliSecs()
-	EntityFX ring, 1 + 2 + 8 + 16
+	EntityFX ring, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_NO_FOG + BB_FX_TWO_SIDED
 	Return ring
 End Function
 
@@ -1055,7 +1057,7 @@ Function MakeCraftMesh(c.Craft)
 	AddTriangle3(surface, 0, 0.3, -0.9, 0, 1.1, -1.8, 0, 0.3, -1.6, r, g, b)
 	AddTriangle3(surface, 0, 0.3, -0.9, 0, 0.3, -1.6, 0, 1.1, -1.8, r, g, b)
 	UpdateNormals mesh
-	EntityFX mesh, 2
+	EntityFX mesh, BB_FX_VERTEX_COLORS
 	EntityShininess mesh, 0.6
 
 	; The glow of the engines, a sprite that grows with the throttle.
@@ -1063,7 +1065,7 @@ Function MakeCraftMesh(c.Craft)
 	ShowEntity c\glow
 	PositionEntity c\glow, 0, 0, -1.9
 	EntityColor c\glow, 255, 170, 90
-	EntityFX c\glow, 1
+	EntityFX c\glow, BB_FX_FULLBRIGHT
 
 	; The shadow: a soft dark spot on the road under the craft.
 	Local shadow = CreateMesh(mesh)
@@ -1075,7 +1077,7 @@ Function MakeCraftMesh(c.Craft)
 	AddTriangle s, 0, 1, 2
 	AddTriangle s, 0, 2, 3
 	EntityTexture shadow, shadowTex
-	EntityFX shadow, 1
+	EntityFX shadow, BB_FX_FULLBRIGHT
 	c\shadow = shadow
 
 	; The shield: a see-through bubble, shown while the shield is up.
@@ -1083,8 +1085,8 @@ Function MakeCraftMesh(c.Craft)
 	ScaleEntity c\shieldBubble, 2.0, 1.2, 2.9
 	EntityColor c\shieldBubble, 90, 180, 255
 	EntityAlpha c\shieldBubble, 0.45
-	EntityBlend c\shieldBubble, 3
-	EntityFX c\shieldBubble, 1 + 16
+	EntityBlend c\shieldBubble, BB_BLEND_ADD
+	EntityFX c\shieldBubble, BB_FX_FULLBRIGHT + BB_FX_TWO_SIDED
 	HideEntity c\shieldBubble
 
 	; The plasma charge: light that gathers on the nose, shown while the plasma charges.
@@ -1592,8 +1594,8 @@ Function MakeWeaponTemplates()
 		base = AddQuad(surface, -TRACK_HALF, h0, z0, -TRACK_HALF, h1, z1, TRACK_HALF, h1, z1, TRACK_HALF, h0, z0)
 		ColorQuad(surface, base, 255, 120 + k * 10.0, 40, 255, 130 + k * 10.0, 50)
 	Next
-	EntityFX quakeTemplate, 1 + 2 + 16
-	EntityBlend quakeTemplate, 3
+	EntityFX quakeTemplate, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_TWO_SIDED
+	EntityBlend quakeTemplate, BB_BLEND_ADD
 	HideEntity quakeTemplate
 
 	; The pulse: a flat ring of radius 1, scaled up as it grows.
@@ -1608,8 +1610,8 @@ Function MakeWeaponTemplates()
 		base = AddQuad(surface, Sin(a0), -0.3, Cos(a0), Sin(a0), 1.2, Cos(a0), Sin(a1), 1.2, Cos(a1), Sin(a1), -0.3, Cos(a1))
 		ColorQuad(surface, base, 140, 240, 255, 20, 60, 90)
 	Next
-	EntityFX ringTemplate, 1 + 2 + 16
-	EntityBlend ringTemplate, 3
+	EntityFX ringTemplate, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_TWO_SIDED
+	EntityBlend ringTemplate, BB_BLEND_ADD
 	HideEntity ringTemplate
 End Function
 
@@ -2289,14 +2291,14 @@ Global shieldChannel, computerChannel
 ; --- Menus -----------------------------------------------------------------------------------------------------------
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(soundClick)
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(soundClick)
 
 	Local row = MenuLineAt(MouseX(), MouseY())
 	If row >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = row
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And row >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And row >= 0
 		menuSelected = row
 		Return row
 	EndIf
@@ -2381,7 +2383,7 @@ End Function
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
 	UpdateDemo()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : GoToSetup(MODE_RACE)
 		Case 1 : GoToSetup(MODE_TRIAL)
@@ -2415,10 +2417,10 @@ End Function
 Function UpdateSetup()
 	UpdateDemo()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
-	If KeyHit(KEY_ESCAPE) Or picked = menuCount - 1
+	If KeyHit(BB_KEY_ESCAPE) Or picked = menuCount - 1
 		SaveSettings()
 		GoToMenu()
 		If raceMode = MODE_TRIAL Then menuSelected = 1
@@ -2467,12 +2469,12 @@ End Function
 Function UpdateOptions()
 	If Not optionsFromPause Then UpdateDemo()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
 	If picked >= 0 Then change = 1
 
-	If KeyHit(KEY_ESCAPE) Or picked = 5
+	If KeyHit(BB_KEY_ESCAPE) Or picked = 5
 		SaveSettings()
 		If optionsFromPause
 			GoToPause()
@@ -2513,7 +2515,7 @@ End Function
 
 Function UpdatePause()
 	Local picked = MenuInput()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then picked = 0
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then picked = 0
 	Select picked
 		Case 0
 			state = STATE_RACE
@@ -2611,7 +2613,7 @@ Function UpdateCountdown()
 	Next
 	ChaseCamera(player, CameraBack(), CameraHeight(), 0)
 	UpdateEngine()
-	If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P) Then GoToPause()
+	If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P) Then GoToPause()
 End Function
 
 Function CameraBack#()
@@ -2632,13 +2634,13 @@ Function UpdateRace()
 			DriveComputer(c)
 		Else
 			Local steer# = 0
-			If KeyDown(KEY_LEFT) Or KeyDown(KEY_A) Then steer = steer + 1
-			If KeyDown(KEY_RIGHT) Or KeyDown(KEY_D) Then steer = steer - 1
+			If KeyDown(BB_KEY_LEFT) Or KeyDown(BB_KEY_A) Then steer = steer + 1
+			If KeyDown(BB_KEY_RIGHT) Or KeyDown(BB_KEY_D) Then steer = steer - 1
 			Local air# = 0
-			If KeyDown(KEY_Q) Then air = air + 1
-			If KeyDown(KEY_E) Then air = air - 1
-			DriveCraft(c, KeyDown(KEY_UP) Or KeyDown(KEY_W), KeyDown(KEY_DOWN) Or KeyDown(KEY_S), steer, air)
-			If KeyHit(KEY_LCTRL) Or KeyHit(KEY_RCTRL) Or KeyHit(KEY_F) Then FireWeapon(c)
+			If KeyDown(BB_KEY_Q) Then air = air + 1
+			If KeyDown(BB_KEY_E) Then air = air - 1
+			DriveCraft(c, KeyDown(BB_KEY_UP) Or KeyDown(BB_KEY_W), KeyDown(BB_KEY_DOWN) Or KeyDown(BB_KEY_S), steer, air)
+			If KeyHit(BB_KEY_LCTRL) Or KeyHit(BB_KEY_RCTRL) Or KeyHit(BB_KEY_F) Then FireWeapon(c)
 		EndIf
 	Next
 	BumpCrafts()
@@ -2685,7 +2687,7 @@ Function UpdateResults()
 		Case 0 : StartRace()
 		Case 1 : GoToMenu()
 	End Select
-	If KeyHit(KEY_ESCAPE) Then GoToMenu()
+	If KeyHit(BB_KEY_ESCAPE) Then GoToMenu()
 End Function
 
 ; --- Drawing ---------------------------------------------------------------------------------------------------------
@@ -3111,7 +3113,7 @@ Function MakeTextures()
 	ScaleTexture gridTex, 24, 24
 
 	; A soft round glow, white in the middle. Drawn added to the picture, so it gives light, never shade.
-	glowTex = CreateTexture(64, 64, 2)
+	glowTex = CreateTexture(64, 64, BB_TEXTURE_ALPHA)
 	buffer = TextureBuffer(glowTex)
 	LockBuffer buffer
 	For y = 0 To 63
@@ -3125,7 +3127,7 @@ Function MakeTextures()
 	UnlockBuffer buffer
 
 	; The shadow: black, more see-through towards the edges.
-	shadowTex = CreateTexture(32, 32, 2)
+	shadowTex = CreateTexture(32, 32, BB_TEXTURE_ALPHA)
 	buffer = TextureBuffer(shadowTex)
 	LockBuffer buffer
 	For y = 0 To 31
