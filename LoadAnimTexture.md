@@ -19,10 +19,10 @@ LoadAnimTexture:Int32 file:String, flags:Int32, width:Int32, height:Int32, first
 |---|---|---|---|---|
 | `file` | In | String | required | Picture file that contains all frames. |
 | `flags` | In | Int32 | required | Texture flags, see CreateTexture. |
-| `width` | In | Int32 | required |  |
-| `height` | In | Int32 | required |  |
-| `first` | In | Int32 | required |  |
-| `count` | In | Int32 | required |  |
+| `width` | In | Int32 | required | Width of one frame in pixels. |
+| `height` | In | Int32 | required | Height of one frame in pixels. |
+| `first` | In | Int32 | required | Cell of the sheet that is frame 0. |
+| `count` | In | Int32 | required | How many frames the texture has. |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

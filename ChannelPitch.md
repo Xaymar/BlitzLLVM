@@ -18,7 +18,7 @@ ChannelPitch:Void channel:Int32, pitch:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `channel` | In | Int32 | required | A channel handle from [PlaySound](PlaySound). |
-| `pitch` | In | Int32 | required |  |
+| `pitch` | In | Int32 | required | The new playback frequency, for example 8000 to 44100. Values of 0 or less are ignored. |
 
 ## Description
 

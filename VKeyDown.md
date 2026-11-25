@@ -12,12 +12,13 @@
 
 
 ```blitzbasic
-VKeyDown:Int32 scancode:Int32
+VKeyDown:Int32 scancode:Int32, device:Int32=-1
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `scancode` | In | Int32 | required | The SDL scancode of the key, 1 to 511. |
+| `device` | In | Int32 | `-1` | Only look at this keyboard, counted from 0 as in KeyboardDeviceCount. -1 (the default) means all keyboards together. |
 
 **Returns:** 1 while the key is held down, otherwise 0.
 

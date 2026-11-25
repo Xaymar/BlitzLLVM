@@ -18,9 +18,9 @@ TerrainX:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float3
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `terrain` | In | Int32 | required | The terrain. |
-| `world_x` | In | Float32 | required |  |
-| `world_y` | In | Float32 | required |  |
-| `world_z` | In | Float32 | required |  |
+| `world_x` | In | Float32 | required | World X coordinate. |
+| `world_y` | In | Float32 | required | World Y coordinate. |
+| `world_z` | In | Float32 | required | World Z coordinate. |
 
 **Returns:** The world X coordinate of the ground below or above the point.
 

@@ -17,7 +17,7 @@ CreateProcess:Int32 command:String
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `command` | In | String | required |  |
+| `command` | In | String | required | The program to run, with arguments if needed. |
 
 **Returns:** A stream for [ReadLine](ReadLine), [WriteLine](WriteLine), [ReadAvail](ReadAvail), [Eof](Eof) and [CloseFile](CloseFile), or 0 if the program could not be started. The program is not waited for.
 

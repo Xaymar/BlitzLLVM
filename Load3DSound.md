@@ -17,7 +17,7 @@ Load3DSound:Int32 filename:String
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `filename` | In | String | required |  |
+| `filename` | In | String | required | The path of the sound file. |
 
 **Returns:** A sound handle, or 0 if the file could not be loaded.
 

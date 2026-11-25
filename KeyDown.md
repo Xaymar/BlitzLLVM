@@ -12,12 +12,13 @@
 
 
 ```blitzbasic
-KeyDown:Int32 key:Int32
+KeyDown:Int32 key:Int32, device:Int32=-1
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `key` | In | Int32 | required | The scancode of the key, 1 to 237 (the DirectInput scancodes of the original, see Scan Codes). Any other value is 0. |
+| `device` | In | Int32 | `-1` | Only look at this keyboard, counted from 0 as in KeyboardDeviceCount. -1 (the default) means all keyboards together. |
 
 **Returns:** 1 while the key is held down, otherwise 0.
 

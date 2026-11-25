@@ -18,8 +18,8 @@ TriangleVertex:Int32 surface:Int32, index:Int32, vertex:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `surface` | In | Int32 | required | Surface handle. |
-| `index` | In | Int32 | required |  |
-| `vertex` | In | Int32 | required |  |
+| `index` | In | Int32 | required | Index of the triangle, from 0. |
+| `vertex` | In | Int32 | required | Corner of the triangle, 0 to 2. |
 
 **Returns:** The index of the vertex.
 

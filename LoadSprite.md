@@ -17,8 +17,8 @@ LoadSprite:Int32 file:String, texture_flags:Int32=1, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `file` | In | String | required |  |
-| `texture_flags` | In | Int32 | `1` |  |
+| `file` | In | String | required | Picture file for the sprite's texture. |
+| `texture_flags` | In | Int32 | `1` | Texture flags, see [CreateTexture](CreateTexture). Defaults to 1. |
 | `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the sprite, or 0 if the file could not be loaded.

@@ -18,7 +18,7 @@ SetGadgetIconStrip:Void gadget:Int32, icon_strip:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
-| `icon_strip` | In | Int32 | required |  |
+| `icon_strip` | In | Int32 | required | Handle from [LoadIconStrip](LoadIconStrip). |
 
 ## Description
 

@@ -19,7 +19,7 @@ ModifyGadgetItem:Void gadget:Int32, index:Int32, item:String, icon:Int32=-1
 |---|---|---|---|---|
 | `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
 | `index` | In | Int32 | required | Number of the entry, starting at 0. |
-| `item` | In | String | required |  |
+| `item` | In | String | required | The new text. |
 | `icon` | In | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
 
 ## Description

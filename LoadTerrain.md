@@ -17,7 +17,7 @@ LoadTerrain:Int32 heightmap_file:String, parent:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `heightmap_file` | In | String | required |  |
+| `heightmap_file` | In | String | required | Square height map picture with a power of two size. |
 | `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.

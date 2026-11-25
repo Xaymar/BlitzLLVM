@@ -18,8 +18,8 @@ CreateMenu:Int32 text:String, menu_id:Int32, parent_menu:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `text` | In | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
-| `menu_id` | In | Int32 | required |  |
-| `parent_menu` | In | Int32 | required |  |
+| `menu_id` | In | Int32 | required | The number sent as the data of the $1001 event when it is chosen. |
+| `parent_menu` | In | Int32 | required | [WindowMenu](WindowMenu) of a window, or another menu. |
 
 **Returns:** A handle for the menu.
 

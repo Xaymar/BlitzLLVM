@@ -18,7 +18,7 @@ CollisionNY:Float32 entity:Int32, collision_index:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `entity` | In | Int32 | required | The entity that moved. |
-| `collision_index` | In | Int32 | required |  |
+| `collision_index` | In | Int32 | required | Number of the collision, starting at 1. |
 
 **Returns:** The Y part of the surface normal at the numbered collision. Ground that you stand on has a value close to 1.
 

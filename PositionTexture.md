@@ -18,8 +18,8 @@ PositionTexture:Void texture:Int32, u_offset:Float32, v_offset:Float32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `texture` | In | Int32 | required | The texture to move. |
-| `u_offset` | In | Float32 | required |  |
-| `v_offset` | In | Float32 | required |  |
+| `u_offset` | In | Float32 | required | Horizontal offset. |
+| `v_offset` | In | Float32 | required | Vertical offset. |
 
 ## Description
 

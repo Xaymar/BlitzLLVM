@@ -21,9 +21,9 @@ FormatTextAreaText:Void textarea:Int32, red:Int32, green:Int32, blue:Int32, flag
 | `red` | In | Int32 | required | Red part of the text color, 0 to 255. |
 | `green` | In | Int32 | required | Green part of the text color, 0 to 255. |
 | `blue` | In | Int32 | required | Blue part of the text color, 0 to 255. |
-| `flags` | In | Int32 | required |  |
-| `pos` | In | Int32 | `0` |  |
-| `len` | In | Int32 | `-1` |  |
+| `flags` | In | Int32 | required | 1 bold, 2 italic, 3 both, 0 plain. |
+| `pos` | In | Int32 | `0` | Where to start. Defaults to 0. |
+| `len` | In | Int32 | `-1` | How much to change. Defaults to -1, which means to the end. |
 | `units` | In | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 ## Description

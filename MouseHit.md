@@ -12,12 +12,13 @@
 
 
 ```blitzbasic
-MouseHit:Int32 button:Int32
+MouseHit:Int32 button:Int32, device:Int32=-1
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `button` | In | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button, 4 for the back (X1) and 5 for the forward (X2) button. |
+| `device` | In | Int32 | `-1` | Only look at this mouse, counted from 0 as in MouseDeviceCount. -1 (the default) means all mice together. |
 
 **Returns:** How many times the button was pressed since the last call.
 

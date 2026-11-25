@@ -17,7 +17,7 @@ FreeIconStrip:Void icon_strip:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `icon_strip` | In | Int32 | required |  |
+| `icon_strip` | In | Int32 | required | Handle of an icon strip. |
 
 ## Description
 

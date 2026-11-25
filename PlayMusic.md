@@ -12,12 +12,13 @@
 
 
 ```blitzbasic
-PlayMusic:Int32 midifile:String
+PlayMusic:Int32 midifile:String, flags:Int32=0
 ```
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `midifile` | In | String | required |  |
+| `midifile` | In | String | required | The path of the music file. |
+| `flags` | In | Int32 | `0` | BlitzPlus only: 1 loops the music, 2 starts it paused, 3 does both. Optional, 0 plays the music once. |
 
 **Returns:** The channel the music plays on, or 0 if the file could not be played.
 

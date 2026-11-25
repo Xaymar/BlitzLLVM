@@ -17,7 +17,7 @@ CreateToolBar:Int32 icons:String, x:Int32, y:Int32, width:Int32, height:Int32, g
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `icons` | In | String | required |  |
+| `icons` | In | String | required | Picture file with the icons. |
 | `x` | In | Int32 | required | Horizontal position inside the group. |
 | `y` | In | Int32 | required | Vertical position inside the group. |
 | `width` | In | Int32 | required | Width of the toolbar. |

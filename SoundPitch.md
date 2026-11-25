@@ -18,7 +18,7 @@ SoundPitch:Void sound:Int32, pitch:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
-| `pitch` | In | Int32 | required |  |
+| `pitch` | In | Int32 | required | The frequency to play at. A value equal to the frequency of the file plays it normally. |
 
 ## Description
 

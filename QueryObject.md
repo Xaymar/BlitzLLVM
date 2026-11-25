@@ -18,7 +18,7 @@ QueryObject:Int32 object:Int32, query_id:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `object` | In | Int32 | required | A window, gadget or font. |
-| `query_id` | In | Int32 | required |  |
+| `query_id` | In | Int32 | required | 1 for the window handle, 2 for the client handle, 3 for the font handle. |
 
 **Returns:** The handle of the system that the query asks for, or 0 if the object has none (see the difference below).
 

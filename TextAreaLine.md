@@ -18,7 +18,7 @@ TextAreaLine:Int32 textarea:Int32, char:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `textarea` | In | Int32 | required | Handle of a text area. |
-| `char` | In | Int32 | required |  |
+| `char` | In | Int32 | required | Position of a character. |
 
 **Returns:** The number of the line that character is on, starting at 0.
 

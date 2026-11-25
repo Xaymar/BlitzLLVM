@@ -18,7 +18,7 @@ SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0, settings:String=""
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `image` | In | Int32 | required | The image. |
-| `bmpfile` | In | String | required |  |
+| `bmpfile` | In | String | required | The path of the file to write. |
 | `frame` | In | Int32 | `0` | The frame to save. Defaults to 0. |
 | `settings` | In | String | `""` | How to encode the file, such as `"quality=85"`. Defaults to an empty string. |
 

@@ -17,8 +17,8 @@ LoadBrush:Int32 file:String, texture_flags:Int32=1, u_scale:Float32=1, v_scale:F
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `file` | In | String | required |  |
-| `texture_flags` | In | Int32 | `1` |  |
+| `file` | In | String | required | Picture file to use as the texture. |
+| `texture_flags` | In | Int32 | `1` | Texture flags, see CreateTexture. Defaults to 1. |
 | `u_scale` | In | Float32 | `1` | How often the texture repeats horizontally. Defaults to 1. |
 | `v_scale` | In | Float32 | `1` | How often the texture repeats vertically. Defaults to 1. |
 

@@ -17,7 +17,7 @@ LoadAnimImage:Int32 bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `bmpfile` | In | String | required |  |
+| `bmpfile` | In | String | required | The path of the picture file. BMP, PNG, JPEG, TGA, GIF, WebP, AVIF, JPEG XL and DDS can be loaded, see [Image formats](Image-Formats). |
 | `cellwidth` | In | Int32 | required | Width of one frame. |
 | `cellheight` | In | Int32 | required | Height of one frame. |
 | `first` | In | Int32 | required | Number of the first frame in the sheet, usually 0. |

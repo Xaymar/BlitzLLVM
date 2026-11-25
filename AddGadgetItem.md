@@ -18,7 +18,7 @@ AddGadgetItem:Void gadget:Int32, item:String, select:Int32=0, icon:Int32=-1
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
-| `item` | In | String | required |  |
+| `item` | In | String | required | Text of the new entry. |
 | `select` | In | Int32 | `0` | True makes it the selected entry. Defaults to False. |
 | `icon` | In | Int32 | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
 

@@ -19,7 +19,7 @@ TerrainDetail:Void terrain:Int32, detail_level:Int32, morph:Int32=0
 |---|---|---|---|---|
 | `terrain` | In | Int32 | required | The terrain. |
 | `detail_level` | In | Int32 | required | Number of triangles to use. |
-| `morph` | In | Int32 | `0` |  |
+| `morph` | In | Int32 | `0` | True to blend between levels of detail. Defaults to False. |
 
 ## Description
 

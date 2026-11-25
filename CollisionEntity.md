@@ -18,7 +18,7 @@ CollisionEntity:Int32 entity:Int32, collision_index:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `entity` | In | Int32 | required | The entity that moved. |
-| `collision_index` | In | Int32 | required |  |
+| `collision_index` | In | Int32 | required | Number of the collision, starting at 1. |
 
 **Returns:** The other entity of one of the collisions that happened to this entity in the last [UpdateWorld](UpdateWorld). The index runs from 1 to [CountCollisions](CountCollisions).
 

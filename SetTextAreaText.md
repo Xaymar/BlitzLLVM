@@ -19,8 +19,8 @@ SetTextAreaText:Void textarea:Int32, text:String, pos:Int32=0, len:Int32=-1, uni
 |---|---|---|---|---|
 | `textarea` | In | Int32 | required | Handle of a text area. |
 | `text` | In | String | required | The text to write. |
-| `pos` | In | Int32 | `0` |  |
-| `len` | In | Int32 | `-1` |  |
+| `pos` | In | Int32 | `0` | Where to write it. Defaults to 0. |
+| `len` | In | Int32 | `-1` | How much to replace there. Defaults to -1, which means to the end. |
 | `units` | In | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 ## Description

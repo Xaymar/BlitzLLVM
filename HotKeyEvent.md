@@ -17,14 +17,14 @@ HotKeyEvent:Void rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `rawkey` | In | Int32 | required |  |
+| `rawkey` | In | Int32 | required | Scan code of the key. |
 | `modifier` | In | Int32 | required | Sum of 1 (shift), 2 (control) and 4 (alt). |
-| `ev_id` | In | Int32 | required |  |
-| `ev_data` | In | Int32 | `0` |  |
-| `ev_x` | In | Int32 | `0` |  |
-| `ev_y` | In | Int32 | `0` |  |
-| `ev_z` | In | Int32 | `0` |  |
-| `ev_source` | In | Int32 | `0` |  |
+| `ev_id` | In | Int32 | required | Kind of event to post. |
+| `ev_data` | In | Int32 | `0` | Value for [EventData](EventData). Defaults to 0. |
+| `ev_x` | In | Int32 | `0` | Value for [EventX](EventX). Defaults to 0. |
+| `ev_y` | In | Int32 | `0` | Value for [EventY](EventY). Defaults to 0. |
+| `ev_z` | In | Int32 | `0` | Value for [EventZ](EventZ). Defaults to 0. |
+| `ev_source` | In | Int32 | `0` | Value for [EventSource](EventSource). Defaults to 0. |
 
 ## Description
 

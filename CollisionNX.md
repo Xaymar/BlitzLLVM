@@ -18,7 +18,7 @@ CollisionNX:Float32 entity:Int32, collision_index:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `entity` | In | Int32 | required | The entity that moved. |
-| `collision_index` | In | Int32 | required |  |
+| `collision_index` | In | Int32 | required | Number of the collision, starting at 1. |
 
 **Returns:** The X part of the surface normal at the numbered collision, the direction the other surface pushes back. Together with CollisionNY and CollisionNZ it is a vector of length 1.
 

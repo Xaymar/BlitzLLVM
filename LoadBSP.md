@@ -18,7 +18,7 @@ LoadBSP:Int32 file:String, gamma_adj:Float32=0, parent:Int32=0
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `file` | In | String | required | The `.bsp` file. |
-| `gamma_adj` | In | Float32 | `0` |  |
+| `gamma_adj` | In | Float32 | `0` | Brightness of the lightmaps, 0 to 1. Defaults to 0. |
 | `parent` | In | Int32 | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
 
 **Returns:** An entity handle, or 0 if the file is not a Quake 3 level.

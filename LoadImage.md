@@ -17,7 +17,7 @@ LoadImage:Int32 bmpfile:String
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `bmpfile` | In | String | required |  |
+| `bmpfile` | In | String | required | The path of the picture file. BMP, PNG, JPEG, TGA, GIF, WebP, AVIF, JPEG XL and DDS can be loaded, see [Image formats](Image-Formats). |
 
 **Returns:** A handle for the image, or 0 if the file could not be loaded.
 
