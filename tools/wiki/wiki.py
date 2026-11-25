@@ -135,7 +135,13 @@ class Command:
         if not hasattr(self, "_products"):
             import helpref
             ref = helpref.read(self.key)
-            self._products = [p for p in ICONS if ref and p in ref["dialects"]]
+            products = [p for p in ICONS if ref and p in ref["dialects"]]
+            # BlitzBasic is the base that BlitzPlus and Blitz3D both build on, so a BlitzBasic command only gets its
+            # icon, even though the help of the originals names all three products for it.
+            self._products = ["Blitz2D"] if "Blitz2D" in products else products
+            if not products and self.module == "keyword":
+                # A keyword that the help has no page for, such as End Function: the language itself is BlitzBasic.
+                self._products = ["Blitz2D"]
         return self._products
 
     def marks(self, prefix=""):
