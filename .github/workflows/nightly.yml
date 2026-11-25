@@ -86,7 +86,37 @@ jobs:
           if gh release view nightly >/dev/null 2>&1; then
             # New files first, so the release is never without binaries (a cancelled or failed run would leave it empty
             # otherwise). Asset names contain the version, so the previous ones are different files: remove those afterwards.
-            gh release upload nightly release/* --clobber
+            # The release must never mix two builds: either every new file is uploaded, or none of them stays.
+            OLD="$(gh release view nightly --json assets --jq '.assets[].name')"
+            asset_size() {
+              gh release view nightly --json assets --jq ".assets[] | select(.name == \"$1\") | .size"
+            }
+            # gh retries an upload that timed out on its side, even when GitHub already has the file. The retry then fails
+            # with "ReleaseAsset.name already exists" (#691's run). An asset that is there with the right size counts.
+            upload() {
+              local name size attempt
+              name="$(basename "$1")"
+              size="$(stat -c %s "$1")"
+              for attempt in 1 2 3 4; do
+                gh release upload nightly "$1" --clobber && return 0
+                [ "$(asset_size "$name")" = "$size" ] && return 0
+                echo "Upload of $name failed (attempt $attempt), retrying."
+                sleep $((attempt * 15))
+              done
+              return 1
+            }
+            for f in release/*; do
+              if ! upload "$f"; then
+                # Take the new files out again, so the release keeps the previous build only. Files with the same name as
+                # a previous one (a second run of the same commit) were replaced, not added, and stay.
+                for g in release/*; do
+                  name="$(basename "$g")"
+                  grep -qxF "$name" <<< "$OLD" || gh release delete-asset nightly "$name" --yes || true
+                done
+                echo "::error::Could not upload $(basename "$f"); the nightly release still holds the previous build."
+                exit 1
+              fi
+            done
             gh release edit nightly --prerelease --title "$TITLE" --notes "$NOTES"
             gh release view nightly --json assets --jq '.assets[].name' | while read -r name; do
               [ -e "release/$name" ] || gh release delete-asset nightly "$name" --yes
