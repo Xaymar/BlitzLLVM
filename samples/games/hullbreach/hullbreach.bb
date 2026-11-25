@@ -26,6 +26,11 @@
 ;
 ; The options and the best score are saved in hullbreach.cfg next to the program.
 
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
 Const SCREEN_W = 800, SCREEN_H = 600
 Const SKY_R = 4, SKY_G = 5, SKY_B = 16
 
@@ -50,9 +55,6 @@ Const PHASE_INTRO = 0, PHASE_FIGHT = 1, PHASE_BREAK = 2
 
 Const STATE_MENU = 0, STATE_OPTIONS = 1, STATE_HELP = 2, STATE_PLAY = 3, STATE_PAUSED = 4, STATE_DEAD = 5
 Const STATE_CLEAR = 6, STATE_WON = 7
-
-Const KEY_ESCAPE = 1, KEY_1 = 2, KEY_W = 17, KEY_P = 25, KEY_ENTER = 28, KEY_A = 30, KEY_S = 31, KEY_D = 32
-Const KEY_SPACE = 57, KEY_UP = 200, KEY_DOWN = 208, KEY_LEFT = 203, KEY_RIGHT = 205
 
 ; --- Things in the arena ---------------------------------------------------------------------------------------------
 
@@ -223,7 +225,7 @@ While Not quit
 			UpdateOptions()
 		Case STATE_HELP
 			UpdateMenuScene()
-			If KeyHit(KEY_ESCAPE) Or KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Or MouseHit(1) Then GoToMenu() : menuSelected = 2
+			If KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT) Then GoToMenu() : menuSelected = 2
 		Case STATE_PLAY
 			UpdatePlay()
 		Case STATE_PAUSED
@@ -248,7 +250,7 @@ End
 ; Opens the window or full screen, as the option says. Graphics3D frees every entity, texture and font, so all of them
 ; are made again here, and the arena behind the main menu is built again.
 Function OpenScreen()
-	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, 1 Else Graphics3D SCREEN_W, SCREEN_H, 0, 2
+	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Hullbreach"
 	SetBuffer BackBuffer()
 
@@ -288,7 +290,7 @@ Function OpenScreen()
 	ScaleSprite overlay, 2, 2
 	EntityColor overlay, 255, 30, 20
 	EntityOrder overlay, -1
-	EntityFX overlay, 1 + 8
+	EntityFX overlay, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 	HideEntity overlay
 
 	gunPivot = CreatePivot(camera)
@@ -300,8 +302,8 @@ Function OpenScreen()
 	Next
 	muzzle = CreateSprite(gunPivot)
 	EntityTexture muzzle, texGlow
-	EntityBlend muzzle, 3
-	EntityFX muzzle, 1 + 8
+	EntityBlend muzzle, BB_BLEND_ADD
+	EntityFX muzzle, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 	ScaleSprite muzzle, 0.14, 0.14
 	HideEntity muzzle
 
@@ -314,8 +316,8 @@ Function OpenScreen()
 	player = CreatePivot()
 	EntityType player, COL_PLAYER
 	EntityRadius player, PLAYER_RADIUS, PLAYER_HALF
-	Collisions COL_PLAYER, COL_WORLD, 2, 3
-	Collisions COL_FOE, COL_WORLD, 2, 3
+	Collisions COL_PLAYER, COL_WORLD, BB_COLLIDE_POLYGON, BB_RESPONSE_SLIDE_NO_SLOPES
+	Collisions COL_FOE, COL_WORLD, BB_COLLIDE_POLYGON, BB_RESPONSE_SLIDE_NO_SLOPES
 
 	BuildArena(0)
 	watermark = 0
@@ -406,7 +408,7 @@ Function BuildArena(index)
 	BrushTexture crateBrush, texCrate
 	Local glowBrush = CreateBrush(accentR, accentG, accentB)
 	BrushTexture glowBrush, texPanel
-	BrushFX glowBrush, 1
+	BrushFX glowBrush, BB_FX_FULLBRIGHT
 	Local deck = CreateSurface(arena, deckBrush)
 	Local wall = CreateSurface(arena, wallBrush)
 	Local crate = CreateSurface(arena, crateBrush)
@@ -435,7 +437,7 @@ Function BuildArena(index)
 	Forever
 	UpdateNormals arena
 	EntityType arena, COL_WORLD
-	EntityPickMode arena, 2
+	EntityPickMode arena, BB_PICK_POLYGON
 
 	; Jump pads: where they are and where they throw you.
 	padCount = 0
@@ -447,7 +449,7 @@ Function BuildArena(index)
 		ScaleEntity padEnt(padCount), 1.2, 0.06, 1.2
 		PositionEntity padEnt(padCount), padX(padCount), padY(padCount) + 0.03, padZ(padCount)
 		EntityColor padEnt(padCount), accentR, accentG, accentB
-		EntityFX padEnt(padCount), 1
+		EntityFX padEnt(padCount), BB_FX_FULLBRIGHT
 		padGlow(padCount) = MakeGlow(accentR, accentG, accentB, 1.6)
 		PositionEntity padGlow(padCount), padX(padCount), padY(padCount) + 0.6, padZ(padCount)
 		padCount = padCount + 1
@@ -547,8 +549,8 @@ End Function
 Function MakeGlow(r#, g#, b#, size#, parent = 0)
 	Local sprite = CreateSprite(parent)
 	EntityTexture sprite, texGlow
-	EntityBlend sprite, 3
-	EntityFX sprite, 1 + 8
+	EntityBlend sprite, BB_BLEND_ADD
+	EntityFX sprite, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 	EntityColor sprite, r, g, b
 	ScaleSprite sprite, size, size
 	Return sprite
@@ -599,14 +601,14 @@ Function MakeSky()
 		AddTriangle surface, v0, v0 + 2, v0 + 3
 	Next
 	SeedRnd MilliSecs()
-	EntityFX stars, 1 + 2 + 8 + 16
+	EntityFX stars, BB_FX_FULLBRIGHT + BB_FX_VERTEX_COLORS + BB_FX_NO_FOG + BB_FX_TWO_SIDED
 
 	Local planet = CreateSphere(32, sky)
 	ScaleEntity planet, 150, 150, 150
 	PositionEntity planet, -700, 40, 420
 	RotateEntity planet, 12, 0, 18
 	EntityTexture planet, texPlanet
-	EntityFX planet, 8
+	EntityFX planet, BB_FX_NO_FOG
 
 	Local cloud = MakeGlow(120, 40, 150, 520, sky)
 	EntityTexture cloud, texNebula
@@ -632,7 +634,7 @@ Function MakeBox(parent, sx#, sy#, sz#, x#, y#, z#, r#, g#, b#, glowing = False)
 	ScaleMesh box, sx / 2, sy / 2, sz / 2
 	PositionEntity box, x, y, z
 	EntityColor box, r, g, b
-	If glowing Then EntityFX box, 1
+	If glowing Then EntityFX box, BB_FX_FULLBRIGHT
 	Return box
 End Function
 
@@ -676,7 +678,7 @@ Function MakeFoeTemplate(kind)
 			ScaleMesh part, 0.2, 0.13, 0.12
 			PositionEntity part, 0, 0.12, 0.85
 			EntityColor part, 255, 230, 60
-			EntityFX part, 1
+			EntityFX part, BB_FX_FULLBRIGHT
 			For i = -1 To 1 Step 2
 				part = MakeBox(root, 0.1, 0.1, 0.75, i * 0.75, -0.25, 0.3, 70, 40, 55)
 				RotateEntity part, 20, Float(-i * 40), 0
@@ -697,7 +699,7 @@ Function MakeFoeTemplate(kind)
 			ScaleMesh part, 0.2, 0.2, 0.12
 			PositionEntity part, 0, 0, 0.5
 			EntityColor part, 255, 70, 40
-			EntityFX part, 1
+			EntityFX part, BB_FX_FULLBRIGHT
 			part = CreateCylinder(16, True, root)
 			ScaleMesh part, 0.95, 0.05, 0.95
 			EntityColor part, 60, 65, 80
@@ -711,7 +713,7 @@ Function MakeFoeTemplate(kind)
 			ScaleMesh part, 0.22, 0.12, 0.1
 			PositionEntity part, 0, 1.15, 0.42
 			EntityColor part, 255, 140, 30
-			EntityFX part, 1
+			EntityFX part, BB_FX_FULLBRIGHT
 			MakeBox(root, 0.7, 0.45, 0.6, 0, 1.15, 0.05, 90, 95, 60)
 			MakeBox(root, 0.45, 0.6, 0.5, -0.45, -0.95, 0, 60, 60, 50)
 			MakeBox(root, 0.45, 0.6, 0.5, 0.45, -0.95, 0, 60, 60, 50)
@@ -725,7 +727,7 @@ Function MakeFoeTemplate(kind)
 			ScaleMesh part, 0.75, 0.75, 0.3
 			PositionEntity part, 0, 0, 2.45
 			EntityColor part, 255, 60, 200
-			EntityFX part, 1
+			EntityFX part, BB_FX_FULLBRIGHT
 			part = CreateCylinder(24, True, root)
 			ScaleMesh part, 4.2, 0.22, 4.2
 			EntityColor part, 70, 60, 90
@@ -733,7 +735,7 @@ Function MakeFoeTemplate(kind)
 			ScaleMesh part, 4.3, 0.06, 4.3
 			PositionEntity part, 0, 0.25, 0
 			EntityColor part, 255, 60, 200
-			EntityFX part, 1
+			EntityFX part, BB_FX_FULLBRIGHT
 			For i = 0 To 5
 				part = CreateCone(6, True, root)
 				ScaleMesh part, 0.35, 1.2, 0.35
@@ -1031,7 +1033,7 @@ Function UpdatePlay()
 	EndIf
 
 	If health <= 0 And state = STATE_PLAY Then PlayerDied() : Return
-	If (KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P)) And state = STATE_PLAY Then GoToPause()
+	If (KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P)) And state = STATE_PLAY Then GoToPause()
 End Function
 
 Function MovePlayer()
@@ -1046,10 +1048,10 @@ Function MovePlayer()
 	; Which way the keys push: forward is where the player looks, flattened.
 	Local fx# = -Sin(yaw), fz# = Cos(yaw)
 	Local wx# = 0, wz# = 0
-	If KeyDown(KEY_W) Then wx = wx + fx : wz = wz + fz
-	If KeyDown(KEY_S) Then wx = wx - fx : wz = wz - fz
-	If KeyDown(KEY_D) Then wx = wx + fz : wz = wz - fx
-	If KeyDown(KEY_A) Then wx = wx - fz : wz = wz + fx
+	If KeyDown(BB_KEY_W) Then wx = wx + fx : wz = wz + fz
+	If KeyDown(BB_KEY_S) Then wx = wx - fx : wz = wz - fz
+	If KeyDown(BB_KEY_D) Then wx = wx + fz : wz = wz - fx
+	If KeyDown(BB_KEY_A) Then wx = wx - fz : wz = wz + fx
 	Local l# = Sqr(wx * wx + wz * wz)
 	If l > 0 Then wx = wx / l : wz = wz / l
 
@@ -1057,7 +1059,7 @@ Function MovePlayer()
 		; On the ground the player follows the keys almost at once.
 		pvx = pvx + (wx * RUN_SPEED - pvx) * 0.25
 		pvz = pvz + (wz * RUN_SPEED - pvz) * 0.25
-		If KeyDown(KEY_SPACE)
+		If KeyDown(BB_KEY_SPACE)
 			pvy = JUMP_SPEED
 			onGround = False
 		EndIf
@@ -1168,7 +1170,7 @@ Function UpdateGun()
 	Local w, i
 	; Choosing: the number keys, or the wheel to the next or previous gun the player has.
 	For w = 0 To WEAPONS - 1
-		If KeyHit(KEY_1 + w) And owned(w) And w <> nextWeapon Then nextWeapon = w : switchTimer = 16
+		If KeyHit(BB_KEY_1 + w) And owned(w) And w <> nextWeapon Then nextWeapon = w : switchTimer = 16
 	Next
 	Local wheel = MouseZSpeed()
 	If wheel <> 0
@@ -1189,7 +1191,7 @@ Function UpdateGun()
 		muzzleTimer = muzzleTimer - 1
 		If muzzleTimer = 0 Then HideEntity muzzle
 	EndIf
-	If MouseDown(1) And fireTimer = 0 And switchTimer = 0
+	If MouseDown(BB_MOUSE_LEFT) And fireTimer = 0 And switchTimer = 0
 		If weapon <> W_BLASTER And ammo(weapon) <= 0
 			; Out of ammunition: click, and take the best other gun.
 			PlaySfx(sndEmpty)
@@ -1319,8 +1321,8 @@ Function MakeBeam(x1#, y1#, z1#, x2#, y2#, z2#)
 	PointEntity p\ent, CreatePivotAt(x2, y2, z2)
 	ScaleEntity p\ent, 0.04, 0.04, l / 2
 	EntityColor p\ent, 120, 255, 170
-	EntityFX p\ent, 1 + 8
-	EntityBlend p\ent, 3
+	EntityFX p\ent, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
+	EntityBlend p\ent, BB_BLEND_ADD
 	p\beam = True
 	p\life = 24
 	p\maxLife = 24
@@ -1922,14 +1924,14 @@ End Function
 ; the line it is over. MenuInput gives back the line chosen with Enter, Space or a click, or -1.
 
 Function MenuInput()
-	If KeyHit(KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(sndClick)
-	If KeyHit(KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(sndClick)
+	If KeyHit(BB_KEY_UP) Then menuSelected = (menuSelected + menuCount - 1) Mod menuCount : PlaySfx(sndClick)
+	If KeyHit(BB_KEY_DOWN) Then menuSelected = (menuSelected + 1) Mod menuCount : PlaySfx(sndClick)
 
 	Local row = MenuLineAt(MouseX(), MouseY())
 	If row >= 0 And (MouseXSpeed() <> 0 Or MouseYSpeed() <> 0) Then menuSelected = row
 
-	If KeyHit(KEY_ENTER) Or KeyHit(KEY_SPACE) Then Return menuSelected
-	If MouseHit(1) And row >= 0
+	If KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_SPACE) Then Return menuSelected
+	If MouseHit(BB_MOUSE_LEFT) And row >= 0
 		menuSelected = row
 		Return row
 	EndIf
@@ -1981,7 +1983,7 @@ End Function
 ; Gives back True when the player chose Quit.
 Function UpdateMenu()
 	UpdateMenuScene()
-	If KeyHit(KEY_ESCAPE) Then Return True
+	If KeyHit(BB_KEY_ESCAPE) Then Return True
 	Select MenuInput()
 		Case 0 : NewGame()
 		Case 1 : GoToOptions()
@@ -2021,7 +2023,7 @@ Function UpdatePause()
 			If score > bestScore Then bestScore = score : SaveSettings()
 			GoToMenu()
 	End Select
-	If (KeyHit(KEY_ESCAPE) Or KeyHit(KEY_P)) And state = STATE_PAUSED Then StartPlaying()
+	If (KeyHit(BB_KEY_ESCAPE) Or KeyHit(BB_KEY_P)) And state = STATE_PAUSED Then StartPlaying()
 End Function
 
 Function UpdateDead()
@@ -2040,7 +2042,7 @@ End Function
 Function UpdateClear()
 	UpdateSparks()
 	Local choice = MenuInput()
-	If KeyHit(KEY_ESCAPE) Then choice = 1
+	If KeyHit(BB_KEY_ESCAPE) Then choice = 1
 	Select choice
 		Case 0
 			sector = sector + 1
@@ -2055,7 +2057,7 @@ End Function
 Function UpdateWon()
 	UpdateSparks()
 	If frame Mod 20 = 0 Then BurstSparks(centreX + Rnd(-12, 12), centreY + Rnd(-2, 6), centreZ + Rnd(-12, 12), Rnd(100, 255), Rnd(100, 255), Rnd(100, 255), 20, 0.2, 0.5)
-	If MenuInput() = 0 Or KeyHit(KEY_ESCAPE) Then GoToMenu()
+	If MenuInput() = 0 Or KeyHit(BB_KEY_ESCAPE) Then GoToMenu()
 End Function
 
 Function GoToOptions()
@@ -2084,12 +2086,12 @@ End Function
 Function UpdateOptions()
 	If Not optionsFromPause Then UpdateMenuScene()
 	Local change = 0
-	If KeyHit(KEY_LEFT) Then change = -1
-	If KeyHit(KEY_RIGHT) Then change = 1
+	If KeyHit(BB_KEY_LEFT) Then change = -1
+	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local picked = MenuInput()
 	If picked >= 0 Then change = 1 ; Enter or a click steps to the next value.
 
-	If KeyHit(KEY_ESCAPE) Or picked = 7
+	If KeyHit(BB_KEY_ESCAPE) Or picked = 7
 		SaveSettings()
 		If optionsFromPause
 			GoToPause()
