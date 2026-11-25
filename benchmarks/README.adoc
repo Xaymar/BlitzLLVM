@@ -375,3 +375,25 @@ be compared line by line; the scene as it was built is written too, so a differe
 picks. The time of all the picks is written to `PICK_OUT` with `.time` added, so with many entities and picks it is a benchmark as
 well (on a real machine, with both compilers). For timing set `PICK_BENCH=1`, which writes no results, so that the time is only that of the picks. Entities and surfaces are written as numbers (creation number, surface index)
 because the original returns pointers. Note that the original writes its files with CRLF line ends.
+
+== physics_queries: rays, shape casts and overlaps against physics bodies
+
+`physics_queries.bb` makes a floor and `BENCH_BODIES` physics bodies (default 1000; half static, half dynamic, boxes and spheres, each
+with a mesh) in a 40 x 40 area, calls `PhysicsUpdate 1.0 / 60` every frame and does `BENCH_QUERIES` queries per frame (default 1000) of
+the kind `BENCH_QUERY` names: 1 `PhysicsRayCast`, 2 `PhysicsSphereCast`, 3 `PhysicsBoxCast` (turned by yaw), 4 `PhysicsCapsuleCast`,
+5 `PhysicsOverlapSphere`, 6 `PhysicsOverlapBox`, 7 `PhysicsPointInside`, 0 none. Rays and casts are 10 units long, from random points in
+random directions; the points come from `BENCH_SEED` and are made before the timing. It writes one line to `BENCH_RESULT` with the time
+of the whole frame (`ms_avg`, `frame_min_ms`, `frame_max_ms`), of `PhysicsUpdate` (`update_ms`) and of the queries alone (`query_ms`),
+all per frame, and how many queries found something (`hits_per_frame`), which has to be the same for two builds that are compared.
+`BENCH_GPU`, `BENCH_DEPTH`, `BENCH_W`, `BENCH_H`, `BENCH_FRAMES` and `BENCH_WARMUP` are as in the other benchmarks. It is BlitzLLVM only.
+
+[source,sh]
+----
+blitzcc -o physics_queries benchmarks/physics_queries.bb
+BENCH_GPU=1 BENCH_QUERY=2 BENCH_RESULT=sphere.txt ./physics_queries
+----
+
+It was made for #600 and #615: before #615 every query compared the pose of every body with its entity first, about 74 µs per query
+with 1000 bodies, and a query now costs what the search in the physics library costs (0.8 µs for a ray, 1.3 µs for a sphere cast, 1.9 µs
+for a sphere overlap with 1000 bodies on the machine of #615). With `BENCH_BODIES` 100, 1000 and 4000 it shows how the queries grow with
+the number of bodies.
