@@ -81,12 +81,24 @@ INTROS = {}
 # The sections of a command page, in order. Only Description and Related Commands are always there. The signature
 # and the parameters have no heading: the page starts with the command, and the table can only be its parameters.
 PAGE_SECTIONS = ["Description", "Differences", "Examples", "Media", "Related Commands"]
+# The products, in the order their icons are shown, with the name the icon's alt text and tooltip use and the icon in
+# media/. The icons are 20x14 pixel art that is only readable when every pixel of it lands on one pixel of the screen,
+# so they are always shown at exactly that size and never scaled. The help adds image-rendering: pixelated in its CSS;
+# the GitHub wiki strips style attributes, so there only the size keeps them sharp.
+ICONS = {"Blitz2D": ("BlitzBasic", "bb-20x14"), "BlitzPlus": ("BlitzPlus", "bp-20x14"), "Blitz3D": ("Blitz3D", "b3d-20x14"),
+         "BlitzLLVM": ("BlitzLLVM", "bl-20x14")}
+
+
+def icon(product, prefix=""):
+    """The <img> of a product's icon. prefix is the path from the page to the folder that holds media/."""
+    name, image = ICONS[product]
+    return '<img class="product" src="%smedia/%s.png" alt="%s" title="%s" width="20" height="14">' % (
+        prefix, image, name, name)
+
+
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
-EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
-# The icon of each product, in media/icons. The help of the originals names the products a command works in.
-ICONS = {"Blitz2D": ("BlitzBasic", "help_bb"), "BlitzPlus": ("BlitzPlus", "help_bp"), "Blitz3D": ("Blitz3D", "help_b3d"),
-         "BlitzLLVM": ("BlitzLLVM", "help_llvm")}
+EXTENSION_MARK = icon("BlitzLLVM")
 
 
 class Command:
@@ -115,8 +127,24 @@ class Command:
         return self.key in suite_functions.EXTENSIONS
 
     @property
+    def products(self):
+        """The products that have the command: BlitzLLVM for its own commands, otherwise the ones the help of the
+        originals names."""
+        if self.extension:
+            return ["BlitzLLVM"]
+        if not hasattr(self, "_products"):
+            import helpref
+            ref = helpref.read(self.key)
+            self._products = [p for p in ICONS if ref and p in ref["dialects"]]
+        return self._products
+
+    def marks(self, prefix=""):
+        """The icons of the products that have the command, appended to its name in lists and titles."""
+        return "".join(" " + icon(p, prefix) for p in self.products)
+
+    @property
     def mark(self):
-        return " " + EXTENSION_MARK if self.extension else ""
+        return self.marks()
 
     @property
     def link(self):
@@ -275,14 +303,7 @@ def command_page(c, siblings):
     m = re.search(r"^```", free, re.M)
     description, examples = (free[:m.start()], free[m.start():]) if m else (free, "")
     description, examples = description.strip(), examples.strip()
-    import helpref
-    ref = helpref.read(c.key)
-    # The GitHub wiki strips style attributes, so the icons float to the right with align="right". The first image
-    # floats furthest right, which is why they are written in reverse.
-    names = ["BlitzLLVM"] if c.extension else (ref["dialects"] if ref else [])
-    icons = "".join('<img align="right" src="media/icons/%s.svg" alt="%s" title="%s" width="80">' %
-                    (ICONS[n][1], ICONS[n][0], ICONS[n][0]) for n in reversed(names))
-    out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
+    out = ["# %s%s\n" % (c.name, c.mark),
            nav(c) + "\n",
            "```blitzbasic\n%s\n```\n" % c.signature()]
     if c.params:
@@ -295,7 +316,7 @@ def command_page(c, siblings):
         out.append("**Returns:** %s\n" % doc["returns"])
     out.append("## Description\n")
     if c.extension:
-        out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
+        out.append("%s This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
                    EXTENSION_MARK)
     out.append(description + "\n" if description else "_Not documented yet._\n")
     if doc["gap"]:
