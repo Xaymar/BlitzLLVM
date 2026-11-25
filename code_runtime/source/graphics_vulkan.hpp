@@ -270,3 +270,16 @@ namespace bb::rhi::vulkan::dxgi {
 	/** Like vkQueuePresentKHR: shows the image once wait is signalled. Takes the lock of the queue for its submit. */
 	bb::rhi::present_result present(uint64_t handle, VkQueue queue, uint32_t queue_index, VkSemaphore wait, uint32_t index, bool wait_queue);
 } // namespace bb::rhi::vulkan::dxgi
+
+// Windows: the windows show what Vulkan draws through OpenGL instead (graphics_vulkan_wgl.cpp, BLITZLLVM_VULKAN_PRESENT=opengl).
+// The DXGI functions above hand their windows to these. Elsewhere these do nothing.
+namespace bb::rhi::vulkan::wgl {
+	/** Whether BLITZLLVM_VULKAN_PRESENT asks for it. */
+	bool selected();
+	/** Makes the swapchain of the window with OpenGL. False where it can't (the caller makes another one then). */
+	bool create(bb::rhi::swapchain& sc, const bb::rhi::swapchain_desc& desc);
+	bool owns(uint64_t handle);
+	void destroy(bb::rhi::swapchain& sc);
+	bb::rhi::present_result acquire(uint64_t handle, VkSemaphore signal, VkQueue queue, uint32_t queue_index, uint64_t timeout_ns, uint32_t& index);
+	bb::rhi::present_result present(uint64_t handle, VkQueue queue, uint32_t queue_index, VkSemaphore wait, uint32_t index, bool wait_queue);
+} // namespace bb::rhi::vulkan::wgl

@@ -561,7 +561,13 @@ namespace bb::rhi::vulkan::dxgi {
 	{
 		using namespace gfx;
 		HWND window = HWND(d.native_window);
-		if (!enabled() || !extensions_on || !device_luid_valid || !window) {
+		if (!enabled() || !extensions_on || !window) {
+			return false;
+		}
+		if (wgl::selected() && wgl::create(sc, d)) {
+			return true; // Shown with OpenGL; otherwise with DXGI.
+		}
+		if (!device_luid_valid) {
 			return false;
 		}
 		if ((d.width == 0) || (d.height == 0)) {
@@ -707,11 +713,15 @@ namespace bb::rhi::vulkan::dxgi {
 
 	bool owns(uint64_t handle)
 	{
-		return find(handle) != nullptr;
+		return (find(handle) != nullptr) || wgl::owns(handle);
 	}
 
 	void destroy(swapchain& sc)
 	{
+		if (wgl::owns(sc.handle)) {
+			wgl::destroy(sc);
+			return;
+		}
 		chain* c = find(sc.handle);
 		if (!c) {
 			return;
@@ -737,6 +747,9 @@ namespace bb::rhi::vulkan::dxgi {
 
 	present_result acquire(uint64_t handle, VkSemaphore signal, VkQueue queue, uint32_t queue_index, uint64_t timeout_ns, uint32_t& index)
 	{
+		if (wgl::owns(handle)) {
+			return wgl::acquire(handle, signal, queue, queue_index, timeout_ns, index);
+		}
 		chain* c = find(handle);
 		if (!c) {
 			return { present_status::out_of_date, int32_t(VK_ERROR_OUT_OF_DATE_KHR) };
@@ -788,6 +801,9 @@ namespace bb::rhi::vulkan::dxgi {
 
 	present_result present(uint64_t handle, VkQueue queue, uint32_t queue_index, VkSemaphore wait, uint32_t index, bool wait_queue)
 	{
+		if (wgl::owns(handle)) {
+			return wgl::present(handle, queue, queue_index, wait, index, wait_queue);
+		}
 		chain* c = find(handle);
 		if (!c || (index >= image_count)) {
 			return { present_status::out_of_date, int32_t(VK_ERROR_OUT_OF_DATE_KHR) };
