@@ -1072,18 +1072,20 @@ End Function
 
 ; The player came out of the other gate: the view turns with the gates (any roll is left out), and a carried cube
 ; comes along.
-; Falling towards a gate in the floor with no key held, the player drifts gently to its middle, so a fall that
-; starts near the edge still goes in. Any key held takes the steering back.
+; Falling towards a gate in the floor with no key held, a player who is already partly over it and barely moving
+; sideways drifts a little to its middle, so a fall that starts at its edge still goes in. It only corrects small
+; misses: anything thrown out of a gate is far too fast for it, and any key held takes the steering back.
 Function SteerToFloorGate()
 	If Not GatesLinked() Then Return
-	Local i, gx#, gz#, dx#, dz#, want#
+	If Abs(pvx) > WALK_SPEED Or Abs(pvz) > WALK_SPEED Then Return
+	Local i, gx#, gz#, dx#, dz#, reach# = CELL * 0.5 + PLAYER_HW
 	For i = 0 To 1
 		If gateSide(i) = 2
 			gx = EntityX(gatePivot(i)) : gz = EntityZ(gatePivot(i))
 			dx = gx - px : dz = gz - pz
-			If py - PLAYER_HH > EntityY(gatePivot(i)) And Abs(dx) < CELL * 1.25 And Abs(dz) < CELL * 1.25
-				want = Max(-WALK_SPEED, Min(WALK_SPEED, dx * 0.08)) : pvx = pvx + (want - pvx) * 0.15
-				want = Max(-WALK_SPEED, Min(WALK_SPEED, dz * 0.08)) : pvz = pvz + (want - pvz) * 0.15
+			If py - PLAYER_HH > EntityY(gatePivot(i)) And Abs(dx) < reach And Abs(dz) < reach
+				pvx = pvx + (Max(-0.04, Min(0.04, dx * 0.05)) - pvx) * 0.1
+				pvz = pvz + (Max(-0.04, Min(0.04, dz * 0.05)) - pvz) * 0.1
 				Return
 			EndIf
 		EndIf
@@ -1096,8 +1098,21 @@ Function PlayerPassed(i)
 	TFormVector TFormedX(), TFormedY(), TFormedZ(), 0, gatePivot(i)
 	TFormVector TFormedX(), TFormedY(), TFormedZ(), gateBack(o), 0
 	Local fx# = TFormedX(), fy# = TFormedY(), fz# = TFormedZ()
-	yaw = VectorYaw(fx, fy, fz)
-	pitch = Max(-89, Min(89, VectorPitch(fx, fy, fz)))
+	; The top of the view goes through as well. Looking (nearly) straight up or down, the way the view faces has to
+	; come from it, or the turn would be a guess.
+	TFormVector 0, 1, 0, camera, 0
+	TFormVector TFormedX(), TFormedY(), TFormedZ(), 0, gatePivot(i)
+	TFormVector TFormedX(), TFormedY(), TFormedZ(), gateBack(o), 0
+	Local ux# = TFormedX(), uz# = TFormedZ()
+	If fx * fx + fz * fz > 0.25
+		yaw = VectorYaw(fx, 0, fz)
+	ElseIf fy < 0
+		yaw = VectorYaw(ux, 0, uz)
+	Else
+		yaw = VectorYaw(-ux, 0, -uz)
+	EndIf
+	; Out of a gate the eyes are turned most of the way back to level, so nobody comes out staring at a ceiling.
+	pitch = Max(-45, Min(45, VectorPitch(fx, fy, fz) * 0.5))
 	PlaySfx(sndPass)
 	If carried <> Null
 		; The cube is still on the far side; bring it to the player, it slides out to the hold point from there.
