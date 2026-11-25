@@ -11,6 +11,8 @@ EXT_external_objects_win32 allows that: "Importing a Windows handle does not tra
 
 The crash is a user-mode access violation in the application's process, caught by Windows Error Reporting (Application log event 1000, faulting module `atio6axx.dll`). The GPU does not hang and no TDR happens, so AMD Software's own crash reporting does not show it.
 
+On RDNA 3 (Radeon 780M) the driver crashes even earlier, inside `glCreateMemoryObjectsEXT` / `glMemoryObjectParameterivEXT`; see [RDNA 3](#rdna-3-an-earlier-crash-in-glcreatememoryobjectsext).
+
 ## Repro
 
 `main.cpp` is a single file with no dependencies besides the Vulkan headers. It loads `vulkan-1.dll` and `opengl32.dll` at run time.
@@ -75,7 +77,29 @@ Stack of the RX 6600M crash: `atio6axx+0x216c920 <- +0xad9882 <- +0x962f9a <- +0
 | `OPAQUE_WIN32_KMT` handles | OK on both GPUs |
 | NVIDIA RTX 4070 Laptop, driver 621.24, handles closed right after import | OK |
 
-Not tested yet: RDNA 3 or newer with OpenGL on the AMD GPU.
+## RDNA 3: an earlier crash in glCreateMemoryObjectsEXT
+
+On a Radeon 780M (Phoenix, RDNA 3, 0x15BF) the driver crashes earlier, before any handle reaches OpenGL, so this repro can't show the handle-close crash there. `--keep-handles` crashes too.
+
+**System:** Windows 10, laptop with switchable graphics (hybrid mode, OpenGL put on the 780M with the Windows per-app GPU preference). Adapter driver 32.0.32029.2010, `atio6axx.dll` 26.11.070226_fcc29e8, `GL_VERSION` 4.6.0 Compatibility Profile Context 26.11.2.261114. The OpenGL device UUID, driver UUID and LUID match the Vulkan device.
+
+The last step that completes is `vkGetMemoryWin32HandleKHR`. The process then dies in this sequence, before `glImportMemoryWin32HandleEXT` is called:
+
+```
+glCreateMemoryObjectsEXT(1, &memory);
+GLint dedicated = GL_TRUE;
+glMemoryObjectParameterivEXT(memory, GL_DEDICATED_MEMORY_OBJECT_EXT, &dedicated);
+```
+
+```
+[CRASH] exception 0xc0000005 (read address 0x98)
+  at atio6axx.dll+0x46da80
+  #01 interop_repro.exe+0x405d (the larger version, at the calls above)
+```
+
+It happens on every run (13 of 13: 4 with this program, 9 with the larger version) and at the same offset with every variant: NT or KMT handles, optimal or linear tiling, minimal or full usage (with `MUTABLE_FORMAT`), no semaphores, a 4.6 core context, handles kept open. On this machine the display is connected to the NVIDIA GPU, so the 780M context renders to a window on a display it doesn't drive.
+
+Expected: `glCreateMemoryObjectsEXT` and `glMemoryObjectParameterivEXT` either succeed or set a GL error; they shouldn't crash.
 
 **Side note:** both AMD GPUs report the same `GL_DRIVER_UUID_EXT` / Vulkan `driverUUID` (`414d442d57494e2d4452560000000000`, "AMD-WIN-DRV"), although they run different driver builds.
 
