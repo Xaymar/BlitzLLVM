@@ -4,7 +4,7 @@
 Opens a color picker with three sliders and waits until the user presses OK or Cancel. Read the picked color with [RequestedRed](RequestedRed), [RequestedGreen](RequestedGreen) and [RequestedBlue](RequestedBlue). While the picker is open nothing else in the program window reacts.
 
 ```blitzbasic
-;media interact dialogs/requestcolor.gif 1
+;media interact dialogs/requestcolor.webp 1
 ;media wait 300
 ;media click 340 107
 ;media click 200 137
@@ -19,7 +19,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![RequestColor](media/dialogs/requestcolor.gif)
+![RequestColor](media/dialogs/requestcolor.webp)
 @param red    Red the sliders start at, 0 to 255. Defaults to 255.
 @param green  Green the sliders start at, 0 to 255. Defaults to 255.
 @param blue   Blue the sliders start at, 0 to 255. Defaults to 255.

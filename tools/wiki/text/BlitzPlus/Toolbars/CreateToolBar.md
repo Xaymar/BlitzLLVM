@@ -4,7 +4,7 @@
 Makes a row of icon buttons from a picture file. The picture holds square icons side by side, and the number of icons is its width divided by its height. The pixel in the top left corner is the transparent color, and an icon that is only that color becomes a gap between buttons. Clicking a button sends $401 and [EventData](EventData) is the number of the icon, counted from 0.
 
 ```blitzbasic
-;media interact toolbars/createtoolbar.gif 1
+;media interact toolbars/createtoolbar.webp 1
 ;media click 24 52
 ;media click 64 52
 Graphics 320, 240, 32, 2
@@ -26,7 +26,7 @@ Repeat
 Until e = $803
 ```
 
-![CreateToolBar](media/toolbars/createtoolbar.gif)
+![CreateToolBar](media/toolbars/createtoolbar.webp)
 @param icons  Picture file with the icons.
 @param x      Horizontal position inside the group.
 @param y      Vertical position inside the group.

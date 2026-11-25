@@ -4,7 +4,7 @@
 Moves the texture coordinates by an absolute offset. The image appears to slide across the surface, which is how scrolling water or conveyor belts are done. The offset is a fraction of the texture: 1 moves it by one full repeat, which looks the same as 0. Every entity that uses the texture changes at once.
 
 ```blitzbasic
-;media gif textures/positiontexture.gif 40 20
+;media anim textures/positiontexture.webp 40 20
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -31,7 +31,7 @@ For i = 0 To 39
 Next
 ```
 
-![PositionTexture](media/textures/positiontexture.gif)
+![PositionTexture](media/textures/positiontexture.webp)
 @param texture  The texture to move.
 @param u_offset Horizontal offset.
 @param v_offset Vertical offset.

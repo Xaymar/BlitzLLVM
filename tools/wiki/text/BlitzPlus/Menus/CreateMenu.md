@@ -6,7 +6,7 @@ Makes a menu title or a menu item. Give [WindowMenu](WindowMenu) as the parent t
 Call [UpdateWindowMenu](UpdateWindowMenu) once you are done changing menus. The window needs flag 4 in its style to have room for the menu bar.
 
 ```blitzbasic
-;media interact menus/createmenu.gif 1
+;media interact menus/createmenu.webp 1
 ;media click 30 48
 ;media click 60 71
 Graphics 320, 240, 32, 2
@@ -22,7 +22,7 @@ Repeat
 Until e = $803 Or (e = $1001 And EventData() = 2)
 ```
 
-![CreateMenu](media/menus/createmenu.gif)
+![CreateMenu](media/menus/createmenu.webp)
 @param text        Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator.
 @param menu_id     The number sent as the data of the $1001 event when it is chosen.
 @param parent_menu [WindowMenu](WindowMenu) of a window, or another menu.

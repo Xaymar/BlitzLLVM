@@ -4,7 +4,7 @@
 Opens a font picker and gives a font that was chosen, or 0 if the user cancelled. The font works with `SetFont`, [SetGadgetFont](SetGadgetFont) and [FontName](FontName).
 
 ```blitzbasic
-;media interact dialogs/requestfont.gif 1
+;media interact dialogs/requestfont.webp 1
 ;media wait 300
 ;media click 200 174
 ;media click 238 308
@@ -17,6 +17,6 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![RequestFont](media/dialogs/requestfont.gif)
+![RequestFont](media/dialogs/requestfont.webp)
 @returns A font handle, or 0 if cancelled.
 @gap Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview. The picker is drawn by the runtime inside the program's active window (in a window of its own where there is none).
