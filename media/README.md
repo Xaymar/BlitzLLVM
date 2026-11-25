@@ -14,3 +14,9 @@ The BlitzLLVM logo: an isometric cube (the 3D world) with a lightning bolt ("Bli
 * `windows/blitzllvm.ico`: 16, 24, 32 (from `icon-small.svg`) and 48, 64, 128, 256 pixels (from `icon.svg`), used by the Windows tools and the installer.
 
 The logo is a stylized cube, bolt and graph. It is not the LLVM logo and does not use it.
+
+## Screenshots of the samples
+
+The screenshots of the samples in `samples/` live in `samples/` here, in the same folders as their sample, so that they are not installed with the samples.
+
+* `samples/games/<name>/screenshot-*.png`: screenshots of the sample games.
