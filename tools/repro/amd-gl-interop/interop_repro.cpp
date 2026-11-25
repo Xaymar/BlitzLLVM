@@ -15,6 +15,11 @@
 //   --frames N      Frames to present (default 300).
 //   --size WxH      Image and window size (default 640x480).
 //   --no-import-sem Skip the semaphores (GL waits with glFinish/vkQueueWaitIdle instead).
+//   --handle nt|kmt OPAQUE_WIN32 (NT handle, default) or OPAQUE_WIN32_KMT handles for memory and semaphores.
+//   --context legacy|core  wglCreateContext (default, as BlitzLLVM) or a 4.6 core context from wglCreateContextAttribsARB.
+//   --tiling optimal|linear  Vulkan image tiling and GL_TEXTURE_TILING_EXT (default optimal).
+//   --no-blit       Skip the framebuffer blit (semaphore wait/signal and swap only).
+// A crash prints [CRASH] with the faulting module+offset and a stack walk.
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -59,6 +64,49 @@ static void fail(const char* fmt, ...)
 	va_end(a);
 	SetThreadExecutionState(ES_CONTINUOUS);
 	exit(2);
+}
+
+static void where(const char* label, void* addr)
+{
+	HMODULE m = nullptr;
+	char    name[MAX_PATH] = "?";
+	if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)addr, &m) && m) {
+		GetModuleFileNameA(m, name, MAX_PATH);
+		const char* b = strrchr(name, '\\');
+		printf("%s %p = %s+0x%llx\n", label, addr, b ? b + 1 : name, (unsigned long long)((uintptr_t)addr - (uintptr_t)m));
+	} else {
+		printf("%s %p (no module)\n", label, addr);
+	}
+}
+
+static LONG WINAPI crash_filter(EXCEPTION_POINTERS* e)
+{
+	printf("[CRASH] exception 0x%08lx", e->ExceptionRecord->ExceptionCode);
+	if (e->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && e->ExceptionRecord->NumberParameters >= 2)
+		printf(" (%s address 0x%llx)", e->ExceptionRecord->ExceptionInformation[0] == 0 ? "read" : (e->ExceptionRecord->ExceptionInformation[0] == 1 ? "write" : "execute"), (unsigned long long)e->ExceptionRecord->ExceptionInformation[1]);
+	printf("\n");
+	where("  at", e->ExceptionRecord->ExceptionAddress);
+	// Walk the faulting thread's stack with the context of the exception.
+	CONTEXT ctx = *e->ContextRecord;
+	for (int f = 0; f < 24; f++) {
+		DWORD64           base = 0;
+		PRUNTIME_FUNCTION fn   = RtlLookupFunctionEntry(ctx.Rip, &base, nullptr);
+		if (!fn) { // leaf function
+			ctx.Rip = *(DWORD64*)ctx.Rsp;
+			ctx.Rsp += 8;
+		} else {
+			void*   handler = nullptr;
+			DWORD64 frame   = 0;
+			RtlVirtualUnwind(UNW_FLAG_NHANDLER, base, ctx.Rip, fn, &ctx, &handler, &frame, nullptr);
+		}
+		if (!ctx.Rip)
+			break;
+		char label[16];
+		snprintf(label, sizeof(label), "  #%02d", f + 1);
+		where(label, (void*)ctx.Rip);
+	}
+	fflush(stdout);
+	return EXCEPTION_CONTINUE_SEARCH;
 }
 
 static void hex(const char* label, const uint8_t* p, size_t n)
@@ -172,11 +220,12 @@ static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
 int main(int argc, char** argv)
 {
 	setvbuf(stdout, nullptr, _IONBF, 0);
-	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX); // A crash ends the process without a dialog (WER still writes a report).
+	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX); // No crash dialog; the filter prints module+offset and a stack.
+	SetUnhandledExceptionFilter(crash_filter);
 	SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
 
 	int  vk_gpu = -1, frames = 300;
-	bool full = false, strict = false, use_sem = true;
+	bool full = false, strict = false, use_sem = true, kmt = false, core = false, blit = true, linear = false;
 	uint32_t W = 640, H = 480;
 	for (int i = 1; i < argc; i++) {
 		std::string a = argv[i];
@@ -192,6 +241,14 @@ int main(int argc, char** argv)
 			sscanf(argv[++i], "%ux%u", &W, &H);
 		else if (a == "--no-import-sem")
 			use_sem = false;
+		else if (a == "--handle" && i + 1 < argc)
+			kmt = std::string(argv[++i]) == "kmt";
+		else if (a == "--context" && i + 1 < argc)
+			core = std::string(argv[++i]) == "core";
+		else if (a == "--tiling" && i + 1 < argc)
+			linear = std::string(argv[++i]) == "linear";
+		else if (a == "--no-blit")
+			blit = false;
 		else
 			fail("unknown option %s", a.c_str());
 	}
@@ -200,7 +257,10 @@ int main(int argc, char** argv)
 #else
 	printf("build: no hybrid-GPU exports\n");
 #endif
-	printf("options: vk-gpu=%d usage=%s strict=%d frames=%d size=%ux%u semaphores=%d\n", vk_gpu, full ? "full" : "min", strict, frames, W, H, use_sem);
+	printf("options: vk-gpu=%d usage=%s strict=%d frames=%d size=%ux%u semaphores=%d handle=%s context=%s blit=%d tiling=%s\n", vk_gpu, full ? "full" : "min", strict, frames, W, H, use_sem, kmt ? "kmt" : "nt", core ? "core" : "legacy", blit, linear ? "linear" : "optimal");
+	const VkExternalMemoryHandleTypeFlagBits    vk_mem_handle = kmt ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+	const VkExternalSemaphoreHandleTypeFlagBits vk_sem_handle = kmt ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+	const GLenum                                gl_handle     = kmt ? 0x9588 /* GL_HANDLE_TYPE_OPAQUE_WIN32_KMT_EXT */ : GL_HANDLE_TYPE_OPAQUE_WIN32_EXT;
 
 	// ------------------------------------------------ OpenGL context on a window
 	step("create window and WGL context");
@@ -230,8 +290,33 @@ int main(int argc, char** argv)
 	HGLRC ctx = wglCreateContext(dc);
 	if (!ctx || !wglMakeCurrent(dc, ctx))
 		fail("wglCreateContext/MakeCurrent %lu", GetLastError());
+	if (core) {
+		typedef HGLRC(WINAPI * create_attribs_t)(HDC, HGLRC, const int*);
+		create_attribs_t create_attribs = (create_attribs_t)(void*)wglGetProcAddress("wglCreateContextAttribsARB");
+		if (!create_attribs)
+			fail("wglCreateContextAttribsARB missing");
+		const int attribs[] = { 0x2091, 4, 0x2092, 6, 0x9126, 0x1, 0 }; // major 4, minor 6, core profile
+		HGLRC     cctx      = create_attribs(dc, nullptr, attribs);
+		if (!cctx || !wglMakeCurrent(dc, cctx))
+			fail("core context %lu", GetLastError());
+		wglDeleteContext(ctx);
+		ctx = cctx;
+	}
 
-	const char* exts = (const char*)glGetString(GL_EXTENSIONS);
+	std::string ext_list;
+	if (core) {
+		typedef const GLubyte*(APIENTRY * get_stringi_t)(GLenum, GLuint);
+		get_stringi_t get_stringi = (get_stringi_t)(void*)wglGetProcAddress("glGetStringi");
+		GLint         n           = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS_, &n);
+		for (GLint k = 0; k < n; k++) {
+			ext_list += (const char*)get_stringi(GL_EXTENSIONS, GLuint(k));
+			ext_list += ' ';
+		}
+	} else {
+		ext_list = (const char*)glGetString(GL_EXTENSIONS);
+	}
+	const char* exts = ext_list.c_str();
 	printf("GL_VENDOR   %s\nGL_RENDERER %s\nGL_VERSION  %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
 	const char* need[] = { "GL_EXT_memory_object", "GL_EXT_memory_object_win32", "GL_EXT_semaphore", "GL_EXT_semaphore_win32" };
 	bool        all    = true;
@@ -274,13 +359,29 @@ int main(int argc, char** argv)
 		gl_dev_uuids.push_back(u);
 	}
 	uint8_t gl_drv_uuid[VK_UUID_SIZE] = {}, gl_luid[VK_LUID_SIZE] = {};
+	printf("  glGetError after device UUIDs: 0x%x\n", glGetError());
 	glGetUnsignedBytevEXT(GL_DRIVER_UUID_EXT, gl_drv_uuid);
+	printf("  glGetError after driver UUID: 0x%x\n", glGetError());
 	glGetUnsignedBytevEXT(GL_DEVICE_LUID_EXT, gl_luid);
+	printf("  glGetError after LUID: 0x%x\n", glGetError());
 	GLint gl_node = 0;
 	glGetIntegerv(GL_DEVICE_NODE_MASK_EXT, &gl_node);
 	hex("driver UUID", gl_drv_uuid, sizeof(gl_drv_uuid));
 	hex("LUID", gl_luid, sizeof(gl_luid));
 	printf("  node mask     0x%x\n", gl_node);
+	{
+		typedef void(APIENTRY * get_internalformativ_t)(GLenum, GLenum, GLenum, GLsizei, GLint*);
+		get_internalformativ_t gif = (get_internalformativ_t)(void*)wglGetProcAddress("glGetInternalformativ");
+		if (gif) {
+			GLint nt = 0, types[8] = {};
+			gif(GL_TEXTURE_2D, GL_RGBA8_, GL_NUM_TILING_TYPES_EXT, 1, &nt);
+			gif(GL_TEXTURE_2D, GL_RGBA8_, GL_TILING_TYPES_EXT, 8, types);
+			printf("  RGBA8 tiling types (%d):", nt);
+			for (GLint k = 0; k < nt && k < 8; k++)
+				printf(" 0x%x", types[k]);
+			printf("  (optimal 0x9584, linear 0x9585) glGetError 0x%x\n", glGetError());
+		}
+	}
 	printf("  glGetError after queries: 0x%x\n", glGetError());
 
 	// ------------------------------------------------ Vulkan instance and device
@@ -396,12 +497,12 @@ int main(int argc, char** argv)
 	VkImageCreateFlags cflags = 0;
 	auto query = [&](VkImageUsageFlags u, VkImageCreateFlags f, VkExternalImageFormatProperties* out) {
 		VkPhysicalDeviceExternalImageFormatInfo ext = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO };
-		ext.handleType                              = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+		ext.handleType                              = vk_mem_handle;
 		VkPhysicalDeviceImageFormatInfo2 info       = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2 };
 		info.pNext                                  = &ext;
 		info.format                                 = VK_FORMAT_R8G8B8A8_UNORM;
 		info.type                                   = VK_IMAGE_TYPE_2D;
-		info.tiling                                 = VK_IMAGE_TILING_OPTIMAL;
+		info.tiling                                 = linear ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 		info.usage                                  = u;
 		info.flags                                  = f;
 		VkExternalImageFormatProperties eprops      = { VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES };
@@ -436,9 +537,9 @@ int main(int argc, char** argv)
 	GLuint             gl_mem[N], tex[N], gl_ready[N] = {}, gl_done[N] = {};
 	VkSemaphore        ready[N] = {}, done[N] = {};
 	for (uint32_t i = 0; i < N; i++) {
-		step("image %u: vkCreateImage %ux%u R8G8B8A8_UNORM optimal", i, W, H);
+		step("image %u: vkCreateImage %ux%u R8G8B8A8_UNORM %s", i, W, H, linear ? "linear" : "optimal");
 		VkExternalMemoryImageCreateInfo xi = { VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO };
-		xi.handleTypes                     = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+		xi.handleTypes                     = vk_mem_handle;
 		VkImageCreateInfo ci               = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		ci.pNext                           = &xi;
 		ci.flags                           = cflags;
@@ -448,7 +549,7 @@ int main(int argc, char** argv)
 		ci.mipLevels                       = 1;
 		ci.arrayLayers                     = 1;
 		ci.samples                         = VK_SAMPLE_COUNT_1_BIT;
-		ci.tiling                          = VK_IMAGE_TILING_OPTIMAL;
+		ci.tiling                          = linear ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 		ci.usage                           = usage;
 		ci.initialLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
 		if (vkCreateImage(dev, &ci, nullptr, &img[i]) != VK_SUCCESS)
@@ -461,12 +562,12 @@ int main(int argc, char** argv)
 				type = t;
 				break;
 			}
-		step("image %u: vkAllocateMemory size %llu align %llu type %u (dedicated, export OPAQUE_WIN32)", i, (unsigned long long)req.size, (unsigned long long)req.alignment, type);
+		step("image %u: vkAllocateMemory size %llu align %llu type %u (dedicated, export %s)", i, (unsigned long long)req.size, (unsigned long long)req.alignment, type, kmt ? "OPAQUE_WIN32_KMT" : "OPAQUE_WIN32");
 		VkMemoryDedicatedAllocateInfo ded = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO };
 		ded.image                         = img[i];
 		VkExportMemoryAllocateInfo xa     = { VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO };
 		xa.pNext                          = &ded;
-		xa.handleTypes                    = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+		xa.handleTypes                    = vk_mem_handle;
 		VkMemoryAllocateInfo ai           = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
 		ai.pNext                          = &xa;
 		ai.allocationSize                 = req.size;
@@ -476,7 +577,7 @@ int main(int argc, char** argv)
 		HANDLE                        h  = nullptr;
 		VkMemoryGetWin32HandleInfoKHR gi = { VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR };
 		gi.memory                        = mem[i];
-		gi.handleType                    = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+		gi.handleType                    = vk_mem_handle;
 		if (vkGetMemoryWin32HandleKHR(dev, &gi, &h) != VK_SUCCESS)
 			fail("vkGetMemoryWin32HandleKHR");
 		step("image %u: glCreateMemoryObjectsEXT + DEDICATED_MEMORY_OBJECT_EXT", i);
@@ -484,14 +585,16 @@ int main(int argc, char** argv)
 		GLint on = GL_TRUE;
 		glMemoryObjectParameterivEXT(gl_mem[i], GL_DEDICATED_MEMORY_OBJECT_EXT, &on);
 		step("image %u: glImportMemoryWin32HandleEXT handle %p size %llu", i, h, (unsigned long long)req.size);
-		glImportMemoryWin32HandleEXT(gl_mem[i], req.size, GL_HANDLE_TYPE_OPAQUE_WIN32_EXT, h);
+		glImportMemoryWin32HandleEXT(gl_mem[i], req.size, gl_handle, h);
 		printf("  glGetError 0x%x\n", glGetError());
 		step("image %u: glTexStorageMem2DEXT GL_RGBA8 %ux%u", i, W, H);
 		glGenTextures(1, &tex[i]);
 		glBindTexture(GL_TEXTURE_2D, tex[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, linear ? 0x9585 : GL_OPTIMAL_TILING_EXT);
 		glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, GL_RGBA8_, GLsizei(W), GLsizei(H), gl_mem[i], 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		CloseHandle(h);
+		if (!kmt)
+			CloseHandle(h); // KMT handles are not closed.
 		printf("  glGetError 0x%x\n", glGetError());
 
 		if (use_sem) {
@@ -500,20 +603,21 @@ int main(int argc, char** argv)
 			for (int s = 0; s < 2; s++) {
 				step("image %u: semaphore %d export + glImportSemaphoreWin32HandleEXT", i, s);
 				VkExportSemaphoreCreateInfo xs = { VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO };
-				xs.handleTypes                 = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+				xs.handleTypes                 = vk_sem_handle;
 				VkSemaphoreCreateInfo sci      = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 				sci.pNext                      = &xs;
 				if (vkCreateSemaphore(dev, &sci, nullptr, sems[s]) != VK_SUCCESS)
 					fail("vkCreateSemaphore");
 				VkSemaphoreGetWin32HandleInfoKHR sg = { VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR };
 				sg.semaphore                        = *sems[s];
-				sg.handleType                       = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+				sg.handleType                       = vk_sem_handle;
 				HANDLE sh                           = nullptr;
 				if (vkGetSemaphoreWin32HandleKHR(dev, &sg, &sh) != VK_SUCCESS)
 					fail("vkGetSemaphoreWin32HandleKHR");
 				glGenSemaphoresEXT(1, gsems[s]);
-				glImportSemaphoreWin32HandleEXT(*gsems[s], GL_HANDLE_TYPE_OPAQUE_WIN32_EXT, sh);
-				CloseHandle(sh);
+				glImportSemaphoreWin32HandleEXT(*gsems[s], gl_handle, sh);
+				if (!kmt)
+					CloseHandle(sh);
 				printf("  glGetError 0x%x\n", glGetError());
 			}
 		}
@@ -595,20 +699,38 @@ int main(int argc, char** argv)
 		if (f < 2 * int(N))
 			step("frame %d: OpenGL wait, blit, signal, swap", f);
 		const GLenum layout = GL_LAYOUT_GENERAL_EXT;
-		if (use_sem)
-			glWaitSemaphoreEXT(gl_ready[i], 0, nullptr, 1, &tex[i], &layout);
-		glBindFramebuffer_(GL_READ_FRAMEBUFFER_, fbo);
-		glFramebufferTexture2D_(GL_READ_FRAMEBUFFER_, GL_COLOR_ATTACHMENT0_, GL_TEXTURE_2D, tex[i], 0);
-		glBindFramebuffer_(GL_DRAW_FRAMEBUFFER_, 0);
-		glBlitFramebuffer_(0, 0, GLint(W), GLint(H), 0, GLint(H), GLint(W), 0, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		glBindFramebuffer_(GL_READ_FRAMEBUFFER_, 0);
+		const bool   say    = f < 2 * int(N);
 		if (use_sem) {
+			if (say)
+				step("  glWaitSemaphoreEXT");
+			glWaitSemaphoreEXT(gl_ready[i], 0, nullptr, 1, &tex[i], &layout);
+		}
+		if (blit) {
+			if (say)
+				step("  framebuffer attach");
+			glBindFramebuffer_(GL_READ_FRAMEBUFFER_, fbo);
+			glFramebufferTexture2D_(GL_READ_FRAMEBUFFER_, GL_COLOR_ATTACHMENT0_, GL_TEXTURE_2D, tex[i], 0);
+			glBindFramebuffer_(GL_DRAW_FRAMEBUFFER_, 0);
+			if (say)
+				step("  glBlitFramebuffer");
+			glBlitFramebuffer_(0, 0, GLint(W), GLint(H), 0, GLint(H), GLint(W), 0, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			glBindFramebuffer_(GL_READ_FRAMEBUFFER_, 0);
+		}
+		if (use_sem) {
+			if (say)
+				step("  glSignalSemaphoreEXT");
 			glSignalSemaphoreEXT(gl_done[i], 0, nullptr, 1, &tex[i], &layout);
+			if (say)
+				step("  glFlush");
 			glFlush();
 			done_pending[i] = true;
 		} else {
+			if (say)
+				step("  glFinish");
 			glFinish();
 		}
+		if (say)
+			step("  SwapBuffers");
 		if (!SwapBuffers(dc))
 			fail("SwapBuffers %lu", GetLastError());
 		if (f < 2 * int(N))
