@@ -566,6 +566,11 @@ def check(commands, blitzcc):
             # A default is a value as a program writes it; a backslash is a C escape that was cut out of its string.
             if "\\" in (d or ""):
                 errors.append("%s has the default %s for %s, which is not a BlitzBasic value" % (c.name, d, n))
+        names = {n for _, n, _ in c.params}
+        for n in split_text(c.text or "")[1]["param"]:
+            # The table of parameters is made from the signature, so a description under another name never shows up.
+            if c.params and n not in names:
+                errors.append("%s documents the parameter %s, which its signature does not have" % (c.name, n))
     pages = {fn[:-3] for fn in os.listdir(OUT) if fn.endswith(".md")}
     for fn in sorted(os.listdir(OUT)):
         if not fn.endswith(".md"):
