@@ -103,7 +103,7 @@ namespace bb::rhi::vulkan::wgl {
 			GLuint          framebuffer = 0;
 			VkCommandPool   pool = VK_NULL_HANDLE;
 			VkCommandBuffer release[image_count] = {};
-			std::vector<HANDLE> imported; // NT handles of the imports, closed once OpenGL is done with them (see close_imported).
+			std::vector<HANDLE> imported; // NT handles of the imports, closed after their OpenGL objects are deleted (see close_imported).
 
 			std::mutex              lock;
 			std::condition_variable presented;
@@ -337,7 +337,7 @@ namespace bb::rhi::vulkan::wgl {
 			w.bind_texture(GL_TEXTURE_2D, c.textures[i]);
 			c.gl.tex_storage_mem_2d(GL_TEXTURE_2D, 1, gl_rgba8, GLsizei(c.width), GLsizei(c.height), c.gl_memory[i], 0);
 			w.bind_texture(GL_TEXTURE_2D, 0);
-			c.imported.push_back(handle); // Closed by close_imported, not here: AMD still reads it after the import returned.
+			c.imported.push_back(handle); // Closed by close_imported, not here: AMD still uses it after the import returned.
 			GLenum error = w.get_error();
 			if (error != GL_NO_ERROR) {
 				warn("importing the memory of an image into OpenGL", long(error));
@@ -377,17 +377,11 @@ namespace bb::rhi::vulkan::wgl {
 		}
 
 		// The extensions let a program close the handles once they are imported, but AMD's OpenGL driver (seen with 26.5.2 and
-		// 26.11.2 on Windows) finishes the imports on a thread of its own after the calls returned: a handle closed before that
-		// crashes the driver (atio6axx.dll, writing near 0) at the first glWaitSemaphoreEXT or glFinish. Waiting for OpenGL to be
-		// done once, after all imports, avoids it. Called with the context current, or none made yet.
+		// 26.11.2 on Windows) still uses them on a thread of its own after the import calls returned: a memory or semaphore handle
+		// closed early crashes the driver (atio6axx.dll, writing near 0) at the first glWaitSemaphoreEXT or glFinish. So the
+		// handles stay open as long as their OpenGL objects exist, and are closed after those were deleted.
 		void close_imported(chain& c)
 		{
-			if (c.imported.empty()) {
-				return;
-			}
-			if (c.context && (w.get_current_context() == c.context)) {
-				w.finish();
-			}
 			for (HANDLE handle : c.imported) {
 				CloseHandle(handle);
 			}
@@ -431,7 +425,6 @@ namespace bb::rhi::vulkan::wgl {
 		// With the context current, or none made yet.
 		void destroy_objects(chain& c)
 		{
-			close_imported(c);
 			if (c.context && (w.get_current_context() == c.context)) {
 				w.finish(); // OpenGL is done with the images and semaphores.
 				if (c.framebuffer) {
@@ -469,6 +462,7 @@ namespace bb::rhi::vulkan::wgl {
 			if (c.pool) {
 				vkDestroyCommandPool(c.device, c.pool, nullptr);
 			}
+			close_imported(c); // After the OpenGL objects that use them.
 			if (c.context) {
 				w.make_current(nullptr, nullptr);
 				w.delete_context(c.context);
@@ -527,7 +521,6 @@ namespace bb::rhi::vulkan::wgl {
 		for (uint32_t i = 0; ok && (i < image_count); i++) {
 			ok = make_image(*c, i, vkd.memory) && make_semaphore(*c, c->ready[i], c->gl_ready[i]) && make_semaphore(*c, c->done[i], c->gl_done[i]);
 		}
-		close_imported(*c);
 		if (ok) {
 			c->gl.gen_framebuffers(1, &c->framebuffer);
 			ok = w.get_error() == GL_NO_ERROR;
