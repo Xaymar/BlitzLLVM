@@ -47,6 +47,10 @@ and what it does every frame.
 * `bench_profile_on.bi` and `bench_profile_off.bi`: with `--profile` (BlitzLLVM only) the program reads the GPU time of the passes,
   the CPU time of `RenderWorld` and the wait for the GPU with `ProfileValue` after every timed frame, which is not tied to the
   once-a-second report of `BLITZLLVM_PROFILE_FPS`, so a short run has numbers too. The runner copies one of them as `bench_profile.bi`.
+  The GPU times come back some frames late (the faster the program runs, the more frames), one frame's per `Flip` once they do, so
+  the n-th GPU time that comes back is counted as the one of frame n: only those of the timed frames are added up, and after the timed
+  frames the last picture is drawn again (untimed, at most 10 seconds) until all of them are back. `gpu_frames` says how many came
+  back and `gpu_lag` at the `Flip` of which frame the first one did.
 * `bench_end.bi` draws the frames and times them, and writes the RESULT line: frames, window, `create_ms`, `update_ms`, `ms_avg`,
   `ms_min`, `ms_median`, `ms_p95`, `ms_max`, `fps`, and per frame the triangles and the draw counters, followed by the values of the
   benchmark. It calls the functions of the benchmark: `BenchUpdate` (not timed), `BenchTimedUpdate` (timed, also on its own as

@@ -72,6 +72,37 @@ Function BenchEndCreation()
 	BenchCreateMs = (BenchMicros() - BenchCreateStart) / 1000.0
 End Function
 
+; The GPU time of the passes with profiling (bench_profile_on.bi). GPU work comes back late: the first GPU time arrives some frames after
+; the first frame, the more frames the faster the program runs (up to 100 or more), and from then on one frame's comes back per Flip.
+; So the n-th time that comes back is the one of frame n: BenchGpuSample counts them from the first frame on and adds up those of the
+; timed frames (frames BenchWarmup to BenchWarmup + BenchFrames - 1), and bench_end.bi keeps drawing the last picture, untimed, until
+; all of them are back. BenchGpuLag is the number of the frame at whose Flip the first time came back.
+Global BenchGpuSeen = 0
+Global BenchGpuLag = -1
+Global BenchGpuFrames = 0
+Global BenchGpuScene# = 0
+Global BenchGpu2D# = 0
+Global BenchGpuCopy# = 0
+Global BenchGpuPresent# = 0
+Global BenchGpuFrame# = 0
+
+; Call after every Flip, with the number of the frame (counting from 0, the warmup frames first).
+Function BenchGpuSample(frame)
+	If BenchProfiling() = 0 Then Return
+	now# = BenchProfile("gpu frame")
+	If now <= 0 Then Return ; Nothing came back at this Flip.
+	If BenchGpuLag < 0 Then BenchGpuLag = frame
+	If BenchGpuSeen >= BenchWarmup And BenchGpuSeen < BenchWarmup + BenchFrames Then
+		BenchGpuFrames = BenchGpuFrames + 1
+		BenchGpuFrame = BenchGpuFrame + now
+		BenchGpuScene = BenchGpuScene + BenchProfile("gpu scene")
+		BenchGpu2D = BenchGpu2D + BenchProfile("gpu 2d")
+		BenchGpuCopy = BenchGpuCopy + BenchProfile("gpu copy")
+		BenchGpuPresent = BenchGpuPresent + BenchProfile("gpu present")
+	EndIf
+	BenchGpuSeen = BenchGpuSeen + 1
+End Function
+
 ; Writes line (the RESULT line, or a line that starts with ERROR when the benchmark cannot run as asked) to the debug log and to the file
 ; BENCH_RESULT, where the runner reads it: the original Blitz3D has no stdout for a program.
 Function BenchWriteResult(line$)

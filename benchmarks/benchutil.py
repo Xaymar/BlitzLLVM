@@ -278,8 +278,11 @@ class Runner:
               % (v["tris"], v["draws"], v["pipelines"], v["textures"], v["buffers"]))
         if self.gpu:
             if "gpu_frames" in self.gpu:
-                print("  gpu         scene %.3f ms, 2d %.3f ms, copy %.3f ms, present %.3f ms, frame %.3f ms per frame (%d frames, ProfileValue)"
-                      % (self.gpu["gpu_scene_ms"], self.gpu["gpu_2d_ms"], self.gpu["gpu_copy_ms"], self.gpu["gpu_present_ms"], self.gpu["gpu_frame_ms"], self.gpu["gpu_frames"]))
+                print("  gpu         scene %.3f ms, 2d %.3f ms, copy %.3f ms, present %.3f ms, frame %.3f ms per frame (%d of %d frames, ProfileValue)"
+                      % (self.gpu["gpu_scene_ms"], self.gpu["gpu_2d_ms"], self.gpu["gpu_copy_ms"], self.gpu["gpu_present_ms"], self.gpu["gpu_frame_ms"], self.gpu["gpu_frames"],
+                         self.values["frames"]))
+                if "gpu_lag" in self.gpu:
+                    print("  gpu lag     the first GPU time came back at the Flip of frame %d (the warmup frames counted)" % self.gpu["gpu_lag"])
             else:
                 print("  gpu         no GPU time came back (no GPU timestamps on this device?)")
             print("  cpu         RenderWorld %.3f ms, waiting for the GPU %.3f ms per frame (ProfileValue)" % (self.gpu.get("renderworld_ms", 0), self.gpu.get("gpu_wait_ms", 0)))
