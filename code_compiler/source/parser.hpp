@@ -74,6 +74,12 @@ namespace blitz {
 		 * <prefix>/share/blitzllvm/include (Linux packages and Flatpak). Empty if there is none. */
 		static std::filesystem::path installed_include_dir(std::filesystem::path const& bin_dir);
 
+		/** The file that `Include "name"` reads (`name` without the quotes): relative to `from_dir` (the folder of the including
+		 * file), then to `root_dir` (the folder of the main program), or for `<name>` from `include_dirs`. Empty, with the reason in
+		 * `why`, if there is none or the name is not allowed. */
+		static std::filesystem::path find_include(std::string const& name, std::filesystem::path const& from_dir, std::filesystem::path const& root_dir,
+		                                          std::vector<std::filesystem::path> const& include_dirs, std::string& why);
+
 		std::unique_ptr<ast::program> parse(std::filesystem::path file);
 
 		private:
