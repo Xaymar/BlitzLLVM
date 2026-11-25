@@ -1028,6 +1028,7 @@ Function UpdatePlay()
 			EndIf
 		EndIf
 	EndIf
+	If (Not onGround) And l = 0 And pvy < 0 Then SteerToFloorGate()
 	pvy = Max(pvy - GRAVITY, -MAX_FALL)
 	lastFall = pvy
 
@@ -1071,6 +1072,24 @@ End Function
 
 ; The player came out of the other gate: the view turns with the gates (any roll is left out), and a carried cube
 ; comes along.
+; Falling towards a gate in the floor with no key held, the player drifts gently to its middle, so a fall that
+; starts near the edge still goes in. Any key held takes the steering back.
+Function SteerToFloorGate()
+	If Not GatesLinked() Then Return
+	Local i, gx#, gz#, dx#, dz#, want#
+	For i = 0 To 1
+		If gateSide(i) = 2
+			gx = EntityX(gatePivot(i)) : gz = EntityZ(gatePivot(i))
+			dx = gx - px : dz = gz - pz
+			If py - PLAYER_HH > EntityY(gatePivot(i)) And Abs(dx) < CELL * 1.25 And Abs(dz) < CELL * 1.25
+				want = Max(-WALK_SPEED, Min(WALK_SPEED, dx * 0.08)) : pvx = pvx + (want - pvx) * 0.15
+				want = Max(-WALK_SPEED, Min(WALK_SPEED, dz * 0.08)) : pvz = pvz + (want - pvz) * 0.15
+				Return
+			EndIf
+		EndIf
+	Next
+End Function
+
 Function PlayerPassed(i)
 	Local o = 1 - i
 	TFormVector 0, 0, 1, camera, 0
