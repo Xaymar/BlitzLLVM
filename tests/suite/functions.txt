@@ -889,6 +889,7 @@ settextareafont	plusgui	done	SetTextAreaFont%textarea%font
 settextareatabs	plusgui	done	SetTextAreaTabs%textarea%tabs
 settextareatext	plusgui	done	SetTextAreaText%textarea$text%pos=0%len=-1%units=1
 settoolbartips	plusgui	done	SetToolBarTips%toolbar$tips
+setwindowsizelimit	plusgui	done	SetWindowSizeLimit%window%min_width%min_height%max_width%max_height
 showgadget	plusgui	done	ShowGadget%gadget
 slidervalue	plusgui	done	%SliderValue%slider
 textareachar	plusgui	done	%TextAreaChar%textarea%line

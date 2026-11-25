@@ -988,6 +988,7 @@
 		{ "settextareatabs", "bb_set_text_area_tabs", 'v', "ii", 2, { 0, 0 }, false },
 		{ "settextareatext", "bb_set_text_area_text", 'v', "isiii", 2, { 0, 0, 0, -1, 1 }, false },
 		{ "settoolbartips", "bb_set_tool_bar_tips", 'v', "is", 2, { 0, 0 }, false },
+		{ "setwindowsizelimit", "bb_set_window_size_limit", 'v', "iiiii", 5, { 0, 0, 0, 0, 0 }, false },
 		{ "showgadget", "bb_show_gadget", 'v', "i", 1, { 0 }, false },
 		{ "slidervalue", "bb_slider_value", 'i', "i", 1, { 0 }, false },
 		{ "textareachar", "bb_text_area_char", 'i', "ii", 2, { 0, 0 }, false },

@@ -37,6 +37,7 @@ void    bb_gui_window_show(int32_t handle, int32_t show);
 void    bb_gui_window_raise(int32_t handle);
 void    bb_gui_window_state(int32_t handle, int32_t state);
 void    bb_gui_window_min_size(int32_t handle, int32_t w, int32_t h);
+void    bb_gui_window_max_size(int32_t handle, int32_t w, int32_t h);
 void    bb_gui_window_pixel_size(int32_t handle, int32_t* w, int32_t* h);
 int32_t bb_gui_window_buffer(int32_t handle);
 void    bb_gui_window_show_picture(int32_t handle, int32_t wait);
@@ -176,6 +177,7 @@ namespace bb::gui {
 		int  menu = 0;
 		char* status = nullptr;
 		int  min_w = 0, min_h = 0;
+		int  max_w = 0, max_h = 0; // SetWindowSizeLimit; 0 is no limit.
 		bool minimized = false, maximized = false;
 		int  restore_x = 0, restore_y = 0, restore_w = 0, restore_h = 0;
 

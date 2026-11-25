@@ -140,6 +140,9 @@ namespace bb::gui {
 		if (g->min_w || g->min_h) {
 			bb_gui_window_min_size(g->surface, g->min_w, g->min_h);
 		}
+		if (g->max_w || g->max_h) {
+			bb_gui_window_max_size(g->surface, g->max_w, g->max_h);
+		}
 		if (g->maximized) {
 			bb_gui_window_state(g->surface, 2);
 		} else if (g->minimized) {
@@ -263,6 +266,27 @@ void bb_set_status_text(int32_t handle, const char* text)
 	gadget* g = need_kind(handle, K_WINDOW, "SetStatusText");
 	set_string(g->status, text);
 	dirty();
+}
+
+// A BlitzLLVM extension: the smallest and the biggest size the user may make a window, which the window system holds to while an
+// edge is dragged (a program that shrinks the window back itself would wait for the drag to end). 0 is no limit.
+void bb_set_window_size_limit(int32_t handle, int32_t min_w, int32_t min_h, int32_t max_w, int32_t max_h)
+{
+	gadget* g = need_kind(handle, K_WINDOW, "SetWindowSizeLimit");
+	g->min_w  = min_w > 0 ? min_w : 0;
+	g->min_h  = min_h > 0 ? min_h : 0;
+	g->max_w  = max_w > 0 ? max_w : 0;
+	g->max_h  = max_h > 0 ? max_h : 0;
+	if (g->surface) {
+		bb_gui_window_min_size(g->surface, g->min_w, g->min_h);
+		bb_gui_window_max_size(g->surface, g->max_w, g->max_h);
+	}
+	int w = g->w < g->min_w ? g->min_w : g->w, h = g->h < g->min_h ? g->min_h : g->h;
+	w     = (g->max_w && (w > g->max_w)) ? g->max_w : w;
+	h     = (g->max_h && (h > g->max_h)) ? g->max_h : h;
+	if ((w != g->w) || (h != g->h)) {
+		set_shape(handle, g->x, g->y, w, h);
+	}
 }
 
 void bb_set_min_window_size(int32_t handle, int32_t w, int32_t h)
