@@ -818,8 +818,10 @@ namespace bb::gfx {
 		desc.height     = uint32_t(h);
 		desc.vsync      = s.vsync;
 		desc.own_thread = (s.show != nullptr);
+		desc.hdr        = hdr_wanted(s);
 		if (bb::rhi::create_swapchain(s.chain, desc)) {
 			s.resized = false;
+			hdr_swapchain_made(s);
 		}
 	}
 

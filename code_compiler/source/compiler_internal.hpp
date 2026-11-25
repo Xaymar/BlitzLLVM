@@ -58,8 +58,14 @@ namespace blitz::compiler_detail {
 
 	// The codes of the tables of built-in functions: v nothing, b Int8, B UInt8, h Int16, H UInt16, i Int32, I UInt32, l Int64,
 	// u UInt64, x Float16, f Float32, d Float64, s String. The table of user libraries also uses p for a pointer.
-	// The table of built-in functions has X for an Out parameter of type Float16: it is the address of a variable that the function writes
-	// the 16 bits to (a uint16_t*), or null if the argument was left out. An In Float16 (x) is passed as its 16 bits in a uint32_t.
+	// The table of built-in functions has X, O and F for an Out parameter of type Float16, Int32 and Float32: it is the address of a variable
+	// that the function writes to (a uint16_t* with the 16 bits, an int32_t*, a float*), or null if the argument was left out. An In
+	// Float16 (x) is passed as its 16 bits in a uint32_t.
+	inline bool is_out(char c)
+	{
+		return (c == 'X') || (c == 'O') || (c == 'F');
+	}
+
 	inline type builtin_type(char c)
 	{
 		switch (c) {
@@ -72,6 +78,7 @@ namespace blitz::compiler_detail {
 		case 'H':
 			return type::UINT16;
 		case 'i':
+		case 'O':
 			return type::INT32;
 		case 'I':
 			return type::UINT32;
@@ -86,6 +93,7 @@ namespace blitz::compiler_detail {
 		case 'V':
 		case 'N':
 		case 'M':
+		case 'F':
 			return type::FLOAT32;
 		case 'd':
 			return type::FLOAT64;

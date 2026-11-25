@@ -252,7 +252,7 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 	std::vector<operand> operands(total);
 	size_t               offset = (entry->lead && (args == 1) && (total == 2)) ? 1 : 0;
 	for (size_t idx = 0; idx < args; idx++) {
-		if (entry->params[idx + offset] == 'X') {
+		if (is_out(entry->params[idx + offset])) {
 			// An Out parameter takes the address of a variable, array element or field to write to.
 			auto const* arg = node->arguments[idx].get();
 			bool        place = dynamic_cast<ast::reference const*>(arg) || dynamic_cast<ast::field_access const*>(arg) || dynamic_cast<ast::index_access const*>(arg);
@@ -269,8 +269,9 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 				if (addr.constant || addr.count || !addr.shape.empty()) {
 					throw err(arg->where, describe + (addr.constant ? " can't write to a constant." : " can't take a whole array, give it an element."));
 				}
-				if (addr.type != type::FLOAT16) {
-					throw err(arg->where, describe + " has to be given a variable of type Float16, not " + blitz::types::display(addr.type) + ".");
+				auto wanted = builtin_type(entry->params[idx + offset]);
+				if (addr.type != wanted) {
+					throw err(arg->where, describe + " has to be given a variable of type " + blitz::types::display(wanted) + ", not " + blitz::types::display(addr.type) + ".");
 				}
 				o.v      = value{ addr.pointer, type::STRUCT };
 				o.v.need = addr.need;
@@ -284,7 +285,7 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 	for (size_t idx = 0; idx < total; idx++) {
 		if (!given[idx]) {
 			auto want = builtin_type(entry->params[idx]);
-			if (entry->params[idx] == 'X') {
+			if (is_out(entry->params[idx])) {
 				operands[idx].v = value{ "null", type::STRUCT };
 			} else {
 				operands[idx].v = (want == type::STRING) ? zero(want) : constant(want, entry->defaults[idx]);
@@ -294,7 +295,7 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 	}
 	int chain = place_sequence(operands);
 	for (size_t idx = 0; idx < args; idx++) {
-		if (entry->params[idx + offset] == 'X') {
+		if (is_out(entry->params[idx + offset])) {
 			values[idx + offset] = operands[idx + offset].v;
 			continue;
 		}

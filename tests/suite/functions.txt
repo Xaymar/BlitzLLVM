@@ -4,6 +4,8 @@ channelpitch	audio	done	ChannelPitch%channel%pitch
 channelplaying	audio	done	%ChannelPlaying%channel
 channelvolume	audio	done	ChannelVolume%channel#volume
 freesound	audio	done	FreeSound%sound
+getgraphicshdr	blitz3d	done	GetGraphicsHDR>%mode=0>#minimum=0>#average=0>#maximum=0
+setgraphicshdr	blitz3d	done	SetGraphicsHDR%mode#minimum=0#average=0#maximum=0
 joychanged	input	done	%JoyChanged
 joydeviceconnected	input	done	%JoyDeviceConnected%port
 joydevicecount	input	done	%JoyDeviceCount
@@ -218,6 +220,9 @@ gfxdrivercaps3d	blitz3d	done	%GfxDriverCaps3D
 handlesprite	blitz3d	done	HandleSprite%sprite#x_handle#y_handle
 hideentity	blitz3d	done	HideEntity%entity
 hwdither	blitz3d	done	%HWDither
+hwhdractive	blitz3d	done	%HWHDRActive
+hwhdrpeaknits	blitz3d	done	#HWHDRPeakNits
+hwhdrsupported	blitz3d	done	%HWHDRSupported
 hworderindependenttransparency	blitz3d	done	%HWOrderIndependentTransparency
 hwmultitex	blitz3d	done	HWMultiTex%enable
 hwtexunits	blitz3d	done	%HWTexUnits

@@ -24,7 +24,8 @@
 // Vulkan functions
 ////////////////////////////////////////////////////////////////////////////////
 #define BB_VK_GLOBAL(X) \
-	X(vkCreateInstance)
+	X(vkCreateInstance) \
+	X(vkEnumerateInstanceExtensionProperties)
 
 #define BB_VK_INSTANCE(X) \
 	X(vkDestroyInstance) \
@@ -51,6 +52,7 @@
 	X(vkQueueSubmit) \
 	X(vkQueuePresentKHR) \
 	X(vkWaitForPresentKHR) \
+	X(vkSetHdrMetadataEXT) \
 	X(vkWaitSemaphores) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \

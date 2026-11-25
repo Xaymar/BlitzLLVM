@@ -7302,6 +7302,27 @@ void main()
 }
 
 )glsl")
+BB_OPENGL_SHADER(bb_shader_fragment_hdr, 337, 0xEC014E58DFB473F2ull, 'f', R"glsl(#version 430
+
+layout(std140) uniform bb_push_f
+{
+    float _m0;
+    float _m1;
+} _12;
+
+uniform sampler2D bb_t0_0_f;
+
+layout(location = 0) in vec2 _16;
+layout(location = 0) out vec4 _18;
+
+void main()
+{
+    vec3 _28 = max(texture(bb_t0_0_f, _16).xyz, vec3(0.0));
+    vec3 _30 = _28 * 0.077399380505084991455078125;
+    _18 = vec4(min((_30 + ((pow((_28 + vec3(0.054999999701976776123046875)) * 0.94786727428436279296875, vec3(2.400000095367431640625)) - _30) * step(vec3(0.040449999272823333740234375), _28))) * _12._m0, vec3(_12._m1)), 1.0);
+}
+
+)glsl")
 BB_OPENGL_SHADER(bb_shader_compute_cull, 1229, 0xB8D3928B1A336A5Aull, 'c', R"glsl(#version 430
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 
