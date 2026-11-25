@@ -8,31 +8,19 @@
 ; Environment variables:
 ;   BENCH_SURFACES  surfaces per side of the terrain (default 6)
 ;   BENCH_GRID      squares per side of a surface (default 128, 2 triangles each; a surface has (GRID + 1)^2 vertices, at most 65535)
-;   BENCH_FRAMES    how many frames are timed (default 60)
-;   BENCH_WARMUP    frames that are rendered but not timed (default 3)
-;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
 ;   BENCH_CAMERA    circle (default, sees a small part) or above (sees all of it)
 ;   BENCH_CULL      CameraCulling flags of BlitzLLVM (default 3: the GPU culls faces too; 1, the default of cameras, is meshes only), ignored by the original
-;   BENCH_SHOT      file to save the last picture to (optional)
-;   BENCH_RESULT    file to write the RESULT line to (optional)
+;   and the ones of every benchmark (frames, warmup, seed, window, depth, GPU, files), see bench_begin.bi.
 ;
-; Runs with BlitzLLVM and with the original Blitz3D: what the original does not have is in bigmesh_llvm.bi or bigmesh_original.bi, which
-; python3 benchmarks/bigmesh.py copies next to this file as bigmesh_counters.bi.
-Include "bigmesh_counters.bi"
+; Runs with BlitzLLVM and with the original Blitz3D: what differs between them is in bench_llvm.bi and bench_original.bi (and for this
+; benchmark in bigmesh_llvm.bi and bigmesh_original.bi), python3 benchmarks/bigmesh.py copies the right ones next to this file as
+; bench_compiler.bi and bigmesh_compiler.bi.
+Include "bench_compiler.bi"
+Include "bigmesh_compiler.bi"
+Include "bench_begin.bi"
 
-Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
-SetBuffer BackBuffer()
-
-Function Env$(name$, fallback$)
-	value$ = GetEnv$(name$)
-	If value$ = "" Then value$ = fallback$
-	Return value$
-End Function
-
-sides = Int(Env$("BENCH_SURFACES", 6))
-grid = Int(Env$("BENCH_GRID", 128))
-frames = Int(Env$("BENCH_FRAMES", 60))
-warmup = Int(Env$("BENCH_WARMUP", 3))
+Global sides = Int(Env$("BENCH_SURFACES", 6))
+Global grid = Int(Env$("BENCH_GRID", 128))
 
 ; The hills and the colors come from formulas, not from random numbers, so every run and both compilers build the same mesh.
 mesh = CreateMesh()
@@ -59,17 +47,20 @@ For sy = 0 To sides - 1
 Next
 EntityFX mesh, 1 + 2
 
-camera = CreateCamera()
+Global camera = CreateCamera()
 CameraRange camera, 0.1, 300
 CameraClsColor camera, 10, 20, 30
-BenchCulling camera
+Global cull = BenchCulling(camera)
 
-middle# = sides * grid * 0.25
-above = (Env$("BENCH_CAMERA", "circle") = "above")
+Global middle# = sides * grid * 0.25
+Global above = (Env$("BENCH_CAMERA", "circle") = "above")
+Global pixels = 0
 If above Then CameraRange camera, 0.1, 2.0 * sides * grid
-Dim times(frames)
-For i = -warmup To frames - 1
-	; A small circle around the middle of the terrain, the same step on every run.
+Include "bench_end.bi"
+
+; A small circle around the middle of the terrain, the same step on every run. Only drawing the frame is timed.
+Function BenchUpdate(f)
+	i = f - BenchWarmup
 	a# = i * 0.02
 	If above Then
 		PositionEntity camera, middle, 1.2 * sides * grid * 0.5, middle ; High enough to see all of it
@@ -78,40 +69,34 @@ For i = -warmup To frames - 1
 		PositionEntity camera, middle + Cos(a) * 20, 12, middle + Sin(a) * 20
 		RotateEntity camera, 20, a * 57.29578, 0
 	EndIf
-	started = BenchMicros()
+End Function
+
+Function BenchTimedUpdate(f)
+End Function
+
+Function BenchRender(f)
 	RenderWorld
-	BenchFlip()
-	If i >= 0 Then times(i) = BenchMicros() - started
-Next
+End Function
 
-total = 0
-worst = 0
-best = 2147483647
-For i = 0 To frames - 1
-	total = total + times(i)
-	If times(i) > worst Then worst = times(i)
-	If times(i) < best Then best = times(i)
-Next
+Function BenchAfterFrame(f)
+End Function
 
-; The camera stays where it is for a few more frames, so that the picture does not depend on how many frames the screen is behind.
-For i = 1 To 6
-	RenderWorld
-	BenchFlip()
-Next
-
-; A number for the last picture, so that runs with different culling can be told to draw the same.
-hash = 0
-LockBuffer BackBuffer()
-For j = 0 To 17
-	For i = 0 To 31
-		hash = (hash * 31 + (ReadPixelFast(i * (GraphicsWidth() / 32) + 1, j * (GraphicsHeight() / 18) + 1) And $FFFFFF)) And $7FFFFFFF
+Function BenchFinish()
+	; The camera stays where it is for a few more frames, so that the picture does not depend on how many frames the screen is behind.
+	For i = 1 To 6
+		RenderWorld
+		BenchFlip()
 	Next
-Next
-UnlockBuffer BackBuffer()
-shot$ = Env$("BENCH_SHOT", "")
-If shot <> "" Then SaveBuffer BackBuffer(), shot
+	; A number for the last picture, so that runs with different culling can be told to draw the same.
+	LockBuffer BackBuffer()
+	For j = 0 To 17
+		For i = 0 To 31
+			pixels = (pixels * 31 + (ReadPixelFast(i * (GraphicsWidth() / 32) + 1, j * (GraphicsHeight() / 18) + 1) And $FFFFFF)) And $7FFFFFFF
+		Next
+	Next
+	UnlockBuffer BackBuffer()
+End Function
 
-line$ = "RESULT frames=" + frames + " pixels=" + hash + " tris=" + TrisRendered() + " clusters=" + BenchClusters() + " ms_avg=" + ((total / Float(frames)) / 1000.0) + " ms_min=" + (best / 1000.0) + " ms_max=" + (worst / 1000.0)
-file = WriteFile(Env$("BENCH_RESULT", "bigmesh_result.txt"))
-If file Then WriteLine file, line : CloseFile file
-DebugLog line
+Function BenchResult$()
+	Return " surfaces=" + sides + " grid=" + grid + " cull=" + cull + " pixels=" + pixels + " clusters=" + BenchClusters()
+End Function
