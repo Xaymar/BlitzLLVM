@@ -38,7 +38,7 @@ Print GetCameraBuffer(camera) = BackBuffer() ; 1
 
 ## Related Commands
 
-[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [CameraCulling](CameraCulling), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraClipPlaneEnabled](GetCameraClipPlaneEnabled), [GetCameraProjectionMatrix](GetCameraProjectionMatrix), [GetCameraViewMatrix](GetCameraViewMatrix), [SetCameraBuffer](SetCameraBuffer)
+[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraClipPlaneEnabled](GetCameraClipPlaneEnabled), [GetCameraProjectionMatrix](GetCameraProjectionMatrix), [GetCameraStencil](GetCameraStencil), [GetCameraViewMatrix](GetCameraViewMatrix), [SetCameraBuffer](SetCameraBuffer)
 
 <div align="center">
 

@@ -58,7 +58,7 @@ Flip
 
 ## Related Commands
 
-[GetCameraProjectionMatrix](GetCameraProjectionMatrix), [GetCameraViewMatrix](GetCameraViewMatrix), [ResetCameraProjectionMatrix](ResetCameraProjectionMatrix), [ResetCameraViewMatrix](ResetCameraViewMatrix), [SetCameraBuffer](SetCameraBuffer), [SetCameraClipPlane](SetCameraClipPlane), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled), [SetCameraViewMatrix](SetCameraViewMatrix)
+[GetCameraProjectionMatrix](GetCameraProjectionMatrix), [ResetCameraProjectionMatrix](ResetCameraProjectionMatrix), [SetCameraBuffer](SetCameraBuffer), [SetCameraClipPlane](SetCameraClipPlane), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled), [SetCameraStencil](SetCameraStencil), [SetCameraStencilClear](SetCameraStencilClear), [SetCameraViewMatrix](SetCameraViewMatrix)
 
 <div align="center">
 

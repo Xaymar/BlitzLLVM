@@ -39,7 +39,7 @@ WaitKey
 
 ## Related Commands
 
-[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [GetCameraBuffer](GetCameraBuffer), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraProjectionMatrix](GetCameraProjectionMatrix), [GetCameraViewMatrix](GetCameraViewMatrix), [SetCameraClipPlane](SetCameraClipPlane), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled)
+[CameraClsColor](CameraClsColor), [GetCameraBuffer](GetCameraBuffer), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraProjectionMatrix](GetCameraProjectionMatrix), [GetCameraStencil](GetCameraStencil), [GetCameraViewMatrix](GetCameraViewMatrix), [SetCameraClipPlane](SetCameraClipPlane), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled)
 
 <div align="center">
 

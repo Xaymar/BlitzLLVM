@@ -673,7 +673,7 @@
 <li><a href="LoadBrush">LoadBrush</a></li>
 </ul>
 </details></li>
-<li><details><summary>Cameras (25)</summary>
+<li><details><summary>Cameras (28)</summary>
 <ul>
 <li><a href="Blitz3D-Cameras">Overview</a></li>
 <li><a href="CameraClsColor">CameraClsColor</a></li>
@@ -693,6 +693,7 @@
 <li><a href="GetCameraClipPlane">GetCameraClipPlane</a></li>
 <li><a href="GetCameraClipPlaneEnabled">GetCameraClipPlaneEnabled</a></li>
 <li><a href="GetCameraProjectionMatrix">GetCameraProjectionMatrix</a></li>
+<li><a href="GetCameraStencil">GetCameraStencil</a></li>
 <li><a href="GetCameraViewMatrix">GetCameraViewMatrix</a></li>
 <li><a href="ResetCameraProjectionMatrix">ResetCameraProjectionMatrix</a></li>
 <li><a href="ResetCameraViewMatrix">ResetCameraViewMatrix</a></li>
@@ -700,6 +701,8 @@
 <li><a href="SetCameraClipPlane">SetCameraClipPlane</a></li>
 <li><a href="SetCameraClipPlaneEnabled">SetCameraClipPlaneEnabled</a></li>
 <li><a href="SetCameraProjectionMatrix">SetCameraProjectionMatrix</a></li>
+<li><a href="SetCameraStencil">SetCameraStencil</a></li>
+<li><a href="SetCameraStencilClear">SetCameraStencilClear</a></li>
 <li><a href="SetCameraViewMatrix">SetCameraViewMatrix</a></li>
 </ul>
 </details></li>
@@ -741,7 +744,7 @@
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
 </details></li>
-<li><details><summary>Entities (44)</summary>
+<li><details><summary>Entities (46)</summary>
 <ul>
 <li><a href="Blitz3D-Entities">Overview</a></li>
 <li><a href="AlignToVector">AlignToVector</a></li>
@@ -785,6 +788,8 @@
 <li><a href="PositionEntity">PositionEntity</a></li>
 <li><a href="RotateEntity">RotateEntity</a></li>
 <li><a href="ScaleEntity">ScaleEntity</a></li>
+<li><a href="SetEntityStencil">SetEntityStencil</a></li>
+<li><a href="SetEntityStencilBack">SetEntityStencilBack</a></li>
 <li><a href="ShowEntity">ShowEntity</a></li>
 <li><a href="TranslateEntity">TranslateEntity</a></li>
 <li><a href="TurnEntity">TurnEntity</a></li>

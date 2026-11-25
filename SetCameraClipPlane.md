@@ -50,7 +50,7 @@ Flip
 
 ## Related Commands
 
-[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [GetCameraClipPlane](GetCameraClipPlane), [GetCameraClipPlaneEnabled](GetCameraClipPlaneEnabled), [SetCameraBuffer](SetCameraBuffer), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled), [SetCameraProjectionMatrix](SetCameraProjectionMatrix), [SetCameraViewMatrix](SetCameraViewMatrix)
+[GetCameraClipPlane](GetCameraClipPlane), [GetCameraClipPlaneEnabled](GetCameraClipPlaneEnabled), [SetCameraBuffer](SetCameraBuffer), [SetCameraClipPlaneEnabled](SetCameraClipPlaneEnabled), [SetCameraProjectionMatrix](SetCameraProjectionMatrix), [SetCameraStencil](SetCameraStencil), [SetCameraStencilClear](SetCameraStencilClear), [SetCameraViewMatrix](SetCameraViewMatrix)
 
 <div align="center">
 

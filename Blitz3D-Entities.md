@@ -50,6 +50,8 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 * [ScaleEntity](ScaleEntity)
+* [SetEntityStencil](SetEntityStencil)
+* [SetEntityStencilBack](SetEntityStencilBack)
 * [ShowEntity](ShowEntity)
 * [TranslateEntity](TranslateEntity)
 * [TurnEntity](TurnEntity)
