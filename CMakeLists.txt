@@ -42,7 +42,7 @@ project(
 	${PROJECT_NAME}
 	VERSION "${BlitzLLVM_VERSION_DETECTED}"
 )
-message(STATUS "Version ${PROJECT_VERSION}")
+message(STATUS "Version ${BlitzLLVM_VERSION_FULL}")
 
 # The executables for Windows carry the icon of BlitzLLVM, which is a resource.
 if(WIN32)

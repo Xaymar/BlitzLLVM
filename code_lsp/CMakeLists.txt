@@ -34,7 +34,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 )
 target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/source")
 target_link_libraries(${PROJECT_NAME} PRIVATE lsp_tidy lsp_format blitzfront tools)
-target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${BlitzLLVM_VERSION_FULL}")
 
 # The commands, for hover and completion. Next to the executable for a build tree, in share/blitzllvm for an installation.
 set(_COMMANDS "${PROJECT_SOURCE_DIR}/../tests/suite/functions.txt")

@@ -66,6 +66,8 @@ The `windows-x64-llvm` preset of `CMakePresets.json` uses Ninja Multi-Config wit
 
 The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime in a `runtime` directory next to it (an install puts it in `lib/blitzllvm/runtime`).
 
+The version that `blitzcc -v` and the tools print is the UTC date of the commit with the short commit hash after a dash, such as `2026.11.25.27127-793240a`. Outside of a git checkout (a source archive) there is no commit and the date is the time of the build. Both can be given: `-DBlitzLLVM_VERSION=2026.11.25.27127 -DBlitzLLVM_COMMIT=793240a`, or the first and second line of a `version.ignore` file in the source directory.
+
 ### System libraries (Linux)
 
 On Linux the dependencies can come from the distribution instead of the submodules, which keeps them out of the packages and lets the distribution update them. Each one has a cache variable that is `AUTO` (use the system's if `pkg-config` finds a new enough copy, otherwise build the submodule), `ON` (fail if there is none) or `OFF` (always build the submodule):
