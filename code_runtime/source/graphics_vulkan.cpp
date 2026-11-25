@@ -2119,6 +2119,27 @@ namespace bb::rhi::vulkan {
 }
 
 namespace bb::rhi::vulkan {
+	namespace {
+		// Flip 1 swapchains (FIFO) that the program's thread presents to: each present gets a number (VK_KHR_present_id), and after
+		// one, the GPU thread waits until the one before it is on the display (VK_KHR_present_wait). NVIDIA's Vulkan swapchain does
+		// not make FIFO presents wait for the display when it shows them through DXGI, and then paces by the rotation of its images,
+		// which can lock to every third refresh; this paces by the display instead, one picture ahead. BLITZLLVM_PRESENT_WAIT=0
+		// turns it off.
+		struct paced_chain {
+			VkSwapchainKHR handle = VK_NULL_HANDLE;
+			VkDevice       device = VK_NULL_HANDLE; // The GPU thread presents and has no device state of its own.
+			uint64_t       id     = 0;              // Of the last present.
+		};
+		std::mutex               paced_lock;
+		std::vector<paced_chain> paced;
+
+		bool present_wait_wanted()
+		{
+			static const bool on = bb_env_bool("BLITZLLVM_PRESENT_WAIT", 1) != 0;
+			return on;
+		}
+	} // namespace
+
 	bool create_swapchain(swapchain& sc, const swapchain_desc& d)
 	{
 		using namespace gfx;
@@ -2214,6 +2235,10 @@ namespace bb::rhi::vulkan {
 		if (!swapchain) {
 			return true; // The device is lost.
 		}
+		if ((mode == VK_PRESENT_MODE_FIFO_KHR) && !d.own_thread && g.can_present_wait && vkWaitForPresentKHR && present_wait_wanted()) {
+			std::lock_guard<std::mutex> guard(paced_lock);
+			paced.push_back({ swapchain, vkd.device, 0 });
+		}
 
 		VkImage  images[max_swapchain_images] = {};
 		uint32_t image_count                  = max_swapchain_images;
@@ -2238,6 +2263,15 @@ namespace bb::rhi::vulkan {
 		}
 		sc.count = 0;
 		if (sc.handle) {
+			{
+				std::lock_guard<std::mutex> guard(paced_lock);
+				for (size_t i = 0; i < paced.size(); i++) {
+					if (paced[i].handle == VkSwapchainKHR(sc.handle)) {
+						paced.erase(paced.begin() + ptrdiff_t(i));
+						break;
+					}
+				}
+			}
 			vkDestroySwapchainKHR(gfx::vkd.device, VkSwapchainKHR(sc.handle), nullptr);
 			sc.handle = 0;
 		}
@@ -2288,6 +2322,22 @@ namespace bb::rhi::vulkan {
 		present.swapchainCount     = 1;
 		present.pSwapchains        = &handle;
 		present.pImageIndices      = &index;
+		VkPresentIdKHR present_id  = { VK_STRUCTURE_TYPE_PRESENT_ID_KHR };
+		uint64_t       this_id     = 0;
+		VkDevice       device      = VK_NULL_HANDLE;
+		{
+			std::lock_guard<std::mutex> guard(paced_lock);
+			for (paced_chain& p : paced) {
+				if (p.handle == handle) {
+					this_id                   = ++p.id;
+					device                    = p.device;
+					present_id.swapchainCount = 1;
+					present_id.pPresentIds    = &this_id;
+					present.pNext             = &present_id;
+					break;
+				}
+			}
+		}
 		if (serialize) {
 			gfx::swapchain_lock(); // Acquiring an image on the program's thread uses the swapchain too.
 		}
@@ -2297,6 +2347,11 @@ namespace bb::rhi::vulkan {
 			vkQueueWaitIdle(VkQueue(queue_handle));
 		}
 		gfx::queue_unlock();
+		// Outside the locks, and with a time limit, as a minimized or covered window may never show it: the present before this one
+		// is on the display.
+		if ((this_id > 1) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))) {
+			vkWaitForPresentKHR(device, handle, this_id - 1, 100000000ull);
+		}
 		if (serialize) {
 			gfx::swapchain_unlock();
 		}
