@@ -41,11 +41,9 @@ BY_COMPILER = {
     "popcount", "leadingzeros", "trailingzeros", "rotl", "rotr", "byteswap",
 }
 
-# Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
-# Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
-# one it reads and writes with a '<' (InOut). Parameters without a mark are In.
-EXTENSIONS = {
-    "entitylightchannel": ("blitz3d", "EntityLightChannel%entity%channel"),
+# Functions the released BlitzPlus has (its help documents them, and versions.txt lists their changes), but whose
+# registration the open-source release has commented out in gui_link.cpp. They are original commands, not extensions.
+UNREGISTERED = {
     "createhtmlview": ("plusgui", "%CreateHtmlView%x%y%width%height%group%style=0"),
     "htmlviewgo": ("plusgui", "HtmlViewGo%htmlview$URL"),
     "htmlviewrun": ("plusgui", "HtmlViewRun%htmlview$URL"),
@@ -54,6 +52,13 @@ EXTENSIONS = {
     "htmlviewstatus": ("plusgui", "%HtmlViewStatus%htmlview"),
     "htmlviewcurrenturl": ("plusgui", "$HtmlViewCurrentURL%htmlview"),
     "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
+}
+
+# Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
+# Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
+# one it reads and writes with a '<' (InOut). Parameters without a mark are In.
+EXTENSIONS = {
+    "entitylightchannel": ("blitz3d", "EntityLightChannel%entity%channel"),
     "entitydepthfade": ("blitz3d", "EntityDepthFade%entity#fade_distance"),
     "entitystatic": ("blitz3d", "EntityStatic%entity%is_static"),
     "spritedepthfade": ("blitz3d", "SpriteDepthFade%sprite#fade_distance"),
@@ -306,6 +311,8 @@ def originals():
                     if not n or n.group(1).startswith("_"):
                         continue
                     found.setdefault(n.group(1).lower(), (MODULES[name], match.group(1)))
+    for name, entry in UNREGISTERED.items():
+        found.setdefault(name, entry)
     for name, entry in EXTENSIONS.items():
         found.setdefault(name, entry)
     return found
