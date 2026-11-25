@@ -384,6 +384,14 @@ namespace bb::gfx {
 			return reinterpret_cast<gl_group*>(uintptr_t(group.id));
 		}
 
+		// BLITZLLVM_DEBUG_OPENGL_NO_CACHE=1 binds textures, samplers, programs and vertex/index buffers for every draw, even when the backend
+		// thinks they are bound already (for finding state that went stale).
+		bool no_cache()
+		{
+			static const bool value = bb_env_bool("BLITZLLVM_DEBUG_OPENGL_NO_CACHE", false);
+			return value;
+		}
+
 		// Makes the context draw into a window (or into nothing that is seen, for null).
 		void make_current(SDL_Window* window)
 		{
@@ -399,13 +407,13 @@ namespace bb::gfx {
 		void bind_unit(uint32_t unit, GLenum target, GLuint texture, GLuint sampler)
 		{
 			unit_state& state = glc.units[unit];
-			if ((state.target != target) || (state.texture != texture)) {
+			if (no_cache() || (state.target != target) || (state.texture != texture)) {
 				gl::ActiveTexture(GL_TEXTURE0 + unit);
 				gl::BindTexture(target, texture);
 				state.target  = target;
 				state.texture = texture;
 			}
-			if (state.sampler != sampler) {
+			if (no_cache() || (state.sampler != sampler)) {
 				gl::BindSampler(unit, sampler);
 				state.sampler = sampler;
 			}
@@ -722,7 +730,7 @@ namespace bb::gfx {
 
 		void use_program(const gl_program* program)
 		{
-			if (glc.program != program->id) {
+			if (no_cache() || (glc.program != program->id)) {
 				gl::UseProgram(program->id);
 				glc.program = program->id;
 			}
@@ -769,7 +777,7 @@ namespace bb::gfx {
 			uint32_t vao = uint32_t(pipeline->desc.vertices);
 			gl::BindVertexArray(glc.vaos[vao]);
 			bool scene3d = pipeline->desc.vertices == bb::rhi::vertex_layout::scene3d;
-			if ((vao != 0) && ((glc.vao_vertices[vao] != glc.vertex_buffer) || (scene3d && (glc.vao_second != glc.vertex_second)))) {
+			if ((vao != 0) && (no_cache() || (glc.vao_vertices[vao] != glc.vertex_buffer) || (scene3d && (glc.vao_second != glc.vertex_second)))) {
 				gl::BindVertexBuffer(0, glc.vertex_buffer, 0, scene3d ? GLsizei(sizeof(bb::vertex3d)) : GLsizei(sizeof(vertex)));
 				if (scene3d) { // The second set of texture coordinates: the block of the surface, or the first set.
 					uint64_t second = glc.vertex_second;
@@ -778,7 +786,7 @@ namespace bb::gfx {
 				}
 				glc.vao_vertices[vao] = glc.vertex_buffer;
 			}
-			if (glc.vao_indices[vao] != glc.index_buffer) {
+			if (no_cache() || (glc.vao_indices[vao] != glc.index_buffer)) {
 				gl::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, glc.index_buffer);
 				glc.vao_indices[vao] = glc.index_buffer;
 			}
@@ -1867,6 +1875,11 @@ namespace bb::rhi::opengl {
 			glc.fence->sync = gl::FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 		}
 		gl::Flush();
+		// BLITZLLVM_DEBUG_OPENGL_FINISH=1 waits until the GPU did all of it, so that nothing the CPU writes next can meet a draw that still reads.
+		static const bool finish = bb_env_bool("BLITZLLVM_DEBUG_OPENGL_FINISH", false);
+		if (finish) {
+			gl::Finish();
+		}
 	}
 
 	void check_result(int32_t native, const char* what)
