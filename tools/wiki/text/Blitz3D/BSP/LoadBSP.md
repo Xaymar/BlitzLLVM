@@ -8,7 +8,7 @@ The textures of the level are found by the names inside the file, with `.tga`, `
 The example below builds a minimal level file itself, so it runs without any level from a game: a floor, a wall and a curved hill. The faces have no textures, which leaves the colors of the vertices.
 
 ```blitzbasic
-;media still bsp/loadbsp.png
+;media still bsp/loadbsp.webp
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -84,7 +84,7 @@ Flip
 WaitKey
 ```
 
-![LoadBSP](media/bsp/loadbsp.png)
+![LoadBSP](media/bsp/loadbsp.webp)
 @param file      The `.bsp` file.
 @param gamma_adj Brightness of the lightmaps, 0 to 1. Defaults to 0.
 @param parent    Optional parent entity. The level is still created at 0, 0, 0.

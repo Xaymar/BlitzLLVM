@@ -24,7 +24,7 @@ Until e = $803
 The bar along the bottom of a text area that does not wrap:
 
 ```blitzbasic
-;media interact textareas/createtextarea_bar.png
+;media interact textareas/createtextarea_bar.webp 0
 ;media wait 300
 ;media shot
 Graphics 320, 240, 32, 2
@@ -35,7 +35,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![A text area with a bar](media/textareas/createtextarea_bar.png)
+![A text area with a bar](media/textareas/createtextarea_bar.webp)
 @param x       Horizontal position inside the group.
 @param y       Vertical position inside the group.
 @param width   Width of the text area.

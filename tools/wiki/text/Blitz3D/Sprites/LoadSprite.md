@@ -4,7 +4,7 @@
 Creates a sprite and gives it a texture loaded from a picture file in one step. The sprite is drawn without lighting. How it blends depends on the flags: with the masked flag (4) it is drawn without blending and the black cut away, with the alpha flag (2) it is blended by its alpha, otherwise it is added to what is behind it, which suits glows and flares.
 
 ```blitzbasic
-;media still sprites/loadsprite.png
+;media still sprites/loadsprite.webp
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -31,7 +31,7 @@ Flip
 WaitKey
 ```
 
-![LoadSprite](media/sprites/loadsprite.png)
+![LoadSprite](media/sprites/loadsprite.webp)
 @param file          Picture file for the sprite's texture.
 @param texture_flags Texture flags, see [CreateTexture](CreateTexture). Defaults to 1.
 @param parent        Optional parent entity.

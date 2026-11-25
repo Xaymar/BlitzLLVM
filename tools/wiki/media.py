@@ -6,7 +6,7 @@
 
 An example takes part when its first line is a media tag, which wiki.py hides from the page:
 
-  ;media still drawing/rect.png          Runs the example until it reaches WaitKey and saves that frame.
+  ;media still drawing/rect.webp         Runs the example until it reaches WaitKey and saves that frame (lossless).
   ;media anim drawing/spin.webp 60 20    Saves 60 frames, one per Flip, and joins them into a 20 fps animated WebP.
 
 The path is relative to docs/wiki/media. Examples that animate should step by frame count and not by MilliSecs, so
@@ -33,15 +33,16 @@ TAG = re.compile(r"^;media (still|anim) (\S+)(?: (\d+) (\d+))?\s*$")
 def instrument(src, kind, out, frames):
     lines = src.split("\n")[1:]
     if kind == "still":
+        lossless = ', "lossless=1"' if out.endswith(".webp") else ""
         code, hit = [], False
         for line in lines:
             if re.match(r"^\s*WaitKey\b", line, re.I):
-                code.append('SaveBuffer(FrontBuffer(), "%s") : End' % out)
+                code.append('SaveBuffer(FrontBuffer(), "%s"%s) : End' % (out, lossless))
                 hit = True
             else:
                 code.append(line)
         if not hit:
-            code.append('SaveBuffer(FrontBuffer(), "%s")' % out)
+            code.append('SaveBuffer(FrontBuffer(), "%s"%s)' % (out, lossless))
         return "\n".join(code)
     code = ["Global WikiFrameN% = 0"]
     for line in lines:

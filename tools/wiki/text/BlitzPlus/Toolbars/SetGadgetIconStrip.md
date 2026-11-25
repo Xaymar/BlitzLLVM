@@ -4,7 +4,7 @@
 Gives a list box, combo box or tabber the icons to use for its entries. Afterwards the icon number given to [AddGadgetItem](AddGadgetItem), [InsertGadgetItem](InsertGadgetItem) or [ModifyGadgetItem](ModifyGadgetItem) picks one.
 
 ```blitzbasic
-;media interact toolbars/setgadgeticonstrip.png 1
+;media interact toolbars/setgadgeticonstrip.webp 0
 Graphics 320, 240, 32, 2
 strip = CreateImage(32, 16)
 SetBuffer ImageBuffer(strip)
@@ -22,6 +22,6 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![SetGadgetIconStrip](media/toolbars/setgadgeticonstrip.png)
+![SetGadgetIconStrip](media/toolbars/setgadgeticonstrip.webp)
 @param gadget     Handle of a list box, combo box or tabber.
 @param icon_strip Handle from [LoadIconStrip](LoadIconStrip).

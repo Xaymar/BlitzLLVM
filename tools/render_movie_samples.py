@@ -7,8 +7,8 @@ played by a program that draws it twice, once at its size and once stretched, an
 
   render_movie_samples.py <blitzcc> <output folder>
 
-Writes drawmovie.webp (3 seconds) and drawmovie_start.png, drawmovie_middle.png and drawmovie_end.png, and for GetMovieTexture
-movietexture.webp (the same movie on a turning cube), movietexture_start.png, movietexture_middle.png and movietexture_end.png.
+Writes drawmovie.webp (3 seconds) and drawmovie_start.webp, drawmovie_middle.webp and drawmovie_end.webp, and for GetMovieTexture
+movietexture.webp (the same movie on a turning cube), movietexture_start.webp, movietexture_middle.webp and movietexture_end.webp.
 Needs ffmpeg and xvfb-run.
 """
 import os
@@ -75,8 +75,8 @@ def render(program, prefix, work):
 	frames = sorted(os.listdir("frames"))
 	print(len(frames), "frames")
 	for name, index in (("start", 0), ("middle", len(frames) // 2), ("end", len(frames) - 2)):
-		with open("frames/" + frames[index], "rb") as source, open(os.path.join(output, "%s_%s.png" % (prefix, name)), "wb") as target:
-			target.write(source.read())
+		procutil.run(["ffmpeg", "-v", "error", "-y", "-i", "frames/" + frames[index], "-c:v", "libwebp", "-lossless", "1",
+					  "-compression_level", "6", "-q:v", "100", os.path.join(output, "%s_%s.webp" % (prefix, name))], check=True)
 	procutil.run(["ffmpeg", "-v", "error", "-y", "-framerate", "25", "-i", "frames/f%03d.png", "-vf",
 					"split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none,format=rgba", "-c:v", "libwebp_anim", "-lossless", "1",
 					"-compression_level", "6", "-q:v", "100", "-loop", "0", os.path.join(output, prefix + ".webp")], check=True)

@@ -4,7 +4,7 @@
 Adds an entry at the end of a list box, combo box or tabber. For a tabber the entry is a new tab. Use [InsertGadgetItem](InsertGadgetItem) to put it somewhere else.
 
 ```blitzbasic
-;media interact gadgets/addgadgetitem.png 2
+;media interact gadgets/addgadgetitem.webp 0
 Graphics 320, 240, 32, 2
 win  = CreateWindow("List", 10, 10, 300, 200, Desktop(), 3)
 list = CreateListBox(10, 10, 200, 120, win)
@@ -15,7 +15,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![AddGadgetItem](media/gadgets/addgadgetitem.png)
+![AddGadgetItem](media/gadgets/addgadgetitem.webp)
 @param gadget Handle of a list box, combo box or tabber.
 @param item   Text of the new entry.
 @param select True makes it the selected entry. Defaults to False.
