@@ -290,9 +290,9 @@ the time that early-Z saves can show in `ms/frame` as well. The original Blitz3D
 
 === With the original Blitz3D
 
-As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
-counters are in `dungeon_llvm.bi`, and `dungeon_original.bi` has `MilliSecs` and counters of 0. The runner picks the right one by
-`blitzcc -v` and leaves out `-O3` and `--profile` for the original:
+As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The timer and the draw counters are
+in `bench_llvm.bi` and `bench_original.bi`; `dungeon_llvm.bi` and `dungeon_original.bi` only have `SpriteDepthFade` (BlitzLLVM) and the
+most sprites the original can draw. The runner picks the right ones by `blitzcc -v` and leaves out `-O3` and `--profile` for the original:
 
 [source,bat]
 ----
