@@ -128,6 +128,7 @@ namespace bb::rhi::vulkan::dxgi {
 			timing                                acquire_wait, copy, latency_wait, present_call;
 			std::chrono::steady_clock::time_point stats_since = std::chrono::steady_clock::now();
 			UINT                                  stats_present_count = 0, stats_refresh_count = 0;
+			bool                                  stats_frame_valid   = false; // The counts above are from the last line's GetFrameStatistics.
 			uint32_t                              stats_skipped = 0;
 			uint64_t                              stats_behind  = 0; // The most fence values the GPU was behind at a present.
 		};
@@ -491,16 +492,20 @@ namespace bb::rhi::vulkan::dxgi {
 			if (elapsed < 1000.0) {
 				return;
 			}
+			// GetFrameStatistics fails while the window is composed (no flip to the display, e.g. with overlays off), so the counts
+			// are shown only when this and the line before both got them.
 			DXGI_FRAME_STATISTICS frame = {};
 			bool   have_frame = SUCCEEDED(c.swap->GetFrameStatistics(&frame));
-			UINT   presented  = have_frame ? frame.PresentCount - c.stats_present_count : 0;
-			UINT   refreshes  = have_frame ? frame.SyncRefreshCount - c.stats_refresh_count : 0;
-			bool   first      = c.stats_present_count == 0;
-			auto   avg = [](const chain::timing& t) { return t.count ? t.sum / t.count : 0.0; };
+			char   shown[64]  = "displayed n/a, refreshes n/a";
+			if (have_frame && c.stats_frame_valid) {
+				snprintf(shown, sizeof(shown), "displayed %u, refreshes %u", frame.PresentCount - c.stats_present_count, frame.SyncRefreshCount - c.stats_refresh_count);
+			}
+			auto avg = [](const chain::timing& t) { return t.count ? t.sum / t.count : 0.0; };
 			fprintf(stderr,
-			        "[dxgi] %p: %u presents, %u replaced, in %.0f ms (interval %u, flags 0x%x, latency %u); displayed %s%u, refreshes %s%u; waits avg/max ms: acquire %.2f/%.2f, copy %.2f/%.2f, latency %.2f/%.2f, Present %.2f/%.2f; GPU behind by up to %.1f pictures\n",
-			        (void*)&c, c.present_call.count, c.stats_skipped, elapsed, c.interval, c.flags, frame_latency(), first ? "~" : "", presented, first ? "~" : "", refreshes,
+			        "[dxgi] %p: %u presents, %u replaced, in %.0f ms (interval %u, flags 0x%x, latency %u); %s; waits avg/max ms: acquire %.2f/%.2f, copy %.2f/%.2f, latency %.2f/%.2f, Present %.2f/%.2f; GPU behind by up to %.1f pictures\n",
+			        (void*)&c, c.present_call.count, c.stats_skipped, elapsed, c.interval, c.flags, frame_latency(), shown,
 			        avg(c.acquire_wait), c.acquire_wait.max, avg(c.copy), c.copy.max, avg(c.latency_wait), c.latency_wait.max, avg(c.present_call), c.present_call.max, double(c.stats_behind) / 2.0);
+			c.stats_frame_valid = have_frame;
 			if (have_frame) {
 				c.stats_present_count = frame.PresentCount;
 				c.stats_refresh_count = frame.SyncRefreshCount;
