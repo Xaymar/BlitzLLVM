@@ -412,12 +412,13 @@ about 800 triangles), with two belts of asteroids (`--asteroids`, 1500) in the m
 | Part | What it does
 
 | `ai` | Puts every ship into a grid of cells (Blitz arrays), lets every fighter look for the nearest enemy in the cells around it every 4th frame
-(the ships in turns), steers every ship (`AlignToVector`, `MoveEntity`). Fighters fly from the front to an enemy station and home again
+(the ships in turns), steers every ship (`AlignToVector`, `MoveEntity`). A fighter that comes within 25 units of its target or chases it
+out of the battle breaks off for a while, and fighters differ a little in speed, so that they do not end up inside each other. Fighters fly from the front to an enemy station and home again
 when they have no target, traders fly between the stations of their team and the planets.
 | `picks` | A line of sight check (`EntityVisible`) for every fighter with a target every 8th frame (a few hundred per frame, asteroids,
 stations and ships are in the way), a `LinePick` for every shot (a ship whose target is in front of it and in range, then a pause of
-about 20 frames), and a `CameraPick` at the middle of the screen. A shot that hits an enemy takes one of its hit points (3 for a fighter,
-5 for a trader).
+about 20 frames), and a `CameraPick` at the middle of the screen. A shot that hits an enemy takes one of its hit points (1 for a fighter,
+3 for a trader).
 | `effects` | Laser bolts (sprites, a `Type` list) fly and go, ships without hit points die, break into 4 pieces of debris (another list, at
 most `--debris` at once, the oldest go first) and come back at their home station 180 frames later: the entity is freed and copied again.
 The stations and asteroids turn.

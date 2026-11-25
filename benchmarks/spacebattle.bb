@@ -378,7 +378,7 @@ Function SpawnShip(i, initial)
 	ResetEntity e
 	shipent(i) = e
 	shipx(i) = x : shipy(i) = y : shipz(i) = z
-	If shipkind(i) = 1 Then shiphp(i) = 5 Else shiphp(i) = 3
+	If shipkind(i) = 1 Then shiphp(i) = 3 Else shiphp(i) = 1
 	shipgen(i) = shipgen(i) + 1
 	shiptarget(i) = -1
 	shipcool(i) = SBRndInt(0, 30)
