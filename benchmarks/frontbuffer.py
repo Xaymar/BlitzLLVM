@@ -6,80 +6,33 @@
 Builds benchmarks/frontbuffer.bb with blitzcc and runs it drawing to BackBuffer() and to FrontBuffer(), alternating, to see
 whether drawing to the front buffer costs more. Works with the original Blitz3D too (--blitzcc C:\\Blitz3D\\bin\\blitzcc.exe).
 
-    python3 benchmarks/frontbuffer.py [--blitzcc PATH] [--draws N] [--frames N] [--size WxH] [--rounds N]
+    python3 benchmarks/frontbuffer.py [--draws N] [--rounds N] [common options, see --help]
 
 Each round runs back and front once, and the median over the rounds is printed (microseconds per frame). Windowed only.
 """
-import argparse
-import os
-import platform
-import re
-import shutil
 import statistics
-import subprocess
-import sys
-import tempfile
-import benchutil  # noqa: E402
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
-
-
-def find_compiler(given):
-    if given:
-        return given
-    for candidate in (os.path.join(ROOT, "build", "code_compiler", "blitzcc"), os.path.join(ROOT, "build", "code_compiler", "blitzcc.exe"),
-                      os.path.join(ROOT, "build", "distrib", "bin", "blitzcc.exe")):
-        if os.path.isfile(candidate):
-            return candidate
-    return shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
+import benchutil
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--blitzcc")
-    parser.add_argument("--draws", type=int, default=2000)
-    parser.add_argument("--frames", type=int, default=600)
-    parser.add_argument("--size", default="640x360")
-    parser.add_argument("--rounds", type=int, default=5)
-    args = parser.parse_args()
-    width, height = args.size.lower().split("x")
-
-    compiler = find_compiler(args.blitzcc)
-    version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
-    flags = ["-O3"] if llvm else []
-    if not llvm:
-        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
-    runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
-    if runner and not shutil.which("xvfb-run"):
-        sys.exit("There is no display and no xvfb-run.")
-
-    with tempfile.TemporaryDirectory() as directory:
-        program = benchutil.program_path(directory)
-        source = os.path.join(directory, "frontbuffer.bb")
-        shutil.copy(os.path.join(HERE, "frontbuffer.bb"), source)
-        shutil.copy(os.path.join(HERE, "frontbuffer_llvm.bi" if llvm else "frontbuffer_original.bi"), os.path.join(directory, "frontbuffer_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
-        if build.returncode != 0:
-            sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        samples = {"back": [], "front": []}
+    runner = benchutil.Runner("frontbuffer", __doc__, frames=600, warmup=10)
+    runner.parser.add_argument("--draws", type=int, default=2000, help="shapes per frame (default %(default)s)")
+    runner.parser.add_argument("--rounds", type=int, default=5, help="runs of back and front each (default %(default)s)")
+    args = runner.parse()
+    if args.quick:
+        args.rounds = 1
+    samples = {"back": [], "front": []}
+    with benchutil.tempfile.TemporaryDirectory() as directory:
+        program = runner.build(directory)
         for _ in range(args.rounds):
             for mode in ("back", "front"):
-                result_file = os.path.join(directory, "result.txt")
-                if os.path.isfile(result_file):
-                    os.remove(result_file)
-                env = dict(os.environ, BENCH_BUFFER=mode, BENCH_DRAWS=str(args.draws), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height, BENCH_RESULT=result_file)
-                run = subprocess.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
-                if run.returncode != 0 or not os.path.isfile(result_file):
-                    sys.exit("The benchmark failed (exit code %d):\n%s" % (run.returncode, (run.stdout + run.stderr)[-2000:]))
-                values = dict(re.findall(r"(\w+)=(\S+)", open(result_file).read()))
-                samples[mode].append(int(values["avg_us"]))
-        print("%s, %d draws, %d frames, %sx%s, %d rounds" % (version or compiler, args.draws, args.frames, width, height, args.rounds))
-        back, front = statistics.median(samples["back"]), statistics.median(samples["front"])
-        print("  BackBuffer():  %8.0f us/frame  (%s)" % (back, samples["back"]))
-        print("  FrontBuffer(): %8.0f us/frame  (%s)" % (front, samples["front"]))
-        print("  front vs back: %+.1f%%" % ((front / back - 1) * 100))
+                values = runner.execute(program, directory, {"BENCH_BUFFER": mode, "BENCH_DRAWS": args.draws})
+                samples[mode].append(values["ms_avg"] * 1000)
+    print("%s, %d draws, %d frames, %dx%d, %d rounds" % (runner.version or runner.compiler, args.draws, args.frames, runner.width, runner.height, args.rounds))
+    back, front = statistics.median(samples["back"]), statistics.median(samples["front"])
+    print("  BackBuffer():  %8.0f us/frame  (%s)" % (back, ", ".join("%.0f" % v for v in samples["back"])))
+    print("  FrontBuffer(): %8.0f us/frame  (%s)" % (front, ", ".join("%.0f" % v for v in samples["front"])))
+    print("  front vs back: %+.1f%%" % ((front / back - 1) * 100))
 
 
 if __name__ == "__main__":

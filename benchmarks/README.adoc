@@ -384,7 +384,7 @@ same rules as for the other benchmarks apply: windowed, at most 2048 in each dir
 == frontbuffer: drawing to FrontBuffer() or BackBuffer()
 
 `frontbuffer.bb` clears the buffer, draws a fixed set of rectangles, lines, ovals and text (`--draws`, 2000 by default) and calls
-`Flip`, every frame. `python3 benchmarks/frontbuffer.py` builds it, runs it drawing to `BackBuffer()` and to `FrontBuffer()` in turns
+`Flip 0` (`BenchFlip`), every frame. `python3 benchmarks/frontbuffer.py` builds it, runs it drawing to `BackBuffer()` and to `FrontBuffer()` in turns
 (`--rounds` times) and prints the median microseconds per frame of each. In BlitzLLVM `FrontBuffer()` is the back buffer, so both
 should be the same; in the original Blitz3D the front buffer is the picture on the screen. It works with both compilers
 (`--blitzcc`), and runs windowed only.
