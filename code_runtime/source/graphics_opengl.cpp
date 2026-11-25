@@ -1842,6 +1842,26 @@ namespace bb::rhi::opengl {
 		return true;
 	}
 
+	// BLITZLLVM_DEBUG_OPENGL_FENCES=1 counts what the waits for frame slots and the ends of recordings found, and prints it every 200 waits.
+	static bool debug_fences()
+	{
+		static const bool value = bb_env_bool("BLITZLLVM_DEBUG_OPENGL_FENCES", false);
+		return value;
+	}
+	static struct {
+		uint32_t waits, no_fence, no_sync, other_thread, already, satisfied, timeouts, failed, other, ends, ends_without_fence;
+	} fence_counts;
+
+	static void print_fence_counts()
+	{
+		fprintf(stderr,
+			"OpenGL fences: %u waits (no fence %u, no sync %u, other thread %u; already signaled %u, satisfied %u, timeouts %u, failed %u, other %u), "
+			"%u ends of recordings (%u without a fence)\n",
+			fence_counts.waits, fence_counts.no_fence, fence_counts.no_sync, fence_counts.other_thread, fence_counts.already, fence_counts.satisfied,
+			fence_counts.timeouts, fence_counts.failed, fence_counts.other, fence_counts.ends, fence_counts.ends_without_fence);
+		fence_counts = {};
+	}
+
 	static void drop_fence(gl_fence* fence)
 	{
 		std::lock_guard<std::mutex> guard(fence_lock);
@@ -1869,6 +1889,10 @@ namespace bb::rhi::opengl {
 	void end_commands()
 	{
 		play();
+		if (debug_fences()) {
+			fence_counts.ends++;
+			fence_counts.ends_without_fence += glc.fence ? 0 : 1;
+		}
 		if (glc.fence) {
 			drop_fence(glc.fence);
 			std::lock_guard<std::mutex> guard(fence_lock);
@@ -1954,10 +1978,28 @@ namespace bb::rhi::opengl {
 	void wait_frame_sync(const frame_sync& sync)
 	{
 		gl_fence* fence = reinterpret_cast<gl_fence*>(uintptr_t(sync.fence));
+		const bool counting = debug_fences();
+		if (counting) {
+			fence_counts.waits++;
+			fence_counts.no_fence += fence ? 0 : 1;
+			fence_counts.no_sync += (fence && !fence->sync) ? 1 : 0;
+			fence_counts.other_thread += on_context_thread() ? 0 : 1;
+		}
 		if (fence && fence->sync) {
-			while (gl::ClientWaitSync(fence->sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000ull) == GL_TIMEOUT_EXPIRED) {
+			GLenum result;
+			while ((result = gl::ClientWaitSync(fence->sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000ull)) == GL_TIMEOUT_EXPIRED) {
+				fence_counts.timeouts += counting ? 1 : 0;
+			}
+			if (counting) {
+				fence_counts.already += (result == GL_ALREADY_SIGNALED) ? 1 : 0;
+				fence_counts.satisfied += (result == GL_CONDITION_SATISFIED) ? 1 : 0;
+				fence_counts.failed += (result == GL_WAIT_FAILED) ? 1 : 0;
+				fence_counts.other += ((result != GL_ALREADY_SIGNALED) && (result != GL_CONDITION_SATISFIED) && (result != GL_WAIT_FAILED)) ? 1 : 0;
 			}
 			drop_fence(fence);
+		}
+		if (counting && (fence_counts.waits >= 200)) {
+			print_fence_counts();
 		}
 	}
 
