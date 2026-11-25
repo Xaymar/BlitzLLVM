@@ -149,6 +149,63 @@ namespace {
 	}
 } // namespace
 
+std::filesystem::path blitz::parser::find_include(std::string const& name, std::filesystem::path const& from_dir, std::filesystem::path const& root_dir,
+                                                  std::vector<std::filesystem::path> const& include_dirs, std::string& why)
+{
+	// Includes are relative to the file that includes them.
+	// Blitz programs come from Windows: paths use backslashes, and don't care about the case of names.
+	std::string text = name;
+	std::replace(text.begin(), text.end(), '\\', '/');
+	std::filesystem::path target  = std::filesystem::path(text);
+	bool                  shipped = (text.size() >= 2) && (text.front() == '<') && (text.back() == '>');
+	for (auto const& part : (shipped ? std::filesystem::path(text.substr(1, text.size() - 2)) : target).relative_path()) {
+		if (is_device_name(part)) {
+			why = blitz::format("Can't include '%s': '%s' is the name of a Windows device, not of a file.", name.c_str(), part.string().c_str());
+			return {};
+		}
+	}
+	if (shipped) {
+		// `Include "<keys.bb>"` names a file shipped with BlitzLLVM. Windows forbids '<' and '>' in file names, so the original
+		// can never open such a file and stops with "Unable to open include file". The form is decided by the text alone: a file
+		// that is really called '<keys.bb>' is never looked for.
+		std::filesystem::path shipped_name = std::filesystem::path(text.substr(1, text.size() - 2));
+		bool                  valid        = !shipped_name.empty() && !shipped_name.has_root_path();
+		for (auto const& part : shipped_name) {
+			valid = valid && (part != "..");
+		}
+		if (!valid) {
+			why = blitz::format("'%s' is not a name of a shipped include: it can't be empty, absolute or contain '..'.", name.c_str());
+			return {};
+		}
+		std::string looked;
+		for (auto const& dir : include_dirs) {
+			auto candidate = find_file(dir / shipped_name);
+			if (std::filesystem::is_regular_file(candidate)) {
+				return candidate;
+			}
+			looked += (looked.empty() ? "" : ", ") + dir.generic_string();
+		}
+		why = looked.empty() ? blitz::format("Shipped include '%s' not found: there is no include directory (use -I or BLITZLLVM_INCLUDE).", name.c_str())
+		                     : blitz::format("Shipped include '%s' does not exist (looked in %s).", name.c_str(), looked.c_str());
+		return {};
+	}
+	if (target.is_relative()) {
+		// Relative to the file that includes, or else to the main program (which is where Blitz runs from).
+		auto local = find_file(from_dir / target);
+		target     = std::filesystem::exists(local) ? local : (root_dir / target);
+	}
+	target = find_file(target);
+	if (!std::filesystem::exists(target)) {
+		why = blitz::format("Included file '%s' does not exist.", name.c_str());
+		return {};
+	}
+	if (!std::filesystem::is_regular_file(target)) {
+		why = blitz::format("Can't include '%s': it is not a file.", name.c_str());
+		return {};
+	}
+	return target;
+}
+
 void blitz::parser::parse_include(ast::block& into)
 {
 	advance();
@@ -158,54 +215,10 @@ void blitz::parser::parse_include(ast::block& into)
 	}
 	advance();
 
-	// Includes are relative to the file that includes them.
-	// Blitz programs come from Windows: paths use backslashes, and don't care about the case of names.
-	std::string text = file_tk.text;
-	std::replace(text.begin(), text.end(), '\\', '/');
-	std::filesystem::path target  = std::filesystem::path(text);
-	bool                  shipped = (text.size() >= 2) && (text.front() == '<') && (text.back() == '>');
-	for (auto const& part : (shipped ? std::filesystem::path(text.substr(1, text.size() - 2)) : target).relative_path()) {
-		if (is_device_name(part)) {
-			throw error(file_tk, blitz::format("Can't include '%s': '%s' is the name of a Windows device, not of a file.", file_tk.text.c_str(), part.string().c_str()));
-		}
-	}
-	if (shipped) {
-		// `Include "<keys.bb>"` names a file shipped with BlitzLLVM. Windows forbids '<' and '>' in file names, so the original
-		// can never open such a file and stops with "Unable to open include file". The form is decided by the text alone: a file
-		// that is really called '<keys.bb>' is never looked for.
-		std::filesystem::path name = std::filesystem::path(text.substr(1, text.size() - 2));
-		bool                  valid = !name.empty() && !name.has_root_path();
-		for (auto const& part : name) {
-			valid = valid && (part != "..");
-		}
-		if (!valid) {
-			throw error(file_tk, blitz::format("'%s' is not a name of a shipped include: it can't be empty, absolute or contain '..'.", file_tk.text.c_str()));
-		}
-		target.clear();
-		std::string looked;
-		for (auto const& dir : include_dirs) {
-			auto candidate = find_file(dir / name);
-			if (std::filesystem::is_regular_file(candidate)) {
-				target = candidate;
-				break;
-			}
-			looked += (looked.empty() ? "" : ", ") + dir.generic_string();
-		}
-		if (target.empty()) {
-			throw error(file_tk, looked.empty() ? blitz::format("Shipped include '%s' not found: there is no include directory (use -I or BLITZLLVM_INCLUDE).", file_tk.text.c_str())
-			                                    : blitz::format("Shipped include '%s' does not exist (looked in %s).", file_tk.text.c_str(), looked.c_str()));
-		}
-	} else if (target.is_relative()) {
-		// Relative to the file that includes, or else to the main program (which is where Blitz runs from).
-		auto local = find_file(_file.parent_path() / target);
-		target     = std::filesystem::exists(local) ? local : (_root_dir / target);
-	}
-	target = find_file(target);
-	if (!std::filesystem::exists(target)) {
-		throw error(file_tk, blitz::format("Included file '%s' does not exist.", file_tk.text.c_str()));
-	}
-	if (!std::filesystem::is_regular_file(target)) {
-		throw error(file_tk, blitz::format("Can't include '%s': it is not a file.", file_tk.text.c_str()));
+	std::string why;
+	auto        target = find_include(file_tk.text, _file.parent_path(), _root_dir, include_dirs, why);
+	if (target.empty()) {
+		throw error(file_tk, why);
 	}
 	// A file is only read once, like in the original, so that it can be included from several places without declaring
 	// everything in it twice.

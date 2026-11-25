@@ -562,13 +562,27 @@ namespace blitz::lsp {
 	std::vector<std::string> document::includes() const
 	{
 		std::vector<std::string> out;
+		for (auto const& include : include_names()) out.push_back(include.name);
+		return out;
+	}
+
+	std::vector<document::include_name> document::include_names() const
+	{
+		std::vector<include_name> out;
+		std::vector<size_t>       offsets(_tokens.size() + 1, 0); // The tokens are the text, so the offset of each is the length of those before it
+		for (size_t i = 0; i < _tokens.size(); i++) offsets[i + 1] = offsets[i] + _tokens[i].text.size();
 		for (size_t i = 0; i < _tokens.size(); i++) {
 			if (!is_word(_tokens[i], "include")) continue;
 			size_t n = next_token(i);
 			if (n == size_t(-1) || !_tokens[n].is(tools::kind::string)) continue;
-			std::string t = _tokens[n].text;
-			if (t.size() >= 2 && t.front() == '"') t = t.substr(1, t.size() - (t.back() == '"' ? 2 : 1));
-			out.push_back(t);
+			std::string const& t      = _tokens[n].text;
+			size_t             open   = (!t.empty() && t.front() == '"') ? 1 : 0;
+			size_t             close  = (t.size() > open && t.back() == '"') ? 1 : 0;
+			include_name       name;
+			name.name  = t.substr(open, t.size() - open - close);
+			name.begin = offsets[n] + open;
+			name.end   = name.begin + name.name.size();
+			out.push_back(std::move(name));
 		}
 		return out;
 	}
