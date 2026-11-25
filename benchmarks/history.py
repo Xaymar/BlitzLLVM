@@ -124,15 +124,17 @@ class Compiler:
 
 
 def build(compiler, directory, name, counters=None, extra=(), source=None):
-    """Builds benchmarks/<name>.bb (with the include of the compiler next to it). Falls back to the original's include (MilliSecs only)
-    when this compiler can't build the BlitzLLVM one, which is the case for the first commits (no Microseconds, no Stats3D)."""
+    """Builds benchmarks/<name>.bb. With counters (the name of the benchmark's own include files, see benchutil.copy_includes) the
+    include files of the compiler are put next to it: the shared ones and bench_compiler.bi with <counters>_compiler.bi. Falls back to
+    the ones of the original (MilliSecs only) when this compiler can't build the BlitzLLVM ones, which is the case for the first
+    commits (no Microseconds, no Stats3D)."""
     src = os.path.join(directory, name + ".bb")
-    shutil.copy(source or os.path.join(HERE, name + ".bb"), src)
+    benchutil.copy_synced(source or os.path.join(HERE, name + ".bb"), src)
     program = compiler.program_path(directory, name)
     tried = []
     for variant in (["llvm", "original"] if compiler.llvm else ["original"]):
         if counters:
-            shutil.copy(os.path.join(HERE, "%s_%s.bi" % (counters, variant)), os.path.join(directory, counters + "_counters.bi"))
+            benchutil.copy_includes(directory, counters, variant == "llvm")
         r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
         if r.returncode == 0 and os.path.isfile(program):
             return program, variant
@@ -256,7 +258,7 @@ def bench_compile(compiler, runs):
         hello = os.path.join(d, "hello.bb")
         open(hello, "w").write('Print "Hello world"\n')
         shutil.copy(os.path.join(HERE, "flythrough.bb"), os.path.join(d, "flythrough.bb"))
-        shutil.copy(os.path.join(HERE, "flythrough_original.bi"), os.path.join(d, "flythrough_counters.bi"))
+        benchutil.copy_includes(d, "flythrough", False)
         targets["hello"] = (hello, d)
         targets["flythrough"] = (os.path.join(d, "flythrough.bb"), d)
         if not QUICK:
