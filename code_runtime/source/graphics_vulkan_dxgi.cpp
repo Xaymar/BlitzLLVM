@@ -86,6 +86,7 @@ namespace bb::rhi::vulkan::dxgi {
 		bool    extensions_on = false;
 		uint8_t device_luid[VK_LUID_SIZE] = {};
 		bool    device_luid_valid = false;
+		uint32_t device_vendor = 0; // PCI vendor of the device, 0 when unknown.
 		PFN_vkGetMemoryWin32HandlePropertiesKHR get_memory_win32_handle_properties = nullptr;
 		PFN_vkImportSemaphoreWin32HandleKHR     import_semaphore_win32_handle      = nullptr;
 		PFN_vkAllocateMemory                    allocate_memory                    = nullptr;
@@ -538,6 +539,7 @@ namespace bb::rhi::vulkan::dxgi {
 	void device_made(VkInstance instance, VkPhysicalDevice physical, VkDevice device)
 	{
 		device_luid_valid = false;
+		device_vendor     = 0;
 		if (!extensions_on) {
 			return;
 		}
@@ -556,6 +558,7 @@ namespace bb::rhi::vulkan::dxgi {
 		VkPhysicalDeviceProperties2  properties = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
 		properties.pNext                        = &id;
 		get_properties2(physical, &properties);
+		device_vendor = properties.properties.vendorID;
 		if (id.deviceLUIDValid) {
 			memcpy(device_luid, id.deviceLUID, sizeof(device_luid));
 			device_luid_valid = true;
@@ -569,7 +572,11 @@ namespace bb::rhi::vulkan::dxgi {
 		if (!enabled() || !extensions_on || !window) {
 			return false;
 		}
-		if (wgl::selected() && wgl::create(sc, d)) {
+		const wgl::way way = wgl::chosen(device_vendor);
+		if (way == wgl::way::native) {
+			return false; // A Vulkan swapchain.
+		}
+		if ((way == wgl::way::opengl) && wgl::create(sc, d)) {
 			return true; // Shown with OpenGL; otherwise with DXGI.
 		}
 		if (!device_luid_valid) {

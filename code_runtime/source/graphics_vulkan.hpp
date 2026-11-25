@@ -271,11 +271,12 @@ namespace bb::rhi::vulkan::dxgi {
 	bb::rhi::present_result present(uint64_t handle, VkQueue queue, uint32_t queue_index, VkSemaphore wait, uint32_t index, bool wait_queue);
 } // namespace bb::rhi::vulkan::dxgi
 
-// Windows: the windows show what Vulkan draws through OpenGL (graphics_vulkan_wgl.cpp) unless BLITZLLVM_VULKAN_PRESENT=dxgi.
+// Windows: on NVIDIA the windows show what Vulkan draws through OpenGL (graphics_vulkan_wgl.cpp); BLITZLLVM_VULKAN_PRESENT picks another way.
 // The DXGI functions above hand their windows to these. Elsewhere these do nothing.
 namespace bb::rhi::vulkan::wgl {
-	/** Whether to use it: yes unless BLITZLLVM_VULKAN_PRESENT=dxgi. */
-	bool selected();
+	enum class way { native, dxgi, opengl };
+	/** How a device of this PCI vendor shows its windows: BLITZLLVM_VULKAN_PRESENT, else OpenGL on NVIDIA and Vulkan swapchains elsewhere. */
+	way chosen(uint32_t vendor);
 	/** Makes the swapchain of the window with OpenGL. False where it can't (the caller makes another one then). */
 	bool create(bb::rhi::swapchain& sc, const bb::rhi::swapchain_desc& desc);
 	bool owns(uint64_t handle);
