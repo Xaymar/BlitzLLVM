@@ -175,6 +175,7 @@ namespace bb::gfx {
 			d3d_image*      image  = nullptr;
 			int             interval = 0;
 			UINT            present_flags = 0; // DXGI_PRESENT_ALLOW_TEARING for Flip 0, so that it does not wait for the display.
+			HANDLE          latency = nullptr; // Flip 2: signalled when the display took the last picture, so that the next one may be presented.
 			bool            hdr      = false; // The buffers are scRGB (16-bit floats, 1.0 = 80 nits).
 		};
 
@@ -2115,6 +2116,9 @@ namespace bb::rhi::d3d11 {
 		void show_window(d3d_chain* chain)
 		{
 			std::lock_guard<std::recursive_mutex> guard(context_lock);
+			if (chain->latency && (WaitForSingleObject(chain->latency, 0) != WAIT_OBJECT_0)) {
+				return; // Flip 2: the display still has a picture waiting, so this one is not shown and the program goes on drawing.
+			}
 			HRESULT result = chain->swap->Present(chain->interval, chain->present_flags);
 			if (result != DXGI_STATUS_OCCLUDED) {
 				check(result, "IDXGISwapChain::Present");
@@ -2441,11 +2445,15 @@ namespace bb::rhi::d3d11 {
 		desc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 		// The flip model: Windows 11 turns the old blit model into it for windowed games anyway, and then a present with interval 0 still waits for
 		// the display once the window gets its own plane (focused, independent flip or an overlay), unless tearing is allowed. Flip 0 allows it;
-		// Flip 2 and the thread of a window present with interval 0 and no tearing, the next picture replacing the one that waits.
+		// Flip 2 waits for the display but draws unbounded: it presents with interval 1 only when the waitable object of the swapchain says that
+		// the display took the last picture, and skips the present otherwise (the newest picture is shown, like triple buffering). The thread of a
+		// window presents with interval 0 and no tearing.
 		bool flip_now  = (d.vsync == 0) && !d.own_thread;
+		bool flip_sync = (d.vsync == 2) && !d.own_thread;
+		UINT flags     = (dx.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) | (flip_sync ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
 		desc.BufferCount           = (d.vsync == 1) && !d.own_thread ? 2 : 3;
 		desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.Flags                 = dx.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+		desc.Flags                 = flags;
 		IDXGISwapChain1* swap1     = nullptr;
 		if (FAILED(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &desc, nullptr, nullptr, &swap1)) || !swap1) {
 			// The blit model is the one that every version of Windows has.
@@ -2474,7 +2482,7 @@ namespace bb::rhi::d3d11 {
 			hdr_desc.Format                = DXGI_FORMAT_R16G16B16A16_FLOAT;
 			hdr_desc.BufferCount           = (desc.BufferCount > 1) ? desc.BufferCount : 2;
 			hdr_desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-			hdr_desc.Flags                 = dx.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+			hdr_desc.Flags                 = flags;
 			if (SUCCEEDED(dx.factory->CreateSwapChainForHwnd(dx.device, hwnd, &hdr_desc, nullptr, nullptr, &hdr_swap)) && hdr_swap
 				&& SUCCEEDED(hdr_swap->QueryInterface(__uuidof(IDXGISwapChain3), reinterpret_cast<void**>(&hdr_swap3))) && hdr_swap3
 				&& SUCCEEDED(hdr_swap3->CheckColorSpaceSupport(scrgb, &support)) && (support & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)
@@ -2500,6 +2508,14 @@ namespace bb::rhi::d3d11 {
 		DXGI_SWAP_CHAIN_DESC1 made = {};
 		swap1->GetDesc1(&made);
 		chain->present_flags = (flip_now && (made.Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		IDXGISwapChain2* swap2 = nullptr;
+		if (flip_sync && (made.Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT)
+			&& SUCCEEDED(swap1->QueryInterface(__uuidof(IDXGISwapChain2), reinterpret_cast<void**>(&swap2))) && swap2) {
+			swap2->SetMaximumFrameLatency(1);
+			chain->latency  = swap2->GetFrameLatencyWaitableObject();
+			chain->interval = 1;
+		}
+		release(swap2);
 		chain->image      = new d3d_image();
 		check(swap1->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&chain->image->texture)), "IDXGISwapChain::GetBuffer");
 		chain->image->width  = uint32_t(w);
@@ -2552,6 +2568,9 @@ namespace bb::rhi::d3d11 {
 			dx.pipeline = nullptr;
 			release(chain->image->texture);
 			delete chain->image;
+			if (chain->latency) {
+				CloseHandle(chain->latency);
+			}
 			release(chain->swap);
 			delete chain;
 		}
