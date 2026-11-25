@@ -38,6 +38,10 @@
 			"description": "The samples and games of the original Blitz3D and BlitzPlus compile.",
 			"tests": ["^original-"]
 		},
+		"samples": {
+			"description": "The samples, tutorials and games of BlitzLLVM (samples/) compile.",
+			"tests": ["^samples-"]
+		},
 		"cli": {
 			"description": "The command line options and diagnostics of blitzcc.",
 			"tests": ["^cli-"]
@@ -69,6 +73,8 @@
 		{"match": "^tests/test_selection\\.json$", "areas": "all"},
 		{"match": "^tests/ci/", "areas": "all"},
 		{"match": "^(tests/original_(run_)?known_failures\\.txt|tools/original_programs\\.py)$", "areas": "original"},
+		{"match": "^samples/.*\\.bb$", "areas": "samples"},
+		{"match": "^samples/", "areas": "none", "note": "Screenshots and other files of the samples"},
 		{"match": "^third_party/Stranded2/", "areas": "none", "note": "Only used by the benchmark"},
 		{"match": "^tests/test\\.bb$", "areas": []},
 		{"match": "^tests/suite/functions\\.txt$", "areas": []},

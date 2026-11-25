@@ -126,6 +126,7 @@ A pull request does not run the tests that its changes can not affect. The `chan
 | Documentation, the wiki sources, `extra/`, the benchmarks, other workflows | Nothing. The check succeeds without building. |
 | One part of the runtime, for example `sound.c` (audio), `network.c` (network), `movie.cpp` (movies), `gui_*.cpp` (BlitzPlus GUI), `scene*.cpp` (Blitz3D), `files.c` (files), `graphics_*.cpp` (everything that draws) | The tests of that part, in Release and Debug. |
 | A test program (`tests/suite/x.bb`) | The compile and run tests of that program only. |
+| A sample, tutorial or game (`samples/**/*.bb`) | The `samples-compile-*` tests, which compile every program in `samples/` (they are not run). Other files in `samples/`, such as screenshots, run nothing. |
 | A test of one tool or the command line (`tests/cli`, `tests/format`, `tests/tidy`, `code_format`, `code_tidy`, `code_tools`) | The tests of that tool. |
 | The compiler, the core of the runtime, the CMake files, `third_party`, the workflow, the test selection itself, or any file that has no rule | Everything. |
 
