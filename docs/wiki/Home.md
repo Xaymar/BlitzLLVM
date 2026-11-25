@@ -30,4 +30,5 @@ BlitzLLVM is a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler built on the LL
 * [[Warnings]]: the `-W` options of `blitzcc`, the warning levels and `-Werror`.
 * [[blitz-format]]: format `.bb` source code with a style that a `.blitz-format` file sets.
 * [[Blitz-Tidy]]: fix the warnings of `blitzcc` in source files.
+* [[Blitz-Recompiler]]: turn an executable made by the original Blitz3D or BlitzPlus into a BlitzLLVM program.
 * [[Environment-Variables]]: the `BLITZLLVM_` variables that change what programs and tools do.

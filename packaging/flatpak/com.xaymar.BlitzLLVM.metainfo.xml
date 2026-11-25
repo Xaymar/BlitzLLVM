@@ -16,6 +16,7 @@
     <binary>blitzcc</binary>
     <binary>blitz-format</binary>
     <binary>blitz-tidy</binary>
+    <binary>blitz-recompiler</binary>
   </provides>
   <releases>
     <release version="@VERSION@" date="@DATE@"/>
