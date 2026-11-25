@@ -17,23 +17,27 @@
 ;
 ; Controls: arrow keys turn and move the camera, A and Z move it up and down.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.02: Moving, Turning and Parents"
 SetBuffer BackBuffer()
 
 Local camera = CreateCamera()
 PositionEntity camera, 0, 8, -18
 
-; A point light in the middle shines in all directions, like a lamp: light type 2.
-Local sunLight = CreateLight(2)
+; A point light in the middle shines in all directions, like a lamp: BB_LIGHT_POINT.
+Local sunLight = CreateLight(BB_LIGHT_POINT)
 LightRange sunLight, 40
 AmbientLight 30, 30, 40
 
-; The sun. EntityFX 1 makes it "full bright": it ignores lighting and always shows its full colour.
+; The sun. EntityFX BB_FX_FULLBRIGHT makes it "full bright": it ignores lighting and always shows its full colour.
 Local sun = CreateSphere(24)
 ScaleEntity sun, 2, 2, 2
 EntityColor sun, 255, 220, 80
-EntityFX sun, 1
+EntityFX sun, BB_FX_FULLBRIGHT
 
 ; A pivot is an invisible entity: just a position and rotation. Turning a pivot in the sun's middle carries the
 ; planet that is its child around in a circle, without any maths.
@@ -63,15 +67,15 @@ Next
 ; PointEntity turns an entity so that it faces another one.
 PointEntity camera, sun
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	TurnEntity planetOrbit, 0, 0.5, 0 ; The planet goes around the sun...
 	TurnEntity planet, 0, 2, 0        ; ...spins around itself...
 	TurnEntity moonOrbit, 0, 3, 0     ; ...and the moon goes around the planet.
 
 	; Camera controls: Left and Right turn, Up and Down move forward and back, A and Z move up and down.
-	TurnEntity camera, 0, (KeyDown(203) - KeyDown(205)) * 1.5, 0
-	MoveEntity camera, 0, 0, (KeyDown(200) - KeyDown(208)) * 0.3
-	TranslateEntity camera, 0, (KeyDown(30) - KeyDown(44)) * 0.2, 0 ; Up and down in the world, not the camera.
+	TurnEntity camera, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.5, 0
+	MoveEntity camera, 0, 0, (KeyDown(BB_KEY_UP) - KeyDown(BB_KEY_DOWN)) * 0.3
+	TranslateEntity camera, 0, (KeyDown(BB_KEY_A) - KeyDown(BB_KEY_Z)) * 0.2, 0 ; Up and down in the world, not the camera.
 
 	RenderWorld
 	Color 255, 255, 255

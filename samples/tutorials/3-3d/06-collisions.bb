@@ -15,7 +15,11 @@
 ;
 ; Controls: arrow keys roll the ball, Space jumps. Collect all the gems.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.06: Collisions"
 SetBuffer BackBuffer()
 
@@ -54,7 +58,7 @@ For i = 0 To 5 ; A few boxes to bump into.
 	EntityType block, TYPE_WORLD
 Next
 
-; A ramp: a flat box, tilted. The ball rolls up it because response 2 slides along slopes too.
+; A ramp: a flat box, tilted. The ball rolls up it because BB_RESPONSE_SLIDE slides along slopes too.
 Local ramp = CreateCube()
 ScaleEntity ramp, 1.5, 0.2, 4
 RotateEntity ramp, -20, 0, 0
@@ -63,7 +67,7 @@ EntityColor ramp, 200, 200, 90
 EntityType ramp, TYPE_WORLD
 
 ; --- Gems -------------------------------------------------------------------------------------------------------
-; Gems get a type too, but the player does not slide off them: response 1 stops, and the program removes the gem.
+; Gems get a type too, but the player does not slide off them: BB_RESPONSE_STOP stops, and the program removes the gem.
 Type Gem
 	Field entity
 End Type
@@ -90,23 +94,23 @@ EntityColor player, 255, 90, 90
 EntityType player, TYPE_PLAYER
 EntityRadius player, 0.5 ; The radius is in world units, so it matches the scaled sphere.
 
-; Player against the level: method 2 (sphere to triangles), response 2 (slide).
-Collisions TYPE_PLAYER, TYPE_WORLD, 2, 2
-; Player against gems: method 1 (sphere to sphere), response 1 (stop). Only the hit matters here.
-Collisions TYPE_PLAYER, TYPE_GEM, 1, 1
+; Player against the level: sphere to triangles (BB_COLLIDE_POLYGON), and slide (BB_RESPONSE_SLIDE).
+Collisions TYPE_PLAYER, TYPE_WORLD, BB_COLLIDE_POLYGON, BB_RESPONSE_SLIDE
+; Player against gems: sphere to sphere (BB_COLLIDE_SPHERE), and stop (BB_RESPONSE_STOP). Only the hit matters here.
+Collisions TYPE_PLAYER, TYPE_GEM, BB_COLLIDE_SPHERE, BB_RESPONSE_STOP
 
 Local camera = CreateCamera()
 CameraClsColor camera, 120, 170, 230
 
 Local fallSpeed# = 0, onGround = False, gems = 10, hit
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; Gravity: the ball falls faster and faster, until UpdateWorld stops it on the ground.
 	fallSpeed = fallSpeed - 0.01
-	If onGround And KeyHit(57) Then fallSpeed = 0.25
+	If onGround And KeyHit(BB_KEY_SPACE) Then fallSpeed = 0.25
 
 	; TranslateEntity moves in world directions, so the arrows always mean the same direction on screen.
-	TranslateEntity player, (KeyDown(205) - KeyDown(203)) * 0.12, fallSpeed, (KeyDown(200) - KeyDown(208)) * 0.12
+	TranslateEntity player, (KeyDown(BB_KEY_RIGHT) - KeyDown(BB_KEY_LEFT)) * 0.12, fallSpeed, (KeyDown(BB_KEY_UP) - KeyDown(BB_KEY_DOWN)) * 0.12
 
 	UpdateWorld
 

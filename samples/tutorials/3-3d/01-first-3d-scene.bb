@@ -10,8 +10,11 @@
 ; Directions: x points right, y points up and z points into the screen. The camera starts at (0, 0, 0) and looks
 ; along +z, so things need a positive z to be in front of it.
 
+Include "<keys.bb>"
+Include "<graphics.bb>"
+
 ; Graphics3D is Graphics for 3D: width, height, depth (0 = best) and mode (2 = window).
-Graphics3D 640, 480, 0, 2
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.01: A First 3D Scene"
 SetBuffer BackBuffer()
 
@@ -40,7 +43,7 @@ Local cylinder = CreateCylinder(24)
 PositionEntity cylinder, 3, 0, 7
 EntityColor cylinder, 120, 255, 120
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; TurnEntity adds to the current rotation: pitch (around x), yaw (around y) and roll (around z), in degrees.
 	TurnEntity cube, 0.5, 1, 0
 	TurnEntity cylinder, 1, 0, 0

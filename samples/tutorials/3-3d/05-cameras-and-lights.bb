@@ -14,7 +14,11 @@
 ;
 ; Controls: 1, 2 and 3 switch the coloured lights on and off, F toggles fog, Up / Down zoom the big camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.05: Cameras and Lights"
 SetBuffer BackBuffer()
 
@@ -38,23 +42,23 @@ Next
 
 ; --- Lights -------------------------------------------------------------------------------------------------------
 ; A dim blue directional light, like moonlight. LightColor sets its colour.
-Local moon = CreateLight(1)
+Local moon = CreateLight(BB_LIGHT_DIRECTIONAL)
 RotateEntity moon, 60, 30, 0
 LightColor moon, 70, 90, 150
 
 ; A red point light. LightRange is how far its light reaches.
-Local lamp = CreateLight(2)
+Local lamp = CreateLight(BB_LIGHT_POINT)
 PositionEntity lamp, -4, 1.5, 6
 LightColor lamp, 255, 60, 40
 LightRange lamp, 6
 Local lampBall = CreateSphere(8, lamp) ; A small ball shows where the lamp is.
 ScaleEntity lampBall, 0.15, 0.15, 0.15
-EntityFX lampBall, 1
+EntityFX lampBall, BB_FX_FULLBRIGHT
 EntityColor lampBall, 255, 60, 40
 
 ; A yellow spot light, pointing down at an angle. LightConeAngles sets the inner and outer angle of the cone: full
 ; light inside the inner one, fading to nothing at the outer one.
-Local torch = CreateLight(3)
+Local torch = CreateLight(BB_LIGHT_SPOT)
 PositionEntity torch, 4, 6, 6
 RotateEntity torch, 70, 0, 0
 LightColor torch, 255, 230, 120
@@ -84,18 +88,18 @@ For i = 1 To 3
 	lightOn(i) = True
 Next
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	; ShowEntity and HideEntity switch an entity on and off. A hidden light gives no light. The array remembers
 	; which lights are on.
 	For i = 1 To 3
-		If KeyHit(i + 1) ; Keys 1 to 3 have the scan codes 2 to 4.
+		If KeyHit(BB_KEY_1 + i - 1) ; The number keys 1 to 9 have codes that follow each other.
 			lightOn(i) = Not lightOn(i)
 			If lightOn(i) Then ShowEntity lights(i) Else HideEntity lights(i)
 		EndIf
 	Next
 
 	; Fog fades things into a colour as they get further away. Mode 1 is linear fog between the two distances.
-	If KeyHit(33)
+	If KeyHit(BB_KEY_F)
 		fogOn = Not fogOn
 		If fogOn
 			CameraFogMode camera, 1
@@ -107,8 +111,8 @@ While Not KeyHit(1)
 	EndIf
 
 	; CameraZoom: 1 is normal, more than 1 looks through a telescope, less than 1 is a wide angle.
-	If KeyDown(200) And zoom < 4 Then zoom = zoom * 1.02
-	If KeyDown(208) And zoom > 0.5 Then zoom = zoom / 1.02
+	If KeyDown(BB_KEY_UP) And zoom < 4 Then zoom = zoom * 1.02
+	If KeyDown(BB_KEY_DOWN) And zoom > 0.5 Then zoom = zoom / 1.02
 	CameraZoom camera, zoom
 
 	; The lamp wanders around in a circle.

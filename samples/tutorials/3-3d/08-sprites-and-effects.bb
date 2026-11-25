@@ -15,7 +15,12 @@
 ;
 ; Controls: Space makes an explosion, Left / Right turn the camera around the fountain.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.08: Sprites and Particles"
 SetBuffer BackBuffer()
 
@@ -36,7 +41,7 @@ EntityColor ground, 30, 30, 45
 ; --- A soft, round texture ----------------------------------------------------------------------------------------
 ; White in the middle, fading to nothing at the edge. The colour of each sprite comes from EntityColor, so one
 ; white texture serves every colour.
-Local glow = CreateTexture(32, 32, 1 + 2)
+Local glow = CreateTexture(32, 32, BB_TEXTURE_COLOR + BB_TEXTURE_ALPHA)
 Local x, y, distance#, brightness
 LockBuffer TextureBuffer(glow)
 For y = 0 To 31
@@ -53,8 +58,8 @@ UnlockBuffer TextureBuffer(glow)
 ; Every particle is a copy of this one. The template itself stays hidden.
 Local template = CreateSprite()
 EntityTexture template, glow
-EntityBlend template, 3 ; Additive.
-EntityFX template, 1    ; Full bright: lights do not change its colour.
+EntityBlend template, BB_BLEND_ADD   ; Additive.
+EntityFX template, BB_FX_FULLBRIGHT ; Full bright: lights do not change its colour.
 HideEntity template
 
 ; --- Particles ----------------------------------------------------------------------------------------------------
@@ -73,8 +78,8 @@ EntityColor fountain, 90, 90, 110
 
 Local p.Particle, i, count
 
-While Not KeyHit(1)
-	TurnEntity cameraPivot, 0, (KeyDown(203) - KeyDown(205)) * 1.5, 0
+While Not KeyHit(BB_KEY_ESCAPE)
+	TurnEntity cameraPivot, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.5, 0
 
 	; The fountain makes a few blue-white sparks every frame.
 	For i = 1 To 4
@@ -82,7 +87,7 @@ While Not KeyHit(1)
 	Next
 
 	; Space: an explosion in the air, a ball of orange sparks flying in every direction.
-	If KeyHit(57)
+	If KeyHit(BB_KEY_SPACE)
 		For i = 1 To 200
 			SpawnParticle(template, 0, 5, 0, Rnd(-0.2, 0.2), Rnd(-0.2, 0.2), Rnd(-0.2, 0.2), Rnd(0.01, 0.03), 0.5, 255, Rnd(100, 200), 40)
 		Next

@@ -9,7 +9,11 @@
 ;
 ; This tutorial builds two meshes: a small pyramid, vertex by vertex, and a hilly landscape made from a grid.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 3.03: Building Meshes from Code"
 SetBuffer BackBuffer()
 
@@ -87,17 +91,17 @@ For z = 0 To GRID - 1
 Next
 UpdateNormals land
 
-; EntityFX 2 tells the mesh to use the vertex colours.
-EntityFX land, 2
+; EntityFX BB_FX_VERTEX_COLORS tells the mesh to use the vertex colours.
+EntityFX land, BB_FX_VERTEX_COLORS
 
 Local wireOn = False
 
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	TurnEntity land, 0, 0.2, 0
 	TurnEntity pyramid, 0, -1, 0
 
 	; W toggles wireframe mode, which shows the triangles.
-	If KeyHit(17) Then wireOn = Not wireOn : WireFrame wireOn
+	If KeyHit(BB_KEY_W) Then wireOn = Not wireOn : WireFrame wireOn
 
 	RenderWorld
 	Color 0, 0, 0
