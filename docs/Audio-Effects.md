@@ -147,6 +147,8 @@ can take the doppler down over a few seconds instead of in one step:
 | `ListenerDoppler scale#[, fade_ms%=0]` | The doppler scale of `CreateListener` (0 off). |
 | `ListenerDistance scale#[, fade_ms%=0]` | Meters per world unit. |
 | `SpeedOfSound meters#[, fade_ms%=0]` | Default 340, as now (`BB_SPEED_OF_SOUND`). |
+| `ListenerRadius radius#[, fade_ms%=0]` | How big the listener is, in world units (default 0, a point as now). See *Listener and source radius*. |
+| `ChannelRadius channel, radius#` | How big the source of an emitted channel is (default 0). |
 | `ListenerFalloff mode%` | The falloff curve for all 3D channels, playing ones included (`SetFalloff` only changes channels that start later). |
 | `GetListenerRolloff#()`, `GetListenerDoppler#()`, `GetListenerDistance#()`, `GetSpeedOfSound#()` | What they are at now. |
 | `ChannelDoppler channel, scale#` | Per-channel multiplier on top of the listener's (default 1), e.g. 0 for a radio the player carries. |
@@ -154,6 +156,33 @@ can take the doppler down over a few seconds instead of in one step:
 | `ChannelLowPass channel, hz#` | Muffles one channel, for occlusion behind walls. 0 or 20000+ is off. |
 
 All of these also work before `CreateListener`, on the default listener at the origin.
+
+### Listener and source radius
+
+Today the doppler shift is worked out between two points. The shift follows the speed along the line from the listener
+to the source, and when a source passes close by, that line turns around within a few milliseconds: the pitch jumps
+from high to low (in the CreateListener samples, 535 Hz to 375 Hz) as fast as the 10 ms smoothing lets it. Real
+listeners and sources are not points, so a radius makes the turn take longer.
+
+With `ListenerRadius` and `ChannelRadius`, `r` is the sum of both (in world units). The direction used for the speeds
+becomes the offset divided by `sqrt(distance² + r²)` instead of by the distance:
+
+```
+offset    = source - listener
+toward    = offset / sqrt(|offset|² + r²)     ; was offset / |offset|
+shift     = from (listener speed · toward) and (source speed · toward), as now
+```
+
+Far away (distance much larger than `r`) nothing changes. Close by, the speeds along the line shrink toward 0, so the
+shift fades to none at the centre and grows again on the other side. A source passing at speed `v` swings from high to
+low over about `2r / v` seconds: 0.1 s for `r` = 3 m at 60 m/s, instead of a few milliseconds. The result is continuous,
+so the 10 ms smoothing stays as it is.
+
+The same `toward` is used for panning, so a source passing through the listener moves across the speakers over that
+time instead of jumping from one side to the other. Volume is not changed by the radius; the falloff curves are already
+flat near the listener.
+
+`r` = 0 (the default) gives exactly today's numbers, so programs that don't set a radius sound the same.
 
 No `FreeListener` is added: `FreeEntity` on the listener already does that, as in the original, and the wiki page of
 `CreateListener` will say so. With the setters above, freeing the listener is only needed to move it to another entity
@@ -304,14 +333,16 @@ with the cutoff moved by `bb_channel_follow` for air absorption. A channel witho
 - Tail test: one short sound on a bus with reverb; the output after the sound ends is not silent for the length of the
   tail.
 - Bit-identity test: the existing audio tests render the same output before and after the change.
+- Radius: a source passing through the listener at 60 m/s with `r` = 3 swings in pitch over about 0.1 s and pans
+  across without a jump; with `r` = 0 the render matches today's `doppler_on.wav`.
 - Fades: a parameter step produces no sample-to-sample jump above a threshold.
 - Wiki: a page *Audio buses and effects* under the language additions, one page per command as usual, with
   before/after recordings in the media folder.
 
 ## Phases
 
-1. Listener: `ListenerRolloff/Doppler/Distance` and `SpeedOfSound` with fades, `ListenerFalloff`, the getters and
-   `ChannelDoppler`. On its own this covers the planet/space case, so it comes first.
+1. Listener: `ListenerRolloff/Doppler/Distance` and `SpeedOfSound` with fades, `ListenerFalloff`, the getters,
+   `ChannelDoppler`, and `ListenerRadius`/`ChannelRadius`. On its own this covers the planet/space case, so it comes first.
 2. Buses: `CreateAudioBus`, `FreeAudioBus`, `AudioBusParent`, `AudioBusVolume`, pause/resume/stop, `ChannelBus`,
    `SoundBus`.
 3. Effects: the chain, parameters, fades, bypass, and the twelve effect types. `<audio.bb>`.
