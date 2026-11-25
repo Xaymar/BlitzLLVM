@@ -52,7 +52,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | Variable | What it controls |
 |---|---|
 | `BLITZLLVM_SPRITE_HULL` | The outline that fits the picture of a sprite, see [[GPU-Optimizations]]. |
-| `BLITZLLVM_DXGI_PRESENT` | On Windows, the Vulkan renderer hands its pictures to OpenGL or a DXGI swapchain to show them, because Vulkan swapchains stall for a long time while a window is dragged or gains the focus. `0` shows them with a Vulkan swapchain. Without the extensions it needs, the Vulkan swapchain is used anyway. |
+| `BLITZLLVM_DXGI_PRESENT` | On Windows, the Vulkan renderer hands its pictures to OpenGL or a DXGI swapchain to show them, because Vulkan swapchains stall for a long time while a window is dragged or gains the focus. `0` shows them with a Vulkan swapchain. Without the extensions it needs, the Vulkan swapchain is used anyway. On NVIDIA, the control panel's "Vulkan/OpenGL present method" must not be "Prefer layered on DXGI swapchain", or the stutter comes back. |
 | `BLITZLLVM_TRIANGLE_CLIP` | Cutting triangles with very long edges to the view before they are drawn, as Direct3D 7 does. `0` hands them to the GPU whole, which can make the edges and the texture of a huge ground noisy on some GPUs. |
 | `BLITZLLVM_DITHER_TEMPORAL` | The noise of `Dither` moving from picture to picture (`DitherTemporal`). |
 | `BLITZLLVM_TRANSPARENCY_DISTANCE_SORT_MODE` | `1` orders see-through draws by View Distance and not by distance in space (`TransparencyDistanceSortMode`), 0 by default. |
