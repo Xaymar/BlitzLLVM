@@ -117,6 +117,17 @@ namespace bb::rhi::vulkan::dxgi {
 			uint64_t                acquires[image_count] = {};
 			uint64_t                presents[image_count] = {};
 			uint32_t                next = 0;
+
+			// BLITZLLVM_DEBUG_DXGI: what the presents of the last second waited for.
+			struct timing {
+				uint32_t count = 0;
+				double   sum = 0, max = 0;
+				void add(double ms) { count++; sum += ms; max = ms > max ? ms : max; }
+			};
+			std::mutex                            stats_lock;
+			timing                                acquire_wait, copy, latency_wait, present_call;
+			std::chrono::steady_clock::time_point stats_since = std::chrono::steady_clock::now();
+			UINT                                  stats_present_count = 0, stats_refresh_count = 0;
 		};
 		std::mutex          chains_lock;
 		std::vector<chain*> chains;
@@ -167,6 +178,28 @@ namespace bb::rhi::vulkan::dxgi {
 		{
 			static const bool on = bb_env_bool("BLITZLLVM_DXGI_PRESENT", true) != 0;
 			return on;
+		}
+
+		bool debug()
+		{
+			static const bool on = bb_env_bool("BLITZLLVM_DEBUG_DXGI", false) != 0;
+			return on;
+		}
+
+		// BLITZLLVM_DXGI_LATENCY: how many pictures may wait for the display (DXGI's frame latency), 2 by default. 0 makes the
+		// swapchain without its waitable object, so only Present waits.
+		uint32_t frame_latency()
+		{
+			static const uint32_t latency = [] {
+				int32_t value = bb_env_int("BLITZLLVM_DXGI_LATENCY", 2);
+				return uint32_t(value < 0 ? 2 : (value > 16 ? 16 : value));
+			}();
+			return latency;
+		}
+
+		double ms_since(std::chrono::steady_clock::time_point start)
+		{
+			return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
 		}
 
 		void warn(const char* what, HRESULT result)
@@ -434,6 +467,33 @@ namespace bb::rhi::vulkan::dxgi {
 			release(c->swap);
 			delete c;
 		}
+		// One line a second for each swapchain: how often it presented, how many refreshes the display had, and what was waited for.
+		void print_stats(chain& c, double latency_ms, double present_ms)
+		{
+			std::lock_guard<std::mutex> guard(c.stats_lock);
+			c.latency_wait.add(latency_ms);
+			c.present_call.add(present_ms);
+			double elapsed = ms_since(c.stats_since);
+			if (elapsed < 1000.0) {
+				return;
+			}
+			DXGI_FRAME_STATISTICS frame = {};
+			bool   have_frame = SUCCEEDED(c.swap->GetFrameStatistics(&frame));
+			UINT   presented  = have_frame ? frame.PresentCount - c.stats_present_count : 0;
+			UINT   refreshes  = have_frame ? frame.SyncRefreshCount - c.stats_refresh_count : 0;
+			bool   first      = c.stats_present_count == 0;
+			auto   avg = [](const chain::timing& t) { return t.count ? t.sum / t.count : 0.0; };
+			fprintf(stderr,
+			        "[dxgi] %p: %u presents in %.0f ms (interval %u, flags 0x%x, latency %u); displayed %s%u, refreshes %s%u; waits avg/max ms: acquire %.2f/%.2f, copy %.2f/%.2f, latency %.2f/%.2f, Present %.2f/%.2f\n",
+			        (void*)&c, c.present_call.count, elapsed, c.interval, c.flags, frame_latency(), first ? "~" : "", presented, first ? "~" : "", refreshes,
+			        avg(c.acquire_wait), c.acquire_wait.max, avg(c.copy), c.copy.max, avg(c.latency_wait), c.latency_wait.max, avg(c.present_call), c.present_call.max);
+			if (have_frame) {
+				c.stats_present_count = frame.PresentCount;
+				c.stats_refresh_count = frame.SyncRefreshCount;
+			}
+			c.acquire_wait = c.copy = c.latency_wait = c.present_call = {};
+			c.stats_since  = std::chrono::steady_clock::now();
+		}
 	} // namespace
 
 	void choose_extensions(const VkExtensionProperties* available, uint32_t available_count, const char** extensions, uint32_t& count)
@@ -513,7 +573,7 @@ namespace bb::rhi::vulkan::dxgi {
 		desc.Scaling               = DXGI_SCALING_STRETCH;
 		desc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode             = DXGI_ALPHA_MODE_IGNORE;
-		desc.Flags                 = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | (d3d.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
+		desc.Flags                 = (frame_latency() ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0) | (d3d.tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
 		HRESULT result             = E_FAIL;
 		prune_parked();
 		for (size_t i = 0; i < parked.size(); i++) {
@@ -543,13 +603,13 @@ namespace bb::rhi::vulkan::dxgi {
 		if (SUCCEEDED(result)) {
 			result = c->swap->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&c->back));
 		}
-		if (SUCCEEDED(result) && !resized) {
+		if (SUCCEEDED(result) && !resized && frame_latency()) {
 			// The wait for the display happens on this object and not in Present: Present holds the lock of the device, which every
 			// window presents with.
 			IDXGISwapChain2* swap2 = nullptr;
 			result = c->swap->QueryInterface(__uuidof(IDXGISwapChain2), reinterpret_cast<void**>(&swap2));
 			if (SUCCEEDED(result)) {
-				swap2->SetMaximumFrameLatency(2);
+				swap2->SetMaximumFrameLatency(frame_latency());
 				c->latency = swap2->GetFrameLatencyWaitableObject();
 				swap2->Release();
 			}
@@ -666,6 +726,7 @@ namespace bb::rhi::vulkan::dxgi {
 			std::unique_lock<std::mutex> guard(c->lock);
 			i          = c->next;
 			auto ready = [&] { return c->presents[i] == c->acquires[i]; };
+			auto start = std::chrono::steady_clock::now();
 			if (timeout_ns == UINT64_MAX) {
 				c->presented.wait(guard, ready);
 			} else if (!c->presented.wait_for(guard, std::chrono::nanoseconds(timeout_ns), ready)) {
@@ -673,6 +734,10 @@ namespace bb::rhi::vulkan::dxgi {
 			}
 			c->acquires[i]++;
 			c->next = (i + 1) % image_count;
+			if (debug()) {
+				std::lock_guard<std::mutex> stats_guard(c->stats_lock);
+				c->acquire_wait.add(ms_since(start));
+			}
 		}
 
 		// The image is ready to be drawn into once Direct3D 11 copied it the last time; the GPU waits for that, not this thread.
@@ -734,13 +799,19 @@ namespace bb::rhi::vulkan::dxgi {
 		HRESULT shown = S_OK;
 		if (result == VK_SUCCESS) {
 			uint64_t copied = ++c->counter;
+			auto     start  = std::chrono::steady_clock::now();
 			{
 				std::lock_guard<std::mutex> guard(d3d_lock);
 				d3d.context->Wait(c->fence, drawn);
 				d3d.context->CopyResource(c->back, c->textures[index]);
 				d3d.context->Signal(c->fence, copied);
+				d3d.context->Flush(); // Vulkan waits for copied before drawing into the image again: it must not be held in the context until Present.
 			}
 			c->copied[index].store(copied);
+			if (debug()) {
+				std::lock_guard<std::mutex> stats_guard(c->stats_lock);
+				c->copy.add(ms_since(start));
+			}
 		}
 		{
 			std::lock_guard<std::mutex> guard(c->lock);
@@ -752,10 +823,15 @@ namespace bb::rhi::vulkan::dxgi {
 		}
 		// Not under d3d_lock, and only once the swapchain can take the picture: with a sync interval of 1 that waits for the
 		// display, which the other windows must not wait for. A second at most, for a window that is hidden.
+		auto waited = std::chrono::steady_clock::now();
 		if (c->latency) {
 			WaitForSingleObjectEx(c->latency, 1000, TRUE);
 		}
-		shown = c->swap->Present(c->interval, c->flags);
+		auto presenting = std::chrono::steady_clock::now();
+		shown           = c->swap->Present(c->interval, c->flags);
+		if (debug()) {
+			print_stats(*c, std::chrono::duration<double, std::milli>(presenting - waited).count(), ms_since(presenting));
+		}
 		if ((shown == DXGI_ERROR_DEVICE_REMOVED) || (shown == DXGI_ERROR_DEVICE_RESET) || (shown == DXGI_ERROR_INVALID_CALL)) {
 			warn("IDXGISwapChain::Present", shown);
 			return { present_status::out_of_date, int32_t(VK_ERROR_OUT_OF_DATE_KHR) }; // Made again, as a Vulkan swapchain if DXGI keeps failing.

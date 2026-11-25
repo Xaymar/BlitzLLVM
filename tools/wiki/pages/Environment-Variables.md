@@ -89,6 +89,8 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 
 | Variable | Default | What it does |
 |---|---|---|
+| `BLITZLLVM_DEBUG_DXGI` | `0` | `1` prints a line a second for each window that presents through DXGI (see `BLITZLLVM_DXGI_PRESENT`): how many pictures it presented and the display showed, and how long acquiring, copying, waiting for the swapchain and `Present` took. |
+| `BLITZLLVM_DXGI_LATENCY` | `2` | How many pictures may wait for the display when presenting through DXGI. `0` does not wait for the swapchain before `Present`. For finding out why presenting is slow. |
 | `BLITZLLVM_PROFILE_FPS` | `0` | Prints the frames per second and the timers of the runtime once a second. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileFPS]] (and [[ProfileEnable]] for the timers). |
 | `BLITZLLVM_PROFILE_SLOW` | `0` | A number of milliseconds: every frame that takes longer than that is listed on stderr, with the frame number and the timers of just that frame (collect, draws, clusters, record, waiting for the GPU, ...) and the GPU pass times that came back for it and the three frames after it, so a single stutter shows in a long run. Needs a program made with `--profile` or `-d`. Changed while the program runs with [[ProfileSlow]]. |
 | `BLITZLLVM_PROFILE_OUTPUT` | not set | A file that receives the text of the profiling (`BLITZLLVM_PROFILE_FPS` and `BLITZLLVM_PROFILE_SLOW`) instead of the standard error output. Needs a program made with `--profile` or `-d`. [[ProfileOutput]] changes it while the program runs and [[ProfileValue]] gives the numbers of the last frame to the program. |
