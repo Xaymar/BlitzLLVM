@@ -56,7 +56,7 @@ and what it does every frame.
   benchmark. It calls the functions of the benchmark: `BenchUpdate` (not timed), `BenchTimedUpdate` (timed, also on its own as
   `update_ms`), `BenchRender`, `BenchAfterFrame` (not timed), `BenchFinish` and `BenchResult$`.
 * `<name>_llvm.bi` and `<name>_original.bi`, when a benchmark has them, are what differs between the compilers for that benchmark
-  only (the culling setting of bigmesh, the sampler of the forest, the sprite limit of the dungeon). The runner copies the right one
+  only (the culling setting of bigmesh, the sampler of the forest, the sprite limit of the dungeon, the physics of the space battle). The runner copies the right one
   as `<name>_compiler.bi`.
 
 A new benchmark is a `.bb` file that includes `bench_compiler.bi`, its own `<name>_compiler.bi` if it has one, and `bench_begin.bi`,
@@ -439,16 +439,16 @@ python3 benchmarks/spacebattle.py                                 # 2000 ships, 
 python3 benchmarks/spacebattle.py --ships 6000 --asteroids 4000   # a bigger battle
 ----
 
-It takes the same options as the others (`--frames`, `--seed`, `--size`, `--depth`, `--gpu`, `--shot`, `--label`, `--debug`, `--profile`, `--no-save`,
-and `BENCH_SHIPS`, `BENCH_ASTEROIDS`, `BENCH_DEBRIS`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and prints the frame times,
-the time of each part per frame (`ai`, `picks`, `effects`, `collisions`, `physics`, `render`, together `ms/frame`) and what happened in the
-game: kills, shots and hits, line of sight checks and how many were blocked, ship collisions, camera picks that hit.
+It takes the options of every benchmark (see <<How a benchmark is built>>; `--warmup` is 30 here) and `BENCH_SHIPS`, `BENCH_ASTEROIDS`,
+`BENCH_DEBRIS` for the defaults of its own, and prints the frame times, the time of each part per frame (`ai`, `picks`, `effects`,
+`collisions`, `physics` together are `update_ms`; `render` is `RenderWorld` and the `Flip` after it) and what happened in the game:
+kills, shots and hits, line of sight checks and how many were blocked, ship collisions, camera picks that hit.
 
-Every step is one frame, not a time, and the random numbers come from a small generator in the program, so two runs with the same compiler
-give the same frames and the same counts. Between compilers the rounding of floats differs a little, and a fight grows from such
-differences over thousands of frames: compare the counts to see how far two runs went apart before comparing their times.
+Every step is one frame, not a time, and the random numbers come from `BenchRnd`, so two runs with the same compiler give the same
+frames and the same counts. Between compilers the rounding of floats differs a little, and a fight grows from such differences over
+thousands of frames: compare the counts to see how far two runs went apart before comparing their times.
 
-The original Blitz3D builds the same program (`spacebattle_original.bi`: milliseconds, no draw counters, no physics). Its collisions test
+The original Blitz3D builds the same program (`bench_original.bi`: milliseconds, no draw counters; `spacebattle_original.bi`: no physics). Its collisions test
 every ship against every asteroid, so it is slow at the full size; its times have a resolution of one millisecond, which makes the times of
 the parts rough.
 

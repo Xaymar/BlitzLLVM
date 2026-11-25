@@ -7,7 +7,7 @@
 ; for the aim of the camera), collisions (ships against asteroids and against the stations, in UpdateWorld), creating and freeing
 ; entities (ships that die come back, laser bolts and debris come and go) and, with BlitzLLVM, physics: the debris of a ship that
 ; dies are bodies that bump into each other, into the asteroids and into the stations.
-; Every step is one frame, not a time, and the random numbers come from the generator below, so a run with the same compiler draws
+; Every step is one frame, not a time, and the random numbers come from BenchRnd (bench_begin.bi), so a run with the same compiler draws
 ; the same frames every time. Between compilers the rounding of floats differs a little, and over thousands of frames a fight
 ; grows from such differences: the counts in the result (kills, shots, picks, collisions) show how far two runs went apart.
 ; Needs a window and a GPU: python3 benchmarks/spacebattle.py builds and runs it, under xvfb and llvmpipe if there is no display.
@@ -16,24 +16,18 @@
 ;   BENCH_SHIPS      ships of both fleets together (default 2000), every tenth is a trader
 ;   BENCH_ASTEROIDS  asteroids in the two belts (default 1500)
 ;   BENCH_DEBRIS     at most this many pieces of debris at once, the oldest go first (default 2000)
-;   BENCH_FRAMES     how many frames are timed (default 3000)
-;   BENCH_WARMUP     frames that run but are not timed (default 30)
-;   BENCH_SEED       seed of the random numbers (default 1)
-;   BENCH_W, BENCH_H size of the window (default 640 x 360)
-;   BENCH_DEPTH      colour depth for Graphics3D (0 or unset: the default)
-;   BENCH_GPU        graphics driver for SetGfxDriver (0 or unset: the default)
-;   BENCH_SHOT       file to save the last frame to (optional)
-;   BENCH_RESULT     file to write the RESULT line to (optional, it is also in the debug log)
-;   BENCH_FRAMETIMES file to write the time of every frame to, in microseconds, one per line (optional)
+;   and the ones of every benchmark (frames, warmup, seed, window, depth, GPU, files), see bench_begin.bi.
 ;
 ; The camera rides behind a trader for the first 1000 frames, behind a fighter in the fight for the next 1000, and then circles a
 ; station; after 3000 frames it starts again.
 
-; Runs with BlitzLLVM and with the original Blitz3D, so that their speeds can be compared. What the original does not have (a
-; microsecond timer, the draw counters, physics) is in spacebattle_llvm.bi or spacebattle_original.bi, python3
-; benchmarks/spacebattle.py copies the right one next to this file as spacebattle_counters.bi. Without physics the debris of the
-; original fly in straight lines.
-Include "spacebattle_counters.bi"
+; Runs with BlitzLLVM and with the original Blitz3D, so that their speeds can be compared: what differs between them is in
+; bench_llvm.bi and bench_original.bi, and for this benchmark (physics) in spacebattle_llvm.bi and spacebattle_original.bi;
+; python3 benchmarks/spacebattle.py copies the right ones next to this file as bench_compiler.bi and spacebattle_compiler.bi.
+; Without physics the debris of the original fly in straight lines.
+Include "bench_compiler.bi"
+Include "spacebattle_compiler.bi"
+Include "bench_begin.bi"
 
 Const TEAMS = 2
 Const STATIONS = 4               ; per team
@@ -49,54 +43,19 @@ Const DEBRIS_LIFE = 240
 Const RESPAWN = 180
 Const CAMERA_LAP = 3000
 
-Function Env$(name$, fallback$)
-	value$ = GetEnv$(name$)
-	If value$ = "" Then value$ = fallback$
-	Return value$
-End Function
-
-; The random numbers come from this generator and not from Rnd, because Rnd gives different numbers in BlitzLLVM and in the
-; original Blitz3D, and then the two would not build the same scene. It is the Park-Miller generator, with Schrage's way of
-; multiplying without leaving 31 bits, so it gives the same numbers in both.
-Global SBState = 1
-
-Function SBSeed(seed)
-	SBState = (seed Mod 2147483646) + 1
-	If SBState < 1 Then SBState = SBState + 2147483646
-End Function
-
-Function SBRnd#(low#, high#)
-	SBState = 16807 * (SBState Mod 127773) - 2836 * (SBState / 127773)
-	If SBState <= 0 Then SBState = SBState + 2147483647
-	Return low + (high - low) * (SBState / 2147483647.0)
-End Function
-
-Function SBRndInt(low, high)
-	v = Int(Floor(SBRnd(low, high + 1)))
+; A whole number from low to high, from BenchRnd (bench_begin.bi).
+Function BenchRndInt(low, high)
+	v = Int(Floor(BenchRnd(low, high + 1)))
 	If v > high Then v = high
 	Return v
 End Function
 
-gpu = Int(Env$("BENCH_GPU", "0"))
-depth = Int(Env$("BENCH_DEPTH", "0"))
-If gpu > 0 Then SetGfxDriver gpu
-Graphics3D Int(Env$("BENCH_W", "640")), Int(Env$("BENCH_H", "360")), depth, 2
-SetBuffer BackBuffer()
-
 Global ships = Int(Env$("BENCH_SHIPS", "2000"))
-asteroids = Int(Env$("BENCH_ASTEROIDS", "1500"))
+Global asteroids = Int(Env$("BENCH_ASTEROIDS", "1500"))
 Global debriscap = Int(Env$("BENCH_DEBRIS", "2000"))
-frames = Int(Env$("BENCH_FRAMES", "3000"))
-warmup = Int(Env$("BENCH_WARMUP", "30"))
-seed = Int(Env$("BENCH_SEED", "1"))
 If ships < 2 Then ships = 2
 If asteroids < 0 Then asteroids = 0
 If debriscap < 0 Then debriscap = 0
-If frames < 1 Then frames = 1
-If warmup < 0 Then warmup = 0
-
-SBSeed seed
-creationstart = BenchMicros()
 
 ; Collision types: ships slide along asteroids (sphere to sphere) and along stations (sphere to polygon).
 Const TYPE_SHIP = 1
@@ -150,17 +109,17 @@ EntityFX sun, 1
 
 Dim planetx#(PLANETS - 1), planety#(PLANETS - 1), planetz#(PLANETS - 1), planetr#(PLANETS - 1), planetent(PLANETS - 1)
 For p = 0 To PLANETS - 1
-	angle# = p * 72 + SBRnd(-15, 15)
-	dist# = SBRnd(1800, 2900)
-	planetr(p) = SBRnd(140, 380)
+	angle# = p * 72 + BenchRnd(-15, 15)
+	dist# = BenchRnd(1800, 2900)
+	planetr(p) = BenchRnd(140, 380)
 	planetx(p) = Sin(angle) * dist
-	planety(p) = SBRnd(-200, 200)
+	planety(p) = BenchRnd(-200, 200)
 	planetz(p) = Cos(angle) * dist
 	planetent(p) = CreateSphere(32)
 	ScaleEntity planetent(p), planetr(p), planetr(p), planetr(p)
 	PositionEntity planetent(p), planetx(p), planety(p), planetz(p)
-	TurnEntity planetent(p), SBRnd(-20, 20), 0, SBRnd(-20, 20)
-	EntityTexture planetent(p), MakeTexture(SBRndInt(80, 255), SBRndInt(80, 255), SBRndInt(80, 255), SBRndInt(2, 9), p)
+	TurnEntity planetent(p), BenchRnd(-20, 20), 0, BenchRnd(-20, 20)
+	EntityTexture planetent(p), MakeTexture(BenchRndInt(80, 255), BenchRndInt(80, 255), BenchRndInt(80, 255), BenchRndInt(2, 9), p)
 	EntityPickMode planetent(p), 1
 Next
 
@@ -168,9 +127,9 @@ Next
 stars = CreateMesh()
 starsurf = CreateSurface(stars)
 For i = 0 To 1499
-	yaw# = SBRnd(0, 360) : pitch# = SBRnd(-80, 80)
+	yaw# = BenchRnd(0, 360) : pitch# = BenchRnd(-80, 80)
 	sx# = Cos(pitch) * Sin(yaw) * 7000 : sy# = Sin(pitch) * 7000 : sz# = Cos(pitch) * Cos(yaw) * 7000
-	s# = SBRnd(6, 14)
+	s# = BenchRnd(6, 14)
 	sv = AddVertex(starsurf, sx - s, sy - s, sz)
 	AddVertex starsurf, sx + s, sy - s, sz
 	AddVertex starsurf, sx + s, sy + s, sz
@@ -214,13 +173,13 @@ For t = 0 To TEAMS - 1
 	For k = 0 To STATIONS - 1
 		n = t * STATIONS + k
 		side# = 1 - 2 * t
-		stationx(n) = -side * SBRnd(650, 800)
-		stationy(n) = SBRnd(-120, 120)
-		stationz(n) = (k - 1.5) * 300 + SBRnd(-60, 60)
+		stationx(n) = -side * BenchRnd(650, 800)
+		stationy(n) = BenchRnd(-120, 120)
+		stationz(n) = (k - 1.5) * 300 + BenchRnd(-60, 60)
 		stationent(n) = CopyEntity(stationtemplate)
 		ShowEntity stationent(n)
 		PositionEntity stationent(n), stationx(n), stationy(n), stationz(n)
-		TurnEntity stationent(n), SBRnd(-10, 10), SBRnd(0, 360), SBRnd(-10, 10)
+		TurnEntity stationent(n), BenchRnd(-10, 10), BenchRnd(0, 360), BenchRnd(-10, 10)
 		If t = 0 Then EntityColor stationent(n), 120, 160, 255 Else EntityColor stationent(n), 255, 140, 110
 		EntityType stationent(n), TYPE_STATION
 		EntityPickMode stationent(n), 2
@@ -256,23 +215,23 @@ Dim rockent(asteroids), rockspin#(asteroids)
 For i = 0 To asteroids - 1
 	; Two belts, both on the line between the fleets: one ring around the middle and a smaller one tilted across it.
 	If i Mod 3 = 2 Then
-		angle# = SBRnd(0, 360) : radius# = SBRnd(150, 300)
+		angle# = BenchRnd(0, 360) : radius# = BenchRnd(150, 300)
 		ax# = Sin(angle) * radius * 0.4 : ay# = Cos(angle) * radius : az# = Sin(angle) * radius
 	Else
-		angle# = SBRnd(0, 360) : radius# = SBRnd(300, 520)
-		ax# = Sin(angle) * radius * 0.6 : ay# = SBRnd(-50, 50) : az# = Cos(angle) * radius
+		angle# = BenchRnd(0, 360) : radius# = BenchRnd(300, 520)
+		ax# = Sin(angle) * radius * 0.6 : ay# = BenchRnd(-50, 50) : az# = Cos(angle) * radius
 	EndIf
-	size# = SBRnd(3, 14)
-	If i Mod 50 = 0 Then size = SBRnd(25, 40)
+	size# = BenchRnd(3, 14)
+	If i Mod 50 = 0 Then size = BenchRnd(25, 40)
 	rockent(i) = CopyEntity(rocktemplate(i Mod 4))
 	ShowEntity rockent(i)
 	PositionEntity rockent(i), ax, ay, az
-	RotateEntity rockent(i), SBRnd(0, 360), SBRnd(0, 360), 0
+	RotateEntity rockent(i), BenchRnd(0, 360), BenchRnd(0, 360), 0
 	ScaleEntity rockent(i), size, size, size
 	EntityType rockent(i), TYPE_ASTEROID
 	EntityRadius rockent(i), size
 	EntityPickMode rockent(i), 1
-	rockspin(i) = SBRnd(-0.5, 0.5)
+	rockspin(i) = BenchRnd(-0.5, 0.5)
 	BenchPhysicsAsteroid ax, ay, az, size
 Next
 
@@ -354,7 +313,7 @@ Next
 ; Fighters go round: the front in the middle, a station of the enemy, a station of their own. goal 0 to 2 is that step.
 Dim frontx#(3), fronty#(3), frontz#(3)
 For k = 0 To 3
-	frontx(k) = SBRnd(-80, 80) : fronty(k) = SBRnd(-60, 60) : frontz(k) = (k - 1.5) * 260
+	frontx(k) = BenchRnd(-80, 80) : fronty(k) = BenchRnd(-60, 60) : frontz(k) = (k - 1.5) * 260
 Next
 
 Function SpawnShip(i, initial)
@@ -365,9 +324,9 @@ Function SpawnShip(i, initial)
 	; Ships start in a cloud on the side of their home station that faces the enemy.
 	side# = 1 - 2 * t
 	If initial Then
-		x# = stationx(home) + side * SBRnd(110, 260) : y# = stationy(home) + SBRnd(-90, 90) : z# = stationz(home) + SBRnd(-130, 130)
+		x# = stationx(home) + side * BenchRnd(110, 260) : y# = stationy(home) + BenchRnd(-90, 90) : z# = stationz(home) + BenchRnd(-130, 130)
 	Else
-		x# = stationx(home) + side * SBRnd(110, 140) : y# = stationy(home) + SBRnd(-30, 30) : z# = stationz(home) + SBRnd(-30, 30)
+		x# = stationx(home) + side * BenchRnd(110, 140) : y# = stationy(home) + BenchRnd(-30, 30) : z# = stationz(home) + BenchRnd(-30, 30)
 	EndIf
 	PositionEntity e, x, y, z
 	RotateEntity e, 0, 90 * side, 0
@@ -381,7 +340,7 @@ Function SpawnShip(i, initial)
 	If shipkind(i) = 1 Then shiphp(i) = 3 Else shiphp(i) = 1
 	shipgen(i) = shipgen(i) + 1
 	shiptarget(i) = -1
-	shipcool(i) = SBRndInt(0, 30)
+	shipcool(i) = BenchRndInt(0, 30)
 	shipdead(i) = 0
 	shipbreak(i) = 0
 	If shipkind(i) = 1 Then shipgoal(i) = STATIONS + ((i / (TEAMS * 10)) Mod PLANETS) Else shipgoal(i) = 0
@@ -406,7 +365,7 @@ End Type
 
 Global debriscount = 0
 
-creation# = (BenchMicros() - creationstart) / 1000.0
+BenchEndCreation
 
 ; ---------------------------------------------------------------------------------------------------------------------------------
 ; One frame of the game, in parts, each timed on its own.
@@ -617,8 +576,8 @@ Function SpawnDebris(x#, y#, z#)
 				debriscount = debriscount - 1
 			EndIf
 			d.Debris = New Debris
-			d\vx = SBRnd(-1.5, 1.5) : d\vy = SBRnd(-1.5, 1.5) : d\vz = SBRnd(-1.5, 1.5)
-			d\spin = SBRnd(-8, 8)
+			d\vx = BenchRnd(-1.5, 1.5) : d\vy = BenchRnd(-1.5, 1.5) : d\vz = BenchRnd(-1.5, 1.5)
+			d\spin = BenchRnd(-8, 8)
 			d\life = DEBRIS_LIFE
 			d\ent = BenchDebrisCreate(debristemplate, x + d\vx, y + d\vy, z + d\vz, d\vx, d\vy, d\vz)
 			debriscount = debriscount + 1
@@ -678,7 +637,7 @@ Function AfterCollisions()
 	Next
 End Function
 
-Function TurnWorld(asteroids)
+Function TurnWorld()
 	For n = 0 To TEAMS * STATIONS - 1
 		TurnEntity stationent(n), 0, 0.15, 0
 	Next
@@ -743,17 +702,22 @@ End Function
 
 ; ---------------------------------------------------------------------------------------------------------------------------------
 
-Dim times#(frames - 1)
-drawsum# = 0 : trissum# = 0 : total_ms# = 0
-aitotal# = 0 : picktotal# = 0 : effecttotal# = 0 : collidetotal# = 0 : physicstotal# = 0 : rendertotal# = 0
-boltsum# = 0 : debrissum# = 0 : alivesum# = 0
+Global aitotal# = 0, picktotal# = 0, effecttotal# = 0, collidetotal# = 0, physicstotal# = 0, rendertotal# = 0
+Global boltsum# = 0, debrissum# = 0, alivesum# = 0
+Global renderstart = 0
 
-For f = 0 To warmup + frames - 1
-	If f = warmup Then
+Include "bench_end.bi"
+
+Function BenchUpdate(f)
+	If f = BenchWarmup Then
 		; Only the timed frames are counted.
 		kills = 0 : shots = 0 : hits = 0 : losdone = 0 : losblocked = 0 : collided = 0 : campicks = 0 : campicked = 0
 		respawns = 0 : debrismade = 0
 	EndIf
+End Function
+
+; The whole game is timed (update_ms), and each part on its own.
+Function BenchTimedUpdate(f)
 	t0 = BenchMicros()
 	UpdateShips f
 	t1 = BenchMicros()
@@ -761,95 +725,54 @@ For f = 0 To warmup + frames - 1
 	DoPicks
 	t2 = BenchMicros()
 	UpdateEffects
-	TurnWorld asteroids
+	TurnWorld
 	t3 = BenchMicros()
 	UpdateWorld
 	AfterCollisions
 	t4 = BenchMicros()
 	BenchPhysicsUpdate
 	t5 = BenchMicros()
-	RenderWorld
-	BenchFlip()
-	t6 = BenchMicros()
-	If f >= warmup Then
-		elapsed# = t6 - t0
-		times(f - warmup) = elapsed
-		total_ms = total_ms + elapsed
+	If f >= BenchWarmup Then
 		aitotal = aitotal + (t1 - t0)
 		picktotal = picktotal + (t2 - t1)
 		effecttotal = effecttotal + (t3 - t2)
 		collidetotal = collidetotal + (t4 - t3)
 		physicstotal = physicstotal + (t5 - t4)
-		rendertotal = rendertotal + (t6 - t5)
-		drawsum = drawsum + BenchDraws()
-		trissum = trissum + TrisRendered()
-		bolts = 0
-		For b.Bolt = Each Bolt
-			bolts = bolts + 1
-		Next
-		boltsum = boltsum + bolts
-		debrissum = debrissum + debriscount
-		alive = 0
-		For i = 0 To ships - 1
-			If shipdead(i) = 0 Then alive = alive + 1
-		Next
-		alivesum = alivesum + alive
 	EndIf
-Next
+End Function
 
-shot$ = GetEnv$("BENCH_SHOT")
-If shot$ <> "" Then SaveBuffer BackBuffer(), shot$
+Function BenchRender(f)
+	renderstart = BenchMicros()
+	RenderWorld
+End Function
 
-; Sorting the times gives the median and the 95th percentile.
-Dim srt#(frames - 1)
-For i = 0 To frames - 1
-	srt(i) = times(i)
-Next
-gap = frames / 2
-While gap > 0
-	For i = gap To frames - 1
-		v# = srt(i)
-		j = i
-		; And does not skip the second test, so the index is checked first.
-		While j >= gap
-			If srt(j - gap) <= v Then Exit
-			srt(j) = srt(j - gap)
-			j = j - gap
-		Wend
-		srt(j) = v
+; render_ms is RenderWorld and the Flip after it.
+Function BenchAfterFrame(f)
+	If f < BenchWarmup Then Return
+	rendertotal = rendertotal + (BenchMicros() - renderstart)
+	bolts = 0
+	For b.Bolt = Each Bolt
+		bolts = bolts + 1
 	Next
-	gap = gap / 2
-Wend
-p95 = Int(frames * 0.95) : If p95 > frames - 1 Then p95 = frames - 1
+	boltsum = boltsum + bolts
+	debrissum = debrissum + debriscount
+	alive = 0
+	For i = 0 To ships - 1
+		If shipdead(i) = 0 Then alive = alive + 1
+	Next
+	alivesum = alivesum + alive
+End Function
 
-timesfile$ = GetEnv$("BENCH_FRAMETIMES")
-If timesfile$ <> "" Then
-	file = WriteFile(timesfile$)
-	If file <> 0 Then
-		For i = 0 To frames - 1
-			WriteLine file, Int(times(i))
-		Next
-		CloseFile file
-	EndIf
-EndIf
+Function BenchFinish()
+End Function
 
-avg# = total_ms / frames / 1000
-result$ = "RESULT ships=" + ships + " asteroids=" + asteroids + " debriscap=" + debriscap + " physics=" + BenchPhysics() + " frames=" + frames + " seed=" + seed
-result$ = result$ + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation
-result$ = result$ + " ai_ms=" + (aitotal / frames / 1000) + " pick_ms=" + (picktotal / frames / 1000) + " effects_ms=" + (effecttotal / frames / 1000)
-result$ = result$ + " collide_ms=" + (collidetotal / frames / 1000) + " physics_ms=" + (physicstotal / frames / 1000) + " render_ms=" + (rendertotal / frames / 1000)
-result$ = result$ + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg)
-result$ = result$ + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames)
-result$ = result$ + " alive=" + Int(alivesum / frames) + " bolts=" + Int(boltsum / frames) + " debris=" + Int(debrissum / frames)
-result$ = result$ + " kills=" + kills + " respawns=" + respawns + " shots=" + shots + " hits=" + hits + " los=" + losdone + " los_blocked=" + losblocked
-result$ = result$ + " collided=" + collided + " camera_picks=" + campicks + " camera_hits=" + campicked + " debris_made=" + debrismade
-DebugLog result$
-resultfile$ = GetEnv$("BENCH_RESULT")
-If resultfile$ <> "" Then
-	file = WriteFile(resultfile$)
-	If file <> 0 Then
-		WriteLine file, result$
-		CloseFile file
-	EndIf
-EndIf
-End
+Function BenchResult$()
+	n# = BenchFrames * 1000.0
+	r$ = " ships=" + ships + " asteroids=" + asteroids + " debriscap=" + debriscap + " physics=" + BenchPhysics()
+	r$ = r$ + " ai_ms=" + (aitotal / n) + " pick_ms=" + (picktotal / n) + " effects_ms=" + (effecttotal / n)
+	r$ = r$ + " collide_ms=" + (collidetotal / n) + " physics_ms=" + (physicstotal / n) + " render_ms=" + (rendertotal / n)
+	r$ = r$ + " alive=" + Int(alivesum / BenchFrames) + " bolts=" + Int(boltsum / BenchFrames) + " debris=" + Int(debrissum / BenchFrames)
+	r$ = r$ + " kills=" + kills + " respawns=" + respawns + " shots=" + shots + " hits=" + hits + " los=" + losdone + " los_blocked=" + losblocked
+	r$ = r$ + " collided=" + collided + " camera_picks=" + campicks + " camera_hits=" + campicked + " debris_made=" + debrismade
+	Return r$
+End Function

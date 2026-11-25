@@ -1,21 +1,5 @@
-; BlitzLLVM side of the space battle benchmark: a microsecond timer, the draw counters of Stats3D and physics. The debris of a ship
-; that dies are dynamic bodies without gravity; the asteroids and the hubs of the stations are static bodies they bump into.
-
-Global BenchBase:UInt64 = Microseconds()
-
-; Microseconds since the start. Only differences are used, so a wrap after 35 minutes does no harm.
-Function BenchMicros()
-	Return Int(Microseconds() - BenchBase)
-End Function
-
-Function BenchDraws()
-	Return Stats3D(1000)
-End Function
-
-; Shows the frame without waiting for the display (Flip 0), like the original.
-Function BenchFlip()
-	Flip 0
-End Function
+; BlitzLLVM side of the space battle benchmark, next to bench_llvm.bi: physics. The debris of a ship that dies are dynamic bodies
+; without gravity; the asteroids and the hubs of the stations are static bodies they bump into.
 
 Function BenchPhysics()
 	Return 1

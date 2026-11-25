@@ -1,17 +1,5 @@
-; Original Blitz3D side of the space battle benchmark: the timer has milliseconds only, there are no draw counters (0) and no
-; physics, so the debris of a ship that dies fly in straight lines and turn, through everything.
-
-Function BenchMicros()
-	Return MilliSecs() * 1000
-End Function
-
-Function BenchDraws()
-	Return 0
-End Function
-
-Function BenchFlip()
-	Flip 0
-End Function
+; Original Blitz3D side of the space battle benchmark, next to bench_original.bi: there is no physics, so the debris of a ship that
+; dies fly in straight lines and turn, through everything.
 
 Function BenchPhysics()
 	Return 0
