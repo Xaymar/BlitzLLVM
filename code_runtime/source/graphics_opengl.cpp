@@ -2237,6 +2237,8 @@ namespace bb::rhi::opengl {
 		g.can_memory_budget = false;
 		g.can_present_wait  = false;
 		devices_made++;
+		// The fences of the frame slots, which keep the program from writing to what the GPU still reads (see acquire_frame).
+		create_frame_slots();
 	}
 
 	void create_device()

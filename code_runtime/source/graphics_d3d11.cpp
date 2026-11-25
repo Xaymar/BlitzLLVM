@@ -2770,6 +2770,8 @@ namespace bb::rhi::d3d11 {
 			g.can_memory_budget = dx.adapter3 != nullptr;
 			g.can_present_wait  = false;
 			devices_made++;
+			// The fences of the frame slots, which keep the program from writing to what the GPU still reads (see acquire_frame).
+			create_frame_slots();
 		}
 	} // namespace
 
