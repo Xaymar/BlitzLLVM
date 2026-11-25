@@ -19,6 +19,8 @@
 //   --context legacy|core  wglCreateContext (default, as BlitzLLVM) or a 4.6 core context from wglCreateContextAttribsARB.
 //   --tiling optimal|linear  Vulkan image tiling and GL_TEXTURE_TILING_EXT (default optimal).
 //   --no-blit       Skip the framebuffer blit (semaphore wait/signal and swap only).
+//   --keep mem|sem|both  Keep those NT handles open until the end instead of closing them right after the import.
+//   --finish-before-close  glFinish() after each import, before closing its NT handle.
 // A crash prints [CRASH] with the faulting module+offset and a stack walk.
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -225,7 +227,8 @@ int main(int argc, char** argv)
 	SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
 
 	int  vk_gpu = -1, frames = 300;
-	bool full = false, strict = false, use_sem = true, kmt = false, core = false, blit = true, linear = false;
+	bool full = false, strict = false, use_sem = true, kmt = false, core = false, blit = true, linear = false, keep_mem = false, keep_sem = false, finish_close = false;
+	std::vector<HANDLE> kept;
 	uint32_t W = 640, H = 480;
 	for (int i = 1; i < argc; i++) {
 		std::string a = argv[i];
@@ -247,6 +250,12 @@ int main(int argc, char** argv)
 			core = std::string(argv[++i]) == "core";
 		else if (a == "--tiling" && i + 1 < argc)
 			linear = std::string(argv[++i]) == "linear";
+		else if (a == "--keep" && i + 1 < argc) {
+			std::string k = argv[++i];
+			keep_mem      = (k == "mem" || k == "both");
+			keep_sem      = (k == "sem" || k == "both");
+		} else if (a == "--finish-before-close")
+			finish_close = true;
 		else if (a == "--no-blit")
 			blit = false;
 		else
@@ -257,7 +266,7 @@ int main(int argc, char** argv)
 #else
 	printf("build: no hybrid-GPU exports\n");
 #endif
-	printf("options: vk-gpu=%d usage=%s strict=%d frames=%d size=%ux%u semaphores=%d handle=%s context=%s blit=%d tiling=%s\n", vk_gpu, full ? "full" : "min", strict, frames, W, H, use_sem, kmt ? "kmt" : "nt", core ? "core" : "legacy", blit, linear ? "linear" : "optimal");
+	printf("options: vk-gpu=%d usage=%s strict=%d frames=%d size=%ux%u semaphores=%d handle=%s context=%s blit=%d tiling=%s keep_mem=%d keep_sem=%d finish_before_close=%d\n", vk_gpu, full ? "full" : "min", strict, frames, W, H, use_sem, kmt ? "kmt" : "nt", core ? "core" : "legacy", blit, linear ? "linear" : "optimal", keep_mem, keep_sem, finish_close);
 	const VkExternalMemoryHandleTypeFlagBits    vk_mem_handle = kmt ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
 	const VkExternalSemaphoreHandleTypeFlagBits vk_sem_handle = kmt ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
 	const GLenum                                gl_handle     = kmt ? 0x9588 /* GL_HANDLE_TYPE_OPAQUE_WIN32_KMT_EXT */ : GL_HANDLE_TYPE_OPAQUE_WIN32_EXT;
@@ -593,8 +602,15 @@ int main(int argc, char** argv)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, linear ? 0x9585 : GL_OPTIMAL_TILING_EXT);
 		glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, GL_RGBA8_, GLsizei(W), GLsizei(H), gl_mem[i], 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		if (!kmt)
-			CloseHandle(h); // KMT handles are not closed.
+		if (!kmt) { // KMT handles are not closed.
+			if (keep_mem) {
+				kept.push_back(h);
+			} else {
+				if (finish_close)
+					glFinish();
+				CloseHandle(h);
+			}
+		}
 		printf("  glGetError 0x%x\n", glGetError());
 
 		if (use_sem) {
@@ -616,8 +632,15 @@ int main(int argc, char** argv)
 					fail("vkGetSemaphoreWin32HandleKHR");
 				glGenSemaphoresEXT(1, gsems[s]);
 				glImportSemaphoreWin32HandleEXT(*gsems[s], gl_handle, sh);
-				if (!kmt)
-					CloseHandle(sh);
+				if (!kmt) {
+					if (keep_sem) {
+						kept.push_back(sh);
+					} else {
+						if (finish_close)
+							glFinish();
+						CloseHandle(sh);
+					}
+				}
 				printf("  glGetError 0x%x\n", glGetError());
 			}
 		}
@@ -740,6 +763,8 @@ int main(int argc, char** argv)
 	step("done: %d frames in %lu ms", frames, (unsigned long)(t1 - t0));
 	glFinish();
 	vkDeviceWaitIdle(dev);
+	for (HANDLE k : kept)
+		CloseHandle(k);
 	printf("RESULT: OK\n");
 	SetThreadExecutionState(ES_CONTINUOUS);
 	return 0;
