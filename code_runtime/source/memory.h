@@ -20,7 +20,7 @@
 // Every block of 256 bytes and more starts on a 64 byte cache line, and so does every block whose size is a multiple of 64: the classes
 // of those sizes are multiples of 64 and are cut from the start of their span, and blocks of the system are asked for with room to move
 // them to the next line, with a header in front that says where the system's block starts. Smaller blocks are packed, which is what
-// lists of small objects want (fewer lines to read).
+// lists of small objects want (fewer lines to read). bb_aligned_alloc with an alignment of up to 64 is served from the classes.
 //
 // Free memory is kept in per-thread lists, so most allocations and frees take no lock and make no system call. Threads hand
 // batches of free blocks to a shared pool per class when they have too many (a thread that only frees what another one allocated),
@@ -44,8 +44,9 @@ void*  bb_malloc(size_t size);
 void*  bb_calloc(size_t count, size_t size);
 void*  bb_realloc(void* ptr, size_t size);
 void   bb_free(void* ptr);
-void*  bb_aligned_alloc(size_t alignment, size_t size);
-void   bb_aligned_free(void* ptr);
+void*  bb_aligned_alloc(size_t alignment, size_t size);           // A power of two; up to 64 from the classes, beyond from the system.
+void*  bb_aligned_realloc(void* ptr, size_t alignment, size_t size); // For blocks of bb_aligned_alloc with the same alignment.
+void   bb_aligned_free(void* ptr);                                  // The same as bb_free.
 size_t bb_malloc_size(void* ptr);        // Usable size of a block of ours; 0 for blocks of the system.
 size_t bb_system_usable_size(void* ptr); // The same for the system allocator (where it can tell).
 

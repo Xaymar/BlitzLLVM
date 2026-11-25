@@ -56,7 +56,6 @@ void* __libc_malloc(size_t);
 void* __libc_calloc(size_t, size_t);
 void* __libc_realloc(void*, size_t);
 void  __libc_free(void*);
-void* __libc_memalign(size_t, size_t);
 }
 #define SYS_MALLOC __libc_malloc
 #define SYS_CALLOC __libc_calloc
@@ -511,8 +510,9 @@ namespace {
 	// made here (the system, other libraries). Only addresses on a line can be ours, so only those are looked at.
 	constexpr size_t LINE = 64;
 	struct large_header {
-		uintptr_t key; // The address handed out, mixed with LARGE_KEY.
-		void*     raw; // What the system returned.
+		size_t    size; // What was asked for, which the system can not always tell (macOS has no malloc_usable_size).
+		uintptr_t key;  // The address handed out, mixed with LARGE_KEY.
+		void*     raw;  // What the system returned.
 	};
 	constexpr uintptr_t LARGE_KEY = uintptr_t(0x9E3779B97F4A7C15ull);
 
@@ -521,12 +521,13 @@ namespace {
 		return alignment + sizeof(large_header);
 	}
 
-	inline void* large_place(void* raw, size_t alignment)
+	inline void* large_place(void* raw, size_t alignment, size_t size)
 	{
 		uintptr_t at = (uintptr_t(raw) + sizeof(large_header) + alignment - 1) & ~uintptr_t(alignment - 1);
 		auto*     h  = reinterpret_cast<large_header*>(at) - 1;
 		h->key       = at ^ LARGE_KEY;
 		h->raw       = raw;
+		h->size      = size;
 		return reinterpret_cast<void*>(at);
 	}
 
@@ -559,7 +560,7 @@ namespace {
 		if (g_stats) {
 			g_system_blocks.fetch_add(1, std::memory_order_relaxed);
 		}
-		return large_place(raw, alignment);
+		return large_place(raw, alignment, size);
 	}
 
 	uint32_t now_ms()
@@ -901,7 +902,7 @@ void* bb_realloc(void* ptr, size_t size)
 	if (now != offset) {
 		memmove(static_cast<char*>(raw) + now, static_cast<char*>(raw) + offset, size); // Both fit: the padding is more than either offset.
 	}
-	return large_place(raw, LINE);
+	return large_place(raw, LINE, size);
 }
 
 void* bb_aligned_alloc(size_t alignment, size_t size)
@@ -909,33 +910,46 @@ void* bb_aligned_alloc(size_t alignment, size_t size)
 	if (alignment <= 16) {
 		return bb_malloc(size);
 	}
-#if defined(_WIN32)
-	return _aligned_malloc(size, alignment);
-#elif defined(BB_INTERPOSE_MALLOC)
-	return __libc_memalign(alignment, size);
-#else
-	void* p = nullptr;
-	if (posix_memalign(&p, alignment < sizeof(void*) ? sizeof(void*) : alignment, size)) {
-		return nullptr;
+	if (alignment & (alignment - 1)) {
+		size_t power = 32; // Not a power of two (which memalign accepts): the next one up.
+		while (power < alignment) {
+			power <<= 1;
+		}
+		alignment = power;
 	}
-	return p;
-#endif
+	if (alignment <= LINE) {
+		// Every class that is a multiple of the alignment (up to a line) starts on a multiple of it, as spans are cut from their
+		// start and are 64 KiB aligned, and the class for a size that is a multiple of it is one of those. Bigger blocks are on a line.
+		size_t rounded = (size + alignment - 1) & ~(alignment - 1);
+		return bb_malloc(rounded ? rounded : alignment);
+	}
+	ensure_init();
+	return system_alloc(size, alignment);
+}
+
+void* bb_aligned_realloc(void* ptr, size_t alignment, size_t size)
+{
+	if (alignment <= 16) {
+		return bb_realloc(ptr, size);
+	}
+	if (alignment <= LINE) {
+		// Neither keeping a block that still fits, nor a new block of the classes, nor a block of the system leaves the line.
+		size_t rounded = (size + alignment - 1) & ~(alignment - 1);
+		return bb_realloc(ptr, (rounded || !size) ? rounded : alignment);
+	}
+	void* made = bb_aligned_alloc(alignment, size);
+	if (made && ptr) {
+		size_t had = bb_malloc_size(ptr);
+		had        = had ? had : bb_system_usable_size(ptr);
+		memcpy(made, ptr, had < size ? had : size);
+		bb_free(ptr);
+	}
+	return made;
 }
 
 void bb_aligned_free(void* ptr)
 {
-	if (!ptr) {
-		return;
-	}
-	if (ours(ptr)) {
-		free_region(ptr);
-		return;
-	}
-#if defined(_WIN32)
-	_aligned_free(ptr);
-#else
-	SYS_FREE(ptr);
-#endif
+	bb_free(ptr); // The blocks of bb_aligned_alloc are of the classes or of the system with a header, like those of bb_malloc.
 }
 
 size_t bb_malloc_size(void* ptr)
@@ -948,11 +962,13 @@ size_t bb_malloc_size(void* ptr)
 
 size_t bb_system_usable_size(void* ptr)
 {
-	void*  raw  = ptr;
-	size_t skip = 0;
+	void*  raw   = ptr;
+	size_t skip  = 0;
+	size_t asked = 0;
 	if (large_header* h = ptr ? large_of(ptr) : nullptr) {
-		raw  = h->raw;
-		skip = uintptr_t(ptr) - uintptr_t(raw);
+		raw   = h->raw;
+		skip  = uintptr_t(ptr) - uintptr_t(raw);
+		asked = h->size;
 	}
 	size_t usable = 0;
 #if defined(_WIN32)
@@ -962,7 +978,8 @@ size_t bb_system_usable_size(void* ptr)
 	static fn real = reinterpret_cast<fn>(dlsym(RTLD_NEXT, "malloc_usable_size"));
 	usable = real && raw ? real(raw) : 0;
 #endif
-	return usable > skip ? usable - skip : 0;
+	usable = usable > skip ? usable - skip : 0;
+	return usable > asked ? usable : asked; // A block made here is at least as big as was asked for, where the system can not tell.
 }
 
 void bb_mem_get_stats(bb_mem_stats* out)

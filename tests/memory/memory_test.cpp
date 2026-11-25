@@ -128,6 +128,24 @@ static void test_lines()
 	bb_free(p);
 }
 
+static void test_aligned_realloc()
+{
+	// bb_aligned_realloc keeps the alignment while a buffer grows from the classes into the system and back.
+	for (size_t align : { size_t(32), size_t(64), size_t(128), size_t(4096) }) {
+		void*  p   = nullptr;
+		size_t had = 0;
+		for (size_t size : { size_t(1), size_t(40), size_t(100), size_t(1000), size_t(20000), size_t(40000), size_t(500000), size_t(3000), size_t(64) }) {
+			p = bb_aligned_realloc(p, align, size);
+			CHECK(p && (uintptr_t(p) % align) == 0);
+			size_t keep = had < size ? had : size;
+			CHECK(verify(p, keep, 3));
+			fill(p, size, 3);
+			had = size;
+		}
+		bb_aligned_free(p);
+	}
+}
+
 static void test_reuse_and_calloc()
 {
 	for (int round = 0; round < 3; round++) {
@@ -183,10 +201,16 @@ static void test_foreign()
 
 static void test_aligned_and_new()
 {
-	for (size_t a : { size_t(16), size_t(32), size_t(64), size_t(4096) }) {
-		void* p = bb_aligned_alloc(a, 100);
-		CHECK(p && (uintptr_t(p) % a) == 0);
-		bb_aligned_free(p);
+	for (size_t a : { size_t(16), size_t(32), size_t(64), size_t(128), size_t(4096) }) {
+		for (size_t size : { size_t(0), size_t(1), size_t(100), size_t(5000), size_t(40000), size_t(300000) }) {
+			void* p = bb_aligned_alloc(a, size);
+			CHECK(p && (uintptr_t(p) % a) == 0);
+			if (size) {
+				CHECK(bb_malloc_size(p) >= size || bb_system_usable_size(p) >= size || bb_system_usable_size(p) == 0);
+				memset(p, 1, size);
+			}
+			bb_aligned_free(p);
+		}
 	}
 #if defined(__cpp_aligned_new)
 	struct alignas(64) wide {
@@ -445,6 +469,7 @@ int main()
 {
 	test_sizes();
 	test_lines();
+	test_aligned_realloc();
 	test_reuse_and_calloc();
 	test_realloc();
 	test_foreign();
