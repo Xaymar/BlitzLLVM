@@ -24,7 +24,12 @@
 ; Controls: Up / Down move the sharp distance, 1 to 3 choose how soft the far part is, D turns the effect on and off,
 ; Left / Right turn the camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 4.05: Depth of Field"
 SetBuffer BackBuffer()
 
@@ -74,25 +79,25 @@ farWidth(0) = 320 : farHeight(0) = 240
 farWidth(1) = 160 : farHeight(1) = 120
 farWidth(2) = 80 : farHeight(2) = 60
 For i = 0 To 2
-	farTexture(i) = CreateTexture(farWidth(i), farHeight(i), 1 + 16 + 32 + 256 + 4096)
+	farTexture(i) = CreateTexture(farWidth(i), farHeight(i), BB_TEXTURE_COLOR + BB_TEXTURE_CLAMP_U + BB_TEXTURE_CLAMP_V + BB_TEXTURE_VRAM + BB_TEXTURE_RENDER_TARGET)
 Next
 
 ; The backdrop: a sprite on the camera that shows the far slice. Where it stands is set every frame, because it
 ; must stand at the sharp distance, and its size must fill the view there.
 Global backdrop = CreateSprite(camera)
-EntityFX backdrop, 1 + 8
+EntityFX backdrop, BB_FX_FULLBRIGHT + BB_FX_NO_FOG
 
 Local sharpDistance# = 10, softness = 1, effectOn = True, d#
 
-While Not KeyHit(1)
-	TurnEntity cameraPivot, 0, (KeyDown(203) - KeyDown(205)) * 0.8, 0
-	If KeyDown(200) Then sharpDistance = sharpDistance * 1.02
-	If KeyDown(208) Then sharpDistance = sharpDistance / 1.02
+While Not KeyHit(BB_KEY_ESCAPE)
+	TurnEntity cameraPivot, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 0.8, 0
+	If KeyDown(BB_KEY_UP) Then sharpDistance = sharpDistance * 1.02
+	If KeyDown(BB_KEY_DOWN) Then sharpDistance = sharpDistance / 1.02
 	If sharpDistance < 3 Then sharpDistance = 3
 	If sharpDistance > 50 Then sharpDistance = 50
-	If KeyHit(32) Then effectOn = Not effectOn
+	If KeyHit(BB_KEY_D) Then effectOn = Not effectOn
 	For i = 0 To 2
-		If KeyHit(2 + i) Then softness = i
+		If KeyHit(BB_KEY_1 + i) Then softness = i
 	Next
 
 	If effectOn

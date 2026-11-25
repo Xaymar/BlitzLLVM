@@ -24,7 +24,13 @@
 ; Controls: Space or a click makes an explosion, A turns the automatic explosions on and off, Left / Right turn the
 ; camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 4.01: Explosions"
 SetBuffer BackBuffer()
 SeedRnd MilliSecs()
@@ -48,7 +54,7 @@ RotateEntity sun, 50, 30, 0
 AmbientLight 60, 60, 70
 
 ; The flash: a point light that is dark until something explodes.
-Global flash = CreateLight(2)
+Global flash = CreateLight(BB_LIGHT_POINT)
 LightRange flash, 12
 LightColor flash, 0, 0, 0
 Global flashPower#
@@ -76,14 +82,14 @@ Global smokeTexture = MakeBlobTexture(0.5)
 ; Every particle is a copy of one of these. Copies share the texture, so they are cheap.
 Global fireTemplate = CreateSprite()
 EntityTexture fireTemplate, glowTexture
-EntityBlend fireTemplate, 3 ; Adds its light to what is behind it.
-EntityFX fireTemplate, 1 + 8 ; Full bright, and fog does not dim it.
+EntityBlend fireTemplate, BB_BLEND_ADD ; Adds its light to what is behind it.
+EntityFX fireTemplate, BB_FX_FULLBRIGHT + BB_FX_NO_FOG ; Full bright, and fog does not dim it.
 HideEntity fireTemplate
 
 Global smokeTemplate = CreateSprite()
 EntityTexture smokeTemplate, smokeTexture
-EntityBlend smokeTemplate, 1 ; Normal blending: smoke hides what is behind it.
-EntityFX smokeTemplate, 1
+EntityBlend smokeTemplate, BB_BLEND_ALPHA ; Normal blending: smoke hides what is behind it.
+EntityFX smokeTemplate, BB_FX_FULLBRIGHT
 HideEntity smokeTemplate
 
 ; The shock wave: a flat ring, 1 unit across on the outside and 0.8 on the inside, made of 32 pieces.
@@ -99,7 +105,7 @@ For i = 0 To 32
 	EndIf
 Next
 EntityColor ringTemplate, 200, 180, 140
-EntityFX ringTemplate, 1 + 16 ; Full bright, and both sides are drawn.
+EntityFX ringTemplate, BB_FX_FULLBRIGHT + BB_FX_TWO_SIDED ; Full bright, and both sides are drawn.
 HideEntity ringTemplate
 
 ; --- The parts of an explosion ---------------------------------------------------------------------------------------
@@ -126,11 +132,11 @@ End Type
 Global shake#
 Local autoExplode = True, autoTimer = 30, x#, z#
 
-While Not KeyHit(1)
-	TurnEntity cameraPivot, 0, (KeyDown(203) - KeyDown(205)) * 1.0, 0
-	If KeyHit(30) Then autoExplode = Not autoExplode
+While Not KeyHit(BB_KEY_ESCAPE)
+	TurnEntity cameraPivot, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.0, 0
+	If KeyHit(BB_KEY_A) Then autoExplode = Not autoExplode
 
-	If KeyHit(57) Or MouseHit(1)
+	If KeyHit(BB_KEY_SPACE) Or MouseHit(BB_MOUSE_LEFT)
 		Explode(Rnd(-7, 7), Rnd(-4, 7))
 	EndIf
 	If autoExplode
@@ -327,7 +333,7 @@ End Function
 
 ; A white texture with a soft round edge. lumpy from 0 to 1 darkens random pixels, for smoke.
 Function MakeBlobTexture(lumpy#)
-	Local texture = CreateTexture(32, 32, 1 + 2), x, y, distance#, alpha#
+	Local texture = CreateTexture(32, 32, BB_TEXTURE_COLOR + BB_TEXTURE_ALPHA), x, y, distance#, alpha#
 	LockBuffer TextureBuffer(texture)
 	For y = 0 To 31
 		For x = 0 To 31

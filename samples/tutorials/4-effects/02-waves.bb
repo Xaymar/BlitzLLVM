@@ -33,7 +33,12 @@
 ; Controls: click the water to drop a stone, Up / Down change the wind (how high the swell is), G switches between
 ; Gerstner and plain sine waves, Left / Right turn the camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<mouse.bb>"
+Include "<graphics.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 4.02: Waves"
 SetBuffer BackBuffer()
 SeedRnd MilliSecs()
@@ -84,7 +89,7 @@ EntityShininess water, 0.9
 Local pickPlane = CreateCube()
 ScaleEntity pickPlane, SIZE / 2, 0.01, SIZE / 2
 EntityAlpha pickPlane, 0
-EntityPickMode pickPlane, 2
+EntityPickMode pickPlane, BB_PICK_POLYGON
 
 ; --- Buoys -----------------------------------------------------------------------------------------------------------
 Type Buoy
@@ -134,17 +139,17 @@ Next
 Global waterX#, waterY#, waterZ#
 
 Local r.Ripple, h#, ahead#, slope#, ripples, buoyX#, buoyZ#
-While Not KeyHit(1)
+While Not KeyHit(BB_KEY_ESCAPE)
 	time = time + 1.0 / 60
-	TurnEntity cameraPivot, 0, (KeyDown(203) - KeyDown(205)) * 1.0, 0
-	If KeyDown(200) Then wind = wind + 0.005
-	If KeyDown(208) Then wind = wind - 0.005
+	TurnEntity cameraPivot, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.0, 0
+	If KeyDown(BB_KEY_UP) Then wind = wind + 0.005
+	If KeyDown(BB_KEY_DOWN) Then wind = wind - 0.005
 	If wind < 0 Then wind = 0
 	If wind > 1 Then wind = 1
-	If KeyHit(34) Then gerstner = Not gerstner
+	If KeyHit(BB_KEY_G) Then gerstner = Not gerstner
 
 	; A click on the water drops a stone where the mouse points.
-	If MouseHit(1)
+	If MouseHit(BB_MOUSE_LEFT)
 		If CameraPick(camera, Float(MouseX()), Float(MouseY())) = pickPlane
 			r = New Ripple
 			r\x = PickedX()

@@ -17,8 +17,8 @@
 ; render to texture, which is why it makes a good first step.
 ;
 ; New things here:
-;   RenderWorld into a texture: CreateTexture with flag 4096, SetBuffer TextureBuffer, and a camera viewport the
-;   size of the texture.
+;   RenderWorld into a texture: CreateTexture with the flag BB_TEXTURE_RENDER_TARGET, SetBuffer TextureBuffer,
+;   and a camera viewport the size of the texture.
 ;   A full-screen sprite in front of the camera to lay a texture over the picture.
 ;   EntityOrder, so the overlay is drawn after everything else and ignores the depth buffer.
 ;   Changing how a whole scene looks for one RenderWorld and changing it back.
@@ -26,7 +26,12 @@
 ; Controls: G turns the glow on and off, Up / Down change how strong it is, 1 to 3 choose the size of the glow
 ; texture, Left / Right turn the camera.
 
-Graphics3D 640, 480, 0, 2
+Include "<keys.bb>"
+Include "<graphics.bb>"
+Include "<texture.bb>"
+Include "<entity.bb>"
+
+Graphics3D 640, 480, 0, BB_GRAPHICS_WINDOWED
 AppTitle "Tutorial 4.03: Glow"
 SetBuffer BackBuffer()
 
@@ -61,12 +66,12 @@ For i = 0 To 7
 	AddDark(pillar, 120, 120, 130)
 Next
 
-; The glowing things: full-bright (EntityFX 1), so the light in the scene does not change their colour.
+; The glowing things: full-bright (EntityFX BB_FX_FULLBRIGHT), so the light in the scene does not change their colour.
 Dim orb(5)
 For i = 0 To 5
 	orb(i) = CreateSphere(12)
 	ScaleEntity orb(i), 0.5, 0.5, 0.5
-	EntityFX orb(i), 1
+	EntityFX orb(i), BB_FX_FULLBRIGHT
 Next
 EntityColor orb(0), 255, 60, 60
 EntityColor orb(1), 60, 255, 90
@@ -87,7 +92,7 @@ For i = 0 To 64
 	EndIf
 Next
 EntityColor neon, 255, 140, 40
-EntityFX neon, 1 + 16
+EntityFX neon, BB_FX_FULLBRIGHT + BB_FX_TWO_SIDED
 
 ; --- The glow textures -----------------------------------------------------------------------------------------------
 ; Flag 4096 makes a texture that RenderWorld can draw into. 16 and 32 stop the edges from wrapping around when the
@@ -97,7 +102,7 @@ glowWidth(0) = 320 : glowHeight(0) = 240
 glowWidth(1) = 160 : glowHeight(1) = 120
 glowWidth(2) = 80 : glowHeight(2) = 60
 For i = 0 To 2
-	glowTexture(i) = CreateTexture(glowWidth(i), glowHeight(i), 1 + 16 + 32 + 256 + 4096)
+	glowTexture(i) = CreateTexture(glowWidth(i), glowHeight(i), BB_TEXTURE_COLOR + BB_TEXTURE_CLAMP_U + BB_TEXTURE_CLAMP_V + BB_TEXTURE_VRAM + BB_TEXTURE_RENDER_TARGET)
 Next
 
 ; --- The overlay -----------------------------------------------------------------------------------------------------
@@ -113,23 +118,23 @@ For i = 0 To OVERLAYS - 1
 	offsetY = Sin(Float(i * 90 + 45)) * 0.02 * OVERLAY_DISTANCE
 	PositionEntity overlay(i), offsetX, offsetY, OVERLAY_DISTANCE
 	ScaleSprite overlay(i), OVERLAY_DISTANCE, OVERLAY_DISTANCE * 0.75
-	EntityBlend overlay(i), 3   ; Add its light.
-	EntityFX overlay(i), 1 + 8  ; Full bright, no fog.
-	EntityOrder overlay(i), -1  ; Drawn after everything else, in front of it all.
+	EntityBlend overlay(i), BB_BLEND_ADD                 ; Add its light.
+	EntityFX overlay(i), BB_FX_FULLBRIGHT + BB_FX_NO_FOG ; Full bright, no fog.
+	EntityOrder overlay(i), -1                           ; Drawn after everything else, in front of it all.
 Next
 
 Local glowOn = True, strength# = 0.6, size = 1, t#
 UseGlowTexture(size)
 
-While Not KeyHit(1)
-	TurnEntity cameraPivot, 0, (KeyDown(203) - KeyDown(205)) * 1.0, 0
-	If KeyHit(34) Then glowOn = Not glowOn
-	If KeyDown(200) Then strength = strength + 0.01
-	If KeyDown(208) Then strength = strength - 0.01
+While Not KeyHit(BB_KEY_ESCAPE)
+	TurnEntity cameraPivot, 0, (KeyDown(BB_KEY_LEFT) - KeyDown(BB_KEY_RIGHT)) * 1.0, 0
+	If KeyHit(BB_KEY_G) Then glowOn = Not glowOn
+	If KeyDown(BB_KEY_UP) Then strength = strength + 0.01
+	If KeyDown(BB_KEY_DOWN) Then strength = strength - 0.01
 	If strength < 0.1 Then strength = 0.1
 	If strength > 1 Then strength = 1
 	For i = 0 To 2
-		If KeyHit(2 + i)
+		If KeyHit(BB_KEY_1 + i)
 			size = i
 			UseGlowTexture(size)
 		EndIf
@@ -194,7 +199,7 @@ Function SetDarkBlack(black)
 	For d = Each Dark
 		If black
 			EntityColor d\entity, 0, 0, 0
-			EntityFX d\entity, 1
+			EntityFX d\entity, BB_FX_FULLBRIGHT
 		Else
 			EntityColor d\entity, Float(d\red), Float(d\green), Float(d\blue)
 			EntityFX d\entity, 0
