@@ -4,7 +4,7 @@
 Changes the color and style of a part of the text. The style is 1 for bold, 2 for italic and 3 for both, and 0 for plain. The part starts at a character or line and goes on for a number of them.
 
 ```blitzbasic
-;media interact textareas/formattextareatext.png 1
+;media interact textareas/formattextareatext.webp 0
 Graphics 320, 240, 32, 2
 win  = CreateWindow("Format", 10, 10, 300, 150, Desktop(), 3)
 area = CreateTextArea(10, 10, 270, 90, win)
@@ -17,7 +17,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![FormatTextAreaText](media/textareas/formattextareatext.png)
+![FormatTextAreaText](media/textareas/formattextareatext.webp)
 @param textarea Handle of a text area.
 @param red      Red part of the text color, 0 to 255.
 @param green    Green part of the text color, 0 to 255.

@@ -8,7 +8,8 @@ The example is run as it is under a bare X server, and a script of real mouse an
 window with xdotool. A screenshot of the window is taken at the start and after every step. The script is in the
 media lines at the top of the example, which wiki.py hides from the page:
 
-  ;media interact gadgets/button.gif 4     Saves every screenshot as a GIF of 4 frames per second, or the last as a PNG.
+  ;media interact gadgets/button.webp 4    Saves every screenshot as an animated WebP of 4 frames per second, or with 0
+                                           only the last screenshot as a still picture.
   ;media click 60 40                       Moves the mouse there (x and y of the program's window) and clicks.
   ;media rclick 60 40                      The same with the right button.
   ;media move 60 40                        Moves the mouse.
@@ -165,9 +166,14 @@ def play(blitzcc, rel, fps, steps, src):
             return "no screenshot was saved\n" + err
         if dest.endswith(".png"):
             shutil.copyfile(frames[-1], dest)
+        elif fps == 0:
+            procutil.run(["ffmpeg", "-v", "error", "-y", "-i", frames[-1], "-c:v", "libwebp", "-lossless", "1",
+                            "-compression_level", "6", "-q:v", "100", dest], check=True)
         else:
             procutil.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", os.path.join(d, "f%04d.png"),
-                            "-vf", "split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", dest],
+                            "-vf", "split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none,format=rgba",
+                            "-c:v", "libwebp_anim", "-lossless", "1", "-compression_level", "6", "-q:v", "100",
+                            "-loop", "0", dest],
                            check=True)
     return ""
 

@@ -6,7 +6,7 @@ Creates a terrain from a picture. Each pixel of the picture becomes one height p
 A parent makes the terrain follow another entity, and the terrain is created at 0, 0, 0 regardless of where the parent is.
 
 ```blitzbasic
-;media still terrain/loadterrain.png
+;media still terrain/loadterrain.webp
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -36,7 +36,7 @@ Flip
 WaitKey
 ```
 
-![LoadTerrain](media/terrain/loadterrain.png)
+![LoadTerrain](media/terrain/loadterrain.webp)
 @param heightmap_file Square height map picture with a power of two size.
 @param parent         Optional parent entity.
 @returns An entity handle for the terrain.

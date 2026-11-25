@@ -4,7 +4,7 @@
 Gives the height of the ground at a point of the world, including the terrain's position, scale and the blending between grid points. The Y you pass in does not matter for an upright terrain. This is the simple way to keep something standing on the ground.
 
 ```blitzbasic
-;media still terrain/terrainy.png
+;media still terrain/terrainy.webp
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -37,7 +37,7 @@ Flip
 WaitKey
 ```
 
-![TerrainY](media/terrain/terrainy.png)
+![TerrainY](media/terrain/terrainy.webp)
 @param terrain The terrain.
 @param world_x World X coordinate.
 @param world_y World Y coordinate.

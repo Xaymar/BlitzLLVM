@@ -17,7 +17,7 @@ The style is a sum of these flags, and 15 is the default:
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
 
 ```blitzbasic
-;media interact windows/createwindow.gif 1
+;media interact windows/createwindow.webp 1
 ;media wait 400
 ;media click 265 34
 ;media wait 400
@@ -36,7 +36,7 @@ Repeat
 Until asked = 2
 ```
 
-![CreateWindow](media/windows/createwindow.gif)
+![CreateWindow](media/windows/createwindow.webp)
 @param text   Text in the title bar.
 @param x      Horizontal position inside the group.
 @param y      Vertical position inside the group.

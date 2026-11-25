@@ -4,7 +4,7 @@
 Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. Like in the original, a color is kept as whole numbers: the fraction of red, green and blue is cut off, and the alpha is kept in steps of 1/255. Alpha per vertex needs `EntityFX 32` on the entity in the original.
 
 ```blitzbasic
-;media still blitz3d/vertexcolor.png
+;media still blitz3d/vertexcolor.webp
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -25,7 +25,7 @@ Flip
 WaitKey
 ```
 
-![VertexColor](media/blitz3d/vertexcolor.png)
+![VertexColor](media/blitz3d/vertexcolor.webp)
 @param surface  Surface handle.
 @param index    Index of the vertex, from 0.
 @param red      Red part, 0 to 255.

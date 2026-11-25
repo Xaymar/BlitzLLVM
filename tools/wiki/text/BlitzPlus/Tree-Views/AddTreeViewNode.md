@@ -4,7 +4,7 @@
 Adds a node at the end of the children of another node. To add one at the top level, give [TreeViewRoot](TreeViewRoot) as the parent.
 
 ```blitzbasic
-;media interact treeviews/addtreeviewnode.png 1
+;media interact treeviews/addtreeviewnode.webp 0
 Graphics 320, 240, 32, 2
 win  = CreateWindow("Files", 10, 10, 300, 200, Desktop(), 3)
 tree = CreateTreeView(10, 10, 270, 140, win)
@@ -18,7 +18,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-![AddTreeViewNode](media/treeviews/addtreeviewnode.png)
+![AddTreeViewNode](media/treeviews/addtreeviewnode.webp)
 @param text        Text of the node.
 @param parent_node The node it goes into.
 @param icon        Number of an icon of the tree. Defaults to -1, which means none.

@@ -10,7 +10,7 @@ The frames are the layers of one image on the graphics card, so a texture with 1
 **Animated pictures.** With a `frame_width` or `frame_height` of 0, an animated GIF, animated WebP or animated AVIF file loads as its frames: they are stored as frames, [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) are the size of one frame, [TextureFrames](TextureFrames) is how many there are, and [TextureFrameDelay](TextureFrameDelay) is how long each lasts. `first_frame` and `frame_count` then choose some of the frames (a `frame_count` of 0 is all the rest). The sheet is at most 8192 pixels wide and high; an animation that needs more is not loaded and a warning says so. Memory is 4 bytes per pixel of every frame, so a 512x512 animation of 100 frames takes 100 MB. A file that is not animated loads as before. Animated PNG (APNG) is intentionally not supported and counts as a plain PNG.
 
 ```blitzbasic
-;media gif textures/loadanimtexture.gif 40 10
+;media anim textures/loadanimtexture.webp 40 10
 Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
@@ -45,7 +45,7 @@ For i = 0 To 39
 Next
 ```
 
-![LoadAnimTexture](media/textures/loadanimtexture.gif)
+![LoadAnimTexture](media/textures/loadanimtexture.webp)
 @param file   Picture file that contains all frames.
 @param flags  Texture flags, see CreateTexture.
 @param width  Width of one frame in pixels.
