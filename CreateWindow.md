@@ -73,7 +73,7 @@ Until asked = 2
 
 ## Related Commands
 
-[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [RestoreWindow](RestoreWindow), [SetMinWindowSize](SetMinWindowSize), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [RestoreWindow](RestoreWindow), [SetMinWindowSize](SetMinWindowSize), [SetWindowSizeLimit](SetWindowSizeLimit), [UpdateWindowMenu](UpdateWindowMenu)
 
 <div align="center">
 

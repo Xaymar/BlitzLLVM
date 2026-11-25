@@ -1326,7 +1326,7 @@
 <li><a href="TreeViewRoot">TreeViewRoot</a></li>
 </ul>
 </details></li>
-<li><details><summary>Windows (17)</summary>
+<li><details><summary>Windows (18)</summary>
 <ul>
 <li><a href="BlitzPlus-Windows">Overview</a></li>
 <li><a href="ActivateWindow">ActivateWindow</a></li>
@@ -1340,6 +1340,7 @@
 <li><a href="RestoreWindow">RestoreWindow</a></li>
 <li><a href="SetMinWindowSize">SetMinWindowSize</a></li>
 <li><a href="SetStatusText">SetStatusText</a></li>
+<li><a href="SetWindowSizeLimit">SetWindowSizeLimit</a></li>
 <li><a href="UpdateWindowMenu">UpdateWindowMenu</a></li>
 <li><a href="WindowMaximized">WindowMaximized</a></li>
 <li><a href="WindowMenu">WindowMenu</a></li>
@@ -1391,7 +1392,7 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (464)</summary>
+<li><details><summary>Commands (465)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -1802,6 +1803,7 @@
 <li><a href="SetSamplerLodBias#differences">SetSamplerLodBias</a> 〔BlitzLLVM〕</li>
 <li><a href="SetTextAreaFont#differences">SetTextAreaFont</a></li>
 <li><a href="SetToolBarTips#differences">SetToolBarTips</a></li>
+<li><a href="SetWindowSizeLimit#differences">SetWindowSizeLimit</a></li>
 <li><a href="Short#differences">Short</a> 〔BlitzLLVM〕</li>
 <li><a href="ShowPointer#differences">ShowPointer</a></li>
 <li><a href="Single#differences">Single</a> 〔BlitzLLVM〕</li>

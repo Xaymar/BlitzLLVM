@@ -943,6 +943,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetTextAreaText](SetTextAreaText)
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 * [SetToolBarTips](SetToolBarTips)
+* [SetWindowSizeLimit](SetWindowSizeLimit)
 * [Sgn](Sgn)
 * [Short](Short) 〔BlitzLLVM〕
 * [ShowEntity](ShowEntity)

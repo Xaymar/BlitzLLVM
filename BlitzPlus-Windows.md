@@ -20,6 +20,7 @@ Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 * [RestoreWindow](RestoreWindow)
 * [SetMinWindowSize](SetMinWindowSize)
 * [SetStatusText](SetStatusText)
+* [SetWindowSizeLimit](SetWindowSizeLimit)
 * [UpdateWindowMenu](UpdateWindowMenu)
 * [WindowMaximized](WindowMaximized)
 * [WindowMenu](WindowMenu)

@@ -42,7 +42,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-[RestoreWindow](RestoreWindow), [SetMinWindowSize](SetMinWindowSize), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized)
+[RestoreWindow](RestoreWindow), [SetMinWindowSize](SetMinWindowSize), [SetWindowSizeLimit](SetWindowSizeLimit), [UpdateWindowMenu](UpdateWindowMenu)
 
 <div align="center">
 
