@@ -114,7 +114,6 @@
 	X(vkCmdDrawIndexed) \
 	X(vkCmdBindIndexBuffer) \
 	X(vkCmdSetCullMode) \
-	X(vkCmdBindVertexBuffers2) \
 	X(vkCmdSetDepthWriteEnable) \
 	X(vkFreeDescriptorSets) \
 	X(vkCmdCopyImageToBuffer) \
@@ -220,8 +219,8 @@ namespace bb::gfx {
 	VkFormat vk_format(bb::rhi::format format);
 	bb::rhi::format rhi_format(VkFormat format);
 	inline VkShaderModule vk_shader(bb::rhi::shader shader) { return VkShaderModule(shader.id); }
-	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. */
-	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc);
+	/** Makes the pipeline of a description: the one translation to Vulkan state, see rhi.hpp. second: a 3D pipeline that reads the second set of texture coordinates from a binding of its own. */
+	VkPipeline build_pipeline(const bb::rhi::pipeline_desc& desc, bool second = false);
 	/** The pipeline to draw to an image of that format, built the first time. */
 	VkPipeline vk_pipeline(bb::rhi::pipeline pipeline, bb::rhi::format format);
 	/** Video memory (device local heaps) in use and available to this program, in bytes, as the allocator and driver budget say. */
