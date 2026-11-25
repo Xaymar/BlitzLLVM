@@ -9,13 +9,13 @@ Height-map terrains.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CreateTerrain](CreateTerrain)
-* [LoadTerrain](LoadTerrain)
-* [ModifyTerrain](ModifyTerrain)
-* [TerrainDetail](TerrainDetail)
-* [TerrainHeight](TerrainHeight)
-* [TerrainShading](TerrainShading)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
-* [TerrainZ](TerrainZ)
+* [CreateTerrain](CreateTerrain) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LoadTerrain](LoadTerrain) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ModifyTerrain](ModifyTerrain) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainDetail](TerrainDetail) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainHeight](TerrainHeight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainShading](TerrainShading) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainSize](TerrainSize) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainX](TerrainX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainY](TerrainY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TerrainZ](TerrainZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

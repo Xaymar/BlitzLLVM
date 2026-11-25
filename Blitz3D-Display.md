@@ -9,12 +9,12 @@ Opening 3D modes and querying driver capabilities.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CountGfxModes3D](CountGfxModes3D)
-* [GfxDriver3D](GfxDriver3D)
-* [GfxDriverCaps3D](GfxDriverCaps3D)
-* [GfxMode3D](GfxMode3D)
-* [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
-* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
-* [Graphics3D](Graphics3D)
-* [Windowed3D](Windowed3D)
+* [CountGfxModes3D](CountGfxModes3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxDriver3D](GfxDriver3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxDriverCaps3D](GfxDriverCaps3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxMode3D](GfxMode3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxMode3DExists](GfxMode3DExists) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GfxMode3DHeight](GfxMode3DHeight) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GfxMode3DWidth](GfxMode3DWidth) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [Graphics3D](Graphics3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [Windowed3D](Windowed3D) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

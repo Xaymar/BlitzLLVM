@@ -9,21 +9,21 @@ Creating and controlling windows.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [ClientHeight](ClientHeight)
-* [ClientWidth](ClientWidth)
-* [CreateWindow](CreateWindow)
-* [Desktop](Desktop)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
-* [RestoreWindow](RestoreWindow)
-* [SetMinWindowSize](SetMinWindowSize)
-* [SetStatusText](SetStatusText)
+* [ActivateWindow](ActivateWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ActiveWindow](ActiveWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ClientHeight](ClientHeight) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ClientWidth](ClientWidth) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateWindow](CreateWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [Desktop](Desktop) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [MaximizeWindow](MaximizeWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [MinimizeWindow](MinimizeWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RestoreWindow](RestoreWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetMinWindowSize](SetMinWindowSize) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetStatusText](SetStatusText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [SetWindowSizeLimit](SetWindowSizeLimit)
-* [UpdateWindowMenu](UpdateWindowMenu)
-* [WindowMaximized](WindowMaximized)
-* [WindowMenu](WindowMenu)
-* [WindowMinimized](WindowMinimized)
-* [WindowScale](WindowScale) 〔BlitzLLVM〕
-* [WindowScaling](WindowScaling) 〔BlitzLLVM〕
+* [UpdateWindowMenu](UpdateWindowMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [WindowMaximized](WindowMaximized) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [WindowMenu](WindowMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [WindowMinimized](WindowMinimized) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [WindowScale](WindowScale) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [WindowScaling](WindowScaling) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">

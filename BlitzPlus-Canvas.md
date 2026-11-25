@@ -9,10 +9,10 @@ Drawing surfaces inside windows and locked pixel access.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [CanvasBuffer](CanvasBuffer)
-* [CreateCanvas](CreateCanvas)
-* [DesktopBuffer](DesktopBuffer)
-* [FlipCanvas](FlipCanvas)
-* [LockedFormat](LockedFormat)
-* [LockedPitch](LockedPitch)
-* [LockedPixels](LockedPixels)
+* [CanvasBuffer](CanvasBuffer) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateCanvas](CreateCanvas) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [DesktopBuffer](DesktopBuffer) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FlipCanvas](FlipCanvas) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [LockedFormat](LockedFormat) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [LockedPitch](LockedPitch) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [LockedPixels](LockedPixels) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

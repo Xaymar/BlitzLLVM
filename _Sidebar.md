@@ -38,98 +38,98 @@
 <li><details><summary>Control Flow (9)</summary>
 <ul>
 <li><a href="Language-Features-Control-Flow">Overview</a></li>
-<li><a href="Case">Case</a></li>
-<li><a href="Default">Default</a></li>
-<li><a href="Else">Else</a></li>
-<li><a href="ElseIf">ElseIf</a></li>
-<li><a href="EndIf">EndIf</a></li>
+<li><a href="Case">Case</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Default">Default</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Else">Else</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ElseIf">ElseIf</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EndIf">EndIf</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="EndSelect">EndSelect</a></li>
-<li><a href="If">If</a></li>
-<li><a href="Select">Select</a></li>
-<li><a href="Then">Then</a></li>
+<li><a href="If">If</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Select">Select</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Then">Then</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Functions (5)</summary>
 <ul>
 <li><a href="Language-Features-Functions">Overview</a></li>
 <li><a href="EndFunction">EndFunction</a></li>
-<li><a href="Function">Function</a></li>
-<li><a href="Gosub">Gosub</a></li>
-<li><a href="Goto">Goto</a></li>
-<li><a href="Return">Return</a></li>
+<li><a href="Function">Function</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Gosub">Gosub</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Goto">Goto</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Return">Return</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Keywords (6)</summary>
 <ul>
 <li><a href="Language-Features-Keywords">Overview</a></li>
-<li><a href="Const">Const</a></li>
-<li><a href="End">End</a></li>
-<li><a href="Global">Global</a></li>
-<li><a href="Include">Include</a></li>
-<li><a href="Local">Local</a></li>
-<li><a href="Stop">Stop</a></li>
+<li><a href="Const">Const</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="End">End</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Global">Global</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Include">Include</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Local">Local</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Stop">Stop</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Loops (10)</summary>
 <ul>
 <li><a href="Language-Features-Loops">Overview</a></li>
-<li><a href="Exit">Exit</a></li>
-<li><a href="For">For</a></li>
-<li><a href="Forever">Forever</a></li>
-<li><a href="Next">Next</a></li>
-<li><a href="Repeat">Repeat</a></li>
-<li><a href="Step">Step</a></li>
-<li><a href="To">To</a></li>
-<li><a href="Until">Until</a></li>
-<li><a href="Wend">Wend</a></li>
-<li><a href="While">While</a></li>
+<li><a href="Exit">Exit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="For">For</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Forever">Forever</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Next">Next</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Repeat">Repeat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Step">Step</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="To">To</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Until">Until</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Wend">Wend</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="While">While</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Math (31)</summary>
 <ul>
 <li><a href="Language-Features-Math">Overview</a></li>
-<li><a href="Abs">Abs</a></li>
-<li><a href="ACos">ACos</a></li>
-<li><a href="ASin">ASin</a></li>
-<li><a href="ATan">ATan</a></li>
-<li><a href="ATan2">ATan2</a></li>
-<li><a href="ByteSwap">ByteSwap</a> 〔BlitzLLVM〕</li>
-<li><a href="Ceil">Ceil</a></li>
-<li><a href="Cos">Cos</a></li>
-<li><a href="Exp">Exp</a></li>
-<li><a href="Floor">Floor</a></li>
-<li><a href="LeadingZeros">LeadingZeros</a> 〔BlitzLLVM〕</li>
-<li><a href="Log">Log</a></li>
-<li><a href="Log10">Log10</a></li>
-<li><a href="Mod">Mod</a></li>
-<li><a href="Pi">Pi</a></li>
-<li><a href="PopCount">PopCount</a> 〔BlitzLLVM〕</li>
-<li><a href="RotL">RotL</a> 〔BlitzLLVM〕</li>
-<li><a href="RotR">RotR</a> 〔BlitzLLVM〕</li>
-<li><a href="SatByte">SatByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatInt">SatInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatLong">SatLong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatShort">SatShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUByte">SatUByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUInt">SatUInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatULong">SatULong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUShort">SatUShort</a> 〔BlitzLLVM〕</li>
-<li><a href="Sgn">Sgn</a></li>
-<li><a href="Sin">Sin</a></li>
-<li><a href="Sqr">Sqr</a></li>
-<li><a href="Tan">Tan</a></li>
-<li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
+<li><a href="Abs">Abs</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ACos">ACos</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ASin">ASin</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ATan">ATan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ATan2">ATan2</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ByteSwap">ByteSwap</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Ceil">Ceil</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Cos">Cos</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Exp">Exp</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Floor">Floor</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LeadingZeros">LeadingZeros</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Log">Log</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Log10">Log10</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Mod">Mod</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Pi">Pi</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PopCount">PopCount</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RotL">RotL</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RotR">RotR</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatByte">SatByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatInt">SatInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatLong">SatLong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatShort">SatShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUByte">SatUByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUInt">SatUInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatULong">SatULong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUShort">SatUShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Sgn">Sgn</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Sin">Sin</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Sqr">Sqr</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Tan">Tan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TrailingZeros">TrailingZeros</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Other (21)</summary>
 <ul>
 <li><a href="Language-Features-Other">Overview</a></li>
-<li><a href="AppTitle">AppTitle</a></li>
-<li><a href="CallDLL">CallDLL</a></li>
-<li><a href="CommandLine">CommandLine</a></li>
-<li><a href="DebugLog">DebugLog</a></li>
-<li><a href="ExecFile">ExecFile</a></li>
-<li><a href="GetEnv">GetEnv</a></li>
+<li><a href="AppTitle">AppTitle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CallDLL">CallDLL</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CommandLine">CommandLine</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DebugLog">DebugLog</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ExecFile">ExecFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetEnv">GetEnv</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="ProfileBegin">ProfileBegin</a></li>
 <li><a href="ProfileEnable">ProfileEnable</a></li>
 <li><a href="ProfileEnd">ProfileEnd</a></li>
@@ -141,74 +141,74 @@
 <li><a href="ProfileSample">ProfileSample</a></li>
 <li><a href="ProfileSlow">ProfileSlow</a></li>
 <li><a href="ProfileValue">ProfileValue</a></li>
-<li><a href="RuntimeError">RuntimeError</a></li>
-<li><a href="RuntimeStats">RuntimeStats</a></li>
-<li><a href="SetEnv">SetEnv</a></li>
-<li><a href="SystemProperty">SystemProperty</a></li>
+<li><a href="RuntimeError">RuntimeError</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RuntimeStats">RuntimeStats</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetEnv">SetEnv</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SystemProperty">SystemProperty</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Randomization (4)</summary>
 <ul>
 <li><a href="Language-Features-Randomization">Overview</a></li>
-<li><a href="Rand">Rand</a></li>
-<li><a href="Rnd">Rnd</a></li>
-<li><a href="RndSeed">RndSeed</a></li>
-<li><a href="SeedRnd">SeedRnd</a></li>
+<li><a href="Rand">Rand</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Rnd">Rnd</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RndSeed">RndSeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SeedRnd">SeedRnd</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Strings (16)</summary>
 <ul>
 <li><a href="Language-Features-Strings">Overview</a></li>
-<li><a href="Asc">Asc</a></li>
-<li><a href="Bin">Bin</a></li>
-<li><a href="Chr">Chr</a></li>
-<li><a href="Hex">Hex</a></li>
-<li><a href="Instr">Instr</a></li>
-<li><a href="Left">Left</a></li>
-<li><a href="Len">Len</a></li>
-<li><a href="Lower">Lower</a></li>
-<li><a href="LSet">LSet</a></li>
-<li><a href="Mid">Mid</a></li>
-<li><a href="Replace">Replace</a></li>
-<li><a href="Right">Right</a></li>
-<li><a href="RSet">RSet</a></li>
-<li><a href="String">String</a></li>
-<li><a href="Trim">Trim</a></li>
-<li><a href="Upper">Upper</a></li>
+<li><a href="Asc">Asc</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Bin">Bin</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Chr">Chr</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Hex">Hex</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Instr">Instr</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Left">Left</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Len">Len</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Lower">Lower</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LSet">LSet</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Mid">Mid</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Replace">Replace</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Right">Right</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RSet">RSet</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="String">String</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Trim">Trim</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Upper">Upper</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Time & Date (8)</summary>
 <ul>
 <li><a href="Language-Features-Time-and-Date">Overview</a></li>
-<li><a href="CreateTimer">CreateTimer</a></li>
-<li><a href="CurrentDate">CurrentDate</a></li>
-<li><a href="CurrentTime">CurrentTime</a></li>
-<li><a href="Delay">Delay</a></li>
-<li><a href="FreeTimer">FreeTimer</a></li>
-<li><a href="Microseconds">Microseconds</a> 〔BlitzLLVM〕</li>
-<li><a href="MilliSecs">MilliSecs</a></li>
-<li><a href="WaitTimer">WaitTimer</a></li>
+<li><a href="CreateTimer">CreateTimer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CurrentDate">CurrentDate</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CurrentTime">CurrentTime</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Delay">Delay</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeTimer">FreeTimer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Microseconds">Microseconds</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MilliSecs">MilliSecs</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WaitTimer">WaitTimer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Types (16)</summary>
 <ul>
 <li><a href="Language-Features-Types">Overview</a></li>
-<li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
-<li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
+<li><a href="Byte">Byte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Double">Double</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="EndType">EndType</a></li>
-<li><a href="Float">Float</a></li>
-<li><a href="Half">Half</a> 〔BlitzLLVM〕</li>
-<li><a href="Handle">Handle</a></li>
-<li><a href="Int">Int</a></li>
-<li><a href="Long">Long</a> 〔BlitzLLVM〕</li>
-<li><a href="Object">Object</a></li>
-<li><a href="Short">Short</a> 〔BlitzLLVM〕</li>
-<li><a href="Single">Single</a> 〔BlitzLLVM〕</li>
-<li><a href="Str">Str</a></li>
-<li><a href="UByte">UByte</a> 〔BlitzLLVM〕</li>
-<li><a href="UInt">UInt</a> 〔BlitzLLVM〕</li>
-<li><a href="ULong">ULong</a> 〔BlitzLLVM〕</li>
-<li><a href="UShort">UShort</a> 〔BlitzLLVM〕</li>
+<li><a href="Float">Float</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Half">Half</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Handle">Handle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Int">Int</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Long">Long</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Object">Object</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Short">Short</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Single">Single</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Str">Str</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UByte">UByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="UInt">UInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ULong">ULong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="UShort">UShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>
@@ -220,282 +220,282 @@
 <li><details><summary>Audio (17)</summary>
 <ul>
 <li><a href="BlitzBasic-Audio">Overview</a></li>
-<li><a href="ChannelPan">ChannelPan</a></li>
-<li><a href="ChannelPitch">ChannelPitch</a></li>
-<li><a href="ChannelPlaying">ChannelPlaying</a></li>
-<li><a href="ChannelVolume">ChannelVolume</a></li>
-<li><a href="FreeSound">FreeSound</a></li>
-<li><a href="Load3DSound">Load3DSound</a></li>
-<li><a href="LoadSound">LoadSound</a></li>
-<li><a href="LoopSound">LoopSound</a></li>
-<li><a href="PauseChannel">PauseChannel</a></li>
-<li><a href="PlayCDTrack">PlayCDTrack</a></li>
-<li><a href="PlayMusic">PlayMusic</a></li>
-<li><a href="PlaySound">PlaySound</a></li>
-<li><a href="ResumeChannel">ResumeChannel</a></li>
-<li><a href="SoundPan">SoundPan</a></li>
-<li><a href="SoundPitch">SoundPitch</a></li>
-<li><a href="SoundVolume">SoundVolume</a></li>
-<li><a href="StopChannel">StopChannel</a></li>
+<li><a href="ChannelPan">ChannelPan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelPitch">ChannelPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelPlaying">ChannelPlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelVolume">ChannelVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeSound">FreeSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Load3DSound">Load3DSound</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadSound">LoadSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoopSound">LoopSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PauseChannel">PauseChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlayCDTrack">PlayCDTrack</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlayMusic">PlayMusic</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlaySound">PlaySound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ResumeChannel">ResumeChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SoundPan">SoundPan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SoundPitch">SoundPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SoundVolume">SoundVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StopChannel">StopChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Banks (15)</summary>
 <ul>
 <li><a href="BlitzBasic-Banks">Overview</a></li>
-<li><a href="BankSize">BankSize</a></li>
-<li><a href="CopyBank">CopyBank</a></li>
-<li><a href="CreateBank">CreateBank</a></li>
-<li><a href="FreeBank">FreeBank</a></li>
-<li><a href="PeekByte">PeekByte</a></li>
-<li><a href="PeekFloat">PeekFloat</a></li>
-<li><a href="PeekInt">PeekInt</a></li>
-<li><a href="PeekShort">PeekShort</a></li>
-<li><a href="PokeByte">PokeByte</a></li>
-<li><a href="PokeFloat">PokeFloat</a></li>
-<li><a href="PokeInt">PokeInt</a></li>
-<li><a href="PokeShort">PokeShort</a></li>
-<li><a href="ReadBytes">ReadBytes</a></li>
-<li><a href="ResizeBank">ResizeBank</a></li>
-<li><a href="WriteBytes">WriteBytes</a></li>
+<li><a href="BankSize">BankSize</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyBank">CopyBank</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateBank">CreateBank</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeBank">FreeBank</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PeekByte">PeekByte</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PeekFloat">PeekFloat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PeekInt">PeekInt</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PeekShort">PeekShort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PokeByte">PokeByte</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PokeFloat">PokeFloat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PokeInt">PokeInt</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PokeShort">PokeShort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadBytes">ReadBytes</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ResizeBank">ResizeBank</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteBytes">WriteBytes</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Buffers and Pixels (20)</summary>
 <ul>
 <li><a href="BlitzBasic-Buffers-and-Pixels">Overview</a></li>
-<li><a href="BackBuffer">BackBuffer</a></li>
-<li><a href="BufferDirty">BufferDirty</a></li>
-<li><a href="CopyPixel">CopyPixel</a></li>
-<li><a href="CopyPixelFast">CopyPixelFast</a></li>
-<li><a href="CopyRect">CopyRect</a></li>
-<li><a href="FrontBuffer">FrontBuffer</a></li>
-<li><a href="GraphicsBuffer">GraphicsBuffer</a></li>
-<li><a href="LoadBuffer">LoadBuffer</a></li>
-<li><a href="LockBuffer">LockBuffer</a></li>
-<li><a href="ReadPixel">ReadPixel</a></li>
-<li><a href="ReadPixel64">ReadPixel64</a> 〔BlitzLLVM〕</li>
-<li><a href="ReadPixelFast">ReadPixelFast</a></li>
-<li><a href="ReadPixelFast64">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
-<li><a href="SaveBuffer">SaveBuffer</a></li>
-<li><a href="SetBuffer">SetBuffer</a></li>
-<li><a href="UnlockBuffer">UnlockBuffer</a></li>
-<li><a href="WritePixel">WritePixel</a></li>
-<li><a href="WritePixel64">WritePixel64</a> 〔BlitzLLVM〕</li>
-<li><a href="WritePixelFast">WritePixelFast</a></li>
-<li><a href="WritePixelFast64">WritePixelFast64</a> 〔BlitzLLVM〕</li>
+<li><a href="BackBuffer">BackBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BufferDirty">BufferDirty</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyPixel">CopyPixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyPixelFast">CopyPixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyRect">CopyRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FrontBuffer">FrontBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsBuffer">GraphicsBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadBuffer">LoadBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LockBuffer">LockBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadPixel">ReadPixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadPixel64">ReadPixel64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ReadPixelFast">ReadPixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadPixelFast64">ReadPixelFast64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SaveBuffer">SaveBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetBuffer">SetBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UnlockBuffer">UnlockBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixel">WritePixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixel64">WritePixel64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="WritePixelFast">WritePixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixelFast64">WritePixelFast64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Display (48)</summary>
 <ul>
 <li><a href="BlitzBasic-Display">Overview</a></li>
-<li><a href="AvailVidMem">AvailVidMem</a></li>
+<li><a href="AvailVidMem">AvailVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="AvailVidMem64">AvailVidMem64</a></li>
-<li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
-<li><a href="CountDisplays">CountDisplays</a> 〔BlitzLLVM〕</li>
-<li><a href="CountGfxDrivers">CountGfxDrivers</a></li>
-<li><a href="CountGfxModes">CountGfxModes</a></li>
-<li><a href="CountRefreshRates">CountRefreshRates</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayDepth">DisplayDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayHeight">DisplayHeight</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeDepth">DisplayModeDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeHeight">DisplayModeHeight</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeRefreshRate">DisplayModeRefreshRate</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeWidth">DisplayModeWidth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayName">DisplayName</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayRefreshRate">DisplayRefreshRate</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayScale">DisplayScale</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayWidth">DisplayWidth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayX">DisplayX</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayY">DisplayY</a> 〔BlitzLLVM〕</li>
-<li><a href="EndGraphics">EndGraphics</a></li>
-<li><a href="Flip">Flip</a></li>
-<li><a href="GammaBlue">GammaBlue</a></li>
-<li><a href="GammaGreen">GammaGreen</a></li>
-<li><a href="GammaRed">GammaRed</a></li>
-<li><a href="GfxDriver">GfxDriver</a> 〔BlitzLLVM〕</li>
-<li><a href="GfxDriverName">GfxDriverName</a></li>
-<li><a href="GfxModeDepth">GfxModeDepth</a></li>
-<li><a href="GfxModeExists">GfxModeExists</a></li>
-<li><a href="GfxModeFormat">GfxModeFormat</a></li>
-<li><a href="GfxModeHeight">GfxModeHeight</a></li>
-<li><a href="GfxModeWidth">GfxModeWidth</a></li>
-<li><a href="Graphics">Graphics</a></li>
-<li><a href="GraphicsDepth">GraphicsDepth</a></li>
-<li><a href="GraphicsFormat">GraphicsFormat</a></li>
-<li><a href="GraphicsHeight">GraphicsHeight</a></li>
-<li><a href="GraphicsLost">GraphicsLost</a></li>
+<li><a href="CountDisplayModes">CountDisplayModes</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CountDisplays">CountDisplays</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CountGfxDrivers">CountGfxDrivers</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountGfxModes">CountGfxModes</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountRefreshRates">CountRefreshRates</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayDepth">DisplayDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayHeight">DisplayHeight</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeDepth">DisplayModeDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeHeight">DisplayModeHeight</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeRefreshRate">DisplayModeRefreshRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeWidth">DisplayModeWidth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayName">DisplayName</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayRefreshRate">DisplayRefreshRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayScale">DisplayScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayWidth">DisplayWidth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayX">DisplayX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayY">DisplayY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="EndGraphics">EndGraphics</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Flip">Flip</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaBlue">GammaBlue</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaGreen">GammaGreen</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaRed">GammaRed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxDriver">GfxDriver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GfxDriverName">GfxDriverName</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeDepth">GfxModeDepth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeExists">GfxModeExists</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeFormat">GfxModeFormat</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GfxModeHeight">GfxModeHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeWidth">GfxModeWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Graphics">Graphics</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsDepth">GraphicsDepth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsFormat">GraphicsFormat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsHeight">GraphicsHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsLost">GraphicsLost</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GraphicsPalette">GraphicsPalette</a></li>
-<li><a href="GraphicsWidth">GraphicsWidth</a></li>
-<li><a href="HidePointer">HidePointer</a></li>
-<li><a href="PrimaryDisplay">PrimaryDisplay</a> 〔BlitzLLVM〕</li>
-<li><a href="RefreshRateAt">RefreshRateAt</a> 〔BlitzLLVM〕</li>
-<li><a href="SetGamma">SetGamma</a></li>
-<li><a href="SetGfxDriver">SetGfxDriver</a></li>
-<li><a href="ShowPointer">ShowPointer</a></li>
-<li><a href="TotalVidMem">TotalVidMem</a></li>
+<li><a href="GraphicsWidth">GraphicsWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HidePointer">HidePointer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PrimaryDisplay">PrimaryDisplay</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RefreshRateAt">RefreshRateAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetGamma">SetGamma</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetGfxDriver">SetGfxDriver</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ShowPointer">ShowPointer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TotalVidMem">TotalVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="TotalVidMem64">TotalVidMem64</a></li>
-<li><a href="UpdateGamma">UpdateGamma</a></li>
-<li><a href="VWait">VWait</a></li>
+<li><a href="UpdateGamma">UpdateGamma</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VWait">VWait</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Drawing (14)</summary>
 <ul>
 <li><a href="BlitzBasic-Drawing">Overview</a></li>
-<li><a href="Cls">Cls</a></li>
-<li><a href="ClsColor">ClsColor</a></li>
-<li><a href="Color">Color</a></li>
-<li><a href="ColorBlue">ColorBlue</a></li>
-<li><a href="ColorGreen">ColorGreen</a></li>
-<li><a href="ColorRed">ColorRed</a></li>
-<li><a href="GetColor">GetColor</a></li>
-<li><a href="Line">Line</a></li>
-<li><a href="Origin">Origin</a></li>
-<li><a href="Oval">Oval</a></li>
-<li><a href="Plot">Plot</a></li>
-<li><a href="Rect">Rect</a></li>
-<li><a href="ScanLine">ScanLine</a></li>
-<li><a href="Viewport">Viewport</a></li>
+<li><a href="Cls">Cls</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ClsColor">ClsColor</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Color">Color</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ColorBlue">ColorBlue</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ColorGreen">ColorGreen</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ColorRed">ColorRed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetColor">GetColor</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Line">Line</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Origin">Origin</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Oval">Oval</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Plot">Plot</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Rect">Rect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScanLine">ScanLine</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Viewport">Viewport</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Files (18)</summary>
 <ul>
 <li><a href="BlitzBasic-Files">Overview</a></li>
-<li><a href="ChangeDir">ChangeDir</a></li>
-<li><a href="CloseDir">CloseDir</a></li>
-<li><a href="CloseFile">CloseFile</a></li>
-<li><a href="CopyFile">CopyFile</a></li>
-<li><a href="CreateDir">CreateDir</a></li>
-<li><a href="CurrentDir">CurrentDir</a></li>
-<li><a href="DeleteDir">DeleteDir</a></li>
-<li><a href="DeleteFile">DeleteFile</a></li>
-<li><a href="FilePos">FilePos</a></li>
-<li><a href="FileSize">FileSize</a></li>
-<li><a href="FileType">FileType</a></li>
-<li><a href="MoreFiles">MoreFiles</a></li>
-<li><a href="NextFile">NextFile</a></li>
-<li><a href="OpenFile">OpenFile</a></li>
-<li><a href="ReadDir">ReadDir</a></li>
-<li><a href="ReadFile">ReadFile</a></li>
-<li><a href="SeekFile">SeekFile</a></li>
-<li><a href="WriteFile">WriteFile</a></li>
+<li><a href="ChangeDir">ChangeDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CloseDir">CloseDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CloseFile">CloseFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyFile">CopyFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateDir">CreateDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CurrentDir">CurrentDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DeleteDir">DeleteDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DeleteFile">DeleteFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FilePos">FilePos</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FileSize">FileSize</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FileType">FileType</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoreFiles">MoreFiles</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="NextFile">NextFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="OpenFile">OpenFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadDir">ReadDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadFile">ReadFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SeekFile">SeekFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteFile">WriteFile</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Fonts and Text (12)</summary>
 <ul>
 <li><a href="BlitzBasic-Fonts-and-Text">Overview</a></li>
-<li><a href="FontHeight">FontHeight</a></li>
-<li><a href="FontWidth">FontWidth</a></li>
-<li><a href="FreeFont">FreeFont</a></li>
-<li><a href="Input">Input</a></li>
-<li><a href="LoadFont">LoadFont</a></li>
-<li><a href="Locate">Locate</a></li>
-<li><a href="Print">Print</a></li>
-<li><a href="SetFont">SetFont</a></li>
-<li><a href="StringHeight">StringHeight</a></li>
-<li><a href="StringWidth">StringWidth</a></li>
-<li><a href="Text">Text</a></li>
-<li><a href="Write">Write</a></li>
+<li><a href="FontHeight">FontHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FontWidth">FontWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeFont">FreeFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Input">Input</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadFont">LoadFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Locate">Locate</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Print">Print</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetFont">SetFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StringHeight">StringHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StringWidth">StringWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Text">Text</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Write">Write</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Images (39)</summary>
 <ul>
 <li><a href="BlitzBasic-Images">Overview</a></li>
-<li><a href="AsyncLoading">AsyncLoading</a> 〔BlitzLLVM〕</li>
-<li><a href="AsyncSaving">AsyncSaving</a> 〔BlitzLLVM〕</li>
-<li><a href="AutoMidHandle">AutoMidHandle</a></li>
-<li><a href="CopyImage">CopyImage</a></li>
-<li><a href="CreateImage">CreateImage</a></li>
-<li><a href="DrawBlock">DrawBlock</a></li>
-<li><a href="DrawBlockRect">DrawBlockRect</a></li>
-<li><a href="DrawImage">DrawImage</a></li>
-<li><a href="DrawImageRect">DrawImageRect</a></li>
-<li><a href="FreeImage">FreeImage</a></li>
-<li><a href="GrabImage">GrabImage</a></li>
-<li><a href="HandleImage">HandleImage</a></li>
-<li><a href="ImageBuffer">ImageBuffer</a></li>
+<li><a href="AsyncLoading">AsyncLoading</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AsyncSaving">AsyncSaving</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AutoMidHandle">AutoMidHandle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyImage">CopyImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateImage">CreateImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawBlock">DrawBlock</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawBlockRect">DrawBlockRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawImage">DrawImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawImageRect">DrawImageRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeImage">FreeImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GrabImage">GrabImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HandleImage">HandleImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageBuffer">ImageBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="ImageFrameDelay">ImageFrameDelay</a></li>
 <li><a href="ImageFrames">ImageFrames</a></li>
-<li><a href="ImageHeight">ImageHeight</a></li>
-<li><a href="ImageReady">ImageReady</a> 〔BlitzLLVM〕</li>
-<li><a href="ImageRectCollide">ImageRectCollide</a></li>
-<li><a href="ImageRectOverlap">ImageRectOverlap</a></li>
-<li><a href="ImagesCollide">ImagesCollide</a></li>
-<li><a href="ImagesOverlap">ImagesOverlap</a></li>
-<li><a href="ImageWidth">ImageWidth</a></li>
-<li><a href="ImageXHandle">ImageXHandle</a></li>
-<li><a href="ImageYHandle">ImageYHandle</a></li>
-<li><a href="LoadAnimImage">LoadAnimImage</a></li>
-<li><a href="LoadImage">LoadImage</a></li>
-<li><a href="MaskImage">MaskImage</a></li>
-<li><a href="MidHandle">MidHandle</a></li>
-<li><a href="RectsOverlap">RectsOverlap</a></li>
-<li><a href="ResizeImage">ResizeImage</a></li>
-<li><a href="RotateImage">RotateImage</a></li>
-<li><a href="SaveImage">SaveImage</a></li>
-<li><a href="SavesFailed">SavesFailed</a> 〔BlitzLLVM〕</li>
-<li><a href="SavesPending">SavesPending</a> 〔BlitzLLVM〕</li>
-<li><a href="ScaleImage">ScaleImage</a></li>
-<li><a href="TFormFilter">TFormFilter</a></li>
-<li><a href="TFormImage">TFormImage</a></li>
-<li><a href="TileBlock">TileBlock</a></li>
-<li><a href="TileImage">TileImage</a></li>
+<li><a href="ImageHeight">ImageHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageReady">ImageReady</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ImageRectCollide">ImageRectCollide</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageRectOverlap">ImageRectOverlap</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImagesCollide">ImagesCollide</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImagesOverlap">ImagesOverlap</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageWidth">ImageWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageXHandle">ImageXHandle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImageYHandle">ImageYHandle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadAnimImage">LoadAnimImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadImage">LoadImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MaskImage">MaskImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MidHandle">MidHandle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RectsOverlap">RectsOverlap</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ResizeImage">ResizeImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotateImage">RotateImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SaveImage">SaveImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SavesFailed">SavesFailed</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SavesPending">SavesPending</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ScaleImage">ScaleImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormFilter">TFormFilter</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormImage">TFormImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TileBlock">TileBlock</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TileImage">TileImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Joystick (26)</summary>
 <ul>
 <li><a href="BlitzBasic-Joystick">Overview</a></li>
-<li><a href="FlushJoy">FlushJoy</a></li>
-<li><a href="GetJoy">GetJoy</a></li>
+<li><a href="FlushJoy">FlushJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetJoy">GetJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="JoyChanged">JoyChanged</a></li>
 <li><a href="JoyDeviceConnected">JoyDeviceConnected</a></li>
 <li><a href="JoyDeviceCount">JoyDeviceCount</a></li>
 <li><a href="JoyDeviceName">JoyDeviceName</a></li>
-<li><a href="JoyDown">JoyDown</a></li>
-<li><a href="JoyHat">JoyHat</a></li>
-<li><a href="JoyHit">JoyHit</a></li>
-<li><a href="JoyPitch">JoyPitch</a></li>
-<li><a href="JoyRoll">JoyRoll</a></li>
-<li><a href="JoyType">JoyType</a></li>
-<li><a href="JoyU">JoyU</a></li>
-<li><a href="JoyUDir">JoyUDir</a></li>
-<li><a href="JoyV">JoyV</a></li>
-<li><a href="JoyVDir">JoyVDir</a></li>
-<li><a href="JoyWait">JoyWait</a></li>
-<li><a href="JoyX">JoyX</a></li>
-<li><a href="JoyXDir">JoyXDir</a></li>
-<li><a href="JoyY">JoyY</a></li>
-<li><a href="JoyYaw">JoyYaw</a></li>
-<li><a href="JoyYDir">JoyYDir</a></li>
-<li><a href="JoyZ">JoyZ</a></li>
-<li><a href="JoyZDir">JoyZDir</a></li>
+<li><a href="JoyDown">JoyDown</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyHat">JoyHat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyHit">JoyHit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyPitch">JoyPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyRoll">JoyRoll</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyType">JoyType</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyU">JoyU</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyUDir">JoyUDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyV">JoyV</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyVDir">JoyVDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyWait">JoyWait</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyX">JoyX</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyXDir">JoyXDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyY">JoyY</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyYaw">JoyYaw</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyYDir">JoyYDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyZ">JoyZ</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyZDir">JoyZDir</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="LastJoyDevice">LastJoyDevice</a></li>
-<li><a href="WaitJoy">WaitJoy</a></li>
+<li><a href="WaitJoy">WaitJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Keyboard (13)</summary>
 <ul>
 <li><a href="BlitzBasic-Keyboard">Overview</a></li>
-<li><a href="FlushKeys">FlushKeys</a></li>
-<li><a href="GetKey">GetKey</a></li>
+<li><a href="FlushKeys">FlushKeys</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetKey">GetKey</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="KeyboardChanged">KeyboardChanged</a></li>
 <li><a href="KeyboardDeviceConnected">KeyboardDeviceConnected</a></li>
 <li><a href="KeyboardDeviceCount">KeyboardDeviceCount</a></li>
 <li><a href="KeyboardDeviceName">KeyboardDeviceName</a></li>
-<li><a href="KeyDown">KeyDown</a></li>
-<li><a href="KeyHit">KeyHit</a></li>
-<li><a href="KeyWait">KeyWait</a></li>
+<li><a href="KeyDown">KeyDown</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="KeyHit">KeyHit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="KeyWait">KeyWait</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="LastKeyboardDevice">LastKeyboardDevice</a></li>
 <li><a href="VKeyDown">VKeyDown</a></li>
 <li><a href="VKeyHit">VKeyHit</a></li>
-<li><a href="WaitKey">WaitKey</a></li>
+<li><a href="WaitKey">WaitKey</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Mouse (25)</summary>
 <ul>
 <li><a href="BlitzBasic-Mouse">Overview</a></li>
-<li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
-<li><a href="EnableDirectInput">EnableDirectInput</a></li>
-<li><a href="FlushMouse">FlushMouse</a></li>
-<li><a href="GetMouse">GetMouse</a></li>
+<li><a href="DirectInputEnabled">DirectInputEnabled</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EnableDirectInput">EnableDirectInput</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FlushMouse">FlushMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetMouse">GetMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="HWRawInput">HWRawInput</a></li>
 <li><a href="LastMouseDevice">LastMouseDevice</a></li>
 <li><a href="LockMouse">LockMouse</a></li>
@@ -503,110 +503,110 @@
 <li><a href="MouseDeviceConnected">MouseDeviceConnected</a></li>
 <li><a href="MouseDeviceCount">MouseDeviceCount</a></li>
 <li><a href="MouseDeviceName">MouseDeviceName</a></li>
-<li><a href="MouseDown">MouseDown</a></li>
-<li><a href="MouseHit">MouseHit</a></li>
-<li><a href="MouseWait">MouseWait</a></li>
-<li><a href="MouseX">MouseX</a></li>
-<li><a href="MouseXSpeed">MouseXSpeed</a></li>
-<li><a href="MouseY">MouseY</a></li>
-<li><a href="MouseYSpeed">MouseYSpeed</a></li>
-<li><a href="MouseZ">MouseZ</a></li>
-<li><a href="MouseZSpeed">MouseZSpeed</a></li>
-<li><a href="MoveMouse">MoveMouse</a></li>
+<li><a href="MouseDown">MouseDown</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseHit">MouseHit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseWait">MouseWait</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseX">MouseX</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseXSpeed">MouseXSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseY">MouseY</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseYSpeed">MouseYSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseZ">MouseZ</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseZSpeed">MouseZSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoveMouse">MoveMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="RawInput">RawInput</a></li>
 <li><a href="RawInputEnabled">RawInputEnabled</a></li>
 <li><a href="UnlockMouse">UnlockMouse</a></li>
-<li><a href="WaitMouse">WaitMouse</a></li>
+<li><a href="WaitMouse">WaitMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Movies (15)</summary>
 <ul>
 <li><a href="BlitzBasic-Movies">Overview</a></li>
-<li><a href="CloseMovie">CloseMovie</a></li>
-<li><a href="DrawMovie">DrawMovie</a></li>
-<li><a href="GetMovieTexture">GetMovieTexture</a> 〔BlitzLLVM〕</li>
-<li><a href="LoopMovie">LoopMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="MovieHeight">MovieHeight</a></li>
-<li><a href="MovieLength">MovieLength</a> 〔BlitzLLVM〕</li>
-<li><a href="MoviePlaying">MoviePlaying</a></li>
-<li><a href="MoviePosition">MoviePosition</a> 〔BlitzLLVM〕</li>
-<li><a href="MovieVolume">MovieVolume</a> 〔BlitzLLVM〕</li>
-<li><a href="MovieWidth">MovieWidth</a></li>
-<li><a href="OpenMovie">OpenMovie</a></li>
-<li><a href="PauseMovie">PauseMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="PlayMovie">PlayMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="SeekMovie">SeekMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="StopMovie">StopMovie</a> 〔BlitzLLVM〕</li>
+<li><a href="CloseMovie">CloseMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawMovie">DrawMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetMovieTexture">GetMovieTexture</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="LoopMovie">LoopMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MovieHeight">MovieHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MovieLength">MovieLength</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MoviePlaying">MoviePlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoviePosition">MoviePosition</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MovieVolume">MovieVolume</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MovieWidth">MovieWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="OpenMovie">OpenMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PauseMovie">PauseMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PlayMovie">PlayMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SeekMovie">SeekMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="StopMovie">StopMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Multiplayer (14)</summary>
 <ul>
 <li><a href="BlitzBasic-Multiplayer">Overview</a></li>
-<li><a href="CreateNetPlayer">CreateNetPlayer</a></li>
-<li><a href="DeleteNetPlayer">DeleteNetPlayer</a></li>
-<li><a href="HostNetGame">HostNetGame</a></li>
-<li><a href="JoinNetGame">JoinNetGame</a></li>
-<li><a href="NetMsgData">NetMsgData</a></li>
-<li><a href="NetMsgFrom">NetMsgFrom</a></li>
-<li><a href="NetMsgTo">NetMsgTo</a></li>
-<li><a href="NetMsgType">NetMsgType</a></li>
-<li><a href="NetPlayerLocal">NetPlayerLocal</a></li>
-<li><a href="NetPlayerName">NetPlayerName</a></li>
-<li><a href="RecvNetMsg">RecvNetMsg</a></li>
-<li><a href="SendNetMsg">SendNetMsg</a></li>
-<li><a href="StartNetGame">StartNetGame</a></li>
-<li><a href="StopNetGame">StopNetGame</a></li>
+<li><a href="CreateNetPlayer">CreateNetPlayer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DeleteNetPlayer">DeleteNetPlayer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HostNetGame">HostNetGame</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoinNetGame">JoinNetGame</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetMsgData">NetMsgData</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetMsgFrom">NetMsgFrom</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetMsgTo">NetMsgTo</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetMsgType">NetMsgType</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetPlayerLocal">NetPlayerLocal</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NetPlayerName">NetPlayerName</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RecvNetMsg">RecvNetMsg</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SendNetMsg">SendNetMsg</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StartNetGame">StartNetGame</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StopNetGame">StopNetGame</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Network (26)</summary>
 <ul>
 <li><a href="BlitzBasic-Network">Overview</a></li>
-<li><a href="AcceptTCPStream">AcceptTCPStream</a></li>
-<li><a href="CloseTCPServer">CloseTCPServer</a></li>
-<li><a href="CloseTCPStream">CloseTCPStream</a></li>
-<li><a href="CloseUDPStream">CloseUDPStream</a></li>
+<li><a href="AcceptTCPStream">AcceptTCPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CloseTCPServer">CloseTCPServer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CloseTCPStream">CloseTCPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CloseUDPStream">CloseUDPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="CountHostAddresses">CountHostAddresses</a></li>
-<li><a href="CountHostIPs">CountHostIPs</a></li>
-<li><a href="CreateTCPServer">CreateTCPServer</a></li>
-<li><a href="CreateUDPStream">CreateUDPStream</a></li>
-<li><a href="DottedIP">DottedIP</a></li>
+<li><a href="CountHostIPs">CountHostIPs</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateTCPServer">CreateTCPServer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateUDPStream">CreateUDPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DottedIP">DottedIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GetHostAddress">GetHostAddress</a></li>
 <li><a href="GetTCPStreamAddress">GetTCPStreamAddress</a></li>
 <li><a href="GetUDPMsgAddress">GetUDPMsgAddress</a></li>
 <li><a href="GetUDPStreamAddress">GetUDPStreamAddress</a></li>
-<li><a href="HostIP">HostIP</a></li>
-<li><a href="OpenTCPStream">OpenTCPStream</a></li>
-<li><a href="RecvUDPMsg">RecvUDPMsg</a></li>
-<li><a href="SendUDPMsg">SendUDPMsg</a></li>
+<li><a href="HostIP">HostIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="OpenTCPStream">OpenTCPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RecvUDPMsg">RecvUDPMsg</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SendUDPMsg">SendUDPMsg</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="SendUDPMsgTo">SendUDPMsgTo</a></li>
-<li><a href="TCPStreamIP">TCPStreamIP</a></li>
-<li><a href="TCPStreamPort">TCPStreamPort</a></li>
-<li><a href="TCPTimeouts">TCPTimeouts</a></li>
-<li><a href="UDPMsgIP">UDPMsgIP</a></li>
-<li><a href="UDPMsgPort">UDPMsgPort</a></li>
-<li><a href="UDPStreamIP">UDPStreamIP</a></li>
-<li><a href="UDPStreamPort">UDPStreamPort</a></li>
-<li><a href="UDPTimeouts">UDPTimeouts</a></li>
+<li><a href="TCPStreamIP">TCPStreamIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TCPStreamPort">TCPStreamPort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TCPTimeouts">TCPTimeouts</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPMsgIP">UDPMsgIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPMsgPort">UDPMsgPort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPStreamIP">UDPStreamIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPStreamPort">UDPStreamPort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPTimeouts">UDPTimeouts</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Streams (15)</summary>
 <ul>
 <li><a href="BlitzBasic-Streams">Overview</a></li>
-<li><a href="CopyStream">CopyStream</a></li>
-<li><a href="Eof">Eof</a></li>
-<li><a href="ReadAvail">ReadAvail</a></li>
-<li><a href="ReadByte">ReadByte</a></li>
-<li><a href="ReadFloat">ReadFloat</a></li>
-<li><a href="ReadInt">ReadInt</a></li>
-<li><a href="ReadLine">ReadLine</a></li>
-<li><a href="ReadShort">ReadShort</a></li>
-<li><a href="ReadString">ReadString</a></li>
-<li><a href="WriteByte">WriteByte</a></li>
-<li><a href="WriteFloat">WriteFloat</a></li>
-<li><a href="WriteInt">WriteInt</a></li>
-<li><a href="WriteLine">WriteLine</a></li>
-<li><a href="WriteShort">WriteShort</a></li>
-<li><a href="WriteString">WriteString</a></li>
+<li><a href="CopyStream">CopyStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Eof">Eof</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadAvail">ReadAvail</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadByte">ReadByte</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadFloat">ReadFloat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadInt">ReadInt</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadLine">ReadLine</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadShort">ReadShort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadString">ReadString</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteByte">WriteByte</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteFloat">WriteFloat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteInt">WriteInt</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteLine">WriteLine</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteShort">WriteShort</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WriteString">WriteString</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>
@@ -618,8 +618,8 @@
 <li><details><summary>3D Sound (6)</summary>
 <ul>
 <li><a href="Blitz3D-3D-Sound">Overview</a></li>
-<li><a href="CreateListener">CreateListener</a></li>
-<li><a href="EmitSound">EmitSound</a></li>
+<li><a href="CreateListener">CreateListener</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EmitSound">EmitSound</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GetChannelFalloff">GetChannelFalloff</a></li>
 <li><a href="GetFalloff">GetFalloff</a></li>
 <li><a href="SetChannelFalloff">SetChannelFalloff</a></li>
@@ -629,66 +629,66 @@
 <li><details><summary>Animation (16)</summary>
 <ul>
 <li><a href="Blitz3D-Animation">Overview</a></li>
-<li><a href="AddAnimSeq">AddAnimSeq</a></li>
-<li><a href="Animate">Animate</a></li>
-<li><a href="AnimateEntity">AnimateEntity</a> 〔BlitzLLVM〕</li>
-<li><a href="AnimateMD2">AnimateMD2</a></li>
-<li><a href="Animating">Animating</a></li>
-<li><a href="AnimLength">AnimLength</a></li>
-<li><a href="AnimSeq">AnimSeq</a></li>
-<li><a href="AnimTime">AnimTime</a></li>
-<li><a href="ExtractAnimSeq">ExtractAnimSeq</a></li>
-<li><a href="LoadAnimSeq">LoadAnimSeq</a></li>
-<li><a href="LoadMD2">LoadMD2</a></li>
-<li><a href="MD2Animating">MD2Animating</a></li>
-<li><a href="MD2AnimLength">MD2AnimLength</a></li>
-<li><a href="MD2AnimTime">MD2AnimTime</a></li>
-<li><a href="SetAnimKey">SetAnimKey</a></li>
-<li><a href="SetAnimTime">SetAnimTime</a></li>
+<li><a href="AddAnimSeq">AddAnimSeq</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Animate">Animate</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AnimateEntity">AnimateEntity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AnimateMD2">AnimateMD2</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Animating">Animating</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AnimLength">AnimLength</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AnimSeq">AnimSeq</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AnimTime">AnimTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ExtractAnimSeq">ExtractAnimSeq</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadAnimSeq">LoadAnimSeq</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadMD2">LoadMD2</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MD2Animating">MD2Animating</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MD2AnimLength">MD2AnimLength</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MD2AnimTime">MD2AnimTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetAnimKey">SetAnimKey</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetAnimTime">SetAnimTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>BSP (4)</summary>
 <ul>
 <li><a href="Blitz3D-BSP">Overview</a></li>
-<li><a href="BSPAmbientLight">BSPAmbientLight</a></li>
-<li><a href="BSPLighting">BSPLighting</a></li>
-<li><a href="BSPLightmapColor">BSPLightmapColor</a> 〔BlitzLLVM〕</li>
-<li><a href="LoadBSP">LoadBSP</a></li>
+<li><a href="BSPAmbientLight">BSPAmbientLight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BSPLighting">BSPLighting</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BSPLightmapColor">BSPLightmapColor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="LoadBSP">LoadBSP</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Brushes (12)</summary>
 <ul>
 <li><a href="Blitz3D-Brushes">Overview</a></li>
-<li><a href="BrushAlpha">BrushAlpha</a></li>
-<li><a href="BrushBlend">BrushBlend</a></li>
-<li><a href="BrushColor">BrushColor</a></li>
-<li><a href="BrushFX">BrushFX</a></li>
-<li><a href="BrushShininess">BrushShininess</a></li>
-<li><a href="BrushTexture">BrushTexture</a></li>
-<li><a href="CreateBrush">CreateBrush</a></li>
-<li><a href="FreeBrush">FreeBrush</a></li>
-<li><a href="GetBrushTexture">GetBrushTexture</a></li>
-<li><a href="GetEntityBrush">GetEntityBrush</a></li>
-<li><a href="GetSurfaceBrush">GetSurfaceBrush</a></li>
-<li><a href="LoadBrush">LoadBrush</a></li>
+<li><a href="BrushAlpha">BrushAlpha</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BrushBlend">BrushBlend</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BrushColor">BrushColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BrushFX">BrushFX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BrushShininess">BrushShininess</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BrushTexture">BrushTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateBrush">CreateBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeBrush">FreeBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetBrushTexture">GetBrushTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetEntityBrush">GetEntityBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetSurfaceBrush">GetSurfaceBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadBrush">LoadBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Cameras (28)</summary>
 <ul>
 <li><a href="Blitz3D-Cameras">Overview</a></li>
-<li><a href="CameraClsColor">CameraClsColor</a></li>
-<li><a href="CameraClsMode">CameraClsMode</a></li>
+<li><a href="CameraClsColor">CameraClsColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraClsMode">CameraClsMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="CameraCulling">CameraCulling</a></li>
 <li><a href="CameraCullingSource">CameraCullingSource</a></li>
-<li><a href="CameraFogColor">CameraFogColor</a></li>
-<li><a href="CameraFogMode">CameraFogMode</a></li>
-<li><a href="CameraFogRange">CameraFogRange</a></li>
-<li><a href="CameraProject">CameraProject</a></li>
-<li><a href="CameraProjMode">CameraProjMode</a></li>
-<li><a href="CameraRange">CameraRange</a></li>
-<li><a href="CameraViewport">CameraViewport</a></li>
-<li><a href="CameraZoom">CameraZoom</a></li>
-<li><a href="CreateCamera">CreateCamera</a></li>
+<li><a href="CameraFogColor">CameraFogColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraFogMode">CameraFogMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraFogRange">CameraFogRange</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraProject">CameraProject</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraProjMode">CameraProjMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraRange">CameraRange</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraViewport">CameraViewport</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CameraZoom">CameraZoom</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateCamera">CreateCamera</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GetCameraBuffer">GetCameraBuffer</a></li>
 <li><a href="GetCameraClipPlane">GetCameraClipPlane</a></li>
 <li><a href="GetCameraClipPlaneEnabled">GetCameraClipPlaneEnabled</a></li>
@@ -709,443 +709,443 @@
 <li><details><summary>Collisions (19)</summary>
 <ul>
 <li><a href="Blitz3D-Collisions">Overview</a></li>
-<li><a href="ClearCollisions">ClearCollisions</a></li>
-<li><a href="CollisionEntity">CollisionEntity</a></li>
-<li><a href="CollisionNX">CollisionNX</a></li>
-<li><a href="CollisionNY">CollisionNY</a></li>
-<li><a href="CollisionNZ">CollisionNZ</a></li>
-<li><a href="Collisions">Collisions</a></li>
-<li><a href="CollisionSurface">CollisionSurface</a></li>
-<li><a href="CollisionTime">CollisionTime</a></li>
-<li><a href="CollisionTriangle">CollisionTriangle</a></li>
-<li><a href="CollisionX">CollisionX</a></li>
-<li><a href="CollisionY">CollisionY</a></li>
-<li><a href="CollisionZ">CollisionZ</a></li>
-<li><a href="CountCollisions">CountCollisions</a></li>
-<li><a href="EntityBox">EntityBox</a></li>
-<li><a href="EntityCollided">EntityCollided</a></li>
-<li><a href="EntityRadius">EntityRadius</a></li>
-<li><a href="EntityType">EntityType</a></li>
-<li><a href="GetEntityType">GetEntityType</a></li>
-<li><a href="ResetEntity">ResetEntity</a></li>
+<li><a href="ClearCollisions">ClearCollisions</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionEntity">CollisionEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionNX">CollisionNX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionNY">CollisionNY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionNZ">CollisionNZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Collisions">Collisions</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionSurface">CollisionSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionTime">CollisionTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionTriangle">CollisionTriangle</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionX">CollisionX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionY">CollisionY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionZ">CollisionZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountCollisions">CountCollisions</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityBox">EntityBox</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityCollided">EntityCollided</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityRadius">EntityRadius</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityType">EntityType</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetEntityType">GetEntityType</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ResetEntity">ResetEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Display (9)</summary>
 <ul>
 <li><a href="Blitz3D-Display">Overview</a></li>
-<li><a href="CountGfxModes3D">CountGfxModes3D</a></li>
-<li><a href="GfxDriver3D">GfxDriver3D</a></li>
-<li><a href="GfxDriverCaps3D">GfxDriverCaps3D</a></li>
-<li><a href="GfxMode3D">GfxMode3D</a></li>
-<li><a href="GfxMode3DExists">GfxMode3DExists</a></li>
-<li><a href="GfxMode3DHeight">GfxMode3DHeight</a> 〔BlitzLLVM〕</li>
-<li><a href="GfxMode3DWidth">GfxMode3DWidth</a> 〔BlitzLLVM〕</li>
-<li><a href="Graphics3D">Graphics3D</a></li>
-<li><a href="Windowed3D">Windowed3D</a></li>
+<li><a href="CountGfxModes3D">CountGfxModes3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxDriver3D">GfxDriver3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxDriverCaps3D">GfxDriverCaps3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxMode3D">GfxMode3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxMode3DExists">GfxMode3DExists</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxMode3DHeight">GfxMode3DHeight</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GfxMode3DWidth">GfxMode3DWidth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Graphics3D">Graphics3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Windowed3D">Windowed3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Entities (46)</summary>
 <ul>
 <li><a href="Blitz3D-Entities">Overview</a></li>
-<li><a href="AlignToVector">AlignToVector</a></li>
-<li><a href="CopyEntity">CopyEntity</a></li>
-<li><a href="CountChildren">CountChildren</a></li>
-<li><a href="CreatePivot">CreatePivot</a></li>
-<li><a href="EntityAlpha">EntityAlpha</a></li>
-<li><a href="EntityAutoFade">EntityAutoFade</a></li>
-<li><a href="EntityBlend">EntityBlend</a></li>
-<li><a href="EntityClass">EntityClass</a></li>
-<li><a href="EntityColor">EntityColor</a></li>
-<li><a href="EntityDepthFade">EntityDepthFade</a> 〔BlitzLLVM〕</li>
-<li><a href="EntityDistance">EntityDistance</a></li>
-<li><a href="EntityFX">EntityFX</a></li>
-<li><a href="EntityInView">EntityInView</a></li>
-<li><a href="EntityLightChannel">EntityLightChannel</a> 〔BlitzLLVM〕</li>
+<li><a href="AlignToVector">AlignToVector</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyEntity">CopyEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountChildren">CountChildren</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreatePivot">CreatePivot</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityAlpha">EntityAlpha</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityAutoFade">EntityAutoFade</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityBlend">EntityBlend</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityClass">EntityClass</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityColor">EntityColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityDepthFade">EntityDepthFade</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="EntityDistance">EntityDistance</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityFX">EntityFX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityInView">EntityInView</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityLightChannel">EntityLightChannel</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="EntityLighting">EntityLighting</a></li>
-<li><a href="EntityName">EntityName</a></li>
-<li><a href="EntityOrder">EntityOrder</a></li>
-<li><a href="EntityParent">EntityParent</a></li>
-<li><a href="EntityPitch">EntityPitch</a></li>
-<li><a href="EntityReady">EntityReady</a> 〔BlitzLLVM〕</li>
-<li><a href="EntityRoll">EntityRoll</a></li>
-<li><a href="EntityShininess">EntityShininess</a></li>
-<li><a href="EntityStatic">EntityStatic</a> 〔BlitzLLVM〕</li>
-<li><a href="EntityTexture">EntityTexture</a></li>
-<li><a href="EntityX">EntityX</a></li>
-<li><a href="EntityY">EntityY</a></li>
-<li><a href="EntityYaw">EntityYaw</a></li>
-<li><a href="EntityZ">EntityZ</a></li>
-<li><a href="FindChild">FindChild</a></li>
-<li><a href="FreeEntity">FreeEntity</a></li>
-<li><a href="GetChild">GetChild</a></li>
-<li><a href="GetMatElement">GetMatElement</a></li>
-<li><a href="GetParent">GetParent</a></li>
-<li><a href="HideEntity">HideEntity</a></li>
-<li><a href="MoveEntity">MoveEntity</a></li>
-<li><a href="NameEntity">NameEntity</a></li>
-<li><a href="PaintEntity">PaintEntity</a></li>
-<li><a href="PointEntity">PointEntity</a></li>
-<li><a href="PositionEntity">PositionEntity</a></li>
-<li><a href="RotateEntity">RotateEntity</a></li>
-<li><a href="ScaleEntity">ScaleEntity</a></li>
+<li><a href="EntityName">EntityName</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityOrder">EntityOrder</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityParent">EntityParent</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityPitch">EntityPitch</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityReady">EntityReady</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="EntityRoll">EntityRoll</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityShininess">EntityShininess</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityStatic">EntityStatic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="EntityTexture">EntityTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityX">EntityX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityY">EntityY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityYaw">EntityYaw</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityZ">EntityZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FindChild">FindChild</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeEntity">FreeEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetChild">GetChild</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetMatElement">GetMatElement</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetParent">GetParent</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HideEntity">HideEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoveEntity">MoveEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="NameEntity">NameEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PaintEntity">PaintEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PointEntity">PointEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PositionEntity">PositionEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotateEntity">RotateEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScaleEntity">ScaleEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="SetEntityStencil">SetEntityStencil</a></li>
 <li><a href="SetEntityStencilBack">SetEntityStencilBack</a></li>
-<li><a href="ShowEntity">ShowEntity</a></li>
-<li><a href="TranslateEntity">TranslateEntity</a></li>
-<li><a href="TurnEntity">TurnEntity</a></li>
+<li><a href="ShowEntity">ShowEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TranslateEntity">TranslateEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TurnEntity">TurnEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Lights (5)</summary>
 <ul>
 <li><a href="Blitz3D-Lights">Overview</a></li>
-<li><a href="CreateLight">CreateLight</a></li>
-<li><a href="LightColor">LightColor</a></li>
-<li><a href="LightConeAngles">LightConeAngles</a></li>
-<li><a href="LightMesh">LightMesh</a></li>
-<li><a href="LightRange">LightRange</a></li>
+<li><a href="CreateLight">CreateLight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LightColor">LightColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LightConeAngles">LightConeAngles</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LightMesh">LightMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LightRange">LightRange</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Meshes (23)</summary>
 <ul>
 <li><a href="Blitz3D-Meshes">Overview</a></li>
-<li><a href="AddMesh">AddMesh</a></li>
-<li><a href="CopyMesh">CopyMesh</a></li>
-<li><a href="CreateCone">CreateCone</a></li>
-<li><a href="CreateCube">CreateCube</a></li>
-<li><a href="CreateCylinder">CreateCylinder</a></li>
-<li><a href="CreateMesh">CreateMesh</a></li>
-<li><a href="CreateMirror">CreateMirror</a></li>
-<li><a href="CreatePlane">CreatePlane</a></li>
-<li><a href="CreateSphere">CreateSphere</a></li>
-<li><a href="FitMesh">FitMesh</a></li>
-<li><a href="FlipMesh">FlipMesh</a></li>
-<li><a href="LoadAnimMesh">LoadAnimMesh</a></li>
-<li><a href="LoaderMatrix">LoaderMatrix</a></li>
-<li><a href="LoadMesh">LoadMesh</a></li>
-<li><a href="MeshCullBox">MeshCullBox</a></li>
-<li><a href="MeshDepth">MeshDepth</a></li>
-<li><a href="MeshesIntersect">MeshesIntersect</a></li>
-<li><a href="MeshHeight">MeshHeight</a></li>
-<li><a href="MeshWidth">MeshWidth</a></li>
-<li><a href="PaintMesh">PaintMesh</a></li>
-<li><a href="PositionMesh">PositionMesh</a></li>
-<li><a href="RotateMesh">RotateMesh</a></li>
-<li><a href="ScaleMesh">ScaleMesh</a></li>
+<li><a href="AddMesh">AddMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyMesh">CopyMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateCone">CreateCone</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateCube">CreateCube</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateCylinder">CreateCylinder</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateMesh">CreateMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateMirror">CreateMirror</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreatePlane">CreatePlane</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateSphere">CreateSphere</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FitMesh">FitMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FlipMesh">FlipMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadAnimMesh">LoadAnimMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoaderMatrix">LoaderMatrix</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadMesh">LoadMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MeshCullBox">MeshCullBox</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MeshDepth">MeshDepth</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MeshesIntersect">MeshesIntersect</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MeshHeight">MeshHeight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MeshWidth">MeshWidth</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PaintMesh">PaintMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PositionMesh">PositionMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotateMesh">RotateMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScaleMesh">ScaleMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Physics (124)</summary>
 <ul>
 <li><a href="Blitz3D-Physics">Overview</a></li>
-<li><a href="CreatePhysicsBody">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsBodyFromEntity">CreatePhysicsBodyFromEntity</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsConeConstraint">CreatePhysicsConeConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsDistanceConstraint">CreatePhysicsDistanceConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsFixedConstraint">CreatePhysicsFixedConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsHingeConstraint">CreatePhysicsHingeConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsPointConstraint">CreatePhysicsPointConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsSliderConstraint">CreatePhysicsSliderConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsWorld">CreatePhysicsWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="FreePhysicsConstraint">FreePhysicsConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="FreePhysicsWorld">FreePhysicsWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularDamping">GetPhysicsAngularDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityX">GetPhysicsAngularVelocityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityY">GetPhysicsAngularVelocityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityZ">GetPhysicsAngularVelocityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAwake">GetPhysicsAwake</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBaumgarte">GetPhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyMotion">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyShape">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyWorld">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsConstraintBroken">GetPhysicsConstraintBroken</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactCount">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactDepth">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactEntityA">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactEntityB">GetPhysicsContactEntityB</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNX">GetPhysicsContactNX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNY">GetPhysicsContactNY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNZ">GetPhysicsContactNZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactReport">GetPhysicsContactReport</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactSensor">GetPhysicsContactSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactSlop">GetPhysicsContactSlop</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactX">GetPhysicsContactX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactY">GetPhysicsContactY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactZ">GetPhysicsContactZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContinuous">GetPhysicsContinuous</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContinuousDefault">GetPhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsDeterministic">GetPhysicsDeterministic</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsFriction">GetPhysicsFriction</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityScale">GetPhysicsGravityScale</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityX">GetPhysicsGravityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityY">GetPhysicsGravityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityZ">GetPhysicsGravityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitDistance">GetPhysicsHitDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitEntity">GetPhysicsHitEntity</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNX">GetPhysicsHitNX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNY">GetPhysicsHitNY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNZ">GetPhysicsHitNZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitX">GetPhysicsHitX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitY">GetPhysicsHitY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitZ">GetPhysicsHitZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLayer">GetPhysicsLayer</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearDamping">GetPhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityX">GetPhysicsLinearVelocityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityY">GetPhysicsLinearVelocityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityZ">GetPhysicsLinearVelocityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaskHigh">GetPhysicsMaskHigh</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaskLow">GetPhysicsMaskLow</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMass">GetPhysicsMass</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaxDelta">GetPhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaxSteps">GetPhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMode">GetPhysicsMode</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsOverlap">GetPhysicsOverlap</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsPositionIterations">GetPhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsRate">GetPhysicsRate</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsRestitution">GetPhysicsRestitution</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSensor">GetPhysicsSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSleepThreshold">GetPhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSolver">GetPhysicsSolver</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSpeculativeDistance">GetPhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSubsteps">GetPhysicsSubsteps</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsThreads">GetPhysicsThreads</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsVelocityIterations">GetPhysicsVelocityIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsWorldSleeping">GetPhysicsWorldSleeping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsAngularDamping">PhysicsAngularDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsAngularVelocity">PhysicsAngularVelocity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyAngularImpulse">PhysicsApplyAngularImpulse</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyForce">PhysicsApplyForce</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyForceAt">PhysicsApplyForceAt</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyImpulse">PhysicsApplyImpulse</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyImpulseAt">PhysicsApplyImpulseAt</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyTorque">PhysicsApplyTorque</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBaumgarte">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBodyMotion">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBodyWorld">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBoxCast">PhysicsBoxCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsCapsuleCast">PhysicsCapsuleCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintBreakForce">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintLimits">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintMotor">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintSpring">PhysicsConstraintSpring</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContactReport">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContactSlop">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContinuous">PhysicsContinuous</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContinuousDefault">PhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsDeterministic">PhysicsDeterministic</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsFriction">PhysicsFriction</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsGravity">PhysicsGravity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsGravityScale">PhysicsGravityScale</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLayer">PhysicsLayer</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLinearDamping">PhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLinearVelocity">PhysicsLinearVelocity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMass">PhysicsMass</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMaxDelta">PhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMaxSteps">PhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMode">PhysicsMode</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsOverlapBox">PhysicsOverlapBox</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsOverlapSphere">PhysicsOverlapSphere</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsPointInside">PhysicsPointInside</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsPositionIterations">PhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRate">PhysicsRate</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRayCast">PhysicsRayCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRestitution">PhysicsRestitution</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSensor">PhysicsSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSleeping">PhysicsSleeping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSleepThreshold">PhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSolver">PhysicsSolver</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSpeculativeDistance">PhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSphereCast">PhysicsSphereCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSubsteps">PhysicsSubsteps</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsThreads">PhysicsThreads</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsUpdate">PhysicsUpdate</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsVelocityIterations">PhysicsVelocityIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsWake">PhysicsWake</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsWorldSleeping">PhysicsWorldSleeping</a> 〔BlitzLLVM〕</li>
+<li><a href="CreatePhysicsBody">CreatePhysicsBody</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsBodyFromEntity">CreatePhysicsBodyFromEntity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsConeConstraint">CreatePhysicsConeConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsDistanceConstraint">CreatePhysicsDistanceConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsFixedConstraint">CreatePhysicsFixedConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsHingeConstraint">CreatePhysicsHingeConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsPointConstraint">CreatePhysicsPointConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsSliderConstraint">CreatePhysicsSliderConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsWorld">CreatePhysicsWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="FreePhysicsConstraint">FreePhysicsConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="FreePhysicsWorld">FreePhysicsWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularDamping">GetPhysicsAngularDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityX">GetPhysicsAngularVelocityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityY">GetPhysicsAngularVelocityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityZ">GetPhysicsAngularVelocityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAwake">GetPhysicsAwake</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBaumgarte">GetPhysicsBaumgarte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyMotion">GetPhysicsBodyMotion</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyShape">GetPhysicsBodyShape</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyWorld">GetPhysicsBodyWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsConstraintBroken">GetPhysicsConstraintBroken</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactCount">GetPhysicsContactCount</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactDepth">GetPhysicsContactDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactEntityA">GetPhysicsContactEntityA</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactEntityB">GetPhysicsContactEntityB</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNX">GetPhysicsContactNX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNY">GetPhysicsContactNY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNZ">GetPhysicsContactNZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactReport">GetPhysicsContactReport</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactSensor">GetPhysicsContactSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactSlop">GetPhysicsContactSlop</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactX">GetPhysicsContactX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactY">GetPhysicsContactY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactZ">GetPhysicsContactZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContinuous">GetPhysicsContinuous</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContinuousDefault">GetPhysicsContinuousDefault</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsDeterministic">GetPhysicsDeterministic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsFriction">GetPhysicsFriction</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityScale">GetPhysicsGravityScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityX">GetPhysicsGravityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityY">GetPhysicsGravityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityZ">GetPhysicsGravityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitDistance">GetPhysicsHitDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitEntity">GetPhysicsHitEntity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNX">GetPhysicsHitNX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNY">GetPhysicsHitNY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNZ">GetPhysicsHitNZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitX">GetPhysicsHitX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitY">GetPhysicsHitY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitZ">GetPhysicsHitZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLayer">GetPhysicsLayer</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearDamping">GetPhysicsLinearDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityX">GetPhysicsLinearVelocityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityY">GetPhysicsLinearVelocityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityZ">GetPhysicsLinearVelocityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaskHigh">GetPhysicsMaskHigh</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaskLow">GetPhysicsMaskLow</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMass">GetPhysicsMass</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaxDelta">GetPhysicsMaxDelta</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaxSteps">GetPhysicsMaxSteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMode">GetPhysicsMode</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsOverlap">GetPhysicsOverlap</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsPositionIterations">GetPhysicsPositionIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsRate">GetPhysicsRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsRestitution">GetPhysicsRestitution</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSensor">GetPhysicsSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSleepThreshold">GetPhysicsSleepThreshold</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSolver">GetPhysicsSolver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSpeculativeDistance">GetPhysicsSpeculativeDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSubsteps">GetPhysicsSubsteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsThreads">GetPhysicsThreads</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsVelocityIterations">GetPhysicsVelocityIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsWorldSleeping">GetPhysicsWorldSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsAngularDamping">PhysicsAngularDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsAngularVelocity">PhysicsAngularVelocity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyAngularImpulse">PhysicsApplyAngularImpulse</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyForce">PhysicsApplyForce</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyForceAt">PhysicsApplyForceAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyImpulse">PhysicsApplyImpulse</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyImpulseAt">PhysicsApplyImpulseAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyTorque">PhysicsApplyTorque</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBaumgarte">PhysicsBaumgarte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBodyMotion">PhysicsBodyMotion</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBodyWorld">PhysicsBodyWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBoxCast">PhysicsBoxCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsCapsuleCast">PhysicsCapsuleCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintBreakForce">PhysicsConstraintBreakForce</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintLimits">PhysicsConstraintLimits</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintMotor">PhysicsConstraintMotor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintSpring">PhysicsConstraintSpring</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContactReport">PhysicsContactReport</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContactSlop">PhysicsContactSlop</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContinuous">PhysicsContinuous</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContinuousDefault">PhysicsContinuousDefault</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsDeterministic">PhysicsDeterministic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsFriction">PhysicsFriction</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsGravity">PhysicsGravity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsGravityScale">PhysicsGravityScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLayer">PhysicsLayer</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLinearDamping">PhysicsLinearDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLinearVelocity">PhysicsLinearVelocity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMass">PhysicsMass</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMaxDelta">PhysicsMaxDelta</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMaxSteps">PhysicsMaxSteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMode">PhysicsMode</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsOverlapBox">PhysicsOverlapBox</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsOverlapSphere">PhysicsOverlapSphere</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsPointInside">PhysicsPointInside</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsPositionIterations">PhysicsPositionIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRate">PhysicsRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRayCast">PhysicsRayCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRestitution">PhysicsRestitution</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSensor">PhysicsSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSleeping">PhysicsSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSleepThreshold">PhysicsSleepThreshold</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSolver">PhysicsSolver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSpeculativeDistance">PhysicsSpeculativeDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSphereCast">PhysicsSphereCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSubsteps">PhysicsSubsteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsThreads">PhysicsThreads</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsUpdate">PhysicsUpdate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsVelocityIterations">PhysicsVelocityIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsWake">PhysicsWake</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsWorldSleeping">PhysicsWorldSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Picking (15)</summary>
 <ul>
 <li><a href="Blitz3D-Picking">Overview</a></li>
-<li><a href="CameraPick">CameraPick</a></li>
-<li><a href="EntityPick">EntityPick</a></li>
-<li><a href="EntityPickMode">EntityPickMode</a></li>
-<li><a href="EntityVisible">EntityVisible</a></li>
-<li><a href="LinePick">LinePick</a></li>
-<li><a href="PickedEntity">PickedEntity</a></li>
-<li><a href="PickedNX">PickedNX</a></li>
-<li><a href="PickedNY">PickedNY</a></li>
-<li><a href="PickedNZ">PickedNZ</a></li>
-<li><a href="PickedSurface">PickedSurface</a></li>
-<li><a href="PickedTime">PickedTime</a></li>
-<li><a href="PickedTriangle">PickedTriangle</a></li>
-<li><a href="PickedX">PickedX</a></li>
-<li><a href="PickedY">PickedY</a></li>
-<li><a href="PickedZ">PickedZ</a></li>
+<li><a href="CameraPick">CameraPick</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityPick">EntityPick</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityPickMode">EntityPickMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityVisible">EntityVisible</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LinePick">LinePick</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedEntity">PickedEntity</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedNX">PickedNX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedNY">PickedNY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedNZ">PickedNZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedSurface">PickedSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedTime">PickedTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedTriangle">PickedTriangle</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedX">PickedX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedY">PickedY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PickedZ">PickedZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Sprites (7)</summary>
 <ul>
 <li><a href="Blitz3D-Sprites">Overview</a></li>
-<li><a href="CreateSprite">CreateSprite</a></li>
-<li><a href="HandleSprite">HandleSprite</a></li>
-<li><a href="LoadSprite">LoadSprite</a></li>
-<li><a href="RotateSprite">RotateSprite</a></li>
-<li><a href="ScaleSprite">ScaleSprite</a></li>
-<li><a href="SpriteDepthFade">SpriteDepthFade</a> 〔BlitzLLVM〕</li>
-<li><a href="SpriteViewMode">SpriteViewMode</a></li>
+<li><a href="CreateSprite">CreateSprite</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HandleSprite">HandleSprite</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadSprite">LoadSprite</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotateSprite">RotateSprite</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScaleSprite">ScaleSprite</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SpriteDepthFade">SpriteDepthFade</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SpriteViewMode">SpriteViewMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Surfaces (29)</summary>
 <ul>
 <li><a href="Blitz3D-Surfaces">Overview</a></li>
-<li><a href="AddTriangle">AddTriangle</a></li>
-<li><a href="AddVertex">AddVertex</a></li>
-<li><a href="ClearSurface">ClearSurface</a></li>
-<li><a href="CountSurfaces">CountSurfaces</a></li>
-<li><a href="CountTriangles">CountTriangles</a></li>
-<li><a href="CountVertices">CountVertices</a></li>
-<li><a href="CreateSurface">CreateSurface</a></li>
-<li><a href="FindSurface">FindSurface</a></li>
-<li><a href="GetSurface">GetSurface</a></li>
-<li><a href="PaintSurface">PaintSurface</a></li>
-<li><a href="TriangleVertex">TriangleVertex</a></li>
-<li><a href="UpdateNormals">UpdateNormals</a></li>
-<li><a href="VertexAlpha">VertexAlpha</a></li>
-<li><a href="VertexBlue">VertexBlue</a></li>
-<li><a href="VertexColor">VertexColor</a></li>
-<li><a href="VertexCoords">VertexCoords</a></li>
-<li><a href="VertexGreen">VertexGreen</a></li>
-<li><a href="VertexNormal">VertexNormal</a></li>
-<li><a href="VertexNX">VertexNX</a></li>
-<li><a href="VertexNY">VertexNY</a></li>
-<li><a href="VertexNZ">VertexNZ</a></li>
-<li><a href="VertexRed">VertexRed</a></li>
-<li><a href="VertexTexCoords">VertexTexCoords</a></li>
-<li><a href="VertexU">VertexU</a></li>
-<li><a href="VertexV">VertexV</a></li>
-<li><a href="VertexW">VertexW</a></li>
-<li><a href="VertexX">VertexX</a></li>
-<li><a href="VertexY">VertexY</a></li>
-<li><a href="VertexZ">VertexZ</a></li>
+<li><a href="AddTriangle">AddTriangle</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AddVertex">AddVertex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ClearSurface">ClearSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountSurfaces">CountSurfaces</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountTriangles">CountTriangles</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountVertices">CountVertices</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateSurface">CreateSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FindSurface">FindSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetSurface">GetSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PaintSurface">PaintSurface</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TriangleVertex">TriangleVertex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UpdateNormals">UpdateNormals</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexAlpha">VertexAlpha</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexBlue">VertexBlue</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexColor">VertexColor</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexCoords">VertexCoords</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexGreen">VertexGreen</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexNormal">VertexNormal</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexNX">VertexNX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexNY">VertexNY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexNZ">VertexNZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexRed">VertexRed</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexTexCoords">VertexTexCoords</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexU">VertexU</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexV">VertexV</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexW">VertexW</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexX">VertexX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexY">VertexY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexZ">VertexZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Terrain (10)</summary>
 <ul>
 <li><a href="Blitz3D-Terrain">Overview</a></li>
-<li><a href="CreateTerrain">CreateTerrain</a></li>
-<li><a href="LoadTerrain">LoadTerrain</a></li>
-<li><a href="ModifyTerrain">ModifyTerrain</a></li>
-<li><a href="TerrainDetail">TerrainDetail</a></li>
-<li><a href="TerrainHeight">TerrainHeight</a></li>
-<li><a href="TerrainShading">TerrainShading</a></li>
-<li><a href="TerrainSize">TerrainSize</a></li>
-<li><a href="TerrainX">TerrainX</a></li>
-<li><a href="TerrainY">TerrainY</a></li>
-<li><a href="TerrainZ">TerrainZ</a></li>
+<li><a href="CreateTerrain">CreateTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadTerrain">LoadTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ModifyTerrain">ModifyTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainDetail">TerrainDetail</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainHeight">TerrainHeight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainShading">TerrainShading</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainSize">TerrainSize</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainX">TerrainX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainY">TerrainY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainZ">TerrainZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Textures (51)</summary>
 <ul>
 <li><a href="Blitz3D-Textures">Overview</a></li>
 <li><a href="AtlasTexture">AtlasTexture</a></li>
-<li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
-<li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
-<li><a href="CreateTexture">CreateTexture</a></li>
-<li><a href="FreeSampler">FreeSampler</a> 〔BlitzLLVM〕</li>
-<li><a href="FreeTexture">FreeTexture</a></li>
-<li><a href="GetSamplerAddressModeU">GetSamplerAddressModeU</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerAddressModeV">GetSamplerAddressModeV</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerAddressModeW">GetSamplerAddressModeW</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerAnisotropy">GetSamplerAnisotropy</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerBorderColorA">GetSamplerBorderColorA</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerBorderColorB">GetSamplerBorderColorB</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerBorderColorG">GetSamplerBorderColorG</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerBorderColorR">GetSamplerBorderColorR</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerFilterMag">GetSamplerFilterMag</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerFilterMin">GetSamplerFilterMin</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerFilterMip">GetSamplerFilterMip</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerLodBias">GetSamplerLodBias</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerLodMax">GetSamplerLodMax</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSamplerLodMin">GetSamplerLodMin</a> 〔BlitzLLVM〕</li>
-<li><a href="LoadAnimTexture">LoadAnimTexture</a></li>
+<li><a href="ClearTextureFilters">ClearTextureFilters</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateSampler">CreateSampler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreateTexture">CreateTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeSampler">FreeSampler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="FreeTexture">FreeTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetSamplerAddressModeU">GetSamplerAddressModeU</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerAddressModeV">GetSamplerAddressModeV</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerAddressModeW">GetSamplerAddressModeW</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerAnisotropy">GetSamplerAnisotropy</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerBorderColorA">GetSamplerBorderColorA</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerBorderColorB">GetSamplerBorderColorB</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerBorderColorG">GetSamplerBorderColorG</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerBorderColorR">GetSamplerBorderColorR</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerFilterMag">GetSamplerFilterMag</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerFilterMin">GetSamplerFilterMin</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerFilterMip">GetSamplerFilterMip</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerLodBias">GetSamplerLodBias</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerLodMax">GetSamplerLodMax</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSamplerLodMin">GetSamplerLodMin</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="LoadAnimTexture">LoadAnimTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="LoadAtlas">LoadAtlas</a></li>
-<li><a href="LoadTexture">LoadTexture</a></li>
-<li><a href="PositionTexture">PositionTexture</a></li>
-<li><a href="RotateTexture">RotateTexture</a></li>
-<li><a href="SaveTexture">SaveTexture</a> 〔BlitzLLVM〕</li>
-<li><a href="ScaleTexture">ScaleTexture</a></li>
-<li><a href="SetCubeFace">SetCubeFace</a></li>
-<li><a href="SetCubeMode">SetCubeMode</a></li>
-<li><a href="SetSamplerAddressModeU">SetSamplerAddressModeU</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAddressModeV">SetSamplerAddressModeV</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAddressModeW">SetSamplerAddressModeW</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAnisotropy">SetSamplerAnisotropy</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerBorderColor">SetSamplerBorderColor</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMag">SetSamplerFilterMag</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMin">SetSamplerFilterMin</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMip">SetSamplerFilterMip</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerLodBias">SetSamplerLodBias</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerLodMax">SetSamplerLodMax</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerLodMin">SetSamplerLodMin</a> 〔BlitzLLVM〕</li>
-<li><a href="SetTextureSampler">SetTextureSampler</a> 〔BlitzLLVM〕</li>
-<li><a href="TextureBlend">TextureBlend</a></li>
-<li><a href="TextureBuffer">TextureBuffer</a></li>
-<li><a href="TextureCoords">TextureCoords</a></li>
-<li><a href="TextureFilter">TextureFilter</a></li>
+<li><a href="LoadTexture">LoadTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PositionTexture">PositionTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotateTexture">RotateTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SaveTexture">SaveTexture</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ScaleTexture">ScaleTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetCubeFace">SetCubeFace</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetCubeMode">SetCubeMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeU">SetSamplerAddressModeU</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeV">SetSamplerAddressModeV</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeW">SetSamplerAddressModeW</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAnisotropy">SetSamplerAnisotropy</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerBorderColor">SetSamplerBorderColor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMag">SetSamplerFilterMag</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMin">SetSamplerFilterMin</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMip">SetSamplerFilterMip</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerLodBias">SetSamplerLodBias</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerLodMax">SetSamplerLodMax</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerLodMin">SetSamplerLodMin</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetTextureSampler">SetTextureSampler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="TextureBlend">TextureBlend</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureBuffer">TextureBuffer</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureCoords">TextureCoords</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureFilter">TextureFilter</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="TextureFrameDelay">TextureFrameDelay</a></li>
 <li><a href="TextureFrames">TextureFrames</a></li>
-<li><a href="TextureHeight">TextureHeight</a></li>
-<li><a href="TextureName">TextureName</a></li>
-<li><a href="TextureReady">TextureReady</a> 〔BlitzLLVM〕</li>
-<li><a href="TextureWidth">TextureWidth</a></li>
+<li><a href="TextureHeight">TextureHeight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureName">TextureName</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureReady">TextureReady</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="TextureWidth">TextureWidth</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Transforms (13)</summary>
 <ul>
 <li><a href="Blitz3D-Transforms">Overview</a></li>
-<li><a href="DeltaPitch">DeltaPitch</a></li>
-<li><a href="DeltaYaw">DeltaYaw</a></li>
-<li><a href="ProjectedX">ProjectedX</a></li>
-<li><a href="ProjectedY">ProjectedY</a></li>
-<li><a href="ProjectedZ">ProjectedZ</a></li>
-<li><a href="TFormedX">TFormedX</a></li>
-<li><a href="TFormedY">TFormedY</a></li>
-<li><a href="TFormedZ">TFormedZ</a></li>
-<li><a href="TFormNormal">TFormNormal</a></li>
-<li><a href="TFormPoint">TFormPoint</a></li>
-<li><a href="TFormVector">TFormVector</a></li>
-<li><a href="VectorPitch">VectorPitch</a></li>
-<li><a href="VectorYaw">VectorYaw</a></li>
+<li><a href="DeltaPitch">DeltaPitch</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DeltaYaw">DeltaYaw</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ProjectedX">ProjectedX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ProjectedY">ProjectedY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ProjectedZ">ProjectedZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormedX">TFormedX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormedY">TFormedY</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormedZ">TFormedZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormNormal">TFormNormal</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormPoint">TFormPoint</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormVector">TFormVector</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VectorPitch">VectorPitch</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VectorYaw">VectorYaw</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>World (26)</summary>
 <ul>
 <li><a href="Blitz3D-World">Overview</a></li>
-<li><a href="ActiveTextures">ActiveTextures</a></li>
-<li><a href="AmbientLight">AmbientLight</a></li>
-<li><a href="AntiAlias">AntiAlias</a></li>
-<li><a href="CaptureWorld">CaptureWorld</a></li>
-<li><a href="ClearWorld">ClearWorld</a></li>
-<li><a href="Dither">Dither</a></li>
+<li><a href="ActiveTextures">ActiveTextures</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AmbientLight">AmbientLight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AntiAlias">AntiAlias</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CaptureWorld">CaptureWorld</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ClearWorld">ClearWorld</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Dither">Dither</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="DitherMode">DitherMode</a></li>
 <li><a href="DitherTemporal">DitherTemporal</a></li>
-<li><a href="GetGraphicsHDR">GetGraphicsHDR</a> 〔BlitzLLVM〕</li>
+<li><a href="GetGraphicsHDR">GetGraphicsHDR</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GraphicsOrderIndependentTransparency">GraphicsOrderIndependentTransparency</a></li>
 <li><a href="HWDither">HWDither</a></li>
 <li><a href="HWHDRActive">HWHDRActive</a></li>
 <li><a href="HWHDRPeakNits">HWHDRPeakNits</a></li>
 <li><a href="HWHDRSupported">HWHDRSupported</a></li>
-<li><a href="HWMultiTex">HWMultiTex</a></li>
+<li><a href="HWMultiTex">HWMultiTex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="HWOrderIndependentTransparency">HWOrderIndependentTransparency</a></li>
-<li><a href="HWTexUnits">HWTexUnits</a></li>
+<li><a href="HWTexUnits">HWTexUnits</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="RenderCamera">RenderCamera</a></li>
-<li><a href="RenderWorld">RenderWorld</a></li>
-<li><a href="SetGraphicsHDR">SetGraphicsHDR</a> 〔BlitzLLVM〕</li>
-<li><a href="Stats3D">Stats3D</a></li>
+<li><a href="RenderWorld">RenderWorld</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetGraphicsHDR">SetGraphicsHDR</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Stats3D">Stats3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="TransparencyDistanceSortMode">TransparencyDistanceSortMode</a></li>
-<li><a href="TrisRendered">TrisRendered</a></li>
-<li><a href="UpdateWorld">UpdateWorld</a></li>
-<li><a href="WBuffer">WBuffer</a></li>
-<li><a href="WireFrame">WireFrame</a></li>
+<li><a href="TrisRendered">TrisRendered</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UpdateWorld">UpdateWorld</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WBuffer">WBuffer</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WireFrame">WireFrame</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>
@@ -1157,206 +1157,206 @@
 <li><details><summary>Canvas (7)</summary>
 <ul>
 <li><a href="BlitzPlus-Canvas">Overview</a></li>
-<li><a href="CanvasBuffer">CanvasBuffer</a></li>
-<li><a href="CreateCanvas">CreateCanvas</a></li>
-<li><a href="DesktopBuffer">DesktopBuffer</a></li>
-<li><a href="FlipCanvas">FlipCanvas</a></li>
-<li><a href="LockedFormat">LockedFormat</a></li>
-<li><a href="LockedPitch">LockedPitch</a></li>
-<li><a href="LockedPixels">LockedPixels</a></li>
+<li><a href="CanvasBuffer">CanvasBuffer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateCanvas">CreateCanvas</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DesktopBuffer">DesktopBuffer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FlipCanvas">FlipCanvas</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockedFormat">LockedFormat</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockedPitch">LockedPitch</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockedPixels">LockedPixels</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Dialogs (7)</summary>
 <ul>
 <li><a href="BlitzPlus-Dialogs">Overview</a></li>
-<li><a href="RequestColor">RequestColor</a></li>
-<li><a href="RequestDir">RequestDir</a></li>
-<li><a href="RequestedBlue">RequestedBlue</a></li>
-<li><a href="RequestedGreen">RequestedGreen</a></li>
-<li><a href="RequestedRed">RequestedRed</a></li>
-<li><a href="RequestFile">RequestFile</a></li>
-<li><a href="RequestFont">RequestFont</a></li>
+<li><a href="RequestColor">RequestColor</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestDir">RequestDir</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestedBlue">RequestedBlue</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestedGreen">RequestedGreen</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestedRed">RequestedRed</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestFile">RequestFile</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestFont">RequestFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Events (8)</summary>
 <ul>
 <li><a href="BlitzPlus-Events">Overview</a></li>
-<li><a href="EventData">EventData</a></li>
-<li><a href="EventID">EventID</a></li>
-<li><a href="EventSource">EventSource</a></li>
-<li><a href="EventX">EventX</a></li>
-<li><a href="EventY">EventY</a></li>
-<li><a href="EventZ">EventZ</a></li>
-<li><a href="PeekEvent">PeekEvent</a></li>
-<li><a href="WaitEvent">WaitEvent</a></li>
+<li><a href="EventData">EventData</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EventID">EventID</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EventSource">EventSource</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EventX">EventX</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EventY">EventY</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EventZ">EventZ</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="PeekEvent">PeekEvent</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="WaitEvent">WaitEvent</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Gadgets (50)</summary>
 <ul>
 <li><a href="BlitzPlus-Gadgets">Overview</a></li>
-<li><a href="ActivateGadget">ActivateGadget</a></li>
-<li><a href="AddGadgetItem">AddGadgetItem</a></li>
-<li><a href="ButtonState">ButtonState</a></li>
-<li><a href="ClearGadgetItems">ClearGadgetItems</a></li>
-<li><a href="CountGadgetItems">CountGadgetItems</a></li>
-<li><a href="CreateButton">CreateButton</a></li>
-<li><a href="CreateComboBox">CreateComboBox</a></li>
-<li><a href="CreateHtmlView">CreateHtmlView</a></li>
-<li><a href="CreateLabel">CreateLabel</a></li>
-<li><a href="CreateListBox">CreateListBox</a></li>
-<li><a href="CreatePanel">CreatePanel</a></li>
-<li><a href="CreateProgBar">CreateProgBar</a></li>
-<li><a href="CreateSlider">CreateSlider</a></li>
-<li><a href="CreateTabber">CreateTabber</a></li>
-<li><a href="DisableGadget">DisableGadget</a></li>
-<li><a href="EnableGadget">EnableGadget</a></li>
-<li><a href="FreeGadget">FreeGadget</a></li>
-<li><a href="GadgetFont">GadgetFont</a></li>
-<li><a href="GadgetGroup">GadgetGroup</a></li>
-<li><a href="GadgetHeight">GadgetHeight</a></li>
-<li><a href="GadgetItemText">GadgetItemText</a></li>
-<li><a href="GadgetText">GadgetText</a></li>
-<li><a href="GadgetWidth">GadgetWidth</a></li>
-<li><a href="GadgetX">GadgetX</a></li>
-<li><a href="GadgetY">GadgetY</a></li>
-<li><a href="HideGadget">HideGadget</a></li>
-<li><a href="HtmlViewBack">HtmlViewBack</a></li>
-<li><a href="HtmlViewCurrentURL">HtmlViewCurrentURL</a></li>
-<li><a href="HtmlViewEventURL">HtmlViewEventURL</a></li>
-<li><a href="HtmlViewForward">HtmlViewForward</a></li>
-<li><a href="HtmlViewGo">HtmlViewGo</a></li>
-<li><a href="HtmlViewRun">HtmlViewRun</a></li>
-<li><a href="HtmlViewStatus">HtmlViewStatus</a></li>
-<li><a href="InsertGadgetItem">InsertGadgetItem</a></li>
-<li><a href="ModifyGadgetItem">ModifyGadgetItem</a></li>
-<li><a href="RemoveGadgetItem">RemoveGadgetItem</a></li>
-<li><a href="SelectedGadgetItem">SelectedGadgetItem</a></li>
-<li><a href="SelectGadgetItem">SelectGadgetItem</a></li>
-<li><a href="SetButtonState">SetButtonState</a></li>
-<li><a href="SetGadgetFont">SetGadgetFont</a></li>
-<li><a href="SetGadgetLayout">SetGadgetLayout</a></li>
-<li><a href="SetGadgetShape">SetGadgetShape</a></li>
-<li><a href="SetGadgetText">SetGadgetText</a></li>
-<li><a href="SetPanelColor">SetPanelColor</a></li>
-<li><a href="SetPanelImage">SetPanelImage</a></li>
-<li><a href="SetSliderRange">SetSliderRange</a></li>
-<li><a href="SetSliderValue">SetSliderValue</a></li>
-<li><a href="ShowGadget">ShowGadget</a></li>
-<li><a href="SliderValue">SliderValue</a></li>
-<li><a href="UpdateProgBar">UpdateProgBar</a></li>
+<li><a href="ActivateGadget">ActivateGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="AddGadgetItem">AddGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ButtonState">ButtonState</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ClearGadgetItems">ClearGadgetItems</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CountGadgetItems">CountGadgetItems</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateButton">CreateButton</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateComboBox">CreateComboBox</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateHtmlView">CreateHtmlView</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateLabel">CreateLabel</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateListBox">CreateListBox</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreatePanel">CreatePanel</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateProgBar">CreateProgBar</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateSlider">CreateSlider</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTabber">CreateTabber</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DisableGadget">DisableGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EnableGadget">EnableGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FreeGadget">FreeGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetFont">GadgetFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetGroup">GadgetGroup</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetHeight">GadgetHeight</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetItemText">GadgetItemText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetText">GadgetText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetWidth">GadgetWidth</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetX">GadgetX</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GadgetY">GadgetY</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HideGadget">HideGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewBack">HtmlViewBack</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewCurrentURL">HtmlViewCurrentURL</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewEventURL">HtmlViewEventURL</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewForward">HtmlViewForward</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewGo">HtmlViewGo</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewRun">HtmlViewRun</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewStatus">HtmlViewStatus</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="InsertGadgetItem">InsertGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ModifyGadgetItem">ModifyGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RemoveGadgetItem">RemoveGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SelectedGadgetItem">SelectedGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SelectGadgetItem">SelectGadgetItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetButtonState">SetButtonState</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGadgetFont">SetGadgetFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGadgetLayout">SetGadgetLayout</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGadgetShape">SetGadgetShape</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGadgetText">SetGadgetText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetPanelColor">SetPanelColor</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetPanelImage">SetPanelImage</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetSliderRange">SetSliderRange</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetSliderValue">SetSliderValue</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ShowGadget">ShowGadget</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SliderValue">SliderValue</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="UpdateProgBar">UpdateProgBar</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Menus (9)</summary>
 <ul>
 <li><a href="BlitzPlus-Menus">Overview</a></li>
-<li><a href="CheckMenu">CheckMenu</a></li>
-<li><a href="CreateMenu">CreateMenu</a></li>
-<li><a href="DisableMenu">DisableMenu</a></li>
-<li><a href="EnableMenu">EnableMenu</a></li>
-<li><a href="MenuChecked">MenuChecked</a></li>
-<li><a href="MenuEnabled">MenuEnabled</a></li>
-<li><a href="MenuText">MenuText</a></li>
-<li><a href="SetMenuText">SetMenuText</a></li>
-<li><a href="UncheckMenu">UncheckMenu</a></li>
+<li><a href="CheckMenu">CheckMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateMenu">CreateMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DisableMenu">DisableMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EnableMenu">EnableMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MenuChecked">MenuChecked</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MenuEnabled">MenuEnabled</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MenuText">MenuText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetMenuText">SetMenuText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="UncheckMenu">UncheckMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>System (19)</summary>
 <ul>
 <li><a href="BlitzPlus-System">Overview</a></li>
-<li><a href="ActiveObjects">ActiveObjects</a></li>
-<li><a href="AutoSuspend">AutoSuspend</a></li>
-<li><a href="Confirm">Confirm</a></li>
-<li><a href="CreateProcess">CreateProcess</a></li>
-<li><a href="DebugObjects">DebugObjects</a></li>
-<li><a href="FlushEvents">FlushEvents</a></li>
-<li><a href="FontAscent">FontAscent</a></li>
-<li><a href="FontDescent">FontDescent</a></li>
-<li><a href="FontName">FontName</a></li>
-<li><a href="FontSize">FontSize</a></li>
-<li><a href="FontStyle">FontStyle</a></li>
-<li><a href="HotKeyEvent">HotKeyEvent</a></li>
-<li><a href="Notify">Notify</a></li>
-<li><a href="PauseTimer">PauseTimer</a></li>
-<li><a href="Proceed">Proceed</a></li>
-<li><a href="QueryObject">QueryObject</a></li>
-<li><a href="ResetTimer">ResetTimer</a></li>
-<li><a href="ResumeTimer">ResumeTimer</a></li>
-<li><a href="TimerTicks">TimerTicks</a></li>
+<li><a href="ActiveObjects">ActiveObjects</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="AutoSuspend">AutoSuspend</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Confirm">Confirm</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateProcess">CreateProcess</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DebugObjects">DebugObjects</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FlushEvents">FlushEvents</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FontAscent">FontAscent</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FontDescent">FontDescent</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FontName">FontName</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FontSize">FontSize</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FontStyle">FontStyle</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HotKeyEvent">HotKeyEvent</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Notify">Notify</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="PauseTimer">PauseTimer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Proceed">Proceed</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="QueryObject">QueryObject</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ResetTimer">ResetTimer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ResumeTimer">ResumeTimer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TimerTicks">TimerTicks</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Text Areas (18)</summary>
 <ul>
 <li><a href="BlitzPlus-Text-Areas">Overview</a></li>
-<li><a href="AddTextAreaText">AddTextAreaText</a></li>
-<li><a href="CreateTextArea">CreateTextArea</a></li>
-<li><a href="CreateTextField">CreateTextField</a></li>
-<li><a href="FormatTextAreaText">FormatTextAreaText</a></li>
-<li><a href="LockTextArea">LockTextArea</a></li>
-<li><a href="SetTextAreaColor">SetTextAreaColor</a></li>
-<li><a href="SetTextAreaFont">SetTextAreaFont</a></li>
-<li><a href="SetTextAreaTabs">SetTextAreaTabs</a></li>
-<li><a href="SetTextAreaText">SetTextAreaText</a></li>
-<li><a href="TextAreaChar">TextAreaChar</a></li>
-<li><a href="TextAreaCursor">TextAreaCursor</a></li>
-<li><a href="TextAreaLen">TextAreaLen</a></li>
-<li><a href="TextAreaLine">TextAreaLine</a></li>
-<li><a href="TextAreaLineLen">TextAreaLineLen</a></li>
-<li><a href="TextAreaSelLen">TextAreaSelLen</a></li>
-<li><a href="TextAreaText">TextAreaText</a></li>
-<li><a href="TextFieldText">TextFieldText</a></li>
-<li><a href="UnlockTextArea">UnlockTextArea</a></li>
+<li><a href="AddTextAreaText">AddTextAreaText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTextArea">CreateTextArea</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTextField">CreateTextField</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FormatTextAreaText">FormatTextAreaText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockTextArea">LockTextArea</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetTextAreaColor">SetTextAreaColor</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetTextAreaFont">SetTextAreaFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetTextAreaTabs">SetTextAreaTabs</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetTextAreaText">SetTextAreaText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaChar">TextAreaChar</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaCursor">TextAreaCursor</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaLen">TextAreaLen</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaLine">TextAreaLine</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaLineLen">TextAreaLineLen</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaSelLen">TextAreaSelLen</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextAreaText">TextAreaText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TextFieldText">TextFieldText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="UnlockTextArea">UnlockTextArea</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Toolbars (7)</summary>
 <ul>
 <li><a href="BlitzPlus-Toolbars">Overview</a></li>
-<li><a href="CreateToolBar">CreateToolBar</a></li>
-<li><a href="DisableToolBarItem">DisableToolBarItem</a></li>
-<li><a href="EnableToolBarItem">EnableToolBarItem</a></li>
-<li><a href="FreeIconStrip">FreeIconStrip</a></li>
-<li><a href="LoadIconStrip">LoadIconStrip</a></li>
-<li><a href="SetGadgetIconStrip">SetGadgetIconStrip</a></li>
-<li><a href="SetToolBarTips">SetToolBarTips</a></li>
+<li><a href="CreateToolBar">CreateToolBar</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DisableToolBarItem">DisableToolBarItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="EnableToolBarItem">EnableToolBarItem</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FreeIconStrip">FreeIconStrip</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LoadIconStrip">LoadIconStrip</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGadgetIconStrip">SetGadgetIconStrip</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetToolBarTips">SetToolBarTips</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Tree Views (12)</summary>
 <ul>
 <li><a href="BlitzPlus-Tree-Views">Overview</a></li>
-<li><a href="AddTreeViewNode">AddTreeViewNode</a></li>
-<li><a href="CollapseTreeViewNode">CollapseTreeViewNode</a></li>
-<li><a href="CountTreeViewNodes">CountTreeViewNodes</a></li>
-<li><a href="CreateTreeView">CreateTreeView</a></li>
-<li><a href="ExpandTreeViewNode">ExpandTreeViewNode</a></li>
-<li><a href="FreeTreeViewNode">FreeTreeViewNode</a></li>
-<li><a href="InsertTreeViewNode">InsertTreeViewNode</a></li>
-<li><a href="ModifyTreeViewNode">ModifyTreeViewNode</a></li>
-<li><a href="SelectedTreeViewNode">SelectedTreeViewNode</a></li>
-<li><a href="SelectTreeViewNode">SelectTreeViewNode</a></li>
-<li><a href="TreeViewNodeText">TreeViewNodeText</a></li>
-<li><a href="TreeViewRoot">TreeViewRoot</a></li>
+<li><a href="AddTreeViewNode">AddTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CollapseTreeViewNode">CollapseTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CountTreeViewNodes">CountTreeViewNodes</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTreeView">CreateTreeView</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ExpandTreeViewNode">ExpandTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FreeTreeViewNode">FreeTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="InsertTreeViewNode">InsertTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ModifyTreeViewNode">ModifyTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SelectedTreeViewNode">SelectedTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SelectTreeViewNode">SelectTreeViewNode</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TreeViewNodeText">TreeViewNodeText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="TreeViewRoot">TreeViewRoot</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 </ul>
 </details></li>
 <li><details><summary>Windows (18)</summary>
 <ul>
 <li><a href="BlitzPlus-Windows">Overview</a></li>
-<li><a href="ActivateWindow">ActivateWindow</a></li>
-<li><a href="ActiveWindow">ActiveWindow</a></li>
-<li><a href="ClientHeight">ClientHeight</a></li>
-<li><a href="ClientWidth">ClientWidth</a></li>
-<li><a href="CreateWindow">CreateWindow</a></li>
-<li><a href="Desktop">Desktop</a></li>
-<li><a href="MaximizeWindow">MaximizeWindow</a></li>
-<li><a href="MinimizeWindow">MinimizeWindow</a></li>
-<li><a href="RestoreWindow">RestoreWindow</a></li>
-<li><a href="SetMinWindowSize">SetMinWindowSize</a></li>
-<li><a href="SetStatusText">SetStatusText</a></li>
+<li><a href="ActivateWindow">ActivateWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ActiveWindow">ActiveWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ClientHeight">ClientHeight</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ClientWidth">ClientWidth</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateWindow">CreateWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Desktop">Desktop</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MaximizeWindow">MaximizeWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MinimizeWindow">MinimizeWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RestoreWindow">RestoreWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetMinWindowSize">SetMinWindowSize</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetStatusText">SetStatusText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="SetWindowSizeLimit">SetWindowSizeLimit</a></li>
-<li><a href="UpdateWindowMenu">UpdateWindowMenu</a></li>
-<li><a href="WindowMaximized">WindowMaximized</a></li>
-<li><a href="WindowMenu">WindowMenu</a></li>
-<li><a href="WindowMinimized">WindowMinimized</a></li>
-<li><a href="WindowScale">WindowScale</a> 〔BlitzLLVM〕</li>
-<li><a href="WindowScaling">WindowScaling</a> 〔BlitzLLVM〕</li>
+<li><a href="UpdateWindowMenu">UpdateWindowMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="WindowMaximized">WindowMaximized</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="WindowMenu">WindowMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="WindowMinimized">WindowMinimized</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="WindowScale">WindowScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="WindowScaling">WindowScaling</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>
@@ -1405,347 +1405,347 @@
 </details></li>
 <li><details><summary>Commands (465)</summary>
 <ul>
-<li><a href="ActivateWindow#differences">ActivateWindow</a></li>
-<li><a href="ActiveObjects#differences">ActiveObjects</a></li>
-<li><a href="ActiveWindow#differences">ActiveWindow</a></li>
-<li><a href="AddVertex#differences">AddVertex</a></li>
-<li><a href="AnimateMD2#differences">AnimateMD2</a></li>
-<li><a href="AntiAlias#differences">AntiAlias</a></li>
-<li><a href="AppTitle#differences">AppTitle</a></li>
-<li><a href="AsyncLoading#differences">AsyncLoading</a> 〔BlitzLLVM〕</li>
-<li><a href="AsyncSaving#differences">AsyncSaving</a> 〔BlitzLLVM〕</li>
-<li><a href="AvailVidMem#differences">AvailVidMem</a></li>
+<li><a href="ActivateWindow#differences">ActivateWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ActiveObjects#differences">ActiveObjects</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ActiveWindow#differences">ActiveWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="AddVertex#differences">AddVertex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AnimateMD2#differences">AnimateMD2</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AntiAlias#differences">AntiAlias</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AppTitle#differences">AppTitle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="AsyncLoading#differences">AsyncLoading</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AsyncSaving#differences">AsyncSaving</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AvailVidMem#differences">AvailVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="AvailVidMem64#differences">AvailVidMem64</a></li>
-<li><a href="BrushTexture#differences">BrushTexture</a></li>
-<li><a href="BSPAmbientLight#differences">BSPAmbientLight</a></li>
-<li><a href="BSPLighting#differences">BSPLighting</a></li>
-<li><a href="BufferDirty#differences">BufferDirty</a></li>
-<li><a href="Byte#differences">Byte</a> 〔BlitzLLVM〕</li>
-<li><a href="ByteSwap#differences">ByteSwap</a> 〔BlitzLLVM〕</li>
-<li><a href="CameraFogMode#differences">CameraFogMode</a></li>
-<li><a href="CanvasBuffer#differences">CanvasBuffer</a></li>
-<li><a href="ChannelPan#differences">ChannelPan</a></li>
-<li><a href="ChannelPitch#differences">ChannelPitch</a></li>
-<li><a href="ChannelPlaying#differences">ChannelPlaying</a></li>
-<li><a href="ChannelVolume#differences">ChannelVolume</a></li>
-<li><a href="ClientHeight#differences">ClientHeight</a></li>
-<li><a href="ClientWidth#differences">ClientWidth</a></li>
-<li><a href="CloseMovie#differences">CloseMovie</a></li>
-<li><a href="Collisions#differences">Collisions</a></li>
-<li><a href="CollisionTime#differences">CollisionTime</a></li>
-<li><a href="Confirm#differences">Confirm</a></li>
-<li><a href="CopyPixel#differences">CopyPixel</a></li>
-<li><a href="CopyPixelFast#differences">CopyPixelFast</a></li>
-<li><a href="CopyRect#differences">CopyRect</a></li>
-<li><a href="CountDisplayModes#differences">CountDisplayModes</a> 〔BlitzLLVM〕</li>
-<li><a href="CountDisplays#differences">CountDisplays</a> 〔BlitzLLVM〕</li>
-<li><a href="CountGfxDrivers#differences">CountGfxDrivers</a></li>
-<li><a href="CountGfxModes#differences">CountGfxModes</a></li>
+<li><a href="BrushTexture#differences">BrushTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BSPAmbientLight#differences">BSPAmbientLight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BSPLighting#differences">BSPLighting</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="BufferDirty#differences">BufferDirty</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Byte#differences">Byte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ByteSwap#differences">ByteSwap</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CameraFogMode#differences">CameraFogMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CanvasBuffer#differences">CanvasBuffer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ChannelPan#differences">ChannelPan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelPitch#differences">ChannelPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelPlaying#differences">ChannelPlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ChannelVolume#differences">ChannelVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ClientHeight#differences">ClientHeight</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ClientWidth#differences">ClientWidth</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CloseMovie#differences">CloseMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Collisions#differences">Collisions</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CollisionTime#differences">CollisionTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Confirm#differences">Confirm</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CopyPixel#differences">CopyPixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyPixelFast#differences">CopyPixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CopyRect#differences">CopyRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountDisplayModes#differences">CountDisplayModes</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CountDisplays#differences">CountDisplays</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CountGfxDrivers#differences">CountGfxDrivers</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountGfxModes#differences">CountGfxModes</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="CountHostAddresses#differences">CountHostAddresses</a></li>
-<li><a href="CountHostIPs#differences">CountHostIPs</a></li>
-<li><a href="CountRefreshRates#differences">CountRefreshRates</a> 〔BlitzLLVM〕</li>
-<li><a href="CreateButton#differences">CreateButton</a></li>
-<li><a href="CreateCanvas#differences">CreateCanvas</a></li>
-<li><a href="CreateComboBox#differences">CreateComboBox</a></li>
-<li><a href="CreateCone#differences">CreateCone</a></li>
-<li><a href="CreateCylinder#differences">CreateCylinder</a></li>
-<li><a href="CreateHtmlView#differences">CreateHtmlView</a></li>
-<li><a href="CreateImage#differences">CreateImage</a></li>
-<li><a href="CreateLabel#differences">CreateLabel</a></li>
-<li><a href="CreateListBox#differences">CreateListBox</a></li>
-<li><a href="CreateListener#differences">CreateListener</a></li>
-<li><a href="CreateMenu#differences">CreateMenu</a></li>
-<li><a href="CreatePhysicsBody#differences">CreatePhysicsBody</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsBodyFromEntity#differences">CreatePhysicsBodyFromEntity</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsConeConstraint#differences">CreatePhysicsConeConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsDistanceConstraint#differences">CreatePhysicsDistanceConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsFixedConstraint#differences">CreatePhysicsFixedConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsHingeConstraint#differences">CreatePhysicsHingeConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsPointConstraint#differences">CreatePhysicsPointConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsSliderConstraint#differences">CreatePhysicsSliderConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePhysicsWorld#differences">CreatePhysicsWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="CreatePlane#differences">CreatePlane</a></li>
-<li><a href="CreateSampler#differences">CreateSampler</a> 〔BlitzLLVM〕</li>
-<li><a href="CreateSphere#differences">CreateSphere</a></li>
-<li><a href="CreateTabber#differences">CreateTabber</a></li>
-<li><a href="CreateTCPServer#differences">CreateTCPServer</a></li>
-<li><a href="CreateTerrain#differences">CreateTerrain</a></li>
-<li><a href="CreateTextArea#differences">CreateTextArea</a></li>
-<li><a href="CreateTexture#differences">CreateTexture</a></li>
-<li><a href="CreateToolBar#differences">CreateToolBar</a></li>
-<li><a href="CreateUDPStream#differences">CreateUDPStream</a></li>
-<li><a href="CreateWindow#differences">CreateWindow</a></li>
-<li><a href="DebugObjects#differences">DebugObjects</a></li>
-<li><a href="Desktop#differences">Desktop</a></li>
-<li><a href="DesktopBuffer#differences">DesktopBuffer</a></li>
-<li><a href="DirectInputEnabled#differences">DirectInputEnabled</a></li>
-<li><a href="DisplayDepth#differences">DisplayDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayHeight#differences">DisplayHeight</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeDepth#differences">DisplayModeDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeHeight#differences">DisplayModeHeight</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeRefreshRate#differences">DisplayModeRefreshRate</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayModeWidth#differences">DisplayModeWidth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayName#differences">DisplayName</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayRefreshRate#differences">DisplayRefreshRate</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayScale#differences">DisplayScale</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayWidth#differences">DisplayWidth</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayX#differences">DisplayX</a> 〔BlitzLLVM〕</li>
-<li><a href="DisplayY#differences">DisplayY</a> 〔BlitzLLVM〕</li>
-<li><a href="Double#differences">Double</a> 〔BlitzLLVM〕</li>
-<li><a href="DrawBlockRect#differences">DrawBlockRect</a></li>
-<li><a href="DrawImage#differences">DrawImage</a></li>
-<li><a href="DrawImageRect#differences">DrawImageRect</a></li>
-<li><a href="DrawMovie#differences">DrawMovie</a></li>
-<li><a href="EmitSound#differences">EmitSound</a></li>
-<li><a href="EnableDirectInput#differences">EnableDirectInput</a></li>
-<li><a href="EndGraphics#differences">EndGraphics</a></li>
-<li><a href="EntityDepthFade#differences">EntityDepthFade</a> 〔BlitzLLVM〕</li>
+<li><a href="CountHostIPs#differences">CountHostIPs</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CountRefreshRates#differences">CountRefreshRates</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreateButton#differences">CreateButton</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateCanvas#differences">CreateCanvas</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateComboBox#differences">CreateComboBox</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateCone#differences">CreateCone</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateCylinder#differences">CreateCylinder</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateHtmlView#differences">CreateHtmlView</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateImage#differences">CreateImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateLabel#differences">CreateLabel</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateListBox#differences">CreateListBox</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateListener#differences">CreateListener</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateMenu#differences">CreateMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreatePhysicsBody#differences">CreatePhysicsBody</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsBodyFromEntity#differences">CreatePhysicsBodyFromEntity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsConeConstraint#differences">CreatePhysicsConeConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsDistanceConstraint#differences">CreatePhysicsDistanceConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsFixedConstraint#differences">CreatePhysicsFixedConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsHingeConstraint#differences">CreatePhysicsHingeConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsPointConstraint#differences">CreatePhysicsPointConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsSliderConstraint#differences">CreatePhysicsSliderConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePhysicsWorld#differences">CreatePhysicsWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreatePlane#differences">CreatePlane</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateSampler#differences">CreateSampler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="CreateSphere#differences">CreateSphere</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateTabber#differences">CreateTabber</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTCPServer#differences">CreateTCPServer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateTerrain#differences">CreateTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateTextArea#differences">CreateTextArea</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateTexture#differences">CreateTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateToolBar#differences">CreateToolBar</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="CreateUDPStream#differences">CreateUDPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="CreateWindow#differences">CreateWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DebugObjects#differences">DebugObjects</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Desktop#differences">Desktop</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DesktopBuffer#differences">DesktopBuffer</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="DirectInputEnabled#differences">DirectInputEnabled</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DisplayDepth#differences">DisplayDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayHeight#differences">DisplayHeight</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeDepth#differences">DisplayModeDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeHeight#differences">DisplayModeHeight</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeRefreshRate#differences">DisplayModeRefreshRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayModeWidth#differences">DisplayModeWidth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayName#differences">DisplayName</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayRefreshRate#differences">DisplayRefreshRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayScale#differences">DisplayScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayWidth#differences">DisplayWidth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayX#differences">DisplayX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DisplayY#differences">DisplayY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Double#differences">Double</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="DrawBlockRect#differences">DrawBlockRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawImage#differences">DrawImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawImageRect#differences">DrawImageRect</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="DrawMovie#differences">DrawMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EmitSound#differences">EmitSound</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EnableDirectInput#differences">EnableDirectInput</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EndGraphics#differences">EndGraphics</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="EntityDepthFade#differences">EntityDepthFade</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="EntityLighting#differences">EntityLighting</a></li>
-<li><a href="EntityStatic#differences">EntityStatic</a> 〔BlitzLLVM〕</li>
-<li><a href="EntityTexture#differences">EntityTexture</a></li>
-<li><a href="Flip#differences">Flip</a></li>
-<li><a href="FlipCanvas#differences">FlipCanvas</a></li>
-<li><a href="FlushJoy#differences">FlushJoy</a></li>
-<li><a href="FlushKeys#differences">FlushKeys</a></li>
-<li><a href="FlushMouse#differences">FlushMouse</a></li>
-<li><a href="FontHeight#differences">FontHeight</a></li>
-<li><a href="FontWidth#differences">FontWidth</a></li>
-<li><a href="FormatTextAreaText#differences">FormatTextAreaText</a></li>
-<li><a href="FreeFont#differences">FreeFont</a></li>
-<li><a href="FreeImage#differences">FreeImage</a></li>
-<li><a href="FreePhysicsConstraint#differences">FreePhysicsConstraint</a> 〔BlitzLLVM〕</li>
-<li><a href="FreePhysicsWorld#differences">FreePhysicsWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="FreeSound#differences">FreeSound</a></li>
-<li><a href="FreeTexture#differences">FreeTexture</a></li>
-<li><a href="FrontBuffer#differences">FrontBuffer</a></li>
-<li><a href="GammaBlue#differences">GammaBlue</a></li>
-<li><a href="GammaGreen#differences">GammaGreen</a></li>
-<li><a href="GammaRed#differences">GammaRed</a></li>
-<li><a href="GetBrushTexture#differences">GetBrushTexture</a></li>
+<li><a href="EntityStatic#differences">EntityStatic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="EntityTexture#differences">EntityTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Flip#differences">Flip</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FlipCanvas#differences">FlipCanvas</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FlushJoy#differences">FlushJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FlushKeys#differences">FlushKeys</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FlushMouse#differences">FlushMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FontHeight#differences">FontHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FontWidth#differences">FontWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FormatTextAreaText#differences">FormatTextAreaText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="FreeFont#differences">FreeFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeImage#differences">FreeImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreePhysicsConstraint#differences">FreePhysicsConstraint</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="FreePhysicsWorld#differences">FreePhysicsWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="FreeSound#differences">FreeSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FreeTexture#differences">FreeTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="FrontBuffer#differences">FrontBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaBlue#differences">GammaBlue</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaGreen#differences">GammaGreen</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GammaRed#differences">GammaRed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetBrushTexture#differences">GetBrushTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GetHostAddress#differences">GetHostAddress</a></li>
-<li><a href="GetJoy#differences">GetJoy</a></li>
-<li><a href="GetKey#differences">GetKey</a></li>
-<li><a href="GetMouse#differences">GetMouse</a></li>
-<li><a href="GetMovieTexture#differences">GetMovieTexture</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularDamping#differences">GetPhysicsAngularDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityX#differences">GetPhysicsAngularVelocityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityY#differences">GetPhysicsAngularVelocityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAngularVelocityZ#differences">GetPhysicsAngularVelocityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsAwake#differences">GetPhysicsAwake</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBaumgarte#differences">GetPhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyMotion#differences">GetPhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyShape#differences">GetPhysicsBodyShape</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsBodyWorld#differences">GetPhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsConstraintBroken#differences">GetPhysicsConstraintBroken</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactCount#differences">GetPhysicsContactCount</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactDepth#differences">GetPhysicsContactDepth</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactEntityA#differences">GetPhysicsContactEntityA</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactEntityB#differences">GetPhysicsContactEntityB</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNX#differences">GetPhysicsContactNX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNY#differences">GetPhysicsContactNY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactNZ#differences">GetPhysicsContactNZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactReport#differences">GetPhysicsContactReport</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactSensor#differences">GetPhysicsContactSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactSlop#differences">GetPhysicsContactSlop</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactX#differences">GetPhysicsContactX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactY#differences">GetPhysicsContactY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContactZ#differences">GetPhysicsContactZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContinuous#differences">GetPhysicsContinuous</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsContinuousDefault#differences">GetPhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsDeterministic#differences">GetPhysicsDeterministic</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsFriction#differences">GetPhysicsFriction</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityScale#differences">GetPhysicsGravityScale</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityX#differences">GetPhysicsGravityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityY#differences">GetPhysicsGravityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsGravityZ#differences">GetPhysicsGravityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitDistance#differences">GetPhysicsHitDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitEntity#differences">GetPhysicsHitEntity</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNX#differences">GetPhysicsHitNX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNY#differences">GetPhysicsHitNY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitNZ#differences">GetPhysicsHitNZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitX#differences">GetPhysicsHitX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitY#differences">GetPhysicsHitY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsHitZ#differences">GetPhysicsHitZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLayer#differences">GetPhysicsLayer</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearDamping#differences">GetPhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityX#differences">GetPhysicsLinearVelocityX</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityY#differences">GetPhysicsLinearVelocityY</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsLinearVelocityZ#differences">GetPhysicsLinearVelocityZ</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaskHigh#differences">GetPhysicsMaskHigh</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaskLow#differences">GetPhysicsMaskLow</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMass#differences">GetPhysicsMass</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaxDelta#differences">GetPhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMaxSteps#differences">GetPhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsMode#differences">GetPhysicsMode</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsOverlap#differences">GetPhysicsOverlap</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsPositionIterations#differences">GetPhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsRate#differences">GetPhysicsRate</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsRestitution#differences">GetPhysicsRestitution</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSensor#differences">GetPhysicsSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSleepThreshold#differences">GetPhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSolver#differences">GetPhysicsSolver</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSpeculativeDistance#differences">GetPhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsSubsteps#differences">GetPhysicsSubsteps</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsThreads#differences">GetPhysicsThreads</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsVelocityIterations#differences">GetPhysicsVelocityIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="GetPhysicsWorldSleeping#differences">GetPhysicsWorldSleeping</a> 〔BlitzLLVM〕</li>
-<li><a href="GetSurfaceBrush#differences">GetSurfaceBrush</a></li>
+<li><a href="GetJoy#differences">GetJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetKey#differences">GetKey</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetMouse#differences">GetMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GetMovieTexture#differences">GetMovieTexture</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularDamping#differences">GetPhysicsAngularDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityX#differences">GetPhysicsAngularVelocityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityY#differences">GetPhysicsAngularVelocityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAngularVelocityZ#differences">GetPhysicsAngularVelocityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsAwake#differences">GetPhysicsAwake</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBaumgarte#differences">GetPhysicsBaumgarte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyMotion#differences">GetPhysicsBodyMotion</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyShape#differences">GetPhysicsBodyShape</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsBodyWorld#differences">GetPhysicsBodyWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsConstraintBroken#differences">GetPhysicsConstraintBroken</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactCount#differences">GetPhysicsContactCount</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactDepth#differences">GetPhysicsContactDepth</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactEntityA#differences">GetPhysicsContactEntityA</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactEntityB#differences">GetPhysicsContactEntityB</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNX#differences">GetPhysicsContactNX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNY#differences">GetPhysicsContactNY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactNZ#differences">GetPhysicsContactNZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactReport#differences">GetPhysicsContactReport</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactSensor#differences">GetPhysicsContactSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactSlop#differences">GetPhysicsContactSlop</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactX#differences">GetPhysicsContactX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactY#differences">GetPhysicsContactY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContactZ#differences">GetPhysicsContactZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContinuous#differences">GetPhysicsContinuous</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsContinuousDefault#differences">GetPhysicsContinuousDefault</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsDeterministic#differences">GetPhysicsDeterministic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsFriction#differences">GetPhysicsFriction</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityScale#differences">GetPhysicsGravityScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityX#differences">GetPhysicsGravityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityY#differences">GetPhysicsGravityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsGravityZ#differences">GetPhysicsGravityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitDistance#differences">GetPhysicsHitDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitEntity#differences">GetPhysicsHitEntity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNX#differences">GetPhysicsHitNX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNY#differences">GetPhysicsHitNY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitNZ#differences">GetPhysicsHitNZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitX#differences">GetPhysicsHitX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitY#differences">GetPhysicsHitY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsHitZ#differences">GetPhysicsHitZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLayer#differences">GetPhysicsLayer</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearDamping#differences">GetPhysicsLinearDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityX#differences">GetPhysicsLinearVelocityX</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityY#differences">GetPhysicsLinearVelocityY</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsLinearVelocityZ#differences">GetPhysicsLinearVelocityZ</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaskHigh#differences">GetPhysicsMaskHigh</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaskLow#differences">GetPhysicsMaskLow</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMass#differences">GetPhysicsMass</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaxDelta#differences">GetPhysicsMaxDelta</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMaxSteps#differences">GetPhysicsMaxSteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsMode#differences">GetPhysicsMode</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsOverlap#differences">GetPhysicsOverlap</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsPositionIterations#differences">GetPhysicsPositionIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsRate#differences">GetPhysicsRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsRestitution#differences">GetPhysicsRestitution</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSensor#differences">GetPhysicsSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSleepThreshold#differences">GetPhysicsSleepThreshold</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSolver#differences">GetPhysicsSolver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSpeculativeDistance#differences">GetPhysicsSpeculativeDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsSubsteps#differences">GetPhysicsSubsteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsThreads#differences">GetPhysicsThreads</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsVelocityIterations#differences">GetPhysicsVelocityIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetPhysicsWorldSleeping#differences">GetPhysicsWorldSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetSurfaceBrush#differences">GetSurfaceBrush</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="GetTCPStreamAddress#differences">GetTCPStreamAddress</a></li>
 <li><a href="GetUDPMsgAddress#differences">GetUDPMsgAddress</a></li>
 <li><a href="GetUDPStreamAddress#differences">GetUDPStreamAddress</a></li>
-<li><a href="GfxDriver3D#differences">GfxDriver3D</a></li>
-<li><a href="GfxDriverCaps3D#differences">GfxDriverCaps3D</a></li>
-<li><a href="GfxDriverName#differences">GfxDriverName</a></li>
-<li><a href="GfxModeDepth#differences">GfxModeDepth</a></li>
-<li><a href="GfxModeExists#differences">GfxModeExists</a></li>
-<li><a href="GfxModeFormat#differences">GfxModeFormat</a></li>
-<li><a href="GfxModeHeight#differences">GfxModeHeight</a></li>
-<li><a href="GfxModeWidth#differences">GfxModeWidth</a></li>
-<li><a href="GrabImage#differences">GrabImage</a></li>
-<li><a href="Graphics#differences">Graphics</a></li>
-<li><a href="Graphics3D#differences">Graphics3D</a></li>
-<li><a href="GraphicsDepth#differences">GraphicsDepth</a></li>
-<li><a href="GraphicsFormat#differences">GraphicsFormat</a></li>
-<li><a href="Half#differences">Half</a> 〔BlitzLLVM〕</li>
-<li><a href="HidePointer#differences">HidePointer</a></li>
-<li><a href="HostIP#differences">HostIP</a></li>
-<li><a href="HtmlViewEventURL#differences">HtmlViewEventURL</a></li>
-<li><a href="HtmlViewRun#differences">HtmlViewRun</a></li>
-<li><a href="HtmlViewStatus#differences">HtmlViewStatus</a></li>
-<li><a href="HWMultiTex#differences">HWMultiTex</a></li>
+<li><a href="GfxDriver3D#differences">GfxDriver3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxDriverCaps3D#differences">GfxDriverCaps3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxDriverName#differences">GfxDriverName</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeDepth#differences">GfxModeDepth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeExists#differences">GfxModeExists</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeFormat#differences">GfxModeFormat</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="GfxModeHeight#differences">GfxModeHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GfxModeWidth#differences">GfxModeWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GrabImage#differences">GrabImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Graphics#differences">Graphics</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Graphics3D#differences">Graphics3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsDepth#differences">GraphicsDepth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="GraphicsFormat#differences">GraphicsFormat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Half#differences">Half</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="HidePointer#differences">HidePointer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HostIP#differences">HostIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="HtmlViewEventURL#differences">HtmlViewEventURL</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewRun#differences">HtmlViewRun</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HtmlViewStatus#differences">HtmlViewStatus</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="HWMultiTex#differences">HWMultiTex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="HWRawInput#differences">HWRawInput</a></li>
-<li><a href="ImageBuffer#differences">ImageBuffer</a></li>
-<li><a href="ImagesCollide#differences">ImagesCollide</a></li>
-<li><a href="Include#differences">Include</a></li>
-<li><a href="Input#differences">Input</a></li>
-<li><a href="Int#differences">Int</a></li>
+<li><a href="ImageBuffer#differences">ImageBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ImagesCollide#differences">ImagesCollide</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Include#differences">Include</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Input#differences">Input</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Int#differences">Int</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="JoyChanged#differences">JoyChanged</a></li>
 <li><a href="JoyDeviceConnected#differences">JoyDeviceConnected</a></li>
 <li><a href="JoyDeviceCount#differences">JoyDeviceCount</a></li>
 <li><a href="JoyDeviceName#differences">JoyDeviceName</a></li>
-<li><a href="JoyHat#differences">JoyHat</a></li>
-<li><a href="JoyType#differences">JoyType</a></li>
-<li><a href="JoyWait#differences">JoyWait</a></li>
+<li><a href="JoyHat#differences">JoyHat</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyType#differences">JoyType</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="JoyWait#differences">JoyWait</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="KeyboardChanged#differences">KeyboardChanged</a></li>
 <li><a href="KeyboardDeviceConnected#differences">KeyboardDeviceConnected</a></li>
 <li><a href="KeyboardDeviceCount#differences">KeyboardDeviceCount</a></li>
 <li><a href="KeyboardDeviceName#differences">KeyboardDeviceName</a></li>
-<li><a href="KeyDown#differences">KeyDown</a></li>
-<li><a href="KeyHit#differences">KeyHit</a></li>
+<li><a href="KeyDown#differences">KeyDown</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="KeyHit#differences">KeyHit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="LastJoyDevice#differences">LastJoyDevice</a></li>
 <li><a href="LastKeyboardDevice#differences">LastKeyboardDevice</a></li>
 <li><a href="LastMouseDevice#differences">LastMouseDevice</a></li>
-<li><a href="LeadingZeros#differences">LeadingZeros</a> 〔BlitzLLVM〕</li>
-<li><a href="Load3DSound#differences">Load3DSound</a></li>
-<li><a href="LoadAnimMesh#differences">LoadAnimMesh</a></li>
-<li><a href="LoadAnimTexture#differences">LoadAnimTexture</a></li>
-<li><a href="LoadBSP#differences">LoadBSP</a></li>
-<li><a href="LoadBuffer#differences">LoadBuffer</a></li>
-<li><a href="LoaderMatrix#differences">LoaderMatrix</a></li>
-<li><a href="LoadFont#differences">LoadFont</a></li>
-<li><a href="LoadImage#differences">LoadImage</a></li>
-<li><a href="LoadMesh#differences">LoadMesh</a></li>
-<li><a href="LoadSound#differences">LoadSound</a></li>
-<li><a href="LoadTerrain#differences">LoadTerrain</a></li>
-<li><a href="LoadTexture#differences">LoadTexture</a></li>
-<li><a href="Locate#differences">Locate</a></li>
-<li><a href="LockBuffer#differences">LockBuffer</a></li>
-<li><a href="LockedFormat#differences">LockedFormat</a></li>
-<li><a href="LockedPitch#differences">LockedPitch</a></li>
-<li><a href="LockedPixels#differences">LockedPixels</a></li>
+<li><a href="LeadingZeros#differences">LeadingZeros</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Load3DSound#differences">Load3DSound</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadAnimMesh#differences">LoadAnimMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadAnimTexture#differences">LoadAnimTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadBSP#differences">LoadBSP</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadBuffer#differences">LoadBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoaderMatrix#differences">LoaderMatrix</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadFont#differences">LoadFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadImage#differences">LoadImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadMesh#differences">LoadMesh</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadSound#differences">LoadSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadTerrain#differences">LoadTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LoadTexture#differences">LoadTexture</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Locate#differences">Locate</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LockBuffer#differences">LockBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="LockedFormat#differences">LockedFormat</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockedPitch#differences">LockedPitch</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="LockedPixels#differences">LockedPixels</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="LockMouse#differences">LockMouse</a></li>
-<li><a href="LockTextArea#differences">LockTextArea</a></li>
-<li><a href="Long#differences">Long</a> 〔BlitzLLVM〕</li>
-<li><a href="LoopMovie#differences">LoopMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="LoopSound#differences">LoopSound</a></li>
-<li><a href="MaximizeWindow#differences">MaximizeWindow</a></li>
-<li><a href="MeshCullBox#differences">MeshCullBox</a></li>
-<li><a href="Microseconds#differences">Microseconds</a> 〔BlitzLLVM〕</li>
-<li><a href="MinimizeWindow#differences">MinimizeWindow</a></li>
-<li><a href="ModifyTerrain#differences">ModifyTerrain</a></li>
+<li><a href="LockTextArea#differences">LockTextArea</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="Long#differences">Long</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="LoopMovie#differences">LoopMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="LoopSound#differences">LoopSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MaximizeWindow#differences">MaximizeWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="MeshCullBox#differences">MeshCullBox</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Microseconds#differences">Microseconds</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MinimizeWindow#differences">MinimizeWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ModifyTerrain#differences">ModifyTerrain</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="MouseChanged#differences">MouseChanged</a></li>
 <li><a href="MouseDeviceConnected#differences">MouseDeviceConnected</a></li>
 <li><a href="MouseDeviceCount#differences">MouseDeviceCount</a></li>
 <li><a href="MouseDeviceName#differences">MouseDeviceName</a></li>
-<li><a href="MouseDown#differences">MouseDown</a></li>
-<li><a href="MouseHit#differences">MouseHit</a></li>
-<li><a href="MouseX#differences">MouseX</a></li>
-<li><a href="MouseXSpeed#differences">MouseXSpeed</a></li>
-<li><a href="MouseY#differences">MouseY</a></li>
-<li><a href="MouseYSpeed#differences">MouseYSpeed</a></li>
-<li><a href="MouseZ#differences">MouseZ</a></li>
-<li><a href="MouseZSpeed#differences">MouseZSpeed</a></li>
-<li><a href="MoveMouse#differences">MoveMouse</a></li>
-<li><a href="MovieHeight#differences">MovieHeight</a></li>
-<li><a href="MovieLength#differences">MovieLength</a> 〔BlitzLLVM〕</li>
-<li><a href="MoviePlaying#differences">MoviePlaying</a></li>
-<li><a href="MoviePosition#differences">MoviePosition</a> 〔BlitzLLVM〕</li>
-<li><a href="MovieVolume#differences">MovieVolume</a> 〔BlitzLLVM〕</li>
-<li><a href="MovieWidth#differences">MovieWidth</a></li>
-<li><a href="Notify#differences">Notify</a></li>
-<li><a href="OpenMovie#differences">OpenMovie</a></li>
-<li><a href="OpenTCPStream#differences">OpenTCPStream</a></li>
-<li><a href="PauseChannel#differences">PauseChannel</a></li>
-<li><a href="PauseMovie#differences">PauseMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsAngularDamping#differences">PhysicsAngularDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsAngularVelocity#differences">PhysicsAngularVelocity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyAngularImpulse#differences">PhysicsApplyAngularImpulse</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyForce#differences">PhysicsApplyForce</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyForceAt#differences">PhysicsApplyForceAt</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyImpulse#differences">PhysicsApplyImpulse</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyImpulseAt#differences">PhysicsApplyImpulseAt</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsApplyTorque#differences">PhysicsApplyTorque</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBaumgarte#differences">PhysicsBaumgarte</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBodyMotion#differences">PhysicsBodyMotion</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBodyWorld#differences">PhysicsBodyWorld</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsBoxCast#differences">PhysicsBoxCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsCapsuleCast#differences">PhysicsCapsuleCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintBreakForce#differences">PhysicsConstraintBreakForce</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintLimits#differences">PhysicsConstraintLimits</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintMotor#differences">PhysicsConstraintMotor</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsConstraintSpring#differences">PhysicsConstraintSpring</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContactReport#differences">PhysicsContactReport</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContactSlop#differences">PhysicsContactSlop</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContinuous#differences">PhysicsContinuous</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsContinuousDefault#differences">PhysicsContinuousDefault</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsDeterministic#differences">PhysicsDeterministic</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsFriction#differences">PhysicsFriction</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsGravity#differences">PhysicsGravity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsGravityScale#differences">PhysicsGravityScale</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLayer#differences">PhysicsLayer</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLinearDamping#differences">PhysicsLinearDamping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsLinearVelocity#differences">PhysicsLinearVelocity</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMass#differences">PhysicsMass</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMaxDelta#differences">PhysicsMaxDelta</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMaxSteps#differences">PhysicsMaxSteps</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsMode#differences">PhysicsMode</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsOverlapBox#differences">PhysicsOverlapBox</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsOverlapSphere#differences">PhysicsOverlapSphere</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsPointInside#differences">PhysicsPointInside</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsPositionIterations#differences">PhysicsPositionIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRate#differences">PhysicsRate</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRayCast#differences">PhysicsRayCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsRestitution#differences">PhysicsRestitution</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSensor#differences">PhysicsSensor</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSleeping#differences">PhysicsSleeping</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSleepThreshold#differences">PhysicsSleepThreshold</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSolver#differences">PhysicsSolver</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSpeculativeDistance#differences">PhysicsSpeculativeDistance</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSphereCast#differences">PhysicsSphereCast</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsSubsteps#differences">PhysicsSubsteps</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsThreads#differences">PhysicsThreads</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsUpdate#differences">PhysicsUpdate</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsVelocityIterations#differences">PhysicsVelocityIterations</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsWake#differences">PhysicsWake</a> 〔BlitzLLVM〕</li>
-<li><a href="PhysicsWorldSleeping#differences">PhysicsWorldSleeping</a> 〔BlitzLLVM〕</li>
-<li><a href="PickedTime#differences">PickedTime</a></li>
-<li><a href="PlayCDTrack#differences">PlayCDTrack</a></li>
-<li><a href="PlayMovie#differences">PlayMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="PlayMusic#differences">PlayMusic</a></li>
-<li><a href="PlaySound#differences">PlaySound</a></li>
-<li><a href="PopCount#differences">PopCount</a> 〔BlitzLLVM〕</li>
-<li><a href="Print#differences">Print</a></li>
-<li><a href="Proceed#differences">Proceed</a></li>
+<li><a href="MouseDown#differences">MouseDown</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseHit#differences">MouseHit</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseX#differences">MouseX</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseXSpeed#differences">MouseXSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseY#differences">MouseY</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseYSpeed#differences">MouseYSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseZ#differences">MouseZ</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MouseZSpeed#differences">MouseZSpeed</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoveMouse#differences">MoveMouse</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MovieHeight#differences">MovieHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MovieLength#differences">MovieLength</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MoviePlaying#differences">MoviePlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="MoviePosition#differences">MoviePosition</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MovieVolume#differences">MovieVolume</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="MovieWidth#differences">MovieWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Notify#differences">Notify</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="OpenMovie#differences">OpenMovie</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="OpenTCPStream#differences">OpenTCPStream</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PauseChannel#differences">PauseChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PauseMovie#differences">PauseMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsAngularDamping#differences">PhysicsAngularDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsAngularVelocity#differences">PhysicsAngularVelocity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyAngularImpulse#differences">PhysicsApplyAngularImpulse</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyForce#differences">PhysicsApplyForce</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyForceAt#differences">PhysicsApplyForceAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyImpulse#differences">PhysicsApplyImpulse</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyImpulseAt#differences">PhysicsApplyImpulseAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsApplyTorque#differences">PhysicsApplyTorque</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBaumgarte#differences">PhysicsBaumgarte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBodyMotion#differences">PhysicsBodyMotion</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBodyWorld#differences">PhysicsBodyWorld</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsBoxCast#differences">PhysicsBoxCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsCapsuleCast#differences">PhysicsCapsuleCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintBreakForce#differences">PhysicsConstraintBreakForce</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintLimits#differences">PhysicsConstraintLimits</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintMotor#differences">PhysicsConstraintMotor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsConstraintSpring#differences">PhysicsConstraintSpring</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContactReport#differences">PhysicsContactReport</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContactSlop#differences">PhysicsContactSlop</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContinuous#differences">PhysicsContinuous</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsContinuousDefault#differences">PhysicsContinuousDefault</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsDeterministic#differences">PhysicsDeterministic</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsFriction#differences">PhysicsFriction</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsGravity#differences">PhysicsGravity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsGravityScale#differences">PhysicsGravityScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLayer#differences">PhysicsLayer</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLinearDamping#differences">PhysicsLinearDamping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsLinearVelocity#differences">PhysicsLinearVelocity</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMass#differences">PhysicsMass</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMaxDelta#differences">PhysicsMaxDelta</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMaxSteps#differences">PhysicsMaxSteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsMode#differences">PhysicsMode</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsOverlapBox#differences">PhysicsOverlapBox</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsOverlapSphere#differences">PhysicsOverlapSphere</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsPointInside#differences">PhysicsPointInside</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsPositionIterations#differences">PhysicsPositionIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRate#differences">PhysicsRate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRayCast#differences">PhysicsRayCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsRestitution#differences">PhysicsRestitution</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSensor#differences">PhysicsSensor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSleeping#differences">PhysicsSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSleepThreshold#differences">PhysicsSleepThreshold</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSolver#differences">PhysicsSolver</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSpeculativeDistance#differences">PhysicsSpeculativeDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSphereCast#differences">PhysicsSphereCast</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsSubsteps#differences">PhysicsSubsteps</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsThreads#differences">PhysicsThreads</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsUpdate#differences">PhysicsUpdate</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsVelocityIterations#differences">PhysicsVelocityIterations</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsWake#differences">PhysicsWake</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PhysicsWorldSleeping#differences">PhysicsWorldSleeping</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PickedTime#differences">PickedTime</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlayCDTrack#differences">PlayCDTrack</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlayMovie#differences">PlayMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="PlayMusic#differences">PlayMusic</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PlaySound#differences">PlaySound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="PopCount#differences">PopCount</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Print#differences">Print</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Proceed#differences">Proceed</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="ProfileBegin#differences">ProfileBegin</a></li>
 <li><a href="ProfileEnable#differences">ProfileEnable</a></li>
 <li><a href="ProfileEnd#differences">ProfileEnd</a></li>
@@ -1757,119 +1757,119 @@
 <li><a href="ProfileSample#differences">ProfileSample</a></li>
 <li><a href="ProfileSlow#differences">ProfileSlow</a></li>
 <li><a href="ProfileValue#differences">ProfileValue</a></li>
-<li><a href="ProjectedX#differences">ProjectedX</a></li>
-<li><a href="ProjectedZ#differences">ProjectedZ</a></li>
-<li><a href="QueryObject#differences">QueryObject</a></li>
+<li><a href="ProjectedX#differences">ProjectedX</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ProjectedZ#differences">ProjectedZ</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="QueryObject#differences">QueryObject</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="RawInput#differences">RawInput</a></li>
 <li><a href="RawInputEnabled#differences">RawInputEnabled</a></li>
-<li><a href="ReadPixel#differences">ReadPixel</a></li>
-<li><a href="ReadPixel64#differences">ReadPixel64</a> 〔BlitzLLVM〕</li>
-<li><a href="ReadPixelFast#differences">ReadPixelFast</a></li>
-<li><a href="ReadPixelFast64#differences">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
-<li><a href="RefreshRateAt#differences">RefreshRateAt</a> 〔BlitzLLVM〕</li>
-<li><a href="RenderWorld#differences">RenderWorld</a></li>
-<li><a href="RequestColor#differences">RequestColor</a></li>
-<li><a href="RequestDir#differences">RequestDir</a></li>
-<li><a href="RequestFile#differences">RequestFile</a></li>
-<li><a href="RequestFont#differences">RequestFont</a></li>
-<li><a href="ResizeImage#differences">ResizeImage</a></li>
-<li><a href="ResumeChannel#differences">ResumeChannel</a></li>
-<li><a href="RotL#differences">RotL</a> 〔BlitzLLVM〕</li>
-<li><a href="RotR#differences">RotR</a> 〔BlitzLLVM〕</li>
-<li><a href="RuntimeError#differences">RuntimeError</a></li>
-<li><a href="SatByte#differences">SatByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatInt#differences">SatInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatLong#differences">SatLong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatShort#differences">SatShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUByte#differences">SatUByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUInt#differences">SatUInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatULong#differences">SatULong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUShort#differences">SatUShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SaveBuffer#differences">SaveBuffer</a></li>
-<li><a href="SaveImage#differences">SaveImage</a></li>
-<li><a href="ScaleImage#differences">ScaleImage</a></li>
-<li><a href="ScanLine#differences">ScanLine</a></li>
-<li><a href="SeekMovie#differences">SeekMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="SendUDPMsg#differences">SendUDPMsg</a></li>
+<li><a href="ReadPixel#differences">ReadPixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadPixel64#differences">ReadPixel64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ReadPixelFast#differences">ReadPixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ReadPixelFast64#differences">ReadPixelFast64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RefreshRateAt#differences">RefreshRateAt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RenderWorld#differences">RenderWorld</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RequestColor#differences">RequestColor</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestDir#differences">RequestDir</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestFile#differences">RequestFile</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="RequestFont#differences">RequestFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="ResizeImage#differences">ResizeImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ResumeChannel#differences">ResumeChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="RotL#differences">RotL</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RotR#differences">RotR</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="RuntimeError#differences">RuntimeError</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SatByte#differences">SatByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatInt#differences">SatInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatLong#differences">SatLong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatShort#differences">SatShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUByte#differences">SatUByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUInt#differences">SatUInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatULong#differences">SatULong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SatUShort#differences">SatUShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SaveBuffer#differences">SaveBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SaveImage#differences">SaveImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScaleImage#differences">ScaleImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="ScanLine#differences">ScanLine</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SeekMovie#differences">SeekMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SendUDPMsg#differences">SendUDPMsg</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="SendUDPMsgTo#differences">SendUDPMsgTo</a></li>
-<li><a href="SetBuffer#differences">SetBuffer</a></li>
+<li><a href="SetBuffer#differences">SetBuffer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="SetChannelFalloff#differences">SetChannelFalloff</a></li>
-<li><a href="SetCubeFace#differences">SetCubeFace</a></li>
-<li><a href="SetCubeMode#differences">SetCubeMode</a></li>
+<li><a href="SetCubeFace#differences">SetCubeFace</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetCubeMode#differences">SetCubeMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="SetFalloff#differences">SetFalloff</a></li>
-<li><a href="SetFont#differences">SetFont</a></li>
-<li><a href="SetGadgetFont#differences">SetGadgetFont</a></li>
-<li><a href="SetGamma#differences">SetGamma</a></li>
-<li><a href="SetGfxDriver#differences">SetGfxDriver</a></li>
-<li><a href="SetMenuText#differences">SetMenuText</a></li>
-<li><a href="SetMinWindowSize#differences">SetMinWindowSize</a></li>
-<li><a href="SetSamplerAddressModeU#differences">SetSamplerAddressModeU</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAddressModeV#differences">SetSamplerAddressModeV</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAddressModeW#differences">SetSamplerAddressModeW</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerAnisotropy#differences">SetSamplerAnisotropy</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerBorderColor#differences">SetSamplerBorderColor</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMag#differences">SetSamplerFilterMag</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMin#differences">SetSamplerFilterMin</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerFilterMip#differences">SetSamplerFilterMip</a> 〔BlitzLLVM〕</li>
-<li><a href="SetSamplerLodBias#differences">SetSamplerLodBias</a> 〔BlitzLLVM〕</li>
-<li><a href="SetTextAreaFont#differences">SetTextAreaFont</a></li>
-<li><a href="SetToolBarTips#differences">SetToolBarTips</a></li>
+<li><a href="SetFont#differences">SetFont</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetGadgetFont#differences">SetGadgetFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetGamma#differences">SetGamma</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetGfxDriver#differences">SetGfxDriver</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SetMenuText#differences">SetMenuText</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetMinWindowSize#differences">SetMinWindowSize</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeU#differences">SetSamplerAddressModeU</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeV#differences">SetSamplerAddressModeV</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAddressModeW#differences">SetSamplerAddressModeW</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerAnisotropy#differences">SetSamplerAnisotropy</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerBorderColor#differences">SetSamplerBorderColor</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMag#differences">SetSamplerFilterMag</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMin#differences">SetSamplerFilterMin</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerFilterMip#differences">SetSamplerFilterMip</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetSamplerLodBias#differences">SetSamplerLodBias</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SetTextAreaFont#differences">SetTextAreaFont</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="SetToolBarTips#differences">SetToolBarTips</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="SetWindowSizeLimit#differences">SetWindowSizeLimit</a></li>
-<li><a href="Short#differences">Short</a> 〔BlitzLLVM〕</li>
-<li><a href="ShowPointer#differences">ShowPointer</a></li>
-<li><a href="Single#differences">Single</a> 〔BlitzLLVM〕</li>
-<li><a href="SoundPan#differences">SoundPan</a></li>
-<li><a href="SoundPitch#differences">SoundPitch</a></li>
-<li><a href="SoundVolume#differences">SoundVolume</a></li>
-<li><a href="SpriteDepthFade#differences">SpriteDepthFade</a> 〔BlitzLLVM〕</li>
-<li><a href="SpriteViewMode#differences">SpriteViewMode</a></li>
-<li><a href="StartNetGame#differences">StartNetGame</a></li>
-<li><a href="Stats3D#differences">Stats3D</a></li>
-<li><a href="Step#differences">Step</a></li>
-<li><a href="Stop#differences">Stop</a></li>
-<li><a href="StopChannel#differences">StopChannel</a></li>
-<li><a href="StopMovie#differences">StopMovie</a> 〔BlitzLLVM〕</li>
-<li><a href="StringHeight#differences">StringHeight</a></li>
-<li><a href="StringWidth#differences">StringWidth</a></li>
-<li><a href="SystemProperty#differences">SystemProperty</a></li>
-<li><a href="TCPStreamIP#differences">TCPStreamIP</a></li>
-<li><a href="TerrainDetail#differences">TerrainDetail</a></li>
-<li><a href="TerrainShading#differences">TerrainShading</a></li>
-<li><a href="Text#differences">Text</a></li>
-<li><a href="TextureBlend#differences">TextureBlend</a></li>
-<li><a href="TextureBuffer#differences">TextureBuffer</a></li>
-<li><a href="TextureCoords#differences">TextureCoords</a></li>
-<li><a href="TextureHeight#differences">TextureHeight</a></li>
-<li><a href="TextureName#differences">TextureName</a></li>
-<li><a href="TextureWidth#differences">TextureWidth</a></li>
-<li><a href="TFormImage#differences">TFormImage</a></li>
-<li><a href="TotalVidMem#differences">TotalVidMem</a></li>
-<li><a href="TrailingZeros#differences">TrailingZeros</a> 〔BlitzLLVM〕</li>
-<li><a href="TrisRendered#differences">TrisRendered</a></li>
-<li><a href="UByte#differences">UByte</a> 〔BlitzLLVM〕</li>
-<li><a href="UDPMsgIP#differences">UDPMsgIP</a></li>
-<li><a href="UDPStreamIP#differences">UDPStreamIP</a></li>
-<li><a href="UInt#differences">UInt</a> 〔BlitzLLVM〕</li>
-<li><a href="ULong#differences">ULong</a> 〔BlitzLLVM〕</li>
+<li><a href="Short#differences">Short</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ShowPointer#differences">ShowPointer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Single#differences">Single</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SoundPan#differences">SoundPan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SoundPitch#differences">SoundPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SoundVolume#differences">SoundVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SpriteDepthFade#differences">SpriteDepthFade</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="SpriteViewMode#differences">SpriteViewMode</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StartNetGame#differences">StartNetGame</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Stats3D#differences">Stats3D</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Step#differences">Step</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Stop#differences">Stop</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StopChannel#differences">StopChannel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StopMovie#differences">StopMovie</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="StringHeight#differences">StringHeight</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="StringWidth#differences">StringWidth</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="SystemProperty#differences">SystemProperty</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TCPStreamIP#differences">TCPStreamIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainDetail#differences">TerrainDetail</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TerrainShading#differences">TerrainShading</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Text#differences">Text</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureBlend#differences">TextureBlend</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureBuffer#differences">TextureBuffer</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureCoords#differences">TextureCoords</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureHeight#differences">TextureHeight</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureName#differences">TextureName</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TextureWidth#differences">TextureWidth</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TFormImage#differences">TFormImage</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TotalVidMem#differences">TotalVidMem</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="TrailingZeros#differences">TrailingZeros</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="TrisRendered#differences">TrisRendered</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UByte#differences">UByte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="UDPMsgIP#differences">UDPMsgIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UDPStreamIP#differences">UDPStreamIP</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UInt#differences">UInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ULong#differences">ULong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="UnlockMouse#differences">UnlockMouse</a></li>
-<li><a href="UpdateGamma#differences">UpdateGamma</a></li>
-<li><a href="UpdateWindowMenu#differences">UpdateWindowMenu</a></li>
-<li><a href="UShort#differences">UShort</a> 〔BlitzLLVM〕</li>
-<li><a href="VertexTexCoords#differences">VertexTexCoords</a></li>
-<li><a href="VertexW#differences">VertexW</a></li>
+<li><a href="UpdateGamma#differences">UpdateGamma</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="UpdateWindowMenu#differences">UpdateWindowMenu</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
+<li><a href="UShort#differences">UShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="VertexTexCoords#differences">VertexTexCoords</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="VertexW#differences">VertexW</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="VKeyDown#differences">VKeyDown</a></li>
 <li><a href="VKeyHit#differences">VKeyHit</a></li>
-<li><a href="VWait#differences">VWait</a></li>
-<li><a href="WaitJoy#differences">WaitJoy</a></li>
-<li><a href="WBuffer#differences">WBuffer</a></li>
-<li><a href="WindowScale#differences">WindowScale</a> 〔BlitzLLVM〕</li>
-<li><a href="WindowScaling#differences">WindowScaling</a> 〔BlitzLLVM〕</li>
-<li><a href="WireFrame#differences">WireFrame</a></li>
-<li><a href="Write#differences">Write</a></li>
-<li><a href="WritePixel#differences">WritePixel</a></li>
-<li><a href="WritePixel64#differences">WritePixel64</a> 〔BlitzLLVM〕</li>
-<li><a href="WritePixelFast#differences">WritePixelFast</a></li>
-<li><a href="WritePixelFast64#differences">WritePixelFast64</a> 〔BlitzLLVM〕</li>
+<li><a href="VWait#differences">VWait</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WaitJoy#differences">WaitJoy</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WBuffer#differences">WBuffer</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WindowScale#differences">WindowScale</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="WindowScaling#differences">WindowScaling</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="WireFrame#differences">WireFrame</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="Write#differences">Write</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixel#differences">WritePixel</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixel64#differences">WritePixel64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="WritePixelFast#differences">WritePixelFast</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
+<li><a href="WritePixelFast64#differences">WritePixelFast64</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>

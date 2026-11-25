@@ -9,49 +9,49 @@ Creating, moving, scaling and querying entities.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [AlignToVector](AlignToVector)
-* [CopyEntity](CopyEntity)
-* [CountChildren](CountChildren)
-* [CreatePivot](CreatePivot)
-* [EntityAlpha](EntityAlpha)
-* [EntityAutoFade](EntityAutoFade)
-* [EntityBlend](EntityBlend)
-* [EntityClass](EntityClass)
-* [EntityColor](EntityColor)
-* [EntityDepthFade](EntityDepthFade) 〔BlitzLLVM〕
-* [EntityDistance](EntityDistance)
-* [EntityFX](EntityFX)
-* [EntityInView](EntityInView)
-* [EntityLightChannel](EntityLightChannel) 〔BlitzLLVM〕
+* [AlignToVector](AlignToVector) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CopyEntity](CopyEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CountChildren](CountChildren) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CreatePivot](CreatePivot) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityAlpha](EntityAlpha) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityAutoFade](EntityAutoFade) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityBlend](EntityBlend) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityClass](EntityClass) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityColor](EntityColor) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityDepthFade](EntityDepthFade) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [EntityDistance](EntityDistance) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityFX](EntityFX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityInView](EntityInView) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityLightChannel](EntityLightChannel) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [EntityLighting](EntityLighting)
-* [EntityName](EntityName)
-* [EntityOrder](EntityOrder)
-* [EntityParent](EntityParent)
-* [EntityPitch](EntityPitch)
-* [EntityReady](EntityReady) 〔BlitzLLVM〕
-* [EntityRoll](EntityRoll)
-* [EntityShininess](EntityShininess)
-* [EntityStatic](EntityStatic) 〔BlitzLLVM〕
-* [EntityTexture](EntityTexture)
-* [EntityX](EntityX)
-* [EntityY](EntityY)
-* [EntityYaw](EntityYaw)
-* [EntityZ](EntityZ)
-* [FindChild](FindChild)
-* [FreeEntity](FreeEntity)
-* [GetChild](GetChild)
-* [GetMatElement](GetMatElement)
-* [GetParent](GetParent)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [NameEntity](NameEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
-* [RotateEntity](RotateEntity)
-* [ScaleEntity](ScaleEntity)
+* [EntityName](EntityName) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityOrder](EntityOrder) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityParent](EntityParent) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityPitch](EntityPitch) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityReady](EntityReady) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [EntityRoll](EntityRoll) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityShininess](EntityShininess) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityStatic](EntityStatic) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [EntityTexture](EntityTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityX](EntityX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityY](EntityY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityYaw](EntityYaw) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityZ](EntityZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [FindChild](FindChild) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [FreeEntity](FreeEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetChild](GetChild) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetMatElement](GetMatElement) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetParent](GetParent) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [HideEntity](HideEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [MoveEntity](MoveEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [NameEntity](NameEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PaintEntity](PaintEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PointEntity](PointEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PositionEntity](PositionEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [RotateEntity](RotateEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ScaleEntity](ScaleEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [SetEntityStencil](SetEntityStencil)
 * [SetEntityStencilBack](SetEntityStencilBack)
-* [ShowEntity](ShowEntity)
-* [TranslateEntity](TranslateEntity)
-* [TurnEntity](TurnEntity)
+* [ShowEntity](ShowEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TranslateEntity](TranslateEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TurnEntity](TurnEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

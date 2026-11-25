@@ -9,22 +9,22 @@ Timers, processes, objects and fonts of the operating system.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [ActiveObjects](ActiveObjects)
-* [AutoSuspend](AutoSuspend)
-* [Confirm](Confirm)
-* [CreateProcess](CreateProcess)
-* [DebugObjects](DebugObjects)
-* [FlushEvents](FlushEvents)
-* [FontAscent](FontAscent)
-* [FontDescent](FontDescent)
-* [FontName](FontName)
-* [FontSize](FontSize)
-* [FontStyle](FontStyle)
-* [HotKeyEvent](HotKeyEvent)
-* [Notify](Notify)
-* [PauseTimer](PauseTimer)
-* [Proceed](Proceed)
-* [QueryObject](QueryObject)
-* [ResetTimer](ResetTimer)
-* [ResumeTimer](ResumeTimer)
-* [TimerTicks](TimerTicks)
+* [ActiveObjects](ActiveObjects) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [AutoSuspend](AutoSuspend) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [Confirm](Confirm) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateProcess](CreateProcess) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [DebugObjects](DebugObjects) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FlushEvents](FlushEvents) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FontAscent](FontAscent) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FontDescent](FontDescent) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FontName](FontName) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FontSize](FontSize) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FontStyle](FontStyle) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HotKeyEvent](HotKeyEvent) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [Notify](Notify) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [PauseTimer](PauseTimer) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [Proceed](Proceed) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [QueryObject](QueryObject) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ResetTimer](ResetTimer) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ResumeTimer](ResumeTimer) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TimerTicks](TimerTicks) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

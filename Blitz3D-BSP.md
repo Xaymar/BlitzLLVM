@@ -9,7 +9,7 @@ Quake 3 BSP levels.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [BSPAmbientLight](BSPAmbientLight)
-* [BSPLighting](BSPLighting)
-* [BSPLightmapColor](BSPLightmapColor) 〔BlitzLLVM〕
-* [LoadBSP](LoadBSP)
+* [BSPAmbientLight](BSPAmbientLight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BSPLighting](BSPLighting) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BSPLightmapColor](BSPLightmapColor) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [LoadBSP](LoadBSP) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

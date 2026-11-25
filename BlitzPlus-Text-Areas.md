@@ -9,21 +9,21 @@ Multi-line text editing and formatting.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [AddTextAreaText](AddTextAreaText)
-* [CreateTextArea](CreateTextArea)
-* [CreateTextField](CreateTextField)
-* [FormatTextAreaText](FormatTextAreaText)
-* [LockTextArea](LockTextArea)
-* [SetTextAreaColor](SetTextAreaColor)
-* [SetTextAreaFont](SetTextAreaFont)
-* [SetTextAreaTabs](SetTextAreaTabs)
-* [SetTextAreaText](SetTextAreaText)
-* [TextAreaChar](TextAreaChar)
-* [TextAreaCursor](TextAreaCursor)
-* [TextAreaLen](TextAreaLen)
-* [TextAreaLine](TextAreaLine)
-* [TextAreaLineLen](TextAreaLineLen)
-* [TextAreaSelLen](TextAreaSelLen)
-* [TextAreaText](TextAreaText)
-* [TextFieldText](TextFieldText)
-* [UnlockTextArea](UnlockTextArea)
+* [AddTextAreaText](AddTextAreaText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateTextArea](CreateTextArea) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateTextField](CreateTextField) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FormatTextAreaText](FormatTextAreaText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [LockTextArea](LockTextArea) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetTextAreaColor](SetTextAreaColor) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetTextAreaFont](SetTextAreaFont) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetTextAreaTabs](SetTextAreaTabs) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetTextAreaText](SetTextAreaText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaChar](TextAreaChar) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaCursor](TextAreaCursor) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaLen](TextAreaLen) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaLine](TextAreaLine) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaLineLen](TextAreaLineLen) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaSelLen](TextAreaSelLen) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextAreaText](TextAreaText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [TextFieldText](TextFieldText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [UnlockTextArea](UnlockTextArea) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

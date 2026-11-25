@@ -9,15 +9,15 @@ Reusable material settings applied to meshes, surfaces and entities.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
-* [GetEntityBrush](GetEntityBrush)
-* [GetSurfaceBrush](GetSurfaceBrush)
-* [LoadBrush](LoadBrush)
+* [BrushAlpha](BrushAlpha) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BrushBlend](BrushBlend) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BrushColor](BrushColor) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BrushFX](BrushFX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BrushShininess](BrushShininess) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [BrushTexture](BrushTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CreateBrush](CreateBrush) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [FreeBrush](FreeBrush) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetBrushTexture](GetBrushTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetEntityBrush](GetEntityBrush) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetSurfaceBrush](GetSurfaceBrush) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LoadBrush](LoadBrush) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

@@ -9,11 +9,11 @@ Waiting for and reading window and gadget events.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [EventData](EventData)
-* [EventID](EventID)
-* [EventSource](EventSource)
-* [EventX](EventX)
-* [EventY](EventY)
-* [EventZ](EventZ)
-* [PeekEvent](PeekEvent)
-* [WaitEvent](WaitEvent)
+* [EventData](EventData) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EventID](EventID) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EventSource](EventSource) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EventX](EventX) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EventY](EventY) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EventZ](EventZ) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [PeekEvent](PeekEvent) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [WaitEvent](WaitEvent) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

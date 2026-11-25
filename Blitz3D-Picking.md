@@ -9,18 +9,18 @@ Finding what lies under a point, line or camera position.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CameraPick](CameraPick)
-* [EntityPick](EntityPick)
-* [EntityPickMode](EntityPickMode)
-* [EntityVisible](EntityVisible)
-* [LinePick](LinePick)
-* [PickedEntity](PickedEntity)
-* [PickedNX](PickedNX)
-* [PickedNY](PickedNY)
-* [PickedNZ](PickedNZ)
-* [PickedSurface](PickedSurface)
-* [PickedTime](PickedTime)
-* [PickedTriangle](PickedTriangle)
-* [PickedX](PickedX)
-* [PickedY](PickedY)
-* [PickedZ](PickedZ)
+* [CameraPick](CameraPick) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityPick](EntityPick) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityPickMode](EntityPickMode) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EntityVisible](EntityVisible) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LinePick](LinePick) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedEntity](PickedEntity) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedNX](PickedNX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedNY](PickedNY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedNZ](PickedNZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedSurface](PickedSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedTime](PickedTime) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedTriangle](PickedTriangle) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedX](PickedX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedY](PickedY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PickedZ](PickedZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

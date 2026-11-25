@@ -9,53 +9,53 @@ Buttons, labels, lists, sliders and the other controls.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [ActivateGadget](ActivateGadget)
-* [AddGadgetItem](AddGadgetItem)
-* [ButtonState](ButtonState)
-* [ClearGadgetItems](ClearGadgetItems)
-* [CountGadgetItems](CountGadgetItems)
-* [CreateButton](CreateButton)
-* [CreateComboBox](CreateComboBox)
-* [CreateHtmlView](CreateHtmlView)
-* [CreateLabel](CreateLabel)
-* [CreateListBox](CreateListBox)
-* [CreatePanel](CreatePanel)
-* [CreateProgBar](CreateProgBar)
-* [CreateSlider](CreateSlider)
-* [CreateTabber](CreateTabber)
-* [DisableGadget](DisableGadget)
-* [EnableGadget](EnableGadget)
-* [FreeGadget](FreeGadget)
-* [GadgetFont](GadgetFont)
-* [GadgetGroup](GadgetGroup)
-* [GadgetHeight](GadgetHeight)
-* [GadgetItemText](GadgetItemText)
-* [GadgetText](GadgetText)
-* [GadgetWidth](GadgetWidth)
-* [GadgetX](GadgetX)
-* [GadgetY](GadgetY)
-* [HideGadget](HideGadget)
-* [HtmlViewBack](HtmlViewBack)
-* [HtmlViewCurrentURL](HtmlViewCurrentURL)
-* [HtmlViewEventURL](HtmlViewEventURL)
-* [HtmlViewForward](HtmlViewForward)
-* [HtmlViewGo](HtmlViewGo)
-* [HtmlViewRun](HtmlViewRun)
-* [HtmlViewStatus](HtmlViewStatus)
-* [InsertGadgetItem](InsertGadgetItem)
-* [ModifyGadgetItem](ModifyGadgetItem)
-* [RemoveGadgetItem](RemoveGadgetItem)
-* [SelectedGadgetItem](SelectedGadgetItem)
-* [SelectGadgetItem](SelectGadgetItem)
-* [SetButtonState](SetButtonState)
-* [SetGadgetFont](SetGadgetFont)
-* [SetGadgetLayout](SetGadgetLayout)
-* [SetGadgetShape](SetGadgetShape)
-* [SetGadgetText](SetGadgetText)
-* [SetPanelColor](SetPanelColor)
-* [SetPanelImage](SetPanelImage)
-* [SetSliderRange](SetSliderRange)
-* [SetSliderValue](SetSliderValue)
-* [ShowGadget](ShowGadget)
-* [SliderValue](SliderValue)
-* [UpdateProgBar](UpdateProgBar)
+* [ActivateGadget](ActivateGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [AddGadgetItem](AddGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ButtonState](ButtonState) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ClearGadgetItems](ClearGadgetItems) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CountGadgetItems](CountGadgetItems) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateButton](CreateButton) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateComboBox](CreateComboBox) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateHtmlView](CreateHtmlView) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateLabel](CreateLabel) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateListBox](CreateListBox) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreatePanel](CreatePanel) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateProgBar](CreateProgBar) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateSlider](CreateSlider) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateTabber](CreateTabber) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [DisableGadget](DisableGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EnableGadget](EnableGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FreeGadget](FreeGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetFont](GadgetFont) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetGroup](GadgetGroup) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetHeight](GadgetHeight) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetItemText](GadgetItemText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetText](GadgetText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetWidth](GadgetWidth) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetX](GadgetX) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [GadgetY](GadgetY) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HideGadget](HideGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewBack](HtmlViewBack) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewCurrentURL](HtmlViewCurrentURL) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewEventURL](HtmlViewEventURL) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewForward](HtmlViewForward) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewGo](HtmlViewGo) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewRun](HtmlViewRun) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [HtmlViewStatus](HtmlViewStatus) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [InsertGadgetItem](InsertGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ModifyGadgetItem](ModifyGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RemoveGadgetItem](RemoveGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SelectedGadgetItem](SelectedGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SelectGadgetItem](SelectGadgetItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetButtonState](SetButtonState) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetGadgetFont](SetGadgetFont) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetGadgetLayout](SetGadgetLayout) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetGadgetShape](SetGadgetShape) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetGadgetText](SetGadgetText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetPanelColor](SetPanelColor) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetPanelImage](SetPanelImage) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetSliderRange](SetSliderRange) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetSliderValue](SetSliderValue) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [ShowGadget](ShowGadget) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SliderValue](SliderValue) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [UpdateProgBar](UpdateProgBar) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

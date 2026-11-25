@@ -9,10 +9,10 @@ Toolbars and icon strips.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [CreateToolBar](CreateToolBar)
-* [DisableToolBarItem](DisableToolBarItem)
-* [EnableToolBarItem](EnableToolBarItem)
-* [FreeIconStrip](FreeIconStrip)
-* [LoadIconStrip](LoadIconStrip)
-* [SetGadgetIconStrip](SetGadgetIconStrip)
-* [SetToolBarTips](SetToolBarTips)
+* [CreateToolBar](CreateToolBar) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [DisableToolBarItem](DisableToolBarItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EnableToolBarItem](EnableToolBarItem) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [FreeIconStrip](FreeIconStrip) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [LoadIconStrip](LoadIconStrip) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetGadgetIconStrip](SetGadgetIconStrip) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetToolBarTips](SetToolBarTips) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

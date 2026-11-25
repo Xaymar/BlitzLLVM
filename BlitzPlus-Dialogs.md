@@ -9,10 +9,10 @@ File, folder, color and font requesters and message boxes.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [RequestColor](RequestColor)
-* [RequestDir](RequestDir)
-* [RequestedBlue](RequestedBlue)
-* [RequestedGreen](RequestedGreen)
-* [RequestedRed](RequestedRed)
-* [RequestFile](RequestFile)
-* [RequestFont](RequestFont)
+* [RequestColor](RequestColor) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestDir](RequestDir) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestedBlue](RequestedBlue) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestedGreen](RequestedGreen) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestedRed](RequestedRed) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestFile](RequestFile) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [RequestFont](RequestFont) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

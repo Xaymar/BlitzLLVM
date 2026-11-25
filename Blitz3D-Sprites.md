@@ -9,10 +9,10 @@ Camera-facing sprites.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CreateSprite](CreateSprite)
-* [HandleSprite](HandleSprite)
-* [LoadSprite](LoadSprite)
-* [RotateSprite](RotateSprite)
-* [ScaleSprite](ScaleSprite)
-* [SpriteDepthFade](SpriteDepthFade) 〔BlitzLLVM〕
-* [SpriteViewMode](SpriteViewMode)
+* [CreateSprite](CreateSprite) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [HandleSprite](HandleSprite) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LoadSprite](LoadSprite) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [RotateSprite](RotateSprite) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ScaleSprite](ScaleSprite) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SpriteDepthFade](SpriteDepthFade) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SpriteViewMode](SpriteViewMode) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

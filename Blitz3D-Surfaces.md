@@ -9,32 +9,32 @@ Vertices, triangles and surfaces of a mesh.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [AddTriangle](AddTriangle)
-* [AddVertex](AddVertex)
-* [ClearSurface](ClearSurface)
-* [CountSurfaces](CountSurfaces)
-* [CountTriangles](CountTriangles)
-* [CountVertices](CountVertices)
-* [CreateSurface](CreateSurface)
-* [FindSurface](FindSurface)
-* [GetSurface](GetSurface)
-* [PaintSurface](PaintSurface)
-* [TriangleVertex](TriangleVertex)
-* [UpdateNormals](UpdateNormals)
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
-* [VertexNX](VertexNX)
-* [VertexNY](VertexNY)
-* [VertexNZ](VertexNZ)
-* [VertexRed](VertexRed)
-* [VertexTexCoords](VertexTexCoords)
-* [VertexU](VertexU)
-* [VertexV](VertexV)
-* [VertexW](VertexW)
-* [VertexX](VertexX)
-* [VertexY](VertexY)
-* [VertexZ](VertexZ)
+* [AddTriangle](AddTriangle) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [AddVertex](AddVertex) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ClearSurface](ClearSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CountSurfaces](CountSurfaces) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CountTriangles](CountTriangles) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CountVertices](CountVertices) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CreateSurface](CreateSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [FindSurface](FindSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetSurface](GetSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PaintSurface](PaintSurface) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TriangleVertex](TriangleVertex) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [UpdateNormals](UpdateNormals) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexAlpha](VertexAlpha) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexBlue](VertexBlue) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexColor](VertexColor) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexCoords](VertexCoords) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexGreen](VertexGreen) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexNormal](VertexNormal) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexNX](VertexNX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexNY](VertexNY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexNZ](VertexNZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexRed](VertexRed) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexTexCoords](VertexTexCoords) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexU](VertexU) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexV](VertexV) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexW](VertexW) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexX](VertexX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexY](VertexY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VertexZ](VertexZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

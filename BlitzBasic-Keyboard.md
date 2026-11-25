@@ -9,16 +9,16 @@ Key state, key hits and waiting for keys.
 
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
-* [FlushKeys](FlushKeys)
-* [GetKey](GetKey)
+* [FlushKeys](FlushKeys) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetKey](GetKey) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [KeyboardChanged](KeyboardChanged)
 * [KeyboardDeviceConnected](KeyboardDeviceConnected)
 * [KeyboardDeviceCount](KeyboardDeviceCount)
 * [KeyboardDeviceName](KeyboardDeviceName)
-* [KeyDown](KeyDown)
-* [KeyHit](KeyHit)
-* [KeyWait](KeyWait)
+* [KeyDown](KeyDown) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [KeyHit](KeyHit) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [KeyWait](KeyWait) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [LastKeyboardDevice](LastKeyboardDevice)
 * [VKeyDown](VKeyDown)
 * [VKeyHit](VKeyHit)
-* [WaitKey](WaitKey)
+* [WaitKey](WaitKey) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

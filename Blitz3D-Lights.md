@@ -9,8 +9,8 @@ Light types, color, range and cone angles.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CreateLight](CreateLight)
-* [LightColor](LightColor)
-* [LightConeAngles](LightConeAngles)
-* [LightMesh](LightMesh)
-* [LightRange](LightRange)
+* [CreateLight](CreateLight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LightColor](LightColor) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LightConeAngles](LightConeAngles) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LightMesh](LightMesh) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [LightRange](LightRange) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

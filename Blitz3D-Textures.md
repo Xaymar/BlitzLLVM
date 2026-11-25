@@ -10,53 +10,53 @@ Creating, loading, transforming and filtering textures.
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [AtlasTexture](AtlasTexture)
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateSampler](CreateSampler) 〔BlitzLLVM〕
-* [CreateTexture](CreateTexture)
-* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
-* [FreeTexture](FreeTexture)
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
-* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
-* [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
-* [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
-* [GetSamplerFilterMin](GetSamplerFilterMin) 〔BlitzLLVM〕
-* [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
-* [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕
-* [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
-* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
-* [LoadAnimTexture](LoadAnimTexture)
+* [ClearTextureFilters](ClearTextureFilters) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [CreateSampler](CreateSampler) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [CreateTexture](CreateTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [FreeSampler](FreeSampler) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [FreeTexture](FreeTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [GetSamplerAddressModeU](GetSamplerAddressModeU) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerAddressModeV](GetSamplerAddressModeV) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerAddressModeW](GetSamplerAddressModeW) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerAnisotropy](GetSamplerAnisotropy) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerBorderColorA](GetSamplerBorderColorA) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerBorderColorB](GetSamplerBorderColorB) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerBorderColorG](GetSamplerBorderColorG) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerBorderColorR](GetSamplerBorderColorR) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerFilterMag](GetSamplerFilterMag) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerFilterMin](GetSamplerFilterMin) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerFilterMip](GetSamplerFilterMip) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerLodBias](GetSamplerLodBias) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerLodMax](GetSamplerLodMax) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetSamplerLodMin](GetSamplerLodMin) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [LoadAnimTexture](LoadAnimTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [LoadAtlas](LoadAtlas)
-* [LoadTexture](LoadTexture)
-* [PositionTexture](PositionTexture)
-* [RotateTexture](RotateTexture)
-* [SaveTexture](SaveTexture) 〔BlitzLLVM〕
-* [ScaleTexture](ScaleTexture)
-* [SetCubeFace](SetCubeFace)
-* [SetCubeMode](SetCubeMode)
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
-* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
-* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
-* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
-* [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
-* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
-* [TextureCoords](TextureCoords)
-* [TextureFilter](TextureFilter)
+* [LoadTexture](LoadTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [PositionTexture](PositionTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [RotateTexture](RotateTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SaveTexture](SaveTexture) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [ScaleTexture](ScaleTexture) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SetCubeFace](SetCubeFace) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SetCubeMode](SetCubeMode) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [SetSamplerAddressModeU](SetSamplerAddressModeU) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerAddressModeV](SetSamplerAddressModeV) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerAddressModeW](SetSamplerAddressModeW) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerAnisotropy](SetSamplerAnisotropy) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerBorderColor](SetSamplerBorderColor) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerFilterMag](SetSamplerFilterMag) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerFilterMin](SetSamplerFilterMin) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerFilterMip](SetSamplerFilterMip) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerLodBias](SetSamplerLodBias) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerLodMax](SetSamplerLodMax) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetSamplerLodMin](SetSamplerLodMin) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [SetTextureSampler](SetTextureSampler) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [TextureBlend](TextureBlend) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TextureBuffer](TextureBuffer) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TextureCoords](TextureCoords) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TextureFilter](TextureFilter) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [TextureFrameDelay](TextureFrameDelay)
 * [TextureFrames](TextureFrames)
-* [TextureHeight](TextureHeight)
-* [TextureName](TextureName)
-* [TextureReady](TextureReady) 〔BlitzLLVM〕
-* [TextureWidth](TextureWidth)
+* [TextureHeight](TextureHeight) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TextureName](TextureName) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TextureReady](TextureReady) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [TextureWidth](TextureWidth) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

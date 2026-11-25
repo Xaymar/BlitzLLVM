@@ -9,16 +9,16 @@ Converting points, vectors and normals between entity spaces.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [DeltaPitch](DeltaPitch)
-* [DeltaYaw](DeltaYaw)
-* [ProjectedX](ProjectedX)
-* [ProjectedY](ProjectedY)
-* [ProjectedZ](ProjectedZ)
-* [TFormedX](TFormedX)
-* [TFormedY](TFormedY)
-* [TFormedZ](TFormedZ)
-* [TFormNormal](TFormNormal)
-* [TFormPoint](TFormPoint)
-* [TFormVector](TFormVector)
-* [VectorPitch](VectorPitch)
-* [VectorYaw](VectorYaw)
+* [DeltaPitch](DeltaPitch) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [DeltaYaw](DeltaYaw) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ProjectedX](ProjectedX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ProjectedY](ProjectedY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [ProjectedZ](ProjectedZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormedX](TFormedX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormedY](TFormedY) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormedZ](TFormedZ) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormNormal](TFormNormal) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormPoint](TFormPoint) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [TFormVector](TFormVector) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VectorPitch](VectorPitch) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [VectorYaw](VectorYaw) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">

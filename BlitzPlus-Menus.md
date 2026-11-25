@@ -9,12 +9,12 @@ Window menus and menu items.
 
 Back to [BlitzPlus](BlitzPlus) or the [Command Index](Command-Index).
 
-* [CheckMenu](CheckMenu)
-* [CreateMenu](CreateMenu)
-* [DisableMenu](DisableMenu)
-* [EnableMenu](EnableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+* [CheckMenu](CheckMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [CreateMenu](CreateMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [DisableMenu](DisableMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [EnableMenu](EnableMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [MenuChecked](MenuChecked) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [MenuEnabled](MenuEnabled) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [MenuText](MenuText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [SetMenuText](SetMenuText) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
+* [UncheckMenu](UncheckMenu) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">

@@ -9,8 +9,8 @@ Sound listeners and sounds emitted from entities.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
-* [CreateListener](CreateListener)
-* [EmitSound](EmitSound)
+* [CreateListener](CreateListener) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
+* [EmitSound](EmitSound) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [GetChannelFalloff](GetChannelFalloff)
 * [GetFalloff](GetFalloff)
 * [SetChannelFalloff](SetChannelFalloff)
