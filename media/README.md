@@ -21,3 +21,4 @@ The screenshots of the samples in `samples/` live in `samples/` here, in the sam
 
 * `samples/games/<name>/screenshot-*.png`: screenshots of the sample games.
 * `samples/tutorials/<chapter>/overview.png`: an overview of the programs of each tutorial chapter.
+* `samples/v1.0/<feature>/`: screenshots of each mode of the 1.0 feature samples, and the comparison images made from them (`.svg`, with the screenshots embedded; texture filtering also has a `.png` rendered from it).
