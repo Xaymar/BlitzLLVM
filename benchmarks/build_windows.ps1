@@ -18,7 +18,22 @@ git checkout -q --detach $Commit
 $wanted = "cmake/version", "cmake/externalcontent", "third_party/Vulkan-Headers", "third_party/SDL", "third_party/SDL_image", "third_party/SDL_mixer", "third_party/stb", "third_party/VulkanMemoryAllocator", "third_party/FFmpeg", "third_party/JoltPhysics", "third_party/cgltf"
 $present = @(git ls-files --stage | Where-Object { $_ -match '^160000' } | ForEach-Object { ($_ -split "\t")[1] })
 $ErrorActionPreference = "Continue"
+# The dav1d fix below is undone first, so that the submodule update can check out another dav1d.
+if (Test-Path "third_party/SDL_image/external/dav1d/.git") { git -C third_party/SDL_image/external/dav1d checkout -- include/compat/msvc/stdatomic.h 2>&1 | Out-Null }
 git submodule update --init --jobs 8 ($wanted | Where-Object { $present -contains $_ }) 2>&1 | Out-Null
+# dav1d (in SDL_image) of the older commits has `#if defined(__clang__) && __has_include_next(<stdatomic.h>)` in its MSVC stdatomic.h, which
+# MSVC 14.5x rejects (C7780, C1017: it parses the right side although __clang__ is not defined; older versions only warned). The same
+# test, split so that MSVC only sees __has_include_next in a skipped group, is put into the checkout (a local change only, undone before the
+# next commit).
+$atomics = "third_party/SDL_image/external/dav1d/include/compat/msvc/stdatomic.h"
+if (Test-Path $atomics) {
+    $text = [IO.File]::ReadAllText((Resolve-Path $atomics))
+    $old = "#if defined(__clang__) && __has_include_next(<stdatomic.h>)"
+    if ($text.Contains($old)) {
+        $new = "#if defined(__clang__)`n#  if __has_include_next(<stdatomic.h>)`n#    define DAV1D_MSVC_USE_CLANG_STDATOMIC`n#  endif`n#endif`n#if defined(DAV1D_MSVC_USE_CLANG_STDATOMIC)"
+        [IO.File]::WriteAllText((Resolve-Path $atomics), $text.Replace($old, $new), (New-Object Text.UTF8Encoding $false))
+    }
+}
 $ErrorActionPreference = "Continue"  # cmake and git write progress to stderr, which Windows PowerShell would turn into an error; the exit codes are checked.
 New-Item -ItemType Directory -Force $Out | Out-Null
 $log = Join-Path $Out "build.log"
