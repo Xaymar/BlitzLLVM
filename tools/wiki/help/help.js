@@ -19,21 +19,40 @@
 	function show(el) { if (el) el.hidden = false; }
 
 	// --- Theme: follows the system until picked; auto -> light -> dark -> auto. ---------------------------------
+	// Kept in localStorage, and also carried in the links (?theme=), because Firefox gives every page opened from the
+	// disk its own storage, so there a theme kept only in localStorage is forgotten on the next page.
 	var themeButton = document.querySelector(".theme");
 	var themeNames = { "": "follows the system", light: "light", dark: "dark" };
+	var carry = !!doc.dataset.themeLink;  // Pass the theme on: it came in a link or the reader picked one.
 	function setTheme(t) {
 		if (t) doc.dataset.theme = t; else delete doc.dataset.theme;
 		store("blitzllvm-help-theme", t || null);
 		if (themeButton) themeButton.title = "Theme: " + themeNames[t || ""];
+	}
+	function withTheme(href) {
+		if (!carry || /^(?:[a-z]+:|#|\/\/)/i.test(href)) return href;
+		var hash = "", i = href.indexOf("#");
+		if (i >= 0) { hash = href.slice(i); href = href.slice(0, i); }
+		if (!/\.html?$/.test(href.split("?")[0])) return href + hash;
+		href = href.replace(/([?&])theme=[^&]*&?/, "$1").replace(/[?&]$/, "");
+		return href + (href.indexOf("?") >= 0 ? "&" : "?") + "theme=" + (doc.dataset.theme || "auto") + hash;
 	}
 	if (themeButton) {
 		show(themeButton);
 		setTheme(doc.dataset.theme || "");
 		themeButton.addEventListener("click", function () {
 			var t = doc.dataset.theme || "";
+			carry = true;
 			setTheme(t === "" ? "light" : t === "light" ? "dark" : "");
 		});
 	}
+	// Links get the theme when they are followed, so that the pages themselves stay plain.
+	function carryTheme(e) {
+		var a = e.target.closest && e.target.closest("a[href]");
+		if (a && carry && !a.hasAttribute("download")) a.setAttribute("href", withTheme(a.getAttribute("href")));
+	}
+	document.addEventListener("click", carryTheme, true);
+	document.addEventListener("auxclick", carryTheme, true);
 
 	// --- Menu on small screens. --------------------------------------------------------------------------------------
 	var menu = document.querySelector(".menu-toggle");
@@ -210,7 +229,7 @@
 		else if (e.key === "ArrowUp") { e.preventDefault(); select(selected - 1); }
 		else if (e.key === "Enter") {
 			e.preventDefault();
-			if (selected >= 0 && results[selected]) location.href = root + results[selected][1];
+			if (selected >= 0 && results[selected]) location.href = withTheme(root + results[selected][1]);
 		} else if (e.key === "Escape") { close(); input.blur(); }
 	});
 	document.addEventListener("click", function (e) { if (!e.target.closest(".search")) close(); });

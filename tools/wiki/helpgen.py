@@ -302,8 +302,11 @@ def markdown(text, links, media, level=1, toc=None):
 # --- Page frame ------------------------------------------------------------------------------------------------------
 
 # Sets the theme before the page is drawn, so a dark page never flashes white. The rest of the script is in help.js.
-THEME_BOOT = ("<script>try{var t=localStorage.getItem('blitzllvm-help-theme');"
-              "if(t)document.documentElement.dataset.theme=t}catch(e){}</script>")
+# ?theme= wins over localStorage: Firefox gives every file:// page its own storage, so there the theme is carried
+# from page to page in the links (help.js adds it).
+THEME_BOOT = ("<script>(function(){var d=document.documentElement,m=/[?&]theme=(light|dark|auto)/.exec(location.search),t;"
+              "if(m){t=m[1];d.dataset.themeLink=t}else{try{t=localStorage.getItem('blitzllvm-help-theme')}catch(e){}}"
+              "if(t==='light'||t==='dark')d.dataset.theme=t})()</script>")
 
 PAGE = """<!doctype html>
 <html lang="en" data-root="%(root)s">

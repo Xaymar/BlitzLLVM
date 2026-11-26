@@ -30,7 +30,10 @@ mode, and nothing that works on a small screen. The originals had to run in Inte
 * **Modern HTML5 and CSS.** Semantic elements (`header`, `nav`, `main`, `article`, `section`, `figure`), one style
   sheet with custom properties, system fonts, grid and flex layout.
 * **Light and dark.** Follows the system (`prefers-color-scheme`) until the reader picks one with the button in the
-  top bar; the choice is kept in `localStorage` (when the browser allows it for `file://`).
+  top bar. The choice is kept in `localStorage`, and once picked it is also passed on in the links (`?theme=dark`):
+  Firefox gives every page opened from the disk its own storage, so there `localStorage` alone forgets the theme
+  on the next page. A page opened from outside the help (a bookmark, F1 in an editor) without the parameter falls
+  back to what that page stored, or to the system.
 * **Phones and tablets.** Below 900 pixels the sidebar becomes a drawer behind a menu button. Nothing scrolls sideways
   except wide code and tables, which scroll inside their own box.
 * **Accessible.** Skip link, visible focus, `aria-current` in the sidebar, the search is a combobox with a listbox,
