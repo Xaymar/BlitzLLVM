@@ -266,8 +266,48 @@ Rules, numbered on from the naming rules:
     surface's bounds), and `class` is used where a type has invariants that only its functions may change. No virtual
     calls on paths that run per vertex, per entity or per draw; the backends keep their function table.
 
-These are phase 7 of the plan: formatting first (rules 14 and 15, mechanical), then rules 11, 12 and 16 (namespaces,
-integer types, platform defines: mechanical, one area per PR), then 13, 17 and 18, which change how code is
+Structure layout, counted (Xaymar's second list, 26 Nov):
+
+| Finding | Count |
+| --- | ---: |
+| `alignas` on a struct | 1 in the whole repository (`memory.cpp`, the allocator's `pool`) |
+| `bool` members | 243 in 339 runtime structs; 13 structs have them in three or more separate places, `entity` 13 bools in 11 places, `gfx::state` 21 in 10, `movie` 11 in 5, `surface` 7 in 5 |
+| `int` members that start at 0 or 1 (mostly flags and small modes) | about 285 |
+| `float x[4]` | 97 |
+| matrices as `float[16]`/`[12]`/`[9]` | 122, and 37 more as `float[n][m]` |
+| file names as `std::string` or `const char*` | the runtime has no `std::filesystem` at all; paths go through `files.c` as C strings |
+
+Two corrections to what we might expect from the compiler, because they make the rules below more important rather
+than less:
+
+* **Neither clang nor MSVC reorders struct members**, with or without profile-guided optimization. The order, the
+  padding and the size are fixed by the C++ ABI from the declaration. PGO moves functions and basic blocks, not data.
+  So hot members next to cold ones stay that way unless we move them.
+* **`float[4]` doesn't cause padding by itself**: its alignment is 4, like a `float`. Padding comes from mixing sizes
+  (a `bool` or `uint8_t` before a pointer or a `double` costs up to 7 bytes). MSVC's padding warning (C4820) is off by
+  default as far as I know; C4324 fires only when an `alignas` causes padding. A 16-byte aligned `float[4]` is
+  something we have to ask for, with `alignas(16)` or a vector type that has it.
+
+19. **Hot and cold are separated.** What the per-frame and per-entity loops read is at the start of a struct, together,
+    and what is only read on creation, by commands or for debugging goes after it or into a part of its own. The order
+    is decided from a profile, not guessed, and written down in a comment above the struct.
+20. **Flags are packed.** `bool`s and small modes sit together at the end of their group, as `uint8_t` fields or one
+    bit set, never between pointers and floats. A value that can only be 0 to 6 is a `uint8_t` or an `enum class : uint8_t`
+    where it is stored; it is converted where it comes from a program (rule 10). Smaller is not automatically faster
+    (byte loads and stores of neighbouring flags), so hot structs measure it.
+21. **Alignment is asked for where it pays.** `alignas(16)` on the vector and matrix types where SIMD reads them,
+    `alignas(64)` on data that threads write (false sharing) and on per-element arrays that are streamed. Not on
+    everything: padding small Blitz objects from 44 to 64 bytes made `For Each` 10 to 20% slower in the cache-line
+    survey (25 Nov). Each `alignas` on a hot struct comes with a `static_assert` on its size.
+22. **Paths are `std::filesystem::path`** inside C++ code, converted once from the program's string where it enters
+    the runtime, with the case-insensitive and backslash handling of `files.c` kept as it is today.
+
+The hot structures (`entity`, `surface`, the vertex, the collision and broad-phase types, texture entries) are laid out
+by the optimization work with measurements; the cleanup applies rules 19 to 21 to the rest (`gfx::state`, `gadget`,
+`movie`, `image_recipe`, the backend states) and does not touch what that work has measured.
+
+These are phase 7 of the plan: formatting first (rules 14 and 15, mechanical), then rules 11, 12, 16 and 22 (namespaces,
+integer types, platform defines, paths: mechanical, one area per PR), then 13 and 17 to 21, which change how code is
 written and so go area by area with the usual tests, and with numbers from a physical machine for the hot paths.
 
 ## File-local code
