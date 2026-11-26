@@ -283,10 +283,13 @@ than less:
 * **Neither clang nor MSVC reorders struct members**, with or without profile-guided optimization. The order, the
   padding and the size are fixed by the C++ ABI from the declaration. PGO moves functions and basic blocks, not data.
   So hot members next to cold ones stay that way unless we move them.
-* **`float[4]` doesn't cause padding by itself**: its alignment is 4, like a `float`. Padding comes from mixing sizes
-  (a `bool` or `uint8_t` before a pointer or a `double` costs up to 7 bytes). MSVC's padding warning (C4820) is off by
-  default as far as I know; C4324 fires only when an `alignas` causes padding. A 16-byte aligned `float[4]` is
-  something we have to ask for, with `alignas(16)` or a vector type that has it.
+* **A `float[4]` member is never padded or moved to a 16-byte boundary because the compiler thinks it would be
+  better.** Inside a struct it keeps the alignment of `float` (4), wherever that puts it, so a `float[4]` at offset 4
+  is split across 16-byte lines on every access. Compilers only raise alignment on their own for whole variables they
+  own (a global, or an array on the stack, which LLVM may align to 16 for vector code), never for members. Padding in a
+  struct comes from the ABI rules alone (a `bool` before a pointer costs up to 7 bytes). MSVC's padding warning (C4820)
+  is off by default as far as I know; C4324 fires only when an `alignas` causes padding. A 16-byte aligned `float[4]`
+  member is something we have to ask for, with `alignas(16)` or a vector type that has it.
 
 19. **Hot and cold are separated.** What the per-frame and per-entity loops read is at the start of a struct, together,
     and what is only read on creation, by commands or for debugging goes after it or into a part of its own. The order
