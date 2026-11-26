@@ -9,7 +9,7 @@ namespace blitz::lsp {
 	namespace {
 		bool is_sigil(char c)
 		{
-			return c == '%' || c == '#' || c == '$' || c == '!' || c == '~' || c == '@' || c == '|' || c == '^';
+			return c == '%' || c == '#' || c == '$' || c == '&' || c == '!' || c == '~' || c == '@' || c == '|' || c == '^';
 		}
 
 		const char* type_of(char sigil)
@@ -18,8 +18,9 @@ namespace blitz::lsp {
 			case '%': return "Int";
 			case '#': return "Float";
 			case '$': return "String";
+			case '&': return "UInt64";
 			case '!': return "Int64";
-			case '~': return "UInt64";
+			case '~': return "Float16";
 			case '@': return "FloatVector4";
 			case '|': return "FloatMatrix4x3";
 			case '^': return "FloatMatrix4x4";
