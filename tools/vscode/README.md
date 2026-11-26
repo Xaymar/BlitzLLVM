@@ -45,4 +45,4 @@ code --install-extension blitzllvm-0.1.0.vsix
 
 ## Tests
 
-`node test/lsp_smoke.js <path of blitz-lsp> [tests/suite/functions.txt]` starts the server and talks to it like the editor does (ctest runs it as `lsp-smoke`).
+`node test/lsp_smoke.js <path of blitz-lsp> [functions.txt]` starts the server and talks to it like the editor does (ctest runs it as `lsp-smoke`). The optional list of functions is written by `python3 tools/suite_functions.py list functions.txt`.
