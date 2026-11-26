@@ -4,7 +4,7 @@
 # Modern mode: `;#pragma` lines
 
 Status: design, for 2.0. Nothing of this is implemented yet. Scope (the main file decides), the meaning of `modern` (always the
-newest set), the `;#` prefix and C-like warning pragmas are decided; the other open questions at the end need an answer from Xaymar before the
+newest set), the `;#` prefix, the placement and C-like warning pragmas are decided; the other open questions at the end need an answer from Xaymar before the
 implementation PRs start.
 
 ## Why
@@ -110,8 +110,10 @@ be anywhere in a file and apply from their line on, so a single block can be sil
 | `Wno-<name>`, `warning(disable: <name>)` | `-Wno-<name>` | Turn one warning off. |
 | `Werror` | `-Werror` | Every warning is an error. |
 | `Werror=<name>`, `warning(error: <name>)` | `-Werror=<name>` | Make one warning an error. |
-| `Wno-error=<name>` | `-Wno-error=<name>` | Make one warning a warning again. |
+| `Werror=<name>`, `error(enable: <name>)` | `-Werror=<name>` | Make one warning an error (same as the row above). |
+| `Wno-error=<name>`, `error(disable: <name>)` | `-Wno-error=<name>` | Make one warning a warning again. |
 | `warning(push)`, `warning(pop)` | | Save the warning settings, and go back to the saved ones. |
+| `error(push)`, `error(pop)` | | The same, for which warnings are errors. |
 
 ```blitzbasic
 ;#pragma modern Wno-implicit-lossy-real-to-int
@@ -124,7 +126,9 @@ End Type
 ;#pragma warning(pop)
 ```
 
-`warning(...)` can list several names, separated by spaces or commas. A `pop` without a `push` is the new warning
+`warning(...)` and `error(...)` can list several names, separated by spaces or commas. Warnings only have names today;
+if they get numbers later, a number works wherever a name does. `warning(push)` and `error(push)` save all warning
+settings on the same stack, so either `pop` goes back to the last `push` of either kind. A `pop` without a `push` is the new warning
 `pragma-pop-unmatched` (level 1) and does nothing; a `push` that is never popped is fine.
 
 A warning belongs to the file and line of the place it points at (the line and column it reports). Unlike the feature
@@ -309,8 +313,7 @@ Show NextN(), NextN(), NextN()
 3. ~~**A growing `modern`**~~: decided by Xaymar (26 Nov 2026): `modern` always means the newest set, with a pragma
    per feature (and per warning) to turn single things on or off. No editions.
 4. **`--ignore-pragmas`**: wanted now, later, or not at all?
-5. **Placement**: is "only in the comments before the first statement" right, or should a pragma be allowed anywhere
-   before the first statement *of its kind* (for example after the `Include` lines)? Warning pragmas are positional
-   and allowed anywhere either way.
+5. ~~**Placement**~~: decided by Xaymar (26 Nov 2026): pragmas that change how the program is compiled must come
+   before the first real statement; warning and error pragmas can be anywhere.
 6. ~~**Warnings and Include**~~: decided by Xaymar (26 Nov 2026): like in C, warning settings carry into and out of
    `Include`d files; `push`/`pop` keeps them local.
