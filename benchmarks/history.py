@@ -88,6 +88,7 @@ SETS = {
     "quick": "compile,emitted,flythrough,waterfall,dungeon,forest",
     "real": "forest_full,spacebattle,spacebattle_physics",
 }
+FRAME_TIMEOUT = 1.0  # --frame-timeout: seconds per frame a scene benchmark may take
 FRAMES = 0  # --frames: the frames of every scene benchmark instead of its own number (0 keeps them)
 GPU = os.environ.get("BENCH_GPU", "0")  # --gpu and --depth: SetGfxDriver and the depth of Graphics3D, passed to every scene benchmark
 DEPTH = os.environ.get("BENCH_DEPTH", "0")
@@ -219,9 +220,9 @@ def bench_scene(compiler, name, runs):
                 env["BENCH_FRAMES"] = str(FRAMES)
             if os.path.isfile(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds")):
                 env["BENCH_MODEL"] = compiler.native_path(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds"))
-            # A second per frame is the most a run may take: the original draws the 3000 frames of the forest at about 300 ms each on
-            # the integrated GPU of a laptop.
-            cpu, wall, out, code = run_program(compiler, program, env, d, timeout=max(900, int(env["BENCH_FRAMES"])))
+            # FRAME_TIMEOUT seconds per frame (1 by default, --frame-timeout) is the most a run may take: the original draws the 3000
+            # frames of the forest at over a second each on the integrated GPU of a laptop (Shibela).
+            cpu, wall, out, code = run_program(compiler, program, env, d, timeout=max(900, int(int(env["BENCH_FRAMES"]) * FRAME_TIMEOUT)))
             if not os.path.isfile(result_file):
                 raise RuntimeError("no result (exit %s): %s" % (code, out[-300:]))
             r = parse_result(result_file)
@@ -510,7 +511,7 @@ BENCHMARKS = {
 
 
 def main():
-    global QUICK, FRAMES, GPU, DEPTH
+    global QUICK, FRAMES, GPU, DEPTH, FRAME_TIMEOUT
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--blitzcc")
     parser.add_argument("--wine", action="store_true", help="the original Blitz3D under Wine (tools/original_blitz3d.sh setup)")
@@ -526,8 +527,10 @@ def main():
     parser.add_argument("--depth", default=DEPTH, help="the graphics depth of every scene benchmark ($BENCH_DEPTH, 0 is what the program picks)")
     parser.add_argument("--runs-for", action="append", default=[], metavar="NAME=N",
                         help="another number of runs for one benchmark (the original's forest on a laptop's integrated GPU: forest_full=1)")
+    parser.add_argument("--frame-timeout", type=float, default=FRAME_TIMEOUT, help="seconds per frame a scene benchmark run may take (default 1)")
     parser.add_argument("--out")
     args = parser.parse_args()
+    FRAME_TIMEOUT = args.frame_timeout
     runs_for = {k: int(v) for k, v in (item.split("=", 1) for item in args.runs_for)}
     FRAMES, GPU, DEPTH = args.frames, str(args.gpu), str(args.depth)
     if args.quick or args.set == "quick":
