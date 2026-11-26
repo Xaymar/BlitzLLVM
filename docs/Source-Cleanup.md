@@ -319,6 +319,15 @@ than less:
     case the handle lookups protect against today, so each conversion says in its PR why the pointer can't outlive the
     object.
 
+24. **No undefined behaviour for the optimizer to use.** The optimizations that turned past bugs into CVEs or into
+    paths that never return all start from UB: a null check after a dereference is dropped, a loop without side
+    effects is assumed to end, a signed overflow or an out-of-range shift is assumed not to happen, a value read
+    through a pointer of another type is assumed not to change. So: bits are reinterpreted with `std::bit_cast` or
+    `memcpy`, never through a cast pointer or a union; checks come before the access they guard; arithmetic that can
+    wrap is done in unsigned types. Today no build of the repository runs a sanitizer. A Linux CI job with
+    `-fsanitize=address,undefined` over the test suite comes in phase 1, before the moves and before whole-runtime
+    ThinLTO, which Runtime-LTO.md already warns can expose UB that the prebuilt library hides.
+
 Xaymar's summary of all of it (26 Nov): the runtime is mostly C with a C++ frame around it, so the cleanup is largely
 turning it into C++: real structs and classes with their own functions, pointers instead of handles inside the
 runtime, shared types.
@@ -397,7 +406,8 @@ Every PR in the plan:
 3. `api.h` (in the flat folder for now, `core/api.h` after the moves): the cross-file `bb_` declarations, removing the 125
    hand-written ones. This is the only step in phase 1 that touches many files, and it can find real mismatches; any it
    finds are fixed in a commit of their own and named in the PR.
-4. Fix the wrong and missing first comments (`userlib.c`, `graphics_streaming.cpp`, `graphics_presenter.cpp`,
+4. A sanitizer job (ASan and UBSan, Linux, the test suite) in CI, see rule 24. Findings are fixed one per PR.
+5. Fix the wrong and missing first comments (`userlib.c`, `graphics_streaming.cpp`, `graphics_presenter.cpp`,
    `rhi.hpp`, and the files with none).
 
 ### Phase 2: moves, one folder per PR
