@@ -151,6 +151,24 @@ harmless, and it only works for the warning it names.
 
 `pragma-unknown` also covers unknown warning names, so a warning that a newer BlitzLLVM added doesn't break an older one.
 
+### Decided for later
+
+Features Xaymar decided on that join the modern set once modern mode exists, each in its own PR:
+
+* `entity-overrides` (Xaymar, 26 Nov 2026, from the masked texture work in
+  [#713](https://github.com/Xaymar/BlitzLLVM/pull/713)): what the program sets with `EntityFX`, `EntityColor`,
+  `EntityAlpha` and `EntityShininess` replaces the values of the brushes of the model and its surfaces. Without it the
+  original combining stays: the FX flags are OR'd, color and alpha are multiplied, shininess is added. Textures and
+  blend modes already follow the original in #713 and are not part of it. It is a runtime behaviour, so the compiler
+  hands the setting of the program to the runtime when the program starts (like `--blitzplus` does).
+
+```blitzbasic
+;#pragma modern
+mesh = LoadMesh("ship.b3d") ; Its brush has color 255,0,0 and alpha 0.5.
+EntityColor mesh, 0, 255, 0 ; Green (modern), instead of black (red times green, original).
+EntityAlpha mesh, 1.0       ; Fully opaque (modern), instead of 0.5 (original).
+```
+
 ### Later candidates
 
 Not part of this design, only listed to check that the scheme has room for them. Each would get its own design first.
