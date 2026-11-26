@@ -45,6 +45,8 @@ namespace {
 
 	bb::rhi::pipeline_layout layout;
 	bb::rhi::pipeline pipeline;
+	bb::rhi::pipeline pipeline_float; // The same for a picture in 16 bit floating point, for a window in HDR.
+	bool  noise_uploaded = false;     // Whether the first row of the table says that the noise is on.
 	bb::rhi::gpu_buffer table_buffer;
 	float*           table_mapped = nullptr;
 	bb::rhi::binding_group  table_set;
@@ -224,6 +226,7 @@ namespace {
 		bb::rhi::shader vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		bb::rhi::shader fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
 		pipeline          = create_fullscreen_pipeline(vs, fs, layout, bb::rhi::format::rgba8);
+		pipeline_float    = create_fullscreen_pipeline(vs, fs, layout, bb::rhi::format::rgba16f);
 		destroy_shader(vs);
 		destroy_shader(fs);
 
@@ -347,7 +350,7 @@ namespace bb::gfx {
 	bool gamma_plain()
 	{
 		need_gamma();
-		return is_identity() && !palette_mode(); // Dither is no matter: its noise is for the rounding to 8 bits, which the HDR picture does not have.
+		return is_identity() && !palette_mode(); // Dither is no matter here: the HDR pass adds its own noise, for the bit depth of the display.
 	}
 
 	gpu_image* apply_gamma(gpu_image& front)
@@ -356,7 +359,10 @@ namespace bb::gfx {
 		bool identity = is_identity();
 		// A buffer of more than 8 bits per channel is always converted here, so that the picture is RGBA8 and Dither has something to hide.
 		bool palettized = palette_mode();
-		if (identity && (dither == 0) && !dump_path() && (front.format == bb::rhi::format::rgba8) && !palettized) {
+		// A window in HDR gets the picture of the tables in 16 bit floating point instead of 8 bits: it is shown with that precision, and there is
+		// no rounding to 8 bits that Dither would have to hide, so only the end of an 8 bit window rounds and dithers. A palette is 8 bits.
+		bool floating = (surface().chain.hdr || hdr_test()) && !palettized && !dump_path();
+		if (identity && ((dither == 0) || floating) && !dump_path() && (front.format == bb::rhi::format::rgba8) && !palettized) {
 			return &front;
 		}
 		if (!pipeline) {
@@ -367,7 +373,11 @@ namespace bb::gfx {
 		}
 		// A buffer with fewer than 8 bits per channel is shown exactly, so the noise of 8 bits would only spoil it.
 		// With a palette the shaders of 3D have dithered already, to the palette.
-		bool noise = (dither > 0) && !packed_layout_of(front.format) && !palettized;
+		bool noise = (dither > 0) && !packed_layout_of(front.format) && !palettized && !floating;
+		if (noise != noise_uploaded) {
+			noise_uploaded = noise;
+			changed        = true;
+		}
 		if (changed) {
 			changed = false;
 			wait_gpu(); // The frame before may still read the tables.
@@ -384,10 +394,11 @@ namespace bb::gfx {
 			write_descriptor(front_set, front.view, g.sampler);
 			front_view = front.view;
 		}
-		if ((shown.width != front.width) || (shown.height != front.height)) {
+		bb::rhi::format target = floating ? bb::rhi::format::rgba16f : bb::rhi::format::rgba8;
+		if ((shown.width != front.width) || (shown.height != front.height) || (shown.format != target)) {
 			wait_gpu(); // The frame before may still read it.
 			destroy_image(shown);
-			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_sampled); // The HDR pass samples it.
+			shown = create_image(front.width, front.height, bb::rhi::image_color_target | bb::rhi::image_copy_source | bb::rhi::image_sampled, target); // The HDR pass samples it.
 		}
 
 		barrier(front.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
@@ -405,7 +416,7 @@ namespace bb::gfx {
 		pass.scissor[3]     = int32_t(shown.height);
 		bb::rhi::begin_pass(pass);
 		bb::rhi::pipeline_layout used = palettized ? palette_layout : layout;
-		bb::rhi::bind_pipeline(palettized ? palette_pipeline : pipeline, bb::rhi::format::undefined);
+		bb::rhi::bind_pipeline(palettized ? palette_pipeline : (floating ? pipeline_float : pipeline), bb::rhi::format::undefined);
 		uint32_t offset = 0;
 		bb::rhi::bind_group(used, 0, front_set);
 		bb::rhi::bind_group_at(used, 1, table_set, offset);
@@ -485,6 +496,8 @@ namespace bb::gfx {
 		}
 		if (pipeline) {
 			bb::rhi::destroy_pipeline(pipeline);
+			bb::rhi::destroy_pipeline(pipeline_float);
+			pipeline_float = bb::rhi::pipeline();
 			layout = bb::rhi::pipeline_layout();
 			bb::rhi::destroy_buffer(table_buffer);
 			pipeline   = bb::rhi::pipeline();

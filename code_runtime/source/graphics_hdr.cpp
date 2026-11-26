@@ -101,6 +101,7 @@ namespace {
 		bool  hdr      = false; // The window is on a display that has HDR switched on.
 		float white    = 0.0f;
 		float headroom = 1.0f;
+		int   bits     = 0;    // The bit depth per channel that the system says the display is driven with (0 when it does not say).
 	};
 
 #ifdef _WIN32
@@ -118,9 +119,10 @@ namespace {
 		ULONG                            level; // 1000 is 80 nits.
 	};
 
-	bool windows_hdr(HWND hwnd, bool& hdr, float& white_nits_out, float& peak_nits_out)
+	bool windows_hdr(HWND hwnd, bool& hdr, float& white_nits_out, float& peak_nits_out, int& bits_out)
 	{
 		hdr             = false;
+		bits_out        = 0;
 		white_nits_out  = 0.0f;
 		peak_nits_out   = 0.0f;
 		HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
@@ -162,6 +164,7 @@ namespace {
 			color.header.id           = paths[i].targetInfo.id;
 			if (DisplayConfigGetDeviceInfo(&color.header) == ERROR_SUCCESS) {
 				hdr = (color.value & 2u) != 0;
+				bits_out = int(color.bits_per_channel);
 			}
 			sdr_white_info level = {};
 			level.header.type    = static_cast<DISPLAYCONFIG_DEVICE_INFO_TYPE>(11); // DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL
@@ -215,16 +218,19 @@ namespace {
 		static Uint64 asked = 0;
 		static bool   hdr   = false;
 		static float  white = 0.0f, peak = 0.0f;
+		static int    bits  = 0;
 		Uint64        now   = SDL_GetTicks();
 		if (!asked || (now - asked > 500)) {
 			asked = now ? now : 1;
 			HWND hwnd = static_cast<HWND>(SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
-			if (!hwnd || !windows_hdr(hwnd, hdr, white, peak)) {
-				hdr = false;
+			if (!hwnd || !windows_hdr(hwnd, hdr, white, peak, bits)) {
+				hdr  = false;
+				bits = 0;
 			}
 		}
 		if (hdr) {
 			levels.hdr   = true;
+			levels.bits  = bits;
 			levels.white = white; // 0 when Windows does not say, which is the usual 203 nits then.
 			if (peak > 0.0f && levels.white > 0.0f) {
 				levels.headroom = std::max(1.0f, peak / levels.white);
@@ -250,6 +256,11 @@ namespace {
 #ifdef _WIN32
 			if (!levels.hdr) {
 				windows_levels(surface().window, levels); // SDL does not see the HDR of this display, ask Windows.
+			} else {
+				system_levels windows;
+				if (windows_levels(surface().window, windows)) {
+					levels.bits = windows.bits; // SDL does not know the bit depth.
+				}
 			}
 #endif
 		} else if (!bb_env_bool("BLITZLLVM_HEADLESS", 0) && !g.headless && SDL_InitSubSystem(SDL_INIT_VIDEO)) {
@@ -279,7 +290,7 @@ namespace {
 		bb::rhi::layout_desc desc; // A sampled image.
 		desc.sets[0]     = bb::rhi::group_kind::texture;
 		desc.set_count   = 1;
-		desc.push_size   = 2 * sizeof(float); // The SDR white and the peak.
+		desc.push_size   = 4 * sizeof(float); // The SDR white, the peak, the step of Dither and its shift.
 		desc.push_stages = bb::rhi::stage_fragment;
 		layout           = bb::rhi::get_layout(desc);
 
@@ -397,7 +408,21 @@ namespace bb::gfx {
 		system_levels levels = ask_system();
 		float         white  = effective_white(levels);
 		float         peak   = effective_peak(levels, white);
-		float push[2] = { white / scrgb_white_nits, peak / scrgb_white_nits }; // Values above the peak are cut.
+		// Dither: the noise is one step of the bit depth that the display is driven with, in the PQ signal it is sent as. Only for a depth that the
+		// system names and that is no more than 12 bits (a display that can be driven with 10 or 12 bits depending on the refresh rate says one of
+		// them; anything else is not known well enough to dither for), or that BLITZLLVM_AUTOHDR_BITS sets.
+		int   bits  = bb_env_int("BLITZLLVM_AUTOHDR_BITS", levels.bits);
+		float code  = dither_code();
+		float step  = ((code > 0.0f) && (bits >= 6) && (bits <= 12)) ? 1.0f / float((1u << bits) - 1u) : 0.0f;
+		float push[4] = { white / scrgb_white_nits, peak / scrgb_white_nits, step, (code > 0.0f) ? code - 1.0f : 0.0f }; // Values above the peak are cut.
+
+		if (hdr_test()) { // What the pass was given, next to the dump (tests that look for the noise say it when it is missing).
+			std::string info = std::string(test_path()) + ".info";
+			if (FILE* file = fopen(info.c_str(), "wb")) {
+				fprintf(file, "bits %d (system %d) code %g step %g shift %g white %g limit %g", bits, levels.bits, code, step, push[3], push[0], push[1]);
+				fclose(file);
+			}
+		}
 
 		barrier(picture.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
 		barrier(scrgb.image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);

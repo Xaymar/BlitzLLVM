@@ -83,6 +83,17 @@ SetGraphicsHDR 2, 0, 160, 0
 Show
 Check "still the same picture", Shown(10, 10, 0), 2, 0.005
 
+; The gamma tables are applied to the picture that is shown in HDR: 100 becomes 200 for all three channels.
+SetGamma 100, 100, 100, 200, 200, 200
+UpdateGamma
+Fill 100, 100, 100
+Show
+Check "a gamma table is applied", Shown(10, 10, 2), 0.577580 * 2, 0.005
+SetGamma 100, 100, 100, 100, 100, 100
+UpdateGamma
+Fill 255, 255, 255
+Show
+
 ; GetGraphicsHDR gives back what is in use.
 SetGraphicsHDR 2, 0.5, 160, 800
 GetGraphicsHDR m, lo#, av#, hi#

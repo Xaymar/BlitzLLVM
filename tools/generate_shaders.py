@@ -1687,13 +1687,24 @@ def fragment_shader_hdr():
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
-    layout(push_constant) uniform Hdr { float white; float limit; } pc;
+    layout(push_constant) uniform Hdr { float white; float limit; float step; float shift; } pc;
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
         vec3 s = max(texture(tex, inUV).rgb, vec3(0.0));
         vec3 lin = mix(s / 12.92, pow((s + 0.055) / 1.055, vec3(2.4)), step(0.04045, s));
-        outColor = vec4(min(lin * pc.white, vec3(pc.limit)), 1.0);
+        vec3 color = min(lin * pc.white, vec3(pc.limit));
+        // Dither: the display rounds the PQ signal to its bit depth, so the noise is added to the PQ signal, in steps of that depth.
+        // pc.step is 1 / (2^bits - 1), or 0 for no dither. Black gets none. 1.0 is 80 nits and PQ has 10000.
+        vec3 y = clamp(color * 0.008, 0.0, 1.0);
+        vec3 p = pow(y, vec3(0.1593017578125));
+        vec3 pq = pow((0.8359375 + 18.8515625 * p) / (1.0 + 18.6875 * p), vec3(78.84375));
+        vec2 xy = floor(gl_FragCoord.xy) + vec2(pc.shift);
+        float noise = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
+        pq = clamp(pq + (noise - 0.5) * pc.step * step(vec3(1e-7), y), 0.0, 1.0);
+        vec3 q = pow(pq, vec3(1.0 / 78.84375));
+        vec3 back = pow(max(q - 0.8359375, 0.0) / (18.8515625 - 18.6875 * q), vec3(1.0 / 0.1593017578125)) * 125.0;
+        outColor = vec4(mix(color, back, step(1e-9, pc.step)), 1.0);
     }
     """
     b = Builder()
@@ -1702,15 +1713,16 @@ def fragment_shader_hdr():
     void, fn = b.void(), b.fn()
     image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
     sampled = b.new_type("sampled", "TypeSampledImage", image)
-    push_block = b.struct("hdr", f, f)
-    b.m.annotations += [Module.inst("MemberDecorate", push_block, member, DECORATION["Offset"], member * 4) for member in range(2)]
+    push_block = b.struct("hdr", f, f, f, f)
+    b.m.annotations += [Module.inst("MemberDecorate", push_block, member, DECORATION["Offset"], member * 4) for member in range(4)]
     b.m.annotations.append(Module.inst("Decorate", push_block, DECORATION["Block"]))
     push = b.variable("PushConstant", push_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color))
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, in_frag, out_color))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
@@ -1724,6 +1736,28 @@ def fragment_shader_hdr():
     white = b.load(f, b.access("PushConstant", f, push, b.const_int(0)))
     limit = b.load(f, b.access("PushConstant", f, push, b.const_int(1)))
     color = b.ext(v3, GLSL_FMIN, b.scale(3, linear, white), b.construct(3, limit, limit, limit))
+    # Dither, see the docstring: the noise is added to the PQ signal in steps of the bit depth of the display.
+    step_size = b.load(f, b.access("PushConstant", f, push, b.const_int(2)))
+    shift = b.load(f, b.access("PushConstant", f, push, b.const_int(3)))
+    y = b.ext(v3, GLSL_FCLAMP, b.scale(3, color, b.const_float(0.008)), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
+    p = b.ext(v3, GLSL_POW, y, b.const_vec(3, 0.1593017578125))
+    top = b.fadd(v3, b.const_vec(3, 0.8359375), b.scale(3, p, b.const_float(18.8515625)))
+    bottom = b.fadd(v3, b.const_vec(3, 1.0), b.scale(3, p, b.const_float(18.6875)))
+    pq = b.ext(v3, GLSL_POW, b.fdiv(v3, top, bottom), b.const_vec(3, 78.84375))
+    frag = b.load(v4, in_frag)
+    px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+    py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+    along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
+    noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+    offset = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), step_size)
+    lit = b.ext(v3, GLSL_STEP, b.const_vec(3, 1e-7), y)
+    pq = b.ext(v3, GLSL_FCLAMP, b.fadd(v3, pq, b.fmul(v3, b.scale(3, b.const_vec(3, 1.0), offset), lit)), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
+    q = b.ext(v3, GLSL_POW, pq, b.const_vec(3, 1.0 / 78.84375))
+    above = b.ext(v3, GLSL_FMAX, b.fsub(v3, q, b.const_vec(3, 0.8359375)), b.const_vec(3, 0.0))
+    below = b.fsub(v3, b.const_vec(3, 18.8515625), b.scale(3, q, b.const_float(18.6875)))
+    back = b.scale(3, b.ext(v3, GLSL_POW, b.fdiv(v3, above, below), b.const_vec(3, 1.0 / 0.1593017578125)), b.const_float(125.0))
+    on = b.ext(f, GLSL_STEP, b.const_float(1e-9), step_size)
+    color = b.fadd(v3, color, b.scale(3, b.fsub(v3, back, color), on))
     b.store(out_color, b.construct(4, b.extract(color, 0), b.extract(color, 1), b.extract(color, 2), c1))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
