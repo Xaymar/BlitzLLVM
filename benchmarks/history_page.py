@@ -248,7 +248,9 @@ def render_tags(results_dir, out):
                  "| Renderer / converter | %s |" % m["renderer"], "",
                  "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
                  "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
-        if m.get("baseline_gpu"):
+        if m.get("baseline_note"):  # how the baseline runs, when it is not the plain original on the GPU of the rows (DxWrapper)
+            text += [m["baseline_note"], ""]
+        elif m.get("baseline_gpu"):
             if any(t["tag"] == "root-igpu" for t in tags):
                 text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root "
                          "there too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
