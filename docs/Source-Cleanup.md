@@ -214,13 +214,69 @@ code_compiler/blitz_include/   the shipped .bb include files (today code_compile
     indices, are written so they can't wrap (`for (uint32_t i = n; i-- > 0;)`), and `-Wsign-compare` /
     `-Wsign-conversion` are turned on per area as it is converted, so the compiler finds the mixed comparisons.
 
+## Code style and C++ usage
+
+Xaymar's summary (26 Nov): the runtime depends on C++ but hardly uses it. What that looks like, counted:
+
+| Finding | Count | Example |
+| --- | ---: | --- |
+| Two root namespaces, neither the project's name | `bb` 127 times (runtime), `blitz` 48 (tools), plus `bp_shapes`, `gl` | `bb::gfx`, `blitz::lsp` |
+| Three-component vectors written three ways | `float x[3]` 278 times, `vec3` 136 (its own struct in `collision_internal.hpp`, collision and picking only), plus loose `x, y, z` triples | `scene.hpp` alone has 18 `float ...[3]` |
+| Several declarations on one line | 134 lines with four or more, some with nine | `float m00 = r[0], m10 = r[1], ..., m22 = r[8];` |
+| Formatting that does not match `.clang-format` | 189 of 219 C/C++ files (clang-format 18 here; the file exists but nothing runs it) | |
+| `NOMINMAX` / `WIN32_LEAN_AND_MEAN` defined by hand | 10 defines in 6 files, 19 files include `windows.h` | |
+| Types at file scope next to types in the namespace | 5 runtime files with top-level structs, 61 with structs inside | `graphics_internal.hpp`, `graphics_d3d11.cpp` |
+| A namespace closed and reopened right away | 12 times in 7 files | `graphics_vulkan.cpp`, `graphics_d3d11.cpp`, `graphics_textures.cpp` |
+| `class` versus `struct` | 28 classes, 502 structs, almost no member functions, constructors or destructors | resources freed by hand in `free_*`/`destroy_*` functions |
+| COM objects as raw pointers | all D3D11/DXGI objects, 13 hand-written `->Release()` | `ID3D11Buffer*` (11 members), `ID3D11Texture2D*` (8) |
+| `int`, `long`, `short` instead of fixed-width types | `int` 4831, `long` 165, `unsigned long` 65, `short` 39 | `long length = ftell(file)` in `b3d.cpp`, `bsp.cpp`, `md2.cpp` |
+
+On the last row: `int` is 32 bits on every target BlitzLLVM supports today (LP64 Linux/macOS, LLP64 Windows), but the
+standard only promises 16, and `long` already differs between them: 32 bits on Windows, 64 on Linux. `ftell` returning
+`long` is the real case: on Windows the model loaders can't size a file over 2 GiB.
+
+Rules, numbered on from the naming rules:
+
+11. **Everything C++ lives under `blitzllvm::`**: `blitzllvm::runtime::gfx`, `blitzllvm::runtime::scene`,
+    `blitzllvm::compiler`, `blitzllvm::tools::lsp`, `blitzllvm::physics`. The `bb_` prefix of the C functions that
+    programs call does not change: it is the ABI between compiled programs and the runtime, and namespaces don't
+    reach C. A namespace is opened once per file; types live inside it, never at file scope.
+12. **Fixed-width integers from `<cstdint>`** for everything that is stored, written to a file or the network, or
+    crosses the C boundary: `int32_t` for a Blitz `Int`, `uint32_t`/`size_t` per rule 10, `int64_t` for file offsets
+    (`_ftelli64`/`ftello`, not `ftell`). Plain `int` only for small local values whose size does not matter; `long` and
+    `short` not at all. `<cinttypes>` for printing them.
+13. **One shared math type per thing**: `blitzllvm::vector2/3/4` and `blitzllvm::matrix3x3/4x3/4x4` (float, the names
+    following the Blitz side's `FloatVector3`), with the operators the code writes out by hand today. They replace
+    `float[3]`, `vec3` and the loose triples. Their storage (12 or 16 bytes for `vector3`, see the `entity` alignment
+    work) is decided by the optimization work, and this rule takes whatever it decides.
+14. **One declaration per line.** Values that belong together (a matrix, a rectangle) are a type (rule 13), not nine
+    names.
+15. **`.clang-format` is the formatting.** It is run over each area once, in a commit that changes nothing else and is
+    listed in `.git-blame-ignore-revs`, and from then on the pre-commit hook checks the staged files and CI checks the
+    PR. The file's options and the clang-format version CI pins are settled in that PR, since 189 files differ today.
+16. **Platform defines come from CMake**: `NOMINMAX`, `WIN32_LEAN_AND_MEAN` (and `UNICODE` if wanted) as
+    `target_compile_definitions` on Windows, never in a source file. blitzcc passes the same defines when it compiles
+    the inline C, and the LTO manifest records them per target.
+17. **Resources belong to an owner type.** A type that holds a GPU object, a file, a thread or a library handle frees
+    it in its destructor and can be moved but not copied, so nothing is freed by hand on every path. COM objects are
+    held in `Microsoft::WRL::ComPtr` (`wrl/client.h`, to be confirmed in the llvm-mingw headers in that PR; ATL's `CComPtr` is not part of MinGW, which the Windows build
+    uses). The runtime builds without exceptions, so constructors that can fail become a `create` function that
+    returns an empty owner.
+18. **Operations on a type are its member functions** where they only touch that type (an entity's transform, a
+    surface's bounds), and `class` is used where a type has invariants that only its functions may change. No virtual
+    calls on paths that run per vertex, per entity or per draw; the backends keep their function table.
+
+These are phase 7 of the plan: formatting first (rules 14 and 15, mechanical), then rules 11, 12 and 16 (namespaces,
+integer types, platform defines: mechanical, one area per PR), then 13, 17 and 18, which change how code is
+written and so go area by area with the usual tests, and with numbers from a physical machine for the hot paths.
+
 ## File-local code
 
 Rule, for all C++ in the repository:
 
 * **File-local functions and variables are `static`.** In C files that is already the only way.
-* **File-local types get a unique name in the component's named namespace** (`bb::rhi::d3d11::recorded_call`,
-  `bb::models::x::token`), where the namespace says whose they are. The backends already define their RHI calls in
+* **File-local types get a unique name in the component's named namespace** (`blitzllvm::runtime::rhi::d3d11::recorded_call`,
+  `blitzllvm::runtime::models::x::token`, `bb::` until rule 11 is done), where the namespace says whose they are. The backends already define their RHI calls in
   `bb::rhi::<backend>` (see `rhi_backend.hpp`); this extends it to their helpers.
 * **No unnamed namespaces.** The rule replaces them; a check in the pre-commit hook and CI keeps new ones out.
 
@@ -377,6 +433,12 @@ The target:
 The alignment items of the same notes (padding the `float[3]` members, merging `color[3]` and `alpha` into
 `color[4]`) are done by the optimization work, not here; this split builds on whatever layout that leaves.
 
+
+### Phase 7: code style and C++ usage
+
+See *Code style and C++ usage*. Order: `.clang-format` per area (after the area's moves, so a move PR is never also a
+format PR), one declaration per line, `blitzllvm::` namespaces, fixed-width integers, CMake platform defines; then the
+shared vector and matrix types, owner types and `ComPtr`, and member functions. Each is one area per PR.
 
 ### Not in this plan
 
