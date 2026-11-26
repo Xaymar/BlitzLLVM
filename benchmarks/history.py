@@ -5,7 +5,8 @@
 """
 Runs the common benchmarks with one compiler, several times each, and saves the numbers for the Performance History wiki page.
 
-    python3 benchmarks/history.py --blitzcc PATH --label NAME [--runs 3] [--only compile,emitted,...] [--wine] [--out FILE]
+    python3 benchmarks/history.py --blitzcc PATH --label NAME [--runs 3] [--only compile,emitted,...|--set quick|real] [--gpu N] [--depth N]
+                                  [--frames N] [--wine] [--out FILE]
 
 Every benchmark is run --runs times (3). The number that is kept is the mean of the runs, with the standard deviation next to it; all
 runs are kept in the JSON file as well, so rows can be compared (benchmarks/history_page.py calls a change real when it is over two standard deviations of the difference
@@ -22,6 +23,13 @@ Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz
     lights     benchmarks/many_lights.bb: 8, 32 and 127 lights                    (Scene)
     gpu        GPU time of the passes of the waterfall, from ProfileValue        (GPU)
     stranded2  third_party/Stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
+    forest_full          benchmarks/forest.bb at 640x360 and 3000 frames                 (Forest)
+    spacebattle          benchmarks/spacebattle.bb at 640x360 and 3000 frames, no physics (Space battle)
+    spacebattle_physics  the same with physics, only builds with the physics commands    (Space battle)
+
+--set quick (or --quick) is the short set for every commit on the Linux container, --set real is forest_full and the space battles,
+the set of the page of a physical machine. --gpu and --depth are passed to every scene benchmark as BENCH_GPU and BENCH_DEPTH: give the
+GPU explicitly on a machine with more than one (a laptop picks the integrated one otherwise).
 
 Without a display the programs run under xvfb-run, which with Mesa means llvmpipe, a software rasterizer: the milliseconds are then
 mostly the CPU drawing pixels. With --wine the original runs under Wine on top of that, which is only there to have a number to put next
@@ -66,7 +74,23 @@ SCENES = {
     "dungeon": {"env": {"BENCH_FRAMES": "100", "BENCH_W": "320", "BENCH_H": "180"},
                 "keys": ["ms_avg", "update_ms", "draws"]},
     "forest": {"env": {"BENCH_FRAMES": "200", "BENCH_W": "640", "BENCH_H": "360"}, "keys": ["ms_avg"]},
+    # The real set (--set real, the page of a physical machine): the two benchmarks that do what games do, at their full size. "own" is the
+    # benchmark's own include that is used instead of the one of the compiler: the space battle without physics runs the same work on every
+    # BlitzLLVM build and the original, the one with physics only on the builds that have the physics commands.
+    "forest_full": {"source": "forest", "env": {"BENCH_FRAMES": "3000", "BENCH_W": "640", "BENCH_H": "360"},
+                    "keys": ["ms_avg", "ms_p95", "update_ms", "tris", "draws"]},
+    "spacebattle": {"source": "spacebattle", "own": "original", "env": {"BENCH_FRAMES": "3000", "BENCH_W": "640", "BENCH_H": "360"},
+                    "keys": ["ms_avg", "ms_p95", "ai_ms", "pick_ms", "effects_ms", "collide_ms", "physics_ms", "render_ms", "kills", "shots"]},
+    "spacebattle_physics": {"source": "spacebattle", "own": "llvm", "env": {"BENCH_FRAMES": "3000", "BENCH_W": "640", "BENCH_H": "360"},
+                            "keys": ["ms_avg", "ms_p95", "ai_ms", "pick_ms", "effects_ms", "collide_ms", "physics_ms", "render_ms", "kills", "shots"]},
 }
+SETS = {
+    "quick": "compile,emitted,flythrough,waterfall,dungeon,forest",
+    "real": "forest_full,spacebattle,spacebattle_physics",
+}
+FRAMES = 0  # --frames: the frames of every scene benchmark instead of its own number (0 keeps them)
+GPU = os.environ.get("BENCH_GPU", "0")  # --gpu and --depth: SetGfxDriver and the depth of Graphics3D, passed to every scene benchmark
+DEPTH = os.environ.get("BENCH_DEPTH", "0")
 
 
 def quantile(sorted_values, q):
@@ -123,27 +147,35 @@ class Compiler:
         return ("Z:" + path.replace("/", "\\")) if self.wine else path
 
 
-def build(compiler, directory, name, counters=None, extra=(), source=None):
+def build(compiler, directory, name, counters=None, extra=(), source=None, own=None):
     """Builds benchmarks/<name>.bb. With counters (the name of the benchmark's own include files, see benchutil.copy_includes) the
     include files of the compiler are put next to it: the shared ones and bench_compiler.bi with <counters>_compiler.bi, and with
     --profile in extra the profiling of bench_profile_on.bi. Falls back to the same without the profiling (compilers from before
     ProfileValue), and then to the ones of the original (MilliSecs only) when this compiler can't build the BlitzLLVM ones, which is the
-    case for the first commits (no Microseconds, no Stats3D). Returns the program and the variant: "llvm+profile", "llvm" or "original"."""
+    case for the first commits (no Microseconds, no Stats3D). own ("llvm" or "original") picks the benchmark's own include
+    (<counters>_<own>.bi) whatever the variant: with "llvm" a build that can't build it fails instead of falling back. Returns the program
+    and the variant: "llvm+profile", "llvm" or "original"."""
     src = os.path.join(directory, name + ".bb")
     benchutil.copy_synced(source or os.path.join(HERE, name + ".bb"), src)
     program = compiler.program_path(directory, name)
     profile = "--profile" in extra
     variants = (["llvm+profile"] if profile else []) + ["llvm", "original"] if compiler.llvm else ["original"]
+    if own == "llvm":
+        variants = [v for v in variants if v != "original"]
     tried = []
     for variant in variants:
         if counters:
             benchutil.copy_includes(directory, counters, variant != "original", variant == "llvm+profile")
+            if own:
+                benchutil.copy_synced(os.path.join(HERE, "%s_%s.bi" % (counters, own)), os.path.join(directory, counters + "_compiler.bi"))
         r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
         if r.returncode == 0 and os.path.isfile(program):
             return program, variant
         tried.append(variant + ": " + (r.stdout + r.stderr).strip()[-300:])
         if not counters:
             break
+    if not variants:
+        raise RuntimeError("needs BlitzLLVM")
     raise RuntimeError("build failed: " + " | ".join(tried))
 
 
@@ -170,14 +202,17 @@ def run_program(compiler, program, env, cwd, timeout=900, args=()):
 
 def bench_scene(compiler, name, runs):
     cfg = SCENES[name]
+    source = cfg.get("source", name)
     with tempfile.TemporaryDirectory() as d:
-        program, variant = build(compiler, d, name, counters=name)
+        program, variant = build(compiler, d, source, counters=source, own=cfg.get("own"))
         results = []
         for i in range(runs):
             result_file = os.path.join(d, "result.txt")
             if os.path.exists(result_file):
                 os.remove(result_file)
-            env = dict(cfg["env"], BENCH_RESULT=compiler.native_path(result_file), BENCH_SEED="1")
+            env = dict(cfg["env"], BENCH_RESULT=compiler.native_path(result_file), BENCH_SEED="1", BENCH_GPU=GPU, BENCH_DEPTH=DEPTH)
+            if FRAMES:
+                env["BENCH_FRAMES"] = str(FRAMES)
             if os.path.isfile(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds")):
                 env["BENCH_MODEL"] = compiler.native_path(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds"))
             cpu, wall, out, code = run_program(compiler, program, env, d)
@@ -187,6 +222,7 @@ def bench_scene(compiler, name, runs):
             results.append({k: r[k] for k in cfg["keys"] if k in r})
         summary = summarize(results)
         summary["_timer"] = "microseconds" if variant == "llvm" else "milliseconds"
+        summary["_settings"] = dict(cfg["env"], **{k: env[k] for k in ("BENCH_FRAMES", "BENCH_GPU", "BENCH_DEPTH")})
         return summary
 
 
@@ -457,6 +493,9 @@ BENCHMARKS = {
     "waterfall": lambda c, n: bench_scene(c, "waterfall", n),
     "dungeon": lambda c, n: bench_scene(c, "dungeon", n),
     "forest": lambda c, n: bench_scene(c, "forest", n),
+    "forest_full": lambda c, n: bench_scene(c, "forest_full", n),
+    "spacebattle": lambda c, n: bench_scene(c, "spacebattle", n),
+    "spacebattle_physics": lambda c, n: bench_scene(c, "spacebattle_physics", n),
     "loading": bench_loading,
     "lights": bench_lights,
     "gpu": bench_gpu,
@@ -465,6 +504,7 @@ BENCHMARKS = {
 
 
 def main():
+    global QUICK, FRAMES, GPU, DEPTH
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--blitzcc")
     parser.add_argument("--wine", action="store_true", help="the original Blitz3D under Wine (tools/original_blitz3d.sh setup)")
@@ -472,21 +512,27 @@ def main():
     parser.add_argument("--rev", default="", help="commit or pull request this compiler was built from")
     parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--only", default=",".join(BENCHMARKS))
-    parser.add_argument("--quick", action="store_true", help="the short set for every commit: compile, emitted, flythrough, waterfall, dungeon")
+    parser.add_argument("--quick", action="store_true", help="the short set for every commit: compile, emitted, flythrough, waterfall, dungeon (--set quick)")
+    parser.add_argument("--set", choices=sorted(SETS), help="a set of benchmarks instead of --only: quick (as --quick) or real (forest and the space battle "
+                        "at 640x360 and 3000 frames, for a physical machine)")
+    parser.add_argument("--frames", type=int, default=0, help="frames of every scene benchmark instead of its own number")
+    parser.add_argument("--gpu", default=GPU, help="the graphics driver of every scene benchmark (SetGfxDriver, $BENCH_GPU, 0 is the default one)")
+    parser.add_argument("--depth", default=DEPTH, help="the graphics depth of every scene benchmark ($BENCH_DEPTH, 0 is what the program picks)")
     parser.add_argument("--out")
     args = parser.parse_args()
-    if args.quick:
-        global QUICK
+    FRAMES, GPU, DEPTH = args.frames, str(args.gpu), str(args.depth)
+    if args.quick or args.set == "quick":
         QUICK = True
+    if args.set or args.quick:
         if args.only == ",".join(BENCHMARKS):
-            args.only = "compile,emitted,flythrough,waterfall,dungeon,forest"
+            args.only = SETS[args.set or "quick"]
     if not args.blitzcc and not args.wine:
         sys.exit("Give --blitzcc or --wine.")
     compiler = Compiler(os.path.abspath(args.blitzcc) if args.blitzcc else None, args.wine)
     out = args.out or os.path.join(RESULTS, args.label + ".json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     record = {"label": args.label, "rev": args.rev, "date": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-              "compiler": compiler.version, "runs": args.runs, "machine": machine(args.wine), "benchmarks": {}}
+              "compiler": compiler.version, "runs": args.runs, "set": args.set or ("quick" if args.quick else ""), "machine": machine(args.wine), "benchmarks": {}}
     if os.path.isfile(out):
         record["benchmarks"] = json.load(open(out)).get("benchmarks", {})
     for name in args.only.split(","):
