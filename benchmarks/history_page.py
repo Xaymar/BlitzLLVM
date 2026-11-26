@@ -140,6 +140,8 @@ def lookup(results, bench, key):
     if not b:
         return None, "not run"
     if "error" in b:
+        if "below_fps" in b and key == "ms_avg":
+            return None, "below_fps=%g" % b["below_fps"]
         return None, b["error"]
     m = b.get(key)
     if isinstance(m, dict) and "value" in m:
@@ -171,6 +173,10 @@ def metric_table(revs, machine_results, bench, metrics, only_changes=False):
         cells = []
         for key, column, unit in metrics:
             m, why = lookup(res, bench, key)
+            if m is None and why.startswith("below_fps="):
+                # Too slow to finish the frames in the time a run may take (history.py TooSlow): the frame rate it stays under.
+                cells.append("**< %.1f fps**" % float(why.split("=", 1)[1]))
+                continue
             if m is None or (unit == "" and m["runs"] and max(m["runs"]) == 0):
                 cells.append("n/a")
                 continue
@@ -275,6 +281,9 @@ def render_tags(results_dir, out):
                     continue
                 text.append("| [%s](%s)<br>%s<br>[`%s`](%s) | %s |" % (rev["tag"], RELEASE_URL % rev["tag"], results[rev["label"]]["date"], rev["rev"][:8],
                                                                     COMMIT_URL % rev["rev"], " | ".join(cells)))
+            if rows and not rows[0][0]["tag"] and any("fps**" in c for c in rows[0][1]):
+                text += ["", "The original is too slow here to finish the frames in the time a run may take, so the changes in this table are against "
+                         "the first version with a number."]
             text.append("")
     if not revs:
         text += ["No version has a result yet.", ""]
