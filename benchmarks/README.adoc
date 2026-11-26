@@ -83,17 +83,30 @@ python3 benchmarks/history_page.py                                              
 ----
 
 `history_commits.py` without `--tags` does every distinct code state of `root`, `--max-minutes` stops it after a time so that it can run in chunks, and
-`--download OWNER/REPO` takes the Windows CI binaries instead of building (CI only keeps them for about a day). `build_windows.ps1` builds like the Windows CI does.
+`--download OWNER/REPO` takes the Windows CI binaries instead of building (CI only keeps them for about a day). `build_windows.ps1` builds a commit like
+the Windows CI did at it: with `tools/build.cmake` (llvm-mingw) where the commit has it, before that with Visual Studio, and writes which clang that
+blitzcc links programs with, which `history_commits.py` puts first on `PATH`.
 
-The tables of the page:
+The page of a physical machine uses the game benchmarks, `--set real`: `forest.bb` (software vertex animation, huge triangle counts) and
+`spacebattle.bb` (AI, collisions, picking; once without physics, which every version and the original run, and once with physics, which only the
+versions with the physics commands run), at 640x360 and 3000 frames. `--head` adds the root that is not released yet as the last row. On a laptop
+the GPU is given explicitly (`--gpu`, the index of `SetGfxDriver`), and the original Blitz3D can only use the GPU that drives the display, so the
+root runs a second time on that GPU (`--head-tag root-igpu`), the row next to the baseline. `BENCH_PROGRAM` builds every program to one path, for
+which Windows can be told the GPU (`HKCU\Software\Microsoft\DirectX\UserGpuPreferences`).
 
-[cols="1,3"]
-|===
-| Section | Benchmark
-
-| Real World Applications | Stranded II (`tools/benchmark_stranded2.py`): milliseconds per frame
-| Benchmarks | `emitted.bb` (loops, math, arrays, types, strings, calls, banks, `Select`), `flythrough.bb`, `waterfall.bb` and `dungeon.bb` at 320x180, and more
-|===
+[source,bat]
+----
+rem Shibela: RX 6600M (1) for BlitzLLVM, the integrated GPU (2) for the row next to the original
+set PERF_HISTORY=<checkout of performance-history>\shibela
+set PERF_MACHINE=%PERF_HISTORY%\machine.json
+set BENCH_PROGRAM=C:\...\run\bhist.exe
+python benchmarks\history.py --blitzcc <original>\bin\blitzcc.exe --label r00-original --set real --gpu 0
+python benchmarks\history_commits.py --repo <clone> --since 2026.10.26.9019^ --until <root> --tags --head --set real --gpu 1 ^
+    --build-script benchmarks\build_windows.ps1 --build-dir <kept build folder>
+python benchmarks\history_commits.py --repo <clone> --since 2026.10.26.9019^ --until <root> --head-tag root-igpu --set real --gpu 2 ^
+    --build-script benchmarks\build_windows.ps1 --build-dir <kept build folder>
+python benchmarks\history_page.py --results %PERF_HISTORY% --out %PERF_HISTORY%\Performance-History.md
+----
 
 The old versions of the compiler (the first few tags) have no runtime, so they have no numbers and are not listed. The compile time is not part of the page: the original does no optimization at all.
 

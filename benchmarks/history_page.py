@@ -31,6 +31,15 @@ PR_URL = "https://github.com/Xaymar/BlitzLLVM/pull/%d"
 
 # The two categories of the page and their tables: (category, title, benchmark, [(key, column, unit)]). A key "bench/metric" names its own benchmark.
 TABLES = [
+    ("Game Benchmarks", "Forest (`forest.bb`, 640x360, 3000 frames, per frame): software vertex animation, huge triangle counts", "forest_full",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("update_ms", "Game code", "ms")]),
+    ("Game Benchmarks", "Space battle without physics (`spacebattle.bb`, 640x360, 3000 frames, per frame): AI, collisions, picking", "spacebattle",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("ai_ms", "AI", "ms"), ("pick_ms", "Picking", "ms"),
+      ("collide_ms", "Collisions", "ms"), ("effects_ms", "Effects", "ms"), ("render_ms", "Rendering", "ms")]),
+    ("Game Benchmarks", "Space battle with physics (`spacebattle.bb`, 640x360, 3000 frames, per frame): BlitzLLVM builds with the physics commands",
+     "spacebattle_physics",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("physics_ms", "Physics", "ms"), ("collide_ms", "Collisions", "ms"),
+      ("render_ms", "Rendering", "ms")]),
     ("Real World Applications", "Stranded II (map Survival Guide, 640x480, 300 frames)", "stranded2",
      [("ms_avg", "Per frame", "ms")]),
     ("Benchmarks", "Emitted code (`emitted.bb`)", "emitted",
@@ -50,7 +59,7 @@ TABLES = [
     ("Benchmarks", "Audio (`audio.bb`)", "audio", [("load_ms", "Load 64 sounds", "ms"), ("cpu_ms", "CPU time, 32 channels, 3 s", "ms")]),
     ("Benchmarks", "GPU time of the waterfall passes (per frame)", "gpu", [("gpu_scene_ms", "Scene pass", "ms"), ("gpu_frame_ms", "Whole frame", "ms")]),
 ]
-CATEGORIES = ["Real World Applications", "Benchmarks"]
+CATEGORIES = ["Game Benchmarks", "Real World Applications", "Benchmarks"]
 
 
 def git_date(rev):
@@ -131,6 +140,8 @@ def lookup(results, bench, key):
     if not b:
         return None, "not run"
     if "error" in b:
+        if "below_fps" in b and key == "ms_avg":
+            return None, "below_fps=%g" % b["below_fps"]
         return None, b["error"]
     m = b.get(key)
     if isinstance(m, dict) and "value" in m:
@@ -162,6 +173,10 @@ def metric_table(revs, machine_results, bench, metrics, only_changes=False):
         cells = []
         for key, column, unit in metrics:
             m, why = lookup(res, bench, key)
+            if m is None and why.startswith("below_fps="):
+                # Too slow to finish the frames in the time a run may take (history.py TooSlow): the frame rate it stays under.
+                cells.append("**< %.1f fps**" % float(why.split("=", 1)[1]))
+                continue
             if m is None or (unit == "" and m["runs"] and max(m["runs"]) == 0):
                 cells.append("n/a")
                 continue
@@ -194,13 +209,25 @@ def render_tags(results_dir, out):
     tags = [json.load(open(os.path.join(tags_dir, n))) for n in os.listdir(tags_dir)] if os.path.isdir(tags_dir) else []
 
     def version(t):
-        return tuple(int(x) for x in re.findall(r"\d+", t["tag"]))
+        # The root that is not released yet (history_commits.py --head) is the last row; root-igpu (the root on the GPU of the baseline,
+        # for a laptop where the original can only use the integrated one) comes right after the baseline.
+        order = {"root-igpu": -1, "root": 1}.get(t["tag"], 0)
+        return (order, tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
     tags.sort(key=version)
     revs, results, no_numbers = [], {}, []
-    base = os.path.join(results_dir, "r00-original.json")
-    if os.path.isfile(base):  # the baseline: the original Blitz3D, always the top row
-        revs.append({"label": "baseline", "rev": "", "prs": [], "tag": ""})
-        results["baseline"] = dict(json.load(open(base)), date="")
+    mpath = os.path.join(results_dir, "machine.json")
+    machine = json.load(open(mpath)) if os.path.isfile(mpath) else {}
+    # The baselines, the original Blitz3D, always the top rows. machine.json "baselines" can name several ([{"file", "name"}], the first is the
+    # one the changes are against), such as the original through DxWrapper on the GPU of the rows and the original as it runs natively.
+    short = machine.get("baseline_gpu_short", "")
+    baselines = machine.get("baselines") or [{"file": "r00-original.json",
+                                              "name": "Baseline: original Blitz3D 1.118%s" % (" (%s)" % short if short else "")}]
+    for n, b in enumerate(baselines):
+        base = os.path.join(results_dir, b["file"])
+        if os.path.isfile(base):
+            label = "baseline%d" % n
+            revs.append({"label": label, "rev": "", "prs": [], "tag": "", "name": b["name"]})
+            results[label] = dict(json.load(open(base)), date="")
     for t in tags:
         path = os.path.join(results_dir, "commits", t["state"] + ".json")
         r = json.load(open(path)) if os.path.isfile(path) else None
@@ -209,22 +236,35 @@ def render_tags(results_dir, out):
             continue
         revs.append({"label": t["tag"], "rev": t["commit"], "prs": [], "tag": t["tag"]})
         results[t["tag"]] = dict(r, date=t["date"])
+    sets = {r.get("set") for r in results.values() if r.get("set")}
+    what = "the game benchmarks (`benchmarks/history_commits.py --tags --head --set real`" if sets == {"real"} else \
+        "the short benchmark set (`benchmarks/history_commits.py --tags`"
     text = [
         "# Performance History",
         "",
-        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM, built and benchmarked on its own with the short benchmark set (`benchmarks/history_commits.py --tags`, 3 runs, "
+        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM%s, built and benchmarked on its own with %s, 3 runs, "
         "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the baseline "
-        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s." % datetime.date.today().isoformat(),
+        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s."
+        % (" and the root that is not released yet as the last row" if any(t["tag"] == "root" for t in tags) else "", what, datetime.date.today().isoformat()),
         "",
     ]
-    mpath = os.path.join(results_dir, "machine.json")
-    if os.path.isfile(mpath):
-        m = json.load(open(mpath))
-        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"],
+    if machine:
+        m = machine
+        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"]] + \
+            (["| GPU of the baseline | %s |" % m["baseline_gpu"]] if m.get("baseline_gpu") else []) + [
                  "| OS and version | %s |" % m["os"], "| RAM | %s |" % m["ram"], "| VRAM | %s |" % m["vram"],
                  "| Renderer / converter | %s |" % m["renderer"], "",
                  "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
                  "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
+        if m.get("baseline_note"):  # how the baseline runs, when it is not the plain original on the GPU of the rows (DxWrapper)
+            text += [m["baseline_note"], ""]
+        elif m.get("baseline_gpu"):
+            if any(t["tag"] == "root-igpu" for t in tags):
+                text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root "
+                         "there too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
+            else:
+                text += ["The original can only use the GPU that drives the display, so the baseline runs on the %s and every BlitzLLVM row on the %s: "
+                         "the change against the baseline includes the difference of the two GPUs." % (m["baseline_gpu"], m["gpu"]), ""]
     if no_numbers:
         text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
     for category in CATEGORIES:
@@ -239,10 +279,18 @@ def render_tags(results_dir, out):
                      "| --- | " + " | ".join("---:" for _ in metrics) + " |"]
             for rev, cells in rows:
                 if not rev["tag"]:
-                    text.append("| Baseline: original Blitz3D 1.118 | %s |" % " | ".join(cells))
+                    text.append("| %s | %s |" % (rev["name"], " | ".join(cells)))
+                    continue
+                if rev["tag"] in ("root", "root-igpu"):
+                    name = "root (not released)" if rev["tag"] == "root" else "root on the GPU of the baseline"
+                    text.append("| %s<br>%s<br>[`%s`](%s) | %s |" % (name, results[rev["label"]]["date"], rev["rev"][:8], COMMIT_URL % rev["rev"],
+                                                                    " | ".join(cells)))
                     continue
                 text.append("| [%s](%s)<br>%s<br>[`%s`](%s) | %s |" % (rev["tag"], RELEASE_URL % rev["tag"], results[rev["label"]]["date"], rev["rev"][:8],
                                                                     COMMIT_URL % rev["rev"], " | ".join(cells)))
+            if any(not rev["tag"] and any("fps**" in c for c in cells) for rev, cells in rows):
+                text += ["", "The original is too slow here to finish the frames in the time a run may take, so the changes in this table are against "
+                         "the first row with a number."]
             text.append("")
     if not revs:
         text += ["No version has a result yet.", ""]

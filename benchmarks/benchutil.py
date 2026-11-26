@@ -45,7 +45,22 @@ def program_name():
 
 
 def program_path(directory, exe=None):
-    """Where to build a benchmark program in directory, under a random name (.exe on Windows, or when exe is true)."""
+    """Where to build a benchmark program in directory, under a random name (.exe on Windows, or when exe is true). $BENCH_PROGRAM (a
+    full path) is one fixed path for every program instead, for a machine where the GPU of a program is set per path in Windows
+    (Settings, Graphics: a laptop that has to run the original Blitz3D on its dedicated GPU). The file there is removed first, so a
+    build that fails can't leave the program of the one before."""
+    fixed = os.environ.get("BENCH_PROGRAM")
+    if fixed:
+        os.makedirs(os.path.dirname(os.path.abspath(fixed)), exist_ok=True)
+        # A program that was stopped (a timeout) can hold its file on Windows for a while after it was killed.
+        for attempt in range(60):
+            try:
+                if os.path.isfile(fixed):
+                    os.remove(fixed)
+                break
+            except PermissionError:
+                time.sleep(1)
+        return os.path.abspath(fixed)
     if exe is None:
         exe = platform.system() == "Windows"
     return os.path.join(directory, program_name() + (".exe" if exe else ""))
