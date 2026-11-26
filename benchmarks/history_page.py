@@ -215,10 +215,19 @@ def render_tags(results_dir, out):
         return (order, tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
     tags.sort(key=version)
     revs, results, no_numbers = [], {}, []
-    base = os.path.join(results_dir, "r00-original.json")
-    if os.path.isfile(base):  # the baseline: the original Blitz3D, always the top row
-        revs.append({"label": "baseline", "rev": "", "prs": [], "tag": ""})
-        results["baseline"] = dict(json.load(open(base)), date="")
+    mpath = os.path.join(results_dir, "machine.json")
+    machine = json.load(open(mpath)) if os.path.isfile(mpath) else {}
+    # The baselines, the original Blitz3D, always the top rows. machine.json "baselines" can name several ([{"file", "name"}], the first is the
+    # one the changes are against), such as the original through DxWrapper on the GPU of the rows and the original as it runs natively.
+    short = machine.get("baseline_gpu_short", "")
+    baselines = machine.get("baselines") or [{"file": "r00-original.json",
+                                              "name": "Baseline: original Blitz3D 1.118%s" % (" (%s)" % short if short else "")}]
+    for n, b in enumerate(baselines):
+        base = os.path.join(results_dir, b["file"])
+        if os.path.isfile(base):
+            label = "baseline%d" % n
+            revs.append({"label": label, "rev": "", "prs": [], "tag": "", "name": b["name"]})
+            results[label] = dict(json.load(open(base)), date="")
     for t in tags:
         path = os.path.join(results_dir, "commits", t["state"] + ".json")
         r = json.load(open(path)) if os.path.isfile(path) else None
@@ -239,9 +248,8 @@ def render_tags(results_dir, out):
         % (" and the root that is not released yet as the last row" if any(t["tag"] == "root" for t in tags) else "", what, datetime.date.today().isoformat()),
         "",
     ]
-    mpath = os.path.join(results_dir, "machine.json")
-    if os.path.isfile(mpath):
-        m = json.load(open(mpath))
+    if machine:
+        m = machine
         text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"]] + \
             (["| GPU of the baseline | %s |" % m["baseline_gpu"]] if m.get("baseline_gpu") else []) + [
                  "| OS and version | %s |" % m["os"], "| RAM | %s |" % m["ram"], "| VRAM | %s |" % m["vram"],
@@ -257,9 +265,6 @@ def render_tags(results_dir, out):
             else:
                 text += ["The original can only use the GPU that drives the display, so the baseline runs on the %s and every BlitzLLVM row on the %s: "
                          "the change against the baseline includes the difference of the two GPUs." % (m["baseline_gpu"], m["gpu"]), ""]
-    m_gpu = ""
-    if os.path.isfile(mpath):
-        m_gpu = json.load(open(mpath)).get("baseline_gpu_short", "")
     if no_numbers:
         text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
     for category in CATEGORIES:
@@ -274,7 +279,7 @@ def render_tags(results_dir, out):
                      "| --- | " + " | ".join("---:" for _ in metrics) + " |"]
             for rev, cells in rows:
                 if not rev["tag"]:
-                    text.append("| Baseline: original Blitz3D 1.118%s | %s |" % (" (%s)" % m_gpu if m_gpu else "", " | ".join(cells)))
+                    text.append("| %s | %s |" % (rev["name"], " | ".join(cells)))
                     continue
                 if rev["tag"] in ("root", "root-igpu"):
                     name = "root (not released)" if rev["tag"] == "root" else "root on the GPU of the baseline"
@@ -283,9 +288,9 @@ def render_tags(results_dir, out):
                     continue
                 text.append("| [%s](%s)<br>%s<br>[`%s`](%s) | %s |" % (rev["tag"], RELEASE_URL % rev["tag"], results[rev["label"]]["date"], rev["rev"][:8],
                                                                     COMMIT_URL % rev["rev"], " | ".join(cells)))
-            if rows and not rows[0][0]["tag"] and any("fps**" in c for c in rows[0][1]):
+            if any(not rev["tag"] and any("fps**" in c for c in cells) for rev, cells in rows):
                 text += ["", "The original is too slow here to finish the frames in the time a run may take, so the changes in this table are against "
-                         "the first version with a number."]
+                         "the first row with a number."]
             text.append("")
     if not revs:
         text += ["No version has a result yet.", ""]
