@@ -1,0 +1,161 @@
+{
+ "commit": "d05823a64b116829ce98b2b367538851fe4bca6a",
+ "commits": [
+  "d05823a64b116829ce98b2b367538851fe4bca6a"
+ ],
+ "subject": "Load Opus audio files",
+ "date": "2026-10-26",
+ "label": "c0002-d05823a6",
+ "rev": "d05823a64b116829ce98b2b367538851fe4bca6a",
+ "compiler": "Compiler version:2026.11.26.14241 Runtime version:2026.11.26.14241",
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "error": "no result (exit 1): Runtime Error: Graphics: vkQueueSubmit failed (VkResult -4).\n"
+  },
+  "spacebattle": {
+   "ms_avg": {
+    "value": 72.28826666666667,
+    "stdev": 0.7171500703014202,
+    "runs": [
+     73.1013,
+     72.0179,
+     71.7456
+    ],
+    "min": 71.7456,
+    "max": 73.1013,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 93.0,
+    "stdev": 1.0,
+    "runs": [
+     94.0,
+     92.0,
+     93.0
+    ],
+    "min": 92.0,
+    "max": 94.0,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.9196666666666666,
+    "stdev": 0.0012017580177945105,
+    "runs": [
+     0.921,
+     0.919333,
+     0.918667
+    ],
+    "min": 0.918667,
+    "max": 0.921,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 9.870890000000001,
+    "stdev": 0.011182857416599662,
+    "runs": [
+     9.87667,
+     9.878,
+     9.858
+    ],
+    "min": 9.858,
+    "max": 9.878,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.050333333333333334,
+    "stdev": 0.003844206319038213,
+    "runs": [
+     0.054,
+     0.0463333,
+     0.0506667
+    ],
+    "min": 0.0463333,
+    "max": 0.054,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 56.45816666666667,
+    "stdev": 0.6671479021426492,
+    "runs": [
+     57.2182,
+     56.187,
+     55.9693
+    ],
+    "min": 55.9693,
+    "max": 57.2182,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 0.000111111,
+    "stdev": 0.00019244989727978552,
+    "runs": [
+     0.0,
+     0.000333333,
+     0.0
+    ],
+    "min": 0.0,
+    "max": 0.000333333,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 4.989446666666667,
+    "stdev": 0.04136362693639599,
+    "runs": [
+     5.03167,
+     4.98767,
+     4.949
+    ],
+    "min": 4.949,
+    "max": 5.03167,
+    "n": 3
+   },
+   "kills": {
+    "value": 495.0,
+    "stdev": 0.0,
+    "runs": [
+     495.0,
+     495.0,
+     495.0
+    ],
+    "min": 495.0,
+    "max": 495.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 11976.0,
+    "stdev": 0.0,
+    "runs": [
+     11976.0,
+     11976.0,
+     11976.0
+    ],
+    "min": 11976.0,
+    "max": 11976.0,
+    "n": 3
+   },
+   "_timer": "milliseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle_physics": {
+   "error": "build failed: llvm: /Xaymar/AppData/Local/Temp/tmpy27vhtmm/spacebattle_compiler.bi:14:9: error: 7 functions don't exist: CreatePhysicsBody, Microseconds, PhysicsAngularVelocity, PhysicsDeterministic, PhysicsGravity, PhysicsLinearVelocity, PhysicsUpdate.\n\tbody = CreatePhysicsBody(2, 1, 32, 0, 0)\n\t       ^---------- HERE"
+  }
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "commit": "fdee5293e6965336949c795660f7bafeaec8694e",
+ "commits": [
+  "fdee5293e6965336949c795660f7bafeaec8694e"
+ ],
+ "subject": "Expose the graphics functions and test them",
+ "date": "2026-10-26",
+ "label": "c0000-fdee5293",
+ "rev": "fdee5293e6965336949c795660f7bafeaec8694e",
+ "compiler": "Usage: C:\\Users\\Xaymar\\Claude\\Shibela\\perf-history\\scratch\\c0000-fdee5293\\install\\blitzcc.exe [options] <input.bb> Compiles a BlitzBasic program into a single executable using LLVM. Options: -o <file> Name of the output file. Defaults to the input name. -O0 -O1 -O2 -O3 -Os -Oz LLVM optimization level, defaults to -O2. -S, --emit-llvm Only write the generated LLVM IR (.ll), don't build an executable. --target <triple> Build for another target, such as x86_64-linux-gnu or aarch64-apple-darwin. --llvm-flag <flag> Pass <flag> to the LLVM/clang driver as-is, such as -flto, -march=native or -fuse-ld=lld. Can be given multiple times. --llvm-arg <arg> Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times. --cc <path> Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'. --runtime-dir <dir> Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler. --keep-temps Don't delete the intermediate files. --dump-tokens Only print the tokens of the input file, for debugging the lexer. -v, --verbose Print the commands that are run. -h, --help Show this text. Everything after a lone '--' is passed to clang as-is.",
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "error": "build failed: original: C:/Users/Xaymar/AppData/Local/Temp/tmpb9uwrc88/forest.bb:1143:28: error: In token Integer(1143@26, 00): Unexpected 'B' after number."
+  },
+  "spacebattle": {
+   "error": "build failed: original: C:/Users/Xaymar/AppData/Local/Temp/tmp1iy2obxe/spacebattle.bb:94:25: error: Unexpected Symbol(94@25, $), expected an expression."
+  },
+  "spacebattle_physics": {
+   "error": "needs BlitzLLVM"
+  }
+ }
+}

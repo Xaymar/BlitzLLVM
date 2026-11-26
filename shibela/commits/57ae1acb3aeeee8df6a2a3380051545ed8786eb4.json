@@ -1,0 +1,232 @@
+{
+ "commit": "57ae1acb3aeeee8df6a2a3380051545ed8786eb4",
+ "commits": [
+  "57ae1acb3aeeee8df6a2a3380051545ed8786eb4",
+  "002c4ed3680cb0241f7e303e46f297ead095136d",
+  "e6274567ad886e2d886a2db2591a93697fb9fbbc",
+  "c84b148a28b95ff9ae36b214ea7a3f5d8cccd64a"
+ ],
+ "subject": "Improve the BC1 and BC7 encoders of DDS files",
+ "date": "2026-10-31",
+ "label": "c0008-57ae1acb",
+ "rev": "57ae1acb3aeeee8df6a2a3380051545ed8786eb4",
+ "compiler": "Compiler version:2026.11.26.16610 Runtime version:2026.11.26.16610",
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "ms_avg": {
+    "value": 44.24953333333334,
+    "stdev": 0.6335220385537794,
+    "runs": [
+     44.978,
+     43.9432,
+     43.8274
+    ],
+    "min": 43.8274,
+    "max": 44.978,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 51.76566666666667,
+    "stdev": 1.5118430253612092,
+    "runs": [
+     53.195,
+     51.919,
+     50.183
+    ],
+    "min": 50.183,
+    "max": 53.195,
+    "n": 3
+   },
+   "update_ms": {
+    "value": 18.0367,
+    "stdev": 0.21029096509360629,
+    "runs": [
+     18.2787,
+     17.933,
+     17.8984
+    ],
+    "min": 17.8984,
+    "max": 18.2787,
+    "n": 3
+   },
+   "tris": {
+    "value": 10026105.0,
+    "stdev": 0.0,
+    "runs": [
+     10026105.0,
+     10026105.0,
+     10026105.0
+    ],
+    "min": 10026105.0,
+    "max": 10026105.0,
+    "n": 3
+   },
+   "draws": {
+    "value": 1517.0,
+    "stdev": 0.0,
+    "runs": [
+     1517.0,
+     1517.0,
+     1517.0
+    ],
+    "min": 1517.0,
+    "max": 1517.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle": {
+   "ms_avg": {
+    "value": 9.007966666666666,
+    "stdev": 0.0210628139937026,
+    "runs": [
+     9.02534,
+     8.98454,
+     9.01402
+    ],
+    "min": 8.98454,
+    "max": 9.02534,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 18.441666666666666,
+    "stdev": 0.13555195805790987,
+    "runs": [
+     18.551,
+     18.29,
+     18.484
+    ],
+    "min": 18.29,
+    "max": 18.551,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.6181386666666667,
+    "stdev": 0.0038553690268680633,
+    "runs": [
+     0.622101,
+     0.6144,
+     0.617915
+    ],
+    "min": 0.6144,
+    "max": 0.622101,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 4.557293333333333,
+    "stdev": 0.017021308214509746,
+    "runs": [
+     4.56632,
+     4.53766,
+     4.5679
+    ],
+    "min": 4.53766,
+    "max": 4.5679,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.021083566666666668,
+    "stdev": 0.00025235422194473705,
+    "runs": [
+     0.0213067,
+     0.0208097,
+     0.0211343
+    ],
+    "min": 0.0208097,
+    "max": 0.0213067,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 3.0523933333333333,
+    "stdev": 0.004840581920940179,
+    "runs": [
+     3.05248,
+     3.05719,
+     3.04751
+    ],
+    "min": 3.04751,
+    "max": 3.05719,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 3.577776666666667e-05,
+    "stdev": 4.337621809624872e-06,
+    "runs": [
+     4e-05,
+     3.13333e-05,
+     3.6e-05
+    ],
+    "min": 3.13333e-05,
+    "max": 4e-05,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 0.7594569999999999,
+    "stdev": 0.004358203414252248,
+    "runs": [
+     0.763536,
+     0.754865,
+     0.75997
+    ],
+    "min": 0.754865,
+    "max": 0.763536,
+    "n": 3
+   },
+   "kills": {
+    "value": 507.0,
+    "stdev": 0.0,
+    "runs": [
+     507.0,
+     507.0,
+     507.0
+    ],
+    "min": 507.0,
+    "max": 507.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 12006.0,
+    "stdev": 0.0,
+    "runs": [
+     12006.0,
+     12006.0,
+     12006.0
+    ],
+    "min": 12006.0,
+    "max": 12006.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle_physics": {
+   "error": "build failed: llvm: AppData/Local/Temp/tmpeqlyxf1e/spacebattle_compiler.bi:14:9: error: 6 functions don't exist: CreatePhysicsBody, PhysicsAngularVelocity, PhysicsDeterministic, PhysicsGravity, PhysicsLinearVelocity, PhysicsUpdate.\n\tbody = CreatePhysicsBody(2, 1, 32, 0, 0)\n\t       ^-------------------------------- HERE"
+  }
+ }
+}

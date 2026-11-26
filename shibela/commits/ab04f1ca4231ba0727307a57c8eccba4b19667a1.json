@@ -1,0 +1,229 @@
+{
+ "commit": "ab04f1ca4231ba0727307a57c8eccba4b19667a1",
+ "commits": [
+  "ab04f1ca4231ba0727307a57c8eccba4b19667a1"
+ ],
+ "subject": "Merge pull request #498 from Xaymar/claude/triangle-clip-cost",
+ "date": "2026-11-05",
+ "label": "c0014-ab04f1ca",
+ "rev": "ab04f1ca4231ba0727307a57c8eccba4b19667a1",
+ "compiler": "Compiler version:2026.11.26.18731 Runtime version:2026.11.26.18731",
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "ms_avg": {
+    "value": 46.0223,
+    "stdev": 0.8049233938704976,
+    "runs": [
+     46.9506,
+     45.5981,
+     45.5182
+    ],
+    "min": 45.5182,
+    "max": 46.9506,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 53.62733333333333,
+    "stdev": 2.0271165070940858,
+    "runs": [
+     55.93,
+     52.84,
+     52.112
+    ],
+    "min": 52.112,
+    "max": 55.93,
+    "n": 3
+   },
+   "update_ms": {
+    "value": 18.015533333333334,
+    "stdev": 0.2809467090630065,
+    "runs": [
+     18.338,
+     17.885,
+     17.8236
+    ],
+    "min": 17.8236,
+    "max": 18.338,
+    "n": 3
+   },
+   "tris": {
+    "value": 10026105.0,
+    "stdev": 0.0,
+    "runs": [
+     10026105.0,
+     10026105.0,
+     10026105.0
+    ],
+    "min": 10026105.0,
+    "max": 10026105.0,
+    "n": 3
+   },
+   "draws": {
+    "value": 1517.0,
+    "stdev": 0.0,
+    "runs": [
+     1517.0,
+     1517.0,
+     1517.0
+    ],
+    "min": 1517.0,
+    "max": 1517.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle": {
+   "ms_avg": {
+    "value": 8.898643333333334,
+    "stdev": 0.026631863121707296,
+    "runs": [
+     8.86933,
+     8.92135,
+     8.90525
+    ],
+    "min": 8.86933,
+    "max": 8.92135,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 18.89533333333333,
+    "stdev": 0.24509249954524012,
+    "runs": [
+     18.641,
+     18.915,
+     19.13
+    ],
+    "min": 18.641,
+    "max": 19.13,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.6406593333333334,
+    "stdev": 0.00253878264791086,
+    "runs": [
+     0.641686,
+     0.642524,
+     0.637768
+    ],
+    "min": 0.637768,
+    "max": 0.642524,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 4.596316666666667,
+    "stdev": 0.02971736248951652,
+    "runs": [
+     4.56824,
+     4.59327,
+     4.62744
+    ],
+    "min": 4.56824,
+    "max": 4.62744,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.021922233333333332,
+    "stdev": 0.0015525817090682654,
+    "runs": [
+     0.021025,
+     0.023715,
+     0.0210267
+    ],
+    "min": 0.021025,
+    "max": 0.023715,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 2.8606133333333332,
+    "stdev": 0.013421096577155348,
+    "runs": [
+     2.85933,
+     2.87463,
+     2.84788
+    ],
+    "min": 2.84788,
+    "max": 2.87463,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 2.71111e-05,
+    "stdev": 3.2375482266678297e-06,
+    "runs": [
+     3.06667e-05,
+     2.63333e-05,
+     2.43333e-05
+    ],
+    "min": 2.43333e-05,
+    "max": 3.06667e-05,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 0.7797986666666666,
+    "stdev": 0.008061349411440563,
+    "runs": [
+     0.779712,
+     0.787903,
+     0.771781
+    ],
+    "min": 0.771781,
+    "max": 0.787903,
+    "n": 3
+   },
+   "kills": {
+    "value": 507.0,
+    "stdev": 0.0,
+    "runs": [
+     507.0,
+     507.0,
+     507.0
+    ],
+    "min": 507.0,
+    "max": 507.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 12006.0,
+    "stdev": 0.0,
+    "runs": [
+     12006.0,
+     12006.0,
+     12006.0
+    ],
+    "min": 12006.0,
+    "max": 12006.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle_physics": {
+   "error": "build failed: llvm: AppData/Local/Temp/tmpj2hb5ld4/spacebattle_compiler.bi:14:9: error: 6 functions don't exist: CreatePhysicsBody, PhysicsAngularVelocity, PhysicsDeterministic, PhysicsGravity, PhysicsLinearVelocity, PhysicsUpdate.\n\tbody = CreatePhysicsBody(2, 1, 32, 0, 0)\n\t       ^-------------------------------- HERE"
+  }
+ }
+}

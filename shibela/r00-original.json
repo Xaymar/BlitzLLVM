@@ -1,0 +1,159 @@
+{
+ "label": "r00-original",
+ "rev": "",
+ "date": "2026-11-26T12:02:03+00:00",
+ "compiler": "Compiler version:11.18:SoLoud Runtime version:11.18:SoLoud Debugger version:0.0: Linker version:11.18:SoLoud",
+ "wrapper": [],
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "error": "did not finish 3000 frames in 3000 s",
+   "below_fps": 1.0
+  },
+  "spacebattle": {
+   "ms_avg": {
+    "value": 56.9509,
+    "stdev": 1.1800827132027663,
+    "runs": [
+     56.0364,
+     58.283,
+     56.5333
+    ],
+    "min": 56.0364,
+    "max": 58.283,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 101.0,
+    "stdev": 1.0,
+    "runs": [
+     100.0,
+     102.0,
+     101.0
+    ],
+    "min": 100.0,
+    "max": 102.0,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.596333,
+    "stdev": 0.009848857801796113,
+    "runs": [
+     0.588333,
+     0.593333,
+     0.607333
+    ],
+    "min": 0.588333,
+    "max": 0.607333,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 3.60467,
+    "stdev": 0.055108982933819356,
+    "runs": [
+     3.66167,
+     3.60067,
+     3.55167
+    ],
+    "min": 3.55167,
+    "max": 3.66167,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.16544433333333333,
+    "stdev": 0.016514029954354977,
+    "runs": [
+     0.169333,
+     0.147333,
+     0.179667
+    ],
+    "min": 0.147333,
+    "max": 0.179667,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 36.16513333333333,
+    "stdev": 1.1635039593114123,
+    "runs": [
+     35.2067,
+     37.4597,
+     35.829
+    ],
+    "min": 35.2067,
+    "max": 37.4597,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 0.0,
+    "stdev": 0.0,
+    "runs": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "min": 0.0,
+    "max": 0.0,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 16.419533333333334,
+    "stdev": 0.058697217424110236,
+    "runs": [
+     16.4103,
+     16.4823,
+     16.366
+    ],
+    "min": 16.366,
+    "max": 16.4823,
+    "n": 3
+   },
+   "kills": {
+    "value": 503.0,
+    "stdev": 0.0,
+    "runs": [
+     503.0,
+     503.0,
+     503.0
+    ],
+    "min": 503.0,
+    "max": 503.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 11410.0,
+    "stdev": 0.0,
+    "runs": [
+     11410.0,
+     11410.0,
+     11410.0
+    ],
+    "min": 11410.0,
+    "max": 11410.0,
+    "n": 3
+   },
+   "_timer": "milliseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "0",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle_physics": {
+   "error": "needs BlitzLLVM"
+  }
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "commit": "b68ccc10ed1c44ae55fd12c0554996f3c4261674",
+ "commits": [
+  "b68ccc10ed1c44ae55fd12c0554996f3c4261674"
+ ],
+ "subject": "Add model loading and skeletal animation",
+ "date": "2026-10-26",
+ "label": "c0001-b68ccc10",
+ "rev": "b68ccc10ed1c44ae55fd12c0554996f3c4261674",
+ "compiler": "Usage: C:\\Users\\Xaymar\\Claude\\Shibela\\perf-history\\scratch\\c0001-b68ccc10\\install\\blitzcc.exe [options] <input.bb> Compiles a BlitzBasic program into a single executable using LLVM. Options: -o <file> Name of the output file. Defaults to the input name. -O0 -O1 -O2 -O3 -Os -Oz LLVM optimization level, defaults to -O2. -S, --emit-llvm Only write the generated LLVM IR (.ll), don't build an executable. --target <triple> Build for another target, such as x86_64-linux-gnu or aarch64-apple-darwin. --llvm-flag <flag> Pass <flag> to the LLVM/clang driver as-is, such as -flto, -march=native or -fuse-ld=lld. Can be given multiple times. --llvm-arg <arg> Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times. --cc <path> Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'. --runtime-dir <dir> Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler. --keep-temps Don't delete the intermediate files. --dump-tokens Only print the tokens of the input file, for debugging the lexer. -v, --verbose Print the commands that are run. -h, --help Show this text. Everything after a lone '--' is passed to clang as-is.",
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU"
+ },
+ "benchmarks": {
+  "forest_full": {
+   "error": "build failed: original:  to string.\nC:/Users/Xaymar/AppData/Local/Temp/tmpe5c6chq0/bench_end.bi:98:15: warning: Implicit conversion from number to string.\nC:/Users/Xaymar/AppData/Local/Temp/tmpe5c6chq0/bench_begin.bi:121:35: error: 5 functions don't exist: CountGfxDrivers, GetEnv, SetGfxDriver, TextureCoords, VertexCoords."
+  },
+  "spacebattle": {
+   "error": "build failed: original: Xaymar/AppData/Local/Temp/tmp4vg9lp1z/bench_end.bi:98:15: warning: Implicit conversion from number to string.\nC:/Users/Xaymar/AppData/Local/Temp/tmp4vg9lp1z/spacebattle.bb:153:3: error: 7 functions don't exist: AddMesh, AlignToVector, CountGfxDrivers, GetEnv, ResetEntity, SetGfxDriver, VertexCoords."
+  },
+  "spacebattle_physics": {
+   "error": "needs BlitzLLVM"
+  }
+ }
+}
