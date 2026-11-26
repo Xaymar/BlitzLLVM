@@ -416,6 +416,14 @@ namespace bb::gfx {
 		float step  = ((code > 0.0f) && (bits >= 6) && (bits <= 12)) ? 1.0f / float((1u << bits) - 1u) : 0.0f;
 		float push[4] = { white / scrgb_white_nits, peak / scrgb_white_nits, step, (code > 0.0f) ? code - 1.0f : 0.0f }; // Values above the peak are cut.
 
+		if (hdr_test()) { // What the pass was given, next to the dump (tests that look for the noise say it when it is missing).
+			std::string info = std::string(test_path()) + ".info";
+			if (FILE* file = fopen(info.c_str(), "wb")) {
+				fprintf(file, "bits %d (system %d) code %g step %g shift %g white %g limit %g", bits, levels.bits, code, step, push[3], push[0], push[1]);
+				fclose(file);
+			}
+		}
+
 		barrier(picture.image, bb::rhi::image_state::copy_src, bb::rhi::image_state::sampled);
 		barrier(scrgb.image, bb::rhi::image_state::undefined, bb::rhi::image_state::color_target);
 

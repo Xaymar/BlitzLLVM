@@ -95,7 +95,10 @@ If (high - low) <= 0.02 Then
 		If v < low2 Then low2 = v
 		If v > high2 Then high2 = v
 	Next
-	RuntimeError "Dither 1 in HDR with 6 bits makes noise: low " + low + " high " + high + " env '" + GetEnv$("BLITZLLVM_AUTOHDR_BITS") + "' dither again: low " + low2 + " high " + high2
+	info$ = ""
+	f = ReadFile("hdr_dither.tmp.info")
+	If f <> 0 Then info = ReadLine$(f) : CloseFile f
+	RuntimeError "Dither 1 in HDR with 6 bits makes noise (" + info + "): low " + low + " high " + high + " env '" + GetEnv$("BLITZLLVM_AUTOHDR_BITS") + "' dither again: low " + low2 + " high " + high2
 EndIf
 CheckTrue "the noise of Dither 1 in HDR stays within a few steps", (high - low) < 0.25
 Check "the noise of Dither 1 in HDR keeps the grey", sum / (W * H), 0.4316, 0.02
@@ -110,4 +113,5 @@ Check "without Dither the noise of 6 bits is not there", Shown(5, 7, 1), Shown(W
 SetEnv "BLITZLLVM_AUTOHDR_BITS", ""
 
 DeleteFile "hdr_dither.tmp"
+DeleteFile "hdr_dither.tmp.info"
 Done "graphics_autohdr_dither_pixels"
