@@ -11,11 +11,13 @@ namespace {
 	// Sorted by the lower case spelling. Must have every word of blitz::keywords::language() in code_compiler (the test
 	// format-keywords compares both).
 	constexpr std::string_view spellings[] = {
-		"Abs",   "After",  "And",    "Before",    "Case",     "Const",  "Data",       "Default", "Delete", "Dim",      "Each",    "Else",       "ElseIf", "End",
-		"EndFunction", "EndIf", "EndSelect", "EndType", "Exit",   "False",      "Field",  "First",  "Float",    "For",     "Forever",    "Function", "Global", "Gosub",
-		"Goto",  "Handle", "If",     "In",  "Include",   "InOut",   "Insert",   "Int",    "Last",       "Local",   "Mod",    "New",      "Next",    "Not",        "Null",   "Object",
-		"Or",    "Out",  "Pi",     "Read",   "Repeat",    "Restore",  "Return", "Sar",        "Select",  "Sgn",    "Shl",      "Shr",     "Step",       "Stop",   "Str",
-		"Then",  "To",     "True",   "Type",      "Until",    "Wend",   "While",      "Xor",
+		"Abs", "After", "And", "Before", "Byte", "ByteSwap", "Case", "Const", "Data", "Default", "Delete", "Dim", "Double", "Each", "Else",
+		"ElseIf", "End", "EndFunction", "EndIf", "EndSelect", "EndType", "Exit", "False", "Field", "First", "Float", "For", "Forever",
+		"Function", "Global", "Gosub", "Goto", "Half", "Handle", "If", "In", "Include", "InOut", "Insert", "Int", "Last", "LeadingZeros",
+		"Local", "Long", "Mod", "New", "Next", "Not", "Null", "Object", "Or", "Out", "Pi", "PopCount", "Read", "Repeat", "Restore", "Return",
+		"RotL", "RotR", "Sar", "SatByte", "SatInt", "SatLong", "SatShort", "SatUByte", "SatUInt", "SatULong", "SatUShort", "Select", "Sgn",
+		"Shl", "Short", "Shr", "Single", "Step", "Stop", "Str", "Then", "To", "TrailingZeros", "True", "Type", "UByte", "UInt", "ULong", "Until",
+		"UShort", "Wend", "While", "Xor",
 	};
 } // namespace
 
@@ -37,7 +39,9 @@ bool blitz::tools::keyword_takes_value(std::string_view w)
 
 bool blitz::tools::keyword_is_function(std::string_view w)
 {
-	static constexpr std::string_view words[] = { "abs", "float", "handle", "int", "object", "sgn", "str" };
+	static constexpr std::string_view words[] = { "abs", "byte", "byteswap", "double", "float", "half", "handle", "int", "leadingzeros", "long", "object",
+		"popcount", "rotl", "rotr", "satbyte", "satint", "satlong", "satshort", "satubyte", "satuint", "satulong", "satushort", "sgn", "short", "single",
+		"str", "trailingzeros", "ubyte", "uint", "ulong", "ushort" };
 	return std::find(std::begin(words), std::end(words), w) != std::end(words);
 }
 
