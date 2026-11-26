@@ -84,7 +84,7 @@ For y = 0 To H - 1
 		sum = sum + v
 	Next
 Next
-CheckTrue "Dither 1 in HDR with 6 bits makes noise", (high - low) > 0.02
+If (high - low) <= 0.02 Then RuntimeError "Dither 1 in HDR with 6 bits makes noise: low " + low + " high " + high + " mean " + (sum / (W * H))
 CheckTrue "the noise of Dither 1 in HDR stays within a few steps", (high - low) < 0.25
 Check "the noise of Dither 1 in HDR keeps the grey", sum / (W * H), 0.4316, 0.02
 EndGraphics
