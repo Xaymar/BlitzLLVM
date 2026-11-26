@@ -571,7 +571,9 @@ namespace blitz::recompiler {
 				char        k = c.params[n];
 				std::string v;
 				if (n < d.params.size()) {
-					if (d.params[n] != k) {
+					char given = d.params[n]; // What the program passes; a number that BlitzLLVM takes as another number is converted.
+					bool numbers = (given == 'i' || given == 'f') && (k == 'i' || k == 'f' || k == 'u');
+					if (given != k && !numbers) {
 						throw unsupported("the parameter " + std::to_string(n + 1) + " of the command '" + c.name + "' has another type in the original");
 					}
 					o << "  %o" << n << " = add i32 %argp, " << 4 * n << "\n"
@@ -579,16 +581,29 @@ namespace blitz::recompiler {
 					  << "  %p" << n << " = getelementptr i8, ptr %mem, i64 %z" << n << "\n"
 					  << "  %a" << n << " = load i32, ptr %p" << n << ", align 1\n";
 					v = "%a" + std::to_string(n);
-					if (k == 'f') {
+					if (given == 'f') {
 						o << "  %f" << n << " = bitcast i32 " << v << " to float\n";
 						v = "%f" + std::to_string(n);
+					}
+					if (given == 'i' && k == 'f') {
+						o << "  %c" << n << " = sitofp i32 " << v << " to float\n";
+						v = "%c" + std::to_string(n);
+					} else if (given == 'f' && (k == 'i' || k == 'u')) {
+						// Blitz rounds a Float to the nearest Int.
+						decls.insert("declare float @llvm.rint.f32(float)");
+						o << "  %r" << n << " = call float @llvm.rint.f32(float " << v << ")\n"
+						  << "  %c" << n << " = fptosi float %r" << n << " to " << (k == 'u' ? "i64" : "i32") << "\n";
+						v = "%c" + std::to_string(n);
+					} else if (given == 'i' && k == 'u') {
+						o << "  %c" << n << " = sext i32 " << v << " to i64\n";
+						v = "%c" + std::to_string(n);
 					} else if (k == 's') {
 						decls.insert("declare ptr @bb32_str_text(i32)");
 						decls.insert("declare void @bb32_str_release(i32)");
 						o << "  %s" << n << " = call ptr @bb32_str_text(i32 " << v << ")\n";
 						releases += "  call void @bb32_str_release(i32 " + v + ")\n";
 						v = "%s" + std::to_string(n);
-					} else if (k != 'i') {
+					} else if (k != 'i' && k != 'f') {
 						throw unsupported("the command '" + c.name + "' has a parameter type that is not supported");
 					}
 				} else {
