@@ -514,16 +514,21 @@ def read_list():
     return entries
 
 
-def command_list():
+def list_text():
+    """functions.txt as 'list' writes it, made from the originals and the tables above."""
     done = implemented()
     rows = []
     for name, (module, signature) in sorted(originals().items(), key=lambda item: (item[1][0], item[0])):
         rows.append((name, module, "done" if name in done else "pending", signature))
+    text = "# name\tmodule\tstate\tsignature (Name:Result(parameter:Type = default), see tools/suite_functions.py)\n"
+    return text + "".join("\t".join(row) + "\n" for row in rows), rows
+
+
+def command_list():
+    text, rows = list_text()
     os.makedirs(SUITE, exist_ok=True)
     with open(LIST, "w", newline="\n") as out:
-        out.write("# name\tmodule\tstate\tsignature (Name:Result(parameter:Type = default), see tools/suite_functions.py)\n")
-        for row in rows:
-            out.write("\t".join(row) + "\n")
+        out.write(text)
     print("%d functions, %d pending" % (len(rows), sum(1 for r in rows if r[2] == "pending")))
 
 
@@ -573,6 +578,15 @@ def command_check():
         if name not in handled:
             print("%s is listed in BY_COMPILER but the compiler does not handle it" % name)
             problems += 1
+    # functions.txt is written by 'list': a line edited by hand is lost the next time it runs, so it has to be in the
+    # tables above instead. Needs the originals in /third_party (the submodules blitz3d and blitzplus_msvc2017).
+    if all(os.path.isdir(os.path.join(ROOT, "third_party", d, ".git")) or os.path.isfile(os.path.join(ROOT, "third_party", d, ".git"))
+           for d in ("blitz3d", "blitzplus_msvc2017")):
+        if list_text()[0] != open(LIST, encoding="utf-8").read():
+            print("functions.txt is not what 'list' writes: put the change into the tables of tools/suite_functions.py and run 'list'")
+            problems += 1
+    else:
+        print("the originals are not in /third_party, so whether functions.txt is what 'list' writes is not checked")
     for name, module, state, signature in read_list():
         if state == "done":
             if name not in done:
