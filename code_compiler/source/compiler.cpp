@@ -746,9 +746,107 @@ void blitz::compiler::collect_globals(ast::block const& block)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Pragmas
+//
+// `;#pragma name` comments switch features for the whole program. The main file decides, before its first statement, over the CLI
+// options that main.cpp already set; the pragmas of an Include'd file only say what the file was written for. See
+// docs/Modern-Mode.md.
+////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+	struct feature {
+		const char*             name;
+		bool blitz::compiler::* flag;
+		const char*             when_on;  // What the program does with the feature, for pragma-mismatch.
+		const char*             when_off; // ... and without it.
+	};
+
+	// Every feature that `modern` turns on. Each has a CLI option --<name> and --no-<name> as well.
+	feature const features[] = {
+		{ "sane-evaluation-order", &blitz::compiler::sane_evaluation_order, "evaluates from left to right", "evaluates in the order of the original" },
+		{ "field-defaults", &blitz::compiler::field_defaults, "lets New apply the default values of fields", "ignores the default values of fields like the original" },
+	};
+
+	feature const* find_feature(std::string const& name)
+	{
+		for (auto const& f : features) {
+			if (name == f.name) {
+				return &f;
+			}
+		}
+		return nullptr;
+	}
+} // namespace
+
+void blitz::compiler::apply_pragmas(std::vector<ast::pragma> const& pragmas)
+{
+	// Checks a name, and calls `set` for every feature it stands for.
+	auto each = [&](ast::pragma const& p, auto const& set) {
+		if (p.name == "modern") {
+			for (auto const& f : features) {
+				set(f);
+			}
+		} else if (auto const* f = find_feature(p.name)) {
+			set(*f);
+		} else {
+			warn(p.where, "pragma-unknown", "'" + p.name + "' is not a pragma that this BlitzLLVM knows, it does nothing.", "Check the name, or build with a newer BlitzLLVM.");
+			return false;
+		}
+		return true;
+	};
+	auto too_late = [&](ast::pragma const& p) {
+		if (p.before_code || ((p.name != "modern") && !find_feature(p.name))) {
+			return false;
+		}
+		warn(p.where, "pragma-misplaced", "The pragma '" + std::string(p.on ? "" : "no-") + p.name + "' comes after the first statement of the file, so it does nothing.",
+		     "Move it into the comments at the top of the file.");
+		return true;
+	};
+
+	// The main file decides, the last name for a feature wins.
+	for (auto const& p : pragmas) {
+		if (p.main_file && !too_late(p)) {
+			each(p, [&](feature const& f) { this->*f.flag = p.on; });
+		}
+	}
+
+	// An Include'd file only says what it expects: Its last name for a feature, checked against what the program does.
+	struct expectation {
+		bool          on;
+		ast::location where;
+	};
+	std::vector<std::pair<std::shared_ptr<const std::filesystem::path>, std::map<std::string, expectation>>> files;
+	for (auto const& p : pragmas) {
+		if (p.main_file || too_late(p)) {
+			continue;
+		}
+		auto found = std::find_if(files.begin(), files.end(), [&](auto const& entry) { return entry.first == p.where.file; });
+		if (found == files.end()) {
+			files.emplace_back(p.where.file, std::map<std::string, expectation>());
+			found = std::prev(files.end());
+		}
+		each(p, [&](feature const& f) { found->second[f.name] = expectation{ p.on, p.where }; });
+	}
+	for (auto const& [file, expected] : files) {
+		std::string name = file ? file->filename().generic_string() : std::string("<unknown>");
+		for (auto const& f : features) {
+			auto it = expected.find(f.name);
+			if ((it == expected.end()) || (it->second.on == this->*f.flag)) {
+				continue;
+			}
+			warn(it->second.where, "pragma-mismatch",
+			     "'" + name + "' was written for a program that " + (it->second.on ? f.when_on : f.when_off) + ", but this one " + (this->*f.flag ? f.when_on : f.when_off) + ".",
+			     std::string("The main file decides for the whole program: ;#pragma ") + (it->second.on ? "" : "no-") + f.name + " in it, or --" + (it->second.on ? "" : "no-") + f.name + ".");
+		}
+	}
+}
+
 std::string blitz::compiler::generate(ast::program const& program)
 {
 	di_begin_module();
+
+	apply_pragmas(program.pragmas);
 
 	warn_short_notations(program.short_notations);
 	warn_call_parentheses(program.call_parentheses_before_else);

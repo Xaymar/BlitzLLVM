@@ -383,7 +383,17 @@ namespace blitz {
 			bool        spaced = false; // If there is a space between the name and the `(`.
 		};
 
+		/** One name of a `;#pragma` line, such as `modern` in `;#pragma modern` or `field-defaults` in `;#pragma no-field-defaults`. */
+		struct pragma {
+			location    where;              // The name, `no-` included.
+			std::string name;               // In lower case, without `no-`.
+			bool        on          = true; // False for `no-<name>`.
+			bool        main_file   = false; // In the file the program was started from, not in an Include.
+			bool        before_code = true; // Before the first statement of its file.
+		};
+
 		struct program {
+			std::vector<pragma>                    pragmas; // In the order they were read, Includes in place.
 			std::vector<short_notation>            short_notations;
 			std::vector<call_parentheses>          call_parentheses_before_else;
 			std::vector<std::unique_ptr<type_decl>> types;

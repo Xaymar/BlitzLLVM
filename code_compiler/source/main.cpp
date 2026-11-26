@@ -173,8 +173,9 @@ namespace {
 				  << "                        order of the original Blitz3D (the part that needs more registers first, so F(a(), b(), c()) calls b, c, a).\n"
 				  << "  --field-defaults      Let New set a field to its default value (Field lives% = 3). The original accepts the default but never\n"
 				  << "                        uses it, so by default the field starts at 0, 0.0, \"\" or Null (see -Wfield-default-ignored).\n"
-				  << "  --modern              All of the above (the modern features). --no-<name> turns one off again\n"
-				  << "                        (--no-field-defaults), the last option for a feature wins.\n"
+				  << "  --modern              All of the above (the modern features), like ;#pragma modern. --no-<name> turns one off again\n"
+				  << "                        (--no-field-defaults), the last option for a feature wins. A ;#pragma in the main file wins over\n"
+				  << "                        these options, see Modern-Mode in the wiki.\n"
 				  << "  --blitzplus           Run the program like BlitzPlus did: Graphics and EndGraphics keep the images and fonts, which the\n"
 				  << "                        original Blitz3D frees. Programs written for BlitzPlus need it when they draw images made before Graphics.\n"
 				  << "  --profile             Let the program time the parts of the runtime (UpdateWorld, RenderWorld, CopyRect, Flip, ...), which BLITZLLVM_PROFILE_FPS=1 reports\n"
@@ -430,7 +431,7 @@ namespace {
 			} else if ((arg == "--field-defaults") || (arg == "--no-field-defaults")) {
 				opt.field_defaults = (arg[2] != 'n');
 			} else if ((arg == "--modern") || (arg == "--no-modern")) {
-				// Every modern feature, in the order of the command line like the others.
+				// Every feature of ;#pragma modern, in the order of the command line like the others.
 				opt.sane_order     = (arg[2] != 'n');
 				opt.field_defaults = (arg[2] != 'n');
 			} else if (arg == "--profile") {
