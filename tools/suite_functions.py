@@ -54,9 +54,12 @@ UNREGISTERED = {
     "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
 }
 
-# Original functions that BlitzLLVM gives more parameters: their signature here replaces the one the originals register.
-# They are not extensions, as programs written for the originals call them the same way.
+# Original functions that BlitzLLVM gives more parameters, or registers differently: their signature here replaces the one
+# the originals register. They are not extensions, as programs written for the originals call them the same way.
 EXTENDED = {
+    "graphics": ("graphics", "Graphics%width%height%depth=0%mode=0%keep=0"),
+    "graphics3d": ("graphics", "Graphics3D%width%height%depth=0%mode=0%keep=0"),
+    "setstatustext": ("plusgui", "SetStatusText%window$text"),
     "savebuffer": ("graphics", "%SaveBuffer%buffer$bmpfile$settings=\"\""),
     "saveimage": ("graphics", "%SaveImage%image$bmpfile%frame=0$settings=\"\""),
     "playmusic": ("audio", "%PlayMusic$midifile%flags=0"),
@@ -70,6 +73,8 @@ EXTENDED = {
 # Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
 # one it reads and writes with a '<' (InOut). Parameters without a mark are In.
 EXTENSIONS = {
+    "setgraphicsrefreshrate": ("graphics", "SetGraphicsRefreshRate#rate"),
+    "getgraphicsrefreshrate": ("graphics", "#GetGraphicsRefreshRate"),
     "entitylightchannel": ("blitz3d", "EntityLightChannel%entity%channel"),
     "entitydepthfade": ("blitz3d", "EntityDepthFade%entity#fade_distance"),
     "entitystatic": ("blitz3d", "EntityStatic%entity%is_static"),

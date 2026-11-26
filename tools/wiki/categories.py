@@ -82,7 +82,7 @@ _OVERRIDES = {}
 for _names, _category in (
         ("rnd rndseed seedrnd rand", "Randomization"),
         ("millisecs microseconds currentdate currenttime delay createtimer waittimer freetimer", "Time and Date"),
-        ("byte ubyte short ushort uint long ulong half double", "Types"),
+        ("byte ubyte short ushort uint long ulong half double single", "Types"),
         ("end stop", "Keywords"),
         ("apptitle calldll commandline debuglog getenv profileenable profileflipcount profilevalue profilefps profileitemcount profileitemname profileoutput profilesample profileend profilebegin profileslow runtimeerror runtimestats setenv systemproperty execfile",
          "Other")):
