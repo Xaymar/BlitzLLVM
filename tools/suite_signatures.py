@@ -16,18 +16,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import suite_functions as sf  # noqa: E402
 
 ROW = re.compile(r'\{\s*"([a-z0-9_]+)"\s*,\s*"([a-z0-9_]+)"\s*,\s*\'(.)\'\s*,\s*"([a-z]*)"\s*,\s*(\d+)\s*,\s*\{([^}]*)\}')
-KIND = {"%": "i", "#": "f", "$": "s", "!": "l"}
+# The letters builtins.inc has for the types of the list.
+KIND = {"Int32": "i", "Float32": "f", "String": "s", "Int64": "l", "UInt64": "u", "Float16": "x"}
 
 
 def parse_original(signature):
-    result = KIND.get(signature[:1], "v")
-    body = signature[1:] if signature[:1] in KIND else signature
-    body = re.sub(r"^[A-Za-z_][A-Za-z0-9_]*", "", body)
-    kinds, required = "", 0
-    for kind, name, default in re.findall(r"([%#$!])([A-Za-z_][A-Za-z0-9_]*)(=[^%#$!]*)?", body):
-        kinds += KIND[kind]
-        if not default:
-            required += 1
+    name, ret, parameters = sf.parse_signature(signature)
+    result = KIND.get(ret, "v") if ret else "v"
+    kinds = "".join(KIND.get(t, "?") for mode, n, t, d in parameters)
+    required = sum(1 for mode, n, t, d in parameters if not d)
     return result, kinds, required
 
 

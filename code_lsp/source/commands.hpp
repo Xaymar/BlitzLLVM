@@ -11,10 +11,10 @@
 namespace blitz::lsp {
 	struct command_parameter {
 		std::string name;
-		std::string type;     // Int, Float, String, Int64, UInt64
+		std::string type;     // The name of the type as the list writes it: Int32, Float32, String, UInt64, ...
 		std::string fallback; // Default value as written, empty if the parameter is required
 		bool        optional = false;
-		bool        out      = false;
+		std::string mode;     // "Out " or "InOut " for a parameter the command writes to, empty for one it only reads
 	};
 
 	struct command {

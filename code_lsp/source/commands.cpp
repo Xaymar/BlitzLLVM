@@ -7,30 +7,75 @@
 
 namespace blitz::lsp {
 	namespace {
-		bool is_sigil(char c)
-		{
-			return c == '%' || c == '#' || c == '$' || c == '&' || c == '!' || c == '~' || c == '@' || c == '|' || c == '^';
-		}
-
-		const char* type_of(char sigil)
-		{
-			switch (sigil) {
-			case '%': return "Int";
-			case '#': return "Float";
-			case '$': return "String";
-			case '&': return "UInt64";
-			case '!': return "Int64";
-			case '~': return "Float16";
-			case '@': return "FloatVector4";
-			case '|': return "FloatMatrix4x3";
-			case '^': return "FloatMatrix4x4";
-			}
-			return "Int";
-		}
-
 		bool is_name(char c)
 		{
 			return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+		}
+
+		void skip_spaces(std::string const& text, size_t& at)
+		{
+			while (at < text.size() && (text[at] == ' ' || text[at] == '\t')) at++;
+		}
+
+		std::string read_name(std::string const& text, size_t& at)
+		{
+			size_t begin = at;
+			while (at < text.size() && is_name(text[at])) at++;
+			return text.substr(begin, at - begin);
+		}
+
+		// The default of a parameter: everything up to the next ',' or ')' that is not inside a string.
+		std::string read_default(std::string const& text, size_t& at)
+		{
+			size_t begin  = at;
+			bool   quoted = false;
+			while (at < text.size() && (quoted || (text[at] != ',' && text[at] != ')'))) {
+				if (text[at] == '"') quoted = !quoted;
+				at++;
+			}
+			size_t end = at;
+			while (end > begin && (text[end - 1] == ' ' || text[end - 1] == '\t')) end--;
+			return text.substr(begin, end - begin);
+		}
+
+		// A signature of the list: Name:Result(parameter:Type, Out parameter:Type = default), see tools/suite_functions.py.
+		bool parse(std::string const& signature, command& c)
+		{
+			size_t at = 0;
+			c.name    = read_name(signature, at);
+			if (c.name.empty()) return false;
+			if (at < signature.size() && signature[at] == ':') {
+				at++;
+				c.returns = read_name(signature, at);
+			}
+			if (at >= signature.size()) return true;
+			if (signature[at++] != '(') return false;
+			for (;;) {
+				skip_spaces(signature, at);
+				if (at >= signature.size()) return false;
+				if (signature[at] == ')') return at + 1 == signature.size();
+				command_parameter p;
+				p.name = read_name(signature, at);
+				if (p.name == "Out" || p.name == "InOut") {
+					p.mode = p.name + " ";
+					skip_spaces(signature, at);
+					p.name = read_name(signature, at);
+				}
+				if (p.name.empty() || at >= signature.size() || signature[at++] != ':') return false;
+				p.type = read_name(signature, at);
+				if (p.type.empty()) return false;
+				skip_spaces(signature, at);
+				if (at < signature.size() && signature[at] == '=') {
+					at++;
+					skip_spaces(signature, at);
+					p.optional = true;
+					p.fallback = read_default(signature, at);
+					if (p.fallback == "0") p.fallback.clear();
+				}
+				c.parameters.push_back(std::move(p));
+				skip_spaces(signature, at);
+				if (at < signature.size() && signature[at] == ',') at++;
+			}
 		}
 	} // namespace
 
@@ -41,7 +86,7 @@ namespace blitz::lsp {
 		for (auto const& p : parameters) {
 			if (!first) out += ", ";
 			first = false;
-			if (p.out) out += "Out ";
+			out += p.mode;
 			out += p.name + ":" + p.type;
 			if (p.optional) out += " = " + (p.fallback.empty() ? std::string("0") : p.fallback);
 		}
@@ -63,36 +108,9 @@ namespace blitz::lsp {
 			std::string              column;
 			while (std::getline(s, column, '\t')) columns.push_back(column);
 			if (columns.size() < 4) continue;
-			std::string const& signature = columns[3];
-			command            c;
+			command c;
 			c.module = columns[1];
-			size_t at = 0;
-			if (at < signature.size() && is_sigil(signature[at])) c.returns = type_of(signature[at++]);
-			size_t name_begin = at;
-			while (at < signature.size() && is_name(signature[at])) at++;
-			c.name = signature.substr(name_begin, at - name_begin);
-			if (c.name.empty()) continue;
-			while (at < signature.size()) {
-				command_parameter p;
-				if (signature[at] == '>') {
-					p.out = true;
-					at++;
-				}
-				if (at >= signature.size() || !is_sigil(signature[at])) break;
-				p.type = type_of(signature[at++]);
-				size_t b = at;
-				while (at < signature.size() && is_name(signature[at])) at++;
-				p.name = signature.substr(b, at - b);
-				if (at < signature.size() && signature[at] == '=') {
-					at++;
-					size_t d = at;
-					while (at < signature.size() && !is_sigil(signature[at]) && signature[at] != '>') at++;
-					p.optional = true;
-					p.fallback = signature.substr(d, at - d);
-					if (p.fallback == "0") p.fallback.clear();
-				}
-				c.parameters.push_back(std::move(p));
-			}
+			if (!parse(columns[3], c)) continue;
 			std::string key;
 			for (char ch : c.name) key += char(std::tolower(static_cast<unsigned char>(ch)));
 			_by_name[key] = std::move(c);

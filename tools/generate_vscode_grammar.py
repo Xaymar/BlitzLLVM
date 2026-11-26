@@ -12,8 +12,11 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import suite_functions  # noqa: E402
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-LIST = os.path.join(ROOT, "tests", "suite", "functions.txt")
+LIST = suite_functions.LIST
 OUT = os.path.join(ROOT, "tools", "vscode", "syntaxes", "blitzbasic.tmLanguage.json")
 
 CONTROL = ["If", "Then", "Else", "ElseIf", "EndIf", "End If", "While", "Wend", "For", "To", "Step", "Next", "Repeat", "Until", "Forever",
@@ -32,28 +35,17 @@ def words(names):
 
 
 def commands():
-    """The names of the commands. The type character of the result in front of a name is skipped whatever it is, so that a new type
-    character does not drop its commands; a line whose name can not be read stops the script instead of leaving the command out."""
+    """The names of the commands. A signature that can not be read, or whose name is not the command, stops the script
+    instead of leaving the command out."""
     names = set()
-    for number, line in enumerate(open(LIST, encoding="utf-8"), 1):
-        if line.startswith("#") or not line.strip():
-            continue
-        columns = line.rstrip("\n").split("\t")
-        if len(columns) < 4:
-            continue
-        signature = columns[3]
-        at = 0
-        while at < len(signature) and not (signature[at].isalnum() or signature[at] == "_"):
-            at += 1
-        name = ""
-        for c in signature[at:]:
-            if c.isalnum() or c == "_":
-                name += c
-            else:
-                break
-        if not name or name.lower() != columns[0].lower():
-            raise SystemExit(f"{LIST}:{number}: the signature {signature!r} does not start with the command {columns[0]!r}")
-        names.add(name)
+    for name, module, state, signature in suite_functions.read_list():
+        try:
+            command = suite_functions.parse_signature(signature)[0]
+        except ValueError as e:
+            raise SystemExit("%s: %s" % (LIST, e))
+        if command.lower() != name.lower():
+            raise SystemExit(f"{LIST}: the signature {signature!r} does not start with the command {name!r}")
+        names.add(command)
     return sorted(names, key=str.lower)
 
 
