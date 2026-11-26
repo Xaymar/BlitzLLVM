@@ -9,6 +9,7 @@
 #include <optional>
 #include <stdexcept>
 #include "keywords.hpp"
+#include "array_suffix.hpp"
 #include "split_if.hpp"
 #include "tokens.hpp"
 
@@ -639,7 +640,11 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 	if (bom) {
 		source.erase(0, 3);
 	}
-	// Splitting one-line Ifs changes the statements on the lines, so the result is compared with the split source.
+	// Removing the type of Blitz arrays and splitting one-line Ifs change the tokens and the statements on the lines, so the result
+	// is compared with the source after them.
+	if (o.remove_array_suffix) {
+		source = remove_array_suffixes(source);
+	}
 	source                = split_one_line_ifs(source, o.split_one_line_if);
 	std::string const split_source = source;
 

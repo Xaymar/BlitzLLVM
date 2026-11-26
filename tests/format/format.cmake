@@ -403,6 +403,40 @@ elseif(CASE STREQUAL "split_if")
 	blitz_format(--split-one-line-if=sometimes --print-config)
 	expect_rc(2)
 
+elseif(CASE STREQUAL "array_suffix")
+	# A used Blitz array loses its type (the original rejects weights#[0]), the declarations and fields keep it. On by default.
+	expect_format("Global weights#[5], other%[2]\nLocal names$[2], t.T, objs.T[3]\nweights#[0] = 1.5 : names$[1] = \"x\"\nLocal x# = weights#[1], y% = Max(other%[0], 1)\nIf x > 0 Then Print names$[1] Else Print objs.T[0] = Null\nt\\v#[1] = 2\n" "Global weights#[5], other%[2]\nLocal names$[2], t.T, objs.T[3]\nweights[0] = 1.5 : names[1] = \"x\"\nLocal x# = weights[1], y% = Max(other[0], 1)\nIf x > 0 Then Print names[1] Else Print objs[0] = Null\nt\\v#[1] = 2\n")
+	expect_format("weights#[0] = 1.5\n" "weights#[0] = 1.5\n" --remove-array-suffix=false)
+	# The program stays the same: it prints the same.
+	write_bytes("${WORK}/arrays.bb"
+		"Type Thing\n\tField v#[3]\nEnd Type\n"
+		"Global weights#[5]\nLocal names$[2], t.Thing = New Thing, things.Thing[2]\n"
+		"weights#[0] = 10.5 : weights#[1] = 35.25 : names$[1] = \"x\" : t\\v#[1] = 2.5 : things.Thing[1] = t\n"
+		"Print weights#[0] + weights#[1] + t\\v#[1] + things.Thing[1]\\v#[1]\n"
+		"Print names$[1]\n")
+	set(INPUT "${WORK}/arrays.bb")
+	blitz_format()
+	expect_rc(0)
+	write_bytes("${WORK}/arrays_formatted.bb" "${OUT}")
+	if(OUT MATCHES "weights#\\[0" OR OUT MATCHES "names\\$\\[1" OR OUT MATCHES "things\\.Thing\\[1")
+		message(FATAL_ERROR "A type is left behind a used array:\n${OUT}")
+	endif()
+	foreach(_NAME IN ITEMS arrays arrays_formatted)
+		execute_process(COMMAND "${BLITZCC}" -q "${WORK}/${_NAME}.bb" -o "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _OUT ERROR_VARIABLE _ERR)
+		if(NOT _RC EQUAL 0)
+			message(FATAL_ERROR "Compiling ${_NAME}.bb failed:\n${_OUT}${_ERR}")
+		endif()
+		execute_process(COMMAND "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" OUTPUT_VARIABLE _RUN_${_NAME})
+	endforeach()
+	if(NOT _RUN_arrays STREQUAL "50.75\nx\n" OR NOT _RUN_arrays_formatted STREQUAL _RUN_arrays)
+		message(FATAL_ERROR "The formatted program prints something else:\n${_RUN_arrays}----\n${_RUN_arrays_formatted}")
+	endif()
+	blitz_format(--print-config)
+	expect_rc(0)
+	if(NOT OUT MATCHES "remove-array-suffix = true\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
 	expect_format("a=1\r\nb=2\r\n" "a = 1\r\nb = 2\r\n")

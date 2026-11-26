@@ -82,6 +82,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `align-assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align-declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
 | `align-data` | left \| right \| off | `off` | Line up the values of `Data` statements on consecutive lines in columns, to the left or to the right (so that the commas line up). `true` is `left` and `false` is `off`. See [Alignment](#alignment). |
+| `remove-array-suffix` | true \| false | `true` | Remove the type behind the name of a Blitz array where it is used (`weights#[0]` becomes `weights[0]`), which the original rejects. See [Blitz arrays](#blitz-arrays). |
 | `split-one-line-if` | never \| incompatible \| always | `incompatible` | Turn a one-line `If` into an `If` block. `incompatible` only splits the ones that the original rejects, which does not change the program. See [One-line If](#one-line-if). |
 | `wrap-after` | 0 - 1000 | `120` | Break a line that is longer than this many characters after a `:` between statements. See [Long lines](#long-lines). |
 | `trim-trailing-space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
@@ -232,6 +233,24 @@ EndIf
 ```
 
 The statements in front of the `If` go onto a line of their own, the comment stays on the line of the `If`, and a one-line `If` inside the `Then` or `Else` part is split as well (`If a Then If b Then c Else d Else e`, where the first `Else` belongs to the inner `If`). A one-line `If` without `Then`, or with `ElseIf` or `EndIf` on its line, is left alone.
+
+## Blitz arrays
+
+The original only accepts the type of a Blitz array where it is declared: after `Global weights#[5]` it rejects `weights#[0] = 1.5` with `Variable type mismatch`, as it takes the `#` as the type of the whole array. `remove-array-suffix` (on by default) removes the type behind a used Blitz array (`%`, `#`, `$` and `.Type`), which keeps the program the same:
+
+```blitzbasic
+Global weights#[5]
+weights#[0] = 1.5 : Print weights#[0]
+```
+
+becomes
+
+```blitzbasic
+Global weights#[5]
+weights[0] = 1.5 : Print weights[0]
+```
+
+The names in `Local`, `Global`, `Field`, `Const` and `Dim` keep their type, and so do fields (`t\v#[1]`), which the original accepts.
 
 ## Notes
 

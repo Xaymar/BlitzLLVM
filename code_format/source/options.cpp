@@ -70,6 +70,7 @@ std::vector<blitz::format::option_info> const& blitz::format::option_list()
 		{ "align-assignments", "true | false", "false", "Line up the = of assignments on consecutive lines (same indent, no blank or comment line between). A line with more than one assignment (a = 1 : b = 2) is left alone and ends the group." },
 		{ "align-declares", "true | false", "false", "Line up the names and the = of Const, Dim, Local and Global on consecutive lines (same indent, no blank or comment line between). A line that declares more than one variable has its name lined up, but not its =." },
 		{ "align-data", "left | right | off", "off", "Line up the values of Data statements on consecutive lines (same indent, no blank or comment line between) in columns, as wide as the widest value in each. Left starts the values of a column in the same place, right ends them in the same place so that the commas line up. true is left and false is off." },
+		{ "remove-array-suffix", "true | false", "true", "Remove the type behind the name of a Blitz array where it is used: weights#[0] becomes weights[0], which the original Blitz3D and BlitzPlus reject (\"Variable type mismatch\"). The declaration (Local weights#[5]) and fields (t\\v#[1]) keep it. The program stays the same." },
 		{ "split-one-line-if", "never | incompatible | always", "incompatible", "Turn a one-line If (If a Then b Else c) into an If block with Then, Else and EndIf on lines of their own. Incompatible only splits the ones that the original Blitz3D and BlitzPlus reject: a call with its arguments in parentheses right before Else (If a Then Foo(1, 2) Else ...). An If without Then, or with ElseIf or EndIf on its line, is left alone." },
 		{ "wrap-after", "0 - 1000", "120", "Break a line that is longer than this many characters (a tab counts as indent_width) after a : between statements. Nothing else can be broken without changing the program: there is no way to continue a statement on the next line, and what follows an If on its line belongs to the If. 0 never breaks lines." },
 		{ "trim-trailing-space", "true | false", "true", "Remove spaces and tabs at the end of lines (also in comments)." },
@@ -125,6 +126,8 @@ bool blitz::format::set_option(options& o, std::string key, std::string const& v
 		ok = parse_bool(value, o.align_declares);
 	} else if (key == "align_data") {
 		ok = parse_enum<data_alignment>(value, { { "off", data_alignment::off }, { "false", data_alignment::off }, { "left", data_alignment::left }, { "true", data_alignment::left }, { "right", data_alignment::right } }, o.align_data);
+	} else if (key == "remove_array_suffix") {
+		ok = parse_bool(value, o.remove_array_suffix);
 	} else if (key == "split_one_line_if") {
 		ok = parse_enum<split_if>(value, { { "never", split_if::never }, { "false", split_if::never }, { "incompatible", split_if::incompatible }, { "always", split_if::always }, { "true", split_if::always } }, o.split_one_line_if);
 	} else if (key == "wrap_after") {
@@ -174,6 +177,7 @@ std::string blitz::format::to_config(options const& o)
 	out += std::string("align-assignments = ") + b(o.align_assignments) + "\n";
 	out += std::string("align-declares = ") + b(o.align_declares) + "\n";
 	out += std::string("align-data = ") + (o.align_data == data_alignment::left ? "left" : o.align_data == data_alignment::right ? "right" : "off") + "\n";
+	out += std::string("remove-array-suffix = ") + (o.remove_array_suffix ? "true" : "false") + "\n";
 	out += std::string("split-one-line-if = ") + (o.split_one_line_if == split_if::always ? "always" : o.split_one_line_if == split_if::incompatible ? "incompatible" : "never") + "\n";
 	out += "wrap-after = " + std::to_string(o.wrap_after) + "\n";
 	out += std::string("trim-trailing-space = ") + b(o.trim_trailing_space) + "\n";

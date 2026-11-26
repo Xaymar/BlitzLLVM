@@ -33,6 +33,7 @@ namespace blitz::format {
 		bool          align_assignments     = false; // Line up the = of assignments on consecutive lines
 		bool          align_declares        = false; // Line up the names and = of Const, Dim, Local and Global on consecutive lines
 		data_alignment align_data           = data_alignment::off; // Line up the values of Data statements on consecutive lines in columns, to the left or the right
+		bool          remove_array_suffix   = true;  // weights#[0] becomes weights[0], which the original needs
 		split_if      split_one_line_if     = split_if::incompatible; // Turn one-line Ifs into If blocks: never, the ones the original rejects, or all
 		int           wrap_after            = 120;   // Break lines that are longer at a : between statements, 0 to never break
 		bool          trim_trailing_space   = true;
