@@ -202,8 +202,11 @@ def render_tags(results_dir, out):
     tags_dir = os.path.join(results_dir, "tags")
     tags = [json.load(open(os.path.join(tags_dir, n))) for n in os.listdir(tags_dir)] if os.path.isdir(tags_dir) else []
 
-    def version(t):  # the root that is not released yet (history_commits.py --head) is the last row
-        return (t["tag"] == "root", tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
+    def version(t):
+        # The root that is not released yet (history_commits.py --head) is the last row; root-igpu (the root on the GPU of the baseline,
+        # for a laptop where the original can only use the integrated one) comes right after the baseline.
+        order = {"root-igpu": -1, "root": 1}.get(t["tag"], 0)
+        return (order, tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
     tags.sort(key=version)
     revs, results, no_numbers = [], {}, []
     base = os.path.join(results_dir, "r00-original.json")
@@ -233,11 +236,15 @@ def render_tags(results_dir, out):
     mpath = os.path.join(results_dir, "machine.json")
     if os.path.isfile(mpath):
         m = json.load(open(mpath))
-        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"],
+        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"]] + \
+            (["| GPU of the baseline | %s |" % m["baseline_gpu"]] if m.get("baseline_gpu") else []) + [
                  "| OS and version | %s |" % m["os"], "| RAM | %s |" % m["ram"], "| VRAM | %s |" % m["vram"],
                  "| Renderer / converter | %s |" % m["renderer"], "",
                  "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
                  "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
+        if m.get("baseline_gpu"):
+            text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root there "
+                     "too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
     if no_numbers:
         text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
     for category in CATEGORIES:
@@ -254,9 +261,10 @@ def render_tags(results_dir, out):
                 if not rev["tag"]:
                     text.append("| Baseline: original Blitz3D 1.118 | %s |" % " | ".join(cells))
                     continue
-                if rev["tag"] == "root":
-                    text.append("| root (not released)<br>%s<br>[`%s`](%s) | %s |" % (results[rev["label"]]["date"], rev["rev"][:8], COMMIT_URL % rev["rev"],
-                                                                                   " | ".join(cells)))
+                if rev["tag"] in ("root", "root-igpu"):
+                    name = "root (not released)" if rev["tag"] == "root" else "root on the GPU of the baseline"
+                    text.append("| %s<br>%s<br>[`%s`](%s) | %s |" % (name, results[rev["label"]]["date"], rev["rev"][:8], COMMIT_URL % rev["rev"],
+                                                                    " | ".join(cells)))
                     continue
                 text.append("| [%s](%s)<br>%s<br>[`%s`](%s) | %s |" % (rev["tag"], RELEASE_URL % rev["tag"], results[rev["label"]]["date"], rev["rev"][:8],
                                                                     COMMIT_URL % rev["rev"], " | ".join(cells)))

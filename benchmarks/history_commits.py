@@ -77,6 +77,8 @@ def main():
     parser.add_argument("--tags", nargs="?", const=r"^\d+\.\d+\.\d+(\.\d+)?$", metavar="REGEX",
                         help="only the code states of the commits that have a version tag (X.Y.Z or X.Y.Z.W, or the regex given); also writes tags/<tag>.json")
     parser.add_argument("--head", action="store_true", help="with --tags: also the state of --until, as the row root (not released yet)")
+    parser.add_argument("--head-tag", metavar="NAME", help="only the state of --until, saved as tags/NAME.json and commits/<commit>-NAME.json: a second "
+                        "run of the root with other settings, such as root-igpu (--gpu of the GPU the original uses)")
     parser.add_argument("--set", default="quick", help="the benchmark set of history.py (quick or real)")
     parser.add_argument("--gpu", default=os.environ.get("BENCH_GPU", "0"), help="history.py --gpu: the GPU of the scene benchmarks")
     parser.add_argument("--depth", default=os.environ.get("BENCH_DEPTH", "0"), help="history.py --depth: the graphics depth of the scene benchmarks")
@@ -95,6 +97,12 @@ def main():
             index[key] = len(states)
             states.append((key, [c]))
     tagged = {}
+    suffix = ""
+    if args.head_tag:
+        args.tags = args.tags or r"^$"
+        args.head = False
+        suffix = "-" + args.head_tag
+        tagged[args.head_tag] = git(args.repo, "rev-parse", args.until)
     if args.tags:
         for line in git(args.repo, "for-each-ref", "--format=%(refname:short) %(*objectname) %(objectname)", "refs/tags").splitlines():
             parts = line.split()
@@ -109,7 +117,7 @@ def main():
     started = time.time()
     for n, (key, group) in enumerate(states):
         first = group[0]
-        path = os.path.join(OUT, first + ".json")
+        path = os.path.join(OUT, first + suffix + ".json")
         old = json.load(open(path)) if os.path.isfile(path) else None
         if old and not (args.only and "benchmarks" in old and any(b not in old["benchmarks"] for b in args.only.split(","))):
             continue
@@ -169,8 +177,8 @@ def main():
         os.makedirs(os.path.join(RESULTS, "tags"), exist_ok=True)
         for tag, commit in tagged.items():
             for key, group in states:
-                if commit in group and os.path.isfile(os.path.join(OUT, group[0] + ".json")):
-                    json.dump({"tag": tag, "commit": commit, "state": group[0], "date": git(args.repo, "log", "-1", "--format=%as", commit)},
+                if commit in group and os.path.isfile(os.path.join(OUT, group[0] + suffix + ".json")):
+                    json.dump({"tag": tag, "commit": commit, "state": group[0] + suffix, "date": git(args.repo, "log", "-1", "--format=%as", commit)},
                               open(os.path.join(RESULTS, "tags", tag + ".json"), "w"), indent=1)
 
 
