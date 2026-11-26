@@ -36,7 +36,7 @@ One of the refresh rates a display supports at a size, counted from the lowest. 
 
 ## Related Commands
 
-[CountRefreshRates](CountRefreshRates) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [DisplayModeRefreshRate](DisplayModeRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [DisplayRefreshRate](DisplayRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GetGraphicsRefreshRate](GetGraphicsRefreshRate), [SetGraphicsRefreshRate](SetGraphicsRefreshRate)
+[CountRefreshRates](CountRefreshRates) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [DisplayModeRefreshRate](DisplayModeRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [DisplayRefreshRate](DisplayRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GetGraphicsRefreshRate](GetGraphicsRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [SetGraphicsRefreshRate](SetGraphicsRefreshRate) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 
