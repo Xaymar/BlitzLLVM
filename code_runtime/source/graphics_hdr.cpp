@@ -487,9 +487,11 @@ namespace bb::gfx {
 		}
 		fclose(file);
 #ifdef _WIN32
-		remove(test_path()); // rename does not replace a file that exists on Windows, and the picture of the last present would stay.
-#endif
+		// rename does not replace a file that exists on Windows, and the picture of the first present would stay.
+		MoveFileExA(temporary, test_path(), MOVEFILE_REPLACE_EXISTING);
+#else
 		rename(temporary, test_path());
+#endif
 	}
 
 	void destroy_hdr()
