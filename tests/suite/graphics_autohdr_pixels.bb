@@ -15,7 +15,7 @@ Const W = 64, H = 48
 
 ; One channel (0 red, 1 green, 2 blue) of the pixel the HDR pass made at a point.
 Function Shown#(x, y, channel)
-	f = ReadFile("hdr.tmp")
+	f = ReadFile("hdr_pixels.tmp")
 	If f = 0 Then RuntimeError "Nothing was presented."
 	skip = 0
 	For line = 1 To 2
@@ -39,8 +39,8 @@ Function Fill(r, g, b)
 	Rect 0, 0, W, H, 1
 End Function
 
-DeleteFile "hdr.tmp" ; Not one of an earlier run.
-SetEnv "BLITZLLVM_TEST_HDR", "hdr.tmp"
+DeleteFile "hdr_pixels.tmp" ; Not one of an earlier run.
+SetEnv "BLITZLLVM_TEST_HDR", "hdr_pixels.tmp"
 
 ; It can be set before Graphics, and the test window has no HDR.
 SetGraphicsHDR 1, 0, 160
@@ -95,5 +95,5 @@ Check "one value is enough", m, 2
 Show
 Check "white is below the peak", Shown(10, 10, 0), 2, 0.005
 
-DeleteFile "hdr.tmp"
+DeleteFile "hdr_pixels.tmp"
 Done "graphics_autohdr_pixels"

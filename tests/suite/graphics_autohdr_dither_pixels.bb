@@ -13,9 +13,16 @@ EndIf
 
 Const W = 64, H = 48
 
+; The dump is written when a picture is shown, and the first picture of a new window or mode can still be the one before it, so two flips
+; (as graphics_autohdr_pixels does).
+Function Show()
+	Flip 2
+	Flip 2
+End Function
+
 ; One channel (0 red, 1 green, 2 blue) of the pixel the HDR pass made at a point.
 Function Shown#(x, y, channel)
-	f = ReadFile("hdr.tmp")
+	f = ReadFile("hdr_dither.tmp")
 	If f = 0 Then RuntimeError "Nothing was presented."
 	skip = 0
 	For line = 1 To 2
@@ -27,8 +34,8 @@ Function Shown#(x, y, channel)
 	Return v
 End Function
 
-DeleteFile "hdr.tmp" ; Not one of an earlier run.
-SetEnv "BLITZLLVM_TEST_HDR", "hdr.tmp"
+DeleteFile "hdr_dither.tmp" ; Not one of an earlier run.
+SetEnv "BLITZLLVM_TEST_HDR", "hdr_dither.tmp"
 
 SetGraphicsHDR 1, 0, 160 ; 2.0 in scRGB
 Dither 1
@@ -38,10 +45,10 @@ SetBuffer BackBuffer()
 ; Mid grey 128 is 0.2158 linear, 0.4316 at 160 nits. The noise of Dither is half a step of 8 bits, so it moves that a little.
 Color 128, 128, 128
 Rect 0, 0, W, H, 1
-Flip 2
+Show
 Check "Dither 1 does not make the picture black", Shown(10, 10, 1), 0.4316, 0.02
 SetGraphicsHDR 2, 0, 160
-Flip 2
+Show
 Check "Dither 1 in mode 2 does not make the picture black", Shown(10, 10, 1), 0.4316, 0.02
 ; A buffer of 30 bits always goes through the 8 bit picture in mode 1.
 EndGraphics
@@ -51,8 +58,8 @@ Graphics W, H, 30, 2
 SetBuffer BackBuffer()
 Color 128, 128, 128
 Rect 0, 0, W, H, 1
-Flip 2
+Show
 Check "a buffer of 30 bits in mode 1 is not black", Shown(10, 10, 1), 0.4316, 0.02
 
-DeleteFile "hdr.tmp"
+DeleteFile "hdr_dither.tmp"
 Done "graphics_autohdr_dither_pixels"

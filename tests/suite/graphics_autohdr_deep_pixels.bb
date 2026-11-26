@@ -15,7 +15,7 @@ Const W = 64, H = 48
 
 ; One channel (0 red, 1 green, 2 blue) of the pixel the HDR pass made at a point.
 Function Shown#(x, y, channel)
-	f = ReadFile("hdr.tmp")
+	f = ReadFile("hdr_deep.tmp")
 	If f = 0 Then RuntimeError "Nothing was presented."
 	skip = 0
 	For line = 1 To 2
@@ -27,8 +27,8 @@ Function Shown#(x, y, channel)
 	Return v
 End Function
 
-DeleteFile "hdr.tmp" ; Not one of an earlier run.
-SetEnv "BLITZLLVM_TEST_HDR", "hdr.tmp"
+DeleteFile "hdr_deep.tmp" ; Not one of an earlier run.
+SetEnv "BLITZLLVM_TEST_HDR", "hdr_deep.tmp"
 
 SetGraphicsHDR 2, 0, 160 ; 2.0 in scRGB
 Graphics3D W, H, 64, 2
@@ -60,5 +60,5 @@ WritePixel64 10, 10, 0, 2.0, 0.0, 0.0, 1.0
 Flip 2
 Check "mode 1 stops at white", Shown(10, 10, 0), 2, 0.005
 
-DeleteFile "hdr.tmp"
+DeleteFile "hdr_deep.tmp"
 Done "graphics_autohdr_deep_pixels"
