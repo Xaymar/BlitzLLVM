@@ -318,6 +318,53 @@ End Function
 The direct setters with their fade times stay, for one-off changes that don't need a scene. Reverb zones (an entity with a
 radius whose scene blends in as the listener walks in) can build on `BlendAudioScene` later.
 
+## Music and movies
+
+Music and movie sound have to reach the same buses, effects and scenes as everything else.
+
+**Music.** `PlayMusic` already plays on a channel of the shared mixer (`bb_play_music` loads the file as a sound and
+plays it), so `ChannelBus`, `AddChannelEffect`, `ChannelVolume` and `ChannelSend` work on the channel it returns. What is
+missing is a way to choose the bus before the first sample: there is no sound handle for `SoundBus`. So:
+
+| Command | What it does |
+| --- | --- |
+| `MusicBus bus` | The bus that `PlayMusic` channels start on (default 0, the master). |
+
+**Movies.** Movie sound does not go through the mixer at all today: `movie.cpp` opens its own device stream
+(`SDL_OpenAudioDeviceStream`) per movie, and `MovieVolume` sets that stream's gain. No bus, effect or scene can reach it.
+The change: the movie's `SDL_AudioStream` is handed to a `MIX_Track` on the shared mixer (`MIX_SetTrackAudioStream`),
+which pulls from it the same way the device does now. The movie clock keeps measuring what is still queued in the
+stream, so audio/video sync works as before; pausing the movie pauses the track instead of the device stream.
+
+| Command | What it does |
+| --- | --- |
+| `MovieBus bus` | The bus that newly opened movies start on (default 0). |
+| `channel = MovieChannel(movie)` | The channel the movie's sound plays on (0 if it has none), for `ChannelBus`, `AddChannelEffect`, `ChannelVolume`, `ChannelPan` and `ChannelSend`. `MovieVolume` and `ChannelVolume` set the same value. |
+| `EmitMovie movie, entity` | Plays the movie's sound from an entity in the world, like `EmitSound`: distance volume, panning, radius and air absorption follow the entity. 0 puts it back on the speakers. |
+
+Together with `GetMovieTexture` this gives screens and billboards in the world: put the movie texture on a quad or a
+mesh, and `EmitMovie` the sound from it.
+
+```blitzbasic
+movie  = OpenMovie("advert.mp4")
+LoopMovie movie
+screen = CreateCube()
+ScaleEntity screen, 4, 2.25, 0.1
+EntityTexture screen, GetMovieTexture(movie)
+EmitMovie movie, screen
+ChannelRadius MovieChannel(movie), 2   ; the screen is 4 units wide
+PlayMovie movie
+```
+
+Rules for movie channels:
+
+- **The movie owns them.** `StopChannel`, `PauseChannel`, `ResumeChannel` and `ChannelPitch` on a movie channel are
+  runtime errors; `StopMovie`, `PauseMovie` and friends control it. The handle stays valid until `CloseMovie`, across
+  `SeekMovie` and loops.
+- **No doppler.** A pitch shift would play the sound faster or slower than the picture and drift the two apart, so an
+  emitted movie gets distance, panning and radius but no doppler shift. `ChannelDoppler` on a movie channel is ignored.
+- **Effects stay on during seeks.** A seek clears the stream, not the channel's effect chain.
+
 ## How it is mixed
 
 Nothing changes until a program creates a bus, adds an effect, or sets a send. Until then no `MIX_Group` and no
@@ -396,6 +443,9 @@ air absorption and no send has no callback, as today.
   for sample, as long as no new command is called.
 - `CreateListener` keeps its meaning. The new `Listener*` commands change the same three values it sets.
 - `FreeEntity` on the listener and a new `CreateListener` keep working as they do now and in the original.
+- Movie sound moves from its own device stream onto the shared mixer in phase 2. That is the one change programs
+  without new commands go through: the same samples, mixed in float with everything else instead of by the device.
+  A render of a movie's sound before and after is compared in the tests.
 - New command names follow the same rule as every earlier BlitzLLVM addition: a program that defines its own function
   with one of these names keeps calling its own.
 - Programs from the original never see a bus, so nothing about channel handles, `ChannelPlaying` or the channel slot
@@ -422,7 +472,8 @@ air absorption and no send has no callback, as today.
 1. Listener: `ListenerRolloff/Doppler/Distance` and `SpeedOfSound` with fades, `ListenerFalloff`, the getters,
    `ChannelDoppler`, and `ListenerRadius`/`ChannelRadius`. On its own this covers the planet/space case, so it comes first.
 2. Buses and audio scenes: `CreateAudioBus`, `FreeAudioBus`, `AudioBusParent`, `AudioBusVolume`, pause/resume/stop,
-   `ChannelBus`, `SoundBus`; `CreateAudioScene` and the scene commands for bus volumes and listener settings.
+   `ChannelBus`, `SoundBus`, `MusicBus`; `CreateAudioScene` and the scene commands for bus volumes and listener
+   settings. Movie sound moves onto the shared mixer, with `MovieBus`, `MovieChannel` and `EmitMovie`.
 3. Effects: the chain, parameters, fades, bypass, the twelve effect types, `AudioSceneParam`/`AudioSceneBypass`, and
    `<audio.bb>`.
 4. Channel effect chains (`AddChannelEffect`), sends, `ListenerAirAbsorption`.
@@ -437,5 +488,6 @@ air absorption and no send has no callback, as today.
   the numbers names.
 - **Snapshots, named audio scenes** (Xaymar, 26 Nov 2026), not just fades in the program: they fit the
   Create / Set / Render pattern of the 3D commands. Named "scene" so they are not mistaken for buses (submixes).
+- **Music and movies join the bus tree** (Xaymar, 26 Nov 2026), and movies can play from a place in the 3D world.
 - **Own effects** (Xaymar, 26 Nov 2026). The effects are written in the runtime. SoLoud's filters were never reachable
   from Blitz3D code, so there is nothing to stay compatible with.
