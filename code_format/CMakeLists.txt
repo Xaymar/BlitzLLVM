@@ -14,6 +14,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/format.cpp"
 	"source/options.hpp"
 	"source/options.cpp"
+	"source/array_suffix.hpp"
+	"source/array_suffix.cpp"
+	"source/split_if.hpp"
+	"source/split_if.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

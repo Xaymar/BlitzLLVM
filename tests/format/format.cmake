@@ -12,6 +12,23 @@ cmake_minimum_required(VERSION 3.20)
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
 
+# file(WRITE) writes text on Windows and turns each \n into \r\n, so the files that blitz-format reads are written through a process,
+# whose output is saved byte for byte. The arguments are joined like those of file(WRITE); ARGV<n> keeps the ; of comments that ARGN
+# would split on. The text goes on a command line, so keep it well below 32 KB.
+function(write_bytes FILE)
+	set(_TEXT "")
+	if(ARGC GREATER 1)
+		math(EXPR _LAST "${ARGC} - 1")
+		foreach(_I RANGE 1 ${_LAST})
+			string(APPEND _TEXT "${ARGV${_I}}")
+		endforeach()
+	endif()
+	execute_process(COMMAND "${CMAKE_COMMAND}" -E echo_append "${_TEXT}" OUTPUT_FILE "${FILE}" RESULT_VARIABLE _RC)
+	if(NOT _RC EQUAL 0)
+		message(FATAL_ERROR "Writing ${FILE} failed: ${_RC}")
+	endif()
+endfunction()
+
 # Run blitz-format in WORK, results are RC, OUT and ERR. Set INPUT to a file to read stdin from.
 function(blitz_format)
 	if(INPUT)
@@ -62,15 +79,15 @@ function(expect_out WANT)
 	endif()
 endfunction()
 
-# Write the text as it is (file(WRITE) adds no line break), format it from stdin with the arguments and expect the output.
+# Write the text as it is (write_bytes adds no line break), format it from stdin with the arguments and expect the output.
 function(expect_format SOURCE WANT)
-	file(WRITE "${WORK}/in.bb" "${SOURCE}")
+	write_bytes("${WORK}/in.bb" "${SOURCE}")
 	set(INPUT "${WORK}/in.bb")
 	blitz_format(${ARGN})
 	expect_rc(0)
 	expect_out("${WANT}")
 	# The result is stable.
-	file(WRITE "${WORK}/again.bb" "${WANT}")
+	write_bytes("${WORK}/again.bb" "${WANT}")
 	set(INPUT "${WORK}/again.bb")
 	blitz_format(${ARGN})
 	expect_rc(0)
@@ -332,6 +349,94 @@ elseif(CASE STREQUAL "wrap")
 	blitz_format(--wrap-after=5000 --print-config)
 	expect_rc(2)
 
+elseif(CASE STREQUAL "split_if")
+	# never leaves one-line Ifs alone. incompatible is the default.
+	expect_format("If a Then Foo(1, 2) Else Bar()\n" "If a Then Foo(1, 2) Else Bar()\n" --split-one-line-if=never)
+	expect_format("If a Then Foo(1, 2) Else Bar()\nIf a Then Foo(1) Else Bar()\n" "If a Then\n\tFoo(1, 2)\nElse\n\tBar()\nEndIf\nIf a Then Foo(1) Else Bar()\n")
+	# incompatible splits the Ifs with a call in parentheses (no or more than one argument) right before Else, which the original rejects.
+	expect_format("If a Then Foo(1, 2) Else Bar(3, 4) ;why\n" "If a Then ;why\n\tFoo(1, 2)\nElse\n\tBar(3, 4)\nEndIf\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo() Else Bar\n" "If a Then\n\tFoo()\nElse\n\tBar\nEndIf\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo(1) Else Bar(1, 2)\nIf a Then Foo 1, 2 Else Bar(1, 2)\nIf a Then Foo(1, 2)\n" "If a Then Foo(1) Else Bar(1, 2)\nIf a Then Foo 1, 2 Else Bar(1, 2)\nIf a Then Foo(1, 2)\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo 1 : Bar() Else Baz\n" "If a Then\n\tFoo 1 : Bar()\nElse\n\tBaz\nEndIf\n" --split-one-line-if=incompatible)
+	# always splits every one-line If, also the ones inside. The first Else belongs to the inner If.
+	expect_format("If a Then Print 1\n" "If a Then\n\tPrint 1\nEndIf\n" --split-one-line-if=always)
+	expect_format("x = 1 : If a Then If b Then c() Else d() Else e()\n" "x = 1\nIf a Then\n\tIf b Then\n\t\tc()\n\tElse\n\t\td()\n\tEndIf\nElse\n\te()\nEndIf\n" --split-one-line-if=always)
+	expect_format("If a Then If b Then c() Else d()\n" "If a Then\n\tIf b Then\n\t\tc()\n\tElse\n\t\td()\n\tEndIf\nEndIf\n" --split-one-line-if=always)
+	expect_format("Local y:Int32 = 3 : If y > 2 Then Print \"big\" Else Print \"small\"\n" "Local y:Int32 = 3\nIf y > 2 Then\n\tPrint \"big\"\nElse\n\tPrint \"small\"\nEndIf\n" --split-one-line-if=always)
+	# Left alone: block Ifs, an If without Then, and ElseIf or EndIf on the line.
+	foreach(_SAME IN ITEMS "If a Then\n\tFoo(1, 2)\nEndIf\n" "If a Foo(1, 2) Else Bar()\n" "If a Then Foo(1, 2) ElseIf b Then Bar()\n" "If a Then Foo(1, 2) Else Bar() EndIf\n" "If a : Foo(1, 2) : EndIf\n")
+		expect_format("${_SAME}" "${_SAME}" --split-one-line-if=always)
+	endforeach()
+	# Inside a block, with the indent of the block.
+	expect_format("While a\nIf b Then Foo(1, 2) Else Bar()\nWend\n" "While a\n\tIf b Then\n\t\tFoo(1, 2)\n\tElse\n\t\tBar()\n\tEndIf\nWend\n" --split-one-line-if=incompatible)
+	# The split program is the same program: the compiler makes the same of it, and it gives the same output.
+	write_bytes("${WORK}/oneline.bb"
+		"Function Pick(a%, b%)\n\tPrint a + b\nEnd Function\n"
+		"Function Nothing()\n\tPrint \"n\"\nEnd Function\n"
+		"Local c% = 1, d% = 0\n"
+		"If c Then Pick(1, 2) Else Pick(3, 4)\n"
+		"If d Then Pick 5, 6 : Nothing() Else Pick(7, 8)\n"
+		"If c Then If d Then Pick(1, 2) Else Nothing() Else Pick(9, 9)\n"
+		"If d Then If c Then Pick(1, 2) Else Nothing() Else Pick(9, 9)\n")
+	foreach(_MODE IN ITEMS incompatible always)
+		set(INPUT "${WORK}/oneline.bb")
+		blitz_format(--split-one-line-if=${_MODE})
+		expect_rc(0)
+		write_bytes("${WORK}/oneline_${_MODE}.bb" "${OUT}")
+	endforeach()
+	foreach(_NAME IN ITEMS oneline oneline_incompatible oneline_always)
+		execute_process(COMMAND "${BLITZCC}" -q "${WORK}/${_NAME}.bb" -o "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _OUT ERROR_VARIABLE _ERR)
+		if(NOT _RC EQUAL 0)
+			message(FATAL_ERROR "Compiling ${_NAME}.bb failed:\n${_OUT}${_ERR}")
+		endif()
+		execute_process(COMMAND "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _RUN_${_NAME} ERROR_VARIABLE _ERR)
+	endforeach()
+	if(NOT _RUN_oneline STREQUAL "3\n15\nn\n18\n" OR NOT _RUN_oneline_incompatible STREQUAL _RUN_oneline OR NOT _RUN_oneline_always STREQUAL _RUN_oneline)
+		message(FATAL_ERROR "The split programs print something else:\n${_RUN_oneline}----\n${_RUN_oneline_incompatible}----\n${_RUN_oneline_always}")
+	endif()
+	# The setting is listed, and wrong values are refused.
+	blitz_format(--print-config --split-one-line-if=incompatible)
+	expect_rc(0)
+	if(NOT OUT MATCHES "split-one-line-if = incompatible\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+	blitz_format(--split-one-line-if=sometimes --print-config)
+	expect_rc(2)
+
+elseif(CASE STREQUAL "array_suffix")
+	# A used Blitz array loses its type (the original rejects weights#[0]), the declarations and fields keep it. On by default.
+	expect_format("Global weights#[5], other%[2]\nLocal names$[2], t.T, objs.T[3]\nweights#[0] = 1.5 : names$[1] = \"x\"\nLocal x# = weights#[1], y% = Max(other%[0], 1)\nIf x > 0 Then Print names$[1] Else Print objs.T[0] = Null\nt\\v#[1] = 2\n" "Global weights#[5], other%[2]\nLocal names$[2], t.T, objs.T[3]\nweights[0] = 1.5 : names[1] = \"x\"\nLocal x# = weights[1], y% = Max(other[0], 1)\nIf x > 0 Then Print names[1] Else Print objs[0] = Null\nt\\v#[1] = 2\n")
+	expect_format("weights#[0] = 1.5\n" "weights#[0] = 1.5\n" --remove-array-suffix=false)
+	# The program stays the same: it prints the same.
+	write_bytes("${WORK}/arrays.bb"
+		"Type Thing\n\tField v#[3]\nEnd Type\n"
+		"Global weights#[5]\nLocal names$[2], t.Thing = New Thing, things.Thing[2]\n"
+		"weights#[0] = 10.5 : weights#[1] = 35.25 : names$[1] = \"x\" : t\\v#[1] = 2.5 : things.Thing[1] = t\n"
+		"Print weights#[0] + weights#[1] + t\\v#[1] + things.Thing[1]\\v#[1]\n"
+		"Print names$[1]\n")
+	set(INPUT "${WORK}/arrays.bb")
+	blitz_format()
+	expect_rc(0)
+	write_bytes("${WORK}/arrays_formatted.bb" "${OUT}")
+	if(OUT MATCHES "weights#\\[0" OR OUT MATCHES "names\\$\\[1" OR OUT MATCHES "things\\.Thing\\[1")
+		message(FATAL_ERROR "A type is left behind a used array:\n${OUT}")
+	endif()
+	foreach(_NAME IN ITEMS arrays arrays_formatted)
+		execute_process(COMMAND "${BLITZCC}" -q "${WORK}/${_NAME}.bb" -o "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _OUT ERROR_VARIABLE _ERR)
+		if(NOT _RC EQUAL 0)
+			message(FATAL_ERROR "Compiling ${_NAME}.bb failed:\n${_OUT}${_ERR}")
+		endif()
+		execute_process(COMMAND "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" OUTPUT_VARIABLE _RUN_${_NAME})
+	endforeach()
+	if(NOT _RUN_arrays STREQUAL "50.75\nx\n" OR NOT _RUN_arrays_formatted STREQUAL _RUN_arrays)
+		message(FATAL_ERROR "The formatted program prints something else:\n${_RUN_arrays}----\n${_RUN_arrays_formatted}")
+	endif()
+	blitz_format(--print-config)
+	expect_rc(0)
+	if(NOT OUT MATCHES "remove-array-suffix = true\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
 	expect_format("a=1\r\nb=2\r\n" "a = 1\r\nb = 2\r\n")
@@ -354,7 +459,7 @@ elseif(CASE STREQUAL "config")
 	file(WRITE "${WORK}/project/.blitz-format" "# the project style\nindent_style = space\nindent_width = 2\n")
 	file(WRITE "${WORK}/project/sub/blitz-format.json" "{ \"indent-style\": \"tab\", \"keyword_case\": \"lower\" }\n")
 	foreach(_DIR IN ITEMS project/other project/sub project/sub/deep)
-		file(WRITE "${WORK}/${_DIR}/a.bb" "If a\nPRINT 1\nEndIf\n")
+		write_bytes("${WORK}/${_DIR}/a.bb" "If a\nPRINT 1\nEndIf\n")
 	endforeach()
 	blitz_format_text(project/other/a.bb)
 	expect_rc(0)

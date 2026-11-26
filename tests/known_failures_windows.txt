@@ -4,19 +4,6 @@
 # from the list. A line "disabled: <name>" does not run the test at all (for a crash, which WILL_FAIL does not turn around). A program that does not compile has its run test in the list as well, as that has no program to run.
 cli-console_subsystem
 cli-verbose_long_only
-format-align
-format-blank_lines
-format-comments
-format-config
-format-default
-format-in_place
-format-indent
-format-keywords
-format-language_keywords
-format-line_endings
-format-spacing
-format-stdin
-format-wrap
 suite-compile-blitz3d_negative_light_pixels
 suite-compile-graphics_depth_pixels
 suite-debug-compile-audio
