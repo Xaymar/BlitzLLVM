@@ -1421,6 +1421,28 @@ elseif(CASE STREQUAL "warnings")
 	expect_err("w.bb:11:1: notice: The result of 'Foo' is not used. [-Wunused-result]")
 	expect_err("w.bb:4:7: warning: 't' has no type, it is an Int. [-Wtypeless-declaration]")
 
+	# A Field with a default value compiles like in the original, which never uses the value (level 2, on by default).
+	file(WRITE "${WORK}/fielddefault.bb"
+		"Type Thing\n"
+		"\tField count% = 5, plain%\n"
+		"End Type\n"
+		"t.Thing = New Thing\n"
+		"Print t\\count\n")
+	blitzcc(-c "${WORK}/fielddefault.bb")
+	expect_ok()
+	expect_err("fielddefault.bb:2:15: warning: The default value of field 'count' is never used, New sets the field to 0, 0.0, \"\" or Null like in the original. [-Wfield-default-ignored]")
+	expect_err("\nnotice: Remove it, and set the field after New.")
+	expect_no_err("'plain'")
+	blitzcc(-c -W1 "${WORK}/fielddefault.bb")
+	expect_ok()
+	expect_no_err("[-Wfield-default-ignored]")
+	file(WRITE "${WORK}/fielddefault_array.bb"
+		"Type Thing\n"
+		"\tField list[3] = 1\n"
+		"End Type\n")
+	blitzcc(-c "${WORK}/fielddefault_array.bb")
+	expect_failed()
+
 	# Local arrays above 4 KiB in a function (level 1); the main program, small arrays and Global/Dim ones are left alone.
 	file(WRITE "${WORK}/bigarray.bb"
 		"Local mainbig%[5000]\n"
