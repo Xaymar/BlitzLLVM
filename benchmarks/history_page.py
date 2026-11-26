@@ -31,6 +31,15 @@ PR_URL = "https://github.com/Xaymar/BlitzLLVM/pull/%d"
 
 # The two categories of the page and their tables: (category, title, benchmark, [(key, column, unit)]). A key "bench/metric" names its own benchmark.
 TABLES = [
+    ("Game Benchmarks", "Forest (`forest.bb`, 640x360, 3000 frames, per frame): software vertex animation, huge triangle counts", "forest_full",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("update_ms", "Game code", "ms")]),
+    ("Game Benchmarks", "Space battle without physics (`spacebattle.bb`, 640x360, 3000 frames, per frame): AI, collisions, picking", "spacebattle",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("ai_ms", "AI", "ms"), ("pick_ms", "Picking", "ms"),
+      ("collide_ms", "Collisions", "ms"), ("effects_ms", "Effects", "ms"), ("render_ms", "Rendering", "ms")]),
+    ("Game Benchmarks", "Space battle with physics (`spacebattle.bb`, 640x360, 3000 frames, per frame): BlitzLLVM builds with the physics commands",
+     "spacebattle_physics",
+     [("ms_avg", "Per frame", "ms"), ("ms_p95", "95th percentile", "ms"), ("physics_ms", "Physics", "ms"), ("collide_ms", "Collisions", "ms"),
+      ("render_ms", "Rendering", "ms")]),
     ("Real World Applications", "Stranded II (map Survival Guide, 640x480, 300 frames)", "stranded2",
      [("ms_avg", "Per frame", "ms")]),
     ("Benchmarks", "Emitted code (`emitted.bb`)", "emitted",
@@ -50,7 +59,7 @@ TABLES = [
     ("Benchmarks", "Audio (`audio.bb`)", "audio", [("load_ms", "Load 64 sounds", "ms"), ("cpu_ms", "CPU time, 32 channels, 3 s", "ms")]),
     ("Benchmarks", "GPU time of the waterfall passes (per frame)", "gpu", [("gpu_scene_ms", "Scene pass", "ms"), ("gpu_frame_ms", "Whole frame", "ms")]),
 ]
-CATEGORIES = ["Real World Applications", "Benchmarks"]
+CATEGORIES = ["Game Benchmarks", "Real World Applications", "Benchmarks"]
 
 
 def git_date(rev):
@@ -193,8 +202,8 @@ def render_tags(results_dir, out):
     tags_dir = os.path.join(results_dir, "tags")
     tags = [json.load(open(os.path.join(tags_dir, n))) for n in os.listdir(tags_dir)] if os.path.isdir(tags_dir) else []
 
-    def version(t):
-        return tuple(int(x) for x in re.findall(r"\d+", t["tag"]))
+    def version(t):  # the root that is not released yet (history_commits.py --head) is the last row
+        return (t["tag"] == "root", tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
     tags.sort(key=version)
     revs, results, no_numbers = [], {}, []
     base = os.path.join(results_dir, "r00-original.json")
@@ -209,12 +218,16 @@ def render_tags(results_dir, out):
             continue
         revs.append({"label": t["tag"], "rev": t["commit"], "prs": [], "tag": t["tag"]})
         results[t["tag"]] = dict(r, date=t["date"])
+    sets = {r.get("set") for r in results.values() if r.get("set")}
+    what = "the game benchmarks (`benchmarks/history_commits.py --tags --head --set real`" if sets == {"real"} else \
+        "the short benchmark set (`benchmarks/history_commits.py --tags`"
     text = [
         "# Performance History",
         "",
-        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM, built and benchmarked on its own with the short benchmark set (`benchmarks/history_commits.py --tags`, 3 runs, "
+        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM%s, built and benchmarked on its own with %s, 3 runs, "
         "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the baseline "
-        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s." % datetime.date.today().isoformat(),
+        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s."
+        % (" and the root that is not released yet as the last row" if any(t["tag"] == "root" for t in tags) else "", what, datetime.date.today().isoformat()),
         "",
     ]
     mpath = os.path.join(results_dir, "machine.json")
@@ -240,6 +253,10 @@ def render_tags(results_dir, out):
             for rev, cells in rows:
                 if not rev["tag"]:
                     text.append("| Baseline: original Blitz3D 1.118 | %s |" % " | ".join(cells))
+                    continue
+                if rev["tag"] == "root":
+                    text.append("| root (not released)<br>%s<br>[`%s`](%s) | %s |" % (results[rev["label"]]["date"], rev["rev"][:8], COMMIT_URL % rev["rev"],
+                                                                                   " | ".join(cells)))
                     continue
                 text.append("| [%s](%s)<br>%s<br>[`%s`](%s) | %s |" % (rev["tag"], RELEASE_URL % rev["tag"], results[rev["label"]]["date"], rev["rev"][:8],
                                                                     COMMIT_URL % rev["rev"], " | ".join(cells)))
