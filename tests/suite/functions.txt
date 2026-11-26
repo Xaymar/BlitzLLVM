@@ -1,1020 +1,1021 @@
-# name	module	state	signature (from the original)
-channelpan	audio	done	ChannelPan%channel#pan
-channelpitch	audio	done	ChannelPitch%channel%pitch
-channelplaying	audio	done	%ChannelPlaying%channel
-channelvolume	audio	done	ChannelVolume%channel#volume
-freesound	audio	done	FreeSound%sound
-getgraphicshdr	blitz3d	done	GetGraphicsHDR>%mode=0>#minimum=0>#average=0>#maximum=0
-setgraphicshdr	blitz3d	done	SetGraphicsHDR%mode#minimum=0#average=0#maximum=0
-joychanged	input	done	%JoyChanged
-joydeviceconnected	input	done	%JoyDeviceConnected%port
-joydevicecount	input	done	%JoyDeviceCount
-joydevicename	input	done	$JoyDeviceName%port
-keyboardchanged	input	done	%KeyboardChanged
-keyboarddeviceconnected	input	done	%KeyboardDeviceConnected%device
-keyboarddevicecount	input	done	%KeyboardDeviceCount
-keyboarddevicename	input	done	$KeyboardDeviceName%device
-lastjoydevice	input	done	%LastJoyDevice
-lastkeyboarddevice	input	done	%LastKeyboardDevice
-lastmousedevice	input	done	%LastMouseDevice
-load3dsound	audio	done	%Load3DSound$filename
-loadsound	audio	done	%LoadSound$filename
-loopsound	audio	done	LoopSound%sound
-mousechanged	input	done	%MouseChanged
-mousedeviceconnected	input	done	%MouseDeviceConnected%device
-mousedevicecount	input	done	%MouseDeviceCount
-mousedevicename	input	done	$MouseDeviceName%device
-pausechannel	audio	done	PauseChannel%channel
-playcdtrack	audio	done	%PlayCDTrack%track%mode=1
-playmusic	audio	done	%PlayMusic$midifile%flags=0
-playsound	audio	done	%PlaySound%sound
-resumechannel	audio	done	ResumeChannel%channel
-soundpan	audio	done	SoundPan%sound#pan
-soundpitch	audio	done	SoundPitch%sound%pitch
-soundvolume	audio	done	SoundVolume%sound#volume
-stopchannel	audio	done	StopChannel%channel
-banksize	banks	done	%BankSize%bank
-calldll	banks	done	%CallDLL$dll_name$func_name%in_bank=0%out_bank=0
-copybank	banks	done	CopyBank%src_bank%src_offset%dest_bank%dest_offset%count
-createbank	banks	done	%CreateBank%size=0
-freebank	banks	done	FreeBank%bank
-peekbyte	banks	done	%PeekByte%bank%offset
-peekfloat	banks	done	#PeekFloat%bank%offset
-peekint	banks	done	%PeekInt%bank%offset
-peekshort	banks	done	%PeekShort%bank%offset
-pokebyte	banks	done	PokeByte%bank%offset%value
-pokefloat	banks	done	PokeFloat%bank%offset#value
-pokeint	banks	done	PokeInt%bank%offset%value
-pokeshort	banks	done	PokeShort%bank%offset%value
-readbytes	banks	done	%ReadBytes%bank%file%offset%count
-resizebank	banks	done	ResizeBank%bank%size
-writebytes	banks	done	%WriteBytes%bank%file%offset%count
-activetextures	blitz3d	done	%ActiveTextures
-addanimseq	blitz3d	done	%AddAnimSeq%entity%length
-addmesh	blitz3d	done	AddMesh%source_mesh%dest_mesh
-addtriangle	blitz3d	done	%AddTriangle%surface%v0%v1%v2
-addvertex	blitz3d	done	%AddVertex%surface#x#y#z#u=0#v=0#w=1
-atlastexture	blitz3d	done	%AtlasTexture%atlas%x%y%width%height
-aligntovector	blitz3d	done	AlignToVector%entity#vector_x#vector_y#vector_z%axis#rate=1
-ambientlight	blitz3d	done	AmbientLight#red#green#blue
-animate	blitz3d	done	Animate%entity%mode=1#speed=1%sequence=0#transition=0
-animateentity	blitz3d	done	AnimateEntity%entity%mode=1#speed=1%sequence=0#transition=0
-animatemd2	blitz3d	done	AnimateMD2%md2%mode=1#speed=1%first_frame=0%last_frame=9999#transition=0
-animating	blitz3d	done	%Animating%entity
-animlength	blitz3d	done	%AnimLength%entity
-animseq	blitz3d	done	%AnimSeq%entity
-animtime	blitz3d	done	#AnimTime%entity
-antialias	blitz3d	done	AntiAlias%enable
-brushalpha	blitz3d	done	BrushAlpha%brush#alpha
-brushblend	blitz3d	done	BrushBlend%brush%blend
-brushcolor	blitz3d	done	BrushColor%brush#red#green#blue
-brushfx	blitz3d	done	BrushFX%brush%fx
-brushshininess	blitz3d	done	BrushShininess%brush#shininess
-brushtexture	blitz3d	done	BrushTexture%brush%texture%frame=0%index=0
-bspambientlight	blitz3d	done	BSPAmbientLight%bsp#red#green#blue
-bsplighting	blitz3d	done	BSPLighting%bsp%use_lightmaps
-bsplightmapcolor	blitz3d	done	BSPLightmapColor%bsp#red#green#blue
-cameraclscolor	blitz3d	done	CameraClsColor%camera#red#green#blue
-cameraclsmode	blitz3d	done	CameraClsMode%camera%cls_color%cls_zbuffer
-camerafogcolor	blitz3d	done	CameraFogColor%camera#red#green#blue
-camerafogmode	blitz3d	done	CameraFogMode%camera%mode
-camerafogrange	blitz3d	done	CameraFogRange%camera#near#far
-camerapick	blitz3d	done	%CameraPick%camera#viewport_x#viewport_y
-cameraproject	blitz3d	done	CameraProject%camera#x#y#z
-cameraculling	blitz3d	done	CameraCulling%camera%flags
-cameracullingsource	blitz3d	done	CameraCullingSource%camera_a%camera_b=0
-setcamerabuffer	blitz3d	done	SetCameraBuffer%camera%buffer
-getcamerabuffer	blitz3d	done	%GetCameraBuffer%camera
-setcameraprojectionmatrix	blitz3d	done	SetCameraProjectionMatrix%camera^matrix
-getcameraprojectionmatrix	blitz3d	done	^GetCameraProjectionMatrix%camera
-resetcameraprojectionmatrix	blitz3d	done	ResetCameraProjectionMatrix%camera
-setcameraviewmatrix	blitz3d	done	SetCameraViewMatrix%camera|matrix
-getcameraviewmatrix	blitz3d	done	|GetCameraViewMatrix%camera
-resetcameraviewmatrix	blitz3d	done	ResetCameraViewMatrix%camera
-setcameraclipplane	blitz3d	done	SetCameraClipPlane%camera%index#a#b#c#d
-getcameraclipplane	blitz3d	done	@GetCameraClipPlane%camera%index
-setcameraclipplaneenabled	blitz3d	done	SetCameraClipPlaneEnabled%camera%index%enabled
-getcameraclipplaneenabled	blitz3d	done	%GetCameraClipPlaneEnabled%camera%index
-setcamerastencil	blitz3d	done	SetCameraStencil%camera%enabled
-getcamerastencil	blitz3d	done	%GetCameraStencil%camera
-setcamerastencilclear	blitz3d	done	SetCameraStencilClear%camera%clear%value=0
-cameraprojmode	blitz3d	done	CameraProjMode%camera%mode
-camerarange	blitz3d	done	CameraRange%camera#near#far
-cameraviewport	blitz3d	done	CameraViewport%camera%x%y%width%height
-camerazoom	blitz3d	done	CameraZoom%camera#zoom
-captureworld	blitz3d	done	CaptureWorld
-clearcollisions	blitz3d	done	ClearCollisions
-clearsurface	blitz3d	done	ClearSurface%surface%clear_vertices=1%clear_triangles=1
-cleartexturefilters	blitz3d	done	ClearTextureFilters
-clearworld	blitz3d	done	ClearWorld%entities=1%brushes=1%textures=1
-collisionentity	blitz3d	done	%CollisionEntity%entity%collision_index
-collisionnx	blitz3d	done	#CollisionNX%entity%collision_index
-collisionny	blitz3d	done	#CollisionNY%entity%collision_index
-collisionnz	blitz3d	done	#CollisionNZ%entity%collision_index
-collisions	blitz3d	done	Collisions%source_type%destination_type%method%response
-collisionsurface	blitz3d	done	%CollisionSurface%entity%collision_index
-collisiontime	blitz3d	done	#CollisionTime%entity%collision_index
-collisiontriangle	blitz3d	done	%CollisionTriangle%entity%collision_index
-collisionx	blitz3d	done	#CollisionX%entity%collision_index
-collisiony	blitz3d	done	#CollisionY%entity%collision_index
-collisionz	blitz3d	done	#CollisionZ%entity%collision_index
-copyentity	blitz3d	done	%CopyEntity%entity%parent=0
-copymesh	blitz3d	done	%CopyMesh%mesh%parent=0
-countchildren	blitz3d	done	%CountChildren%entity
-countcollisions	blitz3d	done	%CountCollisions%entity
-countsurfaces	blitz3d	done	%CountSurfaces%mesh
-counttriangles	blitz3d	done	%CountTriangles%surface
-countvertices	blitz3d	done	%CountVertices%surface
-createbrush	blitz3d	done	%CreateBrush#red=255#green=255#blue=255
-createcamera	blitz3d	done	%CreateCamera%parent=0
-createcone	blitz3d	done	%CreateCone%segments=8%solid=1%parent=0
-createcube	blitz3d	done	%CreateCube%parent=0
-createcylinder	blitz3d	done	%CreateCylinder%segments=8%solid=1%parent=0
-createlight	blitz3d	done	%CreateLight%type=1%parent=0
-setfalloff	blitz3d	done	SetFalloff%mode
-getfalloff	blitz3d	done	%GetFalloff
-setchannelfalloff	blitz3d	done	SetChannelFalloff%channel%mode
-getchannelfalloff	blitz3d	done	%GetChannelFalloff%channel
-createlistener	blitz3d	done	%CreateListener%parent#rolloff_factor=1#doppler_scale=1#distance_scale=1
-listenerrolloff	blitz3d	done	ListenerRolloff#value%fade_ms=0
-listenerdoppler	blitz3d	done	ListenerDoppler#value%fade_ms=0
-listenerdistance	blitz3d	done	ListenerDistance#value%fade_ms=0
-listenerradius	blitz3d	done	ListenerRadius#value%fade_ms=0
-speedofsound	blitz3d	done	SpeedOfSound#meters%fade_ms=0
-getlistenerrolloff	blitz3d	done	#GetListenerRolloff
-getlistenerdoppler	blitz3d	done	#GetListenerDoppler
-getlistenerdistance	blitz3d	done	#GetListenerDistance
-getlistenerradius	blitz3d	done	#GetListenerRadius
-getspeedofsound	blitz3d	done	#GetSpeedOfSound
-listenerfalloff	blitz3d	done	ListenerFalloff%mode
-channeldoppler	blitz3d	done	ChannelDoppler%channel#scale
-getchanneldoppler	blitz3d	done	#GetChannelDoppler%channel
-channelradius	blitz3d	done	ChannelRadius%channel#radius
-getchannelradius	blitz3d	done	#GetChannelRadius%channel
-createmesh	blitz3d	done	%CreateMesh%parent=0
-createmirror	blitz3d	done	%CreateMirror%parent=0
-createpivot	blitz3d	done	%CreatePivot%parent=0
-createplane	blitz3d	done	%CreatePlane%segments=1%parent=0
-createsampler	blitz3d	done	%CreateSampler
-createsphere	blitz3d	done	%CreateSphere%segments=8%parent=0
-createsprite	blitz3d	done	%CreateSprite%parent=0
-createsurface	blitz3d	done	%CreateSurface%mesh%brush=0
-createterrain	blitz3d	done	%CreateTerrain%grid_size%parent=0
-createtexture	blitz3d	done	%CreateTexture%width%height%flags=0%frames=1
-deltapitch	blitz3d	done	#DeltaPitch%src_entity%dest_entity
-deltayaw	blitz3d	done	#DeltaYaw%src_entity%dest_entity
-dither	blitz3d	done	Dither%enable
-dithertemporal	blitz3d	done	DitherTemporal%enable
-dithermode	blitz3d	done	DitherMode%mode%level=1
-graphicsorderindependenttransparency	blitz3d	done	GraphicsOrderIndependentTransparency%enable
-emitsound	blitz3d	done	%EmitSound%sound%entity
-entityalpha	blitz3d	done	EntityAlpha%entity#alpha
-entityautofade	blitz3d	done	EntityAutoFade%entity#near#far
-entityblend	blitz3d	done	EntityBlend%entity%blend
-entitybox	blitz3d	done	EntityBox%entity#x#y#z#width#height#depth
-entityclass	blitz3d	done	$EntityClass%entity
-entitycollided	blitz3d	done	%EntityCollided%entity%type
-entitycolor	blitz3d	done	EntityColor%entity#red#green#blue
-entitydistance	blitz3d	done	#EntityDistance%source_entity%destination_entity
-entitydepthfade	blitz3d	done	EntityDepthFade%entity#fade_distance
-entityfx	blitz3d	done	EntityFX%entity%fx
-entityinview	blitz3d	done	%EntityInView%entity%camera
-entitylighting	blitz3d	done	EntityLighting%entity%mode
-entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
-entityname	blitz3d	done	$EntityName%entity
-entityorder	blitz3d	done	EntityOrder%entity%order
-setentitystencil	blitz3d	done	SetEntityStencil%entity%compare%reference=0%read_mask=255%write_mask=255%fail=0%depth_fail=0%pass=0
-setentitystencilback	blitz3d	done	SetEntityStencilBack%entity%compare%fail=0%depth_fail=0%pass=0
-entitystatic	blitz3d	done	EntityStatic%entity%is_static
-entityparent	blitz3d	done	EntityParent%entity%parent%global=1
-entitypick	blitz3d	done	%EntityPick%entity#range
-entitypickmode	blitz3d	done	EntityPickMode%entity%pick_geometry%obscurer=1
-entitypitch	blitz3d	done	#EntityPitch%entity%global=0
-entityradius	blitz3d	done	EntityRadius%entity#x_radius#y_radius=0
-entityroll	blitz3d	done	#EntityRoll%entity%global=0
-entityshininess	blitz3d	done	EntityShininess%entity#shininess
-entitytexture	blitz3d	done	EntityTexture%entity%texture%frame=0%index=0
-entitytype	blitz3d	done	EntityType%entity%collision_type%recursive=0
-entityvisible	blitz3d	done	%EntityVisible%src_entity%dest_entity
-entityx	blitz3d	done	#EntityX%entity%global=0
-entityy	blitz3d	done	#EntityY%entity%global=0
-entityyaw	blitz3d	done	#EntityYaw%entity%global=0
-entityz	blitz3d	done	#EntityZ%entity%global=0
-extractanimseq	blitz3d	done	%ExtractAnimSeq%entity%first_frame%last_frame%anim_seq=0
-findchild	blitz3d	done	%FindChild%entity$name
-findsurface	blitz3d	done	%FindSurface%mesh%brush
-fitmesh	blitz3d	done	FitMesh%mesh#x#y#z#width#height#depth%uniform=0
-flipmesh	blitz3d	done	FlipMesh%mesh
-freebrush	blitz3d	done	FreeBrush%brush
-freeentity	blitz3d	done	FreeEntity%entity
-freesampler	blitz3d	done	FreeSampler%sampler
-freetexture	blitz3d	done	FreeTexture%texture
-getbrushtexture	blitz3d	done	%GetBrushTexture%brush%index=0
-getchild	blitz3d	done	%GetChild%entity%index
-getentitybrush	blitz3d	done	%GetEntityBrush%entity
-getentitytype	blitz3d	done	%GetEntityType%entity
-getmatelement	blitz3d	done	#GetMatElement%entity%row%column
-getparent	blitz3d	done	%GetParent%entity
-getsampleraddressmodeu	blitz3d	done	%GetSamplerAddressModeU%sampler
-getsampleraddressmodev	blitz3d	done	%GetSamplerAddressModeV%sampler
-getsampleraddressmodew	blitz3d	done	%GetSamplerAddressModeW%sampler
-getsampleranisotropy	blitz3d	done	#GetSamplerAnisotropy%sampler
-getsamplerbordercolora	blitz3d	done	#GetSamplerBorderColorA%sampler
-getsamplerbordercolorb	blitz3d	done	#GetSamplerBorderColorB%sampler
-getsamplerbordercolorg	blitz3d	done	#GetSamplerBorderColorG%sampler
-getsamplerbordercolorr	blitz3d	done	#GetSamplerBorderColorR%sampler
-getsamplerfiltermag	blitz3d	done	%GetSamplerFilterMag%sampler
-getsamplerfiltermin	blitz3d	done	%GetSamplerFilterMin%sampler
-getsamplerfiltermip	blitz3d	done	%GetSamplerFilterMip%sampler
-getsamplerlodbias	blitz3d	done	#GetSamplerLodBias%sampler
-getsamplerlodmax	blitz3d	done	#GetSamplerLodMax%sampler
-getsamplerlodmin	blitz3d	done	#GetSamplerLodMin%sampler
-getsurface	blitz3d	done	%GetSurface%mesh%surface_index
-getsurfacebrush	blitz3d	done	%GetSurfaceBrush%surface
-gfxdrivercaps3d	blitz3d	done	%GfxDriverCaps3D
-handlesprite	blitz3d	done	HandleSprite%sprite#x_handle#y_handle
-hideentity	blitz3d	done	HideEntity%entity
-hwdither	blitz3d	done	%HWDither
-hwhdractive	blitz3d	done	%HWHDRActive
-hwhdrpeaknits	blitz3d	done	#HWHDRPeakNits
-hwhdrsupported	blitz3d	done	%HWHDRSupported
-hworderindependenttransparency	blitz3d	done	%HWOrderIndependentTransparency
-hwmultitex	blitz3d	done	HWMultiTex%enable
-hwtexunits	blitz3d	done	%HWTexUnits
-lightcolor	blitz3d	done	LightColor%light#red#green#blue
-lightconeangles	blitz3d	done	LightConeAngles%light#inner_angle#outer_angle
-lightmesh	blitz3d	done	LightMesh%mesh#red#green#blue#range=0#x=0#y=0#z=0
-lightrange	blitz3d	done	LightRange%light#range
-linepick	blitz3d	done	%LinePick#x#y#z#dx#dy#dz#radius=0
-loadanimmesh	blitz3d	done	%LoadAnimMesh$file%parent=0
-loadanimseq	blitz3d	done	%LoadAnimSeq%entity$file
-loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%count
-loadatlas	blitz3d	done	%LoadAtlas$file%flags=1%gutter=0
-loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
-loadbsp	blitz3d	done	%LoadBSP$file#gamma_adj=0%parent=0
-loadermatrix	blitz3d	done	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz
-loadmd2	blitz3d	done	%LoadMD2$file%parent=0
-loadmesh	blitz3d	done	%LoadMesh$file%parent=0
-loadsprite	blitz3d	done	%LoadSprite$file%texture_flags=1%parent=0
-loadterrain	blitz3d	done	%LoadTerrain$heightmap_file%parent=0
-loadtexture	blitz3d	done	%LoadTexture$file%flags=1
-md2animating	blitz3d	done	%MD2Animating%md2
-md2animlength	blitz3d	done	%MD2AnimLength%md2
-md2animtime	blitz3d	done	#MD2AnimTime%md2
-meshcullbox	blitz3d	done	MeshCullBox%mesh#x#y#z#width#height#depth
-meshdepth	blitz3d	done	#MeshDepth%mesh
-meshesintersect	blitz3d	done	%MeshesIntersect%mesh_a%mesh_b
-meshheight	blitz3d	done	#MeshHeight%mesh
-meshwidth	blitz3d	done	#MeshWidth%mesh
-modifyterrain	blitz3d	done	ModifyTerrain%terrain%terrain_x%terrain_z#height%realtime=0
-moveentity	blitz3d	done	MoveEntity%entity#x#y#z
-nameentity	blitz3d	done	NameEntity%entity$name
-paintentity	blitz3d	done	PaintEntity%entity%brush
-paintmesh	blitz3d	done	PaintMesh%mesh%brush
-paintsurface	blitz3d	done	PaintSurface%surface%brush
-pickedentity	blitz3d	done	%PickedEntity
-pickednx	blitz3d	done	#PickedNX
-pickedny	blitz3d	done	#PickedNY
-pickednz	blitz3d	done	#PickedNZ
-pickedsurface	blitz3d	done	%PickedSurface
-pickedtime	blitz3d	done	#PickedTime
-pickedtriangle	blitz3d	done	%PickedTriangle
-pickedx	blitz3d	done	#PickedX
-pickedy	blitz3d	done	#PickedY
-pickedz	blitz3d	done	#PickedZ
-pointentity	blitz3d	done	PointEntity%entity%target#roll=0
-positionentity	blitz3d	done	PositionEntity%entity#x#y#z%global=0
-positionmesh	blitz3d	done	PositionMesh%mesh#x#y#z
-positiontexture	blitz3d	done	PositionTexture%texture#u_offset#v_offset
-projectedx	blitz3d	done	#ProjectedX
-projectedy	blitz3d	done	#ProjectedY
-projectedz	blitz3d	done	#ProjectedZ
-renderworld	blitz3d	done	RenderWorld#tween=1
-rendercamera	blitz3d	done	RenderCamera%camera#tween=1
-resetentity	blitz3d	done	ResetEntity%entity
-rotateentity	blitz3d	done	RotateEntity%entity#pitch#yaw#roll%global=0
-rotatemesh	blitz3d	done	RotateMesh%mesh#pitch#yaw#roll
-rotatesprite	blitz3d	done	RotateSprite%sprite#angle
-rotatetexture	blitz3d	done	RotateTexture%texture#angle
-scaleentity	blitz3d	done	ScaleEntity%entity#x_scale#y_scale#z_scale%global=0
-scalemesh	blitz3d	done	ScaleMesh%mesh#x_scale#y_scale#z_scale
-scalesprite	blitz3d	done	ScaleSprite%sprite#x_scale#y_scale
-scaletexture	blitz3d	done	ScaleTexture%texture#u_scale#v_scale
-setanimkey	blitz3d	done	SetAnimKey%entity%frame%pos_key=1%rot_key=1%scale_key=1
-setanimtime	blitz3d	done	SetAnimTime%entity#time%anim_seq=0
-setcubeface	blitz3d	done	SetCubeFace%texture%face
-setcubemode	blitz3d	done	SetCubeMode%texture%mode
-setsampleraddressmodeu	blitz3d	done	SetSamplerAddressModeU%sampler%mode
-setsampleraddressmodev	blitz3d	done	SetSamplerAddressModeV%sampler%mode
-setsampleraddressmodew	blitz3d	done	SetSamplerAddressModeW%sampler%mode
-setsampleranisotropy	blitz3d	done	SetSamplerAnisotropy%sampler#anisotropy
-setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
-setsamplerfiltermag	blitz3d	done	SetSamplerFilterMag%sampler%mode
-setsamplerfiltermin	blitz3d	done	SetSamplerFilterMin%sampler%mode
-setsamplerfiltermip	blitz3d	done	SetSamplerFilterMip%sampler%mode
-setsamplerlodbias	blitz3d	done	SetSamplerLodBias%sampler#bias
-setsamplerlodmax	blitz3d	done	SetSamplerLodMax%sampler#lod
-setsamplerlodmin	blitz3d	done	SetSamplerLodMin%sampler#lod
-settexturesampler	blitz3d	done	SetTextureSampler%texture%sampler
-textureready	blitz3d	done	%TextureReady%texture
-imageready	graphics	done	%ImageReady%image
-entityready	blitz3d	done	%EntityReady%entity
-asyncloading	graphics	done	AsyncLoading%enabled
-savetexture	blitz3d	done	%SaveTexture%texture$file%frame=0$settings=""
-asyncsaving	graphics	done	AsyncSaving%enabled
-savespending	graphics	done	%SavesPending
-savesfailed	graphics	done	%SavesFailed
-showentity	blitz3d	done	ShowEntity%entity
-spritedepthfade	blitz3d	done	SpriteDepthFade%sprite#fade_distance
-spriteviewmode	blitz3d	done	SpriteViewMode%sprite%view_mode
-stats3d	blitz3d	done	#Stats3D%type
-terraindetail	blitz3d	done	TerrainDetail%terrain%detail_level%morph=0
-terrainheight	blitz3d	done	#TerrainHeight%terrain%terrain_x%terrain_z
-terrainshading	blitz3d	done	TerrainShading%terrain%enable
-terrainsize	blitz3d	done	%TerrainSize%terrain
-terrainx	blitz3d	done	#TerrainX%terrain#world_x#world_y#world_z
-terrainy	blitz3d	done	#TerrainY%terrain#world_x#world_y#world_z
-terrainz	blitz3d	done	#TerrainZ%terrain#world_x#world_y#world_z
-textureblend	blitz3d	done	TextureBlend%texture%blend
-texturebuffer	blitz3d	done	%TextureBuffer%texture%frame=0
-texturecoords	blitz3d	done	TextureCoords%texture%coords
-texturefilter	blitz3d	done	TextureFilter$match_text%texture_flags=0
-textureframes	blitz3d	done	%TextureFrames%texture
-textureframedelay	blitz3d	done	%TextureFrameDelay%texture%frame
-textureheight	blitz3d	done	%TextureHeight%texture
-texturename	blitz3d	done	$TextureName%texture
-texturewidth	blitz3d	done	%TextureWidth%texture
-tformedx	blitz3d	done	#TFormedX
-tformedy	blitz3d	done	#TFormedY
-tformedz	blitz3d	done	#TFormedZ
-tformnormal	blitz3d	done	TFormNormal#x#y#z%source_entity%dest_entity
-tformpoint	blitz3d	done	TFormPoint#x#y#z%source_entity%dest_entity
-tformvector	blitz3d	done	TFormVector#x#y#z%source_entity%dest_entity
-translateentity	blitz3d	done	TranslateEntity%entity#x#y#z%global=0
-transparencydistancesortmode	blitz3d	done	TransparencyDistanceSortMode%mode
-trianglevertex	blitz3d	done	%TriangleVertex%surface%index%vertex
-trisrendered	blitz3d	done	%TrisRendered
-turnentity	blitz3d	done	TurnEntity%entity#pitch#yaw#roll%global=0
-updatenormals	blitz3d	done	UpdateNormals%mesh
-updateworld	blitz3d	done	UpdateWorld#elapsed_time=1
-createphysicsbody	blitz3d	done	%CreatePhysicsBody%shape%motion#a#b#c%parent=0%world=0
-createphysicsbodyfromentity	blitz3d	done	%CreatePhysicsBodyFromEntity%entity%motion%shape=0%world=0
-createphysicsworld	blitz3d	done	%CreatePhysicsWorld%max_bodies=0
-freephysicsworld	blitz3d	done	FreePhysicsWorld%world
-getphysicsangulardamping	blitz3d	done	#GetPhysicsAngularDamping%entity
-getphysicsangularvelocityx	blitz3d	done	#GetPhysicsAngularVelocityX%entity%global=0
-getphysicsangularvelocityy	blitz3d	done	#GetPhysicsAngularVelocityY%entity%global=0
-getphysicsangularvelocityz	blitz3d	done	#GetPhysicsAngularVelocityZ%entity%global=0
-getphysicsawake	blitz3d	done	%GetPhysicsAwake%entity
-getphysicsbaumgarte	blitz3d	done	#GetPhysicsBaumgarte%world=0
-getphysicsbodymotion	blitz3d	done	%GetPhysicsBodyMotion%entity
-getphysicsbodyshape	blitz3d	done	%GetPhysicsBodyShape%entity
-getphysicsbodyworld	blitz3d	done	%GetPhysicsBodyWorld%entity
-getphysicscontactslop	blitz3d	done	#GetPhysicsContactSlop%world=0
-getphysicscontinuous	blitz3d	done	%GetPhysicsContinuous%entity
-getphysicscontinuousdefault	blitz3d	done	%GetPhysicsContinuousDefault%world=0
-getphysicsdeterministic	blitz3d	done	%GetPhysicsDeterministic%world=0
-getphysicsfriction	blitz3d	done	#GetPhysicsFriction%entity
-getphysicsgravityscale	blitz3d	done	#GetPhysicsGravityScale%entity
-getphysicsgravityx	blitz3d	done	#GetPhysicsGravityX%world=0
-getphysicsgravityy	blitz3d	done	#GetPhysicsGravityY%world=0
-getphysicsgravityz	blitz3d	done	#GetPhysicsGravityZ%world=0
-getphysicslayer	blitz3d	done	%GetPhysicsLayer%entity
-getphysicslineardamping	blitz3d	done	#GetPhysicsLinearDamping%entity
-getphysicslinearvelocityx	blitz3d	done	#GetPhysicsLinearVelocityX%entity%global=0
-getphysicslinearvelocityy	blitz3d	done	#GetPhysicsLinearVelocityY%entity%global=0
-getphysicslinearvelocityz	blitz3d	done	#GetPhysicsLinearVelocityZ%entity%global=0
-getphysicsmaskhigh	blitz3d	done	%GetPhysicsMaskHigh%entity
-getphysicsmasklow	blitz3d	done	%GetPhysicsMaskLow%entity
-getphysicsmass	blitz3d	done	#GetPhysicsMass%entity
-getphysicsmaxdelta	blitz3d	done	#GetPhysicsMaxDelta%world=0
-getphysicsmaxsteps	blitz3d	done	%GetPhysicsMaxSteps%world=0
-getphysicsmode	blitz3d	done	%GetPhysicsMode%world=0
-getphysicspositioniterations	blitz3d	done	%GetPhysicsPositionIterations%world=0
-getphysicsrate	blitz3d	done	#GetPhysicsRate%world=0
-getphysicsrestitution	blitz3d	done	#GetPhysicsRestitution%entity
-getphysicssensor	blitz3d	done	%GetPhysicsSensor%entity
-getphysicssleepthreshold	blitz3d	done	#GetPhysicsSleepThreshold%world=0
-getphysicssolver	blitz3d	done	%GetPhysicsSolver%world=0
-getphysicsspeculativedistance	blitz3d	done	#GetPhysicsSpeculativeDistance%world=0
-getphysicssubsteps	blitz3d	done	%GetPhysicsSubsteps%world=0
-getphysicsthreads	blitz3d	done	%GetPhysicsThreads
-getphysicsvelocityiterations	blitz3d	done	%GetPhysicsVelocityIterations%world=0
-getphysicsworldsleeping	blitz3d	done	%GetPhysicsWorldSleeping%world=0
-physicsangulardamping	blitz3d	done	PhysicsAngularDamping%entity#damping
-physicsangularvelocity	blitz3d	done	PhysicsAngularVelocity%entity#x#y#z%global=0
-physicsapplyangularimpulse	blitz3d	done	PhysicsApplyAngularImpulse%entity#x#y#z%global=0
-physicsapplyforce	blitz3d	done	PhysicsApplyForce%entity#x#y#z%global=0
-physicsapplyforceat	blitz3d	done	PhysicsApplyForceAt%entity#x#y#z#px#py#pz%global=0
-physicsapplyimpulse	blitz3d	done	PhysicsApplyImpulse%entity#x#y#z%global=0
-physicsapplyimpulseat	blitz3d	done	PhysicsApplyImpulseAt%entity#x#y#z#px#py#pz%global=0
-physicsapplytorque	blitz3d	done	PhysicsApplyTorque%entity#x#y#z%global=0
-physicsbaumgarte	blitz3d	done	PhysicsBaumgarte#factor%world=0
-physicsbodymotion	blitz3d	done	PhysicsBodyMotion%entity%motion
-physicsbodyworld	blitz3d	done	PhysicsBodyWorld%entity%world
-physicscontactslop	blitz3d	done	PhysicsContactSlop#distance%world=0
-physicscontinuous	blitz3d	done	PhysicsContinuous%entity%mode
-physicscontinuousdefault	blitz3d	done	PhysicsContinuousDefault%enable%world=0
-physicsdeterministic	blitz3d	done	PhysicsDeterministic%enable%world=0
-physicsfriction	blitz3d	done	PhysicsFriction%entity#friction
-physicsgravity	blitz3d	done	PhysicsGravity#x#y#z%world=0
-physicsgravityscale	blitz3d	done	PhysicsGravityScale%entity#scale
-physicslayer	blitz3d	done	PhysicsLayer%entity%layer%mask_low=-1%mask_high=-1
-physicslineardamping	blitz3d	done	PhysicsLinearDamping%entity#damping
-physicslinearvelocity	blitz3d	done	PhysicsLinearVelocity%entity#x#y#z%global=0
-physicsmass	blitz3d	done	PhysicsMass%entity#kilograms
-physicsmaxdelta	blitz3d	done	PhysicsMaxDelta#seconds%world=0
-physicsmaxsteps	blitz3d	done	PhysicsMaxSteps%steps%world=0
-physicsmode	blitz3d	done	PhysicsMode%mode%world=0
-physicspositioniterations	blitz3d	done	PhysicsPositionIterations%iterations%world=0
-physicsrate	blitz3d	done	PhysicsRate#hz%world=0
-physicsrestitution	blitz3d	done	PhysicsRestitution%entity#bounciness
-physicssensor	blitz3d	done	PhysicsSensor%entity%sensor
-physicssleeping	blitz3d	done	PhysicsSleeping%entity%allow
-physicssleepthreshold	blitz3d	done	PhysicsSleepThreshold#speed%world=0
-physicssolver	blitz3d	done	PhysicsSolver%preset%world=0
-physicsspeculativedistance	blitz3d	done	PhysicsSpeculativeDistance#distance%world=0
-physicssubsteps	blitz3d	done	PhysicsSubsteps%substeps%world=0
-physicsthreads	blitz3d	done	PhysicsThreads%threads
-physicsupdate	blitz3d	done	PhysicsUpdate#delta_time=0%world=0
-physicsvelocityiterations	blitz3d	done	PhysicsVelocityIterations%iterations%world=0
-physicswake	blitz3d	done	PhysicsWake%entity
-physicsworldsleeping	blitz3d	done	PhysicsWorldSleeping%allow%world=0
-physicsraycast	blitz3d	done	%PhysicsRayCast#x1#y1#z1#x2#y2#z2%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsspherecast	blitz3d	done	%PhysicsSphereCast#x1#y1#z1#x2#y2#z2#radius%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsboxcast	blitz3d	done	%PhysicsBoxCast#x1#y1#z1#x2#y2#z2#half_x#half_y#half_z#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicscapsulecast	blitz3d	done	%PhysicsCapsuleCast#x1#y1#z1#x2#y2#z2#radius#half_height#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicspointinside	blitz3d	done	%PhysicsPointInside#x#y#z%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsoverlapsphere	blitz3d	done	%PhysicsOverlapSphere#x#y#z#radius%mask_low=-1%mask_high=-1%sensors=0%world=0
-physicsoverlapbox	blitz3d	done	%PhysicsOverlapBox#x#y#z#half_x#half_y#half_z#pitch=0#yaw=0#roll=0%mask_low=-1%mask_high=-1%sensors=0%world=0
-getphysicsoverlap	blitz3d	done	%GetPhysicsOverlap%index
-getphysicshitentity	blitz3d	done	%GetPhysicsHitEntity
-getphysicshitx	blitz3d	done	#GetPhysicsHitX
-getphysicshity	blitz3d	done	#GetPhysicsHitY
-getphysicshitz	blitz3d	done	#GetPhysicsHitZ
-getphysicshitnx	blitz3d	done	#GetPhysicsHitNX
-getphysicshitny	blitz3d	done	#GetPhysicsHitNY
-getphysicshitnz	blitz3d	done	#GetPhysicsHitNZ
-getphysicshitdistance	blitz3d	done	#GetPhysicsHitDistance
-physicscontactreport	blitz3d	done	PhysicsContactReport%entity%report
-getphysicscontactreport	blitz3d	done	%GetPhysicsContactReport%entity
-getphysicscontactcount	blitz3d	done	%GetPhysicsContactCount%world=0
-getphysicscontactentitya	blitz3d	done	%GetPhysicsContactEntityA%index%world=0
-getphysicscontactentityb	blitz3d	done	%GetPhysicsContactEntityB%index%world=0
-getphysicscontactx	blitz3d	done	#GetPhysicsContactX%index%world=0
-getphysicscontacty	blitz3d	done	#GetPhysicsContactY%index%world=0
-getphysicscontactz	blitz3d	done	#GetPhysicsContactZ%index%world=0
-getphysicscontactnx	blitz3d	done	#GetPhysicsContactNX%index%world=0
-getphysicscontactny	blitz3d	done	#GetPhysicsContactNY%index%world=0
-getphysicscontactnz	blitz3d	done	#GetPhysicsContactNZ%index%world=0
-getphysicscontactdepth	blitz3d	done	#GetPhysicsContactDepth%index%world=0
-getphysicscontactsensor	blitz3d	done	%GetPhysicsContactSensor%index%world=0
-createphysicsfixedconstraint	blitz3d	done	%CreatePhysicsFixedConstraint%a%b
-createphysicspointconstraint	blitz3d	done	%CreatePhysicsPointConstraint%a%b#x#y#z
-createphysicshingeconstraint	blitz3d	done	%CreatePhysicsHingeConstraint%a%b#x#y#z#axis_x#axis_y#axis_z
-createphysicssliderconstraint	blitz3d	done	%CreatePhysicsSliderConstraint%a%b#axis_x#axis_y#axis_z
-createphysicsdistanceconstraint	blitz3d	done	%CreatePhysicsDistanceConstraint%a%b#x#y#z#min_distance#max_distance
-createphysicsconeconstraint	blitz3d	done	%CreatePhysicsConeConstraint%a%b#x#y#z#axis_x#axis_y#axis_z#half_angle
-freephysicsconstraint	blitz3d	done	FreePhysicsConstraint%constraint
-physicsconstraintlimits	blitz3d	done	PhysicsConstraintLimits%constraint#lower#upper
-physicsconstraintmotor	blitz3d	done	PhysicsConstraintMotor%constraint%mode#target#max_force
-physicsconstraintspring	blitz3d	done	PhysicsConstraintSpring%constraint#frequency#damping
-physicsconstraintbreakforce	blitz3d	done	PhysicsConstraintBreakForce%constraint#force
-getphysicsconstraintbroken	blitz3d	done	%GetPhysicsConstraintBroken%constraint
-vectorpitch	blitz3d	done	#VectorPitch#x#y#z
-vectoryaw	blitz3d	done	#VectorYaw#x#y#z
-vertexalpha	blitz3d	done	#VertexAlpha%surface%index
-vertexblue	blitz3d	done	#VertexBlue%surface%index
-vertexcolor	blitz3d	done	VertexColor%surface%index#red#green#blue#alpha=1
-vertexcoords	blitz3d	done	VertexCoords%surface%index#x#y#z
-vertexgreen	blitz3d	done	#VertexGreen%surface%index
-vertexnormal	blitz3d	done	VertexNormal%surface%index#nx#ny#nz
-vertexnx	blitz3d	done	#VertexNX%surface%index
-vertexny	blitz3d	done	#VertexNY%surface%index
-vertexnz	blitz3d	done	#VertexNZ%surface%index
-vertexred	blitz3d	done	#VertexRed%surface%index
-vertextexcoords	blitz3d	done	VertexTexCoords%surface%index#u#v#w=1%coord_set=0
-vertexu	blitz3d	done	#VertexU%surface%index%coord_set=0
-vertexv	blitz3d	done	#VertexV%surface%index%coord_set=0
-vertexw	blitz3d	done	#VertexW%surface%index%coord_set=0
-vertexx	blitz3d	done	#VertexX%surface%index
-vertexy	blitz3d	done	#VertexY%surface%index
-vertexz	blitz3d	done	#VertexZ%surface%index
-wbuffer	blitz3d	done	WBuffer%enable
-wireframe	blitz3d	done	WireFrame%enable
-changedir	files	done	ChangeDir$dir
-closedir	files	done	CloseDir%dir
-closefile	files	done	CloseFile%file_stream
-copyfile	files	done	CopyFile$file$to
-createdir	files	done	CreateDir$dir
-currentdir	files	done	$CurrentDir
-deletedir	files	done	DeleteDir$dir
-deletefile	files	done	DeleteFile$file
-filepos	files	done	%FilePos%file_stream
-filesize	files	done	%FileSize$file
-filetype	files	done	%FileType$file
-nextfile	files	done	$NextFile%dir
-openfile	files	done	%OpenFile$filename
-readdir	files	done	%ReadDir$dirname
-readfile	files	done	%ReadFile$filename
-seekfile	files	done	%SeekFile%file_stream%pos
-writefile	files	done	%WriteFile$filename
-automidhandle	graphics	done	AutoMidHandle%enable
-availvidmem	graphics	done	%AvailVidMem
-availvidmem64	graphics	done	&AvailVidMem64
-backbuffer	graphics	done	%BackBuffer
-bufferdirty	graphics	done	BufferDirty%buffer
-closemovie	graphics	done	CloseMovie%movie
-cls	graphics	done	Cls
-clscolor	graphics	done	ClsColor%red%green%blue
-color	graphics	done	Color%red%green%blue
-colorblue	graphics	done	%ColorBlue
-colorgreen	graphics	done	%ColorGreen
-colorred	graphics	done	%ColorRed
-copyimage	graphics	done	%CopyImage%image
-copypixel	graphics	done	CopyPixel%src_x%src_y%src_buffer%dest_x%dest_y%dest_buffer=0
-copypixelfast	graphics	done	CopyPixelFast%src_x%src_y%src_buffer%dest_x%dest_y%dest_buffer=0
-copyrect	graphics	done	CopyRect%source_x%source_y%width%height%dest_x%dest_y%src_buffer=0%dest_buffer=0
-countdisplaymodes	graphics	done	%CountDisplayModes%display
-countdisplays	graphics	done	%CountDisplays
-countgfxdrivers	graphics	done	%CountGfxDrivers
-countgfxmodes	graphics	done	%CountGfxModes
-countgfxmodes3d	graphics	done	%CountGfxModes3D
-countrefreshrates	graphics	done	%CountRefreshRates%display%width%height
-createimage	graphics	done	%CreateImage%width%height%frames=1
-displaydepth	graphics	done	%DisplayDepth%display
-displayheight	graphics	done	%DisplayHeight%display
-displaymodedepth	graphics	done	%DisplayModeDepth%display%mode
-displaymodeheight	graphics	done	%DisplayModeHeight%display%mode
-displaymoderefreshrate	graphics	done	%DisplayModeRefreshRate%display%mode
-displaymodewidth	graphics	done	%DisplayModeWidth%display%mode
-displayname	graphics	done	$DisplayName%display
-displayrefreshrate	graphics	done	%DisplayRefreshRate%display
-displayscale	graphics	done	#DisplayScale%display
-displaywidth	graphics	done	%DisplayWidth%display
-displayx	graphics	done	%DisplayX%display
-displayy	graphics	done	%DisplayY%display
-drawblock	graphics	done	DrawBlock%image%x%y%frame=0
-drawblockrect	graphics	done	DrawBlockRect%image%x%y%rect_x%rect_y%rect_width%rect_height%frame=0
-drawimage	graphics	done	DrawImage%image%x%y%frame=0
-drawimagerect	graphics	done	DrawImageRect%image%x%y%rect_x%rect_y%rect_width%rect_height%frame=0
-drawmovie	graphics	done	%DrawMovie%movie%x=0%y=0%w=-1%h=-1
-endgraphics	graphics	done	EndGraphics
-flip	graphics	done	Flip%vwait=1
-setgraphicsrefreshrate	graphics	done	SetGraphicsRefreshRate#rate
-getgraphicsrefreshrate	graphics	done	#GetGraphicsRefreshRate
-fontheight	graphics	done	%FontHeight
-fontwidth	graphics	done	%FontWidth
-freefont	graphics	done	FreeFont%font
-freeimage	graphics	done	FreeImage%image
-frontbuffer	graphics	done	%FrontBuffer
-gammablue	graphics	done	#GammaBlue%blue
-gammagreen	graphics	done	#GammaGreen%green
-gammared	graphics	done	#GammaRed%red
-getcolor	graphics	done	GetColor%x%y
-getmovietexture	graphics	done	%GetMovieTexture%movie
-gfxdriver	graphics	done	%GfxDriver
-gfxdriver3d	graphics	done	%GfxDriver3D%driver
-gfxdrivername	graphics	done	$GfxDriverName%driver
-gfxmode3d	graphics	done	%GfxMode3D%mode
-gfxmode3dexists	graphics	done	%GfxMode3DExists%width%height%depth
-gfxmode3dheight	graphics	done	%GfxMode3DHeight%mode
-gfxmode3dwidth	graphics	done	%GfxMode3DWidth%mode
-gfxmodedepth	graphics	done	%GfxModeDepth%mode
-gfxmodeexists	graphics	done	%GfxModeExists%width%height%depth
-gfxmodeheight	graphics	done	%GfxModeHeight%mode
-gfxmodewidth	graphics	done	%GfxModeWidth%mode
-grabimage	graphics	done	GrabImage%image%x%y%frame=0
-graphics	graphics	done	Graphics%width%height%depth=0%mode=0%keep=0
-graphics3d	graphics	done	Graphics3D%width%height%depth=0%mode=0%keep=0
-graphicsbuffer	graphics	done	%GraphicsBuffer
-graphicsdepth	graphics	done	%GraphicsDepth
-graphicspalette	graphics	done	GraphicsPalette$imagefile
-graphicsheight	graphics	done	%GraphicsHeight
-graphicslost	graphics	done	%GraphicsLost
-graphicswidth	graphics	done	%GraphicsWidth
-handleimage	graphics	done	HandleImage%image%x%y
-hidepointer	graphics	done	HidePointer
-imagebuffer	graphics	done	%ImageBuffer%image%frame=0
-imageheight	graphics	done	%ImageHeight%image
-imageframes	graphics	done	%ImageFrames%image
-imageframedelay	graphics	done	%ImageFrameDelay%image%frame
-imagerectcollide	graphics	done	%ImageRectCollide%image%x%y%frame%rect_x%rect_y%rect_width%rect_height
-imagerectoverlap	graphics	done	%ImageRectOverlap%image%x%y%rect_x%rect_y%rect_width%rect_height
-imagescollide	graphics	done	%ImagesCollide%image1%x1%y1%frame1%image2%x2%y2%frame2
-imagesoverlap	graphics	done	%ImagesOverlap%image1%x1%y1%image2%x2%y2
-imagewidth	graphics	done	%ImageWidth%image
-imagexhandle	graphics	done	%ImageXHandle%image
-imageyhandle	graphics	done	%ImageYHandle%image
-input	graphics	done	$Input$prompt=""
-line	graphics	done	Line%x1%y1%x2%y2
-loadanimimage	graphics	done	%LoadAnimImage$bmpfile%cellwidth%cellheight%first%count
-loadbuffer	graphics	done	%LoadBuffer%buffer$bmpfile
-loadfont	graphics	done	%LoadFont$fontname%height=12%bold=0%italic=0%underline=0
-loadimage	graphics	done	%LoadImage$bmpfile
-locate	graphics	done	Locate%x%y
-lockbuffer	graphics	done	LockBuffer%buffer=0
-loopmovie	graphics	done	LoopMovie%movie%loop=1
-maskimage	graphics	done	MaskImage%image%red%green%blue
-midhandle	graphics	done	MidHandle%image
-movieheight	graphics	done	%MovieHeight%movie
-movielength	graphics	done	#MovieLength%movie
-movieplaying	graphics	done	%MoviePlaying%movie
-movieposition	graphics	done	#MoviePosition%movie
-movievolume	graphics	done	MovieVolume%movie#volume
-moviewidth	graphics	done	%MovieWidth%movie
-openmovie	graphics	done	%OpenMovie$file
-origin	graphics	done	Origin%x%y
-oval	graphics	done	Oval%x%y%width%height%solid=1
-pausemovie	graphics	done	PauseMovie%movie
-playmovie	graphics	done	PlayMovie%movie
-plot	graphics	done	Plot%x%y
-primarydisplay	graphics	done	%PrimaryDisplay
-print	graphics	done	Print$string=""
-readpixel	graphics	done	%ReadPixel%x%y%buffer=0
-readpixel64	graphics	done	!ReadPixel64%x%y%buffer=0>~red=0>~green=0>~blue=0>~alpha=0
-readpixelfast	graphics	done	%ReadPixelFast%x%y%buffer=0
-readpixelfast64	graphics	done	!ReadPixelFast64%x%y%buffer=0>~red=0>~green=0>~blue=0>~alpha=0
-rect	graphics	done	Rect%x%y%width%height%solid=1
-rectsoverlap	graphics	done	%RectsOverlap%x1%y1%width1%height1%x2%y2%width2%height2
-refreshrateat	graphics	done	%RefreshRateAt%display%width%height%index
-resizeimage	graphics	done	ResizeImage%image#width#height
-rotateimage	graphics	done	RotateImage%image#angle
-savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile$settings=""
-saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0$settings=""
-scaleimage	graphics	done	ScaleImage%image#xscale#yscale
-scanline	graphics	done	%ScanLine
-seekmovie	graphics	done	SeekMovie%movie#seconds
-setbuffer	graphics	done	SetBuffer%buffer
-setfont	graphics	done	SetFont%font
-setgamma	graphics	done	SetGamma%src_red%src_green%src_blue#dest_red#dest_green#dest_blue
-setgfxdriver	graphics	done	SetGfxDriver%driver
-showpointer	graphics	done	ShowPointer
-stopmovie	graphics	done	StopMovie%movie
-stringheight	graphics	done	%StringHeight$string
-stringwidth	graphics	done	%StringWidth$string
-text	graphics	done	Text%x%y$text%centre_x=0%centre_y=0
-tformfilter	graphics	done	TFormFilter%enable
-tformimage	graphics	done	TFormImage%image#a#b#c#d
-tileblock	graphics	done	TileBlock%image%x=0%y=0%frame=0
-tileimage	graphics	done	TileImage%image%x=0%y=0%frame=0
-totalvidmem	graphics	done	%TotalVidMem
-totalvidmem64	graphics	done	&TotalVidMem64
-unlockbuffer	graphics	done	UnlockBuffer%buffer=0
-updategamma	graphics	done	UpdateGamma%calibrate=0
-viewport	graphics	done	Viewport%x%y%width%height
-vwait	graphics	done	VWait%frames=1
-windowed3d	graphics	done	%Windowed3D
-write	graphics	done	Write$string
-writepixel	graphics	done	WritePixel%x%y%argb%buffer=0
-writepixel64	graphics	done	WritePixel64%x%y%buffer=0~red~green~blue~alpha
-writepixelfast	graphics	done	WritePixelFast%x%y%argb%buffer=0
-writepixelfast64	graphics	done	WritePixelFast64%x%y%buffer=0~red~green~blue~alpha
-directinputenabled	input	done	%DirectInputEnabled
-enabledirectinput	input	done	EnableDirectInput%enable
-flushjoy	input	done	FlushJoy
-flushkeys	input	done	FlushKeys
-flushmouse	input	done	FlushMouse
-getjoy	input	done	%GetJoy%port=0
-getkey	input	done	%GetKey
-getmouse	input	done	%GetMouse
-hwrawinput	input	done	%HWRawInput
-joydown	input	done	%JoyDown%button%port=0
-joyhat	input	done	%JoyHat%port=0
-joyhit	input	done	%JoyHit%button%port=0
-joypitch	input	done	#JoyPitch%port=0
-joyroll	input	done	#JoyRoll%port=0
-joytype	input	done	%JoyType%port=0
-joyu	input	done	#JoyU%port=0
-joyudir	input	done	%JoyUDir%port=0
-joyv	input	done	#JoyV%port=0
-joyvdir	input	done	%JoyVDir%port=0
-joywait	input	done	%JoyWait%port=0
-joyx	input	done	#JoyX%port=0
-joyxdir	input	done	%JoyXDir%port=0
-joyy	input	done	#JoyY%port=0
-joyyaw	input	done	#JoyYaw%port=0
-joyydir	input	done	%JoyYDir%port=0
-joyz	input	done	#JoyZ%port=0
-joyzdir	input	done	%JoyZDir%port=0
-keydown	input	done	%KeyDown%key%device=-1
-keyhit	input	done	%KeyHit%key%device=-1
-mousedown	input	done	%MouseDown%button%device=-1
-mousehit	input	done	%MouseHit%button%device=-1
-mousewait	input	done	%MouseWait
-mousex	input	done	%MouseX
-mousexspeed	input	done	%MouseXSpeed
-mousey	input	done	%MouseY
-mouseyspeed	input	done	%MouseYSpeed
-mousez	input	done	%MouseZ
-mousezspeed	input	done	%MouseZSpeed
-lockmouse	input	done	LockMouse%window=0
-movemouse	input	done	MoveMouse%x%y
-rawinput	input	done	RawInput%enable
-rawinputenabled	input	done	%RawInputEnabled
-unlockmouse	input	done	UnlockMouse
-vkeydown	input	done	%VKeyDown%scancode%device=-1
-vkeyhit	input	done	%VKeyHit%scancode%device=-1
-waitjoy	input	done	%WaitJoy%port=0
-waitkey	input	done	%WaitKey
-waitmouse	input	done	%WaitMouse
-runtimestats	language	done	RuntimeStats
-acos	math	done	#ACos#float
-asin	math	done	#ASin#float
-atan	math	done	#ATan#float
-atan2	math	done	#ATan2#floata#floatb
-byte	math	done	%Byte#value
-byteswap	math	done	%ByteSwap%value
-ceil	math	done	#Ceil#float
-cos	math	done	#Cos#degrees
-double	math	done	%Double#value
-exp	math	done	#Exp#float
-floor	math	done	#Floor#float
-half	math	done	%Half#value
-leadingzeros	math	done	%LeadingZeros%value
-log	math	done	#Log#float
-log10	math	done	#Log10#float
-long	math	done	%Long#value
-popcount	math	done	%PopCount%value
-rand	math	done	%Rand%from%to=1
-rnd	math	done	#Rnd#from#to=0
-rndseed	math	done	%RndSeed
-rotl	math	done	%RotL%value%count
-rotr	math	done	%RotR%value%count
-satbyte	math	done	%SatByte#value
-satint	math	done	%SatInt#value
-satlong	math	done	%SatLong#value
-satshort	math	done	%SatShort#value
-satubyte	math	done	%SatUByte#value
-satuint	math	done	%SatUInt#value
-satulong	math	done	%SatULong#value
-satushort	math	done	%SatUShort#value
-seedrnd	math	done	SeedRnd%seed
-short	math	done	%Short#value
-sin	math	done	#Sin#degrees
-sqr	math	done	#Sqr#float
-tan	math	done	#Tan#degrees
-trailingzeros	math	done	%TrailingZeros%value
-ubyte	math	done	%UByte#value
-uint	math	done	%UInt#value
-ulong	math	done	%ULong#value
-ushort	math	done	%UShort#value
-createnetplayer	multiplayer	done	%CreateNetPlayer$name
-deletenetplayer	multiplayer	done	DeleteNetPlayer%player
-hostnetgame	multiplayer	done	%HostNetGame$game_name
-joinnetgame	multiplayer	done	%JoinNetGame$game_name$ip_address
-netmsgdata	multiplayer	done	$NetMsgData
-netmsgfrom	multiplayer	done	%NetMsgFrom
-netmsgto	multiplayer	done	%NetMsgTo
-netmsgtype	multiplayer	done	%NetMsgType
-netplayerlocal	multiplayer	done	%NetPlayerLocal%player
-netplayername	multiplayer	done	$NetPlayerName%player
-recvnetmsg	multiplayer	done	%RecvNetMsg
-sendnetmsg	multiplayer	done	%SendNetMsg%type$msg%from_player%to_player=0%reliable=1
-startnetgame	multiplayer	done	%StartNetGame
-stopnetgame	multiplayer	done	StopNetGame
-accepttcpstream	network	done	%AcceptTCPStream%tcp_server
-closetcpserver	network	done	CloseTCPServer%tcp_server
-closetcpstream	network	done	CloseTCPStream%tcp_stream
-closeudpstream	network	done	CloseUDPStream%udp_stream
-counthostaddresses	network	done	%CountHostAddresses$host_name
-counthostips	network	done	%CountHostIPs$host_name
-createtcpserver	network	done	%CreateTCPServer%port
-createudpstream	network	done	%CreateUDPStream%port=0
-dottedip	network	done	$DottedIP%IP
-gethostaddress	network	done	$GetHostAddress%host_index
-gettcpstreamaddress	network	done	$GetTCPStreamAddress%tcp_stream
-getudpmsgaddress	network	done	$GetUDPMsgAddress%udp_stream
-getudpstreamaddress	network	done	$GetUDPStreamAddress%udp_stream
-hostip	network	done	%HostIP%host_index
-opentcpstream	network	done	%OpenTCPStream$server%server_port%local_port=0
-recvudpmsg	network	done	%RecvUDPMsg%udp_stream
-sendudpmsg	network	done	SendUDPMsg%udp_stream%dest_ip%dest_port=0
-sendudpmsgto	network	done	SendUDPMsgTo%udp_stream$address%dest_port=0
-tcpstreamip	network	done	%TCPStreamIP%tcp_stream
-tcpstreamport	network	done	%TCPStreamPort%tcp_stream
-tcptimeouts	network	done	TCPTimeouts%read_millis%accept_millis
-udpmsgip	network	done	%UDPMsgIP%udp_stream
-udpmsgport	network	done	%UDPMsgPort%udp_stream
-udpstreamip	network	done	%UDPStreamIP%udp_stream
-udpstreamport	network	done	%UDPStreamPort%udp_stream
-udptimeouts	network	done	UDPTimeouts%recv_timeout
-canvasbuffer	plus2d	done	%CanvasBuffer%canvas
-createcanvas	plus2d	done	%CreateCanvas%x%y%width%height%group%style=0
-desktopbuffer	plus2d	done	%DesktopBuffer
-eventdata	plus2d	done	%EventData
-eventid	plus2d	done	%EventID
-eventsource	plus2d	done	%EventSource
-eventx	plus2d	done	%EventX
-eventy	plus2d	done	%EventY
-eventz	plus2d	done	%EventZ
-flipcanvas	plus2d	done	FlipCanvas%canvas%vwait=0
-gfxmodeformat	plus2d	done	%GfxModeFormat%mode
-graphicsformat	plus2d	done	%GraphicsFormat
-keywait	plus2d	done	%KeyWait
-lockedformat	plus2d	done	%LockedFormat%buffer=0
-lockedpitch	plus2d	done	%LockedPitch%buffer=0
-lockedpixels	plus2d	done	%LockedPixels%buffer=0
-peekevent	plus2d	done	%PeekEvent
-waitevent	plus2d	done	%WaitEvent%timeout=-1
-activategadget	plusgui	done	ActivateGadget%gadget
-activatewindow	plusgui	done	ActivateWindow%window
-activewindow	plusgui	done	%ActiveWindow
-addgadgetitem	plusgui	done	AddGadgetItem%gadget$item%select=0%icon=-1
-addtextareatext	plusgui	done	AddTextAreaText%textarea$text
-addtreeviewnode	plusgui	done	%AddTreeViewNode$text%parent_node%icon=-1
-buttonstate	plusgui	done	%ButtonState%button
-checkmenu	plusgui	done	CheckMenu%menu
-cleargadgetitems	plusgui	done	ClearGadgetItems%gadget
-clientheight	plusgui	done	%ClientHeight%group
-clientwidth	plusgui	done	%ClientWidth%group
-collapsetreeviewnode	plusgui	done	CollapseTreeViewNode%node
-countgadgetitems	plusgui	done	%CountGadgetItems%gadget
-counttreeviewnodes	plusgui	done	%CountTreeViewNodes%parent_node
-createbutton	plusgui	done	%CreateButton$text%x%y%width%height%group%style=1
-createcombobox	plusgui	done	%CreateComboBox%x%y%width%height%group%style=0
-createhtmlview	plusgui	done	%CreateHtmlView%x%y%width%height%group%style=0
-createlabel	plusgui	done	%CreateLabel$text%x%y%width%height%group%style=0
-createlistbox	plusgui	done	%CreateListBox%x%y%width%height%group%style=0
-createmenu	plusgui	done	%CreateMenu$text%menu_id%parent_menu
-createpanel	plusgui	done	%CreatePanel%x%y%width%height%group%style=0
-createprogbar	plusgui	done	%CreateProgBar%x%y%width%height%group%style=0
-createslider	plusgui	done	%CreateSlider%x%y%width%height%group%style=1
-createtabber	plusgui	done	%CreateTabber%x%y%width%height%group%style=0
-createtextarea	plusgui	done	%CreateTextArea%x%y%width%height%group%style=0
-createtextfield	plusgui	done	%CreateTextField%x%y%width%height%group%style=0
-createtoolbar	plusgui	done	%CreateToolBar$icons%x%y%width%height%group%style=0
-createtreeview	plusgui	done	%CreateTreeView%x%y%width%height%group%style=0
-createwindow	plusgui	done	%CreateWindow$text%x%y%width%height%group=0%style=15
-desktop	plusgui	done	%Desktop
-disablegadget	plusgui	done	DisableGadget%gadget
-disablemenu	plusgui	done	DisableMenu%menu
-disabletoolbaritem	plusgui	done	DisableToolBarItem%toolbar%index
-enablegadget	plusgui	done	EnableGadget%gadget
-enablemenu	plusgui	done	EnableMenu%menu
-enabletoolbaritem	plusgui	done	EnableToolBarItem%toolbar%index
-expandtreeviewnode	plusgui	done	ExpandTreeViewNode%node
-formattextareatext	plusgui	done	FormatTextAreaText%textarea%red%green%blue%flags%pos=0%len=-1%units=1
-freegadget	plusgui	done	FreeGadget%gadget
-freeiconstrip	plusgui	done	FreeIconStrip%icon_strip
-freetreeviewnode	plusgui	done	FreeTreeViewNode%node
-gadgetfont	plusgui	done	%GadgetFont%gadget
-gadgetgroup	plusgui	done	%GadgetGroup%gadget
-gadgetheight	plusgui	done	%GadgetHeight%gadget
-gadgetitemtext	plusgui	done	$GadgetItemText%gadget%index
-gadgettext	plusgui	done	$GadgetText%gadget
-gadgetwidth	plusgui	done	%GadgetWidth%gadget
-gadgetx	plusgui	done	%GadgetX%gadget
-gadgety	plusgui	done	%GadgetY%gadget
-hidegadget	plusgui	done	HideGadget%gadget
-htmlviewback	plusgui	done	HtmlViewBack%htmlview
-htmlviewcurrenturl	plusgui	done	$HtmlViewCurrentURL%htmlview
-htmlvieweventurl	plusgui	done	$HtmlViewEventURL%htmlview
-htmlviewforward	plusgui	done	HtmlViewForward%htmlview
-htmlviewgo	plusgui	done	HtmlViewGo%htmlview$URL
-htmlviewrun	plusgui	done	HtmlViewRun%htmlview$URL
-htmlviewstatus	plusgui	done	%HtmlViewStatus%htmlview
-insertgadgetitem	plusgui	done	InsertGadgetItem%gadget%index$item%icon=-1
-inserttreeviewnode	plusgui	done	%InsertTreeViewNode%index$text%parent_node%icon=-1
-loadiconstrip	plusgui	done	%LoadIconStrip$file
-locktextarea	plusgui	done	LockTextArea%textarea
-maximizewindow	plusgui	done	MaximizeWindow%window
-menuchecked	plusgui	done	%MenuChecked%menu
-menuenabled	plusgui	done	%MenuEnabled%menu
-menutext	plusgui	done	$MenuText%menu
-minimizewindow	plusgui	done	MinimizeWindow%window
-modifygadgetitem	plusgui	done	ModifyGadgetItem%gadget%index$item%icon=-1
-modifytreeviewnode	plusgui	done	ModifyTreeViewNode%node$text%icon=-1
-removegadgetitem	plusgui	done	RemoveGadgetItem%gadget%index
-requestcolor	plusgui	done	%RequestColor%red=255%green=255%blue=255
-requestdir	plusgui	done	$RequestDir$prompt=""$path=""
-requestedblue	plusgui	done	%RequestedBlue
-requestedgreen	plusgui	done	%RequestedGreen
-requestedred	plusgui	done	%RequestedRed
-requestfile	plusgui	done	$RequestFile$prompt=""$exts=""%save=0$defname=""
-requestfont	plusgui	done	%RequestFont
-restorewindow	plusgui	done	RestoreWindow%window
-selectedgadgetitem	plusgui	done	%SelectedGadgetItem%gadget
-selectedtreeviewnode	plusgui	done	%SelectedTreeViewNode%treeview
-selectgadgetitem	plusgui	done	SelectGadgetItem%gadget%index
-selecttreeviewnode	plusgui	done	SelectTreeViewNode%node
-setbuttonstate	plusgui	done	SetButtonState%button%state
-setgadgetfont	plusgui	done	SetGadgetFont%gadget%font
-setgadgeticonstrip	plusgui	done	SetGadgetIconStrip%gadget%icon_strip
-setgadgetlayout	plusgui	done	SetGadgetLayout%gadget%left%right%top%bottom
-setgadgetshape	plusgui	done	SetGadgetShape%gadget%x%y%width%height
-setgadgettext	plusgui	done	SetGadgetText%gadget$text
-setmenutext	plusgui	done	SetMenuText%menu$text
-setminwindowsize	plusgui	done	SetMinWindowSize%window%width=-1%height=-1
-setpanelcolor	plusgui	done	SetPanelColor%panel%red%green%blue
-setpanelimage	plusgui	done	SetPanelImage%panel$file
-setsliderrange	plusgui	done	SetSliderRange%slider%visible%total
-setslidervalue	plusgui	done	SetSliderValue%slider%value
-setstatustext	plusgui	done	SetStatusText%window$text
-settextareacolor	plusgui	done	SetTextAreaColor%textarea%red%green%blue%background=0
-settextareafont	plusgui	done	SetTextAreaFont%textarea%font
-settextareatabs	plusgui	done	SetTextAreaTabs%textarea%tabs
-settextareatext	plusgui	done	SetTextAreaText%textarea$text%pos=0%len=-1%units=1
-settoolbartips	plusgui	done	SetToolBarTips%toolbar$tips
-setwindowsizelimit	plusgui	done	SetWindowSizeLimit%window%min_width%min_height%max_width%max_height
-showgadget	plusgui	done	ShowGadget%gadget
-slidervalue	plusgui	done	%SliderValue%slider
-textareachar	plusgui	done	%TextAreaChar%textarea%line
-textareacursor	plusgui	done	%TextAreaCursor%textarea%units=1
-textarealen	plusgui	done	%TextAreaLen%textarea%units=1
-textarealine	plusgui	done	%TextAreaLine%textarea%char
-textarealinelen	plusgui	done	%TextAreaLineLen%textarea%line
-textareasellen	plusgui	done	%TextAreaSelLen%textarea%units=1
-textareatext	plusgui	done	$TextAreaText%textarea%pos=0%len=-1%units=1
-textfieldtext	plusgui	done	$TextFieldText%textfield
-treeviewnodetext	plusgui	done	$TreeViewNodeText%node
-treeviewroot	plusgui	done	%TreeViewRoot%treeview
-uncheckmenu	plusgui	done	UncheckMenu%menu
-unlocktextarea	plusgui	done	UnlockTextArea%textarea
-updateprogbar	plusgui	done	UpdateProgBar%progbar#progress
-updatewindowmenu	plusgui	done	UpdateWindowMenu%window
-windowmaximized	plusgui	done	%WindowMaximized%window
-windowmenu	plusgui	done	%WindowMenu%window
-windowminimized	plusgui	done	%WindowMinimized%window
-windowscale	plusgui	done	#WindowScale%window
-windowscaling	plusgui	done	WindowScaling%mode
-activeobjects	plussystem	done	%ActiveObjects
-autosuspend	plussystem	done	AutoSuspend%enable
-confirm	plussystem	done	%Confirm$text%serious=0
-createprocess	plussystem	done	%CreateProcess$command
-debugobjects	plussystem	done	DebugObjects
-flushevents	plussystem	done	FlushEvents%kind=-1%source=0
-fontascent	plussystem	done	%FontAscent%font
-fontdescent	plussystem	done	%FontDescent%font
-fontname	plussystem	done	$FontName%font
-fontsize	plussystem	done	%FontSize%font
-fontstyle	plussystem	done	%FontStyle%font
-hotkeyevent	plussystem	done	HotKeyEvent%rawkey%modifier%ev_id%ev_data=0%ev_x=0%ev_y=0%ev_z=0%ev_source=0
-morefiles	plussystem	done	%MoreFiles%dir
-notify	plussystem	done	Notify$text%serious=0
-pausetimer	plussystem	done	PauseTimer%timer
-proceed	plussystem	done	%Proceed$text%serious=0
-queryobject	plussystem	done	%QueryObject%object%query_id
-resettimer	plussystem	done	ResetTimer%timer
-resumetimer	plussystem	done	ResumeTimer%timer
-timerticks	plussystem	done	%TimerTicks%timer
-apptitle	runtime	done	AppTitle$title$close_prompt=""
-commandline	runtime	done	$CommandLine
-createtimer	runtime	done	%CreateTimer%hertz
-debuglog	runtime	done	DebugLog$text
-delay	runtime	done	Delay%millisecs
-end	runtime	done	End
-execfile	runtime	done	ExecFile$command
-freetimer	runtime	done	FreeTimer%timer
-getenv	runtime	done	$GetEnv$env_var
-microseconds	runtime	done	&Microseconds
-millisecs	runtime	done	%MilliSecs
-profilebegin	runtime	done	ProfileBegin$key
-profileenable	runtime	done	ProfileEnable%enable
-profileend	runtime	done	ProfileEnd$key
-profileflipcount	runtime	done	%ProfileFlipCount
-profilefps	runtime	done	ProfileFPS%enable
-profileitemcount	runtime	done	%ProfileItemCount
-profileitemname	runtime	done	$ProfileItemName%item
-profileoutput	runtime	done	ProfileOutput$file
-profilesample	runtime	done	ProfileSample$file
-profileslow	runtime	done	ProfileSlow#milliseconds
-profilevalue	runtime	done	#ProfileValue$key
-runtimeerror	runtime	done	RuntimeError$message
-setenv	runtime	done	SetEnv$env_var$value
-stop	runtime	done	Stop
-systemproperty	runtime	done	$SystemProperty$property
-waittimer	runtime	done	%WaitTimer%timer
-copystream	streams	done	CopyStream%src_stream%dest_stream%buffer_size=16384
-eof	streams	done	%Eof%stream
-readavail	streams	done	%ReadAvail%stream
-readbyte	streams	done	%ReadByte%stream
-readfloat	streams	done	#ReadFloat%stream
-readint	streams	done	%ReadInt%stream
-readline	streams	done	$ReadLine%stream
-readshort	streams	done	%ReadShort%stream
-readstring	streams	done	$ReadString%stream
-writebyte	streams	done	WriteByte%stream%byte
-writefloat	streams	done	WriteFloat%stream#float
-writeint	streams	done	WriteInt%stream%int
-writeline	streams	done	WriteLine%stream$string
-writeshort	streams	done	WriteShort%stream%short
-writestring	streams	done	WriteString%stream$string
-asc	strings	done	%Asc$string
-bin	strings	done	$Bin%value
-chr	strings	done	$Chr%ascii
-currentdate	strings	done	$CurrentDate
-currenttime	strings	done	$CurrentTime
-hex	strings	done	$Hex%value
-instr	strings	done	%Instr$string$find%from=1
-left	strings	done	$Left$string%count
-len	strings	done	%Len$string
-lower	strings	done	$Lower$string
-lset	strings	done	$LSet$string%size
-mid	strings	done	$Mid$string%start%count=-1
-replace	strings	done	$Replace$string$from$to
-right	strings	done	$Right$string%count
-rset	strings	done	$RSet$string%size
-string	strings	done	$String$string%repeat
-trim	strings	done	$Trim$string
-upper	strings	done	$Upper$string
+# name	module	state	signature (Name:Result(parameter:Type = default), see tools/suite_functions.py)
+channelpan	audio	done	ChannelPan(channel:Int32, pan:Float32)
+channelpitch	audio	done	ChannelPitch(channel:Int32, pitch:Int32)
+channelplaying	audio	done	ChannelPlaying:Int32(channel:Int32)
+channelvolume	audio	done	ChannelVolume(channel:Int32, volume:Float32)
+freesound	audio	done	FreeSound(sound:Int32)
+load3dsound	audio	done	Load3DSound:Int32(filename:String)
+loadsound	audio	done	LoadSound:Int32(filename:String)
+loopsound	audio	done	LoopSound(sound:Int32)
+pausechannel	audio	done	PauseChannel(channel:Int32)
+playcdtrack	audio	done	PlayCDTrack:Int32(track:Int32, mode:Int32 = 1)
+playmusic	audio	done	PlayMusic:Int32(midifile:String, flags:Int32 = 0)
+playsound	audio	done	PlaySound:Int32(sound:Int32)
+resumechannel	audio	done	ResumeChannel(channel:Int32)
+soundpan	audio	done	SoundPan(sound:Int32, pan:Float32)
+soundpitch	audio	done	SoundPitch(sound:Int32, pitch:Int32)
+soundvolume	audio	done	SoundVolume(sound:Int32, volume:Float32)
+stopchannel	audio	done	StopChannel(channel:Int32)
+banksize	banks	done	BankSize:Int32(bank:Int32)
+calldll	banks	done	CallDLL:Int32(dll_name:String, func_name:String, in_bank:Int32 = 0, out_bank:Int32 = 0)
+copybank	banks	done	CopyBank(src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32)
+createbank	banks	done	CreateBank:Int32(size:Int32 = 0)
+freebank	banks	done	FreeBank(bank:Int32)
+peekbyte	banks	done	PeekByte:Int32(bank:Int32, offset:Int32)
+peekfloat	banks	done	PeekFloat:Float32(bank:Int32, offset:Int32)
+peekint	banks	done	PeekInt:Int32(bank:Int32, offset:Int32)
+peekshort	banks	done	PeekShort:Int32(bank:Int32, offset:Int32)
+pokebyte	banks	done	PokeByte(bank:Int32, offset:Int32, value:Int32)
+pokefloat	banks	done	PokeFloat(bank:Int32, offset:Int32, value:Float32)
+pokeint	banks	done	PokeInt(bank:Int32, offset:Int32, value:Int32)
+pokeshort	banks	done	PokeShort(bank:Int32, offset:Int32, value:Int32)
+readbytes	banks	done	ReadBytes:Int32(bank:Int32, file:Int32, offset:Int32, count:Int32)
+resizebank	banks	done	ResizeBank(bank:Int32, size:Int32)
+writebytes	banks	done	WriteBytes:Int32(bank:Int32, file:Int32, offset:Int32, count:Int32)
+activetextures	blitz3d	done	ActiveTextures:Int32()
+addanimseq	blitz3d	done	AddAnimSeq:Int32(entity:Int32, length:Int32)
+addmesh	blitz3d	done	AddMesh(source_mesh:Int32, dest_mesh:Int32)
+addtriangle	blitz3d	done	AddTriangle:Int32(surface:Int32, v0:Int32, v1:Int32, v2:Int32)
+addvertex	blitz3d	done	AddVertex:Int32(surface:Int32, x:Float32, y:Float32, z:Float32, u:Float32 = 0, v:Float32 = 0, w:Float32 = 1)
+aligntovector	blitz3d	done	AlignToVector(entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32 = 1)
+ambientlight	blitz3d	done	AmbientLight(red:Float32, green:Float32, blue:Float32)
+animate	blitz3d	done	Animate(entity:Int32, mode:Int32 = 1, speed:Float32 = 1, sequence:Int32 = 0, transition:Float32 = 0)
+animateentity	blitz3d	done	AnimateEntity(entity:Int32, mode:Int32 = 1, speed:Float32 = 1, sequence:Int32 = 0, transition:Float32 = 0)
+animatemd2	blitz3d	done	AnimateMD2(md2:Int32, mode:Int32 = 1, speed:Float32 = 1, first_frame:Int32 = 0, last_frame:Int32 = 9999, transition:Float32 = 0)
+animating	blitz3d	done	Animating:Int32(entity:Int32)
+animlength	blitz3d	done	AnimLength:Int32(entity:Int32)
+animseq	blitz3d	done	AnimSeq:Int32(entity:Int32)
+animtime	blitz3d	done	AnimTime:Float32(entity:Int32)
+antialias	blitz3d	done	AntiAlias(enable:Int32)
+atlastexture	blitz3d	done	AtlasTexture:Int32(atlas:Int32, x:Int32, y:Int32, width:Int32, height:Int32)
+brushalpha	blitz3d	done	BrushAlpha(brush:Int32, alpha:Float32)
+brushblend	blitz3d	done	BrushBlend(brush:Int32, blend:Int32)
+brushcolor	blitz3d	done	BrushColor(brush:Int32, red:Float32, green:Float32, blue:Float32)
+brushfx	blitz3d	done	BrushFX(brush:Int32, fx:Int32)
+brushshininess	blitz3d	done	BrushShininess(brush:Int32, shininess:Float32)
+brushtexture	blitz3d	done	BrushTexture(brush:Int32, texture:Int32, frame:Int32 = 0, index:Int32 = 0)
+bspambientlight	blitz3d	done	BSPAmbientLight(bsp:Int32, red:Float32, green:Float32, blue:Float32)
+bsplighting	blitz3d	done	BSPLighting(bsp:Int32, use_lightmaps:Int32)
+bsplightmapcolor	blitz3d	done	BSPLightmapColor(bsp:Int32, red:Float32, green:Float32, blue:Float32)
+cameraclscolor	blitz3d	done	CameraClsColor(camera:Int32, red:Float32, green:Float32, blue:Float32)
+cameraclsmode	blitz3d	done	CameraClsMode(camera:Int32, cls_color:Int32, cls_zbuffer:Int32)
+cameraculling	blitz3d	done	CameraCulling(camera:Int32, flags:Int32)
+cameracullingsource	blitz3d	done	CameraCullingSource(camera_a:Int32, camera_b:Int32 = 0)
+camerafogcolor	blitz3d	done	CameraFogColor(camera:Int32, red:Float32, green:Float32, blue:Float32)
+camerafogmode	blitz3d	done	CameraFogMode(camera:Int32, mode:Int32)
+camerafogrange	blitz3d	done	CameraFogRange(camera:Int32, near:Float32, far:Float32)
+camerapick	blitz3d	done	CameraPick:Int32(camera:Int32, viewport_x:Float32, viewport_y:Float32)
+cameraproject	blitz3d	done	CameraProject(camera:Int32, x:Float32, y:Float32, z:Float32)
+cameraprojmode	blitz3d	done	CameraProjMode(camera:Int32, mode:Int32)
+camerarange	blitz3d	done	CameraRange(camera:Int32, near:Float32, far:Float32)
+cameraviewport	blitz3d	done	CameraViewport(camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32)
+camerazoom	blitz3d	done	CameraZoom(camera:Int32, zoom:Float32)
+captureworld	blitz3d	done	CaptureWorld()
+channeldoppler	blitz3d	done	ChannelDoppler(channel:Int32, scale:Float32)
+channelradius	blitz3d	done	ChannelRadius(channel:Int32, radius:Float32)
+clearcollisions	blitz3d	done	ClearCollisions()
+clearsurface	blitz3d	done	ClearSurface(surface:Int32, clear_vertices:Int32 = 1, clear_triangles:Int32 = 1)
+cleartexturefilters	blitz3d	done	ClearTextureFilters()
+clearworld	blitz3d	done	ClearWorld(entities:Int32 = 1, brushes:Int32 = 1, textures:Int32 = 1)
+collisionentity	blitz3d	done	CollisionEntity:Int32(entity:Int32, collision_index:Int32)
+collisionnx	blitz3d	done	CollisionNX:Float32(entity:Int32, collision_index:Int32)
+collisionny	blitz3d	done	CollisionNY:Float32(entity:Int32, collision_index:Int32)
+collisionnz	blitz3d	done	CollisionNZ:Float32(entity:Int32, collision_index:Int32)
+collisions	blitz3d	done	Collisions(source_type:Int32, destination_type:Int32, method:Int32, response:Int32)
+collisionsurface	blitz3d	done	CollisionSurface:Int32(entity:Int32, collision_index:Int32)
+collisiontime	blitz3d	done	CollisionTime:Float32(entity:Int32, collision_index:Int32)
+collisiontriangle	blitz3d	done	CollisionTriangle:Int32(entity:Int32, collision_index:Int32)
+collisionx	blitz3d	done	CollisionX:Float32(entity:Int32, collision_index:Int32)
+collisiony	blitz3d	done	CollisionY:Float32(entity:Int32, collision_index:Int32)
+collisionz	blitz3d	done	CollisionZ:Float32(entity:Int32, collision_index:Int32)
+copyentity	blitz3d	done	CopyEntity:Int32(entity:Int32, parent:Int32 = 0)
+copymesh	blitz3d	done	CopyMesh:Int32(mesh:Int32, parent:Int32 = 0)
+countchildren	blitz3d	done	CountChildren:Int32(entity:Int32)
+countcollisions	blitz3d	done	CountCollisions:Int32(entity:Int32)
+countsurfaces	blitz3d	done	CountSurfaces:Int32(mesh:Int32)
+counttriangles	blitz3d	done	CountTriangles:Int32(surface:Int32)
+countvertices	blitz3d	done	CountVertices:Int32(surface:Int32)
+createbrush	blitz3d	done	CreateBrush:Int32(red:Float32 = 255, green:Float32 = 255, blue:Float32 = 255)
+createcamera	blitz3d	done	CreateCamera:Int32(parent:Int32 = 0)
+createcone	blitz3d	done	CreateCone:Int32(segments:Int32 = 8, solid:Int32 = 1, parent:Int32 = 0)
+createcube	blitz3d	done	CreateCube:Int32(parent:Int32 = 0)
+createcylinder	blitz3d	done	CreateCylinder:Int32(segments:Int32 = 8, solid:Int32 = 1, parent:Int32 = 0)
+createlight	blitz3d	done	CreateLight:Int32(type:Int32 = 1, parent:Int32 = 0)
+createlistener	blitz3d	done	CreateListener:Int32(parent:Int32, rolloff_factor:Float32 = 1, doppler_scale:Float32 = 1, distance_scale:Float32 = 1)
+createmesh	blitz3d	done	CreateMesh:Int32(parent:Int32 = 0)
+createmirror	blitz3d	done	CreateMirror:Int32(parent:Int32 = 0)
+createphysicsbody	blitz3d	done	CreatePhysicsBody:Int32(shape:Int32, motion:Int32, a:Float32, b:Float32, c:Float32, parent:Int32 = 0, world:Int32 = 0)
+createphysicsbodyfromentity	blitz3d	done	CreatePhysicsBodyFromEntity:Int32(entity:Int32, motion:Int32, shape:Int32 = 0, world:Int32 = 0)
+createphysicsconeconstraint	blitz3d	done	CreatePhysicsConeConstraint:Int32(a:Int32, b:Int32, x:Float32, y:Float32, z:Float32, axis_x:Float32, axis_y:Float32, axis_z:Float32, half_angle:Float32)
+createphysicsdistanceconstraint	blitz3d	done	CreatePhysicsDistanceConstraint:Int32(a:Int32, b:Int32, x:Float32, y:Float32, z:Float32, min_distance:Float32, max_distance:Float32)
+createphysicsfixedconstraint	blitz3d	done	CreatePhysicsFixedConstraint:Int32(a:Int32, b:Int32)
+createphysicshingeconstraint	blitz3d	done	CreatePhysicsHingeConstraint:Int32(a:Int32, b:Int32, x:Float32, y:Float32, z:Float32, axis_x:Float32, axis_y:Float32, axis_z:Float32)
+createphysicspointconstraint	blitz3d	done	CreatePhysicsPointConstraint:Int32(a:Int32, b:Int32, x:Float32, y:Float32, z:Float32)
+createphysicssliderconstraint	blitz3d	done	CreatePhysicsSliderConstraint:Int32(a:Int32, b:Int32, axis_x:Float32, axis_y:Float32, axis_z:Float32)
+createphysicsworld	blitz3d	done	CreatePhysicsWorld:Int32(max_bodies:Int32 = 0)
+createpivot	blitz3d	done	CreatePivot:Int32(parent:Int32 = 0)
+createplane	blitz3d	done	CreatePlane:Int32(segments:Int32 = 1, parent:Int32 = 0)
+createsampler	blitz3d	done	CreateSampler:Int32()
+createsphere	blitz3d	done	CreateSphere:Int32(segments:Int32 = 8, parent:Int32 = 0)
+createsprite	blitz3d	done	CreateSprite:Int32(parent:Int32 = 0)
+createsurface	blitz3d	done	CreateSurface:Int32(mesh:Int32, brush:Int32 = 0)
+createterrain	blitz3d	done	CreateTerrain:Int32(grid_size:Int32, parent:Int32 = 0)
+createtexture	blitz3d	done	CreateTexture:Int32(width:Int32, height:Int32, flags:Int32 = 0, frames:Int32 = 1)
+deltapitch	blitz3d	done	DeltaPitch:Float32(src_entity:Int32, dest_entity:Int32)
+deltayaw	blitz3d	done	DeltaYaw:Float32(src_entity:Int32, dest_entity:Int32)
+dither	blitz3d	done	Dither(enable:Int32)
+dithermode	blitz3d	done	DitherMode(mode:Int32, level:Int32 = 1)
+dithertemporal	blitz3d	done	DitherTemporal(enable:Int32)
+emitsound	blitz3d	done	EmitSound:Int32(sound:Int32, entity:Int32)
+entityalpha	blitz3d	done	EntityAlpha(entity:Int32, alpha:Float32)
+entityautofade	blitz3d	done	EntityAutoFade(entity:Int32, near:Float32, far:Float32)
+entityblend	blitz3d	done	EntityBlend(entity:Int32, blend:Int32)
+entitybox	blitz3d	done	EntityBox(entity:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32)
+entityclass	blitz3d	done	EntityClass:String(entity:Int32)
+entitycollided	blitz3d	done	EntityCollided:Int32(entity:Int32, type:Int32)
+entitycolor	blitz3d	done	EntityColor(entity:Int32, red:Float32, green:Float32, blue:Float32)
+entitydepthfade	blitz3d	done	EntityDepthFade(entity:Int32, fade_distance:Float32)
+entitydistance	blitz3d	done	EntityDistance:Float32(source_entity:Int32, destination_entity:Int32)
+entityfx	blitz3d	done	EntityFX(entity:Int32, fx:Int32)
+entityinview	blitz3d	done	EntityInView:Int32(entity:Int32, camera:Int32)
+entitylightchannel	blitz3d	done	EntityLightChannel(entity:Int32, channel:Int32)
+entitylighting	blitz3d	done	EntityLighting(entity:Int32, mode:Int32)
+entityname	blitz3d	done	EntityName:String(entity:Int32)
+entityorder	blitz3d	done	EntityOrder(entity:Int32, order:Int32)
+entityparent	blitz3d	done	EntityParent(entity:Int32, parent:Int32, global:Int32 = 1)
+entitypick	blitz3d	done	EntityPick:Int32(entity:Int32, range:Float32)
+entitypickmode	blitz3d	done	EntityPickMode(entity:Int32, pick_geometry:Int32, obscurer:Int32 = 1)
+entitypitch	blitz3d	done	EntityPitch:Float32(entity:Int32, global:Int32 = 0)
+entityradius	blitz3d	done	EntityRadius(entity:Int32, x_radius:Float32, y_radius:Float32 = 0)
+entityready	blitz3d	done	EntityReady:Int32(entity:Int32)
+entityroll	blitz3d	done	EntityRoll:Float32(entity:Int32, global:Int32 = 0)
+entityshininess	blitz3d	done	EntityShininess(entity:Int32, shininess:Float32)
+entitystatic	blitz3d	done	EntityStatic(entity:Int32, is_static:Int32)
+entitytexture	blitz3d	done	EntityTexture(entity:Int32, texture:Int32, frame:Int32 = 0, index:Int32 = 0)
+entitytype	blitz3d	done	EntityType(entity:Int32, collision_type:Int32, recursive:Int32 = 0)
+entityvisible	blitz3d	done	EntityVisible:Int32(src_entity:Int32, dest_entity:Int32)
+entityx	blitz3d	done	EntityX:Float32(entity:Int32, global:Int32 = 0)
+entityy	blitz3d	done	EntityY:Float32(entity:Int32, global:Int32 = 0)
+entityyaw	blitz3d	done	EntityYaw:Float32(entity:Int32, global:Int32 = 0)
+entityz	blitz3d	done	EntityZ:Float32(entity:Int32, global:Int32 = 0)
+extractanimseq	blitz3d	done	ExtractAnimSeq:Int32(entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32 = 0)
+findchild	blitz3d	done	FindChild:Int32(entity:Int32, name:String)
+findsurface	blitz3d	done	FindSurface:Int32(mesh:Int32, brush:Int32)
+fitmesh	blitz3d	done	FitMesh(mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32, uniform:Int32 = 0)
+flipmesh	blitz3d	done	FlipMesh(mesh:Int32)
+freebrush	blitz3d	done	FreeBrush(brush:Int32)
+freeentity	blitz3d	done	FreeEntity(entity:Int32)
+freephysicsconstraint	blitz3d	done	FreePhysicsConstraint(constraint:Int32)
+freephysicsworld	blitz3d	done	FreePhysicsWorld(world:Int32)
+freesampler	blitz3d	done	FreeSampler(sampler:Int32)
+freetexture	blitz3d	done	FreeTexture(texture:Int32)
+getbrushtexture	blitz3d	done	GetBrushTexture:Int32(brush:Int32, index:Int32 = 0)
+getcamerabuffer	blitz3d	done	GetCameraBuffer:Int32(camera:Int32)
+getcameraclipplane	blitz3d	done	GetCameraClipPlane:FloatVector4(camera:Int32, index:Int32)
+getcameraclipplaneenabled	blitz3d	done	GetCameraClipPlaneEnabled:Int32(camera:Int32, index:Int32)
+getcameraprojectionmatrix	blitz3d	done	GetCameraProjectionMatrix:FloatMatrix4x4(camera:Int32)
+getcamerastencil	blitz3d	done	GetCameraStencil:Int32(camera:Int32)
+getcameraviewmatrix	blitz3d	done	GetCameraViewMatrix:FloatMatrix4x3(camera:Int32)
+getchanneldoppler	blitz3d	done	GetChannelDoppler:Float32(channel:Int32)
+getchannelfalloff	blitz3d	done	GetChannelFalloff:Int32(channel:Int32)
+getchannelradius	blitz3d	done	GetChannelRadius:Float32(channel:Int32)
+getchild	blitz3d	done	GetChild:Int32(entity:Int32, index:Int32)
+getentitybrush	blitz3d	done	GetEntityBrush:Int32(entity:Int32)
+getentitytype	blitz3d	done	GetEntityType:Int32(entity:Int32)
+getfalloff	blitz3d	done	GetFalloff:Int32()
+getgraphicshdr	blitz3d	done	GetGraphicsHDR(Out mode:Int32 = 0, Out minimum:Float32 = 0, Out average:Float32 = 0, Out maximum:Float32 = 0)
+getlistenerdistance	blitz3d	done	GetListenerDistance:Float32()
+getlistenerdoppler	blitz3d	done	GetListenerDoppler:Float32()
+getlistenerradius	blitz3d	done	GetListenerRadius:Float32()
+getlistenerrolloff	blitz3d	done	GetListenerRolloff:Float32()
+getmatelement	blitz3d	done	GetMatElement:Float32(entity:Int32, row:Int32, column:Int32)
+getparent	blitz3d	done	GetParent:Int32(entity:Int32)
+getphysicsangulardamping	blitz3d	done	GetPhysicsAngularDamping:Float32(entity:Int32)
+getphysicsangularvelocityx	blitz3d	done	GetPhysicsAngularVelocityX:Float32(entity:Int32, global:Int32 = 0)
+getphysicsangularvelocityy	blitz3d	done	GetPhysicsAngularVelocityY:Float32(entity:Int32, global:Int32 = 0)
+getphysicsangularvelocityz	blitz3d	done	GetPhysicsAngularVelocityZ:Float32(entity:Int32, global:Int32 = 0)
+getphysicsawake	blitz3d	done	GetPhysicsAwake:Int32(entity:Int32)
+getphysicsbaumgarte	blitz3d	done	GetPhysicsBaumgarte:Float32(world:Int32 = 0)
+getphysicsbodymotion	blitz3d	done	GetPhysicsBodyMotion:Int32(entity:Int32)
+getphysicsbodyshape	blitz3d	done	GetPhysicsBodyShape:Int32(entity:Int32)
+getphysicsbodyworld	blitz3d	done	GetPhysicsBodyWorld:Int32(entity:Int32)
+getphysicsconstraintbroken	blitz3d	done	GetPhysicsConstraintBroken:Int32(constraint:Int32)
+getphysicscontactcount	blitz3d	done	GetPhysicsContactCount:Int32(world:Int32 = 0)
+getphysicscontactdepth	blitz3d	done	GetPhysicsContactDepth:Float32(index:Int32, world:Int32 = 0)
+getphysicscontactentitya	blitz3d	done	GetPhysicsContactEntityA:Int32(index:Int32, world:Int32 = 0)
+getphysicscontactentityb	blitz3d	done	GetPhysicsContactEntityB:Int32(index:Int32, world:Int32 = 0)
+getphysicscontactnx	blitz3d	done	GetPhysicsContactNX:Float32(index:Int32, world:Int32 = 0)
+getphysicscontactny	blitz3d	done	GetPhysicsContactNY:Float32(index:Int32, world:Int32 = 0)
+getphysicscontactnz	blitz3d	done	GetPhysicsContactNZ:Float32(index:Int32, world:Int32 = 0)
+getphysicscontactreport	blitz3d	done	GetPhysicsContactReport:Int32(entity:Int32)
+getphysicscontactsensor	blitz3d	done	GetPhysicsContactSensor:Int32(index:Int32, world:Int32 = 0)
+getphysicscontactslop	blitz3d	done	GetPhysicsContactSlop:Float32(world:Int32 = 0)
+getphysicscontactx	blitz3d	done	GetPhysicsContactX:Float32(index:Int32, world:Int32 = 0)
+getphysicscontacty	blitz3d	done	GetPhysicsContactY:Float32(index:Int32, world:Int32 = 0)
+getphysicscontactz	blitz3d	done	GetPhysicsContactZ:Float32(index:Int32, world:Int32 = 0)
+getphysicscontinuous	blitz3d	done	GetPhysicsContinuous:Int32(entity:Int32)
+getphysicscontinuousdefault	blitz3d	done	GetPhysicsContinuousDefault:Int32(world:Int32 = 0)
+getphysicsdeterministic	blitz3d	done	GetPhysicsDeterministic:Int32(world:Int32 = 0)
+getphysicsfriction	blitz3d	done	GetPhysicsFriction:Float32(entity:Int32)
+getphysicsgravityscale	blitz3d	done	GetPhysicsGravityScale:Float32(entity:Int32)
+getphysicsgravityx	blitz3d	done	GetPhysicsGravityX:Float32(world:Int32 = 0)
+getphysicsgravityy	blitz3d	done	GetPhysicsGravityY:Float32(world:Int32 = 0)
+getphysicsgravityz	blitz3d	done	GetPhysicsGravityZ:Float32(world:Int32 = 0)
+getphysicshitdistance	blitz3d	done	GetPhysicsHitDistance:Float32()
+getphysicshitentity	blitz3d	done	GetPhysicsHitEntity:Int32()
+getphysicshitnx	blitz3d	done	GetPhysicsHitNX:Float32()
+getphysicshitny	blitz3d	done	GetPhysicsHitNY:Float32()
+getphysicshitnz	blitz3d	done	GetPhysicsHitNZ:Float32()
+getphysicshitx	blitz3d	done	GetPhysicsHitX:Float32()
+getphysicshity	blitz3d	done	GetPhysicsHitY:Float32()
+getphysicshitz	blitz3d	done	GetPhysicsHitZ:Float32()
+getphysicslayer	blitz3d	done	GetPhysicsLayer:Int32(entity:Int32)
+getphysicslineardamping	blitz3d	done	GetPhysicsLinearDamping:Float32(entity:Int32)
+getphysicslinearvelocityx	blitz3d	done	GetPhysicsLinearVelocityX:Float32(entity:Int32, global:Int32 = 0)
+getphysicslinearvelocityy	blitz3d	done	GetPhysicsLinearVelocityY:Float32(entity:Int32, global:Int32 = 0)
+getphysicslinearvelocityz	blitz3d	done	GetPhysicsLinearVelocityZ:Float32(entity:Int32, global:Int32 = 0)
+getphysicsmaskhigh	blitz3d	done	GetPhysicsMaskHigh:Int32(entity:Int32)
+getphysicsmasklow	blitz3d	done	GetPhysicsMaskLow:Int32(entity:Int32)
+getphysicsmass	blitz3d	done	GetPhysicsMass:Float32(entity:Int32)
+getphysicsmaxdelta	blitz3d	done	GetPhysicsMaxDelta:Float32(world:Int32 = 0)
+getphysicsmaxsteps	blitz3d	done	GetPhysicsMaxSteps:Int32(world:Int32 = 0)
+getphysicsmode	blitz3d	done	GetPhysicsMode:Int32(world:Int32 = 0)
+getphysicsoverlap	blitz3d	done	GetPhysicsOverlap:Int32(index:Int32)
+getphysicspositioniterations	blitz3d	done	GetPhysicsPositionIterations:Int32(world:Int32 = 0)
+getphysicsrate	blitz3d	done	GetPhysicsRate:Float32(world:Int32 = 0)
+getphysicsrestitution	blitz3d	done	GetPhysicsRestitution:Float32(entity:Int32)
+getphysicssensor	blitz3d	done	GetPhysicsSensor:Int32(entity:Int32)
+getphysicssleepthreshold	blitz3d	done	GetPhysicsSleepThreshold:Float32(world:Int32 = 0)
+getphysicssolver	blitz3d	done	GetPhysicsSolver:Int32(world:Int32 = 0)
+getphysicsspeculativedistance	blitz3d	done	GetPhysicsSpeculativeDistance:Float32(world:Int32 = 0)
+getphysicssubsteps	blitz3d	done	GetPhysicsSubsteps:Int32(world:Int32 = 0)
+getphysicsthreads	blitz3d	done	GetPhysicsThreads:Int32()
+getphysicsvelocityiterations	blitz3d	done	GetPhysicsVelocityIterations:Int32(world:Int32 = 0)
+getphysicsworldsleeping	blitz3d	done	GetPhysicsWorldSleeping:Int32(world:Int32 = 0)
+getsampleraddressmodeu	blitz3d	done	GetSamplerAddressModeU:Int32(sampler:Int32)
+getsampleraddressmodev	blitz3d	done	GetSamplerAddressModeV:Int32(sampler:Int32)
+getsampleraddressmodew	blitz3d	done	GetSamplerAddressModeW:Int32(sampler:Int32)
+getsampleranisotropy	blitz3d	done	GetSamplerAnisotropy:Float32(sampler:Int32)
+getsamplerbordercolora	blitz3d	done	GetSamplerBorderColorA:Float32(sampler:Int32)
+getsamplerbordercolorb	blitz3d	done	GetSamplerBorderColorB:Float32(sampler:Int32)
+getsamplerbordercolorg	blitz3d	done	GetSamplerBorderColorG:Float32(sampler:Int32)
+getsamplerbordercolorr	blitz3d	done	GetSamplerBorderColorR:Float32(sampler:Int32)
+getsamplerfiltermag	blitz3d	done	GetSamplerFilterMag:Int32(sampler:Int32)
+getsamplerfiltermin	blitz3d	done	GetSamplerFilterMin:Int32(sampler:Int32)
+getsamplerfiltermip	blitz3d	done	GetSamplerFilterMip:Int32(sampler:Int32)
+getsamplerlodbias	blitz3d	done	GetSamplerLodBias:Float32(sampler:Int32)
+getsamplerlodmax	blitz3d	done	GetSamplerLodMax:Float32(sampler:Int32)
+getsamplerlodmin	blitz3d	done	GetSamplerLodMin:Float32(sampler:Int32)
+getspeedofsound	blitz3d	done	GetSpeedOfSound:Float32()
+getsurface	blitz3d	done	GetSurface:Int32(mesh:Int32, surface_index:Int32)
+getsurfacebrush	blitz3d	done	GetSurfaceBrush:Int32(surface:Int32)
+gfxdrivercaps3d	blitz3d	done	GfxDriverCaps3D:Int32()
+graphicsorderindependenttransparency	blitz3d	done	GraphicsOrderIndependentTransparency(enable:Int32)
+handlesprite	blitz3d	done	HandleSprite(sprite:Int32, x_handle:Float32, y_handle:Float32)
+hideentity	blitz3d	done	HideEntity(entity:Int32)
+hwdither	blitz3d	done	HWDither:Int32()
+hwhdractive	blitz3d	done	HWHDRActive:Int32()
+hwhdrpeaknits	blitz3d	done	HWHDRPeakNits:Float32()
+hwhdrsupported	blitz3d	done	HWHDRSupported:Int32()
+hwmultitex	blitz3d	done	HWMultiTex(enable:Int32)
+hworderindependenttransparency	blitz3d	done	HWOrderIndependentTransparency:Int32()
+hwtexunits	blitz3d	done	HWTexUnits:Int32()
+lightcolor	blitz3d	done	LightColor(light:Int32, red:Float32, green:Float32, blue:Float32)
+lightconeangles	blitz3d	done	LightConeAngles(light:Int32, inner_angle:Float32, outer_angle:Float32)
+lightmesh	blitz3d	done	LightMesh(mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32 = 0, x:Float32 = 0, y:Float32 = 0, z:Float32 = 0)
+lightrange	blitz3d	done	LightRange(light:Int32, range:Float32)
+linepick	blitz3d	done	LinePick:Int32(x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32 = 0)
+listenerdistance	blitz3d	done	ListenerDistance(value:Float32, fade_ms:Int32 = 0)
+listenerdoppler	blitz3d	done	ListenerDoppler(value:Float32, fade_ms:Int32 = 0)
+listenerfalloff	blitz3d	done	ListenerFalloff(mode:Int32)
+listenerradius	blitz3d	done	ListenerRadius(value:Float32, fade_ms:Int32 = 0)
+listenerrolloff	blitz3d	done	ListenerRolloff(value:Float32, fade_ms:Int32 = 0)
+loadanimmesh	blitz3d	done	LoadAnimMesh:Int32(file:String, parent:Int32 = 0)
+loadanimseq	blitz3d	done	LoadAnimSeq:Int32(entity:Int32, file:String)
+loadanimtexture	blitz3d	done	LoadAnimTexture:Int32(file:String, flags:Int32, width:Int32, height:Int32, first:Int32, count:Int32)
+loadatlas	blitz3d	done	LoadAtlas:Int32(file:String, flags:Int32 = 1, gutter:Int32 = 0)
+loadbrush	blitz3d	done	LoadBrush:Int32(file:String, texture_flags:Int32 = 1, u_scale:Float32 = 1, v_scale:Float32 = 1)
+loadbsp	blitz3d	done	LoadBSP:Int32(file:String, gamma_adj:Float32 = 0, parent:Int32 = 0)
+loadermatrix	blitz3d	done	LoaderMatrix(file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32)
+loadmd2	blitz3d	done	LoadMD2:Int32(file:String, parent:Int32 = 0)
+loadmesh	blitz3d	done	LoadMesh:Int32(file:String, parent:Int32 = 0)
+loadsprite	blitz3d	done	LoadSprite:Int32(file:String, texture_flags:Int32 = 1, parent:Int32 = 0)
+loadterrain	blitz3d	done	LoadTerrain:Int32(heightmap_file:String, parent:Int32 = 0)
+loadtexture	blitz3d	done	LoadTexture:Int32(file:String, flags:Int32 = 1)
+md2animating	blitz3d	done	MD2Animating:Int32(md2:Int32)
+md2animlength	blitz3d	done	MD2AnimLength:Int32(md2:Int32)
+md2animtime	blitz3d	done	MD2AnimTime:Float32(md2:Int32)
+meshcullbox	blitz3d	done	MeshCullBox(mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32)
+meshdepth	blitz3d	done	MeshDepth:Float32(mesh:Int32)
+meshesintersect	blitz3d	done	MeshesIntersect:Int32(mesh_a:Int32, mesh_b:Int32)
+meshheight	blitz3d	done	MeshHeight:Float32(mesh:Int32)
+meshwidth	blitz3d	done	MeshWidth:Float32(mesh:Int32)
+modifyterrain	blitz3d	done	ModifyTerrain(terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32 = 0)
+moveentity	blitz3d	done	MoveEntity(entity:Int32, x:Float32, y:Float32, z:Float32)
+nameentity	blitz3d	done	NameEntity(entity:Int32, name:String)
+paintentity	blitz3d	done	PaintEntity(entity:Int32, brush:Int32)
+paintmesh	blitz3d	done	PaintMesh(mesh:Int32, brush:Int32)
+paintsurface	blitz3d	done	PaintSurface(surface:Int32, brush:Int32)
+physicsangulardamping	blitz3d	done	PhysicsAngularDamping(entity:Int32, damping:Float32)
+physicsangularvelocity	blitz3d	done	PhysicsAngularVelocity(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsapplyangularimpulse	blitz3d	done	PhysicsApplyAngularImpulse(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsapplyforce	blitz3d	done	PhysicsApplyForce(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsapplyforceat	blitz3d	done	PhysicsApplyForceAt(entity:Int32, x:Float32, y:Float32, z:Float32, px:Float32, py:Float32, pz:Float32, global:Int32 = 0)
+physicsapplyimpulse	blitz3d	done	PhysicsApplyImpulse(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsapplyimpulseat	blitz3d	done	PhysicsApplyImpulseAt(entity:Int32, x:Float32, y:Float32, z:Float32, px:Float32, py:Float32, pz:Float32, global:Int32 = 0)
+physicsapplytorque	blitz3d	done	PhysicsApplyTorque(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsbaumgarte	blitz3d	done	PhysicsBaumgarte(factor:Float32, world:Int32 = 0)
+physicsbodymotion	blitz3d	done	PhysicsBodyMotion(entity:Int32, motion:Int32)
+physicsbodyworld	blitz3d	done	PhysicsBodyWorld(entity:Int32, world:Int32)
+physicsboxcast	blitz3d	done	PhysicsBoxCast:Int32(x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float32, z2:Float32, half_x:Float32, half_y:Float32, half_z:Float32, pitch:Float32 = 0, yaw:Float32 = 0, roll:Float32 = 0, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicscapsulecast	blitz3d	done	PhysicsCapsuleCast:Int32(x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float32, z2:Float32, radius:Float32, half_height:Float32, pitch:Float32 = 0, yaw:Float32 = 0, roll:Float32 = 0, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicsconstraintbreakforce	blitz3d	done	PhysicsConstraintBreakForce(constraint:Int32, force:Float32)
+physicsconstraintlimits	blitz3d	done	PhysicsConstraintLimits(constraint:Int32, lower:Float32, upper:Float32)
+physicsconstraintmotor	blitz3d	done	PhysicsConstraintMotor(constraint:Int32, mode:Int32, target:Float32, max_force:Float32)
+physicsconstraintspring	blitz3d	done	PhysicsConstraintSpring(constraint:Int32, frequency:Float32, damping:Float32)
+physicscontactreport	blitz3d	done	PhysicsContactReport(entity:Int32, report:Int32)
+physicscontactslop	blitz3d	done	PhysicsContactSlop(distance:Float32, world:Int32 = 0)
+physicscontinuous	blitz3d	done	PhysicsContinuous(entity:Int32, mode:Int32)
+physicscontinuousdefault	blitz3d	done	PhysicsContinuousDefault(enable:Int32, world:Int32 = 0)
+physicsdeterministic	blitz3d	done	PhysicsDeterministic(enable:Int32, world:Int32 = 0)
+physicsfriction	blitz3d	done	PhysicsFriction(entity:Int32, friction:Float32)
+physicsgravity	blitz3d	done	PhysicsGravity(x:Float32, y:Float32, z:Float32, world:Int32 = 0)
+physicsgravityscale	blitz3d	done	PhysicsGravityScale(entity:Int32, scale:Float32)
+physicslayer	blitz3d	done	PhysicsLayer(entity:Int32, layer:Int32, mask_low:Int32 = -1, mask_high:Int32 = -1)
+physicslineardamping	blitz3d	done	PhysicsLinearDamping(entity:Int32, damping:Float32)
+physicslinearvelocity	blitz3d	done	PhysicsLinearVelocity(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+physicsmass	blitz3d	done	PhysicsMass(entity:Int32, kilograms:Float32)
+physicsmaxdelta	blitz3d	done	PhysicsMaxDelta(seconds:Float32, world:Int32 = 0)
+physicsmaxsteps	blitz3d	done	PhysicsMaxSteps(steps:Int32, world:Int32 = 0)
+physicsmode	blitz3d	done	PhysicsMode(mode:Int32, world:Int32 = 0)
+physicsoverlapbox	blitz3d	done	PhysicsOverlapBox:Int32(x:Float32, y:Float32, z:Float32, half_x:Float32, half_y:Float32, half_z:Float32, pitch:Float32 = 0, yaw:Float32 = 0, roll:Float32 = 0, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicsoverlapsphere	blitz3d	done	PhysicsOverlapSphere:Int32(x:Float32, y:Float32, z:Float32, radius:Float32, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicspointinside	blitz3d	done	PhysicsPointInside:Int32(x:Float32, y:Float32, z:Float32, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicspositioniterations	blitz3d	done	PhysicsPositionIterations(iterations:Int32, world:Int32 = 0)
+physicsrate	blitz3d	done	PhysicsRate(hz:Float32, world:Int32 = 0)
+physicsraycast	blitz3d	done	PhysicsRayCast:Int32(x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float32, z2:Float32, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicsrestitution	blitz3d	done	PhysicsRestitution(entity:Int32, bounciness:Float32)
+physicssensor	blitz3d	done	PhysicsSensor(entity:Int32, sensor:Int32)
+physicssleeping	blitz3d	done	PhysicsSleeping(entity:Int32, allow:Int32)
+physicssleepthreshold	blitz3d	done	PhysicsSleepThreshold(speed:Float32, world:Int32 = 0)
+physicssolver	blitz3d	done	PhysicsSolver(preset:Int32, world:Int32 = 0)
+physicsspeculativedistance	blitz3d	done	PhysicsSpeculativeDistance(distance:Float32, world:Int32 = 0)
+physicsspherecast	blitz3d	done	PhysicsSphereCast:Int32(x1:Float32, y1:Float32, z1:Float32, x2:Float32, y2:Float32, z2:Float32, radius:Float32, mask_low:Int32 = -1, mask_high:Int32 = -1, sensors:Int32 = 0, world:Int32 = 0)
+physicssubsteps	blitz3d	done	PhysicsSubsteps(substeps:Int32, world:Int32 = 0)
+physicsthreads	blitz3d	done	PhysicsThreads(threads:Int32)
+physicsupdate	blitz3d	done	PhysicsUpdate(delta_time:Float32 = 0, world:Int32 = 0)
+physicsvelocityiterations	blitz3d	done	PhysicsVelocityIterations(iterations:Int32, world:Int32 = 0)
+physicswake	blitz3d	done	PhysicsWake(entity:Int32)
+physicsworldsleeping	blitz3d	done	PhysicsWorldSleeping(allow:Int32, world:Int32 = 0)
+pickedentity	blitz3d	done	PickedEntity:Int32()
+pickednx	blitz3d	done	PickedNX:Float32()
+pickedny	blitz3d	done	PickedNY:Float32()
+pickednz	blitz3d	done	PickedNZ:Float32()
+pickedsurface	blitz3d	done	PickedSurface:Int32()
+pickedtime	blitz3d	done	PickedTime:Float32()
+pickedtriangle	blitz3d	done	PickedTriangle:Int32()
+pickedx	blitz3d	done	PickedX:Float32()
+pickedy	blitz3d	done	PickedY:Float32()
+pickedz	blitz3d	done	PickedZ:Float32()
+pointentity	blitz3d	done	PointEntity(entity:Int32, target:Int32, roll:Float32 = 0)
+positionentity	blitz3d	done	PositionEntity(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+positionmesh	blitz3d	done	PositionMesh(mesh:Int32, x:Float32, y:Float32, z:Float32)
+positiontexture	blitz3d	done	PositionTexture(texture:Int32, u_offset:Float32, v_offset:Float32)
+projectedx	blitz3d	done	ProjectedX:Float32()
+projectedy	blitz3d	done	ProjectedY:Float32()
+projectedz	blitz3d	done	ProjectedZ:Float32()
+rendercamera	blitz3d	done	RenderCamera(camera:Int32, tween:Float32 = 1)
+renderworld	blitz3d	done	RenderWorld(tween:Float32 = 1)
+resetcameraprojectionmatrix	blitz3d	done	ResetCameraProjectionMatrix(camera:Int32)
+resetcameraviewmatrix	blitz3d	done	ResetCameraViewMatrix(camera:Int32)
+resetentity	blitz3d	done	ResetEntity(entity:Int32)
+rotateentity	blitz3d	done	RotateEntity(entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32 = 0)
+rotatemesh	blitz3d	done	RotateMesh(mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32)
+rotatesprite	blitz3d	done	RotateSprite(sprite:Int32, angle:Float32)
+rotatetexture	blitz3d	done	RotateTexture(texture:Int32, angle:Float32)
+savetexture	blitz3d	done	SaveTexture:Int32(texture:Int32, file:String, frame:Int32 = 0, settings:String = "")
+scaleentity	blitz3d	done	ScaleEntity(entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32 = 0)
+scalemesh	blitz3d	done	ScaleMesh(mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32)
+scalesprite	blitz3d	done	ScaleSprite(sprite:Int32, x_scale:Float32, y_scale:Float32)
+scaletexture	blitz3d	done	ScaleTexture(texture:Int32, u_scale:Float32, v_scale:Float32)
+setanimkey	blitz3d	done	SetAnimKey(entity:Int32, frame:Int32, pos_key:Int32 = 1, rot_key:Int32 = 1, scale_key:Int32 = 1)
+setanimtime	blitz3d	done	SetAnimTime(entity:Int32, time:Float32, anim_seq:Int32 = 0)
+setcamerabuffer	blitz3d	done	SetCameraBuffer(camera:Int32, buffer:Int32)
+setcameraclipplane	blitz3d	done	SetCameraClipPlane(camera:Int32, index:Int32, a:Float32, b:Float32, c:Float32, d:Float32)
+setcameraclipplaneenabled	blitz3d	done	SetCameraClipPlaneEnabled(camera:Int32, index:Int32, enabled:Int32)
+setcameraprojectionmatrix	blitz3d	done	SetCameraProjectionMatrix(camera:Int32, matrix:FloatMatrix4x4)
+setcamerastencil	blitz3d	done	SetCameraStencil(camera:Int32, enabled:Int32)
+setcamerastencilclear	blitz3d	done	SetCameraStencilClear(camera:Int32, clear:Int32, value:Int32 = 0)
+setcameraviewmatrix	blitz3d	done	SetCameraViewMatrix(camera:Int32, matrix:FloatMatrix4x3)
+setchannelfalloff	blitz3d	done	SetChannelFalloff(channel:Int32, mode:Int32)
+setcubeface	blitz3d	done	SetCubeFace(texture:Int32, face:Int32)
+setcubemode	blitz3d	done	SetCubeMode(texture:Int32, mode:Int32)
+setentitystencil	blitz3d	done	SetEntityStencil(entity:Int32, compare:Int32, reference:Int32 = 0, read_mask:Int32 = 255, write_mask:Int32 = 255, fail:Int32 = 0, depth_fail:Int32 = 0, pass:Int32 = 0)
+setentitystencilback	blitz3d	done	SetEntityStencilBack(entity:Int32, compare:Int32, fail:Int32 = 0, depth_fail:Int32 = 0, pass:Int32 = 0)
+setfalloff	blitz3d	done	SetFalloff(mode:Int32)
+setgraphicshdr	blitz3d	done	SetGraphicsHDR(mode:Int32, minimum:Float32 = 0, average:Float32 = 0, maximum:Float32 = 0)
+setsampleraddressmodeu	blitz3d	done	SetSamplerAddressModeU(sampler:Int32, mode:Int32)
+setsampleraddressmodev	blitz3d	done	SetSamplerAddressModeV(sampler:Int32, mode:Int32)
+setsampleraddressmodew	blitz3d	done	SetSamplerAddressModeW(sampler:Int32, mode:Int32)
+setsampleranisotropy	blitz3d	done	SetSamplerAnisotropy(sampler:Int32, anisotropy:Float32)
+setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor(sampler:Int32, r:Float32, g:Float32, b:Float32, a:Float32)
+setsamplerfiltermag	blitz3d	done	SetSamplerFilterMag(sampler:Int32, mode:Int32)
+setsamplerfiltermin	blitz3d	done	SetSamplerFilterMin(sampler:Int32, mode:Int32)
+setsamplerfiltermip	blitz3d	done	SetSamplerFilterMip(sampler:Int32, mode:Int32)
+setsamplerlodbias	blitz3d	done	SetSamplerLodBias(sampler:Int32, bias:Float32)
+setsamplerlodmax	blitz3d	done	SetSamplerLodMax(sampler:Int32, lod:Float32)
+setsamplerlodmin	blitz3d	done	SetSamplerLodMin(sampler:Int32, lod:Float32)
+settexturesampler	blitz3d	done	SetTextureSampler(texture:Int32, sampler:Int32)
+showentity	blitz3d	done	ShowEntity(entity:Int32)
+speedofsound	blitz3d	done	SpeedOfSound(meters:Float32, fade_ms:Int32 = 0)
+spritedepthfade	blitz3d	done	SpriteDepthFade(sprite:Int32, fade_distance:Float32)
+spriteviewmode	blitz3d	done	SpriteViewMode(sprite:Int32, view_mode:Int32)
+stats3d	blitz3d	done	Stats3D:Float32(type:Int32)
+terraindetail	blitz3d	done	TerrainDetail(terrain:Int32, detail_level:Int32, morph:Int32 = 0)
+terrainheight	blitz3d	done	TerrainHeight:Float32(terrain:Int32, terrain_x:Int32, terrain_z:Int32)
+terrainshading	blitz3d	done	TerrainShading(terrain:Int32, enable:Int32)
+terrainsize	blitz3d	done	TerrainSize:Int32(terrain:Int32)
+terrainx	blitz3d	done	TerrainX:Float32(terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32)
+terrainy	blitz3d	done	TerrainY:Float32(terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32)
+terrainz	blitz3d	done	TerrainZ:Float32(terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32)
+textureblend	blitz3d	done	TextureBlend(texture:Int32, blend:Int32)
+texturebuffer	blitz3d	done	TextureBuffer:Int32(texture:Int32, frame:Int32 = 0)
+texturecoords	blitz3d	done	TextureCoords(texture:Int32, coords:Int32)
+texturefilter	blitz3d	done	TextureFilter(match_text:String, texture_flags:Int32 = 0)
+textureframedelay	blitz3d	done	TextureFrameDelay:Int32(texture:Int32, frame:Int32)
+textureframes	blitz3d	done	TextureFrames:Int32(texture:Int32)
+textureheight	blitz3d	done	TextureHeight:Int32(texture:Int32)
+texturename	blitz3d	done	TextureName:String(texture:Int32)
+textureready	blitz3d	done	TextureReady:Int32(texture:Int32)
+texturewidth	blitz3d	done	TextureWidth:Int32(texture:Int32)
+tformedx	blitz3d	done	TFormedX:Float32()
+tformedy	blitz3d	done	TFormedY:Float32()
+tformedz	blitz3d	done	TFormedZ:Float32()
+tformnormal	blitz3d	done	TFormNormal(x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32)
+tformpoint	blitz3d	done	TFormPoint(x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32)
+tformvector	blitz3d	done	TFormVector(x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32)
+translateentity	blitz3d	done	TranslateEntity(entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32 = 0)
+transparencydistancesortmode	blitz3d	done	TransparencyDistanceSortMode(mode:Int32)
+trianglevertex	blitz3d	done	TriangleVertex:Int32(surface:Int32, index:Int32, vertex:Int32)
+trisrendered	blitz3d	done	TrisRendered:Int32()
+turnentity	blitz3d	done	TurnEntity(entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32 = 0)
+updatenormals	blitz3d	done	UpdateNormals(mesh:Int32)
+updateworld	blitz3d	done	UpdateWorld(elapsed_time:Float32 = 1)
+vectorpitch	blitz3d	done	VectorPitch:Float32(x:Float32, y:Float32, z:Float32)
+vectoryaw	blitz3d	done	VectorYaw:Float32(x:Float32, y:Float32, z:Float32)
+vertexalpha	blitz3d	done	VertexAlpha:Float32(surface:Int32, index:Int32)
+vertexblue	blitz3d	done	VertexBlue:Float32(surface:Int32, index:Int32)
+vertexcolor	blitz3d	done	VertexColor(surface:Int32, index:Int32, red:Float32, green:Float32, blue:Float32, alpha:Float32 = 1)
+vertexcoords	blitz3d	done	VertexCoords(surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32)
+vertexgreen	blitz3d	done	VertexGreen:Float32(surface:Int32, index:Int32)
+vertexnormal	blitz3d	done	VertexNormal(surface:Int32, index:Int32, nx:Float32, ny:Float32, nz:Float32)
+vertexnx	blitz3d	done	VertexNX:Float32(surface:Int32, index:Int32)
+vertexny	blitz3d	done	VertexNY:Float32(surface:Int32, index:Int32)
+vertexnz	blitz3d	done	VertexNZ:Float32(surface:Int32, index:Int32)
+vertexred	blitz3d	done	VertexRed:Float32(surface:Int32, index:Int32)
+vertextexcoords	blitz3d	done	VertexTexCoords(surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32 = 1, coord_set:Int32 = 0)
+vertexu	blitz3d	done	VertexU:Float32(surface:Int32, index:Int32, coord_set:Int32 = 0)
+vertexv	blitz3d	done	VertexV:Float32(surface:Int32, index:Int32, coord_set:Int32 = 0)
+vertexw	blitz3d	done	VertexW:Float32(surface:Int32, index:Int32, coord_set:Int32 = 0)
+vertexx	blitz3d	done	VertexX:Float32(surface:Int32, index:Int32)
+vertexy	blitz3d	done	VertexY:Float32(surface:Int32, index:Int32)
+vertexz	blitz3d	done	VertexZ:Float32(surface:Int32, index:Int32)
+wbuffer	blitz3d	done	WBuffer(enable:Int32)
+wireframe	blitz3d	done	WireFrame(enable:Int32)
+changedir	files	done	ChangeDir(dir:String)
+closedir	files	done	CloseDir(dir:Int32)
+closefile	files	done	CloseFile(file_stream:Int32)
+copyfile	files	done	CopyFile(file:String, to:String)
+createdir	files	done	CreateDir(dir:String)
+currentdir	files	done	CurrentDir:String()
+deletedir	files	done	DeleteDir(dir:String)
+deletefile	files	done	DeleteFile(file:String)
+filepos	files	done	FilePos:Int32(file_stream:Int32)
+filesize	files	done	FileSize:Int32(file:String)
+filetype	files	done	FileType:Int32(file:String)
+nextfile	files	done	NextFile:String(dir:Int32)
+openfile	files	done	OpenFile:Int32(filename:String)
+readdir	files	done	ReadDir:Int32(dirname:String)
+readfile	files	done	ReadFile:Int32(filename:String)
+seekfile	files	done	SeekFile:Int32(file_stream:Int32, pos:Int32)
+writefile	files	done	WriteFile:Int32(filename:String)
+asyncloading	graphics	done	AsyncLoading(enabled:Int32)
+asyncsaving	graphics	done	AsyncSaving(enabled:Int32)
+automidhandle	graphics	done	AutoMidHandle(enable:Int32)
+availvidmem	graphics	done	AvailVidMem:Int32()
+availvidmem64	graphics	done	AvailVidMem64:UInt64()
+backbuffer	graphics	done	BackBuffer:Int32()
+bufferdirty	graphics	done	BufferDirty(buffer:Int32)
+closemovie	graphics	done	CloseMovie(movie:Int32)
+cls	graphics	done	Cls()
+clscolor	graphics	done	ClsColor(red:Int32, green:Int32, blue:Int32)
+color	graphics	done	Color(red:Int32, green:Int32, blue:Int32)
+colorblue	graphics	done	ColorBlue:Int32()
+colorgreen	graphics	done	ColorGreen:Int32()
+colorred	graphics	done	ColorRed:Int32()
+copyimage	graphics	done	CopyImage:Int32(image:Int32)
+copypixel	graphics	done	CopyPixel(src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32 = 0)
+copypixelfast	graphics	done	CopyPixelFast(src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32 = 0)
+copyrect	graphics	done	CopyRect(source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32 = 0, dest_buffer:Int32 = 0)
+countdisplaymodes	graphics	done	CountDisplayModes:Int32(display:Int32)
+countdisplays	graphics	done	CountDisplays:Int32()
+countgfxdrivers	graphics	done	CountGfxDrivers:Int32()
+countgfxmodes	graphics	done	CountGfxModes:Int32()
+countgfxmodes3d	graphics	done	CountGfxModes3D:Int32()
+countrefreshrates	graphics	done	CountRefreshRates:Int32(display:Int32, width:Int32, height:Int32)
+createimage	graphics	done	CreateImage:Int32(width:Int32, height:Int32, frames:Int32 = 1)
+displaydepth	graphics	done	DisplayDepth:Int32(display:Int32)
+displayheight	graphics	done	DisplayHeight:Int32(display:Int32)
+displaymodedepth	graphics	done	DisplayModeDepth:Int32(display:Int32, mode:Int32)
+displaymodeheight	graphics	done	DisplayModeHeight:Int32(display:Int32, mode:Int32)
+displaymoderefreshrate	graphics	done	DisplayModeRefreshRate:Int32(display:Int32, mode:Int32)
+displaymodewidth	graphics	done	DisplayModeWidth:Int32(display:Int32, mode:Int32)
+displayname	graphics	done	DisplayName:String(display:Int32)
+displayrefreshrate	graphics	done	DisplayRefreshRate:Int32(display:Int32)
+displayscale	graphics	done	DisplayScale:Float32(display:Int32)
+displaywidth	graphics	done	DisplayWidth:Int32(display:Int32)
+displayx	graphics	done	DisplayX:Int32(display:Int32)
+displayy	graphics	done	DisplayY:Int32(display:Int32)
+drawblock	graphics	done	DrawBlock(image:Int32, x:Int32, y:Int32, frame:Int32 = 0)
+drawblockrect	graphics	done	DrawBlockRect(image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32 = 0)
+drawimage	graphics	done	DrawImage(image:Int32, x:Int32, y:Int32, frame:Int32 = 0)
+drawimagerect	graphics	done	DrawImageRect(image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32 = 0)
+drawmovie	graphics	done	DrawMovie:Int32(movie:Int32, x:Int32 = 0, y:Int32 = 0, w:Int32 = -1, h:Int32 = -1)
+endgraphics	graphics	done	EndGraphics()
+flip	graphics	done	Flip(vwait:Int32 = 1)
+fontheight	graphics	done	FontHeight:Int32()
+fontwidth	graphics	done	FontWidth:Int32()
+freefont	graphics	done	FreeFont(font:Int32)
+freeimage	graphics	done	FreeImage(image:Int32)
+frontbuffer	graphics	done	FrontBuffer:Int32()
+gammablue	graphics	done	GammaBlue:Float32(blue:Int32)
+gammagreen	graphics	done	GammaGreen:Float32(green:Int32)
+gammared	graphics	done	GammaRed:Float32(red:Int32)
+getcolor	graphics	done	GetColor(x:Int32, y:Int32)
+getgraphicsrefreshrate	graphics	done	GetGraphicsRefreshRate:Float32()
+getmovietexture	graphics	done	GetMovieTexture:Int32(movie:Int32)
+gfxdriver	graphics	done	GfxDriver:Int32()
+gfxdriver3d	graphics	done	GfxDriver3D:Int32(driver:Int32)
+gfxdrivername	graphics	done	GfxDriverName:String(driver:Int32)
+gfxmode3d	graphics	done	GfxMode3D:Int32(mode:Int32)
+gfxmode3dexists	graphics	done	GfxMode3DExists:Int32(width:Int32, height:Int32, depth:Int32)
+gfxmode3dheight	graphics	done	GfxMode3DHeight:Int32(mode:Int32)
+gfxmode3dwidth	graphics	done	GfxMode3DWidth:Int32(mode:Int32)
+gfxmodedepth	graphics	done	GfxModeDepth:Int32(mode:Int32)
+gfxmodeexists	graphics	done	GfxModeExists:Int32(width:Int32, height:Int32, depth:Int32)
+gfxmodeheight	graphics	done	GfxModeHeight:Int32(mode:Int32)
+gfxmodewidth	graphics	done	GfxModeWidth:Int32(mode:Int32)
+grabimage	graphics	done	GrabImage(image:Int32, x:Int32, y:Int32, frame:Int32 = 0)
+graphics	graphics	done	Graphics(width:Int32, height:Int32, depth:Int32 = 0, mode:Int32 = 0, keep:Int32 = 0)
+graphics3d	graphics	done	Graphics3D(width:Int32, height:Int32, depth:Int32 = 0, mode:Int32 = 0, keep:Int32 = 0)
+graphicsbuffer	graphics	done	GraphicsBuffer:Int32()
+graphicsdepth	graphics	done	GraphicsDepth:Int32()
+graphicsheight	graphics	done	GraphicsHeight:Int32()
+graphicslost	graphics	done	GraphicsLost:Int32()
+graphicspalette	graphics	done	GraphicsPalette(imagefile:String)
+graphicswidth	graphics	done	GraphicsWidth:Int32()
+handleimage	graphics	done	HandleImage(image:Int32, x:Int32, y:Int32)
+hidepointer	graphics	done	HidePointer()
+imagebuffer	graphics	done	ImageBuffer:Int32(image:Int32, frame:Int32 = 0)
+imageframedelay	graphics	done	ImageFrameDelay:Int32(image:Int32, frame:Int32)
+imageframes	graphics	done	ImageFrames:Int32(image:Int32)
+imageheight	graphics	done	ImageHeight:Int32(image:Int32)
+imageready	graphics	done	ImageReady:Int32(image:Int32)
+imagerectcollide	graphics	done	ImageRectCollide:Int32(image:Int32, x:Int32, y:Int32, frame:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32)
+imagerectoverlap	graphics	done	ImageRectOverlap:Int32(image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32)
+imagescollide	graphics	done	ImagesCollide:Int32(image1:Int32, x1:Int32, y1:Int32, frame1:Int32, image2:Int32, x2:Int32, y2:Int32, frame2:Int32)
+imagesoverlap	graphics	done	ImagesOverlap:Int32(image1:Int32, x1:Int32, y1:Int32, image2:Int32, x2:Int32, y2:Int32)
+imagewidth	graphics	done	ImageWidth:Int32(image:Int32)
+imagexhandle	graphics	done	ImageXHandle:Int32(image:Int32)
+imageyhandle	graphics	done	ImageYHandle:Int32(image:Int32)
+input	graphics	done	Input:String(prompt:String = "")
+line	graphics	done	Line(x1:Int32, y1:Int32, x2:Int32, y2:Int32)
+loadanimimage	graphics	done	LoadAnimImage:Int32(bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int32, count:Int32)
+loadbuffer	graphics	done	LoadBuffer:Int32(buffer:Int32, bmpfile:String)
+loadfont	graphics	done	LoadFont:Int32(fontname:String, height:Int32 = 12, bold:Int32 = 0, italic:Int32 = 0, underline:Int32 = 0)
+loadimage	graphics	done	LoadImage:Int32(bmpfile:String)
+locate	graphics	done	Locate(x:Int32, y:Int32)
+lockbuffer	graphics	done	LockBuffer(buffer:Int32 = 0)
+loopmovie	graphics	done	LoopMovie(movie:Int32, loop:Int32 = 1)
+maskimage	graphics	done	MaskImage(image:Int32, red:Int32, green:Int32, blue:Int32)
+midhandle	graphics	done	MidHandle(image:Int32)
+movieheight	graphics	done	MovieHeight:Int32(movie:Int32)
+movielength	graphics	done	MovieLength:Float32(movie:Int32)
+movieplaying	graphics	done	MoviePlaying:Int32(movie:Int32)
+movieposition	graphics	done	MoviePosition:Float32(movie:Int32)
+movievolume	graphics	done	MovieVolume(movie:Int32, volume:Float32)
+moviewidth	graphics	done	MovieWidth:Int32(movie:Int32)
+openmovie	graphics	done	OpenMovie:Int32(file:String)
+origin	graphics	done	Origin(x:Int32, y:Int32)
+oval	graphics	done	Oval(x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32 = 1)
+pausemovie	graphics	done	PauseMovie(movie:Int32)
+playmovie	graphics	done	PlayMovie(movie:Int32)
+plot	graphics	done	Plot(x:Int32, y:Int32)
+primarydisplay	graphics	done	PrimaryDisplay:Int32()
+print	graphics	done	Print(string:String = "")
+readpixel	graphics	done	ReadPixel:Int32(x:Int32, y:Int32, buffer:Int32 = 0)
+readpixel64	graphics	done	ReadPixel64:Int64(x:Int32, y:Int32, buffer:Int32 = 0, Out red:Float16 = 0, Out green:Float16 = 0, Out blue:Float16 = 0, Out alpha:Float16 = 0)
+readpixelfast	graphics	done	ReadPixelFast:Int32(x:Int32, y:Int32, buffer:Int32 = 0)
+readpixelfast64	graphics	done	ReadPixelFast64:Int64(x:Int32, y:Int32, buffer:Int32 = 0, Out red:Float16 = 0, Out green:Float16 = 0, Out blue:Float16 = 0, Out alpha:Float16 = 0)
+rect	graphics	done	Rect(x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32 = 1)
+rectsoverlap	graphics	done	RectsOverlap:Int32(x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32)
+refreshrateat	graphics	done	RefreshRateAt:Int32(display:Int32, width:Int32, height:Int32, index:Int32)
+resizeimage	graphics	done	ResizeImage(image:Int32, width:Float32, height:Float32)
+rotateimage	graphics	done	RotateImage(image:Int32, angle:Float32)
+savebuffer	graphics	done	SaveBuffer:Int32(buffer:Int32, bmpfile:String, settings:String = "")
+saveimage	graphics	done	SaveImage:Int32(image:Int32, bmpfile:String, frame:Int32 = 0, settings:String = "")
+savesfailed	graphics	done	SavesFailed:Int32()
+savespending	graphics	done	SavesPending:Int32()
+scaleimage	graphics	done	ScaleImage(image:Int32, xscale:Float32, yscale:Float32)
+scanline	graphics	done	ScanLine:Int32()
+seekmovie	graphics	done	SeekMovie(movie:Int32, seconds:Float32)
+setbuffer	graphics	done	SetBuffer(buffer:Int32)
+setfont	graphics	done	SetFont(font:Int32)
+setgamma	graphics	done	SetGamma(src_red:Int32, src_green:Int32, src_blue:Int32, dest_red:Float32, dest_green:Float32, dest_blue:Float32)
+setgfxdriver	graphics	done	SetGfxDriver(driver:Int32)
+setgraphicsrefreshrate	graphics	done	SetGraphicsRefreshRate(rate:Float32)
+showpointer	graphics	done	ShowPointer()
+stopmovie	graphics	done	StopMovie(movie:Int32)
+stringheight	graphics	done	StringHeight:Int32(string:String)
+stringwidth	graphics	done	StringWidth:Int32(string:String)
+text	graphics	done	Text(x:Int32, y:Int32, text:String, centre_x:Int32 = 0, centre_y:Int32 = 0)
+tformfilter	graphics	done	TFormFilter(enable:Int32)
+tformimage	graphics	done	TFormImage(image:Int32, a:Float32, b:Float32, c:Float32, d:Float32)
+tileblock	graphics	done	TileBlock(image:Int32, x:Int32 = 0, y:Int32 = 0, frame:Int32 = 0)
+tileimage	graphics	done	TileImage(image:Int32, x:Int32 = 0, y:Int32 = 0, frame:Int32 = 0)
+totalvidmem	graphics	done	TotalVidMem:Int32()
+totalvidmem64	graphics	done	TotalVidMem64:UInt64()
+unlockbuffer	graphics	done	UnlockBuffer(buffer:Int32 = 0)
+updategamma	graphics	done	UpdateGamma(calibrate:Int32 = 0)
+viewport	graphics	done	Viewport(x:Int32, y:Int32, width:Int32, height:Int32)
+vwait	graphics	done	VWait(frames:Int32 = 1)
+windowed3d	graphics	done	Windowed3D:Int32()
+write	graphics	done	Write(string:String)
+writepixel	graphics	done	WritePixel(x:Int32, y:Int32, argb:Int32, buffer:Int32 = 0)
+writepixel64	graphics	done	WritePixel64(x:Int32, y:Int32, buffer:Int32 = 0, red:Float16, green:Float16, blue:Float16, alpha:Float16)
+writepixelfast	graphics	done	WritePixelFast(x:Int32, y:Int32, argb:Int32, buffer:Int32 = 0)
+writepixelfast64	graphics	done	WritePixelFast64(x:Int32, y:Int32, buffer:Int32 = 0, red:Float16, green:Float16, blue:Float16, alpha:Float16)
+directinputenabled	input	done	DirectInputEnabled:Int32()
+enabledirectinput	input	done	EnableDirectInput(enable:Int32)
+flushjoy	input	done	FlushJoy()
+flushkeys	input	done	FlushKeys()
+flushmouse	input	done	FlushMouse()
+getjoy	input	done	GetJoy:Int32(port:Int32 = 0)
+getkey	input	done	GetKey:Int32()
+getmouse	input	done	GetMouse:Int32()
+hwrawinput	input	done	HWRawInput:Int32()
+joychanged	input	done	JoyChanged:Int32()
+joydeviceconnected	input	done	JoyDeviceConnected:Int32(port:Int32)
+joydevicecount	input	done	JoyDeviceCount:Int32()
+joydevicename	input	done	JoyDeviceName:String(port:Int32)
+joydown	input	done	JoyDown:Int32(button:Int32, port:Int32 = 0)
+joyhat	input	done	JoyHat:Int32(port:Int32 = 0)
+joyhit	input	done	JoyHit:Int32(button:Int32, port:Int32 = 0)
+joypitch	input	done	JoyPitch:Float32(port:Int32 = 0)
+joyroll	input	done	JoyRoll:Float32(port:Int32 = 0)
+joytype	input	done	JoyType:Int32(port:Int32 = 0)
+joyu	input	done	JoyU:Float32(port:Int32 = 0)
+joyudir	input	done	JoyUDir:Int32(port:Int32 = 0)
+joyv	input	done	JoyV:Float32(port:Int32 = 0)
+joyvdir	input	done	JoyVDir:Int32(port:Int32 = 0)
+joywait	input	done	JoyWait:Int32(port:Int32 = 0)
+joyx	input	done	JoyX:Float32(port:Int32 = 0)
+joyxdir	input	done	JoyXDir:Int32(port:Int32 = 0)
+joyy	input	done	JoyY:Float32(port:Int32 = 0)
+joyyaw	input	done	JoyYaw:Float32(port:Int32 = 0)
+joyydir	input	done	JoyYDir:Int32(port:Int32 = 0)
+joyz	input	done	JoyZ:Float32(port:Int32 = 0)
+joyzdir	input	done	JoyZDir:Int32(port:Int32 = 0)
+keyboardchanged	input	done	KeyboardChanged:Int32()
+keyboarddeviceconnected	input	done	KeyboardDeviceConnected:Int32(device:Int32)
+keyboarddevicecount	input	done	KeyboardDeviceCount:Int32()
+keyboarddevicename	input	done	KeyboardDeviceName:String(device:Int32)
+keydown	input	done	KeyDown:Int32(key:Int32, device:Int32 = -1)
+keyhit	input	done	KeyHit:Int32(key:Int32, device:Int32 = -1)
+lastjoydevice	input	done	LastJoyDevice:Int32()
+lastkeyboarddevice	input	done	LastKeyboardDevice:Int32()
+lastmousedevice	input	done	LastMouseDevice:Int32()
+lockmouse	input	done	LockMouse(window:Int32 = 0)
+mousechanged	input	done	MouseChanged:Int32()
+mousedeviceconnected	input	done	MouseDeviceConnected:Int32(device:Int32)
+mousedevicecount	input	done	MouseDeviceCount:Int32()
+mousedevicename	input	done	MouseDeviceName:String(device:Int32)
+mousedown	input	done	MouseDown:Int32(button:Int32, device:Int32 = -1)
+mousehit	input	done	MouseHit:Int32(button:Int32, device:Int32 = -1)
+mousewait	input	done	MouseWait:Int32()
+mousex	input	done	MouseX:Int32()
+mousexspeed	input	done	MouseXSpeed:Int32()
+mousey	input	done	MouseY:Int32()
+mouseyspeed	input	done	MouseYSpeed:Int32()
+mousez	input	done	MouseZ:Int32()
+mousezspeed	input	done	MouseZSpeed:Int32()
+movemouse	input	done	MoveMouse(x:Int32, y:Int32)
+rawinput	input	done	RawInput(enable:Int32)
+rawinputenabled	input	done	RawInputEnabled:Int32()
+unlockmouse	input	done	UnlockMouse()
+vkeydown	input	done	VKeyDown:Int32(scancode:Int32, device:Int32 = -1)
+vkeyhit	input	done	VKeyHit:Int32(scancode:Int32, device:Int32 = -1)
+waitjoy	input	done	WaitJoy:Int32(port:Int32 = 0)
+waitkey	input	done	WaitKey:Int32()
+waitmouse	input	done	WaitMouse:Int32()
+runtimestats	language	done	RuntimeStats()
+acos	math	done	ACos:Float32(float:Float32)
+asin	math	done	ASin:Float32(float:Float32)
+atan	math	done	ATan:Float32(float:Float32)
+atan2	math	done	ATan2:Float32(floata:Float32, floatb:Float32)
+byte	math	done	Byte:Int32(value:Float32)
+byteswap	math	done	ByteSwap:Int32(value:Int32)
+ceil	math	done	Ceil:Float32(float:Float32)
+cos	math	done	Cos:Float32(degrees:Float32)
+double	math	done	Double:Int32(value:Float32)
+exp	math	done	Exp:Float32(float:Float32)
+floor	math	done	Floor:Float32(float:Float32)
+half	math	done	Half:Int32(value:Float32)
+leadingzeros	math	done	LeadingZeros:Int32(value:Int32)
+log	math	done	Log:Float32(float:Float32)
+log10	math	done	Log10:Float32(float:Float32)
+long	math	done	Long:Int32(value:Float32)
+popcount	math	done	PopCount:Int32(value:Int32)
+rand	math	done	Rand:Int32(from:Int32, to:Int32 = 1)
+rnd	math	done	Rnd:Float32(from:Float32, to:Float32 = 0)
+rndseed	math	done	RndSeed:Int32()
+rotl	math	done	RotL:Int32(value:Int32, count:Int32)
+rotr	math	done	RotR:Int32(value:Int32, count:Int32)
+satbyte	math	done	SatByte:Int32(value:Float32)
+satint	math	done	SatInt:Int32(value:Float32)
+satlong	math	done	SatLong:Int32(value:Float32)
+satshort	math	done	SatShort:Int32(value:Float32)
+satubyte	math	done	SatUByte:Int32(value:Float32)
+satuint	math	done	SatUInt:Int32(value:Float32)
+satulong	math	done	SatULong:Int32(value:Float32)
+satushort	math	done	SatUShort:Int32(value:Float32)
+seedrnd	math	done	SeedRnd(seed:Int32)
+short	math	done	Short:Int32(value:Float32)
+sin	math	done	Sin:Float32(degrees:Float32)
+single	math	done	Single:Int32(value:Float32)
+sqr	math	done	Sqr:Float32(float:Float32)
+tan	math	done	Tan:Float32(degrees:Float32)
+trailingzeros	math	done	TrailingZeros:Int32(value:Int32)
+ubyte	math	done	UByte:Int32(value:Float32)
+uint	math	done	UInt:Int32(value:Float32)
+ulong	math	done	ULong:Int32(value:Float32)
+ushort	math	done	UShort:Int32(value:Float32)
+createnetplayer	multiplayer	done	CreateNetPlayer:Int32(name:String)
+deletenetplayer	multiplayer	done	DeleteNetPlayer(player:Int32)
+hostnetgame	multiplayer	done	HostNetGame:Int32(game_name:String)
+joinnetgame	multiplayer	done	JoinNetGame:Int32(game_name:String, ip_address:String)
+netmsgdata	multiplayer	done	NetMsgData:String()
+netmsgfrom	multiplayer	done	NetMsgFrom:Int32()
+netmsgto	multiplayer	done	NetMsgTo:Int32()
+netmsgtype	multiplayer	done	NetMsgType:Int32()
+netplayerlocal	multiplayer	done	NetPlayerLocal:Int32(player:Int32)
+netplayername	multiplayer	done	NetPlayerName:String(player:Int32)
+recvnetmsg	multiplayer	done	RecvNetMsg:Int32()
+sendnetmsg	multiplayer	done	SendNetMsg:Int32(type:Int32, msg:String, from_player:Int32, to_player:Int32 = 0, reliable:Int32 = 1)
+startnetgame	multiplayer	done	StartNetGame:Int32()
+stopnetgame	multiplayer	done	StopNetGame()
+accepttcpstream	network	done	AcceptTCPStream:Int32(tcp_server:Int32)
+closetcpserver	network	done	CloseTCPServer(tcp_server:Int32)
+closetcpstream	network	done	CloseTCPStream(tcp_stream:Int32)
+closeudpstream	network	done	CloseUDPStream(udp_stream:Int32)
+counthostaddresses	network	done	CountHostAddresses:Int32(host_name:String)
+counthostips	network	done	CountHostIPs:Int32(host_name:String)
+createtcpserver	network	done	CreateTCPServer:Int32(port:Int32)
+createudpstream	network	done	CreateUDPStream:Int32(port:Int32 = 0)
+dottedip	network	done	DottedIP:String(IP:Int32)
+gethostaddress	network	done	GetHostAddress:String(host_index:Int32)
+gettcpstreamaddress	network	done	GetTCPStreamAddress:String(tcp_stream:Int32)
+getudpmsgaddress	network	done	GetUDPMsgAddress:String(udp_stream:Int32)
+getudpstreamaddress	network	done	GetUDPStreamAddress:String(udp_stream:Int32)
+hostip	network	done	HostIP:Int32(host_index:Int32)
+opentcpstream	network	done	OpenTCPStream:Int32(server:String, server_port:Int32, local_port:Int32 = 0)
+recvudpmsg	network	done	RecvUDPMsg:Int32(udp_stream:Int32)
+sendudpmsg	network	done	SendUDPMsg(udp_stream:Int32, dest_ip:Int32, dest_port:Int32 = 0)
+sendudpmsgto	network	done	SendUDPMsgTo(udp_stream:Int32, address:String, dest_port:Int32 = 0)
+tcpstreamip	network	done	TCPStreamIP:Int32(tcp_stream:Int32)
+tcpstreamport	network	done	TCPStreamPort:Int32(tcp_stream:Int32)
+tcptimeouts	network	done	TCPTimeouts(read_millis:Int32, accept_millis:Int32)
+udpmsgip	network	done	UDPMsgIP:Int32(udp_stream:Int32)
+udpmsgport	network	done	UDPMsgPort:Int32(udp_stream:Int32)
+udpstreamip	network	done	UDPStreamIP:Int32(udp_stream:Int32)
+udpstreamport	network	done	UDPStreamPort:Int32(udp_stream:Int32)
+udptimeouts	network	done	UDPTimeouts(recv_timeout:Int32)
+canvasbuffer	plus2d	done	CanvasBuffer:Int32(canvas:Int32)
+createcanvas	plus2d	done	CreateCanvas:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+desktopbuffer	plus2d	done	DesktopBuffer:Int32()
+eventdata	plus2d	done	EventData:Int32()
+eventid	plus2d	done	EventID:Int32()
+eventsource	plus2d	done	EventSource:Int32()
+eventx	plus2d	done	EventX:Int32()
+eventy	plus2d	done	EventY:Int32()
+eventz	plus2d	done	EventZ:Int32()
+flipcanvas	plus2d	done	FlipCanvas(canvas:Int32, vwait:Int32 = 0)
+gfxmodeformat	plus2d	done	GfxModeFormat:Int32(mode:Int32)
+graphicsformat	plus2d	done	GraphicsFormat:Int32()
+keywait	plus2d	done	KeyWait:Int32()
+lockedformat	plus2d	done	LockedFormat:Int32(buffer:Int32 = 0)
+lockedpitch	plus2d	done	LockedPitch:Int32(buffer:Int32 = 0)
+lockedpixels	plus2d	done	LockedPixels:Int32(buffer:Int32 = 0)
+peekevent	plus2d	done	PeekEvent:Int32()
+waitevent	plus2d	done	WaitEvent:Int32(timeout:Int32 = -1)
+activategadget	plusgui	done	ActivateGadget(gadget:Int32)
+activatewindow	plusgui	done	ActivateWindow(window:Int32)
+activewindow	plusgui	done	ActiveWindow:Int32()
+addgadgetitem	plusgui	done	AddGadgetItem(gadget:Int32, item:String, select:Int32 = 0, icon:Int32 = -1)
+addtextareatext	plusgui	done	AddTextAreaText(textarea:Int32, text:String)
+addtreeviewnode	plusgui	done	AddTreeViewNode:Int32(text:String, parent_node:Int32, icon:Int32 = -1)
+buttonstate	plusgui	done	ButtonState:Int32(button:Int32)
+checkmenu	plusgui	done	CheckMenu(menu:Int32)
+cleargadgetitems	plusgui	done	ClearGadgetItems(gadget:Int32)
+clientheight	plusgui	done	ClientHeight:Int32(group:Int32)
+clientwidth	plusgui	done	ClientWidth:Int32(group:Int32)
+collapsetreeviewnode	plusgui	done	CollapseTreeViewNode(node:Int32)
+countgadgetitems	plusgui	done	CountGadgetItems:Int32(gadget:Int32)
+counttreeviewnodes	plusgui	done	CountTreeViewNodes:Int32(parent_node:Int32)
+createbutton	plusgui	done	CreateButton:Int32(text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 1)
+createcombobox	plusgui	done	CreateComboBox:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createhtmlview	plusgui	done	CreateHtmlView:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createlabel	plusgui	done	CreateLabel:Int32(text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createlistbox	plusgui	done	CreateListBox:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createmenu	plusgui	done	CreateMenu:Int32(text:String, menu_id:Int32, parent_menu:Int32)
+createpanel	plusgui	done	CreatePanel:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createprogbar	plusgui	done	CreateProgBar:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createslider	plusgui	done	CreateSlider:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 1)
+createtabber	plusgui	done	CreateTabber:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createtextarea	plusgui	done	CreateTextArea:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createtextfield	plusgui	done	CreateTextField:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createtoolbar	plusgui	done	CreateToolBar:Int32(icons:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createtreeview	plusgui	done	CreateTreeView:Int32(x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32 = 0)
+createwindow	plusgui	done	CreateWindow:Int32(text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32 = 0, style:Int32 = 15)
+desktop	plusgui	done	Desktop:Int32()
+disablegadget	plusgui	done	DisableGadget(gadget:Int32)
+disablemenu	plusgui	done	DisableMenu(menu:Int32)
+disabletoolbaritem	plusgui	done	DisableToolBarItem(toolbar:Int32, index:Int32)
+enablegadget	plusgui	done	EnableGadget(gadget:Int32)
+enablemenu	plusgui	done	EnableMenu(menu:Int32)
+enabletoolbaritem	plusgui	done	EnableToolBarItem(toolbar:Int32, index:Int32)
+expandtreeviewnode	plusgui	done	ExpandTreeViewNode(node:Int32)
+formattextareatext	plusgui	done	FormatTextAreaText(textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32 = 0, len:Int32 = -1, units:Int32 = 1)
+freegadget	plusgui	done	FreeGadget(gadget:Int32)
+freeiconstrip	plusgui	done	FreeIconStrip(icon_strip:Int32)
+freetreeviewnode	plusgui	done	FreeTreeViewNode(node:Int32)
+gadgetfont	plusgui	done	GadgetFont:Int32(gadget:Int32)
+gadgetgroup	plusgui	done	GadgetGroup:Int32(gadget:Int32)
+gadgetheight	plusgui	done	GadgetHeight:Int32(gadget:Int32)
+gadgetitemtext	plusgui	done	GadgetItemText:String(gadget:Int32, index:Int32)
+gadgettext	plusgui	done	GadgetText:String(gadget:Int32)
+gadgetwidth	plusgui	done	GadgetWidth:Int32(gadget:Int32)
+gadgetx	plusgui	done	GadgetX:Int32(gadget:Int32)
+gadgety	plusgui	done	GadgetY:Int32(gadget:Int32)
+hidegadget	plusgui	done	HideGadget(gadget:Int32)
+htmlviewback	plusgui	done	HtmlViewBack(htmlview:Int32)
+htmlviewcurrenturl	plusgui	done	HtmlViewCurrentURL:String(htmlview:Int32)
+htmlvieweventurl	plusgui	done	HtmlViewEventURL:String(htmlview:Int32)
+htmlviewforward	plusgui	done	HtmlViewForward(htmlview:Int32)
+htmlviewgo	plusgui	done	HtmlViewGo(htmlview:Int32, URL:String)
+htmlviewrun	plusgui	done	HtmlViewRun(htmlview:Int32, URL:String)
+htmlviewstatus	plusgui	done	HtmlViewStatus:Int32(htmlview:Int32)
+insertgadgetitem	plusgui	done	InsertGadgetItem(gadget:Int32, index:Int32, item:String, icon:Int32 = -1)
+inserttreeviewnode	plusgui	done	InsertTreeViewNode:Int32(index:Int32, text:String, parent_node:Int32, icon:Int32 = -1)
+loadiconstrip	plusgui	done	LoadIconStrip:Int32(file:String)
+locktextarea	plusgui	done	LockTextArea(textarea:Int32)
+maximizewindow	plusgui	done	MaximizeWindow(window:Int32)
+menuchecked	plusgui	done	MenuChecked:Int32(menu:Int32)
+menuenabled	plusgui	done	MenuEnabled:Int32(menu:Int32)
+menutext	plusgui	done	MenuText:String(menu:Int32)
+minimizewindow	plusgui	done	MinimizeWindow(window:Int32)
+modifygadgetitem	plusgui	done	ModifyGadgetItem(gadget:Int32, index:Int32, item:String, icon:Int32 = -1)
+modifytreeviewnode	plusgui	done	ModifyTreeViewNode(node:Int32, text:String, icon:Int32 = -1)
+removegadgetitem	plusgui	done	RemoveGadgetItem(gadget:Int32, index:Int32)
+requestcolor	plusgui	done	RequestColor:Int32(red:Int32 = 255, green:Int32 = 255, blue:Int32 = 255)
+requestdir	plusgui	done	RequestDir:String(prompt:String = "", path:String = "")
+requestedblue	plusgui	done	RequestedBlue:Int32()
+requestedgreen	plusgui	done	RequestedGreen:Int32()
+requestedred	plusgui	done	RequestedRed:Int32()
+requestfile	plusgui	done	RequestFile:String(prompt:String = "", exts:String = "", save:Int32 = 0, defname:String = "")
+requestfont	plusgui	done	RequestFont:Int32()
+restorewindow	plusgui	done	RestoreWindow(window:Int32)
+selectedgadgetitem	plusgui	done	SelectedGadgetItem:Int32(gadget:Int32)
+selectedtreeviewnode	plusgui	done	SelectedTreeViewNode:Int32(treeview:Int32)
+selectgadgetitem	plusgui	done	SelectGadgetItem(gadget:Int32, index:Int32)
+selecttreeviewnode	plusgui	done	SelectTreeViewNode(node:Int32)
+setbuttonstate	plusgui	done	SetButtonState(button:Int32, state:Int32)
+setgadgetfont	plusgui	done	SetGadgetFont(gadget:Int32, font:Int32)
+setgadgeticonstrip	plusgui	done	SetGadgetIconStrip(gadget:Int32, icon_strip:Int32)
+setgadgetlayout	plusgui	done	SetGadgetLayout(gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32)
+setgadgetshape	plusgui	done	SetGadgetShape(gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32)
+setgadgettext	plusgui	done	SetGadgetText(gadget:Int32, text:String)
+setmenutext	plusgui	done	SetMenuText(menu:Int32, text:String)
+setminwindowsize	plusgui	done	SetMinWindowSize(window:Int32, width:Int32 = -1, height:Int32 = -1)
+setpanelcolor	plusgui	done	SetPanelColor(panel:Int32, red:Int32, green:Int32, blue:Int32)
+setpanelimage	plusgui	done	SetPanelImage(panel:Int32, file:String)
+setsliderrange	plusgui	done	SetSliderRange(slider:Int32, visible:Int32, total:Int32)
+setslidervalue	plusgui	done	SetSliderValue(slider:Int32, value:Int32)
+setstatustext	plusgui	done	SetStatusText(window:Int32, text:String)
+settextareacolor	plusgui	done	SetTextAreaColor(textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32 = 0)
+settextareafont	plusgui	done	SetTextAreaFont(textarea:Int32, font:Int32)
+settextareatabs	plusgui	done	SetTextAreaTabs(textarea:Int32, tabs:Int32)
+settextareatext	plusgui	done	SetTextAreaText(textarea:Int32, text:String, pos:Int32 = 0, len:Int32 = -1, units:Int32 = 1)
+settoolbartips	plusgui	done	SetToolBarTips(toolbar:Int32, tips:String)
+setwindowsizelimit	plusgui	done	SetWindowSizeLimit(window:Int32, min_width:Int32, min_height:Int32, max_width:Int32, max_height:Int32)
+showgadget	plusgui	done	ShowGadget(gadget:Int32)
+slidervalue	plusgui	done	SliderValue:Int32(slider:Int32)
+textareachar	plusgui	done	TextAreaChar:Int32(textarea:Int32, line:Int32)
+textareacursor	plusgui	done	TextAreaCursor:Int32(textarea:Int32, units:Int32 = 1)
+textarealen	plusgui	done	TextAreaLen:Int32(textarea:Int32, units:Int32 = 1)
+textarealine	plusgui	done	TextAreaLine:Int32(textarea:Int32, char:Int32)
+textarealinelen	plusgui	done	TextAreaLineLen:Int32(textarea:Int32, line:Int32)
+textareasellen	plusgui	done	TextAreaSelLen:Int32(textarea:Int32, units:Int32 = 1)
+textareatext	plusgui	done	TextAreaText:String(textarea:Int32, pos:Int32 = 0, len:Int32 = -1, units:Int32 = 1)
+textfieldtext	plusgui	done	TextFieldText:String(textfield:Int32)
+treeviewnodetext	plusgui	done	TreeViewNodeText:String(node:Int32)
+treeviewroot	plusgui	done	TreeViewRoot:Int32(treeview:Int32)
+uncheckmenu	plusgui	done	UncheckMenu(menu:Int32)
+unlocktextarea	plusgui	done	UnlockTextArea(textarea:Int32)
+updateprogbar	plusgui	done	UpdateProgBar(progbar:Int32, progress:Float32)
+updatewindowmenu	plusgui	done	UpdateWindowMenu(window:Int32)
+windowmaximized	plusgui	done	WindowMaximized:Int32(window:Int32)
+windowmenu	plusgui	done	WindowMenu:Int32(window:Int32)
+windowminimized	plusgui	done	WindowMinimized:Int32(window:Int32)
+windowscale	plusgui	done	WindowScale:Float32(window:Int32)
+windowscaling	plusgui	done	WindowScaling(mode:Int32)
+activeobjects	plussystem	done	ActiveObjects:Int32()
+autosuspend	plussystem	done	AutoSuspend(enable:Int32)
+confirm	plussystem	done	Confirm:Int32(text:String, serious:Int32 = 0)
+createprocess	plussystem	done	CreateProcess:Int32(command:String)
+debugobjects	plussystem	done	DebugObjects()
+flushevents	plussystem	done	FlushEvents(kind:Int32 = -1, source:Int32 = 0)
+fontascent	plussystem	done	FontAscent:Int32(font:Int32)
+fontdescent	plussystem	done	FontDescent:Int32(font:Int32)
+fontname	plussystem	done	FontName:String(font:Int32)
+fontsize	plussystem	done	FontSize:Int32(font:Int32)
+fontstyle	plussystem	done	FontStyle:Int32(font:Int32)
+hotkeyevent	plussystem	done	HotKeyEvent(rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32 = 0, ev_x:Int32 = 0, ev_y:Int32 = 0, ev_z:Int32 = 0, ev_source:Int32 = 0)
+morefiles	plussystem	done	MoreFiles:Int32(dir:Int32)
+notify	plussystem	done	Notify(text:String, serious:Int32 = 0)
+pausetimer	plussystem	done	PauseTimer(timer:Int32)
+proceed	plussystem	done	Proceed:Int32(text:String, serious:Int32 = 0)
+queryobject	plussystem	done	QueryObject:Int32(object:Int32, query_id:Int32)
+resettimer	plussystem	done	ResetTimer(timer:Int32)
+resumetimer	plussystem	done	ResumeTimer(timer:Int32)
+timerticks	plussystem	done	TimerTicks:Int32(timer:Int32)
+apptitle	runtime	done	AppTitle(title:String, close_prompt:String = "")
+commandline	runtime	done	CommandLine:String()
+createtimer	runtime	done	CreateTimer:Int32(hertz:Int32)
+debuglog	runtime	done	DebugLog(text:String)
+delay	runtime	done	Delay(millisecs:Int32)
+end	runtime	done	End()
+execfile	runtime	done	ExecFile(command:String)
+freetimer	runtime	done	FreeTimer(timer:Int32)
+getenv	runtime	done	GetEnv:String(env_var:String)
+microseconds	runtime	done	Microseconds:UInt64()
+millisecs	runtime	done	MilliSecs:Int32()
+profilebegin	runtime	done	ProfileBegin(key:String)
+profileenable	runtime	done	ProfileEnable(enable:Int32)
+profileend	runtime	done	ProfileEnd(key:String)
+profileflipcount	runtime	done	ProfileFlipCount:Int32()
+profilefps	runtime	done	ProfileFPS(enable:Int32)
+profileitemcount	runtime	done	ProfileItemCount:Int32()
+profileitemname	runtime	done	ProfileItemName:String(item:Int32)
+profileoutput	runtime	done	ProfileOutput(file:String)
+profilesample	runtime	done	ProfileSample(file:String)
+profileslow	runtime	done	ProfileSlow(milliseconds:Float32)
+profilevalue	runtime	done	ProfileValue:Float32(key:String)
+runtimeerror	runtime	done	RuntimeError(message:String)
+setenv	runtime	done	SetEnv(env_var:String, value:String)
+stop	runtime	done	Stop()
+systemproperty	runtime	done	SystemProperty:String(property:String)
+waittimer	runtime	done	WaitTimer:Int32(timer:Int32)
+copystream	streams	done	CopyStream(src_stream:Int32, dest_stream:Int32, buffer_size:Int32 = 16384)
+eof	streams	done	Eof:Int32(stream:Int32)
+readavail	streams	done	ReadAvail:Int32(stream:Int32)
+readbyte	streams	done	ReadByte:Int32(stream:Int32)
+readfloat	streams	done	ReadFloat:Float32(stream:Int32)
+readint	streams	done	ReadInt:Int32(stream:Int32)
+readline	streams	done	ReadLine:String(stream:Int32)
+readshort	streams	done	ReadShort:Int32(stream:Int32)
+readstring	streams	done	ReadString:String(stream:Int32)
+writebyte	streams	done	WriteByte(stream:Int32, byte:Int32)
+writefloat	streams	done	WriteFloat(stream:Int32, float:Float32)
+writeint	streams	done	WriteInt(stream:Int32, int:Int32)
+writeline	streams	done	WriteLine(stream:Int32, string:String)
+writeshort	streams	done	WriteShort(stream:Int32, short:Int32)
+writestring	streams	done	WriteString(stream:Int32, string:String)
+asc	strings	done	Asc:Int32(string:String)
+bin	strings	done	Bin:String(value:Int32)
+chr	strings	done	Chr:String(ascii:Int32)
+currentdate	strings	done	CurrentDate:String()
+currenttime	strings	done	CurrentTime:String()
+hex	strings	done	Hex:String(value:Int32)
+instr	strings	done	Instr:Int32(string:String, find:String, from:Int32 = 1)
+left	strings	done	Left:String(string:String, count:Int32)
+len	strings	done	Len:Int32(string:String)
+lower	strings	done	Lower:String(string:String)
+lset	strings	done	LSet:String(string:String, size:Int32)
+mid	strings	done	Mid:String(string:String, start:Int32, count:Int32 = -1)
+replace	strings	done	Replace:String(string:String, from:String, to:String)
+right	strings	done	Right:String(string:String, count:Int32)
+rset	strings	done	RSet:String(string:String, size:Int32)
+string	strings	done	String:String(string:String, repeat:Int32)
+trim	strings	done	Trim:String(string:String)
+upper	strings	done	Upper:String(string:String)
