@@ -205,6 +205,13 @@ def run_program(compiler, program, env, cwd, timeout=900, args=()):
     return cpu, wall, r.stdout + r.stderr, r.returncode
 
 
+class TooSlow(RuntimeError):
+    """A scene benchmark that did not finish its frames in the time it may take: the result is that it runs at under below_fps."""
+    def __init__(self, frames, seconds):
+        super().__init__("did not finish %d frames in %d s" % (frames, seconds))
+        self.below_fps = frames / seconds
+
+
 def bench_scene(compiler, name, runs):
     cfg = SCENES[name]
     source = cfg.get("source", name)
@@ -222,7 +229,11 @@ def bench_scene(compiler, name, runs):
                 env["BENCH_MODEL"] = compiler.native_path(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds"))
             # FRAME_TIMEOUT seconds per frame (1 by default, --frame-timeout) is the most a run may take: the original draws the 3000
             # frames of the forest at over a second each on the integrated GPU of a laptop (Shibela).
-            cpu, wall, out, code = run_program(compiler, program, env, d, timeout=max(900, int(int(env["BENCH_FRAMES"]) * FRAME_TIMEOUT)))
+            timeout = max(900, int(int(env["BENCH_FRAMES"]) * FRAME_TIMEOUT))
+            try:
+                cpu, wall, out, code = run_program(compiler, program, env, d, timeout=timeout)
+            except procutil.TimeoutExpired:
+                raise TooSlow(int(env["BENCH_FRAMES"]), timeout)
             if not os.path.isfile(result_file):
                 raise RuntimeError("no result (exit %s): %s" % (code, out[-300:]))
             r = parse_result(result_file)
@@ -554,6 +565,8 @@ def main():
             status = "ok"
         except Exception as e:  # A compiler of an old commit may not build a benchmark; that is a result as well.
             record["benchmarks"][name] = {"error": str(e)[:500]}
+            if isinstance(e, TooSlow):
+                record["benchmarks"][name]["below_fps"] = e.below_fps
             status = "n/a: " + str(e)[:160].replace("\n", " ")
         print("%-12s %5.0fs %s" % (name, time.time() - started, status), flush=True)
         with open(out, "w") as f:
