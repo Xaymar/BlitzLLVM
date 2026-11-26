@@ -207,6 +207,80 @@ ChannelRadius 0, 1
 Check "GetChannelDoppler without a channel", GetChannelDoppler(0), 1
 Check "GetChannelRadius without a channel", GetChannelRadius(0), 0
 
+; Buses (BlitzLLVM). Bus 0 is the master bus, which everything plays on until it is moved. Buses feed other buses, and work without a
+; sound device too: only what plays on them is silent then.
+Check "GetAudioBusVolume of master", GetAudioBusVolume(0), 1
+world = CreateAudioBus()
+CheckTrue "CreateAudioBus", world > 0
+cave = CreateAudioBus(world)
+CheckTrue "CreateAudioBus with a parent", cave > 0 And cave <> world
+Check "GetAudioBusParent", GetAudioBusParent(cave), world
+Check "GetAudioBusParent of a new bus", GetAudioBusParent(world), 0
+Check "GetAudioBusVolume of a new bus", GetAudioBusVolume(cave), 1
+AudioBusVolume cave, 0.5
+Check "AudioBusVolume", GetAudioBusVolume(cave), 0.5
+AudioBusVolume cave, 2
+Check "AudioBusVolume above 1", GetAudioBusVolume(cave), 2
+AudioBusVolume world, 0, 400
+fading# = GetAudioBusVolume(world)
+CheckTrue "AudioBusVolume fades", fading > 0 And fading <= 1
+Delay 600
+Check "AudioBusVolume faded", GetAudioBusVolume(world), 0
+AudioBusVolume world, 1
+other = CreateAudioBus()
+AudioBusParent cave, other
+Check "AudioBusParent", GetAudioBusParent(cave), other
+AudioBusParent cave, world
+; A bus that is freed gives its children to its parent.
+FreeAudioBus world
+Check "FreeAudioBus moves the children", GetAudioBusParent(cave), 0
+FreeAudioBus 0
+again = CreateAudioBus()
+CheckTrue "CreateAudioBus reuses a freed handle", again > 0
+
+SoundBus sound, cave
+MusicBus cave
+channel = PlaySound(sound)
+If channel <> 0
+	Check "SoundBus", GetChannelBus(channel), cave
+	ChannelBus channel, other
+	Check "ChannelBus", GetChannelBus(channel), other
+	PauseAudioBus other
+	CheckTrue "PauseAudioBus keeps the channel", ChannelPlaying(channel)
+	ResumeAudioBus other
+	StopAudioBus other
+	CheckFalse "StopAudioBus", ChannelPlaying(channel)
+Else
+	suite_checks = suite_checks + 4
+EndIf
+music = PlayMusic(name)
+If music <> 0
+	Check "MusicBus", GetChannelBus(music), cave
+	StopChannel music
+Else
+	suite_checks = suite_checks + 1
+EndIf
+; A channel paused on its own stays paused when its bus resumes.
+channel = PlaySound(sound)
+If channel <> 0
+	PauseChannel channel
+	PauseAudioBus cave
+	ResumeAudioBus cave
+	Delay 300
+	CheckTrue "A paused channel stays paused", ChannelPlaying(channel)
+	StopChannel channel
+Else
+	suite_checks = suite_checks + 1
+EndIf
+ChannelBus 0, cave
+Check "GetChannelBus without a channel", GetChannelBus(0), 0
+SoundBus 0, cave
+FreeAudioBus cave
+FreeAudioBus other
+FreeAudioBus again
+MusicBus 0
+SoundBus sound, 0
+
 FreeSound sound
 FreeSound sound3d
 DeleteFile name

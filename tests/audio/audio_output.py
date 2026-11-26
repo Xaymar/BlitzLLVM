@@ -41,7 +41,7 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 	"""Plays a file and returns the left channel of what was sent to the disk driver."""
 	with open("play.bb", "w") as source:
 		if music is not None:
-			source.write('c = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, music, milliseconds))
+			source.write('%s\nc = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (setup, name, music, milliseconds))
 		else:
 			source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
 	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
@@ -124,6 +124,43 @@ for what, setup, after, expected in (
 	samples, log = play("tone.wav", setup, after)
 	frequency, smoothness, length = analyze(samples)
 	check("%s: pitch %.1f Hz is %.1f Hz" % (what, frequency, expected), abs(frequency - expected) < expected * 0.01)
+
+# Buses (BlitzLLVM): a channel on a bus is as loud as the volumes of its bus and of every bus that bus feeds, master included. A fade glides
+# without steps, a paused bus pauses its channels, and without any bus command the output is the same as before.
+def steady_peak(samples, start=4000, length=30000):
+	loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+	if not loud:
+		return 0
+	return max(abs(v) for v in samples[loud[0] + start : loud[0] + start + length])
+
+
+tone("tone.wav", 22050, 1, 16)
+reference = steady_peak(play("tone.wav")[0])
+for what, setup, after, ratio in (
+	("AudioBusVolume on the bus of SoundBus", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nSoundBus s, b", "", 0.5),
+	("a bus that feeds a bus", "a = CreateAudioBus()\nb = CreateAudioBus(a)\nAudioBusVolume a, 0.5\nAudioBusVolume b, 0.5\nSoundBus s, b", "", 0.25),
+	("the master bus", "AudioBusVolume 0, 0.5", "", 0.5),
+	("ChannelBus on a playing channel", "b = CreateAudioBus()\nAudioBusVolume b, 0.5", "ChannelBus c, b", 0.5),
+	("AudioBusParent", "a = CreateAudioBus()\nb = CreateAudioBus()\nAudioBusVolume a, 0.5\nSoundBus s, b\nAudioBusParent b, a", "", 0.5),
+	("FreeAudioBus moves its channels to its parent", "a = CreateAudioBus()\nb = CreateAudioBus(a)\nAudioBusVolume a, 0.5\nAudioBusVolume b, 0.1\nSoundBus s, b", "FreeAudioBus b", 0.5),
+	("a bus that was made and left alone", "b = CreateAudioBus()", "", 1.0),
+):
+	peak = steady_peak(play("tone.wav", setup, after)[0])
+	check("bus, %s: peak %d is %.2f of %d" % (what, peak, ratio, reference), abs(peak - reference * ratio) <= reference * 0.03 + 2)
+samples = play("tone.wav", "b = CreateAudioBus()\nSoundBus s, b", "AudioBusVolume b, 0, 1000")[0]
+loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+first = max(abs(v) for v in samples[loud[0] : loud[0] + 2000])
+later = max(abs(v) for v in samples[loud[0] + 22050 : loud[0] + 24050])  # Half a second into the fade.
+cycle_peaks = [max(abs(v) for v in samples[i : i + CYCLE]) for i in range(loud[0], loud[0] + 40000, CYCLE)]
+step = max(abs(cycle_peaks[i + 1] - cycle_peaks[i]) for i in range(len(cycle_peaks) - 1))
+check("bus fade: half way the peak %d is about half of %d" % (later, first), 0.35 < later / first < 0.65)
+check("bus fade: no step between cycles above 2%% (largest %d of %d)" % (step, first), step <= first * 0.02 + 2)
+samples, log = play("tone.wav", "b = CreateAudioBus()\nSoundBus s, b", "Delay 200\nPauseAudioBus b")
+frequency, smoothness, length = analyze(samples)
+check("PauseAudioBus: the sound stops after %.2f s and the channel is still there" % length, length < 0.5 and "playing 1" in log)
+samples, log = play("tone.wav", "b = CreateAudioBus()\nMusicBus b\nAudioBusVolume b, 0.5", music=1)
+peak = steady_peak(samples)
+check("MusicBus: peak %d is half of %d" % (peak, reference), abs(peak - reference * 0.5) <= reference * 0.03 + 2)
 
 # BLITZLLVM_LEGACY_AUDIO_RESAMPLING resamples like the original (linear interpolation), which keeps the pitch but adds the mirror images of a low-rate
 # sound above its own bandwidth. SDL_mixer's own resampling leaves them out.
