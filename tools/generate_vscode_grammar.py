@@ -32,22 +32,28 @@ def words(names):
 
 
 def commands():
+    """The names of the commands. The type character of the result in front of a name is skipped whatever it is, so that a new type
+    character does not drop its commands; a line whose name can not be read stops the script instead of leaving the command out."""
     names = set()
-    for line in open(LIST, encoding="utf-8"):
+    for number, line in enumerate(open(LIST, encoding="utf-8"), 1):
         if line.startswith("#") or not line.strip():
             continue
         columns = line.rstrip("\n").split("\t")
         if len(columns) < 4:
             continue
-        signature = columns[3].lstrip("%#$!~@|^")
+        signature = columns[3]
+        at = 0
+        while at < len(signature) and not (signature[at].isalnum() or signature[at] == "_"):
+            at += 1
         name = ""
-        for c in signature:
+        for c in signature[at:]:
             if c.isalnum() or c == "_":
                 name += c
             else:
                 break
-        if name:
-            names.add(name)
+        if not name or name.lower() != columns[0].lower():
+            raise SystemExit(f"{LIST}:{number}: the signature {signature!r} does not start with the command {columns[0]!r}")
+        names.add(name)
     return sorted(names, key=str.lower)
 
 
