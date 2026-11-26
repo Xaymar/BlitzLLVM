@@ -1367,7 +1367,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (34)</summary>
+<li><details><summary>Features (36)</summary>
 <ul>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
 <li><a href="Blitz-Recompiler">Blitz-Recompiler</a></li>
@@ -1380,6 +1380,8 @@
 <li><a href="Image-Formats">Image formats</a></li>
 <li><a href="Include-Files">Include Files</a></li>
 <li><a href="IPv6">IPv6</a></li>
+<li><a href="Language#arrays">Language: Arrays</a></li>
+<li><a href="Language#control-flow">Language: Control flow</a></li>
 <li><a href="Language#data">Language: Data</a></li>
 <li><a href="Lost-Graphics-Device">Lost graphics device</a></li>
 <li><a href="Model-Formats">Model formats</a></li>

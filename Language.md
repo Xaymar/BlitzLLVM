@@ -111,6 +111,9 @@ case two or three
 
 `Exit` leaves the closest loop, `Repeat ... Forever` loops until `Exit`, `Goto` jumps to a `.label`, and `Gosub` calls the code at a label that ends with `Return`.
 
+An `If` on one line has its statements after `Then` and `Else` on the same line: `If x = 1 Then Print "one" Else Print "other"`.
+
+
 ## Functions
 
 ```blitzbasic
@@ -155,6 +158,9 @@ Print grid(1, 2)
 5
 9
 ```
+
+A Blitz array (`Local weights#[5]`, also `Global` and `Field`) has a fixed size and is used with square brackets, without the type behind the name: `weights[0] = 1.5`.
+
 
 ## Types
 

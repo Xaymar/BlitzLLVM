@@ -23,6 +23,8 @@ Differences that are not caused by one command.
 * [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Include Files](Include-Files): Extension: `Include "<keys.bb>"` includes a file shipped with BlitzLLVM, such as the constants of the key codes.
 * [IPv6](IPv6): The network commands also work over IPv6, and have text versions of the commands that use an address as a whole number.
+* [Language: Arrays](Language#arrays): A Blitz array used with its type behind the name (`weights#[0]`) compiles, but the original rejects it with `Variable type mismatch`; the warning `compatibility-blitz-array-suffix` (`-Wcompatibility`) points at it, see [[Warnings]].
+* [Language: Control flow](Language#control-flow): A call with its arguments in parentheses right before `Else` (`If x Then Foo(1, 2) Else Bar()`) compiles, but the original rejects it with `')' expected`; the warning `compatibility-one-line-if-else` (`-Wcompatibility`) points at it, see [[Warnings]].
 * [Language: Data](Language#data): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
 * [Model formats](Model-Formats): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` and glTF 2.0 (`.gltf`, `.glb`) files, and `LoadTexture` and `LoadImage` read the pictures inside glTF files. A damaged DirectX `.x` file loads what is before the damage, with a warning.
