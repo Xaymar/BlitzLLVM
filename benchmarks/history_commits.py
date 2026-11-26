@@ -130,6 +130,7 @@ def main():
         os.makedirs(scratch)
         record = {"commit": first, "commits": group, "subject": git(args.repo, "log", "-1", "--format=%s", first),
                   "date": git(args.repo, "log", "-1", "--format=%as", first)}
+        clang = None
         if args.download:
             built = fetch_binary(args.download, first, os.path.join(scratch, "ci"))
             exe = os.path.join(built or "", "blitzcc.exe")
@@ -143,6 +144,9 @@ def main():
                     built = root
                     break
             exe = os.path.join(built, "blitzcc.exe")
+            toolchain = os.path.join(scratch, "install", "toolchain.txt")
+            if os.path.isfile(toolchain):  # the clang this blitzcc links programs with (build_windows.ps1)
+                clang = open(toolchain, encoding="utf-8-sig").read().strip()
         else:
             build = procutil.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
             built = os.path.join("/home/user/revs", label)
@@ -159,7 +163,8 @@ def main():
             if old and args.only:
                 json.dump(old, open(out, "w"))  # history.py adds the benchmarks to the ones that are in the file
             run = procutil.run([sys.executable, os.path.join(HERE, "history.py"), "--set", args.set, "--gpu", str(args.gpu), "--depth", str(args.depth),
-                                "--blitzcc", exe, "--label", label, "--rev", first, "--out", out] + (["--only", args.only] if args.only else []), capture_output=True, text=True, stdin=subprocess.DEVNULL)
+                                "--blitzcc", exe, "--label", label, "--rev", first, "--out", out] + (["--only", args.only] if args.only else []), capture_output=True, text=True, stdin=subprocess.DEVNULL,
+                               env=dict(os.environ, PATH=clang + os.pathsep + os.environ.get("PATH", "")) if clang else None)
             if os.path.isfile(out):
                 record.update(json.load(open(out)))
                 record["commit"], record["commits"], record["date"] = first, group, git(args.repo, "log", "-1", "--format=%as", first)
