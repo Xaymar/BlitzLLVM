@@ -87,6 +87,15 @@ namespace bb {
 			data[size++] = value;
 		}
 
+		/** Makes room for one more element and gives it, for the caller to fill in place. Its contents are whatever was there before. */
+		T& push_slot()
+		{
+			if (size >= cap) {
+				reserve(size + 1);
+			}
+			return data[size++];
+		}
+
 		void clear() { size = 0; }
 
 		void release()
@@ -258,7 +267,7 @@ namespace bb {
 				stored_color[k] = uint8_t(value);
 			}
 		}
-		void set_white() { stored_color[0] = stored_color[1] = stored_color[2] = stored_color[3] = 255; }
+		void set_white() { memset(stored_color, 255, sizeof(stored_color)); }
 		void get_color(float* out) const
 		{
 			for (int k = 0; k < 4; k++) {
@@ -273,15 +282,21 @@ namespace bb {
 		/** A white vertex whose second set of texture coordinates is the first, which is what AddVertex makes. */
 		static vertex3d make(float x, float y, float z, float nx, float ny, float nz, float u, float v)
 		{
-			vertex3d made = {};
-			made.x        = x;
-			made.y        = y;
-			made.z        = z;
-			made.set_normal(nx, ny, nz);
-			made.u = u;
-			made.v = v;
-			made.set_white();
+			vertex3d made;
+			made.fill(x, y, z, nx, ny, nz, u, v);
 			return made;
+		}
+		/** Sets every field as make does, for a vertex that is written where it is kept (see add_vertex). */
+		void fill(float px, float py, float pz, float nx, float ny, float nz, float pu, float pv)
+		{
+			x = px;
+			y = py;
+			z = pz;
+			set_normal(nx, ny, nz);
+			set_white();
+			u = pu;
+			v = pv;
+			w = 0;
 		}
 	};
 	static_assert(sizeof(vertex3d) == 32 && (vertex_alignment % sizeof(vertex3d)) == 0, "A vertex has to stay within a cache line (docs/Vertex-Format.md).");
