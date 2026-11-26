@@ -75,6 +75,7 @@ typedef struct bb_channel {
 	float      radius;     // ChannelRadius: how big the source is, in units of the world (0 for a point).
 	int32_t    bus;        // ChannelBus: the bus it plays on (0 for the master bus).
 	int        paused;     // PauseChannel: paused on its own, so that it stays paused when its bus resumes.
+	int        movie;      // The sound of a movie, which the movie plays, pauses and stops (MovieChannel).
 } bb_channel;
 
 // A setting of the listener that can glide to a new value: it goes from `from` to `to` over `length` nanoseconds from `start`.
@@ -144,6 +145,7 @@ typedef struct bb_audio_state {
 	int32_t bus_cap;
 	int32_t music_bus;     // MusicBus: the bus that PlayMusic channels start on.
 	int     master_hooked; // Whether the volume of the master bus is put on the final mix.
+	int32_t movie_bus;     // MovieBus: the bus that the sound of movies starts on.
 	// Audio scenes, made by CreateAudioScene.
 	bb_scene* scenes;
 	int32_t   scene_count;
@@ -183,6 +185,7 @@ static void bb_audio_shutdown(void)
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
 		if (bb_audio.channels[i].used) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
+			bb_audio.channels[i].used = 0; // Movies that are closed after this let go of nothing.
 		}
 	}
 	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
@@ -392,7 +395,7 @@ void bb_free_sound(int32_t handle)
 	}
 	bb_sound* sound = bb_sound_get(handle, "FreeSound");
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && (bb_audio.channels[i].sound == handle)) {
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && (bb_audio.channels[i].sound == handle)) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
 			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
@@ -437,6 +440,16 @@ static void bb_channel_apply(bb_channel* channel)
 }
 
 static void bb_channel_start_3d(bb_channel* channel);
+
+// The channel of a movie is played, paused and stopped by the movie, and its pitch would play the sound apart from the picture.
+static void bb_movie_owns(const bb_channel* channel, const char* what)
+{
+	if (channel && channel->movie) {
+		char message[160];
+		snprintf(message, sizeof(message), "%s: the channel is the sound of a movie, which the movie commands play, pause and stop", what);
+		bb_runtime_error(message);
+	}
+}
 static int  bb_falloff_default(void);
 static int  bb_bus_valid(int32_t bus);
 static int  bb_bus_paused(int32_t bus);
@@ -456,7 +469,8 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	// Reuse the slot of a channel that is over.
 	int32_t slot = 0;
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && !MIX_TrackPlaying(bb_audio.channels[i].track) && !MIX_TrackPaused(bb_audio.channels[i].track)) {
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && !MIX_TrackPlaying(bb_audio.channels[i].track) &&
+		    !MIX_TrackPaused(bb_audio.channels[i].track)) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
 			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
@@ -556,6 +570,7 @@ int32_t bb_emit_sound(int32_t handle, int32_t entity)
 void bb_stop_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "StopChannel");
+	bb_movie_owns(channel, "StopChannel");
 	if (channel) {
 		MIX_StopTrack(channel->track, 0);
 		MIX_DestroyTrack(channel->track);
@@ -566,6 +581,7 @@ void bb_stop_channel(int32_t handle)
 void bb_pause_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "PauseChannel");
+	bb_movie_owns(channel, "PauseChannel");
 	if (channel) {
 		channel->paused = 1;
 		MIX_PauseTrack(channel->track);
@@ -575,6 +591,7 @@ void bb_pause_channel(int32_t handle)
 void bb_resume_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "ResumeChannel");
+	bb_movie_owns(channel, "ResumeChannel");
 	if (channel) {
 		channel->paused = 0;
 		if (!bb_bus_paused(channel->bus)) {
@@ -610,6 +627,7 @@ void bb_channel_pan(int32_t handle, float pan)
 void bb_channel_pitch(int32_t handle, int32_t hertz)
 {
 	bb_channel* channel = bb_channel_get(handle, "ChannelPitch");
+	bb_movie_owns(channel, "ChannelPitch");
 	if (channel && (hertz > 0)) {
 		bb_sound* sound = &bb_audio.sounds[channel->sound];
 		if (sound->frequency > 0) {
@@ -939,8 +957,9 @@ static void bb_channel_follow(bb_channel* channel, const float* listener, Uint64
 	channel->pan3d  = pan;
 	bb_channel_apply(channel);
 
-	// The pitch: what the source moves along the line to the listener, and what the listener does.
-	if (reach > 1e-3f) {
+	// The pitch: what the source moves along the line to the listener, and what the listener does. Not for movies, whose sound would
+	// drift away from the picture.
+	if ((reach > 1e-3f) && !channel->movie) {
 		float ux = dx / reach, uy = dy / reach, uz = dz / reach;
 		float* sv = channel->motion.speed;
 		float* lv = bb_audio.listener_motion.speed;
@@ -1217,6 +1236,9 @@ void bb_free_audio_bus(int32_t handle)
 	if (bb_audio.music_bus == handle) {
 		bb_audio.music_bus = parent;
 	}
+	if (bb_audio.movie_bus == handle) {
+		bb_audio.movie_bus = parent;
+	}
 	bb_scenes_forget(BB_SCENE_BUS_VOLUME, handle);
 	if (bus->group) {
 		MIX_DestroyGroup(bus->group);
@@ -1285,8 +1307,8 @@ void bb_stop_audio_bus(int32_t handle)
 {
 	bb_bus_get(handle, "StopAudioBus");
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && bb_bus_under(bb_audio.channels[i].bus, handle)) {
-			bb_stop_channel(i);
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && bb_bus_under(bb_audio.channels[i].bus, handle)) {
+			bb_stop_channel(i); // Movies stop with StopMovie: their sound is silent while the bus is paused or turned down instead.
 		}
 	}
 }
@@ -1575,4 +1597,137 @@ void bb_blend_audio_scene(int32_t handle_a, int32_t handle_b, float weight, int3
 			bb_scene_value_apply(v->kind, v->target, from + (v->value - from) * w, milliseconds);
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// The sound of movies
+////////////////////////////////////////////////////////////////////////////////
+// A movie queues its sound on an audio stream (movie.cpp), which a channel of the mixer plays. So its sound goes through the buses like
+// every other channel, and can come from an entity in the world. The movie plays, pauses and stops it.
+
+int32_t bb_movie_channel_open(SDL_AudioStream* stream)
+{
+	if (!stream || !bb_audio_ready()) {
+		return 0;
+	}
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (!bb_audio.channels[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.channel_count >= bb_audio.channel_cap) {
+			bb_audio.channel_cap = bb_audio.channel_cap ? bb_audio.channel_cap * 2 : 64;
+			bb_audio.channels    = (bb_channel*)bb_realloc_or_fail(bb_audio.channels, (size_t)bb_audio.channel_cap * sizeof(bb_channel));
+		}
+		slot = bb_audio.channel_count++;
+	}
+	bb_channel* channel = &bb_audio.channels[slot];
+	memset(channel, 0, sizeof(*channel));
+	channel->track = MIX_CreateTrack(bb_audio.mixer);
+	if (!channel->track || !MIX_SetTrackAudioStream(channel->track, stream)) {
+		if (channel->track) {
+			MIX_DestroyTrack(channel->track);
+		}
+		memset(channel, 0, sizeof(*channel));
+		return 0;
+	}
+	channel->used    = 1;
+	channel->movie   = 1;
+	channel->paused  = 1; // Until the clock of the movie starts.
+	channel->volume  = 1.0f;
+	channel->ratio   = 1.0f;
+	channel->gain3d  = 1.0f;
+	channel->falloff = bb_falloff_default();
+	channel->doppler = 1.0f;
+	channel->bus     = bb_bus_valid(bb_audio.movie_bus) ? bb_audio.movie_bus : 0;
+	bb_bus_hook_master();
+	if (channel->bus) {
+		MIX_SetTrackGroup(channel->track, bb_bus_group(channel->bus));
+	}
+	bb_channel_apply(channel);
+	return slot;
+}
+
+static bb_channel* bb_movie_channel(int32_t handle)
+{
+	if ((handle <= 0) || (handle >= bb_audio.channel_count) || !bb_audio.channels[handle].used || !bb_audio.channels[handle].movie) {
+		return NULL;
+	}
+	return &bb_audio.channels[handle];
+}
+
+// Before the movie lets go of its stream.
+void bb_movie_channel_close(int32_t handle)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel) {
+		MIX_DestroyTrack(channel->track);
+		memset(channel, 0, sizeof(*channel));
+	}
+}
+
+// The clock of the movie started (running) or stood still.
+void bb_movie_channel_run(int32_t handle, int running)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (!channel) {
+		return;
+	}
+	channel->paused = running ? 0 : 1;
+	if (!running) {
+		MIX_PauseTrack(channel->track);
+	} else if (!bb_bus_paused(channel->bus)) {
+		if (MIX_TrackPaused(channel->track)) {
+			MIX_ResumeTrack(channel->track);
+		} else if (!MIX_TrackPlaying(channel->track)) {
+			MIX_PlayTrack(channel->track, 0);
+		}
+	}
+}
+
+// A track that plays a stream stops when the stream runs dry (at the start, after a seek, or when decoding fell behind), so the movie starts
+// it again once there is sound queued.
+void bb_movie_channel_keep(int32_t handle)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel && !channel->paused && !bb_bus_paused(channel->bus) && !MIX_TrackPlaying(channel->track) && !MIX_TrackPaused(channel->track)) {
+		MIX_PlayTrack(channel->track, 0);
+	}
+}
+
+void bb_movie_channel_volume(int32_t handle, float volume)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel) {
+		channel->volume = bb_clamp(volume, 0.0f, 1.0f);
+		bb_channel_apply(channel);
+	}
+}
+
+// EmitMovie: the sound of the movie comes from an entity, with distance, panning and radius but no doppler shift. 0 puts it back on the
+// speakers.
+void bb_movie_channel_emit(int32_t handle, int32_t entity)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (!channel) {
+		return;
+	}
+	channel->entity = entity;
+	memset(&channel->motion, 0, sizeof(channel->motion));
+	if (entity) {
+		bb_channel_start_3d(channel);
+	} else {
+		channel->gain3d = 1.0f;
+		channel->pan3d  = 0.0f;
+		bb_channel_apply(channel);
+	}
+}
+
+void bb_movie_bus(int32_t bus)
+{
+	bb_bus_get(bus, "MovieBus");
+	bb_audio.movie_bus = bus;
 }

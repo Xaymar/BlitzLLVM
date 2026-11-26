@@ -181,6 +181,28 @@ Check "MoviePlaying after MovieVolume", MoviePlaying(movie), 1
 CloseMovie movie
 If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then MovieVolume 0, 1.0
 
+; The sound of a movie plays on a channel (BlitzLLVM), 0 without a sound device. Its bus comes from MovieBus, and EmitMovie puts it in
+; the world; the movie plays on either way.
+bus = CreateAudioBus()
+MovieBus bus
+movie = OpenMovie("movies/colors.mp4")
+channel = MovieChannel(movie)
+If channel <> 0
+	Check "MovieBus", GetChannelBus(channel), bus
+	ChannelVolume channel, 0.5
+	ChannelPan channel, -0.5
+Else
+	suite_checks = suite_checks + 1
+EndIf
+pivot = CreatePivot()
+EmitMovie movie, pivot
+EmitMovie movie, 0
+Check "MoviePlaying after EmitMovie", MoviePlaying(movie), 1
+CloseMovie movie
+FreeEntity pivot
+MovieBus 0
+FreeAudioBus bus
+
 ; Handles can be used again.
 a = OpenMovie("movies/colors.mpg")
 b = OpenMovie("movies/colors.mp4")

@@ -440,6 +440,38 @@ for volume in ("1.0", "0.5", "0.0"):
 	peaks[volume] = max([abs(v) for v in struct.unpack("<%dh" % (count * 2), data[: count * 4])] + [0])
 check("MovieVolume: the peak is %d at 1, %d at 0.5 and %d at 0" % (peaks["1.0"], peaks["0.5"], peaks["0.0"]), peaks["1.0"] > 1000 and 0.45 < peaks["0.5"] / peaks["1.0"] < 0.55 and peaks["0.0"] < 10)
 
+# The sound of a movie plays on a channel of the mixer: MovieChannel gives it, MovieBus picks its bus, and EmitMovie makes it come from an
+# entity, with the distance volume of 3D sounds (0.167 at 100 units with the default curve) and no doppler shift on a moving entity.
+def movie_peak(setup):
+	with open("play.bb", "w") as source:
+		source.write('m = OpenMovie("colors.mp4")\n%s\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % setup)
+	if procutil.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZLLVM_HEADLESS", None)
+	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
+	count = len(data) // 4
+	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+	return max([abs(v) for v in samples] + [0]), samples, run.stderr.decode(errors="replace")
+
+
+full = peaks["1.0"]
+for what, setup, ratio in (
+	("ChannelVolume on MovieChannel", "ChannelVolume MovieChannel(m), 0.5", 0.5),
+	("MovieBus", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nMovieBus b\nm2 = OpenMovie(\"colors.mp4\")\nCloseMovie m\nm = m2", 0.5),
+	("ChannelBus on MovieChannel", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nChannelBus MovieChannel(m), b", 0.5),
+	("EmitMovie 100 units away", "CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 100\nEmitMovie m, p", 0.167),
+	("EmitMovie and back to the speakers", "CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 100\nEmitMovie m, p\nEmitMovie m, 0", 1.0),
+):
+	peak, samples, log = movie_peak(setup)
+	check("movie, %s: peak %d is %.3f of %d" % (what, peak, ratio, full), abs(peak - full * ratio) <= full * 0.04 + 2)
+peak, samples, log = movie_peak("CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 10\nEmitMovie m, p\nWhile MoviePlaying(m)\n\tMoveEntity p, 0, 0, 1\n\tDelay 20\nWend")
+frequency, smoothness, length = analyze(samples)
+check("movie, EmitMovie from a moving entity has no doppler shift: %.1f Hz is 440 Hz" % frequency, abs(frequency - 440.0) < 440.0 * 0.01)
+
 # Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
 # 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.
 for fixture in ("tone.opus", "tone_in_ogg.ogg"):

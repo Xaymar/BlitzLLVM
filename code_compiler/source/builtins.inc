@@ -889,6 +889,9 @@
 		{ "CaptureAudioScene", "bb_capture_audio_scene", 'v', "i", 1, {}, false, "scene" },
 		{ "ApplyAudioScene", "bb_apply_audio_scene", 'v', "ii", 1, { 0, 0 }, false, "scene,fade_ms" },
 		{ "BlendAudioScene", "bb_blend_audio_scene", 'v', "iifi", 3, { 0, 0, 0, 0 }, false, "scene_a,scene_b,weight,fade_ms" },
+		{ "MovieBus", "bb_movie_bus", 'v', "i", 1, {}, false, "bus" },
+		{ "MovieChannel", "bb_movie_channel_of", 'i', "i", 1, {}, false, "movie" },
+		{ "EmitMovie", "bb_emit_movie", 'v', "ii", 2, {}, false, "movie,entity" },
 		// Images
 		{ "LoadImage", "bb_load_image", 'i', "s", 1, {}, false, "bmpfile" },
 		{ "LoadAnimImage", "bb_load_anim_image", 'i', "siiii", 5, {}, false, "bmpfile,cellwidth,cellheight,first,count" },

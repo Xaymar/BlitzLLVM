@@ -38,6 +38,16 @@ extern "C" {
 #include "path.h"
 #include "handle_check.h"
 
+// The sound of a movie plays on a channel of the mixer (sound.c), so that it goes through the buses and can come from an entity.
+extern "C" {
+int32_t bb_movie_channel_open(SDL_AudioStream* stream);
+void    bb_movie_channel_close(int32_t channel);
+void    bb_movie_channel_run(int32_t channel, int running);
+void    bb_movie_channel_keep(int32_t channel);
+void    bb_movie_channel_volume(int32_t channel, float volume);
+void    bb_movie_channel_emit(int32_t channel, int32_t entity);
+}
+
 namespace {
 	// The functions of FFmpeg that are used. Each is a pointer that is filled in when the libraries are loaded.
 #define BB_FFMPEG_FUNCTIONS(X)                                                                                                                                  \
@@ -200,7 +210,8 @@ namespace {
 		AVCodecContext* audio       = nullptr;
 		double          audio_base  = 0.0;
 		SDL_AudioStream* stream     = nullptr;
-		SDL_AudioSpec    input      = { SDL_AUDIO_S16, 2, audio_rate }; // What the stream is fed, which SDL converts for the device.
+		SDL_AudioSpec    input      = { SDL_AUDIO_S16, 2, audio_rate }; // What the stream is fed, which SDL converts for the mixer.
+		int32_t          channel    = 0; // The channel of the mixer that plays the stream (MovieChannel).
 		std::vector<uint8_t> samples;
 		OpusMSDecoder*       opus      = nullptr; // Opus sound is decoded by libopus (a shared library that is loaded when it is needed), as FFmpeg's decoder for it needs libswresample.
 		int                  opus_channels = 0, opus_played = 0, opus_skip = 0;
@@ -245,6 +256,7 @@ namespace {
 
 	void release(movie& m)
 	{
+		bb_movie_channel_close(m.channel); // Before the stream that it plays goes.
 		if (m.stream) {
 			SDL_DestroyAudioStream(m.stream);
 		}
@@ -592,9 +604,7 @@ namespace {
 		if (!m.running) {
 			m.running = true;
 			m.resumed = SDL_GetTicksNS();
-			if (m.stream) {
-				SDL_ResumeAudioStreamDevice(m.stream);
-			}
+			bb_movie_channel_run(m.channel, 1);
 		}
 	}
 
@@ -603,9 +613,7 @@ namespace {
 		if (m.running) {
 			m.base    = clock_of(m);
 			m.running = false;
-			if (m.stream) {
-				SDL_PauseAudioStreamDevice(m.stream);
-			}
+			bb_movie_channel_run(m.channel, 0);
 		}
 	}
 
@@ -683,6 +691,9 @@ namespace {
 			}
 			read_packet(m);
 		}
+		if (m.running) {
+			bb_movie_channel_keep(m.channel);
+		}
 
 		// The newest picture whose time has come is the one to show.
 		while (!m.pictures.empty() && (m.pictures.front().time <= clock)) {
@@ -757,8 +768,15 @@ int32_t bb_open_movie(const char* file)
 	bool opus_sound = (m.audio_index >= 0) && (m.format->streams[m.audio_index]->codecpar->codec_id == AV_CODEC_ID_OPUS) && open_opus(m, m.format->streams[m.audio_index]->codecpar);
 	if ((m.audio_index >= 0) && (opus_sound || open_decoder(m.format, m.audio_index, m.audio))) {
 		m.audio_base = double(m.format->streams[m.audio_index]->time_base.num) / double(m.format->streams[m.audio_index]->time_base.den);
-		if (SDL_InitSubSystem(SDL_INIT_AUDIO)) {
-			m.stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &m.input, nullptr, nullptr);
+		m.stream = SDL_CreateAudioStream(&m.input, &m.input);
+		if (m.stream) {
+			// The movie frees it, also after the sound system went down at the end of the program, which would free it first otherwise.
+			SDL_SetBooleanProperty(SDL_GetAudioStreamProperties(m.stream), SDL_PROP_AUDIOSTREAM_AUTO_CLEANUP_BOOLEAN, false);
+		}
+		m.channel = bb_movie_channel_open(m.stream);
+		if (!m.channel && m.stream) {
+			SDL_DestroyAudioStream(m.stream); // No sound device: the movie plays without its sound.
+			m.stream = nullptr;
 		}
 	}
 
@@ -894,9 +912,7 @@ void bb_movie_volume(int32_t handle, float volume)
 {
 	if (movie* m = need_movie(handle, "MovieVolume")) {
 		m->volume = (volume < 0.0f) ? 0.0f : (volume > 1.0f ? 1.0f : volume);
-		if (m->stream) {
-			SDL_SetAudioStreamGain(m->stream, m->volume);
-		}
+		bb_movie_channel_volume(m->channel, m->volume); // The same as ChannelVolume on MovieChannel.
 	}
 }
 
@@ -937,6 +953,21 @@ void bb_pause_movie(int32_t handle)
 	if (movie* m = need_movie(handle, "PauseMovie")) {
 		m->paused = true;
 		stop_clock(*m);
+	}
+}
+
+// The channel that the sound of the movie plays on, for ChannelVolume, ChannelPan, ChannelBus and the 3D sound commands. 0 without sound.
+int32_t bb_movie_channel_of(int32_t handle)
+{
+	movie* m = need_movie(handle, "MovieChannel");
+	return m ? m->channel : 0;
+}
+
+// The sound of the movie comes from an entity, or from the speakers again with 0.
+void bb_emit_movie(int32_t handle, int32_t entity)
+{
+	if (movie* m = need_movie(handle, "EmitMovie")) {
+		bb_movie_channel_emit(m->channel, entity);
 	}
 }
 
