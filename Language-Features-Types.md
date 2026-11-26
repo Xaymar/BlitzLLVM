@@ -12,7 +12,7 @@ A type is written in one of two ways. The **short notation** puts a character ri
 
 The sizes, ranges, alternative names and short forms of all types are in the table on [Types and numbers](Types#the-types).
 
-Converting to a type is done with a function of the same name: `Int`, `Float`, `Str`, `Handle` and `Object` below, and `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half`, `Double` and `Single` (the same as `Float`) for the types BlitzLLVM adds. An Int assigned to a Float, and the other way around, is converted for you.
+Converting to a type is done with a function of the same name: `Int`, `Float`, `Str`, `Handle` and `Object` below, and `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half`, `Double` and `Single` (the same as `Float`) for the types BlitzLLVM adds. [Vector](Vector) and [Matrix](Matrix) types such as `FloatVector3` and `FloatMatrix4x3` hold several numbers as one value, see [Vectors and matrices](Vectors-and-Matrices). An Int assigned to a Float, and the other way around, is converted for you.
 
 Back to [Language Features](Language-Features) or the [Command Index](Command-Index).
 
@@ -24,6 +24,7 @@ Back to [Language Features](Language-Features) or the [Command Index](Command-In
 * [Handle](Handle) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [Int](Int) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [Long](Long) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [Matrix](Matrix) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [Object](Object) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [Short](Short) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [Single](Single) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
@@ -32,3 +33,4 @@ Back to [Language Features](Language-Features) or the [Command Index](Command-In
 * [UInt](UInt) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [ULong](ULong) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [UShort](UShort) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [Vector](Vector) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">

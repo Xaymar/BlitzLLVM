@@ -16,6 +16,7 @@
 <ul>
 <li><a href="Language">Language</a></li>
 <li><a href="Types">Types and numbers</a></li>
+<li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
 <li><a href="Language-Quirks">Language Quirks</a></li>
 <li><a href="Include-Files">Include Files</a></li>
@@ -190,7 +191,7 @@
 <li><a href="WaitTimer">WaitTimer</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 </ul>
 </details></li>
-<li><details><summary>Types (16)</summary>
+<li><details><summary>Types (18)</summary>
 <ul>
 <li><a href="Language-Features-Types">Overview</a></li>
 <li><a href="Byte">Byte</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -201,6 +202,7 @@
 <li><a href="Handle">Handle</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="Int">Int</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="Long">Long</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Matrix">Matrix</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="Object">Object</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="Short">Short</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="Single">Single</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -209,6 +211,7 @@
 <li><a href="UInt">UInt</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ULong">ULong</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="UShort">UShort</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="Vector">Vector</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 </ul>
 </details></li>
 </ul>

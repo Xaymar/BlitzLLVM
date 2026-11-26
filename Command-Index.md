@@ -648,6 +648,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 ## M
 
 * [MaskImage](MaskImage) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [Matrix](Matrix) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [MaximizeWindow](MaximizeWindow) <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14">
 * [MD2Animating](MD2Animating) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [MD2AnimLength](MD2AnimLength) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
@@ -1080,6 +1081,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## V
 
+* [Vector](Vector) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [VectorPitch](VectorPitch) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [VectorYaw](VectorYaw) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [VertexAlpha](VertexAlpha) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
