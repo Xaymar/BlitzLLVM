@@ -4,7 +4,7 @@
 ; EntityTexture on a mesh whose model has a texture of its own, which needs a window and a GPU, so this is skipped without
 ; one. Blitz3D puts the brush of the entity over the brushes of the surfaces a layer at a time, so the texture of the entity
 ; is what is drawn, and the one that LoadMesh found for the model (or PaintMesh put on it) only shows on layers the entity
-; has nothing on. A masked texture of the entity therefore cuts out its black parts even when the model has an unmasked
+; has nothing on. The same goes for the blend mode. A masked texture of the entity therefore cuts out its black parts even when the model has an unmasked
 ; texture of the same picture.
 Include "check.bb"
 
@@ -112,6 +112,20 @@ EntityTexture mesh, mask
 RenderWorld
 Check "Entity texture over PaintMesh: cut out", G(60, 60), 20, 4
 Check "Entity texture over PaintMesh: white", R(100, 60), 255, 8
+
+; The blend works the same way: one that the surfaces have is used until EntityBlend gives the entity one.
+added = CreateBrush()
+BrushTexture added, green
+BrushBlend added, 3
+PaintMesh mesh, added
+EntityTexture mesh, 0
+RenderWorld
+Check "Blend of the surfaces: added onto the background (red)", R(80, 60), 10, 4
+Check "Blend of the surfaces: added onto the background (green)", G(80, 60), 255, 8
+EntityBlend mesh, 1
+RenderWorld
+Check "EntityBlend over the blend of the surfaces (red)", R(80, 60), 0, 4
+Check "EntityBlend over the blend of the surfaces (green)", G(80, 60), 255, 8
 
 EndGraphics
 DeleteFile "suite_entity_texture.x"

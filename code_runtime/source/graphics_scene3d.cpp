@@ -2015,12 +2015,23 @@ namespace bb::gfx {
 		return own ? own : painted;
 	}
 
+	// The blend mode of a surface of an entity. Like the textures, the brush of the entity is put over the brush of the surface:
+	// a blend that EntityBlend or PaintEntity gave the entity is used whatever the surface has, and otherwise the blend of the
+	// surface (from the model or PaintSurface) is, if it has one.
+	static int surface_blend(bb::entity const& e, bb::material const* paint)
+	{
+		if (e.blend_set || !paint || !paint->blend) {
+			return e.blend;
+		}
+		return paint->blend;
+	}
+
 	// Whether the surface has to be drawn with the see-through things, after what is solid.
 	static bool surface_is_blended(bb::entity const& e, bb::surface const& s, float alpha)
 	{
 		bb::material const* paint     = s.painted ? &s.paint : nullptr;
 		int            texture_handle = layer_texture(e, paint, 0);
-		int            blend          = (s.painted && s.paint.blend) ? s.paint.blend : e.blend;
+		int            blend          = surface_blend(e, paint);
 		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
 		texture_entry* texture        = texture_of(texture_handle);
 		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
@@ -3442,7 +3453,7 @@ namespace bb::gfx {
 				paint = surface.paint;
 			}
 			int  texture_handle = layer_texture(*e, &paint, 0);
-			int  blend          = paint.blend ? paint.blend : e->blend;
+			int  blend          = surface_blend(*e, surface.painted ? &paint : nullptr);
 			// Direct3D 7 gets the stages of Blitz3D without the layers that have no texture or a TextureBlend of 0, so the layers that follow
 			// move up: the first texture that counts is the first stage, whatever layer it is on, and the others are the stages after it.
 			// The faces of a level keep their first layer as it is: the ambient light and the color of the level are made from it.
