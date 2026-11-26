@@ -22,7 +22,7 @@ namespace blitz::lsp {
 		public:
 		using sender = std::function<void(json const&)>;
 
-		server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir, std::filesystem::path help_file = std::filesystem::path());
+		server(sender send, std::filesystem::path userlibs_dir, std::filesystem::path help_file = std::filesystem::path());
 		~server();
 
 		/** Handles one message. Returns false after `exit`. */

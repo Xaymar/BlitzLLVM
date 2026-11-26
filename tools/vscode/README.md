@@ -7,7 +7,7 @@ Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs (`.bb
 
 | Feature | Where it comes from |
 | --- | --- |
-| Syntax highlighting (not case sensitive) | `syntaxes/blitzbasic.tmLanguage.json`, generated from `tests/suite/functions.txt` by `tools/generate_vscode_grammar.py` (not in the repository: run the script once before running the extension from the sources) |
+| Syntax highlighting (not case sensitive) | `syntaxes/blitzbasic.tmLanguage.json`, generated from the list of functions of `tools/suite_functions.py` by `tools/generate_vscode_grammar.py` (not in the repository: run the script once before running the extension from the sources) |
 | Errors, warnings and notices while typing | `blitz-lsp` runs the parser and the code generator of `blitzcc` on the text of the editor (also what is not saved, and the files it includes). Notices are the hints of the compiler (`-W` level in `blitz.warningLevel`). |
 | Quick fixes | The fix the compiler suggests for a warning (the lightbulb). |
 | Formatting | `blitz-format`, with the `.blitz-format` file next to the program or above it. Without one the tabs/spaces of the editor are used. |
@@ -16,7 +16,7 @@ Language support for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs (`.bb
 | Projects | VS Code has no projects, so list the entry files (main programs) in `blitz.projects` and pick one in the status bar (*Blitz: Select the Project*). A file is checked as part of the selected project if that includes it, else of the first project that does, else of the file that includes it (the same for every file of a program, whichever is open). Run, Build and Debug use the selected project. |
 | Help while typing and on hover | The arguments of the command or function show while you type (signature help, with the active argument marked), and hovering a command or keyword shows its short help and what each argument is. The text is the one of the wiki pages (`tools/wiki/text`), made into `help.json` next to `blitz-lsp` by `tools/generate_lsp_help.py` when it is built. |
 | Shipped includes | `Include "<keys.bb>"` reads the include files of the installation (see the wiki page *Include-Files*). The name is a link to the file (Ctrl+click), go to definition and hover reach the constants in it, and completion after `Include "<` lists the files. `blitz.includeDirectories` adds folders that are searched first, for `blitz-lsp` and as `-I` for `blitzcc`. |
-| Outline, hover, completion | Functions, Types (with fields), Globals, Consts, labels, and the commands of the runtime with their signature. |
+| Outline, hover, completion | Functions, Types (with fields), Globals, Consts, labels, and the commands of the runtime and the functions of the userlibs with their signature, as `blitzcc` knows them (`blitzcc --dump-keywords`). |
 | Run, Build, Check | Tasks and commands with *Debug* (`-d -g`: no optimisation, exact math, debug information) and *Release*. The problem matcher `$blitzcc` puts the errors into the Problems view. |
 | Debugging | F5 builds the program with debug information and starts a native debugger on it: `cppvsdbg` (Windows), `cppdbg` or CodeLLDB (`blitz.debug.adapter`). Needs the C/C++ extension or CodeLLDB. A debugger that knows BlitzLLVM (LLDB with its own integration) is planned. |
 
@@ -45,4 +45,4 @@ code --install-extension blitzllvm-0.1.0.vsix
 
 ## Tests
 
-`node test/lsp_smoke.js <path of blitz-lsp> [commands.txt]` starts the server and talks to it like the editor does (ctest runs it as `lsp-smoke`).
+`node test/lsp_smoke.js <path of blitz-lsp> [functions.txt]` starts the server and talks to it like the editor does (ctest runs it as `lsp-smoke`). The optional list of functions is written by `python3 tools/suite_functions.py list functions.txt`.

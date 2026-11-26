@@ -90,7 +90,7 @@ samples of #619 (`share/blitzllvm/samples`) can then use `Include "<keys.bb>"` i
 
 Names follow what Blitz programs already use (`KEY_ESCAPE`, `EVENT_GADGET`), upper case with a prefix per group.
 The constants are ordinary `Const` declarations, so they show up in hover, completion and go-to-definition. Where a
-table already exists (the scan codes on the Scan-Codes wiki page, the command list in `tests/suite/functions.txt`),
+table already exists (the scan codes on the Scan-Codes wiki page, the command list of `tools/suite_functions.py`),
 the file is generated from it so the two can't drift apart.
 
 | File | Content |

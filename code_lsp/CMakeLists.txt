@@ -36,11 +36,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/source
 target_link_libraries(${PROJECT_NAME} PRIVATE lsp_tidy lsp_format blitzfront tools)
 target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${BlitzLLVM_VERSION_FULL}")
 
-# The commands, for hover and completion. Next to the executable for a build tree, in share/blitzllvm for an installation.
-set(_COMMANDS "${PROJECT_SOURCE_DIR}/../tests/suite/functions.txt")
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_COMMANDS}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/commands.txt")
-
 # The include files shipped with BlitzLLVM (Include "<keys.bb>"), next to the executable of a build tree like for blitzcc. An installation has
 # them in <prefix>/include or share/blitzllvm/include, where the compiler installs them.
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -56,9 +51,7 @@ if(Python3_FOUND)
 endif()
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-install(FILES "${_COMMANDS}" DESTINATION bin RENAME commands.txt)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
-install(FILES "${_COMMANDS}" DESTINATION share/blitzllvm RENAME commands.txt COMPONENT system EXCLUDE_FROM_ALL)
 
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})

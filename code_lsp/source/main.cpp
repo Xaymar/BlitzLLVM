@@ -123,7 +123,7 @@ namespace {
 			if (!std::strcmp(argv[i], "--help") || !std::strcmp(argv[i], "-h")) {
 				std::printf("blitz-lsp: language server for BlitzBasic, Blitz3D, BlitzPlus and BlitzLLVM programs.\n"
 							"Speaks the Language Server Protocol over standard input and output (--stdio, the default).\n"
-							"Environment: BLITZLLVM_USERLIBS (userlibs directory), BLITZLLVM_COMMANDS (commands.txt)\n");
+							"Environment: BLITZLLVM_USERLIBS (userlibs directory), BLITZLLVM_HELP (help.json)\n");
 				return 0;
 			}
 		}
@@ -160,7 +160,7 @@ namespace {
 					done += size_t(put);
 				}
 			},
-			find_data("BLITZLLVM_COMMANDS", "commands.txt", false), find_data("BLITZLLVM_USERLIBS", "userlibs", true), find_data("BLITZLLVM_HELP", "help.json", false));
+			find_data("BLITZLLVM_USERLIBS", "userlibs", true), find_data("BLITZLLVM_HELP", "help.json", false));
 
 		// Include "<keys.bb>" finds the files of the installation, like blitzcc does.
 		if (auto installed = blitz::parser::installed_include_dir(executable_path().parent_path()); !installed.empty()) {
