@@ -263,8 +263,13 @@ Rules, numbered on from the naming rules:
     uses). The runtime builds without exceptions, so constructors that can fail become a `create` function that
     returns an empty owner.
 18. **Operations on a type are its member functions** where they only touch that type (an entity's transform, a
-    surface's bounds), and `class` is used where a type has invariants that only its functions may change. No virtual
-    calls on paths that run per vertex, per entity or per draw; the backends keep their function table.
+    surface's bounds), and `class` is used where a type has invariants that only its functions may change.
+    **`virtual`/`override` only where nothing else works** (Xaymar, 26 Nov): a vtable call costs an indirect load and
+    blocks inlining, which on hot paths costs more than it gives. Types that differ by kind use the tag they already
+    have (`entity::kind`) and a `switch` or a `static_cast` to the derived type, not virtual functions; the RHI backends
+    keep their function table. Today the code has 6 `virtual` and 38 `override`: the Jolt interfaces in
+    `code_physics` (needed, Jolt calls them), the loader jobs in `load_pool.hpp` (once per file, not hot) and the AST
+    node destructor of the compiler. Those stay; nothing new is added without a reason in its PR.
 
 Structure layout, counted (Xaymar's second list, 26 Nov):
 
@@ -478,7 +483,7 @@ The target:
   and terrains), `mesh_part` (surfaces, animation, MD2, BSP lighting, loading state), and the small sprite, plane and
   terrain parts (`sprite_mode`, `sprite_scale`, `plane_divs`, `terrain`). The tween capture (`capt_*`) and collision
   data (`coll_type`, `radius`, `box`, `old_*`) stay with every entity, as UpdateWorld and the tween read them for all.
-* How the parts are attached is decided in that PR, by measuring: inheritance (`struct camera : entity`, with `kind`
+* How the parts are attached is decided in that PR, by measuring: inheritance without virtual functions (`struct camera : entity`, with `kind`
   saying which, as Xaymar suggests) gives one allocation and no indirection; parts in tables of their own (indexed
   by handle) keep `entity` small and the loops over all entities dense. One constraint either way: the model loaders
   change the kind of an entity after it was made (`set_entity_kind`, `b3d.cpp`), so a node that turns out to be a mesh
