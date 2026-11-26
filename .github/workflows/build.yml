@@ -51,7 +51,7 @@ jobs:
         # This is the list of all of them; the entries with "test" are repeated in the shorter lists for builds without packages (all test
         # platforms, or Linux alone with 'all-tests' off),
         # because a matrix can only be cut down by an expression on the inputs (an 'exclude' does not apply to entries of 'include').
-        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64","msys":"make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread"},{"name":"linux-arm64","os":"ubuntu-24.04-arm","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","msys":"make nasm diffutils mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libwinpthread","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","configure":"-DBLITZ_SYSTEM_SDL3=OFF -DBLITZ_SYSTEM_SDL3_IMAGE=OFF -DBLITZ_SYSTEM_SDL3_MIXER=OFF -DBLITZ_SYSTEM_IMAGE_CODECS=OFF -DBLITZ_SYSTEM_AUDIO_CODECS=OFF -DBLITZ_SYSTEM_FFMPEG=OFF","test":"Linux"}]')) }}
+        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64"},{"name":"linux-arm64","os":"ubuntu-24.04-arm","kind":"flatpak"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"}]')) }}
     runs-on: ${{ matrix.os }}
     steps:
       # Containers have no git yet when checkout runs, so it is installed first.
@@ -117,27 +117,26 @@ jobs:
           # them on every run. The key is made from the list and the month.
           packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev  zstd
           version: 2-${{ runner.arch }}-${{ steps.month.outputs.month }}
-      - name: Install macOS dependencies
-        if: runner.os == 'macOS'
-        run: brew install ninja nasm
-      # dav1d (AVIF) has assembly for x86, which NASM builds.
-      - name: Install Windows dependencies
-        if: runner.os == 'Windows' && runner.arch == 'X64'
-        shell: bash
-        run: |
-          choco install nasm -y --no-progress
-          echo 'C:\Program Files\NASM' >> "$GITHUB_PATH"
+      # NASM on macOS, and the packages of MSYS2 on Windows, are installed by tools/build.cmake (--install-deps below), which also downloads
+      # Ninja and llvm-mingw. The downloads are cached; the key is the script, which pins their versions.
+      - name: Cache the tools of the build script
+        if: ${{ !inputs.clean }}
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .tools
+          key: build-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/build.cmake') }}
       # FFmpeg (movies) has a configure script, so on Windows it is built in MSYS2 (see code_runtime/dependencies.cmake).
       # The whole installation is cached, as setup-msys2 itself only caches the downloaded packages and still fetches the base installation from
-      # GitHub every run (which fails now and then with HTTP 504). The key is made from the platform, the package list and the month, so
-      # a changed package list installs from scratch, and an updated MSYS2 is picked up at the latest a month later. Runs with 'clean' skip the cache.
+      # GitHub every run (which fails now and then with HTTP 504). The key is made from the platform, the build script (which lists the packages
+      # it installs into MSYS2) and the month, so a changed package list installs from scratch, and an updated MSYS2 is picked up at the latest a
+      # month later. Runs with 'clean' skip the cache.
       - name: Cache MSYS2 for FFmpeg
         id: msys2-cache
         if: runner.os == 'Windows' && !inputs.clean
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ${{ runner.temp }}\msys64
-          key: msys2-${{ matrix.name }}-${{ matrix.msystem }}-${{ matrix.msys }}-${{ steps.month.outputs.month }}
+          key: msys2-${{ matrix.name }}-${{ matrix.msystem }}-${{ hashFiles('tools/build.cmake') }}-${{ steps.month.outputs.month }}
       - name: Install MSYS2 for FFmpeg
         if: runner.os == 'Windows' && steps.msys2-cache.outputs.cache-hit != 'true'
         id: msys2
@@ -145,7 +144,6 @@ jobs:
         with:
           msystem: ${{ matrix.msystem }}
           update: false
-          install: ${{ matrix.msys }}
       - name: Tell the build where MSYS2 is
         if: runner.os == 'Windows'
         shell: bash
@@ -164,28 +162,22 @@ jobs:
           key: submodule-dependencies-mingw-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
           restore-keys: |
             submodule-dependencies-mingw-${{ matrix.name }}-
-      # Windows is built with clang (Ninja, lld) for the MinGW target (llvm-mingw), so that building and linking programs needs neither Visual Studio
-      # nor the Windows SDK. The C runtime is the Universal C Runtime that comes with Windows.
-      - name: Set up llvm-mingw
-        if: runner.os == 'Windows'
-        uses: ./.github/actions/setup-mingw
-      - name: Configure
+      # The same script that builds on a computer of a developer (see docs/wiki/Building.md): it gets the tools, installs what the system lacks,
+      # configures, builds and, for the packages, installs into dist. Windows is built with llvm-mingw's clang (Ninja, lld) for the MinGW target,
+      # so that building and linking programs needs neither Visual Studio nor the Windows SDK; the script also puts llvm-mingw on the PATH of the
+      # later steps. Linux builds every library from the submodules, as the Flatpaks have to bundle them.
+      - name: Build
         shell: bash
         env:
           ARCHITECTURES: ${{ matrix.architectures }}
           # Registers the tests that need a window and a GPU, which the test steps below run (it does not change what is built).
-          GPU_TESTS: ${{ inputs.tests && matrix.test && '-DBLITZ_TEST_GPU=ON' || '' }}
-          # Options of one platform (Linux bundles every library).
-          EXTRA_CONFIGURE: ${{ matrix.configure }}
+          GPU_TESTS: ${{ inputs.tests && matrix.test && '--gpu-tests' || '' }}
+          # The archives and installers are made from an install; Linux stages its own for the Flatpaks below.
+          INSTALL: ${{ inputs.packages && runner.os != 'Linux' && '--install dist' || '' }}
         run: |
-          if [ "$RUNNER_OS" = Windows ]; then
-            TRIPLE=x86_64-w64-mingw32; [ "${{ matrix.platform }}" != ARM64 ] || TRIPLE=aarch64-w64-mingw32
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$TRIPLE-clang -DCMAKE_CXX_COMPILER=$TRIPLE-clang++ -DCMAKE_LINKER_TYPE=LLD -DCMAKE_RC_COMPILER=$TRIPLE-windres -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON -DBLITZLLVM_REQUIRE_FXC=ON $GPU_TESTS
-          else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS $EXTRA_CONFIGURE
-          fi
-      - name: Build
-        run: cmake --build build --config Release
+          ARCH="$ARCHITECTURES"
+          if [ "$RUNNER_OS" = Windows ]; then ARCH=x64; [ "${{ matrix.platform }}" != ARM64 ] || ARCH=arm64; fi
+          cmake -P tools/build.cmake -- --install-deps --version "$VERSION" ${ARCH:+--arch "$ARCH"} $GPU_TESTS $INSTALL
       - name: Check that the runtime has no fused multiply-adds (arm64)
         # The default fast-math mode "precise" gives the same floats on every CPU, which a fused multiply-add (one rounding instead of two)
         # would break. Nobody can test Windows on ARM64 by hand, so the disassembly of the runtime is checked here.
@@ -223,8 +215,7 @@ jobs:
         env:
           LOOSE: ${{ inputs.loose }}
         run: |
-          cmake --install build --config Release --prefix dist
-          cp LICENSE.adoc README.adoc dist/
+          # tools/build.cmake installed into dist already (with LICENSE.adoc and README.adoc).
           .github/scripts/check-samples.sh dist/samples
           # The libraries must not need the newer STL helpers (__std_rotate, ...), or programs fail to link with an older Visual Studio.
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
