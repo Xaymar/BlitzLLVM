@@ -275,8 +275,8 @@ namespace bb::rhi::vulkan::dxgi {
 // The DXGI functions above hand their windows to these. Elsewhere these do nothing.
 namespace bb::rhi::vulkan::wgl {
 	enum class way { native, dxgi, opengl };
-	/** How a device of this PCI vendor shows its windows: BLITZLLVM_VULKAN_PRESENT, else OpenGL on NVIDIA and Vulkan swapchains elsewhere. */
-	way chosen(uint32_t vendor);
+	/** How windows show their pictures: BLITZLLVM_VULKAN_PRESENT, else with a Vulkan swapchain. */
+	way chosen();
 	/** Makes the swapchain of the window with OpenGL. False where it can't (the caller makes another one then). */
 	bool create(bb::rhi::swapchain& sc, const bb::rhi::swapchain_desc& desc);
 	bool owns(uint64_t handle);
