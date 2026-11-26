@@ -1482,6 +1482,71 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c --field-defaults "${WORK}/fielddefault.bb")
 	expect_ok()
 	expect_no_err("[-Wfield-default-ignored]")
+	# A call with its arguments in parentheses right before Else, which the original rejects (off at every level, -Wcompatibility).
+	file(WRITE "${WORK}/onelineif.bb"
+		"Function Pick(a%, b%)\n"
+		"End Function\n"
+		"Function Nothing()\n"
+		"End Function\n"
+		"Local c% = 1\n"
+		"If c Then Pick(1, 2) Else Pick(3, 4)\n"
+		"If c Then Nothing() Else Nothing()\n"
+		"If c Then Pick 5, 6 Else Pick(7, 8)\n"
+		"If c Then Print(1) Else Print(2)\n"
+		"If c Then Pick (1, 2) Else Nothing\n"
+		"If c Then Pick(1, 2) : Nothing() Else Nothing\n")
+	foreach(_LEVEL RANGE 0 4)
+		blitzcc(-c -W${_LEVEL} "${WORK}/onelineif.bb")
+		expect_ok()
+		expect_no_err("[-Wcompatibility-one-line-if-else]")
+	endforeach()
+	foreach(_OPTION IN ITEMS -Wcompatibility -Wcompatibility-one-line-if-else -WCOMPATIBILITY)
+		blitzcc(-c ${_OPTION} "${WORK}/onelineif.bb")
+		expect_ok()
+		expect_err("onelineif.bb:6:11: warning: The original rejects the parentheses around the arguments of 'Pick' before Else (\"')' expected\"). [-Wcompatibility-one-line-if-else]")
+		expect_err("\nnotice: Leave out the parentheses ('Pick a, b Else'), or write the If on several lines.")
+		expect_err("onelineif.bb:7:11: warning: The original rejects the parentheses around the arguments of 'Nothing' before Else (\"Expecting expression\").")
+		expect_err("onelineif.bb:10:11: warning:")
+		expect_err("onelineif.bb:11:24: warning:")
+		# The last call of a line, one with a single argument (read as (1) by the original) and Pick 5, 6 are fine.
+		foreach(_FINE IN ITEMS "onelineif.bb:6:27:" "onelineif.bb:7:26:" "onelineif.bb:8:" "onelineif.bb:9:" "onelineif.bb:11:11:")
+			expect_no_err("${_FINE}")
+		endforeach()
+	endforeach()
+	blitzcc(-c -Wcompatibility -Wno-compatibility-one-line-if-else "${WORK}/onelineif.bb")
+	expect_ok()
+	expect_no_err("[-Wcompatibility-one-line-if-else]")
+	blitzcc(-c -Werror=compatibility "${WORK}/onelineif.bb")
+	expect_failed()
+	expect_err("onelineif.bb:6:11: error: The original rejects the parentheses around the arguments of 'Pick' before Else (\"')' expected\"). [-Werror=compatibility-one-line-if-else]")
+	blitzcc(-c -Werror "${WORK}/onelineif.bb")
+	expect_ok()
+	blitzcc(-c -Wcompatibility-bogus "${WORK}/onelineif.bb")
+	expect_failed()
+	# A Blitz array used with a type behind its name, which the original rejects (off at every level, -Wcompatibility). A field keeps it.
+	file(WRITE "${WORK}/arraysuffix.bb"
+		"Global weights#[5]\n"
+		"Local names$[2]\n"
+		"weights#[0] = 10.0 : weights[1] = 35.0\n"
+		"names$[1] = \"x\"\n"
+		"Print weights#[0] + weights[1] + Len(names[1])\n"
+		"Type Thing\n"
+		"\tField v#[3]\n"
+		"End Type\n"
+		"Local t.Thing = New Thing\n"
+		"t\\v#[1] = 2\n")
+	blitzcc(-c -W4 "${WORK}/arraysuffix.bb")
+	expect_ok()
+	expect_no_err("[-Wcompatibility-blitz-array-suffix]")
+	blitzcc(-c -Wcompatibility "${WORK}/arraysuffix.bb")
+	expect_ok()
+	expect_err("arraysuffix.bb:3:1: warning: The original rejects a type behind the name of the Blitz array 'weights' where it is used (\"Variable type mismatch\"). [-Wcompatibility-blitz-array-suffix]")
+	expect_err("\nnotice: Leave out the type here ('weights[...]'), it only belongs where the array is declared.")
+	expect_err("arraysuffix.bb:4:1: warning: The original rejects a type behind the name of the Blitz array 'names'")
+	expect_err("arraysuffix.bb:5:7: warning:")
+	foreach(_FINE IN ITEMS "arraysuffix.bb:1:" "arraysuffix.bb:2:" "arraysuffix.bb:3:22:" "arraysuffix.bb:5:21:" "arraysuffix.bb:10:")
+		expect_no_err("${_FINE}")
+	endforeach()
 	file(WRITE "${WORK}/fielddefault_array.bb"
 		"Type Thing\n"
 		"\tField list[3] = 1\n"
@@ -1818,6 +1883,8 @@ elseif(CASE STREQUAL "warnings")
 	foreach(_OPTION IN ITEMS "-W0 .. -W4" "-W<name>" "-Werror")
 		expect_contains("${_OPTION}")
 	endforeach()
+	expect_contains("  off  compatibility-one-line-if-else")
+	expect_contains("  -Wcompatibility  Every 'compatibility-' warning.")
 
 elseif(CASE STREQUAL "parameter_modes")
 	macro(expect_err TEXT)

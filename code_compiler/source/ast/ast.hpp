@@ -373,8 +373,19 @@ namespace blitz {
 			std::string replacement;  // The long form that takes its place, such as ":Int32".
 		};
 
+		/** A call statement with its arguments in parentheses that is followed by `Else` on the same line (`Then Foo(1, 2) Else ...`), which the original rejects. */
+		struct call_parentheses {
+			location    where;     // The name of the function.
+			std::string name;
+			size_t      arguments = 0;
+			location    open;      // The `(`.
+			location    close;     // The `)`.
+			bool        spaced = false; // If there is a space between the name and the `(`.
+		};
+
 		struct program {
 			std::vector<short_notation>            short_notations;
+			std::vector<call_parentheses>          call_parentheses_before_else;
 			std::vector<std::unique_ptr<type_decl>> types;
 			block                                  main;
 			std::vector<std::unique_ptr<function>> functions;

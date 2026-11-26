@@ -261,6 +261,9 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		if (!base.count) {
 			throw err(i->where, "This is not an array.");
 		}
+		if (auto r = dynamic_cast<ast::reference const*>(inner); r && ((r->type != type::UNKNOWN) || !r->struct_name.empty())) {
+			warn_array_suffix(r, i->where);
+		}
 		auto index = convert(gen(i->index.get()), type::INT32, i->index->where, true, std::string(), &i->index->covers);
 		call_runtime("bb_check_index", type::UNKNOWN, { index, { std::to_string(base.count), type::INT32 } });
 		auto p = tmp();
@@ -270,6 +273,22 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		return result;
 	}
 	throw err(expr->where, "This can't be assigned to.");
+}
+
+// `Name#[1]`: the original takes the suffix as the type of the whole Blitz array, which is no Float, and fails with "Variable
+// type mismatch". The suffix only belongs where the array is declared (Local Name#[5]).
+void blitz::compiler::warn_array_suffix(ast::reference const* r, ast::location const& bracket)
+{
+	auto key = (r->where.file ? r->where.file->generic_string() : std::string()) + ":" + std::to_string(r->where.line) + ":" + std::to_string(r->where.column);
+	if (!_array_suffixes.insert(key).second) {
+		return;
+	}
+	std::vector<edit> edits;
+	uint64_t          end = r->where.column + r->name.size();
+	if (r->where.file && (r->where.line != 0) && (bracket.line == r->where.line) && (bracket.column > end)) {
+		edits.push_back(edit{ *r->where.file, ast::range{ r->where.line, end, r->where.line, bracket.column }, "" });
+	}
+	warn(r->where, "compatibility-blitz-array-suffix", "The original rejects a type behind the name of the Blitz array '" + r->name + "' where it is used (\"Variable type mismatch\").", "Leave out the type here ('" + r->name + "[...]'), it only belongs where the array is declared.", std::move(edits));
 }
 
 // Where the field of an object (or the component of a vector) is.
