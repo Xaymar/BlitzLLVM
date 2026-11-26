@@ -558,10 +558,30 @@ namespace blitz::recompiler {
 			return o.str();
 		}
 
-		// Whether the parameter holds texture flags, which BlitzLLVM extended with bits that the original ignored.
-		static bool is_texture_flags(std::string const& name, size_t index)
+		// Parameters that hold flags or a mode. BlitzLLVM gives values a meaning that the original ignored (2048 of the texture flags is sRGB, mode 2
+		// of CameraFogMode is exponential fog, ...), and a program from before can't have meant them, so only what the original knew is passed on.
+		struct limit {
+			char const* command;
+			size_t      index;
+			enum class op { mask, flag, equals, below } kind;
+			int32_t     value; // mask: the bits to keep. flag: unused (non-zero becomes 1). equals: the one value that stays. below: values from this one up become 0.
+		};
+
+		static constexpr limit limits[] = {
+			{ "loadtexture", 1, limit::op::mask, 0x3FF },      { "loadanimtexture", 1, limit::op::mask, 0x3FF }, { "createtexture", 2, limit::op::mask, 0x3FF },
+			{ "texturefilter", 1, limit::op::mask, 0x3FF },    { "entityfx", 1, limit::op::mask, 0x3F },         { "brushfx", 1, limit::op::mask, 0x3F },
+			{ "textureblend", 1, limit::op::below, 6 },        { "camerafogmode", 1, limit::op::equals, 1 },     { "cameraprojmode", 1, limit::op::below, 3 },
+			{ "cameraclsmode", 1, limit::op::flag, 0 },        { "cameraclsmode", 2, limit::op::flag, 0 },
+		};
+
+		static limit const* find_limit(std::string const& name, size_t index)
 		{
-			return (index == 1 && (name == "loadtexture" || name == "loadanimtexture" || name == "texturefilter")) || (index == 2 && name == "createtexture");
+			for (limit const& l : limits) {
+				if (index == l.index && name == l.command) {
+					return &l;
+				}
+			}
+			return nullptr;
 		}
 
 		std::string unit::thunk_command(command const& c, declaration const& d, std::string const& name)
@@ -587,10 +607,25 @@ namespace blitz::recompiler {
 					  << "  %p" << n << " = getelementptr i8, ptr %mem, i64 %z" << n << "\n"
 					  << "  %a" << n << " = load i32, ptr %p" << n << ", align 1\n";
 					v = "%a" + std::to_string(n);
-					if (given == 'i' && k == 'i' && is_texture_flags(c.name, n)) {
-						// The original ignored every bit above 0x3FF; BlitzLLVM gives some of them a meaning (2048 is sRGB), which a program from before can't have meant.
-						o << "  %m" << n << " = and i32 " << v << ", 1023\n";
-						v = "%m" + std::to_string(n);
+					if (given == 'i' && k == 'i') {
+						if (limit const* l = find_limit(c.name, n)) {
+							std::string r = "%m" + std::to_string(n);
+							switch (l->kind) {
+							case limit::op::mask:
+								o << "  " << r << " = and i32 " << v << ", " << l->value << "\n";
+								break;
+							case limit::op::flag:
+								o << "  %mb" << n << " = icmp ne i32 " << v << ", 0\n  " << r << " = zext i1 %mb" << n << " to i32\n";
+								break;
+							case limit::op::equals:
+								o << "  %mb" << n << " = icmp eq i32 " << v << ", " << l->value << "\n  " << r << " = zext i1 %mb" << n << " to i32\n";
+								break;
+							case limit::op::below:
+								o << "  %mb" << n << " = icmp ult i32 " << v << ", " << l->value << "\n  " << r << " = select i1 %mb" << n << ", i32 " << v << ", i32 0\n";
+								break;
+							}
+							v = r;
+						}
 					}
 					if (given == 'f') {
 						o << "  %f" << n << " = bitcast i32 " << v << " to float\n";
