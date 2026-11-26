@@ -547,11 +547,14 @@ elseif(CASE STREQUAL "language_keywords")
 	endif()
 	string(REPLACE "\n" ";" _LINES "${_KEYWORDS}")
 	set(_COUNT 0)
+	set(_PREVIOUS "")
 	foreach(_WORD IN LISTS _LINES)
-		# The language comes first and starts with a capital letter; the functions of the runtime are lower case.
-		if(NOT _WORD MATCHES "^[A-Z]")
+		# The language comes first, sorted by name. The commands of the runtime follow in the order of builtins.inc, so the first word
+		# that sorts before the one in front of it is the first command.
+		if((_WORD STREQUAL "") OR (_WORD STRLESS _PREVIOUS))
 			break()
 		endif()
+		set(_PREVIOUS "${_WORD}")
 		string(TOUPPER "${_WORD}" _UPPER)
 		expect_format("${_UPPER}\n" "${_WORD}\n")
 		math(EXPR _COUNT "${_COUNT} + 1")

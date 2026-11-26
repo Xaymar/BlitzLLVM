@@ -648,8 +648,11 @@ elseif(CASE STREQUAL "keywords")
 	expect_line("While")
 	expect_line("Wend")
 	expect_line("Sar")
-	expect_line("print")
-	expect_line("createcube")
+	# Commands by the name the manuals give them, like the original.
+	expect_line("Print")
+	expect_line("CreateCube")
+	expect_line("LoadTexture")
+	expect_missing("createcube")
 	expect_line("CliAdd")
 	expect_line("CliShow")
 	expect_line("In")
@@ -675,11 +678,14 @@ elseif(CASE STREQUAL "keywords_syntax")
 	expect_ok()
 	expect_line("Dim")
 	# Every function has a '( )' and its return type as a suffix, parameters with a default are in a bracket with their comma, directly behind the previous parameter.
-	expect_line("left$ ( param1$,param2% )")
-	expect_line("mid$ ( param1$,param2%[,param3%] )")
-	expect_line("rand% ( param1%[,param2%] )")
+	# Commands and their parameters by the names the manuals give them.
+	expect_line("Left$ ( string$,count% )")
+	expect_line("Mid$ ( string$,start%[,count%] )")
+	expect_line("Rand% ( from%[,to%] )")
+	expect_line("LoadTexture% ( file$[,flags%] )")
 	# Returns nothing: no suffix, still '( )'.
-	expect_line("print ( [param1$] )")
+	expect_line("Print ( [string$] )")
+	expect_missing("param1")
 	# Keywords have no '( )' and no type.
 	expect_line("Dim")
 	# Userlibs: all integer types are %, all float types #.
@@ -693,11 +699,11 @@ elseif(CASE STREQUAL "keywords_native")
 	expect_ok()
 	expect_line("Dim")
 	# Types by their full names, parameters with a default have it behind an '='.
-	expect_line("left:String param1:String, param2:Int32")
-	expect_line("mid:String param1:String, param2:Int32, param3:Int32=-1")
-	expect_line("rand:Int32 param1:Int32=1, param2:Int32")
+	expect_line("Left:String string:String, count:Int32")
+	expect_line("Mid:String string:String, start:Int32, count:Int32=-1")
+	expect_line("Rand:Int32 from:Int32=1, to:Int32")
 	# Returns nothing: no type behind the name.
-	expect_line("print param1:String=\"\"")
+	expect_line("Print string:String=\"\"")
 	# Userlibs keep the exact size and the pointer, which +k can't show.
 	expect_line("CliAdd:Int32 a:Int32, b:Int32")
 	expect_line("CliScale:Float32 value:Float32, factor:Float32")
