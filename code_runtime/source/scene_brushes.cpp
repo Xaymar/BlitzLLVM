@@ -187,6 +187,7 @@ void bb_paint_entity(int32_t handle, int32_t brush)
 	e->texture   = look.texture;
 	memcpy(e->layers, look.layers, sizeof(e->layers));
 	e->blend     = look.blend ? look.blend : 1;
+	e->blend_set = look.blend != 0; // A brush with a blend of its own puts it over the blend of the surfaces, like EntityBlend.
 	e->fx        = look.fx;
 }
 
