@@ -72,6 +72,7 @@ Dither 1 ; Graphics puts Dither back to off, so it is switched on after it.
 SetBuffer BackBuffer()
 Color 128, 128, 128
 Rect 0, 0, W, H, 1
+DeleteFile "hdr_dither.tmp" ; The runtime writes a file with a name that exists with rename, which does not replace it on Windows: this one has to be new.
 Show
 low# = 9.0
 high# = -9.0
@@ -107,6 +108,7 @@ Graphics W, H, 32, 2
 SetBuffer BackBuffer()
 Color 128, 128, 128
 Rect 0, 0, W, H, 1
+DeleteFile "hdr_dither.tmp"
 Show
 Check "without Dither all pixels are the same", Shown(0, 0, 1), Shown(W - 1, H - 1, 1), 0.0001
 Check "without Dither the noise of 6 bits is not there", Shown(5, 7, 1), Shown(W - 3, H - 2, 1), 0.0001
