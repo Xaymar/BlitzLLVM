@@ -103,6 +103,20 @@ typedef struct bb_bus {
 	bb_bus_mix* mix;
 } bb_bus;
 
+// One value that an audio scene holds: the volume of a bus, or a setting of the listener.
+typedef struct bb_scene_value {
+	int     kind;   // BB_SCENE_*
+	int32_t target; // The bus, or the setting of the listener (BB_LISTENER_*).
+	float   value;
+} bb_scene_value;
+
+typedef struct bb_scene {
+	int             used;
+	bb_scene_value* values;
+	int32_t         count;
+	int32_t         cap;
+} bb_scene;
+
 // Everything the sound system keeps for the running program, in one place. It is thread_local, as the program runs on one
 // thread and nothing else may touch the device.
 typedef struct bb_audio_state {
@@ -130,6 +144,12 @@ typedef struct bb_audio_state {
 	int32_t bus_cap;
 	int32_t music_bus;     // MusicBus: the bus that PlayMusic channels start on.
 	int     master_hooked; // Whether the volume of the master bus is put on the final mix.
+	// Audio scenes, made by CreateAudioScene.
+	bb_scene* scenes;
+	int32_t   scene_count;
+	int32_t   scene_cap;
+	int       listener_created;     // Whether CreateListener was called, and so listener_defaults is known.
+	float     listener_defaults[3]; // What CreateListener was last given (rolloff, doppler, distance), which BlendAudioScene blends with.
 } bb_audio_state;
 
 // How fast sound moves, in meters per second, until SpeedOfSound changes it.
@@ -422,6 +442,9 @@ static int  bb_bus_valid(int32_t bus);
 static int  bb_bus_paused(int32_t bus);
 static MIX_Group* bb_bus_group(int32_t bus);
 static void bb_bus_hook_master(void);
+#define BB_SCENE_BUS_VOLUME 1
+#define BB_SCENE_LISTENER   2
+static void bb_scenes_forget(int kind, int32_t target);
 
 static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 {
@@ -750,6 +773,10 @@ int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float d
 	bb_fade_set(&bb_audio.listener_rolloff, rolloff);
 	bb_fade_set(&bb_audio.listener_doppler, doppler);
 	bb_fade_set(&bb_audio.listener_distance, distance > 0.0f ? distance : 1.0f);
+	bb_audio.listener_created     = 1;
+	bb_audio.listener_defaults[0] = rolloff;
+	bb_audio.listener_defaults[1] = doppler;
+	bb_audio.listener_defaults[2] = distance > 0.0f ? distance : 1.0f;
 	memset(&bb_audio.listener_motion, 0, sizeof(bb_audio.listener_motion));
 	return bb_audio.listener_entity;
 }
@@ -1190,6 +1217,7 @@ void bb_free_audio_bus(int32_t handle)
 	if (bb_audio.music_bus == handle) {
 		bb_audio.music_bus = parent;
 	}
+	bb_scenes_forget(BB_SCENE_BUS_VOLUME, handle);
 	if (bus->group) {
 		MIX_DestroyGroup(bus->group);
 	}
@@ -1297,4 +1325,254 @@ void bb_music_bus(int32_t bus)
 {
 	bb_bus_get(bus, "MusicBus");
 	bb_audio.music_bus = bus;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Audio scenes
+////////////////////////////////////////////////////////////////////////////////
+// A scene holds values for buses and the listener, and sets them (with a fade) when it is applied. It holds only what was set in it, so
+// applying one leaves everything else alone. Effect parameters join them with the effects.
+
+#define BB_LISTENER_ROLLOFF      1
+#define BB_LISTENER_DOPPLER      2
+#define BB_LISTENER_DISTANCE     3
+#define BB_LISTENER_SPEEDOFSOUND 4
+#define BB_LISTENER_RADIUS       5
+
+static bb_scene* bb_scene_get(int32_t handle, const char* what)
+{
+	if ((handle <= 0) || (handle >= bb_audio.scene_count) || !bb_audio.scenes[handle].used) {
+		bb_handle_error(what, "audio scene", handle);
+	}
+	return &bb_audio.scenes[handle];
+}
+
+static bb_scene_value* bb_scene_find(bb_scene* scene, int kind, int32_t target)
+{
+	for (int32_t i = 0; i < scene->count; i++) {
+		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
+			return &scene->values[i];
+		}
+	}
+	return NULL;
+}
+
+static void bb_scene_set(bb_scene* scene, int kind, int32_t target, float value)
+{
+	bb_scene_value* known = bb_scene_find(scene, kind, target);
+	if (!known) {
+		if (scene->count >= scene->cap) {
+			scene->cap    = scene->cap ? scene->cap * 2 : 8;
+			scene->values = (bb_scene_value*)bb_realloc_or_fail(scene->values, (size_t)scene->cap * sizeof(bb_scene_value));
+		}
+		known         = &scene->values[scene->count++];
+		known->kind   = kind;
+		known->target = target;
+	}
+	known->value = value;
+}
+
+static void bb_scene_remove(bb_scene* scene, int kind, int32_t target)
+{
+	for (int32_t i = 0; i < scene->count; i++) {
+		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
+			scene->values[i] = scene->values[--scene->count];
+			return;
+		}
+	}
+}
+
+// A bus that is freed drops out of every scene, so that an old scene never touches the bus that gets its handle next.
+static void bb_scenes_forget(int kind, int32_t target)
+{
+	for (int32_t i = 1; i < bb_audio.scene_count; i++) {
+		if (bb_audio.scenes[i].used) {
+			bb_scene_remove(&bb_audio.scenes[i], kind, target);
+		}
+	}
+}
+
+int32_t bb_create_audio_scene(void)
+{
+	if (!bb_audio.scene_count) {
+		bb_audio.scene_count = 1; // 0 is no scene.
+	}
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.scene_count; i++) {
+		if (!bb_audio.scenes[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.scene_count >= bb_audio.scene_cap) {
+			bb_audio.scene_cap = bb_audio.scene_cap ? bb_audio.scene_cap * 2 : 8;
+			bb_audio.scenes    = (bb_scene*)bb_realloc_or_fail(bb_audio.scenes, (size_t)bb_audio.scene_cap * sizeof(bb_scene));
+		}
+		slot = bb_audio.scene_count++;
+	}
+	memset(&bb_audio.scenes[slot], 0, sizeof(bb_scene));
+	bb_audio.scenes[slot].used = 1;
+	return slot;
+}
+
+void bb_free_audio_scene(int32_t handle)
+{
+	if (handle == 0) {
+		return;
+	}
+	bb_scene* scene = bb_scene_get(handle, "FreeAudioScene");
+	bb_free(scene->values);
+	memset(scene, 0, sizeof(*scene));
+}
+
+int32_t bb_copy_audio_scene(int32_t handle)
+{
+	bb_scene_get(handle, "CopyAudioScene");
+	int32_t   copy = bb_create_audio_scene();
+	bb_scene* from = &bb_audio.scenes[handle]; // After the create, which can move the scenes.
+	bb_scene* to   = &bb_audio.scenes[copy];
+	for (int32_t i = 0; i < from->count; i++) {
+		bb_scene_set(to, from->values[i].kind, from->values[i].target, from->values[i].value);
+	}
+	return copy;
+}
+
+void bb_audio_scene_volume(int32_t handle, int32_t bus, float volume)
+{
+	bb_scene* scene = bb_scene_get(handle, "AudioSceneVolume");
+	bb_bus_get(bus, "AudioSceneVolume");
+	if (!(volume >= 0.0f)) {
+		bb_runtime_error("AudioSceneVolume: the volume can't be below 0");
+	}
+	bb_scene_set(scene, BB_SCENE_BUS_VOLUME, bus, volume);
+}
+
+// The same checks as the setters of the listener make.
+static void bb_listener_setting_check(int32_t setting, float value, const char* what)
+{
+	char message[192];
+	switch (setting) {
+	case BB_LISTENER_ROLLOFF:
+	case BB_LISTENER_DOPPLER:
+	case BB_LISTENER_RADIUS:
+		if (!(value >= 0.0f)) {
+			snprintf(message, sizeof(message), "%s: the value of listener setting %d can't be below 0", what, (int)setting);
+			bb_runtime_error(message);
+		}
+		break;
+	case BB_LISTENER_DISTANCE:
+	case BB_LISTENER_SPEEDOFSOUND:
+		if (!(value > 0.0f)) {
+			snprintf(message, sizeof(message), "%s: the value of listener setting %d has to be above 0", what, (int)setting);
+			bb_runtime_error(message);
+		}
+		break;
+	default:
+		snprintf(message, sizeof(message), "%s: the listener setting has to be 1 to 5 (BB_LISTENER_ROLLOFF to BB_LISTENER_RADIUS), not %d", what,
+		         (int)setting);
+		bb_runtime_error(message);
+	}
+}
+
+void bb_audio_scene_listener(int32_t handle, int32_t setting, float value)
+{
+	bb_scene* scene = bb_scene_get(handle, "AudioSceneListener");
+	bb_listener_setting_check(setting, value, "AudioSceneListener");
+	bb_scene_set(scene, BB_SCENE_LISTENER, setting, value);
+}
+
+void bb_clear_audio_scene(int32_t handle, int32_t target)
+{
+	bb_scene* scene = bb_scene_get(handle, "ClearAudioScene");
+	if (target == 0) {
+		scene->count = 0;
+		return;
+	}
+	bb_bus_get(target, "ClearAudioScene");
+	bb_scene_remove(scene, BB_SCENE_BUS_VOLUME, target);
+}
+
+static bb_fade* bb_listener_fade(int32_t setting)
+{
+	switch (setting) {
+	case BB_LISTENER_ROLLOFF: return &bb_audio.listener_rolloff;
+	case BB_LISTENER_DOPPLER: return &bb_audio.listener_doppler;
+	case BB_LISTENER_DISTANCE: return &bb_audio.listener_distance;
+	case BB_LISTENER_SPEEDOFSOUND: return &bb_audio.speed_of_sound;
+	default: return &bb_audio.listener_radius;
+	}
+}
+
+// What a value is when no scene holds it: what a new bus starts with, and what CreateListener set for the listener (FMOD's 1, 1, 1 before).
+static float bb_scene_default(int kind, int32_t target)
+{
+	if (kind == BB_SCENE_BUS_VOLUME) {
+		return 1.0f;
+	}
+	switch (target) {
+	case BB_LISTENER_ROLLOFF: return bb_audio.listener_created ? bb_audio.listener_defaults[0] : 1.0f;
+	case BB_LISTENER_DOPPLER: return bb_audio.listener_created ? bb_audio.listener_defaults[1] : 1.0f;
+	case BB_LISTENER_DISTANCE: return bb_audio.listener_created ? bb_audio.listener_defaults[2] : 1.0f;
+	case BB_LISTENER_SPEEDOFSOUND: return BB_SPEED_OF_SOUND;
+	default: return 0.0f;
+	}
+}
+
+void bb_capture_audio_scene(int32_t handle)
+{
+	bb_scene* scene = bb_scene_get(handle, "CaptureAudioScene");
+	scene->count    = 0;
+	Uint64 now      = SDL_GetTicksNS();
+	bb_bus_table();
+	for (int32_t i = 0; i < bb_audio.bus_count; i++) {
+		if (bb_audio.buses[i].used) {
+			bb_scene_set(scene, BB_SCENE_BUS_VOLUME, i, bb_fade_value(&bb_audio.buses[i].mix->volume, now));
+		}
+	}
+	for (int32_t setting = BB_LISTENER_ROLLOFF; setting <= BB_LISTENER_RADIUS; setting++) {
+		bb_scene_set(scene, BB_SCENE_LISTENER, setting, bb_fade_value(bb_listener_fade(setting), now));
+	}
+}
+
+static void bb_scene_value_apply(int kind, int32_t target, float value, int32_t milliseconds)
+{
+	if (kind == BB_SCENE_BUS_VOLUME) {
+		if (bb_bus_valid(target)) {
+			bb_audio_bus_volume(target, value, milliseconds);
+		}
+	} else {
+		bb_fade_to(bb_listener_fade(target), value, milliseconds);
+	}
+}
+
+void bb_apply_audio_scene(int32_t handle, int32_t milliseconds)
+{
+	bb_scene* scene = bb_scene_get(handle, "ApplyAudioScene");
+	bb_fade_check(milliseconds, "ApplyAudioScene: the fade time can't be below 0");
+	for (int32_t i = 0; i < scene->count; i++) {
+		bb_scene_value_apply(scene->values[i].kind, scene->values[i].target, scene->values[i].value, milliseconds);
+	}
+}
+
+// Every value that either scene holds, mixed by the weight. A value that only one of them holds is mixed with its default.
+void bb_blend_audio_scene(int32_t handle_a, int32_t handle_b, float weight, int32_t milliseconds)
+{
+	bb_scene* a = bb_scene_get(handle_a, "BlendAudioScene");
+	bb_scene* b = bb_scene_get(handle_b, "BlendAudioScene");
+	bb_fade_check(milliseconds, "BlendAudioScene: the fade time can't be below 0");
+	float w = bb_clamp(weight, 0.0f, 1.0f);
+	for (int32_t i = 0; i < a->count; i++) {
+		bb_scene_value* v     = &a->values[i];
+		bb_scene_value* other = bb_scene_find(b, v->kind, v->target);
+		float           to    = other ? other->value : bb_scene_default(v->kind, v->target);
+		bb_scene_value_apply(v->kind, v->target, v->value + (to - v->value) * w, milliseconds);
+	}
+	for (int32_t i = 0; i < b->count; i++) {
+		bb_scene_value* v = &b->values[i];
+		if (!bb_scene_find(a, v->kind, v->target)) {
+			float from = bb_scene_default(v->kind, v->target);
+			bb_scene_value_apply(v->kind, v->target, from + (v->value - from) * w, milliseconds);
+		}
+	}
 }
