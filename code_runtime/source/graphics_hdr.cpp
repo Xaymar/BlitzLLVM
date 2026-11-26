@@ -486,6 +486,9 @@ namespace bb::gfx {
 			fwrite(rgb, sizeof(float), 3, file);
 		}
 		fclose(file);
+#ifdef _WIN32
+		remove(test_path()); // rename does not replace a file that exists on Windows, and the picture of the last present would stay.
+#endif
 		rename(temporary, test_path());
 	}
 
