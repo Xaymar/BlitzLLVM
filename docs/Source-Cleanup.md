@@ -330,9 +330,37 @@ After the moves and splits, one area per PR, because renames touch every line th
 
 1. One-letter and generic names in an area become words (rule 8). Mechanical, no logic change, but large: one area
    per PR, done with clang's rename tooling where it can be, so nothing is missed in macros or comments.
-2. The big structures are regrouped (rule 9): `bb::gfx::state` first (cold, so only readability), then `bb::entity`
-   with its per-class parts split out, which changes memory layout in hot loops and so gets numbers from a physical
-   machine before it is ready, like any performance PR.
+2. The big structures are regrouped (rule 9): `bb::gfx::state` first (cold, so only readability), then `bb::entity`,
+   which changes memory layout in hot loops and so gets numbers from a physical machine before it is ready, like any
+   performance PR.
+
+#### `bb::entity`
+
+Today one struct holds everything any entity can be: a camera carries a blend mode, a brush and an alpha, a pivot
+carries light ranges and camera zoom, and the field order is the order they were added in (Xaymar, 26 Nov). `kind`
+(`PIVOT`, `CAMERA`, `LIGHT`, `MESH`) is already the first member, so the tag exists; what is missing is the split.
+
+The target:
+
+* `bb::entity` keeps only what every entity has and what the hot loops over all entities read: `kind`, the tree
+  (parent, children, siblings), the transform and its cached matrices, the flags (hidden, order, pick and collision
+  type), the name. Grouped by what is read together.
+* What only some kinds have goes into its own struct: `camera_part` (viewport, range, zoom, projection, clear, fog,
+  buffer, clip planes, stencil), `light_part` (type, range, cone, color, channels), `render_part` for what is drawn
+  (color, alpha, FX, texture layers, blend, shininess, order, depth fade, stencil, cull box; meshes, sprites, planes
+  and terrains), `mesh_part` (surfaces, animation, MD2, BSP lighting, loading state), and the small sprite, plane and
+  terrain parts (`sprite_mode`, `sprite_scale`, `plane_divs`, `terrain`). The tween capture (`capt_*`) and collision
+  data (`coll_type`, `radius`, `box`, `old_*`) stay with every entity, as UpdateWorld and the tween read them for all.
+* How the parts are attached is decided in that PR, by measuring: inheritance (`struct camera : entity`, with `kind`
+  saying which, as Xaymar suggests) gives one allocation and no indirection; parts in tables of their own (indexed
+  by handle) keep `entity` small and the loops over all entities dense. One constraint either way: the model loaders
+  change the kind of an entity after it was made (`set_entity_kind`, `b3d.cpp`), so a node that turns out to be a mesh
+  has to be able to get its part later.
+* `scene_internal.hpp` gets typed accessors (`camera_of(handle)`, `light_of(handle)`) that check the kind, so a camera
+  command on a mesh still gives the same error it gives today.
+
+The alignment items of the same notes (padding the `float[3]` members, merging `color[3]` and `alpha` into
+`color[4]`) are done by the optimization work, not here; this split builds on whatever layout that leaves.
 
 ### Not in this plan
 
