@@ -561,7 +561,7 @@ namespace blitz::recompiler {
 		// Whether the parameter holds texture flags, which BlitzLLVM extended with bits that the original ignored.
 		static bool is_texture_flags(std::string const& name, size_t index)
 		{
-			return (index == 1 && (name == "loadtexture" || name == "loadanimtexture")) || (index == 2 && name == "createtexture");
+			return (index == 1 && (name == "loadtexture" || name == "loadanimtexture" || name == "texturefilter")) || (index == 2 && name == "createtexture");
 		}
 
 		std::string unit::thunk_command(command const& c, declaration const& d, std::string const& name)
