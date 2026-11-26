@@ -558,6 +558,12 @@ namespace blitz::recompiler {
 			return o.str();
 		}
 
+		// Whether the parameter holds texture flags, which BlitzLLVM extended with bits that the original ignored.
+		static bool is_texture_flags(std::string const& name, size_t index)
+		{
+			return (index == 1 && (name == "loadtexture" || name == "loadanimtexture")) || (index == 2 && name == "createtexture");
+		}
+
 		std::string unit::thunk_command(command const& c, declaration const& d, std::string const& name)
 		{
 			// The program passes the parameters of the original; BlitzLLVM may have more of them (with a default), but not fewer.
@@ -581,6 +587,11 @@ namespace blitz::recompiler {
 					  << "  %p" << n << " = getelementptr i8, ptr %mem, i64 %z" << n << "\n"
 					  << "  %a" << n << " = load i32, ptr %p" << n << ", align 1\n";
 					v = "%a" + std::to_string(n);
+					if (given == 'i' && k == 'i' && is_texture_flags(c.name, n)) {
+						// The original ignored every bit above 0x3FF; BlitzLLVM gives some of them a meaning (2048 is sRGB), which a program from before can't have meant.
+						o << "  %m" << n << " = and i32 " << v << ", 1023\n";
+						v = "%m" + std::to_string(n);
+					}
 					if (given == 'f') {
 						o << "  %f" << n << " = bitcast i32 " << v << " to float\n";
 						v = "%f" + std::to_string(n);
