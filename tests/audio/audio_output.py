@@ -150,13 +150,13 @@ check("classic adds images above the file's bandwidth (%.5f vs %.5f)" % (classic
 
 # Doppler: a sound that comes from an entity is shifted in pitch when the entity or the listener moves. Both are moved a unit
 # every 50 ms (about 20 meters per second), toward or away from each other along Z.
-def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.wav"):
+def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.wav", extra=""):
 	body = (
 		's = Load3DSound("%s")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, 100\n'
-		"CreateListener listener, 0, %f, %f\nc = EmitSound(s, source)\n"
+		"CreateListener listener, 0, %f, %f\nc = EmitSound(s, source)\n%s\n"
 		"For i = 1 To 30\n\tMoveEntity listener, 0, 0, %f\n\tMoveEntity source, 0, 0, %f\n\tDelay 50\nNext\n"
 		'DebugLog "playing " + ChannelPlaying(c)\n'
-	) % (name, scale, distance, listener_step, source_step)
+	) % (name, scale, distance, extra, listener_step, source_step)
 	with open("play.bb", "w") as source:
 		source.write(body)
 	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
@@ -196,6 +196,18 @@ for what, listener_step, source_step, scale, distance, low, high in (
 	("distance scale 0.5 halves the speeds", 0, 1, 1.0, 0.5, 0.95, 0.99),
 ):
 	frequency = play_moving(listener_step, source_step, scale, distance)
+	check("doppler, %s: %.1f Hz is %.2f to %.2f of %.1f Hz" % (what, frequency, low, high, expected), expected * low < frequency < expected * high)
+
+# The listener settings of BlitzLLVM change the same shift after CreateListener. A radius divides the direction by more than the distance,
+# so a source 100 to 130 units away with radii of 300 in all moves away at about 40% of its speed as far as the shift is concerned.
+for what, extra, low, high in (
+	("ListenerDoppler 2 shifts twice as far", "ListenerDoppler 2", 0.80, 0.94),
+	("ListenerDistance 0.5 halves the speeds", "ListenerDistance 0.5", 0.95, 0.99),
+	("SpeedOfSound 680 halves the shift", "SpeedOfSound 680", 0.95, 0.99),
+	("ChannelDoppler 0", "ChannelDoppler c, 0", 0.99, 1.01),
+	("a radius weakens the shift close by", "ListenerRadius 200\nChannelRadius c, 100", 0.965, 0.995),
+):
+	frequency = play_moving(0, 1, extra=extra)
 	check("doppler, %s: %.1f Hz is %.2f to %.2f of %.1f Hz" % (what, frequency, low, high, expected), expected * low < frequency < expected * high)
 
 # The shift is quick but not a jump: a source that stands still and then drives off is heard shifting within a few frames.
