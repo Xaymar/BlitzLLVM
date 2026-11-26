@@ -215,7 +215,9 @@ def bench_scene(compiler, name, runs):
                 env["BENCH_FRAMES"] = str(FRAMES)
             if os.path.isfile(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds")):
                 env["BENCH_MODEL"] = compiler.native_path(os.path.join(ROOT, "tests", "suite", "models", "textured.3ds"))
-            cpu, wall, out, code = run_program(compiler, program, env, d)
+            # A second per frame is the most a run may take: the original draws the 3000 frames of the forest at about 300 ms each on
+            # the integrated GPU of a laptop.
+            cpu, wall, out, code = run_program(compiler, program, env, d, timeout=max(900, int(env["BENCH_FRAMES"])))
             if not os.path.isfile(result_file):
                 raise RuntimeError("no result (exit %s): %s" % (code, out[-300:]))
             r = parse_result(result_file)
