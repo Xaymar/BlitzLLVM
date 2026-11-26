@@ -305,12 +305,25 @@ than less:
 22. **Paths are `std::filesystem::path`** inside C++ code, converted once from the program's string where it enters
     the runtime, with the case-insensitive and backslash handling of `files.c` kept as it is today.
 
+23. **Handles stop at the API.** A `bb_` function takes the `Int` handle the program gave it, turns it into a typed
+    pointer or reference once (`need_entity`, `need_surface`, with the debug checks of `handle_check.h`), and passes
+    that on. Internal functions take `entity&`, `surface*`, `texture_entry&`, not `int handle`: today about 227 internal
+    functions in the runtime take an `int` handle and look it up again. Entities and surfaces are allocated one by one
+    (`buffer<entity*>` in `scene_entities.cpp`), so their pointers already stay valid while they live; a table that
+    holds its objects by value has to move to stable storage first. What is freed while a pointer to it is held is the
+    case the handle lookups protect against today, so each conversion says in its PR why the pointer can't outlive the
+    object.
+
+Xaymar's summary of all of it (26 Nov): the runtime is mostly C with a C++ frame around it, so the cleanup is largely
+turning it into C++: real structs and classes with their own functions, pointers instead of handles inside the
+runtime, shared types.
+
 The hot structures (`entity`, `surface`, the vertex, the collision and broad-phase types, texture entries) are laid out
 by the optimization work with measurements; the cleanup applies rules 19 to 21 to the rest (`gfx::state`, `gadget`,
 `movie`, `image_recipe`, the backend states) and does not touch what that work has measured.
 
 These are phase 7 of the plan: formatting first (rules 14 and 15, mechanical), then rules 11, 12, 16 and 22 (namespaces,
-integer types, platform defines, paths: mechanical, one area per PR), then 13 and 17 to 21, which change how code is
+integer types, platform defines, paths: mechanical, one area per PR), then 13, 17 to 21 and 23, which change how code is
 written and so go area by area with the usual tests, and with numbers from a physical machine for the hot paths.
 
 ## File-local code
