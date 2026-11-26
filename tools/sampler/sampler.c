@@ -10,12 +10,13 @@
 //   <out>.smp      t_ms tid idle i0,i1,i2,...             (one line per sample, i0 = leaf, then the callers)
 //   <out>.thr      tid <TAB> start function                (start address of each thread)
 // Build: clang -O2 sampler.c -o sampler.exe -ldbghelp -lpsapi -lwinmm      (or cl /O2 sampler.c dbghelp.lib psapi.lib winmm.lib)
-// Usage: sampler.exe [-hz 1000] [-max 1200] -out C:\path\prefix -cwd C:\workdir -- program.exe [args...]
+// Usage: sampler.exe [-hz 1000] [-max 1200] [-idle 80000 (cycles per tick below which a thread counts as idle)] -out C:\path\prefix -cwd C:\workdir -- program.exe [args...]
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <tlhelp32.h>
 #include <dbghelp.h>
 #include <psapi.h>
+#include <timeapi.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +34,8 @@ typedef struct {
 	ULONG64 start;
 } thr_t;
 
-static thr_t  thr[MAXT];
+static thr_t   thr[MAXT];
+static ULONG64 idle_cycles = 80000;
 static int    nthr = 0;
 static HANDLE hproc;
 
@@ -134,7 +136,9 @@ static void sample_thread(thr_t* t, uint32_t t_ms) {
 		t->dead = 1;
 		return;
 	}
-	int idle  = (cyc == t->cycles);
+	// A thread that only waited still gets a few cycles: suspending, reading and resuming it runs kernel code on it. So a thread
+	// counts as idle below about 2% of a 4 GHz core over the last tick, and is then not suspended at all (except the main thread).
+	int idle  = (cyc - t->cycles) < idle_cycles;
 	t->cycles = cyc;
 	if (idle && !t->is_main)
 		return;
@@ -210,6 +214,8 @@ int main(int argc, char** argv) {
 			hz = atoi(argv[++a]);
 		else if (!strcmp(argv[a], "-max") && a + 1 < argc)
 			maxsec = atoi(argv[++a]);
+		else if (!strcmp(argv[a], "-idle") && a + 1 < argc)
+			idle_cycles = strtoull(argv[++a], NULL, 10);
 		else if (!strcmp(argv[a], "-out") && a + 1 < argc)
 			out = argv[++a];
 		else if (!strcmp(argv[a], "-cwd") && a + 1 < argc)
