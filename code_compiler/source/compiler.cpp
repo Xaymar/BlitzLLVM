@@ -597,6 +597,24 @@ void blitz::compiler::warn_short_notations(std::vector<ast::short_notation> cons
 	}
 }
 
+void blitz::compiler::warn_call_parentheses(std::vector<ast::call_parentheses> const& calls)
+{
+	for (auto const& call : calls) {
+		// The original only takes the parentheses as the ones of the call when a line break or ':' follows them. Before Else it reads
+		// them as an expression in parentheses: "Foo(1, 2)" stops at the comma with "')' expected", "Foo()" with "Expecting expression".
+		std::string expected = (call.arguments == 0) ? "Expecting expression" : "')' expected";
+		std::vector<edit> edits;
+		if (call.open.file && call.close.file && (call.open.line != 0) && (call.close.line != 0)) {
+			// Foo(1, 2) Else becomes Foo 1, 2 Else, and Foo() Else becomes Foo Else.
+			std::string space = (call.spaced || (call.arguments == 0)) ? "" : " ";
+			edits.push_back(edit{ *call.open.file, ast::range{ call.open.line, call.open.column, call.open.line, call.open.column + 1 }, space });
+			edits.push_back(edit{ *call.close.file, ast::range{ call.close.line, call.close.column, call.close.line, call.close.column + 1 }, "" });
+		}
+		std::string fixed = (call.arguments == 0) ? call.name + " Else" : call.name + " a, b Else";
+		warn(call.where, "compatibility-one-line-if-else", "The original rejects the parentheses around the arguments of '" + call.name + "' before Else (\"" + expected + "\").", "Leave out the parentheses ('" + fixed + "'), or write the If on several lines.", std::move(edits));
+	}
+}
+
 void blitz::compiler::report_unused(std::map<std::string, variable>& variables)
 {
 	for (auto const& entry : variables) {
@@ -733,6 +751,7 @@ std::string blitz::compiler::generate(ast::program const& program)
 	di_begin_module();
 
 	warn_short_notations(program.short_notations);
+	warn_call_parentheses(program.call_parentheses_before_else);
 
 	// Make all functions known first, so they can be used before they are defined.
 	for (auto const& fn : program.functions) {

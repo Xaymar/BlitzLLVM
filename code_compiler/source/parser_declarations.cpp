@@ -443,10 +443,18 @@ void blitz::parser::parse_identifier_statement(ast::block& into)
 	if (is_symbol(tk(), "(")) {
 		// Try `Name(Arg, ...)` first. If something follows the `)`, it's actually `Name (Expression)...`.
 		size_t saved = _pos;
+		auto open_tk = tk();
 		advance();
 		auto args = parse_arguments();
+		auto close_tk = tk();
 		expect_symbol(")");
 		if (is_terminator(tk())) {
+			// The original only takes the parentheses as those of the call if a line break or ':' follows them. Before
+			// `Else` it reads `(1, 2)` as one expression in parentheses, which fails unless there is exactly one argument.
+			if (is_keyword(tk(), "else") && (args.size() != 1)) {
+				auto name_end = (saved > 0) ? _tokens[saved - 1] : name; // The last token of the name, which can be a type suffix.
+				_program->call_parentheses_before_else.push_back(ast::call_parentheses{ here(name), name.text, args.size(), here(open_tk), here(close_tk), !adjacent(name_end, open_tk) });
+			}
 			node->invocation->arguments = std::move(args);
 			into.push_back(std::move(node));
 			return;

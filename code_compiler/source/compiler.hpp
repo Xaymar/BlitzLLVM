@@ -302,6 +302,7 @@ namespace blitz {
 		void               refuse_array(std::string const& name, ast::location const& where);
 		static std::string declaration_suffix(blitz::types::type t, std::string const& sname);
 		void         warn_short_notations(std::vector<ast::short_notation> const& notations);
+		void         warn_call_parentheses(std::vector<ast::call_parentheses> const& calls);
 		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
 		void         report_unused(std::map<std::string, variable>& variables);
 		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal, ast::expression const* source = nullptr);

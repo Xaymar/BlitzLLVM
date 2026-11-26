@@ -17,6 +17,7 @@
 std::vector<blitz::warning_info> const& blitz::all_warnings()
 {
 	static const std::vector<warning_info> list{
+		{ "compatibility-one-line-if-else", 0, false, "A command or function called with its arguments in parentheses right before Else (If a Then Foo(1, 2) Else ...), which the original rejects with \"')' expected\"." },
 		{ "literal-out-of-range", 1, false, "A whole number without a suffix does not fit into an Int, so it is clamped to the Int range like in the original." },
 		{ "implicit-lossy-int-to-int", 1, false, "An integer is turned into one that is smaller or has another sign, which can change the number." },
 		{ "loop-iterator-type-unsafe", 1, false, "A For loop counts with a real number, which can't count exactly, so it may run once more or less than expected or never end." },

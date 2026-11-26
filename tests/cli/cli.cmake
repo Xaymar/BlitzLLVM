@@ -1482,6 +1482,47 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c --field-defaults "${WORK}/fielddefault.bb")
 	expect_ok()
 	expect_no_err("[-Wfield-default-ignored]")
+	# A call with its arguments in parentheses right before Else, which the original rejects (off at every level, -Wcompatibility).
+	file(WRITE "${WORK}/onelineif.bb"
+		"Function Pick(a%, b%)\n"
+		"End Function\n"
+		"Function Nothing()\n"
+		"End Function\n"
+		"Local c% = 1\n"
+		"If c Then Pick(1, 2) Else Pick(3, 4)\n"
+		"If c Then Nothing() Else Nothing()\n"
+		"If c Then Pick 5, 6 Else Pick(7, 8)\n"
+		"If c Then Print(1) Else Print(2)\n"
+		"If c Then Pick (1, 2) Else Nothing\n"
+		"If c Then Pick(1, 2) : Nothing() Else Nothing\n")
+	foreach(_LEVEL RANGE 0 4)
+		blitzcc(-c -W${_LEVEL} "${WORK}/onelineif.bb")
+		expect_ok()
+		expect_no_err("[-Wcompatibility-one-line-if-else]")
+	endforeach()
+	foreach(_OPTION IN ITEMS -Wcompatibility -Wcompatibility-one-line-if-else -WCOMPATIBILITY)
+		blitzcc(-c ${_OPTION} "${WORK}/onelineif.bb")
+		expect_ok()
+		expect_err("onelineif.bb:6:11: warning: The original rejects the parentheses around the arguments of 'Pick' before Else (\"')' expected\"). [-Wcompatibility-one-line-if-else]")
+		expect_err("\nnotice: Leave out the parentheses ('Pick a, b Else'), or write the If on several lines.")
+		expect_err("onelineif.bb:7:11: warning: The original rejects the parentheses around the arguments of 'Nothing' before Else (\"Expecting expression\").")
+		expect_err("onelineif.bb:10:11: warning:")
+		expect_err("onelineif.bb:11:24: warning:")
+		# The last call of a line, one with a single argument (read as (1) by the original) and Pick 5, 6 are fine.
+		foreach(_FINE IN ITEMS "onelineif.bb:6:27:" "onelineif.bb:7:26:" "onelineif.bb:8:" "onelineif.bb:9:" "onelineif.bb:11:11:")
+			expect_no_err("${_FINE}")
+		endforeach()
+	endforeach()
+	blitzcc(-c -Wcompatibility -Wno-compatibility-one-line-if-else "${WORK}/onelineif.bb")
+	expect_ok()
+	expect_no_err("[-Wcompatibility-one-line-if-else]")
+	blitzcc(-c -Werror=compatibility "${WORK}/onelineif.bb")
+	expect_failed()
+	expect_err("onelineif.bb:6:11: error: The original rejects the parentheses around the arguments of 'Pick' before Else (\"')' expected\"). [-Werror=compatibility-one-line-if-else]")
+	blitzcc(-c -Werror "${WORK}/onelineif.bb")
+	expect_ok()
+	blitzcc(-c -Wcompatibility-bogus "${WORK}/onelineif.bb")
+	expect_failed()
 	file(WRITE "${WORK}/fielddefault_array.bb"
 		"Type Thing\n"
 		"\tField list[3] = 1\n"
@@ -1818,6 +1859,8 @@ elseif(CASE STREQUAL "warnings")
 	foreach(_OPTION IN ITEMS "-W0 .. -W4" "-W<name>" "-Werror")
 		expect_contains("${_OPTION}")
 	endforeach()
+	expect_contains("  off  compatibility-one-line-if-else")
+	expect_contains("  -Wcompatibility  Every 'compatibility-' warning.")
 
 elseif(CASE STREQUAL "parameter_modes")
 	macro(expect_err TEXT)
