@@ -148,6 +148,23 @@ Print "Microseconds: " + elapsed
 - **Network:** IPv6 works ([#452](https://github.com/Xaymar/BlitzLLVM/pull/452)). Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
 - **Physics:** `blitzphysics` (Jolt behind a C interface) is in the build ([#415](https://github.com/Xaymar/BlitzLLVM/pull/415)); the `Physics` commands themselves came in 2.0.
 
+### Also in 1.0: work from before pull requests were used
+
+Most of 1.0 was written in direct commits on 26 to 28 October, before every change got a pull request, so it has no PR number to link. Taken from the commit titles; the details are in the commit history and the wiki.
+
+- **Movies** play through FFmpeg, with Opus sound: `PlayMovie`, `PauseMovie`, `StopMovie`, `LoopMovie`, `SeekMovie`, `MovieLength`, `MoviePosition`, `MovieVolume`, `GetMovieTexture`; `DrawMovie` returns whether the movie is still playing.
+- **Strings keep their length**: a string can hold `Chr(0)`, and files, network messages and command results keep it. Was: text ended at the first zero byte, as in the original's C strings. Migrate: nothing, unless a program relied on the cut.
+- **Presentation:** `Flip 2` presents synced without waiting; the 3D submission runs on its own thread; `SetGfxDriver` chooses the GPU; `GfxMode3DWidth`/`GfxMode3DHeight`, display and refresh rate listing, and window mode 4 (no border). Fullscreen is a borderless window over the main display with the aspect ratio kept. Mode lists always report 32 bits, and `DesktopBuffer` does nothing. `SetGamma` and `UpdateGamma` work through the whole picture. Windows programs are DPI aware.
+- **Textures:** sampler commands, sphere and cube maps, `RotateTexture`, `TextureCoords` for the two coordinate sets, mip maps, DDS files and `LoadAtlas`/`AtlasTexture`. Vertex colours are 16-bit floats and 3D meshes are drawn relative to the camera, so far away models keep their shape.
+- **Models:** DirectX `.x` files (text, binary, compressed), `.3ds` with animations, `LoadMesh` merges parts with the same brush like the original, `LoaderMatrix` applies to `.x`. Lighting follows Blitz3D (highlights, spot lights, negative lights, flat shading); `BSPLightmapColor` and `BSPAmbientLight` colour a level.
+- **Fonts and GUI:** `LoadFont`, `Text` and `FontWidth` use real TrueType fonts. The BlitzPlus GUI is drawn by the runtime (later replaced by operating system windows, see above), with tool tips and a bar for long text lines.
+- **Audio:** Doppler shift for 3D sounds, Opus files, sounds placed while rendering. `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` (first named `BLITZ_AUDIO_CLASSIC`) resamples like the original.
+- **Compiler:** `-W` levels with `-W<name>`, `-Wno-<name>` and `-Werror`; the original `blitzcc` options `-q`, `+q`, `-c`, `-d`, `-k`, `+k`, `-v`; `blitzcc` without `-o` runs the program; userlibs are called and loaded when the program runs; warnings for a wrong `Return` type, untyped functions, short type notation (`-Wshort-type-notation`) and unused results. `blitz-tidy` fixes these warnings in source files. Programs build with `-O3` and safe fast-math, inline the hot runtime, and compile away unused code.
+- **Debug builds (`-d`)** stop at textures, images, sounds, channels and movies that do not exist or are freed twice, and load and save on the spot. `Stop` is a debugger breakpoint in debug builds and nothing otherwise.
+- **Input:** `RawInput` (first `RawInputs`) counts unaccelerated mouse movement; `Input` reads and draws in the window; `KeyHit` and `MouseHit` count presses.
+- **Original details:** `CreateListener` returns 1, not an entity; `SetStatusText` returns nothing; a copy of a camera, light or terrain is a pivot, like the original; `Collisions` accepts any response; a sprite with the masked flag draws without blending.
+- **Releases** build from version tags, with daily, weekly, monthly and yearly builds, and Windows and Linux for arm64.
+
 ### Builds and packaging
 
 - Windows builds with clang and lld for the MinGW target ([#464](https://github.com/Xaymar/BlitzLLVM/pull/464)) and has an installer that offers to install LLVM with winget ([#494](https://github.com/Xaymar/BlitzLLVM/pull/494)); release tags are named after the compiler version ([#499](https://github.com/Xaymar/BlitzLLVM/pull/499)). Not verified: arm64 install.
