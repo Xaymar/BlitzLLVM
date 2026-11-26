@@ -384,6 +384,49 @@ elseif(CASE STREQUAL "debug_info")
 		endforeach()
 	endif()
 
+elseif(CASE STREQUAL "field_defaults")
+	# Like the original, New ignores the default values of fields.
+	blitzcc(+q "${TESTS}/cli/field_defaults.bb")
+	expect_ok()
+	if(NOT OUT STREQUAL "0 0.0  0 0 0 0 0\n")
+		message(FATAL_ERROR "Expected the defaults to be ignored, got:\n${OUT}")
+	endif()
+	# --field-defaults lets New set them, with Globals and Consts only.
+	blitzcc(+q --field-defaults "${TESTS}/cli/field_defaults.bb")
+	expect_ok()
+	if(NOT OUT STREQUAL "3 2.5 n3 0 1 1 3 2\n")
+		message(FATAL_ERROR "Expected the default values, got:\n${OUT}")
+	endif()
+	file(WRITE "${WORK}/field_default_local.bb"
+		"Type T\n"
+		"\tField a% = b\n"
+		"End Type\n"
+		"Function F(b)\n"
+		"\tt.T = New T\n"
+		"End Function\n"
+		"F 1\n")
+	blitzcc(--field-defaults -c "${WORK}/field_default_local.bb")
+	if(RC EQUAL 0)
+		message(FATAL_ERROR "A parameter in a field default was accepted.")
+	endif()
+	string(FIND "${ERR}" "'b' is not a Global or Const" _AT)
+	if(_AT EQUAL -1)
+		message(FATAL_ERROR "Expected the error, got:\n${ERR}")
+	endif()
+	file(WRITE "${WORK}/field_default_self.bb"
+		"Type T\n"
+		"\tField a.T = New T\n"
+		"End Type\n"
+		"t.T = New T\n")
+	blitzcc(--field-defaults -c "${WORK}/field_default_self.bb")
+	if(RC EQUAL 0)
+		message(FATAL_ERROR "A field default that makes its own Type was accepted.")
+	endif()
+	string(FIND "${ERR}" "which would never end" _AT)
+	if(_AT EQUAL -1)
+		message(FATAL_ERROR "Expected the error, got:\n${ERR}")
+	endif()
+
 elseif(CASE STREQUAL "sane_evaluation_order")
 	# The default is the order of the original Blitz3D: F3 takes b, c, a, x + y * z takes y * z first, an array store takes the index (8, 7) before the value (9).
 	blitzcc(+q "${TESTS}/cli/sane_evaluation_order.bb")
@@ -1420,6 +1463,31 @@ elseif(CASE STREQUAL "warnings")
 	expect_err("w.bb:10:1: warning: 'x' was not declared, it is a new local variable. [-Wimplicit-variable]")
 	expect_err("w.bb:11:1: notice: The result of 'Foo' is not used. [-Wunused-result]")
 	expect_err("w.bb:4:7: warning: 't' has no type, it is an Int. [-Wtypeless-declaration]")
+
+	# A Field with a default value compiles like in the original, which never uses the value (level 2, on by default).
+	file(WRITE "${WORK}/fielddefault.bb"
+		"Type Thing\n"
+		"\tField count% = 5, plain%\n"
+		"End Type\n"
+		"t.Thing = New Thing\n"
+		"Print t\\count\n")
+	blitzcc(-c "${WORK}/fielddefault.bb")
+	expect_ok()
+	expect_err("fielddefault.bb:2:15: warning: The default value of field 'count' is never used, New sets the field to 0, 0.0, \"\" or Null like in the original. [-Wfield-default-ignored]")
+	expect_err("\nnotice: Set the field after New instead, or build with --field-defaults to use the default values.")
+	expect_no_err("'plain'")
+	blitzcc(-c -W1 "${WORK}/fielddefault.bb")
+	expect_ok()
+	expect_no_err("[-Wfield-default-ignored]")
+	blitzcc(-c --field-defaults "${WORK}/fielddefault.bb")
+	expect_ok()
+	expect_no_err("[-Wfield-default-ignored]")
+	file(WRITE "${WORK}/fielddefault_array.bb"
+		"Type Thing\n"
+		"\tField list[3] = 1\n"
+		"End Type\n")
+	blitzcc(-c "${WORK}/fielddefault_array.bb")
+	expect_failed()
 
 	# Local arrays above 4 KiB in a function (level 1); the main program, small arrays and Global/Dim ones are left alone.
 	file(WRITE "${WORK}/bigarray.bb"

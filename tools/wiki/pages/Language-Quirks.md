@@ -66,6 +66,25 @@ The indices of an array with several dimensions are added up as `i0 + i1 * size1
 
 The order of the original is mildly surprising, and no other language does it. To get left to right order for arguments (also of userlib functions), operators, array indices and stores, build with `blitzcc --sane-evaluation-order`. Programs that call `Rnd`, `Rand` or read files several times in one expression then give other results than in the original, so only use it for programs that do not depend on the order.
 
+## Default values of fields
+
+The original accepts a default value behind a field (`Field lives% = 3`), but never uses it: `New` still sets every field to 0, 0.0, `""` or `Null`. BlitzLLVM does the same, and the warning `field-default-ignored` points at the default (see [[Warnings]]). A field with a size (`Field list[3]`) can't have a default value.
+
+Build with `blitzcc --field-defaults` to let `New` set the fields to their default values, from the top field down, before the new object is made:
+
+```blitzbasic
+Const START_LIVES = 3
+Type Player
+	Field lives% = START_LIVES
+	Field name$ = "Player " + Str(START_LIVES)
+	Field speed# = 2.5
+End Type
+p.Player = New Player
+Print p\lives ; 3 with --field-defaults, 0 without (like the original).
+```
+
+The default value is worked out at every `New`, so it can call functions (`Field id% = NextId()`) or make another object (`Field position.Vector = New Vector`). As a `New` can be anywhere, it can only use `Global` variables and `Const`s, not the `Local` variables or parameters of the function it is in. A default value that makes a new object of its own Type is an error, as that would never end.
+
 ## Strings with Chr$(0)
 
 A string knows its length, so `Chr$(0)` is a character like any other, as in the original (whose strings are `std::string`). `Len`, `+`, comparison, `Left$`, `Right$`, `Mid$`, `Instr`, `Replace$`, `Upper$`, `Lower$`, `Trim$`, `LSet$`, `RSet$`, `String$`, `WriteString`, `ReadString`, `WriteLine`, `ReadLine`, `Print`, `DebugLog` and network messages keep everything after a NUL.
