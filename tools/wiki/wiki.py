@@ -15,7 +15,8 @@
                   line is ";run" is also run without a window, and what it prints has to match the ```text block
                   that follows it.
 
-What a command is and takes comes from tests/suite/functions.txt. What it does is written by hand in
+What a command is and takes comes from the list of functions of tools/suite_functions.py (made from the original sources
+in the submodules third_party/blitz3d and third_party/blitzplus_msvc2017, so those have to be checked out). What it does is written by hand in
 tools/wiki/text/<Dialect>/<Category>/<CommandName>.md, one file per command, so that changes to different commands
 never touch the same file. A file _intro.md next to them introduces the whole category. The pages of the commands are
 named like the commands (CreateTexture.md) because the GitHub wiki has one flat list of pages. A command file
@@ -49,7 +50,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import procutil  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
-LIST = os.path.join(ROOT, "tests", "suite", "functions.txt")
 WIKI = os.path.join(ROOT, "docs", "wiki")  # Hand written pages and the media, the input of build.
 OUT = os.path.join(ROOT, "build", "wiki")  # What build writes and check reads. Set by --out.
 TEXT = os.path.join(HERE, "text")
@@ -167,12 +167,8 @@ class Command:
 
 def load():
     commands = []
-    with open(LIST, encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("#") or not line.strip():
-                continue
-            key, module, state, sig = line.rstrip("\n").split("\t")
-            commands.append(Command(key, module, sig))
+    for key, module, state, sig in suite_functions.read_list():
+        commands.append(Command(key, module, sig))
     by_path = {(c.dialect, c.category.replace(" ", "-"), c.name): c for c in commands}
     if len(by_path) != len(commands):
         raise SystemExit("two commands share a dialect, category and name")
@@ -190,14 +186,14 @@ def load():
                         continue
                     c = by_path.get((dialect, category, name))
                     if c is None and dialect == categories.LANG and re.search(r"^@syntax", body, re.M):
-                        # A keyword: the compiler understands it itself, so functions.txt does not list it.
+                        # A keyword: the compiler understands it itself, so the list of functions does not have it.
                         c = Command(name.lower(), "keyword", name)
                         c.dialect, c.category = dialect, category.replace("-", " ")
                         c.syntax = re.findall(r"^@syntax[ \t]+(.+)$", body, re.M)
                         body = re.sub(r"^@syntax.*\n?", "", body, flags=re.M).strip()
                         commands.append(c)
                     elif re.search(r"^@syntax", body, re.M):
-                        # A command whose signature in functions.txt cannot say what it takes (a number or a text of any
+                        # A command whose signature in the list of functions cannot say what it takes (a number or a text of any
                         # type), so the page names its own and drops the table of parameters.
                         c.syntax = re.findall(r"^@syntax[ \t]+(.+)$", body, re.M)
                         c.params = []
