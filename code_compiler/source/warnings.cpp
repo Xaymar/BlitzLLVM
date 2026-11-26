@@ -43,6 +43,32 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 	return list;
 }
 
+std::vector<blitz::warning_group> const& blitz::warning_groups()
+{
+	static const std::vector<warning_group> list{
+		{ "compatibility", "Code that BlitzLLVM compiles, but the original Blitz3D and BlitzPlus reject." },
+	};
+	return list;
+}
+
+std::vector<std::string> blitz::warnings_named(std::string const& name)
+{
+	std::vector<std::string> names;
+	for (auto const& group : warning_groups()) {
+		if (name == group.name) {
+			std::string prefix = name + "-";
+			for (auto const& info : all_warnings()) {
+				if (std::string(info.name).compare(0, prefix.size(), prefix) == 0) {
+					names.push_back(info.name);
+				}
+			}
+			return names;
+		}
+	}
+	names.push_back(find_warning(name).name);
+	return names;
+}
+
 blitz::warning_info const& blitz::find_warning(std::string const& name)
 {
 	for (auto const& info : all_warnings()) {
@@ -66,18 +92,22 @@ bool blitz::warning_settings::parse(std::string const& option)
 	} else if (text == "no-error") {
 		_error = false;
 	} else if (text.compare(0, 6, "error=") == 0) {
-		find_warning(text.substr(6));
-		_errors[text.substr(6)] = true;
-		_enabled.emplace(text.substr(6), true); // An error is on, unless it was turned off with -Wno-<name>.
+		for (auto const& name : warnings_named(text.substr(6))) {
+			_errors[name] = true;
+			_enabled.emplace(name, true); // An error is on, unless it was turned off with -Wno-<name>.
+		}
 	} else if (text.compare(0, 9, "no-error=") == 0) {
-		find_warning(text.substr(9));
-		_errors[text.substr(9)] = false;
+		for (auto const& name : warnings_named(text.substr(9))) {
+			_errors[name] = false;
+		}
 	} else if (text.compare(0, 3, "no-") == 0) {
-		find_warning(text.substr(3));
-		_enabled[text.substr(3)] = false;
+		for (auto const& name : warnings_named(text.substr(3))) {
+			_enabled[name] = false;
+		}
 	} else {
-		find_warning(text);
-		_enabled[text] = true;
+		for (auto const& name : warnings_named(text)) {
+			_enabled[name] = true;
+		}
 	}
 	return true;
 }
@@ -88,7 +118,8 @@ bool blitz::warning_settings::enabled(std::string const& name) const
 	if (it != _enabled.end()) {
 		return it->second;
 	}
-	return find_warning(name).level <= _level;
+	int level = find_warning(name).level;
+	return (level > 0) && (level <= _level);
 }
 
 bool blitz::warning_settings::is_error(std::string const& name) const

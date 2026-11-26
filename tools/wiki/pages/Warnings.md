@@ -33,6 +33,8 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `-W3` | Style, and notices about code that does nothing. |
 | `-W4` | Declarations without a type, and notices about functions that are never called. |
 
+The `compatibility-*` warnings are not part of any level: they are off until `-W<name>` or the group `-Wcompatibility` turns them on.
+
 ## Options
 
 | Option | Effect |
@@ -44,6 +46,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `-Werror=<name>` | Only the warning `<name>` (a notice too) is an error, and it is turned on if the level does not include it. |
 | `-Wno-error=<name>` | The warning `<name>` stays a warning with `-Werror`. |
 | `-Wno-error` | Cancel an earlier `-Werror`. |
+| `-Wcompatibility` | Turn on every `compatibility-*` warning: code that BlitzLLVM compiles, but the original Blitz3D and BlitzPlus reject. `-Wno-compatibility`, `-Werror=compatibility` and `-Wno-error=compatibility` work on the whole group too. |
 
 `-W<name>` and `-Wno-<name>` win over the level, and `-Werror=<name>` and `-Wno-error=<name>` win over `-Werror`, wherever on the command line they are. The options are not case sensitive. An unknown name is an error. `-q` hides warnings and notices (not the ones that are errors) and `+q` hides everything.
 

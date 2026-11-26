@@ -199,7 +199,12 @@ namespace {
 			width = std::max(width, std::string(info.name).size());
 		}
 		for (auto const& info : blitz::all_warnings()) {
-			std::cout << "  -W" << info.level << "  " << info.name << std::string(width + 2 - std::string(info.name).size(), ' ') << (info.hint ? "(Notice) " : "") << info.description << "\n";
+			std::cout << (info.level > 0 ? "  -W" + std::to_string(info.level) : std::string("  off")) << "  " << info.name << std::string(width + 2 - std::string(info.name).size(), ' ') << (info.hint ? "(Notice) " : "") << info.description << "\n";
+		}
+		std::cout << "\n"
+				  << "Warnings marked 'off' are not turned on by any level, only by -W<name> or their group:\n";
+		for (auto const& group : blitz::warning_groups()) {
+			std::cout << "  -W" << group.name << "  Every '" << group.name << "-' warning. " << group.description << "\n";
 		}
 		std::cout << "\n"
 				  << "Everything after a lone '--' is passed to clang as-is.\n";
