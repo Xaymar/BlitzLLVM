@@ -306,9 +306,13 @@ void blitz::keywords::dump(std::ostream& out, dump_mode mode, std::filesystem::p
 	}
 
 	for (auto const& entry : compiler_detail::builtins) {
+		// The parameters by the names the manuals give them.
 		std::vector<std::pair<std::string, char>> params;
+		std::stringstream                         names(entry.names);
 		for (size_t idx = 0; entry.params[idx]; idx++) {
-			params.emplace_back("param" + std::to_string(idx + 1), entry.params[idx]);
+			std::string name;
+			std::getline(names, name, ',');
+			params.emplace_back(name, entry.params[idx]);
 		}
 		switch (mode) {
 		case dump_mode::NAMES:

@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <ctype.h>
 #include <string>
+#include <unordered_map>
 
 #include "types.hpp"
 #include "util.hpp"
@@ -33,27 +34,32 @@ namespace blitz::compiler_detail {
 	//
 	// Parameter and return types: v = nothing, i = Int32, f = Float32, s = String.
 	struct builtin {
-		const char* name;
+		const char* name; // As the manuals spell it, such as LoadTexture. Look it up with find_builtin, which ignores the case.
 		const char* symbol;
 		char        ret;
 		const char* params;
 		int         required; // How many parameters have to be provided, the rest uses defaults.
 		double      defaults[16]; // Defaults for the parameters that were not provided.
 		bool        lead; // If only one argument is provided for two parameters, it is the second one (Rand(10) == Rand(1, 10)).
+		const char* names; // The names of the parameters as the manuals spell them, separated by commas, such as "file,flags".
 	};
 
 	inline const builtin builtins[] = {
 #include "builtins.inc"
 	};
 
+	// Finds a builtin by its name in any case, such as loadtexture or LoadTexture.
 	inline builtin const* find_builtin(std::string const& name)
 	{
-		for (auto const& entry : builtins) {
-			if (name == entry.name) {
-				return &entry;
+		static const std::unordered_map<std::string, builtin const*> by_name = [] {
+			std::unordered_map<std::string, builtin const*> map;
+			for (auto const& entry : builtins) {
+				map.emplace(lower(entry.name), &entry);
 			}
-		}
-		return nullptr;
+			return map;
+		}();
+		auto it = by_name.find(lower(name));
+		return (it == by_name.end()) ? nullptr : it->second;
 	}
 
 	// The codes of the tables of built-in functions: v nothing, b Int8, B UInt8, h Int16, H UInt16, i Int32, I UInt32, l Int64,
