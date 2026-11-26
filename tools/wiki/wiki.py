@@ -343,7 +343,7 @@ def category_page(dialect, category, cmds):
 # command, a category or a difference is listed last, under "More", so that a new page never goes missing.
 GROUPS = [("Getting started", ["Installation", "Building"]),
           ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Include-Files", "Userlib-Declarations"]),
-          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
+          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Blitz-Recompiler", "Environment-Variables"])]
 
 
 def page_title(page):
