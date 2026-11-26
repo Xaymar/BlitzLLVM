@@ -118,6 +118,7 @@ class Compiler:
     def __init__(self, path, wine):
         self.path = path
         self.wine = wine
+        self.quiet = True  # -q; the first versions of the compiler do not know it (see build)
         self.display = [] if os.environ.get("DISPLAY") or os.name == "nt" else ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24"]
         if wine:
             self.env = dict(os.environ, WINEARCH="win32", WINEPREFIX=os.environ.get("WINEPREFIX", "/opt/wine32"), WINEDEBUG="-all",
@@ -132,7 +133,7 @@ class Compiler:
             self.llvm = bool(re.search(r"Compiler version:20\d\d\.", self.version))
 
     def compile_cmd(self, source, output, extra=()):
-        cmd = [self.path, "-q"] + list(extra) + ["-o", output, source]
+        cmd = [self.path] + (["-q"] if self.quiet else []) + list(extra) + ["-o", output, source]
         return (["wine"] + cmd) if self.wine else cmd
 
     def program_path(self, directory, name):
@@ -169,6 +170,9 @@ def build(compiler, directory, name, counters=None, extra=(), source=None, own=N
             if own:
                 benchutil.copy_synced(os.path.join(HERE, "%s_%s.bi" % (counters, own)), os.path.join(directory, counters + "_compiler.bi"))
         r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
+        if r.returncode != 0 and compiler.quiet and "Unknown option -q" in r.stdout + r.stderr:
+            compiler.quiet = False
+            r = procutil.run(compiler.compile_cmd(src, program, extra), cwd=directory, capture_output=True, text=True, env=compiler.env)
         if r.returncode == 0 and os.path.isfile(program):
             return program, variant
         tried.append(variant + ": " + (r.stdout + r.stderr).strip()[-300:])
