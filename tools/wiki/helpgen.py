@@ -17,6 +17,10 @@ buttons. See docs/Help.md for the design.
   assets/                      help.css, help.js, search.js (the search index) and the logo.
   media/                       The images, animations and sounds that the pages use.
 
+The paths of the help of Blitz3D (commands/index.htm, commands/2d_commands/<Name>.htm, commands/3d_commands/<Name>.htm,
+language/index.html, language/<Page>.html, credits.html) are kept as small pages that forward to the new ones, so that
+editors that open them for F1 and old bookmarks keep working.
+
 Everything is made from the same text as the wiki, so the help is generated while packaging and never committed.
 """
 import html
@@ -345,6 +349,21 @@ Blitz3D, BlitzPlus and BlitzBasic were made by Mark Sibly and Blitz Research Ltd
 </html>
 """
 
+REDIRECT = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="0; url=%(url)s">
+<link rel="canonical" href="%(url)s">
+<title>Moved</title>
+</head>
+<body>
+<p>This page moved to <a href="%(url)s">%(url)s</a>.</p>
+</body>
+</html>
+"""
+
+
 def write(path, text):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -628,6 +647,20 @@ def search_index(site, summaries):
           "window.HELP_INDEX=%s;\n" % json.dumps(rows, ensure_ascii=False, separators=(",", ":")))
 
 
+def redirects(site):
+    """The paths of the help of Blitz3D, forwarding to the new pages."""
+    out = site.out
+    for c in site.commands:
+        side = "3d" if c.dialect == categories.B3D else "2d"
+        write(os.path.join(out, "commands", side + "_commands", c.name + ".htm"),
+              REDIRECT % {"url": "../%s.html" % c.name})
+    write(os.path.join(out, "commands", "index.htm"), REDIRECT % {"url": "index.html"})
+    write(os.path.join(out, "language", "index.html"), REDIRECT % {"url": "../pages/Language.html"})
+    for name in site.sources:
+        write(os.path.join(out, "language", name + ".html"), REDIRECT % {"url": "../pages/%s.html" % name})
+    write(os.path.join(out, "credits.html"), REDIRECT % {"url": "index.html#credits"})
+
+
 def build_help(commands, out, wiki):
     """Writes the whole help into out. wiki is the wiki module (its text and page functions are used)."""
     shutil.rmtree(out, ignore_errors=True)
@@ -642,6 +675,7 @@ def build_help(commands, out, wiki):
         guide_page(site, name, title, text)
     home_page(site)
     search_index(site, summaries)
+    redirects(site)
 
     assets = os.path.join(HERE, "help")
     for fn in ("help.css", "help.js"):
