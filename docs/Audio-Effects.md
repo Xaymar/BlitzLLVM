@@ -207,42 +207,42 @@ No `FreeListener` is added: `FreeEntity` on the listener already does that, as i
 `CreateListener` will say so. With the setters above, freeing the listener is only needed to move it to another entity
 (or use `EntityParent`).
 
-## Scenes: audio mixes
+## Audio scenes
 
-A scene is an **audio mix** (decided, see *Decisions*): an object that holds what buses, effects and the listener should
-be set to. It follows the Create / Set / Render pattern of the 3D commands: a program creates its mixes once, sets their
+An **audio scene** (decided, see *Decisions*; FMOD and Wwise call it a snapshot) is an object that holds what buses,
+effects and the listener should be set to. It is not a bus: it never changes which bus anything plays on. It follows the Create / Set / Render pattern of the 3D commands: a program creates its scenes once, sets their
 values while loading, and applies one when the scene changes, the way it creates entities and then calls `RenderWorld`.
 
 | Command | What it does |
 | --- | --- |
-| `mix = CreateAudioMix()` | An empty mix. It holds nothing until values are set in it. |
-| `FreeAudioMix mix` | Frees it. Values it applied stay where they are. |
-| `mix2 = CopyAudioMix(mix)` | A copy, to make a variant of a scene. |
-| `AudioMixVolume mix, bus, volume#` | The bus' volume in this mix. |
-| `AudioMixParam mix, effect, param%, value#` | An effect parameter in this mix (bus effects only, see below). |
-| `AudioMixBypass mix, effect, bypass%` | Whether the effect is bypassed in this mix. |
-| `AudioMixListener mix, setting%, value#` | A listener setting in this mix: `BB_LISTENER_ROLLOFF`, `_DOPPLER`, `_DISTANCE`, `_SPEEDOFSOUND`, `_RADIUS` (1 to 5, from audio.bb). |
-| `ClearAudioMix mix[, target=0]` | Forgets what the mix holds for one bus, effect or (0) everything. |
-| `CaptureAudioMix mix` | Fills the mix with what everything is at right now: every bus volume, every bus effect parameter and bypass, the listener settings. |
-| `ApplyAudioMix mix[, fade_ms%=0]` | Fades everything the mix holds to its values. Anything the mix doesn't hold is left alone. |
-| `BlendAudioMix mix_a, mix_b, weight#[, fade_ms%=0]` | Applies a mix of two mixes: `weight` 0 is all `mix_a`, 1 is all `mix_b`. |
+| `scene = CreateAudioScene()` | An empty scene. It holds nothing until values are set in it. |
+| `FreeAudioScene scene` | Frees it. Values it applied stay where they are. |
+| `scene2 = CopyAudioScene(scene)` | A copy, to make a variant of a scene. |
+| `AudioSceneVolume scene, bus, volume#` | The bus' volume in this scene. |
+| `AudioSceneParam scene, effect, param%, value#` | An effect parameter in this scene (bus effects only, see below). |
+| `AudioSceneBypass scene, effect, bypass%` | Whether the effect is bypassed in this scene. |
+| `AudioSceneListener scene, setting%, value#` | A listener setting in this scene: `BB_LISTENER_ROLLOFF`, `_DOPPLER`, `_DISTANCE`, `_SPEEDOFSOUND`, `_RADIUS` (1 to 5, from audio.bb). |
+| `ClearAudioScene scene[, target=0]` | Forgets what the scene holds for one bus, effect or (0) everything. |
+| `CaptureAudioScene scene` | Fills the scene with what everything is at right now: every bus volume, every bus effect parameter and bypass, the listener settings. |
+| `ApplyAudioScene scene[, fade_ms%=0]` | Fades everything the scene holds to its values. Anything the scene doesn't hold is left alone. |
+| `BlendAudioScene scene_a, scene_b, weight#[, fade_ms%=0]` | Applies a blend of two scenes: `weight` 0 is all `scene_a`, 1 is all `scene_b`. |
 
 Rules:
 
-- **Only what is set.** A mix holds only the values set in it (or captured), so a "pause" mix that only turns the world
-  bus down and closes a low-pass leaves the music and the listener alone. Applying several mixes in a row layers them.
-- **Last apply wins.** Applying a mix while another one is still fading starts every value from where it is at that
+- **Only what is set.** A scene holds only the values set in it (or captured), so a "pause" scene that only turns the world
+  bus down and closes a low-pass leaves the music and the listener alone. Applying several scenes in a row layers them.
+- **Last apply wins.** Applying a scene while another one is still fading starts every value from where it is at that
   moment. The direct setters (`AudioBusVolume`, `AudioEffectParam`, `ListenerDoppler`, ...) keep working and do the same.
-- **Blending.** `BlendAudioMix` goes over everything either mix holds. A value held by both is mixed by `weight`. A
+- **Blending.** `BlendAudioScene` goes over everything either scene holds. A value held by both is mixed by `weight`. A
   value held by only one is mixed with that value's default (what it had when the bus or effect was created, or
   `CreateListener`'s numbers for the listener). Calling it every frame with a changing weight gives a crossfade that
   follows the player, e.g. by distance into a cave mouth; each call fades from the current value, so a fade time of
   about a frame keeps it smooth.
-- **Freed things drop out.** When a bus or effect is freed, every mix forgets its values, so applying an old mix never
+- **Freed things drop out.** When a bus or effect is freed, every scene forgets its values, so applying an old scene never
   touches a handle that was reused.
-- **Bus effects only.** Channel effects end with their channel, so a mix can't hold them; `AudioMixParam` on a channel
+- **Bus effects only.** Channel effects end with their channel, so a scene can't hold them; `AudioSceneParam` on a channel
   effect is a runtime error.
-- **Not every setting fades.** A mix doesn't hold the falloff curve (`ListenerFalloff`), as a curve can't fade.
+- **Not every setting fades.** A scene doesn't hold the falloff curve (`ListenerFalloff`), as a curve can't fade.
 
 ### Example: planet and space segments
 
@@ -254,28 +254,28 @@ Global world    = CreateAudioBus()
 Global thin     = AddAudioEffect(world, BB_EFFECT_LOWPASS)
 
 ; Create and set once, while loading.
-Global planet = CreateAudioMix()
-AudioMixListener planet, BB_LISTENER_DISTANCE, 1
-AudioMixListener planet, BB_LISTENER_ROLLOFF, 1
-AudioMixListener planet, BB_LISTENER_DOPPLER, 1
-AudioMixParam planet, thin, BB_EFFECTPARAM_FREQUENCY, 20000
+Global planet = CreateAudioScene()
+AudioSceneListener planet, BB_LISTENER_DISTANCE, 1
+AudioSceneListener planet, BB_LISTENER_ROLLOFF, 1
+AudioSceneListener planet, BB_LISTENER_DOPPLER, 1
+AudioSceneParam planet, thin, BB_EFFECTPARAM_FREQUENCY, 20000
 
-Global space = CreateAudioMix()
-AudioMixListener space, BB_LISTENER_DISTANCE, 50      ; 1 unit = 50 meters out here
-AudioMixListener space, BB_LISTENER_ROLLOFF, 0.2      ; ships stay audible far away
-AudioMixListener space, BB_LISTENER_DOPPLER, 0.1      ; a hint of shift, as a game effect
-AudioMixParam space, thin, BB_EFFECTPARAM_FREQUENCY, 2500  ; cockpit sound only, no air outside
+Global space = CreateAudioScene()
+AudioSceneListener space, BB_LISTENER_DISTANCE, 50      ; 1 unit = 50 meters out here
+AudioSceneListener space, BB_LISTENER_ROLLOFF, 0.2      ; ships stay audible far away
+AudioSceneListener space, BB_LISTENER_DOPPLER, 0.1      ; a hint of shift, as a game effect
+AudioSceneParam space, thin, BB_EFFECTPARAM_FREQUENCY, 2500  ; cockpit sound only, no air outside
 
 ; Apply when the scene changes.
-ApplyAudioMix planet
+ApplyAudioScene planet
 
 Function LeaveAtmosphere()
-	ApplyAudioMix space, 3000
+	ApplyAudioScene space, 3000
 End Function
 
 ; Or follow the altitude smoothly, every frame.
 Function UpdateAtmosphere(height#)
-	BlendAudioMix planet, space, height / 10000.0, 20
+	BlendAudioScene planet, space, height / 10000.0, 20
 End Function
 ```
 
@@ -290,33 +290,33 @@ Global cave   = AddAudioEffect(world, BB_EFFECT_REVERB)
 Global muffle = AddAudioEffect(world, BB_EFFECT_LOWPASS)
 AudioEffectParam cave, BB_EFFECTPARAM_MIX, 0   ; dry outside
 
-Global inside = CreateAudioMix()
-AudioMixParam inside, cave, BB_EFFECTPARAM_SIZE, 0.85
-AudioMixParam inside, cave, BB_EFFECTPARAM_MIX, 0.4
-AudioMixListener inside, BB_LISTENER_DOPPLER, 0.5
+Global inside = CreateAudioScene()
+AudioSceneParam inside, cave, BB_EFFECTPARAM_SIZE, 0.85
+AudioSceneParam inside, cave, BB_EFFECTPARAM_MIX, 0.4
+AudioSceneListener inside, BB_LISTENER_DOPPLER, 0.5
 
-Global outside = CreateAudioMix()
-AudioMixParam outside, cave, BB_EFFECTPARAM_MIX, 0
-AudioMixListener outside, BB_LISTENER_DOPPLER, 1
+Global outside = CreateAudioScene()
+AudioSceneParam outside, cave, BB_EFFECTPARAM_MIX, 0
+AudioSceneListener outside, BB_LISTENER_DOPPLER, 1
 
-Global paused = CreateAudioMix()
-AudioMixParam paused, muffle, BB_EFFECTPARAM_FREQUENCY, 600
-AudioMixVolume paused, world, 0.5
+Global paused = CreateAudioScene()
+AudioSceneParam paused, muffle, BB_EFFECTPARAM_FREQUENCY, 600
+AudioSceneVolume paused, world, 0.5
 
-Global before = CreateAudioMix()           ; filled when the menu opens
+Global before = CreateAudioScene()           ; filled when the menu opens
 
 Function OpenPauseMenu()
-	CaptureAudioMix before
-	ApplyAudioMix paused, 200
+	CaptureAudioScene before
+	ApplyAudioScene paused, 200
 End Function
 
 Function ClosePauseMenu()
-	ApplyAudioMix before, 200              ; back to whatever was playing, cave or not
+	ApplyAudioScene before, 200              ; back to whatever was playing, cave or not
 End Function
 ```
 
-The direct setters with their fade times stay, for one-off changes that don't need a mix. Reverb zones (an entity with a
-radius whose mix blends in as the listener walks in) can build on `BlendAudioMix` later.
+The direct setters with their fade times stay, for one-off changes that don't need a scene. Reverb zones (an entity with a
+radius whose scene blends in as the listener walks in) can build on `BlendAudioScene` later.
 
 ## How it is mixed
 
@@ -411,8 +411,8 @@ air absorption and no send has no callback, as today.
 - Bit-identity test: the existing audio tests render the same output before and after the change.
 - Radius: a source passing through the listener at 60 m/s with `r` = 3 swings in pitch over about 0.1 s and pans
   across without a jump; with `r` = 0 the render matches today's `doppler_on.wav`.
-- Mixes: applying a mix changes only what it holds; `CaptureAudioMix` then `ApplyAudioMix` restores every value;
-  `BlendAudioMix` at weight 0 and 1 gives the same output as applying either mix.
+- Scenes: applying a scene changes only what it holds; `CaptureAudioScene` then `ApplyAudioScene` restores every value;
+  `BlendAudioScene` at weight 0 and 1 gives the same output as applying either scene.
 - Fades: a parameter step produces no sample-to-sample jump above a threshold.
 - Wiki: a page *Audio buses and effects* under the language additions, one page per command as usual, with
   before/after recordings in the media folder.
@@ -421,9 +421,9 @@ air absorption and no send has no callback, as today.
 
 1. Listener: `ListenerRolloff/Doppler/Distance` and `SpeedOfSound` with fades, `ListenerFalloff`, the getters,
    `ChannelDoppler`, and `ListenerRadius`/`ChannelRadius`. On its own this covers the planet/space case, so it comes first.
-2. Buses and audio mixes: `CreateAudioBus`, `FreeAudioBus`, `AudioBusParent`, `AudioBusVolume`, pause/resume/stop,
-   `ChannelBus`, `SoundBus`; `CreateAudioMix` and the mix commands for bus volumes and listener settings.
-3. Effects: the chain, parameters, fades, bypass, the twelve effect types, `AudioMixParam`/`AudioMixBypass`, and
+2. Buses and audio scenes: `CreateAudioBus`, `FreeAudioBus`, `AudioBusParent`, `AudioBusVolume`, pause/resume/stop,
+   `ChannelBus`, `SoundBus`; `CreateAudioScene` and the scene commands for bus volumes and listener settings.
+3. Effects: the chain, parameters, fades, bypass, the twelve effect types, `AudioSceneParam`/`AudioSceneBypass`, and
    `<audio.bb>`.
 4. Channel effect chains (`AddChannelEffect`), sends, `ListenerAirAbsorption`.
 5. Later, if wanted: reverb zones.
@@ -435,7 +435,7 @@ air absorption and no send has no callback, as today.
   instead of a one-off `ChannelLowPass`.
 - **Parameters by numbered constant** (Xaymar, 26 Nov 2026), not by name: faster, and the shipped `<audio.bb>` gives
   the numbers names.
-- **Scenes are audio mixes (snapshots)** (Xaymar, 26 Nov 2026), not just fades in the program: they fit the
-  Create / Set / Render pattern of the 3D commands.
+- **Snapshots, named audio scenes** (Xaymar, 26 Nov 2026), not just fades in the program: they fit the
+  Create / Set / Render pattern of the 3D commands. Named "scene" so they are not mistaken for buses (submixes).
 - **Own effects** (Xaymar, 26 Nov 2026). The effects are written in the runtime. SoLoud's filters were never reachable
   from Blitz3D code, so there is nothing to stay compatible with.
