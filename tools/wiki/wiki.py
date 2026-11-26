@@ -26,6 +26,8 @@ holds:
   @param width  Width in pixels, rounded up to a power of two.
   @returns      A texture handle.
   @gap          What differs from the original or is not implemented.
+  @syntax       (Language Features) a keyword or type the compiler knows by itself: the forms it is written in.
+  @extension    (with @syntax) the originals do not have it, so it gets the BlitzLLVM icon.
 
 Differences.md is never edited by hand. It is a list of links, made by build from two places:
 
@@ -117,7 +119,7 @@ class Command:
 
     @property
     def extension(self):
-        return self.key in suite_functions.EXTENSIONS
+        return self.key in suite_functions.EXTENSIONS or getattr(self, "keyword_extension", False)
 
     @property
     def products(self):
@@ -191,6 +193,9 @@ def load():
                         c.dialect, c.category = dialect, category.replace("-", " ")
                         c.syntax = re.findall(r"^@syntax[ \t]+(.+)$", body, re.M)
                         body = re.sub(r"^@syntax.*\n?", "", body, flags=re.M).strip()
+                        # "@extension": a keyword that the originals do not have, such as the vector types.
+                        c.keyword_extension = bool(re.search(r"^@extension[ \t]*$", body, re.M))
+                        body = re.sub(r"^@extension[ \t]*\n?", "", body, flags=re.M).strip()
                         commands.append(c)
                     elif re.search(r"^@syntax", body, re.M):
                         # A command whose signature in the list of functions cannot say what it takes (a number or a text of any
@@ -342,7 +347,7 @@ def category_page(dialect, category, cmds):
 # The groups of the sidebar, in order, and the hand written pages in each. A page that is in no group and is not a
 # command, a category or a difference is listed last, under "More", so that a new page never goes missing.
 GROUPS = [("Getting started", ["Installation", "Building"]),
-          ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Include-Files", "Userlib-Declarations"]),
+          ("Language", ["Language", "Types", "Vectors-and-Matrices", "Parameter-Modes", "Language-Quirks", "Include-Files", "Userlib-Declarations"]),
           ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
 
 
