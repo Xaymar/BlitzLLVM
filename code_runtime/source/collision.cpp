@@ -257,20 +257,47 @@ namespace bb::collision {
 	// where they are is most of the time of UpdateWorld. So for each rule the boxes around the entities are put in a tree
 	// when the first mover needs it, and a mover only looks at the entities whose box touches the box around its path.
 	// The tree is only a filter: what it lets through is tested the same as before, and in the same order.
-	struct bp_box {
-		float lo[3], hi[3];
+	// A box as two vectors of four on a 16 byte boundary: the three floats of a corner and a number that the node or item keeps there.
+	struct alignas(16) bp_box {
+		float   lo[3];
+		int32_t a = 0;
+		float   hi[3];
+		int32_t b = 0;
 	};
+	static_assert(sizeof(bp_box) == 32, "A box is two vectors.");
 
+	// A node of the tree, 32 bytes: a leaf keeps its items (a = -1 - the first, b = how many), any other node its two children (a, b), which
+	// are never the root, so never 0.
 	struct bp_node {
-		bp_box   box;
-		uint32_t first, count; // Items of a leaf, which has no children.
-		int      left, right;  // Nodes, or -1.
+		bp_box box;
+		bool     leaf() const { return box.a < 0; }
+		uint32_t first() const { return uint32_t(-1 - box.a); }
+		uint32_t count() const { return uint32_t(box.b); }
+		int      left() const { return box.a; }
+		int      right() const { return box.b; }
+		void     set_items(uint32_t first, uint32_t count)
+		{
+			box.a = -1 - int32_t(first);
+			box.b = int32_t(count);
+		}
+		void set_children(int left, int right)
+		{
+			box.a = left;
+			box.b = right;
+		}
 	};
 
+	// An entity in the tree, 32 bytes: its box, with its number in the entities of the type (or its handle) in a.
 	struct bp_item {
 		bp_box box;
-		int    index; // In the entities of the type.
+		int    index() const { return box.a; }
 	};
+	inline bp_item make_item(bp_box box, int index)
+	{
+		box.a = index;
+		box.b = 0;
+		return { box };
+	}
 
 	// Everything that the box of an entity in the tree is made from. A tree is kept from one UpdateWorld to the next for as long as
 	// none of these changed. What moves in the update is always tested, and its numbers change all the time, so they are left out.
@@ -378,7 +405,7 @@ namespace bb::collision {
 			const float skew = 1e-5f;
 			if ((fabsf(m[0] * m[4] + m[1] * m[5] + m[2] * m[6]) > skew) || (fabsf(m[0] * m[8] + m[1] * m[9] + m[2] * m[10]) > skew) || (fabsf(m[4] * m[8] + m[5] * m[9] + m[6] * m[10]) > skew)) {
 				float inf = INFINITY;
-				out       = { { -inf, -inf, -inf }, { inf, inf, inf } };
+				out       = { { -inf, -inf, -inf }, 0, { inf, inf, inf }, 0 };
 				return true;
 			}
 			box3  local = collision_box(e);
@@ -395,7 +422,7 @@ namespace bb::collision {
 			break;
 		}
 		}
-		out = { { box.lo.x, box.lo.y, box.lo.z }, { box.hi.x, box.hi.y, box.hi.z } };
+		out = { { box.lo.x, box.lo.y, box.lo.z }, 0, { box.hi.x, box.hi.y, box.hi.z }, 0 };
 		return true;
 	}
 
@@ -477,9 +504,7 @@ namespace bb::collision {
 				node.box.hi[k] = fmaxf(node.box.hi[k], bp.items[i].box.hi[k]);
 			}
 		}
-		node.first = first;
-		node.count = count;
-		node.left = node.right = -1;
+		node.set_items(first, count);
 		int self = int(bp.nodes.size);
 		bp.nodes.push(node);
 		if (count <= 4) {
@@ -509,8 +534,7 @@ namespace bb::collision {
 		});
 		int left  = build_node(bp, first, half);
 		int right = build_node(bp, first + half, count - half);
-		bp.nodes[uint32_t(self)].left  = left;
-		bp.nodes[uint32_t(self)].right = right;
+		bp.nodes[uint32_t(self)].set_children(left, right);
 		return self;
 	}
 
@@ -557,7 +581,7 @@ namespace bb::collision {
 				bp->always.push(int(k));
 				continue;
 			}
-			bp->items.push({ was, int(k) });
+			bp->items.push(make_item(was, int(k)));
 		}
 		if (bp->items.size) {
 			build_node(*bp, 0, bp->items.size);
@@ -639,15 +663,15 @@ namespace bb::collision {
 				if (apart(node.box)) {
 					continue;
 				}
-				if (node.left < 0) {
-					for (uint32_t i = node.first; i < node.first + node.count; i++) {
+				if (node.leaf()) {
+					for (uint32_t i = node.first(); i < node.first() + node.count(); i++) {
 						if (!apart(bp.items[i].box)) {
-							bp.found.push(bp.items[i].index);
+							bp.found.push(bp.items[i].index());
 						}
 					}
 				} else {
-					stack[top++] = node.right;
-					stack[top++] = node.left;
+					stack[top++] = node.right();
+					stack[top++] = node.left();
 				}
 			}
 		}
@@ -758,9 +782,7 @@ namespace bb::collision {
 				node.box.hi[k] = fmaxf(node.box.hi[k], pick_tree.items[i].box.hi[k]);
 			}
 		}
-		node.first = first;
-		node.count = count;
-		node.left = node.right = -1;
+		node.set_items(first, count);
 		int self = int(pick_tree.nodes.size);
 		pick_tree.nodes.push(node);
 		if (count <= 4) {
@@ -789,8 +811,7 @@ namespace bb::collision {
 		});
 		int left  = build_pick_node(first, half);
 		int right = build_pick_node(first + half, count - half);
-		pick_tree.nodes[uint32_t(self)].left  = left;
-		pick_tree.nodes[uint32_t(self)].right = right;
+		pick_tree.nodes[uint32_t(self)].set_children(left, right);
 		return self;
 	}
 
@@ -857,7 +878,7 @@ namespace bb::collision {
 				pick_tree.always.push(handle);
 				continue;
 			}
-			pick_tree.items.push({ box, handle });
+			pick_tree.items.push(make_item(box, handle));
 		}
 		if (pick_tree.items.size) {
 			build_pick_node(0, pick_tree.items.size);
@@ -1025,16 +1046,16 @@ namespace bb::collision {
 				if (apart(node.box)) {
 					continue;
 				}
-				if (node.left < 0) {
-					for (uint32_t i = node.first; i < node.first + node.count; i++) {
+				if (node.leaf()) {
+					for (uint32_t i = node.first(); i < node.first() + node.count(); i++) {
 						// What changed is already in the list, with its new numbers, so the old box is not to be used.
-						if (!apart(pick_tree.items[i].box) && !pick_tree.loose[uint32_t(pick_tree.items[i].index) - 1]) {
-							pick_tree.found.push(pick_tree.items[i].index);
+						if (!apart(pick_tree.items[i].box) && !pick_tree.loose[uint32_t(pick_tree.items[i].index()) - 1]) {
+							pick_tree.found.push(pick_tree.items[i].index());
 						}
 					}
 				} else {
-					stack[top++] = node.right;
-					stack[top++] = node.left;
+					stack[top++] = node.right();
+					stack[top++] = node.left();
 				}
 			}
 		}
