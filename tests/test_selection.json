@@ -12,7 +12,7 @@
 		},
 		"audio": {
 			"description": "Sound, music and what comes out of the speakers.",
-			"tests": ["^suite-(debug-)?(compile|run)-(audio(_endgraphics)?$|fail-(playsound|freesound|stopchannel)_)", "^audio-output"]
+			"tests": ["^suite-(debug-)?(compile|run)-(audio(_endgraphics)?$|fail-(playsound|freesound|stopchannel|listenerrolloff|speedofsound)_)", "^audio-output"]
 		},
 		"network": {
 			"description": "Sockets, streams over the network and multiplayer.",
