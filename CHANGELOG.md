@@ -86,7 +86,7 @@ Each of these made a program from the original behave differently.
 
 ### Fixes
 
-- Exit crash 0xC0000005 in `SDL_DestroyAudioQueue`: `EndGraphics` no longer shuts down all of SDL ([#575](https://github.com/Xaymar/BlitzLLVM/pull/575)). Xaymar's Windows runs exit with code 0 on this fix; the access violation itself was never reproduced here.
+- Exit crash 0xC0000005 in `SDL_DestroyAudioQueue`: `EndGraphics` no longer shuts down all of SDL ([#575](https://github.com/Xaymar/BlitzLLVM/pull/575)).
 - Missing C headers in the Windows package made the inline runtime build without it ([#584](https://github.com/Xaymar/BlitzLLVM/pull/584)); Direct3D 11 multisampled depth ([#585](https://github.com/Xaymar/BlitzLLVM/pull/585)).
 - Wiki tables show every parameter and `""` defaults ([#689](https://github.com/Xaymar/BlitzLLVM/pull/689), [#690](https://github.com/Xaymar/BlitzLLVM/pull/690)); help media is stored as WebP and Ogg ([#698](https://github.com/Xaymar/BlitzLLVM/pull/698)).
 
