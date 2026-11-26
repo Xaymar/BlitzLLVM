@@ -81,8 +81,8 @@ blitzcc -g -O2 program.bb      # debug information in an optimized build
 blitzcc --console -o program program.bb   # Windows: a console program (by default programs have no console window, see [[Differences]])
 blitzcc --icon game.ico -o game game.bb      # Windows: the icon of the program (without it, programs get the BlitzLLVM icon)
 blitzcc -k                     # list all keywords, runtime functions and userlib functions
-blitzcc +k                     # same, with the syntax of the functions, the way Blitz3D lists them (Left$ ( param1$,param2% ))
-blitzcc --dump-keywords        # same, with the syntax in our own notation, every type by its name (Left:String param1:String, param2:Int32)
+blitzcc +k                     # same, with the syntax of the functions, the way Blitz3D lists them (Left$ ( string$,count% ))
+blitzcc --dump-keywords        # same, with the syntax in our own notation, every type by its name (Left:String string:String, count:Int32)
 blitzcc -v                     # print the version of the compiler and runtime, like the original
 blitzcc --version              # print "blitzcc <version>" and exit
 ```
