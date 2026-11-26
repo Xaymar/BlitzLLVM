@@ -149,7 +149,8 @@ _RULES = {
         (r"^(createphysics|freephysics|getphysics|physics)", B3D, "Physics"),
         (r"^entity", B3D, "Entities"),
         (r"^(tform|projected|vectoryaw|vectorpitch|deltayaw|deltapitch)", B3D, "Transforms"),
-        (r"^(createlistener|emitsound|setfalloff|getfalloff|setchannelfalloff|getchannelfalloff)", B3D, "3D Sound"),
+        (r"^(createlistener|emitsound|setfalloff|getfalloff|setchannelfalloff|getchannelfalloff|(get)?listener|(get)?speedofsound|"
+         r"(get)?channeldoppler|(get)?channelradius)", B3D, "3D Sound"),
         (r"^(anim|addanimseq|extractanimseq|loadanimseq|setanimkey|setanimtime|animate|md2|loadmd2)", B3D, "Animation"),
         (r"^(bsp|loadbsp)", B3D, "BSP"),
         (r"terrain", B3D, "Terrain"),
