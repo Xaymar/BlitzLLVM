@@ -288,8 +288,9 @@ Bus pause/stop go through the runtime's own channel list (it knows which channel
 ### DSP
 
 The effects are written in the runtime (`code_runtime/source/sound_effects.c`), not taken from SDL3_mixer (it has none)
-and not from SoLoud's sources. SoLoud's filters are written against its own `Filter`/`FilterInstance` classes and
-sample layout, so using them means rewriting them anyway. The algorithms are standard and public:
+and not from SoLoud's sources (decided, see *Decisions*). SoLoud's filters were never reachable from Blitz3D code, and
+they are written against SoLoud's own `Filter`/`FilterInstance` classes and sample layout, so using them would mean
+rewriting them anyway. The algorithms are standard and public:
 
 - Filters and EQ: biquads with the coefficients from Robert Bristow-Johnson's *Audio EQ Cookbook*.
 - Echo: a delay line with feedback and a one-pole low-pass in the loop.
@@ -355,6 +356,10 @@ with the cutoff moved by `bb_channel_follow` for air absorption. A channel witho
    numbered parameters with constants (`BB_LOWPASS_FREQUENCY`), checked by the compiler but many more constants.
 2. **Snapshots?** Proposed: no, fades are enough (see *"Scenes"*). Snapshots can be added later without changing the
    rest.
-3. **Effects on single channels?** This design puts effects on buses only (a channel that needs its own effect goes on
-   its own bus), apart from `ChannelLowPass`. `AddChannelEffect` could come later.
-4. **Own DSP or SoLoud's filters?** Proposed: own, for the reasons in *DSP*.
+
+## Decisions
+
+- **Effects on buses only** (Xaymar, 26 Nov 2026). A channel that needs its own effect goes on its own bus. The only
+  per-channel filter is `ChannelLowPass`, for occlusion; there is no `AddChannelEffect`.
+- **Own effects** (Xaymar, 26 Nov 2026). The effects are written in the runtime. SoLoud's filters were never reachable
+  from Blitz3D code, so there is nothing to stay compatible with.
