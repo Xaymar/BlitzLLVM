@@ -134,10 +134,11 @@ namespace blitz::lsp {
 	////////////////////////////////////////////////////////////////////////////
 	// Life cycle
 	////////////////////////////////////////////////////////////////////////////
-	server::server(sender send, std::filesystem::path commands_file, std::filesystem::path userlibs_dir, std::filesystem::path help_file)
+	server::server(sender send, std::filesystem::path userlibs_dir, std::filesystem::path help_file)
 		: _send(std::move(send)), _userlibs_dir(std::move(userlibs_dir))
 	{
-		_commands.load(commands_file);
+		// The commands are the ones the compiler knows, so the editor knows every command that blitzcc compiles.
+		_commands.add(keywords::runtime_functions());
 		try {
 			if (!help_file.empty()) {
 				std::ifstream in(help_file, std::ios::binary);
@@ -156,6 +157,7 @@ namespace blitz::lsp {
 		}
 		try {
 			if (!_userlibs_dir.empty()) _userlibs = keywords::load_userlibs(_userlibs_dir);
+			_commands.add(keywords::userlib_functions(_userlibs));
 		} catch (std::exception const&) {
 		}
 		// The parser reads what the editor has open before it reads the disk.
@@ -879,10 +881,8 @@ namespace blitz::lsp {
 		if (!field) {
 			if (auto* c = _commands.find(w.name)) {
 				std::string help = help_text(w.name, true);
-				return "```blitzbasic\n" + c->signature() + "\n```\n" + (help.empty() ? std::string() : help + "\n\n") + "Command of the runtime (" + c->module + ")";
-			}
-			for (auto const& f : _userlibs) {
-				if (lower(f.name) == w.name) return "```blitzbasic\n" + f.name + "\n```\nFunction of a userlib";
+				return "```blitzbasic\n" + c->signature() + "\n```\n" + (help.empty() ? std::string() : help + "\n\n") +
+					   (c->lib.empty() ? std::string("Command of the runtime") : "Function of the userlib " + c->lib);
 			}
 			if (bridge::is_keyword(w.name)) {
 				std::string help = help_text(w.name, false);
@@ -980,8 +980,8 @@ namespace blitz::lsp {
 			items.push(std::move(i));
 		};
 		for (auto const* k : KEYWORDS) add(k, 14, "");
+		for (auto const& k : keywords::language()) add(k, 14, "");
 		for (auto const& [key, c] : _commands.all()) add(c.name, 3, c.signature());
-		for (auto const& f : _userlibs) add(f.name, 3, "userlib");
 		if (s) {
 			for (auto const& sym : s->symbols) {
 				int kind = 6;
