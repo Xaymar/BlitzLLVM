@@ -9,4 +9,5 @@ MovieVolume movie, 0.5   ; half as loud
 ```
 @param movie  A movie handle from [OpenMovie](OpenMovie).
 @param volume  The volume from 0 to 1.
+@gap The sound of a movie plays on a channel of its own ([MovieChannel](MovieChannel)), so [ChannelVolume](ChannelVolume) on it sets the same volume, and the volume of its [audio bus](Audio-Buses) applies on top.
 @gap A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
