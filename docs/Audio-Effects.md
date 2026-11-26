@@ -104,34 +104,53 @@ build "world → master" and "music → master", or "cave → world → master".
 
 ### Effects
 
-Effects sit in a chain on a bus and run in the order they were added. Parameters are set by name, so new effects and
-parameters never need new commands, and code reads like `AudioEffectParam echo, "delay", 0.3`.
+Effects sit in a chain on a bus and run in the order they were added. Parameters are numbered constants (decided, see
+*Decisions*): a number is faster to look up than a name, and `Include "<audio.bb>"` gives every number a name, so code
+reads like `AudioEffectParam echo, BB_EFFECTPARAM_DELAY, 0.3`.
 
 | Command | What it does |
 | --- | --- |
 | `effect = AddAudioEffect(bus, type[, position=-1])` | Adds an effect to the bus' chain, at the end or before `position`. |
 | `FreeAudioEffect effect` | Removes it. A reverb's tail is cut. |
-| `AudioEffectParam effect, name$, value#[, fade_ms%=0]` | Sets a parameter, fading linearly over `fade_ms`. An unknown name is a runtime error. |
-| `value# = GetAudioEffectParam(effect, name$)` | The value it is at (or fading to). |
+| `AudioEffectParam effect, param%, value#[, fade_ms%=0]` | Sets a parameter, fading linearly over `fade_ms`. A parameter the effect doesn't have is a runtime error. |
+| `value# = GetAudioEffectParam(effect, param%)` | The value it is at (or fading to). |
 | `AudioEffectBypass effect, bypass%` | Turns it off and on without losing its settings. Tails ring out. |
 
-Every effect has `"mix"` (0 dry to 1 fully processed, default 1). Effect types for the first version, with SoLoud's set
-as a guide for what Blitz programs are likely to want:
+The parameter numbers are shared by all effects: `BB_EFFECTPARAM_FREQUENCY` is 2 for the low-pass and the shelves
+alike, so there are 18 parameter constants instead of one set per effect. Each effect accepts only its own. Neither
+parameter numbers nor effect types use 0, and 0 is a runtime error that suggests the include: Blitz turns a misspelt or
+not-included `BB_` name into a new variable that is 0, which would otherwise quietly set the wrong parameter.
+
+| Parameter | Constant | Parameter | Constant |
+| --- | --- | --- | --- |
+| 1 mix | `BB_EFFECTPARAM_MIX` | 10 predelay | `BB_EFFECTPARAM_PREDELAY` |
+| 2 frequency | `BB_EFFECTPARAM_FREQUENCY` | 11 threshold | `BB_EFFECTPARAM_THRESHOLD` |
+| 3 resonance | `BB_EFFECTPARAM_RESONANCE` | 12 ratio | `BB_EFFECTPARAM_RATIO` |
+| 4 gain | `BB_EFFECTPARAM_GAIN` | 13 attack | `BB_EFFECTPARAM_ATTACK` |
+| 5 delay | `BB_EFFECTPARAM_DELAY` | 14 release | `BB_EFFECTPARAM_RELEASE` |
+| 6 feedback | `BB_EFFECTPARAM_FEEDBACK` | 15 ceiling | `BB_EFFECTPARAM_CEILING` |
+| 7 damping | `BB_EFFECTPARAM_DAMPING` | 16 drive | `BB_EFFECTPARAM_DRIVE` |
+| 8 size | `BB_EFFECTPARAM_SIZE` | 17 rate | `BB_EFFECTPARAM_RATE` |
+| 9 width | `BB_EFFECTPARAM_WIDTH` | 18 bits | `BB_EFFECTPARAM_BITS` |
+
+Every effect has `BB_EFFECTPARAM_MIX` (0 dry to 1 fully processed, default 1). Effect types for the first version, with
+SoLoud's set as a guide for what Blitz programs are likely to want (parameters by their constant without the
+`BB_EFFECTPARAM_` prefix):
 
 | Type | Constant | Parameters (default) |
 | --- | --- | --- |
-| 1 Low-pass | `BB_EFFECT_LOWPASS` | `"frequency"` Hz (20000), `"resonance"` Q (0.707) |
-| 2 High-pass | `BB_EFFECT_HIGHPASS` | `"frequency"` (20), `"resonance"` (0.707) |
-| 3 Band-pass | `BB_EFFECT_BANDPASS` | `"frequency"` (1000), `"resonance"` (1) |
-| 4 Peak EQ | `BB_EFFECT_PEAK` | `"frequency"` (1000), `"resonance"` (1), `"gain"` dB (0) |
-| 5 Low shelf | `BB_EFFECT_LOWSHELF` | `"frequency"` (200), `"gain"` dB (0) |
-| 6 High shelf | `BB_EFFECT_HIGHSHELF` | `"frequency"` (4000), `"gain"` dB (0) |
-| 7 Echo | `BB_EFFECT_ECHO` | `"delay"` s (0.3, up to 4), `"feedback"` (0.4), `"damping"` (0.3, low-pass on repeats), `"mix"` (0.5) |
-| 8 Reverb | `BB_EFFECT_REVERB` | `"size"` (0.5), `"damping"` (0.5), `"width"` (1), `"predelay"` s (0), `"mix"` (0.3) |
-| 9 Compressor | `BB_EFFECT_COMPRESSOR` | `"threshold"` dB (-12), `"ratio"` (4), `"attack"` s (0.01), `"release"` s (0.2), `"gain"` dB (0) |
-| 10 Limiter | `BB_EFFECT_LIMITER` | `"ceiling"` dB (-0.3), `"release"` s (0.05) |
-| 11 Distortion | `BB_EFFECT_DISTORTION` | `"drive"` (0.5), `"mix"` (1) |
-| 12 Lo-fi | `BB_EFFECT_LOFI` | `"rate"` Hz (8000), `"bits"` (8) |
+| 1 Low-pass | `BB_EFFECT_LOWPASS` | `FREQUENCY` Hz (20000), `RESONANCE` Q (0.707) |
+| 2 High-pass | `BB_EFFECT_HIGHPASS` | `FREQUENCY` (20), `RESONANCE` (0.707) |
+| 3 Band-pass | `BB_EFFECT_BANDPASS` | `FREQUENCY` (1000), `RESONANCE` (1) |
+| 4 Peak EQ | `BB_EFFECT_PEAK` | `FREQUENCY` (1000), `RESONANCE` (1), `GAIN` dB (0) |
+| 5 Low shelf | `BB_EFFECT_LOWSHELF` | `FREQUENCY` (200), `GAIN` dB (0) |
+| 6 High shelf | `BB_EFFECT_HIGHSHELF` | `FREQUENCY` (4000), `GAIN` dB (0) |
+| 7 Echo | `BB_EFFECT_ECHO` | `DELAY` s (0.3, up to 4), `FEEDBACK` (0.4), `DAMPING` (0.3, low-pass on repeats), `MIX` (0.5) |
+| 8 Reverb | `BB_EFFECT_REVERB` | `SIZE` (0.5), `DAMPING` (0.5), `WIDTH` (1), `PREDELAY` s (0), `MIX` (0.3) |
+| 9 Compressor | `BB_EFFECT_COMPRESSOR` | `THRESHOLD` dB (-12), `RATIO` (4), `ATTACK` s (0.01), `RELEASE` s (0.2), `GAIN` dB (0) |
+| 10 Limiter | `BB_EFFECT_LIMITER` | `CEILING` dB (-0.3), `RELEASE` s (0.05) |
+| 11 Distortion | `BB_EFFECT_DISTORTION` | `DRIVE` (0.5), `MIX` (1) |
+| 12 Lo-fi | `BB_EFFECT_LOFI` | `RATE` Hz (8000), `BITS` (8) |
 
 Later, if asked for: chorus/flanger, pitch shift, convolution reverb from a sound file.
 
@@ -202,7 +221,7 @@ Function EnterSpace(seconds# = 3)
 	ListenerDistance 50, ms                      ; 1 unit = 50 meters out here
 	ListenerRolloff 0.2, ms                      ; ships stay audible far away
 	ListenerDoppler 0.1, ms                      ; a hint of shift, as a game effect
-	AudioEffectParam thin, "frequency", 2500, ms ; cockpit sound only, no air outside
+	AudioEffectParam thin, BB_EFFECTPARAM_FREQUENCY, 2500, ms ; cockpit sound only, no air outside
 End Function
 
 Function EnterAtmosphere(seconds# = 3)
@@ -210,7 +229,7 @@ Function EnterAtmosphere(seconds# = 3)
 	ListenerDistance 1, ms
 	ListenerRolloff 1, ms
 	ListenerDoppler 1, ms
-	AudioEffectParam thin, "frequency", 20000, ms
+	AudioEffectParam thin, BB_EFFECTPARAM_FREQUENCY, 20000, ms
 End Function
 ```
 
@@ -225,7 +244,7 @@ Include "<audio.bb>"
 Global world = CreateAudioBus()           ; game sounds
 Global music = CreateAudioBus()           ; music, never muffled
 Global cave  = AddAudioEffect(world, BB_EFFECT_REVERB)
-AudioEffectParam cave, "mix", 0           ; dry outside
+AudioEffectParam cave, BB_EFFECTPARAM_MIX, 0 ; dry outside
 Global muffle = AddAudioEffect(world, BB_EFFECT_LOWPASS)
 
 SoundBus footsteps, world
@@ -233,18 +252,18 @@ SoundBus gunshot, world
 ChannelBus PlayMusic("theme.ogg", 1), music
 
 Function EnterCave()
-	AudioEffectParam cave, "size", 0.85
-	AudioEffectParam cave, "mix", 0.4, 500  ; fade in over half a second
+	AudioEffectParam cave, BB_EFFECTPARAM_SIZE, 0.85
+	AudioEffectParam cave, BB_EFFECTPARAM_MIX, 0.4, 500  ; fade in over half a second
 	ListenerDoppler 0.5
 End Function
 
 Function LeaveCave()
-	AudioEffectParam cave, "mix", 0, 800
+	AudioEffectParam cave, BB_EFFECTPARAM_MIX, 0, 800
 	ListenerDoppler 1
 End Function
 
 Function OpenPauseMenu()
-	AudioEffectParam muffle, "frequency", 600, 200
+	AudioEffectParam muffle, BB_EFFECTPARAM_FREQUENCY, 600, 200
 	AudioBusVolume world, 0.5, 200
 End Function
 ```
@@ -352,14 +371,14 @@ with the cutoff moved by `bb_channel_follow` for air absorption. A channel witho
 
 ## Open questions
 
-1. **Parameters by name or by constant?** Proposed: by name (`"frequency"`), checked at run time. The alternative is
-   numbered parameters with constants (`BB_LOWPASS_FREQUENCY`), checked by the compiler but many more constants.
-2. **Snapshots?** Proposed: no, fades are enough (see *"Scenes"*). Snapshots can be added later without changing the
+1. **Snapshots?** Proposed: no, fades are enough (see *"Scenes"*). Snapshots can be added later without changing the
    rest.
 
 ## Decisions
 
 - **Effects on buses only** (Xaymar, 26 Nov 2026). A channel that needs its own effect goes on its own bus. The only
   per-channel filter is `ChannelLowPass`, for occlusion; there is no `AddChannelEffect`.
+- **Parameters by numbered constant** (Xaymar, 26 Nov 2026), not by name: faster, and the shipped `<audio.bb>` gives
+  the numbers names.
 - **Own effects** (Xaymar, 26 Nov 2026). The effects are written in the runtime. SoLoud's filters were never reachable
   from Blitz3D code, so there is nothing to stay compatible with.
