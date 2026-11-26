@@ -17,6 +17,7 @@
 std::vector<blitz::warning_info> const& blitz::all_warnings()
 {
 	static const std::vector<warning_info> list{
+		{ "compatibility-blitz-array-suffix", 0, false, "A Blitz array is used with a type behind its name (a#[1] after Local a#[5]), which the original rejects with \"Variable type mismatch\"." },
 		{ "compatibility-one-line-if-else", 0, false, "A command or function called with its arguments in parentheses right before Else (If a Then Foo(1, 2) Else ...), which the original rejects with \"')' expected\"." },
 		{ "literal-out-of-range", 1, false, "A whole number without a suffix does not fit into an Int, so it is clamped to the Int range like in the original." },
 		{ "implicit-lossy-int-to-int", 1, false, "An integer is turned into one that is smaller or has another sign, which can change the number." },

@@ -1523,6 +1523,30 @@ elseif(CASE STREQUAL "warnings")
 	expect_ok()
 	blitzcc(-c -Wcompatibility-bogus "${WORK}/onelineif.bb")
 	expect_failed()
+	# A Blitz array used with a type behind its name, which the original rejects (off at every level, -Wcompatibility). A field keeps it.
+	file(WRITE "${WORK}/arraysuffix.bb"
+		"Global weights#[5]\n"
+		"Local names$[2]\n"
+		"weights#[0] = 10.0 : weights[1] = 35.0\n"
+		"names$[1] = \"x\"\n"
+		"Print weights#[0] + weights[1] + Len(names[1])\n"
+		"Type Thing\n"
+		"\tField v#[3]\n"
+		"End Type\n"
+		"Local t.Thing = New Thing\n"
+		"t\\v#[1] = 2\n")
+	blitzcc(-c -W4 "${WORK}/arraysuffix.bb")
+	expect_ok()
+	expect_no_err("[-Wcompatibility-blitz-array-suffix]")
+	blitzcc(-c -Wcompatibility "${WORK}/arraysuffix.bb")
+	expect_ok()
+	expect_err("arraysuffix.bb:3:1: warning: The original rejects a type behind the name of the Blitz array 'weights' where it is used (\"Variable type mismatch\"). [-Wcompatibility-blitz-array-suffix]")
+	expect_err("\nnotice: Leave out the type here ('weights[...]'), it only belongs where the array is declared.")
+	expect_err("arraysuffix.bb:4:1: warning: The original rejects a type behind the name of the Blitz array 'names'")
+	expect_err("arraysuffix.bb:5:7: warning:")
+	foreach(_FINE IN ITEMS "arraysuffix.bb:1:" "arraysuffix.bb:2:" "arraysuffix.bb:3:22:" "arraysuffix.bb:5:21:" "arraysuffix.bb:10:")
+		expect_no_err("${_FINE}")
+	endforeach()
 	file(WRITE "${WORK}/fielddefault_array.bb"
 		"Type Thing\n"
 		"\tField list[3] = 1\n"

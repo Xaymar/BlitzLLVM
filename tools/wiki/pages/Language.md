@@ -166,6 +166,10 @@ Print grid(1, 2)
 9
 ```
 
+A Blitz array (`Local weights#[5]`, also `Global` and `Field`) has a fixed size and is used with square brackets, without the type behind the name: `weights[0] = 1.5`.
+
+@difference A Blitz array used with its type behind the name (`weights#[0]`) compiles, but the original rejects it with `Variable type mismatch`; the warning `compatibility-blitz-array-suffix` (`-Wcompatibility`) points at it, see [[Warnings]].
+
 ## Types
 
 A `Type` describes a record with fields. `New` creates one, `Delete` removes it, and `\` reads a field. Every type keeps a list of its objects, which `First`, `Last`, `Before`, `After` and `For ... Each` walk through, and `Insert` moves an object inside that list.
