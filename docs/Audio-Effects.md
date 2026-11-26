@@ -363,6 +363,9 @@ Rules for movie channels:
   `SeekMovie` and loops.
 - **No doppler.** A pitch shift would play the sound faster or slower than the picture and drift the two apart, so an
   emitted movie gets distance, panning and radius but no doppler shift. `ChannelDoppler` on a movie channel is ignored.
+  Shifting the pitch without changing the speed would need a time-stretching pitch shifter, which costs far more than
+  everything else here, so it is not planned (Xaymar, 26 Nov 2026). A low-pass on the movie's channel
+  (`AddChannelEffect`) already gives most of the effect of a screen passing by or far away.
 - **Effects stay on during seeks.** A seek clears the stream, not the channel's effect chain.
 
 ## How it is mixed
