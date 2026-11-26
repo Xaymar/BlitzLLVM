@@ -205,6 +205,14 @@ function stage(name) {
   result = await request('textDocument/completion', { textDocument: { uri }, position: { line: 0, character: 0 } });
   const labels = result.result.items.map((i) => i.label);
   for (const l of ['While', 'Print', 'Add', 'Player']) assert(labels.includes(l), l);
+  // Every command of the list is known, whatever type character its result has (an unknown one dropped Microseconds)
+  if (process.argv[3]) {
+    const known = new Set(labels.map((l) => l.toLowerCase()));
+    const missing = fs.readFileSync(process.argv[3], 'utf8').split(/\r?\n/)
+      .filter((line) => line && !line.startsWith('#') && line.split('\t').length >= 4)
+      .map((line) => line.split('\t')[0]).filter((name) => !known.has(name));
+    assert.deepStrictEqual(missing, [], 'commands the server does not know');
+  }
 
   stage('completion');
 
