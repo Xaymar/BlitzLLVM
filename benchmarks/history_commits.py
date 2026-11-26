@@ -45,6 +45,18 @@ def code_key(repo, commit):
     return tuple(r.stdout.split()) if r.returncode == 0 else (commit,)
 
 
+NETWORK_ERRORS = ("Could not resolve host", "unable to access 'https://", "Failed to connect to", "SSL connect error", "Connection timed out",
+                  "Couldn't resolve host")
+
+
+def network_failure(log, output):
+    """Whether a build failed because the network was gone (the messages of git and curl when they can not reach a server)."""
+    text = output
+    if os.path.isfile(log):
+        text += open(log, errors="replace").read()
+    return any(e in text for e in NETWORK_ERRORS)
+
+
 def fetch_binary(repo_slug, commit, dest):
     """Downloads the artifacts of the CI runs of a commit with `gh` and gives the folder that has blitzcc (or None). For a machine that can not build."""
     shutil.rmtree(dest, ignore_errors=True)
@@ -137,8 +149,15 @@ def main():
             build = subprocess.CompletedProcess([], 0 if built else 1, "", "no CI binary for this commit")
         elif args.build_script:
             built = os.path.join(scratch, "install")
-            build = procutil.run(["powershell", "-NoProfile", "-File", args.build_script, "-Repo", args.repo, "-Commit", first, "-Out", built,
-                                    "-Build", args.build_dir], capture_output=True, text=True)
+            # A build that fails because the network is gone for a moment (a laptop on Wi-Fi: git can not reach the server while it fetches
+            # a dependency) is tried again a few minutes later.
+            for attempt in range(4):
+                build = procutil.run(["powershell", "-NoProfile", "-File", args.build_script, "-Repo", args.repo, "-Commit", first, "-Out", built,
+                                        "-Build", args.build_dir], capture_output=True, text=True)
+                if build.returncode == 0 or not network_failure(os.path.join(built, "build.log"), build.stdout + build.stderr) or attempt == 3:
+                    break
+                print("%s %s build lost the network, again in 3 minutes" % (label, first[:8]), flush=True)
+                time.sleep(180)
             for root, _, files in os.walk(built):
                 if "blitzcc.exe" in files:
                     built = root
@@ -156,6 +175,11 @@ def main():
             log = os.path.join(built or "", "build.log")
             if os.path.isfile(log):
                 tail = "\n".join(open(log, errors="replace").read().splitlines()[-12:])
+            if network_failure(log, build.stdout + build.stderr):
+                # Not saved: the next run of this script tries the state again.
+                print("%s %s build failed without network, not saved" % (label, first[:8]), flush=True)
+                shutil.rmtree(scratch, ignore_errors=True)
+                continue
             record["build_error"] = (tail or build.stdout + build.stderr)[-1500:]
             print("%s %s build failed" % (label, first[:8]), flush=True)
         else:
