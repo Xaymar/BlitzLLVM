@@ -188,6 +188,13 @@ What "applies to the file" means for each feature:
   to the Type, and a library that declares `Field lives% = 3` means it, wherever `New` is written. The warning
   `field-default-ignored` follows the same rule.
 
+This works for a compiled language because every decision is made at compile time from the place in the source,
+never by checking a mode while the program runs (Rust editions are per crate and mixed in one binary in the same way,
+and C files built with different flags link together). The rule for later features: each one names the place in the
+source that decides it, like the two above. A feature that has no such place, for example one that changes how two
+files work together, is program wide instead, and only a pragma in the main file (or the CLI option) turns it on; a
+pragma for it in an included file is `pragma-misplaced`.
+
 The shipped includes (`Include "<keys.bb>"` and the others, see [Include files](Include-Files.md)) only hold `Const`s
 today, so no pragma changes anything in them. Once one ships functions, it can carry its own `;#pragma` line like any
 other library, and programs of both kinds can include it.
