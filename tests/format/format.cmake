@@ -12,6 +12,23 @@ cmake_minimum_required(VERSION 3.20)
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")
 
+# file(WRITE) writes text on Windows and turns each \n into \r\n, so the files that blitz-format reads are written through a process,
+# whose output is saved byte for byte. The arguments are joined like those of file(WRITE); ARGV<n> keeps the ; of comments that ARGN
+# would split on. The text goes on a command line, so keep it well below 32 KB.
+function(write_bytes FILE)
+	set(_TEXT "")
+	if(ARGC GREATER 1)
+		math(EXPR _LAST "${ARGC} - 1")
+		foreach(_I RANGE 1 ${_LAST})
+			string(APPEND _TEXT "${ARGV${_I}}")
+		endforeach()
+	endif()
+	execute_process(COMMAND "${CMAKE_COMMAND}" -E echo_append "${_TEXT}" OUTPUT_FILE "${FILE}" RESULT_VARIABLE _RC)
+	if(NOT _RC EQUAL 0)
+		message(FATAL_ERROR "Writing ${FILE} failed: ${_RC}")
+	endif()
+endfunction()
+
 # Run blitz-format in WORK, results are RC, OUT and ERR. Set INPUT to a file to read stdin from.
 function(blitz_format)
 	if(INPUT)
@@ -62,15 +79,15 @@ function(expect_out WANT)
 	endif()
 endfunction()
 
-# Write the text as it is (file(WRITE) adds no line break), format it from stdin with the arguments and expect the output.
+# Write the text as it is (write_bytes adds no line break), format it from stdin with the arguments and expect the output.
 function(expect_format SOURCE WANT)
-	file(WRITE "${WORK}/in.bb" "${SOURCE}")
+	write_bytes("${WORK}/in.bb" "${SOURCE}")
 	set(INPUT "${WORK}/in.bb")
 	blitz_format(${ARGN})
 	expect_rc(0)
 	expect_out("${WANT}")
 	# The result is stable.
-	file(WRITE "${WORK}/again.bb" "${WANT}")
+	write_bytes("${WORK}/again.bb" "${WANT}")
 	set(INPUT "${WORK}/again.bb")
 	blitz_format(${ARGN})
 	expect_rc(0)
@@ -354,7 +371,7 @@ elseif(CASE STREQUAL "config")
 	file(WRITE "${WORK}/project/.blitz-format" "# the project style\nindent_style = space\nindent_width = 2\n")
 	file(WRITE "${WORK}/project/sub/blitz-format.json" "{ \"indent-style\": \"tab\", \"keyword_case\": \"lower\" }\n")
 	foreach(_DIR IN ITEMS project/other project/sub project/sub/deep)
-		file(WRITE "${WORK}/${_DIR}/a.bb" "If a\nPRINT 1\nEndIf\n")
+		write_bytes("${WORK}/${_DIR}/a.bb" "If a\nPRINT 1\nEndIf\n")
 	endforeach()
 	blitz_format_text(project/other/a.bb)
 	expect_rc(0)
