@@ -52,8 +52,14 @@ def program_path(directory, exe=None):
     fixed = os.environ.get("BENCH_PROGRAM")
     if fixed:
         os.makedirs(os.path.dirname(os.path.abspath(fixed)), exist_ok=True)
-        if os.path.isfile(fixed):
-            os.remove(fixed)
+        # A program that was stopped (a timeout) can hold its file on Windows for a while after it was killed.
+        for attempt in range(60):
+            try:
+                if os.path.isfile(fixed):
+                    os.remove(fixed)
+                break
+            except PermissionError:
+                time.sleep(1)
         return os.path.abspath(fixed)
     if exe is None:
         exe = platform.system() == "Windows"
