@@ -319,8 +319,10 @@ than less:
     case the handle lookups protect against today, so each conversion says in its PR why the pointer can't outlive the
     object.
 
-24. **No undefined behaviour for the optimizer to use.** The optimizations that turned past bugs into CVEs or into
-    paths that never return all start from UB: a null check after a dereference is dropped, a loop without side
+24. **No undefined behaviour for the optimizer to use, and checks for when the optimizer is wrong.** Past CVEs and
+    paths that never return came from two places: optimizer bugs on well-defined code (GCC and LLVM both shipped
+    over-eager passes that were fixed later), which the `static_assert`s on size and offsets of rules 9 and 21 and the
+    test suite on the pinned toolchain catch, and UB that a correct optimizer is allowed to use: a null check after a dereference is dropped, a loop without side
     effects is assumed to end, a signed overflow or an out-of-range shift is assumed not to happen, a value read
     through a pointer of another type is assumed not to change. So: bits are reinterpreted with `std::bit_cast` or
     `memcpy`, never through a cast pointer or a union; checks come before the access they guard; arithmetic that can
