@@ -88,6 +88,7 @@ SETS = {
     "quick": "compile,emitted,flythrough,waterfall,dungeon,forest",
     "real": "forest_full,spacebattle,spacebattle_physics",
 }
+WRAPPER = ""  # --wrapper: a folder of files that are put next to every program while it runs
 FRAME_TIMEOUT = 1.0  # --frame-timeout: seconds per frame a scene benchmark may take
 FRAMES = 0  # --frames: the frames of every scene benchmark instead of its own number (0 keeps them)
 GPU = os.environ.get("BENCH_GPU", "0")  # --gpu and --depth: SetGfxDriver and the depth of Graphics3D, passed to every scene benchmark
@@ -193,6 +194,27 @@ def parse_result(path):
 def run_program(compiler, program, env, cwd, timeout=900, args=()):
     """Runs a program; gives (rusage CPU seconds of it, wall seconds, output)."""
     full = dict(compiler.env, **env)
+    # --wrapper: files that go next to the program while it runs, such as DxWrapper's ddraw.dll, which turns the original's Direct3D 7
+    # into Direct3D 9 (that a laptop runs on its dedicated GPU). They are removed again afterwards, the next compiler gets its own.
+    placed = []
+    for f in sorted(os.listdir(WRAPPER)) if WRAPPER else []:
+        target = os.path.join(os.path.dirname(program), f)
+        if not os.path.exists(target):
+            shutil.copy(os.path.join(WRAPPER, f), target)
+            placed.append(target)
+    try:
+        return run_program_with(compiler, program, full, cwd, timeout, args)
+    finally:
+        for target in placed:
+            for attempt in range(30):
+                try:
+                    os.remove(target)
+                    break
+                except OSError:
+                    time.sleep(1)
+
+
+def run_program_with(compiler, program, full, cwd, timeout, args):
     before = resource.getrusage(resource.RUSAGE_CHILDREN) if resource else None
     t0 = time.time()
     r = procutil.run(compiler.run_cmd(program) + list(args), cwd=cwd, env=full, capture_output=True, text=True, timeout=timeout)
@@ -522,7 +544,7 @@ BENCHMARKS = {
 
 
 def main():
-    global QUICK, FRAMES, GPU, DEPTH, FRAME_TIMEOUT
+    global QUICK, FRAMES, GPU, DEPTH, FRAME_TIMEOUT, WRAPPER
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--blitzcc")
     parser.add_argument("--wine", action="store_true", help="the original Blitz3D under Wine (tools/original_blitz3d.sh setup)")
@@ -538,10 +560,12 @@ def main():
     parser.add_argument("--depth", default=DEPTH, help="the graphics depth of every scene benchmark ($BENCH_DEPTH, 0 is what the program picks)")
     parser.add_argument("--runs-for", action="append", default=[], metavar="NAME=N",
                         help="another number of runs for one benchmark (the original's forest on a laptop's integrated GPU: forest_full=1)")
+    parser.add_argument("--wrapper", default="", help="a folder whose files are put next to every program while it runs (DxWrapper for the original)")
     parser.add_argument("--frame-timeout", type=float, default=FRAME_TIMEOUT, help="seconds per frame a scene benchmark run may take (default 1)")
     parser.add_argument("--out")
     args = parser.parse_args()
     FRAME_TIMEOUT = args.frame_timeout
+    WRAPPER = os.path.abspath(args.wrapper) if args.wrapper else ""
     runs_for = {k: int(v) for k, v in (item.split("=", 1) for item in args.runs_for)}
     FRAMES, GPU, DEPTH = args.frames, str(args.gpu), str(args.depth)
     if args.quick or args.set == "quick":
@@ -555,7 +579,7 @@ def main():
     out = args.out or os.path.join(RESULTS, args.label + ".json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     record = {"label": args.label, "rev": args.rev, "date": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-              "compiler": compiler.version, "runs": args.runs, "set": args.set or ("quick" if args.quick else ""), "machine": machine(args.wine), "benchmarks": {}}
+              "compiler": compiler.version, "wrapper": sorted(os.listdir(WRAPPER)) if WRAPPER else [], "runs": args.runs, "set": args.set or ("quick" if args.quick else ""), "machine": machine(args.wine), "benchmarks": {}}
     if os.path.isfile(out):
         record["benchmarks"] = json.load(open(out)).get("benchmarks", {})
     for name in args.only.split(","):
