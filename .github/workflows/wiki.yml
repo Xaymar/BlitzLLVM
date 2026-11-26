@@ -1,5 +1,6 @@
 # The wiki is generated, and the result is not part of root. Only what it is made from is: the text of the commands
-# (tools/wiki/text, tools/wiki/pages), the categories and wiki.py, the list of commands (tests/suite/functions.txt), and
+# (tools/wiki/text, tools/wiki/pages), the categories and wiki.py, the list of commands (tools/suite_functions.py, made from the originals in the submodules
+# third_party/blitz3d and third_party/blitzplus_msvc2017, and from builtins.inc), and
 # the hand written pages and media in docs/wiki. This workflow
 #   - on a pull request: only runs `wiki.py check` (broken links, missing pages, sections out of order; it builds into a
 #     temporary folder) and builds the HTML help. The wiki is not built for publishing and nothing is committed. The examples
@@ -19,8 +20,10 @@ on:
     paths: &paths
       - 'tools/wiki/**'
       - 'docs/wiki/**'
-      - 'tests/suite/functions.txt'
       - 'tools/suite_functions.py'
+      - 'code_compiler/source/builtins.inc'
+      - 'third_party/blitz3d'
+      - 'third_party/blitzplus_msvc2017'
       - '.github/workflows/wiki.yml'
   pull_request:
     branches: [root]
@@ -44,6 +47,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out the originals
+        # The list of commands is made from their sources (tools/suite_functions.py), it is not in the repository.
+        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
       - name: Build
         if: github.event_name != 'pull_request'
         run: python3 tools/wiki/wiki.py build --out wiki-out
@@ -76,6 +82,9 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out the originals
+        # The list of commands is made from their sources (tools/suite_functions.py).
+        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
       - name: Download the nightly compiler
         env:
           GH_TOKEN: ${{ github.token }}

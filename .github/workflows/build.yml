@@ -610,6 +610,9 @@ jobs:
             echo "VERSION=$VERSION"
             echo "ARTIFACT=blitzllvm-${VERSION}-vscode"
           } >> "$GITHUB_ENV"
+      - name: Check out the originals
+        # The grammar takes the names of the commands from the list of tools/suite_functions.py, which is made from their sources.
+        run: git submodule update --init --depth 1 third_party/blitz3d third_party/blitzplus_msvc2017
       - name: Package the extension
         # The extension does not contain blitz-lsp: that is in every package of BlitzLLVM, and the extension finds it in PATH or in
         # blitz.installPath. The version of a .vsix has three numbers, the first three of the version of the build.
