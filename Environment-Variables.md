@@ -41,6 +41,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start. Th
 | `BLITZLLVM_WINDOW_THREAD` | `1` on Windows, `0` elsewhere | Has a thread of its own make the windows and handle their messages. On Windows this keeps the program running while a window is dragged or sized, which stops the program in the original. `0` goes back to the program's own thread doing it; `1` turns it on where it is off (tests use it). |
 | `BLITZLLVM_AUTOHDR` | `1` | The mode `SetGraphicsHDR` starts with: 0 off, 1 HDR output, 2 also buffers of more than 8 bits as they are. It does nothing without an HDR display. |
 | `BLITZLLVM_AUTOHDR_WHITE` | system | Brightness of SDR white in nits for the `average` of `SetGraphicsHDR`, 0 follows the system. |
+| `BLITZLLVM_AUTOHDR_BITS` | system | The bit depth per channel that `Dither` rounds to in HDR (6 to 12), for when the system does not say how many bits the display is driven with. 0 or anything else: no dither in HDR. |
 | `BLITZLLVM_AUTOHDR_DEBUG` | `0` | Prints to the console, and adds to `autohdr_debug.txt` in the folder of the program, what AutoHDR knew about the display each time the window's swapchain is made, for finding out why a display is not shown in HDR. |
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
