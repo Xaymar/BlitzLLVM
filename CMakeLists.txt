@@ -159,7 +159,7 @@ add_subdirectory("code_tidy")
 add_subdirectory("code_lsp")
 add_subdirectory("code_recompiler")
 
-# The HTML help, in the layout of the Blitz3D help: <prefix>/help in a plain install (the zips), <prefix>/share/doc/blitzllvm/help in the
+# The HTML help (docs/Help.md): <prefix>/help in a plain install (the zips), <prefix>/share/doc/blitzllvm/help in the
 # packages. It is generated from the wiki text by tools/wiki/wiki.py (and never committed), which needs Python.
 option(BLITZLLVM_REQUIRE_HELP "Fail instead of leaving the help out when Python is missing" OFF)
 find_package(Python3 QUIET COMPONENTS Interpreter)

@@ -8,7 +8,7 @@
                   differences from the originals (Differences) into --out (default build/wiki), together with the hand
                   written pages and the media from docs/wiki. The result is never committed to root: the Wiki workflow
                   builds it again on every push and publishes it to the wiki branch and the GitHub wiki.
-  wiki.py help    Writes the same text as static HTML in the layout of the Blitz3D help (see helpgen.py) into --out
+  wiki.py help    Writes the same text as a static HTML5 site (see helpgen.py and docs/Help.md) into --out
                   (default build/help). This is the help folder of the packages, and it is not committed either.
   wiki.py check   Builds into a temporary folder (or --out) and fails if a command has no category, a text file names an unknown command, a link points nowhere,
                   or an example does not compile (pass --blitzcc PATH to compile examples). An example whose first
@@ -343,7 +343,7 @@ def category_page(dialect, category, cmds):
 # command, a category or a difference is listed last, under "More", so that a new page never goes missing.
 GROUPS = [("Getting started", ["Installation", "Building"]),
           ("Language", ["Language", "Types", "Parameter-Modes", "Language-Quirks", "Include-Files", "Userlib-Declarations"]),
-          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Environment-Variables"])]
+          ("Tools", ["Warnings", "blitz-format", "Blitz-Tidy", "Blitz-Recompiler", "Environment-Variables"])]
 
 
 def page_title(page):
