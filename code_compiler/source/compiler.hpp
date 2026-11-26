@@ -75,6 +75,7 @@ namespace blitz {
 			uint32_t           count; // 0 if this is not an array.
 			uint32_t           index; // Index of the member in the LLVM structure.
 			shape_t            shape; // For vectors and matrices: their sizes.
+			ast::expression const* default_value = nullptr; // `Field x% = 5`, only used with field_defaults.
 		};
 
 		struct type_info {
@@ -109,6 +110,8 @@ namespace blitz {
 		std::set<std::string>                _declared;
 		std::map<std::string, std::string>   _strings;
 		std::map<std::string, variable>      _global_variables;
+		std::set<std::string>                _defaulting_types; // The Types whose field defaults New is working out, to refuse a New of one in them.
+		bool                                 _in_field_default = false; // While New works out a field default: only Globals and Consts can be used.
 		std::map<std::string, variable>      _arrays; // Dim arrays, which have their own names.
 		std::map<std::string, function_info> _functions;
 		std::map<std::string, type_info>     _types;
@@ -244,6 +247,9 @@ namespace blitz {
 
 		/** Evaluate arguments and operands from left to right instead of in the order of the original compiler. */
 		bool sane_evaluation_order = false;
+
+		/** Let New set the fields that have a default value (Field x% = 5) to it. The original accepts the default but never uses it. */
+		bool field_defaults = false;
 
 		/** Functions of the userlibs that the program may call, set before generating. */
 		std::vector<blitz::keywords::user_function> userlibs;

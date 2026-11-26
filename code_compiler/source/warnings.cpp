@@ -26,7 +26,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 		{ "implicit-lossy-real-to-real", 1, false, "A real number is turned into a smaller one, such as a Double into a Float." },
 		{ "implicit-string-to-number", 1, false, "A String is turned into a number, which is 0 if it isn't one." },
 		{ "implicit-lossy-int-to-real", 2, false, "An integer is turned into a real number that can't hold all of its values." },
-		{ "field-default-ignored", 2, false, "A Field has a default value (Field x% = 5), which is never used: like in the original, New sets the field to 0, 0.0, \"\" or Null." },
+		{ "field-default-ignored", 2, false, "A Field has a default value (Field x% = 5), which is never used: like in the original, New sets the field to 0, 0.0, \"\" or Null (--field-defaults uses it)." },
 		{ "implicit-variable", 2, false, "A variable that was never declared is used and becomes a local one." },
 		{ "return-missing-value", 2, false, "Return has no value in a function that was declared with a type." },
 		{ "return-type-mismatch", 2, false, "Return gives back a value of another type than the function was declared with." },

@@ -116,8 +116,8 @@ void blitz::compiler::register_types(ast::program const& program)
 			if (!f.typed) {
 				warn_typeless(f.where, f.name, "Field ");
 			}
-			if (f.default_value) {
-				warn(f.default_where, "field-default-ignored", "The default value of field '" + f.name + "' is never used, New sets the field to 0, 0.0, \"\" or Null like in the original.", "Remove it, and set the field after New.");
+			if (f.default_value && !field_defaults) {
+				warn(f.default_where, "field-default-ignored", "The default value of field '" + f.name + "' is never used, New sets the field to 0, 0.0, \"\" or Null like in the original.", "Set the field after New instead, or build with --field-defaults to use the default values.");
 			}
 			for (auto const& other : info.fields) {
 				if (lower(other.name) == lower(f.name)) {
@@ -130,6 +130,7 @@ void blitz::compiler::register_types(ast::program const& program)
 			field.sname = lower(f.struct_name);
 			field.count = 0;
 			field.index = index++;
+			field.default_value = field_defaults ? f.default_value.get() : nullptr;
 			if ((f.type == type::STRUCT) && !_types.count(field.sname)) {
 				throw err(f.where, "Unknown type '" + f.struct_name + "'.");
 			}
@@ -358,11 +359,51 @@ blitz::compiler::value blitz::compiler::gen_index(ast::index_access const* node)
 blitz::compiler::value blitz::compiler::gen_new(ast::new_object const* node)
 {
 	auto& info = need_type(node->type_name, node->where);
-	auto  end  = tmp(), size = tmp();
+	// With --field-defaults the default values are worked out first, from the top field down, so nothing they call can delete the
+	// object before it is filled in. They only see Globals and Consts, wherever the New is.
+	std::vector<std::pair<field_info const*, value>> defaults;
+	auto key = lower(info.name);
+	for (auto const& field : info.fields) {
+		if (!field.default_value) {
+			continue;
+		}
+		if (_defaulting_types.count(key)) {
+			throw err(node->where, "The default value of a field of '" + info.name + "' makes a new '" + info.name + "', which would never end.");
+		}
+		bool outer        = _in_field_default;
+		_in_field_default = true;
+		_defaulting_types.insert(key);
+		value v;
+		try {
+			v = gen(field.default_value);
+		} catch (...) {
+			_in_field_default = outer;
+			_defaulting_types.erase(key);
+			throw;
+		}
+		_in_field_default = outer;
+		_defaulting_types.erase(key);
+		if (field.shape.empty() && v.shape.empty()) {
+			v = convert(v, field.type, field.default_value->where, true, field.sname, &field.default_value->covers);
+		}
+		defaults.emplace_back(&field, v);
+	}
+	auto end = tmp(), size = tmp();
 	emit(end + " = getelementptr " + info.llvm + ", ptr null, i32 1");
 	emit(size + " = ptrtoint ptr " + end + " to i64");
 	auto object = call_runtime("bb_object_new", type::STRUCT, { { size, type::INT64 }, { info.list, type::STRUCT } });
 	object.sname = lower(info.name);
+	for (auto const& [field, v] : defaults) {
+		auto p = tmp();
+		emit(p + " = getelementptr inbounds " + info.llvm + ", ptr " + object.repr + ", i32 0, i32 " + std::to_string(field->index));
+		address target{ p, field->type, field->sname, 0, false };
+		target.shape = field->shape;
+		if (!target.shape.empty() || !v.shape.empty()) {
+			assign_aggregate(target, v, field->default_value->where, &field->default_value->covers);
+		} else {
+			store_value(target, v);
+		}
+	}
 	return object;
 }
 
