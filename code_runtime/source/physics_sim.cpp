@@ -533,7 +533,7 @@ void update_world(world_rec& w, float dt)
 			local_pose(*e, p0, q0, e->capt_pos, e->capt_rot);
 			memcpy(e->capt_scl, e->scale, sizeof(e->capt_scl));
 			memcpy(e->capt_color, e->color, sizeof(e->capt_color));
-			e->capt_alpha  = e->alpha;
+			e->capt_color[3]  = e->color[3];
 			e->captured    = true;
 			e->tween_alpha = w.alpha;
 			r.interpolating = true;

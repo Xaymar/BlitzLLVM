@@ -2032,7 +2032,7 @@ namespace bb::gfx {
 		bb::material const* paint     = s.painted ? &s.paint : nullptr;
 		int            texture_handle = layer_texture(e, paint, 0);
 		int            blend          = surface_blend(e, paint);
-		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
+		float          paint_alpha    = s.painted ? s.paint.color[3] : 1.0f;
 		texture_entry* texture        = texture_of(texture_handle);
 		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
 		// The original looks at the textures of a brush by how many there are: without BrushBlend or EntityBlend of 1 only a lone
@@ -2212,7 +2212,7 @@ namespace bb::gfx {
 			return; // The GPU draws it, see gpu_static.
 		}
 		// What is outside of the view is found from the record, without reading the rest of the entity or making its matrix.
-		static_assert(offsetof(bb::entity, rotation) == offsetof(bb::entity, position) + 3 * sizeof(float) && offsetof(bb::entity, scale) == offsetof(bb::entity, rotation) + 3 * sizeof(float), "place, rotation and scale are remembered as one piece");
+		static_assert(offsetof(bb::entity, rotation) == offsetof(bb::entity, position) + 4 * sizeof(float) && offsetof(bb::entity, scale) == offsetof(bb::entity, rotation) + 4 * sizeof(float), "place, rotation and scale are remembered as one piece");
 		bb::cull_record& record = bb::cull_record_of(handle);
 		if (c->planes && !mesh.parent && (record.epoch == bb::mesh_epoch) && (memcmp(record.state, mesh.position, sizeof(record.state)) == 0)
 			&& sphere_outside_view(record, c->origin, c->planes, c->camera_growth)) {
@@ -3482,7 +3482,7 @@ namespace bb::gfx {
 			push.material[0] = tween_color[0] * paint.color[0];
 			push.material[1] = tween_color[1] * paint.color[1];
 			push.material[2] = tween_color[2] * paint.color[2];
-			push.material[3] = item.alpha * paint.alpha;
+			push.material[3] = item.alpha * paint.color[3];
 			int fx = e->fx | paint.fx;
 			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
 			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // Vertex colors instead of the color of the entity.
@@ -3493,7 +3493,7 @@ namespace bb::gfx {
 			push.soft[1] = texture_layer(texture, texture_handle);
 			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
 			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
-			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
+			push.mask[0] = cutout ? 0.5f * item.alpha * paint.color[3] : 0.0f;
 			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // No fog.
 			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
 			push.extra[0] = (texture && (texture->flags & 0x10000)) ? 1.0f : 0.0f;
@@ -3773,7 +3773,7 @@ namespace bb::gfx {
 	static bool static_eligible(bb::entity& e)
 	{
 		if ((e.static_mode < 0) || (e.kind != bb::MESH) || e.hidden || e.parent || e.captured || e.order || e.sprite_mode || e.plane_divs || e.terrain || e.cls || e.has_cull_box
-			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.alpha <= 0.001f) || (e.surfaces.size == 0) || entity_has_stencil(e)) {
+			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.color[3] <= 0.001f) || (e.surfaces.size == 0) || entity_has_stencil(e)) {
 			return false;
 		}
 		if (!static_texture_ready(e.texture)) {
@@ -3781,7 +3781,7 @@ namespace bb::gfx {
 		}
 		for (uint32_t i = 0; i < e.surfaces.size; i++) {
 			bb::surface const& s = *e.surfaces[i];
-			if (s.skin || surface_is_blended(e, s, e.alpha) || (s.painted && !static_texture_ready(s.paint.texture))) {
+			if (s.skin || surface_is_blended(e, s, e.color[3]) || (s.painted && !static_texture_ready(s.paint.texture))) {
 				return false;
 			}
 		}
@@ -4058,7 +4058,7 @@ namespace bb::gfx {
 		bb::world_matrix(handle, m);
 		uint32_t   draws_before = draws.size, pushes_before = pushes.size, layers_before = layer_pushes.size;
 		uint32_t   triangles    = g.triangles_drawn;
-		draw_item  item         = { handle, e->alpha, 0.0f, 0 };
+		draw_item  item         = { handle, e->color[3], 0.0f, 0 };
 		draw_entity(item, 0, true);
 		g.triangles_drawn = triangles; // Nothing is drawn for this.
 		bool     ok    = (draws.size > draws_before);

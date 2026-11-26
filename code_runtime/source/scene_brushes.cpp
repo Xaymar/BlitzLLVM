@@ -70,7 +70,7 @@ void bb_brush_color(int32_t handle, float r, float g, float b)
 
 void bb_brush_alpha(int32_t handle, float alpha)
 {
-	need_brush(handle, "BrushAlpha").look.alpha = alpha < 0 ? 0 : (alpha > 1 ? 1 : alpha);
+	need_brush(handle, "BrushAlpha").look.color[3] = alpha < 0 ? 0 : (alpha > 1 ? 1 : alpha);
 }
 
 void bb_brush_shininess(int32_t handle, float shininess)
@@ -182,7 +182,7 @@ void bb_paint_entity(int32_t handle, int32_t brush)
 	entity*   e    = need(handle, "PaintEntity");
 	material& look = need_brush(brush, "PaintEntity").look;
 	memcpy(e->color, look.color, sizeof(e->color));
-	e->alpha     = look.alpha;
+	e->color[3]     = look.color[3];
 	e->shininess = look.shininess;
 	e->texture   = look.texture;
 	memcpy(e->layers, look.layers, sizeof(e->layers));
@@ -214,7 +214,7 @@ int32_t bb_find_surface(int32_t mesh, int32_t brush)
 	for (uint32_t i = 0; i < e->surfaces.size; i++) {
 		surface*        s = e->surfaces[i];
 		material const& m = s->painted ? s->paint : none;
-		if (!memcmp(m.color, look.color, sizeof(m.color)) && (m.alpha == look.alpha) && (m.shininess == look.shininess)
+		if (!memcmp(m.color, look.color, sizeof(m.color)) && (m.color[3] == look.color[3]) && (m.shininess == look.shininess)
 		    && (m.texture == look.texture) && !memcmp(m.layers, look.layers, sizeof(m.layers)) && (m.blend == look.blend) && (m.fx == look.fx)) {
 			return surface_handle(s);
 		}
@@ -229,7 +229,7 @@ int32_t bb_get_entity_brush(int32_t handle)
 	int32_t brush = bb_create_brush(255, 255, 255);
 	brush_entry& b = brush_table[uint32_t(brush) - 1];
 	memcpy(b.look.color, e->color, sizeof(b.look.color));
-	b.look.alpha     = e->alpha;
+	b.look.color[3]     = e->color[3];
 	b.look.shininess = e->shininess;
 	b.look.texture   = e->texture;
 	memcpy(b.look.layers, e->layers, sizeof(b.look.layers));

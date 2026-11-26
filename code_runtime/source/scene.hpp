@@ -300,8 +300,7 @@ namespace bb {
 
 	// What a brush says about how something looks, and what a surface remembers of the brush it was painted with.
 	struct material {
-		float color[3]  = { 1, 1, 1 };
-		float alpha     = 1;
+		alignas(16) float color[4] = { 1, 1, 1, 1 }; // Red, green, blue and alpha.
 		float shininess = 0;
 		int   texture   = 0; // Handle, 0 for none.
 		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
@@ -317,41 +316,41 @@ namespace bb {
 	};
 
 	struct surface {
-		skin_data* skin = nullptr; // If the vertices are moved by bones, which makes them different for each copy.
-		bool     bound_valid = false; // The box around the vertices below, which the renderer lets go of when the vertices change.
-		float    bound_min[3] = { 0, 0, 0 }, bound_max[3] = { 0, 0, 0 };
-		bool     painted = false;
-		material paint;
+		// Ordered like entity: what the renderer reads of every surface every frame first, the cut copy of surfaces with long edges last.
+		alignas(16) float bound_min[4] = { 0, 0, 0, 0 }; // The box around the vertices below, which the renderer lets go of when the vertices change.
+		alignas(16) float bound_max[4] = { 0, 0, 0, 0 };
+		bool     bound_valid = false;
+		bool     painted     = false;
+		bool     has_second  = false; // The surface keeps a second set of texture coordinates of its own.
+		// Set by the renderer for its own use, and cleared whenever the geometry changes.
+		bool     dirty       = true;
+		bool     cull_cached = false; // A cull_record was made from the box of the vertices, so it is not valid any more when they change.
+		bool     long_edges     = false; // See long_triangles below.
+		bool     clip_key_valid = false;
 		int      lightmap = 0; // The texture of the lightmap of a face of a level, which BSPLighting puts on the first layer or takes off.
-
-		vertex_array     vertices;
-		second_array     second;             // One for each vertex while has_second: see vertex3d_second.
-		bool             has_second = false; // The surface keeps a second set of texture coordinates of its own.
-		buffer<uint32_t> indices;
-
-		int refs = 1; // Copies of an entity share its surfaces.
-
 		// Counts up whenever the vertices or the triangles change (surface_changed), for what is made from them and kept, like the mesh of the physics library.
 		uint32_t geometry_version = 0;
 		// Counts the changes of geometry_version that only changed vertices (surface_vertices_changed): the triangles and how many vertices there
 		// are stayed the same. When both went up by the same, the renderer fits what it made from the triangles to the vertices instead of making it new.
 		uint32_t vertex_version = 0;
+		void*      gpu  = nullptr; // Set by the renderer for its own use.
+		skin_data* skin = nullptr; // If the vertices are moved by bones, which makes them different for each copy.
+		material   paint;
 
-		// Set by the renderer for its own use, and cleared whenever the geometry changes.
-		bool dirty = true;
-		void* gpu  = nullptr;
-		bool cull_cached = false; // A cull_record was made from the box of the vertices, so it is not valid any more when they change.
+		vertex_array     vertices;
+		second_array     second; // One for each vertex while has_second: see vertex3d_second.
+		buffer<uint32_t> indices;
+
+		int refs = 1; // Copies of an entity share its surfaces.
 
 		// Triangles with very long edges are cut to the view before they reach the GPU (see clip_surface in graphics_scene3d.cpp), as the
-		// software clipping of Direct3D 7 does. These are for that: whether the surface has such triangles (for the geometry_version
+		// software clipping of Direct3D 7 does. These are for that: whether the surface has such triangles (long_edges, for the geometry_version
 		// below), the cut copy that is drawn instead, and what it was cut for.
-		bool     long_edges        = false;
 		uint32_t long_edges_version = 0xFFFFFFFFu;
+		uint32_t clip_key_version   = 0;
 		buffer<long_triangle> long_triangles; // The triangles that have a long edge, so only those are looked at per frame.
-		surface* clip_draw         = nullptr;
-		bool     clip_key_valid    = false;
-		uint32_t clip_key_version  = 0;
-		float    clip_key[40]      = {};
+		surface* clip_draw   = nullptr;
+		float    clip_key[40] = {};
 	};
 
 	// The second set of texture coordinates of a surface (see vertex3d_second): what it is for a vertex, and how it is changed.
@@ -425,107 +424,118 @@ namespace bb {
 	struct model_load; // A model that is still being parsed on a loader thread, see b3d.cpp.
 
 	struct entity {
-		int         kind   = PIVOT;
-		int         parent = 0; // Handle, 0 for none.
-		int         children = 0; // How many entities have this one as their parent.
-		// The children, which are numbered in the order they became children (not by their handle, like the original): a list through the
-		// children that goes from the first one to the last, so that nothing has to search every entity for them. All 0 for none.
-		int         first_child = 0, last_child = 0, prev_sibling = 0, next_sibling = 0;
-		bool        hidden = false;
-		char*       name   = nullptr;
+		// The fields are ordered by how often they are read: what every frame reads of every entity comes first, in the first four cache lines,
+		// and what only some kinds or some commands use comes after. Every position, angle, scale and color has four floats on a 16 byte
+		// boundary, so that it is read and written with one vector (the fourth is the alpha of a color, and unused otherwise).
 
-		float position[3] = { 0, 0, 0 };
-		float rotation[3] = { 0, 0, 0 }; // Pitch, Yaw, Roll
-		float scale[3]    = { 1, 1, 1 };
-
-		// Appearance (meshes)
-		float color[3] = { 1, 1, 1 };
-		float alpha    = 1;
-		int   fx       = 0; // 1 = fullbright, 2 = vertex colors, 4 = flat shading, 8 = no fog, 16 = two-sided, 32 = vertex alpha
-		int   texture  = 0; // Handle, 0 for none.
-		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
-		float bsp_ambient[3] = { 0, 0, 0 }; // Of a level: BSPAmbientLight, which is added to the light of the level.
-		int   bsp_lights = 0; // Of a level: how many light entities of the map became point lights.
-		float bsp_tint[3] = { 1, 1, 1 }; // Of a level: BSPLightmapColor, which the whole level is multiplied with.
-		// Collisions and picking, see collision.cpp
-		int   coll_type = 0;              // 0 = does not collide
-		float radius[2] = { 1, 1 };       // Of the ellipsoid that collides, and of the sphere that is picked.
-		bool  has_box   = false;
-		float box[6]    = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
-		int   pick_mode = 0;              // 0 = can not be picked, 1 = sphere, 2 = polygons, 3 = box
-		bool  pick_obscure = true;
-		float old_pos[3]   = { 0, 0, 0 }; // Where it was at the last UpdateWorld.
-		bool  old_valid    = false;
-		float old_matrix[16] = {};          // Where it was, for what collides with it.
-
-		int   sprite_mode = 0;           // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
-		float sprite_scale[2] = { 1, 1 };
-		float sprite_handle[2] = { 0, 0 }; // Where the sprite is held, in half the size of it.
-		const char* cls = nullptr;       // What EntityClass says for the entities that are made from another kind.
-		bool  has_cull_box = false;      // MeshCullBox: the box that decides whether the mesh is seen.
-		float cull_box[6]  = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
-		// Where it was at CaptureWorld, to draw it between there and where it is now.
-		bool  captured = false;
-		float tween_alpha = -1; // How far between capt_* and where it is the entity is drawn, if it is not RenderWorld's tween (a body of the physics simulation), else -1.
-		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
-		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
-		float capt_color[3] = { 1, 1, 1 }, capt_alpha = 1;
-		float sprite_angle    = 0;
-		float depth_fade = 0;             // SpriteDepthFade, EntityDepthFade: how far from what is behind it a blended entity fades out, 0 for not at all.
-		int   static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
-		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
+		// Line 0: what it is, where it hangs, and where it is.
+		int    kind   = PIVOT;
+		int    parent = 0; // Handle, 0 for none.
+		bool   hidden = false;
+		bool   unresolved   = false; // The model of loading is not built yet.
+		bool   blend_set    = false; // EntityBlend was called: the original then looks at every texture for alpha, not just a lone one.
+		bool   has_cull_box = false; // MeshCullBox: the box that decides whether the mesh is seen.
+		// EntityLighting: 0 lights the vertices (like the original), 1 every pixel, -1 whatever BLITZLLVM_ENTITY_LIGHTING says (0 if not set).
+		int8_t lighting = -1;
 		// SetEntityStencil, SetEntityStencilBack: the stencil test and operations of the front ([0]) and back ([1]) faces, in the numbers of the commands
 		// (compare 0 never .. 7 always, operations 0 keep .. 7 decrement and wrap). Always with keep everywhere is no stencil at all.
-		uint8_t stencil_compare[2] = { 7, 7 }, stencil_fail[2] = { 0, 0 }, stencil_depth_fail[2] = { 0, 0 }, stencil_pass[2] = { 0, 0 };
 		uint8_t stencil_reference = 0, stencil_read_mask = 0xFF, stencil_write_mask = 0xFF;
-		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
-		bool  blend_set = false; // EntityBlend was called: the original then looks at every texture for alpha, not just a lone one.
+		alignas(16) float position[4] = { 0, 0, 0, 0 };
+		alignas(16) float rotation[4] = { 0, 0, 0, 0 }; // Pitch, Yaw, Roll
+		alignas(16) float scale[4]    = { 1, 1, 1, 0 };
+
+		// Line 1: how it looks (meshes).
+		alignas(16) float color[4] = { 1, 1, 1, 1 }; // Red, green, blue and alpha.
+		int   fx      = 0; // 1 = fullbright, 2 = vertex colors, 4 = flat shading, 8 = no fog, 16 = two-sided, 32 = vertex alpha
+		int   texture = 0; // Handle, 0 for none.
+		int   blend   = 1; // 1 = alpha, 2 = multiply, 3 = add
+		int   order   = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
+		int   static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
 		float shininess = 0;
 		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
+		float depth_fade  = 0; // SpriteDepthFade, EntityDepthFade: how far from what is behind it a blended entity fades out, 0 for not at all.
+		int   sprite_mode = 0; // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
+		uint8_t stencil_compare[2] = { 7, 7 }, stencil_fail[2] = { 0, 0 }, stencil_depth_fail[2] = { 0, 0 }, stencil_pass[2] = { 0, 0 };
+
+		// Line 2: what is drawn.
+		// The light channels, one bit each: lights light the entities that have a channel in common with them. This is
+		// the channel of an entity (EntityLightChannel), which for a light is the channels it shines into.
+		uint64_t         light_channel = ~uint64_t(0);
 		buffer<surface*> surfaces;
-		terrain_data*    terrain = nullptr;
-		int              plane_divs = 0;        // Above 0 for a plane, which is drawn as the part of the ground that a camera sees.
-		surface*         plane_draw = nullptr;  // Where that part is made for the renderer, as it depends on the camera.
-		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
-		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
-		model_load*      loading = nullptr; // Set for a model from LoadMesh or LoadAnimMesh with AsyncLoading on, see resolve_model.
-		bool             unresolved = false; // The model of loading is not built yet.
-		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
+		terrain_data*    terrain    = nullptr;
+		surface*         plane_draw = nullptr; // Where the part of the ground that a camera sees is made for the renderer, as it depends on the camera.
+		animation*       anim       = nullptr; // Of the top of an animated model, see animation.cpp
+		md2_state*       md2        = nullptr; // Of a model from an .md2 file, see md2.cpp
+		model_load*      loading    = nullptr; // Set for a model from LoadMesh or LoadAnimMesh with AsyncLoading on, see resolve_model.
+
+		// Line 3: what else the renderer reads of meshes and sprites.
+		int   plane_divs = 0; // Above 0 for a plane, which is drawn as the part of the ground that a camera sees.
+		float cull_box[6] = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
+		float sprite_scale[2]  = { 1, 1 };
+		float sprite_handle[2] = { 0, 0 }; // Where the sprite is held, in half the size of it.
+		float sprite_angle     = 0;
+		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
+
+		// The rest is read by some commands or some kinds only.
+		int   children = 0; // How many entities have this one as their parent.
+		// The children, which are numbered in the order they became children (not by their handle, like the original): a list through the
+		// children that goes from the first one to the last, so that nothing has to search every entity for them. All 0 for none.
+		int   first_child = 0, last_child = 0, prev_sibling = 0, next_sibling = 0;
+		char*       name = nullptr;
+		const char* cls  = nullptr; // What EntityClass says for the entities that are made from another kind.
+		anim_node*  pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
+
+		// Collisions and picking, see collision.cpp
+		int   coll_type = 0;        // 0 = does not collide
+		int   pick_mode = 0;        // 0 = can not be picked, 1 = sphere, 2 = polygons, 3 = box
+		bool  has_box   = false;
+		bool  pick_obscure = true;
+		bool  old_valid    = false;
+		bool  captured     = false; // Where it was at CaptureWorld is in capt_*, to draw it between there and where it is now.
+		float radius[2] = { 1, 1 }; // Of the ellipsoid that collides, and of the sphere that is picked.
+		float box[6]    = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
+		alignas(16) float old_pos[4]     = { 0, 0, 0, 0 }; // Where it was at the last UpdateWorld.
+		alignas(16) float old_matrix[16] = {};             // Where it was, for what collides with it.
+
+		// Where it was at CaptureWorld, to draw it between there and where it is now.
+		alignas(16) float capt_pos[4]   = { 0, 0, 0, 0 };
+		alignas(16) float capt_scl[4]   = { 1, 1, 1, 0 };
+		alignas(16) float capt_rot[4]   = { 1, 0, 0, 0 }; // w, x, y, z
+		alignas(16) float capt_color[4] = { 1, 1, 1, 1 }; // Red, green, blue and alpha.
+		float tween_alpha = -1; // How far between capt_* and where it is the entity is drawn, if it is not RenderWorld's tween (a body of the physics simulation), else -1.
+
+		// Of a level.
+		int   bsp_lights = 0; // How many light entities of the map became point lights.
+		alignas(16) float bsp_ambient[4] = { 0, 0, 0, 0 }; // BSPAmbientLight, which is added to the light of the level.
+		alignas(16) float bsp_tint[4]    = { 1, 1, 1, 0 }; // BSPLightmapColor, which the whole level is multiplied with.
+
+		// Light
+		int   light_type  = 1; // 1 = directional, 2 = point, 3 = spot
+		float light_range = 1000;
+		float light_cone[2] = { 0, 90 }; // Inner and outer angle of a spot light, in degrees.
+		alignas(16) float light_color[4] = { 1, 1, 1, 0 };
 
 		// Camera
 		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
-		float cam_color[3] = { 0, 0, 0 };
-		bool  cam_clear_color = true, cam_clear_depth = true;
+		int   cam_projection  = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
+		alignas(16) float cam_color[4] = { 0, 0, 0, 0 };
 		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
-		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
-		int   cam_cull_flags = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 1.
+		int   cam_cull_flags  = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 1.
 		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
-		int   cam_buffer = 0;      // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
+		int   cam_buffer      = 0; // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
+		int   cam_clip_enabled = 0; // SetCameraClipPlaneEnabled: one bit for each plane.
+		bool  cam_clear_color = true, cam_clear_depth = true;
 		bool  cam_custom_projection = false; // SetCameraProjectionMatrix: cam_projection_matrix replaces CameraRange, CameraZoom and CameraProjMode.
 		bool  cam_custom_view       = false; // SetCameraViewMatrix: cam_view_matrix replaces where the camera entity is.
-		float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
-		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
-		float cam_clip_planes[6][4] = {};   // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
-		int   cam_clip_enabled      = 0;    // SetCameraClipPlaneEnabled: one bit for each plane.
 		bool  cam_stencil           = false; // SetCameraStencil: the depth buffer the camera draws with has stencil, and entities with SetEntityStencil use it.
 		bool  cam_stencil_clear     = true;  // SetCameraStencilClear: whether the stencil is cleared when the camera starts drawing, and to what.
 		uint8_t cam_stencil_value   = 0;
-		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
+		int   fog_mode = 0; // 0 = off, 1 = linear, 2 = linear by the distance to the camera
 		float fog_near = 1, fog_far = 1000;
-		float fog_color[3] = { 0, 0, 0 };
-
-		// Light
-		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot
-		float light_color[3] = { 1, 1, 1 };
-		float light_range    = 1000;
-		float light_cone[2]  = { 0, 90 }; // Inner and outer angle of a spot light, in degrees.
-
-		// The light channels, one bit each: lights light the entities that have a channel in common with them. This is
-		// the channel of an entity (EntityLightChannel), which for a light is the channels it shines into.
-		uint64_t light_channel = ~uint64_t(0);
-
-		// EntityLighting: 0 lights the vertices (like the original), 1 every pixel, -1 whatever BLITZLLVM_ENTITY_LIGHTING says (0 if not set).
-		int8_t lighting = -1;
+		alignas(16) float fog_color[4] = { 0, 0, 0, 0 };
+		alignas(16) float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
+		alignas(16) float cam_view_matrix[16]       = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
+		alignas(16) float cam_clip_planes[6][4]     = {}; // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
 	};
 
 	// Matrices are 4x4, column-major, for column vectors.
@@ -600,7 +610,7 @@ namespace bb {
 	 * An epoch of 0 is a record that was not made, or has to be made again.
 	 */
 	struct cull_record {
-		float    state[9]; // position, rotation and scale of the entity, as they are in it.
+		alignas(16) float state[12]; // position, rotation and scale of the entity, as they are in it (four floats each, the fourth unused).
 		uint32_t epoch;
 		float    center[3];
 		float    radius;
