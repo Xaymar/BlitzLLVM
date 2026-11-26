@@ -83,8 +83,10 @@ command names never have a dash.
 From top to bottom:
 
 1. Breadcrumb: dialect / category / command.
-2. The name, and a pill per product that has the command: BlitzBasic, Blitz3D, BlitzPlus, or BlitzLLVM for what we
-   add. The pills replace the 20x14 pixel icons, which were made to imitate the originals.
+2. The name, and the 20x14 pixel icon of each product that has the command (BlitzBasic, Blitz3D, BlitzPlus, or
+   BlitzLLVM for what we add), shown at twice the size and never smoothed. The same icons, at their own size, follow
+   the commands in the sidebar, in lists and in search results. `help.css` draws them as backgrounds from
+   `assets/`, so no page needs to know their path.
 3. The signature in the notation of the wiki (`CreateCube:Int32 parent:Int32=0`), types colored. Keywords show their
    syntax forms, highlighted like code.
 4. "New in BlitzLLVM" note for commands the originals do not have.
@@ -114,7 +116,7 @@ a second click stops it; without it the browser opens the file.
 `window.HELP_INDEX` (a page opened from the disk cannot `fetch()` a JSON file in most browsers). It is loaded the
 first time the field gets focus, so pages that are only read never pay for it. About 1,100 entries, 160 KB.
 
-Each entry is `[name, path, kind, where, summary]`, kind 0 command, 1 category, 2 guide; the summary is the first
+Each entry is `[name, path, kind, where, summary, icons]`, kind 0 command, 1 category, 2 guide; the summary is the first
 sentence of the description. Ranking, best first: exact name, name prefix, prefix of a word of the name (`color`
 finds `EntityColor`), anywhere in the name, the letters in order (`entcol` finds `EntityColor`), then the summary
 and the category. Several words must all match. Arrow keys move, Enter opens, Escape closes. `?q=text` in the
@@ -125,7 +127,7 @@ address opens a page with that search already typed, so an editor can open the h
 ![](../media/help/after-category.webp)
 
 * Category: the `_intro.md` of the category (or its line from `categories.py`), then its commands as a list with
-  the summary and the pills of each.
+  the summary and the icons of each.
 * `commands/index.html`: per dialect its description and a card per category with its line and count.
 * `commands/a-z.html`: a sticky letter bar, then the same list as a category page for each letter.
 * Home: the logo, a short description, Search / All commands / Differences buttons, a card per dialect, the guides in

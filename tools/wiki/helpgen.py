@@ -96,14 +96,16 @@ def summary(text, limit=160):
     return s if len(s) <= limit else s[:limit - 1].rsplit(" ", 1)[0] + "…"
 
 
-def pill(product, small=False):
+def product_icon(product, small=False):
+    """The 20x14 pixel icon of a product (docs/wiki/media/*-20x14.png, copied to assets/), drawn by help.css as a
+    background so that no page needs to know its path; titles show it at twice the size, always pixelated."""
     name = {"Blitz2D": "BlitzBasic"}.get(product, product)
-    return '<span class="pill %s%s" title="%s">%s</span>' % (
-        PRODUCT_CLASS[product], " sm" if small else "", ESC(name), ESC(name))
+    return '<span class="icon %s%s" role="img" aria-label="%s" title="%s"></span>' % (
+        PRODUCT_CLASS[product], "" if small else " x2", ESC(name), ESC(name))
 
 
-def pills(c, small=False):
-    return '<span class="pills">%s</span>' % "".join(pill(p, small) for p in c.products) if c.products else ""
+def product_icons(c, small=False):
+    return '<span class="icons">%s</span>' % "".join(product_icon(p, small) for p in c.products) if c.products else ""
 
 
 # The keywords and the names of the commands, for the syntax highlighting of the examples.
@@ -174,9 +176,9 @@ def inline(text, links, media):
 
     text = re.sub(r"`([^`]+)`", lambda m: keep("<code>%s</code>" % ESC(m.group(1), quote=False)), text)
     text = re.sub(r"<!--.*?-->", "", text)
-    # The product icons of the wiki become the pills of the help.
+    # The product icons of the wiki keep their look but are drawn by help.css.
     text = re.sub(r'<img class="product"[^>]*alt="([^"]+)"[^>]*>',
-                  lambda m: keep(pill({"BlitzBasic": "Blitz2D"}.get(m.group(1), m.group(1)), True)), text)
+                  lambda m: keep(product_icon({"BlitzBasic": "Blitz2D"}.get(m.group(1), m.group(1)), True)), text)
     text = re.sub(r"(<[a-zA-Z/][^>]*>)", lambda m: keep(rewrite_html(m.group(1), links, media)), text)
 
     def image(m):
@@ -429,7 +431,7 @@ class Site:
                 sub = ""
                 if k == current_cat:
                     sub = '<ul class="cmds">%s</ul>' % "".join(
-                        "<li>%s</li>" % item("commands/%s.html" % c.name, ESC(c.name), c.name == current)
+                        "<li>%s</li>" % item("commands/%s.html" % c.name, ESC(c.name), c.name == current, product_icons(c, True))
                         for c in self.cats[k])
                 items.append("<li%s>%s%s</li>" % (
                     ' class="open"' if k == current_cat else "",
@@ -479,7 +481,7 @@ def command_page(site, c):
 
     out = [crumbs(("../commands/index.html#%s" % c.dialect, dialect_title),
                   ("%s.html" % cat, categories.display(c.category)), (None, c.name))]
-    out.append('<header class="title"><h1>%s</h1>%s</header>' % (ESC(c.name), pills(c)))
+    out.append('<header class="title"><h1>%s</h1>%s</header>' % (ESC(c.name), product_icons(c)))
     out.append('<pre class="signature"><code>%s</code></pre>' % signature_html(c, links))
     if c.extension:
         out.append('<aside class="note new"><strong>New in BlitzLLVM.</strong> The original Blitz products do not '
@@ -536,7 +538,7 @@ def command_page(site, c):
 def command_rows(cs, prefix="", summaries=None):
     return '<ul class="cmd-list">%s</ul>' % "".join(
         '<li><a href="%s%s.html"><code>%s</code></a>%s<p>%s</p></li>' % (
-            prefix, c.name, ESC(c.name), pills(c, True), ESC(summaries[c.key]) if summaries[c.key] else "")
+            prefix, c.name, ESC(c.name), product_icons(c, True), ESC(summaries[c.key]) if summaries[c.key] else "")
         for c in cs)
 
 
@@ -560,7 +562,7 @@ def index_pages(site, summaries):
     links = site.links("../")
     body = ['<article class="doc"><header class="title"><h1>Command reference</h1></header>',
             '<p class="lead">Every command of BlitzBasic, Blitz3D and BlitzPlus as BlitzLLVM implements them, and the '
-            'ones BlitzLLVM adds %s. Press <kbd>/</kbd> to search, or pick a category.</p>' % pill("BlitzLLVM", True)]
+            'ones BlitzLLVM adds %s. Press <kbd>/</kbd> to search, or pick a category.</p>' % product_icon("BlitzLLVM", True)]
     for dialect in site.wiki.DIALECT_ORDER:
         keys = [k for k in site.cat_order if k[0] == dialect]
         body.append('<section id="%s"><h2>%s <span class="count">%d</span></h2><p>%s</p><div class="cards">%s</div>'
@@ -632,12 +634,13 @@ uses.</p>
 
 
 def search_index(site, summaries):
-    """assets/search.js: [name, path, kind, where, summary]. kind: 0 command, 1 category, 2 page."""
+    """assets/search.js: [name, path, kind, where, summary, icons]. kind: 0 command, 1 category, 2 page; icons are
+    the classes of the product icons of a command."""
     rows = []
     for c in sorted(site.commands, key=lambda c: c.name.lower()):
         where = "%s › %s" % (categories.TITLES.get(c.dialect, c.dialect), categories.display(c.category))
-        rows.append([c.name, "commands/%s.html" % c.name, 0, where + (" · BlitzLLVM" if c.extension else ""),
-                     summaries[c.key]])
+        rows.append([c.name, "commands/%s.html" % c.name, 0, where, summaries[c.key],
+                     " ".join(PRODUCT_CLASS[p] for p in c.products)])
     for k in site.cat_order:
         rows.append([categories.display(k[1]), "commands/%s.html" % category_name(*k), 1,
                      categories.TITLES.get(k[0], k[0]), plain(categories.CATEGORY_TEXT.get(k, ""))])
@@ -681,6 +684,8 @@ def build_help(commands, out, wiki):
     for fn in ("help.css", "help.js"):
         shutil.copyfile(os.path.join(assets, fn), os.path.join(out, "assets", fn))
     shutil.copyfile(os.path.join(wiki.ROOT, "media", "icon-small.svg"), os.path.join(out, "assets", "logo.svg"))
+    for _, image in wiki.ICONS.values():
+        shutil.copyfile(os.path.join(wiki.WIKI, "media", image + ".png"), os.path.join(out, "assets", image + ".png"))
     for m in sorted(site.media):
         src = os.path.join(wiki.WIKI, m)
         if os.path.exists(src):

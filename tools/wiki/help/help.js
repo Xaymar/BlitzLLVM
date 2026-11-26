@@ -179,6 +179,7 @@
 			return '<li role="option" id="sr-' + i + '"' + (i === selected ? ' aria-selected="true"' : "") + '><a href="' + root + e[1] + '">' +
 				'<span class="r-where">' + escapeHtml(KINDS[e[2]] ? KINDS[e[2]] + " · " + e[3] : e[3]) + "</span>" +
 				'<span class="r-name">' + mark(e[0], terms) + "</span>" +
+				(e[5] ? ' <span class="icons">' + e[5].split(" ").map(function (c) { return '<span class="icon ' + c + '"></span>'; }).join("") + "</span>" : "") +
 				(e[4] ? '<span class="r-sum">' + escapeHtml(e[4]) + "</span>" : "") + "</a></li>";
 		}).join("") : '<li class="r-none">Nothing found for “' + escapeHtml(input.value.trim()) + '”.</li>';
 		list.hidden = false;
