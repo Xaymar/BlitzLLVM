@@ -45,6 +45,7 @@ typedef struct bb_sound {
 	float      pan;
 	int        pitch; // In Hz, 0 for what the file has.
 	int        is_3d;
+	int32_t    bus; // SoundBus: the bus that its channels start on (0 for the master bus).
 } bb_sound;
 
 // Where something was the last time it moved, which its speed is worked out from.
@@ -72,6 +73,8 @@ typedef struct bb_channel {
 	Uint64     shift_time; // When it was last moved toward it, 0 while it has not started.
 	float      doppler;    // ChannelDoppler: how much of the listener's doppler scale this channel gets (1 for all of it).
 	float      radius;     // ChannelRadius: how big the source is, in units of the world (0 for a point).
+	int32_t    bus;        // ChannelBus: the bus it plays on (0 for the master bus).
+	int        paused;     // PauseChannel: paused on its own, so that it stays paused when its bus resumes.
 } bb_channel;
 
 // A setting of the listener that can glide to a new value: it goes from `from` to `to` over `length` nanoseconds from `start`.
@@ -81,6 +84,24 @@ typedef struct bb_fade {
 	Uint64 start;
 	Uint64 length;
 } bb_fade;
+
+// The part of a bus that the audio thread reads while it mixes: its volume and the bus it feeds. It is changed only with the mixer locked,
+// and has its own memory, as the state of the program below is thread_local and so not the same on the audio thread.
+typedef struct bb_bus_mix {
+	struct bb_bus_mix* parent; // NULL for the master bus, whose volume is put on the final mix.
+	bb_fade            volume;
+	float              last; // The volume at the end of the last block, which the next block starts from.
+	int                known;
+} bb_bus_mix;
+
+// A bus: a group of channels with its own volume and pause state, that feeds another bus. Bus 0 is the master bus.
+typedef struct bb_bus {
+	int         used;
+	int32_t     parent;
+	int         paused;
+	MIX_Group*  group; // Made when a channel is first put on the bus while there is a sound device. The master bus has none.
+	bb_bus_mix* mix;
+} bb_bus;
 
 // Everything the sound system keeps for the running program, in one place. It is thread_local, as the program runs on one
 // thread and nothing else may touch the device.
@@ -103,6 +124,12 @@ typedef struct bb_audio_state {
 	bb_motion listener_motion;
 	int       falloff_default; // The curve that new channels start with (BB_FALLOFF_*).
 	int       falloff_known;   // 0 until it was set, by SetFalloff or by BLITZLLVM_VOLUME_FALLOFF when first asked.
+	// Buses, made by CreateAudioBus. The first one is the master bus, made with the first bus command.
+	bb_bus* buses;
+	int32_t bus_count;
+	int32_t bus_cap;
+	int32_t music_bus;     // MusicBus: the bus that PlayMusic channels start on.
+	int     master_hooked; // Whether the volume of the master bus is put on the final mix.
 } bb_audio_state;
 
 // How fast sound moves, in meters per second, until SpeedOfSound changes it.
@@ -391,6 +418,10 @@ static void bb_channel_apply(bb_channel* channel)
 
 static void bb_channel_start_3d(bb_channel* channel);
 static int  bb_falloff_default(void);
+static int  bb_bus_valid(int32_t bus);
+static int  bb_bus_paused(int32_t bus);
+static MIX_Group* bb_bus_group(int32_t bus);
+static void bb_bus_hook_master(void);
 
 static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 {
@@ -434,6 +465,11 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	channel->gain3d    = 1.0f;
 	channel->falloff   = bb_falloff_default();
 	channel->doppler   = 1.0f;
+	channel->bus       = bb_bus_valid(sound->bus) ? sound->bus : 0;
+	bb_bus_hook_master();
+	if (channel->bus) {
+		MIX_SetTrackGroup(channel->track, bb_bus_group(channel->bus));
+	}
 
 	MIX_SetTrackAudio(channel->track, sound->audio);
 	if (sound->pitch > 0 && sound->frequency > 0) {
@@ -449,6 +485,9 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, sound->loop ? -1 : 0);
 	MIX_PlayTrack(channel->track, options);
 	SDL_DestroyProperties(options);
+	if (bb_bus_paused(channel->bus)) {
+		MIX_PauseTrack(channel->track); // It starts where it would be if it had played before its bus was paused.
+	}
 	return slot;
 }
 
@@ -470,6 +509,7 @@ int32_t bb_play_music(const char* path, int32_t flags)
 	if (flags & 1) {
 		bb_loop_sound(sound);
 	}
+	bb_audio.sounds[sound].bus = bb_audio.music_bus;
 	int32_t channel = bb_play(sound, 0, "PlayMusic");
 	if (channel && (flags & 2)) {
 		bb_pause_channel(channel);
@@ -504,6 +544,7 @@ void bb_pause_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "PauseChannel");
 	if (channel) {
+		channel->paused = 1;
 		MIX_PauseTrack(channel->track);
 	}
 }
@@ -512,7 +553,10 @@ void bb_resume_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "ResumeChannel");
 	if (channel) {
-		MIX_ResumeTrack(channel->track);
+		channel->paused = 0;
+		if (!bb_bus_paused(channel->bus)) {
+			MIX_ResumeTrack(channel->track); // A channel on a paused bus plays on when the bus resumes.
+		}
 	}
 }
 
@@ -920,4 +964,337 @@ void bb_sound_update(void)
 			bb_channel_follow(channel, listener, now);
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Buses
+////////////////////////////////////////////////////////////////////////////////
+// Nothing here runs until a program uses a bus command, so programs that don't are mixed exactly as before: no MIX_Group and no callback
+// exists. A bus other than master is a MIX_Group; its volume (and the volumes of the buses it feeds, up to but not including master) is put
+// on the group's mix in the group's callback, gliding over each block from where the last block ended, so a fade has no steps. The
+// volume of the master bus is put on the final mix the same way.
+
+static float bb_bus_gain(bb_bus_mix* mix, Uint64 now)
+{
+	float gain = 1.0f;
+	for (; mix && mix->parent; mix = mix->parent) {
+		gain *= bb_fade_value(&mix->volume, now);
+	}
+	return gain;
+}
+
+// Puts a volume on a block of interleaved samples, gliding from the volume the last block ended at.
+static void bb_bus_ramp(bb_bus_mix* mix, float gain, float* pcm, int samples, int channels)
+{
+	float from = mix->known ? mix->last : gain;
+	mix->last  = gain;
+	mix->known = 1;
+	if ((from == 1.0f) && (gain == 1.0f)) {
+		return;
+	}
+	int frames = channels > 0 ? samples / channels : samples;
+	for (int f = 0; f < frames; f++) {
+		float g = (frames > 1) ? from + (gain - from) * (float)f / (float)(frames - 1) : gain;
+		for (int c = 0; c < channels; c++) {
+			pcm[f * channels + c] *= g;
+		}
+	}
+}
+
+static void SDLCALL bb_bus_group_mixed(void* userdata, MIX_Group* group, const SDL_AudioSpec* spec, float* pcm, int samples)
+{
+	(void)group;
+	bb_bus_mix* mix = (bb_bus_mix*)userdata;
+	bb_bus_ramp(mix, bb_bus_gain(mix, SDL_GetTicksNS()), pcm, samples, spec->channels);
+}
+
+static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const SDL_AudioSpec* spec, float* pcm, int samples)
+{
+	(void)mixer;
+	bb_bus_mix* mix = (bb_bus_mix*)userdata;
+	bb_bus_ramp(mix, bb_fade_value(&mix->volume, SDL_GetTicksNS()), pcm, samples, spec->channels);
+}
+
+static void bb_bus_lock(void)
+{
+	if (bb_audio.mixer) {
+		MIX_LockMixer(bb_audio.mixer);
+	}
+}
+
+static void bb_bus_unlock(void)
+{
+	if (bb_audio.mixer) {
+		MIX_UnlockMixer(bb_audio.mixer);
+	}
+}
+
+// The table of buses, with the master bus in it, made the first time a bus command is used.
+static void bb_bus_table(void)
+{
+	if (bb_audio.bus_count) {
+		return;
+	}
+	bb_audio.bus_cap   = 8;
+	bb_audio.buses     = (bb_bus*)bb_malloc_or_fail((size_t)bb_audio.bus_cap * sizeof(bb_bus));
+	memset(bb_audio.buses, 0, (size_t)bb_audio.bus_cap * sizeof(bb_bus));
+	bb_audio.bus_count = 1;
+	bb_bus* master     = &bb_audio.buses[0];
+	master->used       = 1;
+	master->mix        = (bb_bus_mix*)bb_malloc_or_fail(sizeof(bb_bus_mix));
+	memset(master->mix, 0, sizeof(bb_bus_mix));
+	bb_fade_set(&master->mix->volume, 1.0f);
+}
+
+static int bb_bus_valid(int32_t bus)
+{
+	return (bus >= 0) && (bus < bb_audio.bus_count) && bb_audio.buses[bus].used;
+}
+
+static bb_bus* bb_bus_get(int32_t bus, const char* what)
+{
+	bb_bus_table();
+	if (!bb_bus_valid(bus)) {
+		bb_handle_error(what, "audio bus", bus);
+	}
+	return &bb_audio.buses[bus];
+}
+
+static int bb_bus_paused(int32_t bus)
+{
+	for (int guard = 0; bb_bus_valid(bus) && guard < bb_audio.bus_count; guard++) {
+		if (bb_audio.buses[bus].paused) {
+			return 1;
+		}
+		if (bus == 0) {
+			break;
+		}
+		bus = bb_audio.buses[bus].parent;
+	}
+	return 0;
+}
+
+// Whether `bus` is `ancestor` or feeds into it, through any number of buses.
+static int bb_bus_under(int32_t bus, int32_t ancestor)
+{
+	for (int guard = 0; bb_bus_valid(bus) && guard <= bb_audio.bus_count; guard++) {
+		if (bus == ancestor) {
+			return 1;
+		}
+		if (bus == 0) {
+			break;
+		}
+		bus = bb_audio.buses[bus].parent;
+	}
+	return 0;
+}
+
+// The volume of the master bus goes on the final mix once it was set, also when the sound device is opened after that.
+static void bb_bus_hook_master(void)
+{
+	if (bb_audio.mixer && bb_audio.bus_count && !bb_audio.master_hooked) {
+		MIX_SetPostMixCallback(bb_audio.mixer, bb_bus_master_mixed, bb_audio.buses[0].mix);
+		bb_audio.master_hooked = 1;
+	}
+}
+
+static MIX_Group* bb_bus_group(int32_t handle)
+{
+	if (!bb_audio.mixer || (handle == 0) || !bb_bus_valid(handle)) {
+		return NULL;
+	}
+	bb_bus* bus = &bb_audio.buses[handle];
+	if (!bus->group) {
+		bus->group = MIX_CreateGroup(bb_audio.mixer);
+		if (bus->group) {
+			MIX_SetGroupPostMixCallback(bus->group, bb_bus_group_mixed, bus->mix);
+		}
+	}
+	return bus->group;
+}
+
+int32_t bb_create_audio_bus(int32_t parent)
+{
+	bb_bus_get(parent, "CreateAudioBus");
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.bus_count; i++) {
+		if (!bb_audio.buses[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.bus_count >= bb_audio.bus_cap) {
+			bb_audio.bus_cap *= 2;
+			bb_audio.buses = (bb_bus*)bb_realloc_or_fail(bb_audio.buses, (size_t)bb_audio.bus_cap * sizeof(bb_bus));
+		}
+		slot = bb_audio.bus_count++;
+	}
+	bb_bus_mix* mix = (bb_bus_mix*)bb_malloc_or_fail(sizeof(bb_bus_mix));
+	memset(mix, 0, sizeof(*mix));
+	bb_fade_set(&mix->volume, 1.0f);
+	bb_bus_lock();
+	mix->parent = bb_audio.buses[parent].mix;
+	bb_bus_unlock();
+	bb_bus* bus = &bb_audio.buses[slot];
+	memset(bus, 0, sizeof(*bus));
+	bus->used   = 1;
+	bus->parent = parent;
+	bus->mix    = mix;
+	return slot;
+}
+
+// Pauses or resumes the tracks of every channel on a bus and the buses that feed it, as their buses and they themselves say.
+static void bb_bus_update_pause(int32_t handle)
+{
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		bb_channel* channel = &bb_audio.channels[i];
+		if (!channel->used || !bb_bus_under(channel->bus, handle)) {
+			continue;
+		}
+		if (channel->paused || bb_bus_paused(channel->bus)) {
+			MIX_PauseTrack(channel->track);
+		} else {
+			MIX_ResumeTrack(channel->track);
+		}
+	}
+}
+
+// Its channels, child buses and sounds go to its parent, which also takes over playing them without a gap.
+void bb_free_audio_bus(int32_t handle)
+{
+	if (handle == 0) {
+		return;
+	}
+	bb_bus* bus    = bb_bus_get(handle, "FreeAudioBus");
+	int32_t parent = bus->parent;
+	bb_bus_lock();
+	for (int32_t i = 1; i < bb_audio.bus_count; i++) {
+		if (bb_audio.buses[i].used && (bb_audio.buses[i].parent == handle)) {
+			bb_audio.buses[i].parent      = parent;
+			bb_audio.buses[i].mix->parent = bb_audio.buses[parent].mix;
+		}
+	}
+	bb_bus_unlock();
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && (bb_audio.channels[i].bus == handle)) {
+			bb_audio.channels[i].bus = parent;
+			MIX_SetTrackGroup(bb_audio.channels[i].track, bb_bus_group(parent));
+		}
+	}
+	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
+		if (bb_audio.sounds[i].bus == handle) {
+			bb_audio.sounds[i].bus = parent;
+		}
+	}
+	if (bb_audio.music_bus == handle) {
+		bb_audio.music_bus = parent;
+	}
+	if (bus->group) {
+		MIX_DestroyGroup(bus->group);
+	}
+	bb_free(bus->mix); // Its group is gone, and no other bus feeds it any more, so nothing on the audio thread still reads it.
+	memset(bus, 0, sizeof(*bus));
+	bb_bus_update_pause(parent);
+}
+
+void bb_audio_bus_parent(int32_t handle, int32_t parent)
+{
+	if (handle == 0) {
+		bb_runtime_error("AudioBusParent: the master bus feeds nothing");
+	}
+	bb_bus* bus = bb_bus_get(handle, "AudioBusParent");
+	bb_bus_get(parent, "AudioBusParent");
+	if (bb_bus_under(parent, handle)) {
+		bb_runtime_error("AudioBusParent: a bus can't feed itself, or a bus that feeds it");
+	}
+	bus->parent = parent;
+	bb_bus_lock();
+	bus->mix->parent = bb_audio.buses[parent].mix;
+	bb_bus_unlock();
+	bb_bus_update_pause(handle);
+}
+
+int32_t bb_get_audio_bus_parent(int32_t handle)
+{
+	return bb_bus_get(handle, "GetAudioBusParent")->parent;
+}
+
+void bb_audio_bus_volume(int32_t handle, float volume, int32_t milliseconds)
+{
+	bb_bus* bus = bb_bus_get(handle, "AudioBusVolume");
+	if (!(volume >= 0.0f)) {
+		bb_runtime_error("AudioBusVolume: the volume can't be below 0");
+	}
+	bb_fade_check(milliseconds, "AudioBusVolume: the fade time can't be below 0");
+	if (handle == 0) {
+		bb_bus_hook_master();
+	}
+	bb_bus_lock();
+	bb_fade_to(&bus->mix->volume, volume, milliseconds);
+	bb_bus_unlock();
+}
+
+float bb_get_audio_bus_volume(int32_t handle)
+{
+	bb_bus* bus = bb_bus_get(handle, "GetAudioBusVolume");
+	return bb_fade_value(&bus->mix->volume, SDL_GetTicksNS());
+}
+
+void bb_pause_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "PauseAudioBus")->paused = 1;
+	bb_bus_update_pause(handle);
+}
+
+void bb_resume_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "ResumeAudioBus")->paused = 0;
+	bb_bus_update_pause(handle);
+}
+
+void bb_stop_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "StopAudioBus");
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && bb_bus_under(bb_audio.channels[i].bus, handle)) {
+			bb_stop_channel(i);
+		}
+	}
+}
+
+void bb_channel_bus(int32_t handle, int32_t bus)
+{
+	bb_bus_get(bus, "ChannelBus");
+	bb_channel* channel = bb_channel_get(handle, "ChannelBus");
+	if (channel) {
+		channel->bus = bus;
+		MIX_SetTrackGroup(channel->track, bb_bus_group(bus));
+		if (channel->paused || bb_bus_paused(bus)) {
+			MIX_PauseTrack(channel->track);
+		} else {
+			MIX_ResumeTrack(channel->track);
+		}
+	}
+}
+
+int32_t bb_get_channel_bus(int32_t handle)
+{
+	bb_channel* channel = bb_channel_get(handle, "GetChannelBus");
+	return channel ? channel->bus : 0;
+}
+
+void bb_sound_bus(int32_t handle, int32_t bus)
+{
+	bb_bus_get(bus, "SoundBus");
+	bb_sound* sound = bb_sound_get(handle, "SoundBus");
+	if (handle) {
+		sound->bus = bus;
+	}
+}
+
+void bb_music_bus(int32_t bus)
+{
+	bb_bus_get(bus, "MusicBus");
+	bb_audio.music_bus = bus;
 }
