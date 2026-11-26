@@ -206,6 +206,14 @@ code_compiler/blitz_include/   the shipped .bb include files (today code_compile
    data that only one kind of object needs is in its own struct (for `entity`: a camera, light, mesh, sprite, terrain
    part). Where a structure is hot, its layout is checked with a `static_assert` on its size.
 
+10. **Counts, sizes and indices that can't be negative are unsigned.** `uint32_t` where the value is stored (vertex
+    and triangle indices, surface counts, table slots), `size_t` for byte sizes and anything that indexes memory.
+    Handles stay `int32_t`, because Blitz passes them as `Int`, and so does every value that comes straight from a
+    program: a Blitz `Int` argument is checked once where it enters the runtime (a negative count or index gives the
+    error or result it gives today) and converted there, not deep inside. Loops that count down, and differences of two
+    indices, are written so they can't wrap (`for (uint32_t i = n; i-- > 0;)`), and `-Wsign-compare` /
+    `-Wsign-conversion` are turned on per area as it is converted, so the compiler finds the mixed comparisons.
+
 ## File-local code
 
 Rule, for all C++ in the repository:
@@ -334,6 +342,13 @@ After the moves and splits, one area per PR, because renames touch every line th
    which changes memory layout in hot loops and so gets numbers from a physical machine before it is ready, like any
    performance PR.
 
+3. Counts, sizes and indices to unsigned (rule 10), one area per PR, after its names are done (both touch the same
+   lines). Today about 340 `int` declarations in the runtime and compiler are named `index`, `count`, `size`,
+   `length`, `width`, `height` or `n` (`index` alone 158). Each conversion PR keeps what programs see: the checks at
+   the API boundary come first, in a commit of their own, with tests for negative arguments where the suite has none.
+   The speed-relevant layout work (scene struct layout, collision and broad-phase types, vertex field order, texture
+   pointers, change bits) stays with the optimization work; where that work already changed a type, this one leaves it.
+
 #### `bb::entity`
 
 Today one struct holds everything any entity can be: a camera carries a blend mode, a brush and an alpha, a pivot
@@ -361,6 +376,7 @@ The target:
 
 The alignment items of the same notes (padding the `float[3]` members, merging `color[3]` and `alpha` into
 `color[4]`) are done by the optimization work, not here; this split builds on whatever layout that leaves.
+
 
 ### Not in this plan
 
