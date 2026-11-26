@@ -524,8 +524,11 @@ def main():
     parser.add_argument("--frames", type=int, default=0, help="frames of every scene benchmark instead of its own number")
     parser.add_argument("--gpu", default=GPU, help="the graphics driver of every scene benchmark (SetGfxDriver, $BENCH_GPU, 0 is the default one)")
     parser.add_argument("--depth", default=DEPTH, help="the graphics depth of every scene benchmark ($BENCH_DEPTH, 0 is what the program picks)")
+    parser.add_argument("--runs-for", action="append", default=[], metavar="NAME=N",
+                        help="another number of runs for one benchmark (the original's forest on a laptop's integrated GPU: forest_full=1)")
     parser.add_argument("--out")
     args = parser.parse_args()
+    runs_for = {k: int(v) for k, v in (item.split("=", 1) for item in args.runs_for)}
     FRAMES, GPU, DEPTH = args.frames, str(args.gpu), str(args.depth)
     if args.quick or args.set == "quick":
         QUICK = True
@@ -544,7 +547,7 @@ def main():
     for name in args.only.split(","):
         started = time.time()
         try:
-            record["benchmarks"][name] = BENCHMARKS[name](compiler, args.runs)
+            record["benchmarks"][name] = BENCHMARKS[name](compiler, runs_for.get(name, args.runs))
             status = "ok"
         except Exception as e:  # A compiler of an old commit may not build a benchmark; that is a result as well.
             record["benchmarks"][name] = {"error": str(e)[:500]}
