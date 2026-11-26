@@ -350,7 +350,7 @@ namespace bb::gfx {
 	bool gamma_plain()
 	{
 		need_gamma();
-		return is_identity() && !palette_mode(); // Dither is no matter: its noise is for the rounding to 8 bits, which the HDR picture does not have.
+		return is_identity() && !palette_mode(); // Dither is no matter here: the HDR pass adds its own noise, for the bit depth of the display.
 	}
 
 	gpu_image* apply_gamma(gpu_image& front)

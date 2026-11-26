@@ -38,8 +38,8 @@ DeleteFile "hdr_dither.tmp" ; Not one of an earlier run.
 SetEnv "BLITZLLVM_TEST_HDR", "hdr_dither.tmp"
 
 SetGraphicsHDR 1, 0, 160 ; 2.0 in scRGB
-Dither 1
 Graphics W, H, 32, 2
+Dither 1 ; Graphics puts Dither back to off, so it is switched on after it.
 SetBuffer BackBuffer()
 
 ; Mid grey 128 is 0.2158 linear, 0.4316 at 160 nits. The noise of Dither is half a step of 8 bits, so it moves that a little.
@@ -53,13 +53,49 @@ Check "Dither 1 in mode 2 does not make the picture black", Shown(10, 10, 1), 0.
 ; A buffer of 30 bits always goes through the 8 bit picture in mode 1.
 EndGraphics
 SetGraphicsHDR 1, 0, 160
-Dither 0
 Graphics W, H, 30, 2
+Dither 0
 SetBuffer BackBuffer()
 Color 128, 128, 128
 Rect 0, 0, W, H, 1
 Show
 Check "a buffer of 30 bits in mode 1 is not black", Shown(10, 10, 1), 0.4316, 0.02
+
+; In HDR, Dither adds noise of one step of the bit depth of the display to the signal that it gets. A depth of 6 bits (BLITZLLVM_AUTOHDR_BITS,
+; as a test machine has no display that says it) makes the steps large enough to see: the pixels of a flat grey differ from each other,
+; stay within a few steps, their mean is the grey, and without Dither they are all the same.
+EndGraphics
+SetEnv "BLITZLLVM_AUTOHDR_BITS", "6"
+SetGraphicsHDR 1, 0, 160
+Graphics W, H, 32, 2
+Dither 1 ; Graphics puts Dither back to off, so it is switched on after it.
+SetBuffer BackBuffer()
+Color 128, 128, 128
+Rect 0, 0, W, H, 1
+Show
+low# = 9.0
+high# = -9.0
+sum# = 0
+For y = 0 To H - 1
+	For x = 0 To W - 1
+		v# = Shown(x, y, 1)
+		If v < low Then low = v
+		If v > high Then high = v
+		sum = sum + v
+	Next
+Next
+CheckTrue "Dither 1 in HDR with 6 bits makes noise", (high - low) > 0.02
+CheckTrue "the noise of Dither 1 in HDR stays within a few steps", (high - low) < 0.25
+Check "the noise of Dither 1 in HDR keeps the grey", sum / (W * H), 0.4316, 0.02
+EndGraphics
+Graphics W, H, 32, 2
+SetBuffer BackBuffer()
+Color 128, 128, 128
+Rect 0, 0, W, H, 1
+Show
+Check "without Dither all pixels are the same", Shown(0, 0, 1), Shown(W - 1, H - 1, 1), 0.0001
+Check "without Dither the noise of 6 bits is not there", Shown(5, 7, 1), Shown(W - 3, H - 2, 1), 0.0001
+SetEnv "BLITZLLVM_AUTOHDR_BITS", ""
 
 DeleteFile "hdr_dither.tmp"
 Done "graphics_autohdr_dither_pixels"
