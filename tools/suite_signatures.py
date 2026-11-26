@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import suite_functions as sf  # noqa: E402
 
-ROW = re.compile(r'\{\s*"([a-z0-9_]+)"\s*,\s*"([a-z0-9_]+)"\s*,\s*\'(.)\'\s*,\s*"([a-z]*)"\s*,\s*(\d+)\s*,\s*\{([^}]*)\}')
+ROW = re.compile(r'\{\s*"([A-Za-z0-9_]+)"\s*,\s*"([a-z0-9_]+)"\s*,\s*\'(.)\'\s*,\s*"([a-z]*)"\s*,\s*(\d+)\s*,\s*\{([^}]*)\}')
 # The letters builtins.inc has for the types of the list.
 KIND = {"Int32": "i", "Float32": "f", "String": "s", "Int64": "l", "UInt64": "u", "Float16": "x"}
 
@@ -30,7 +30,7 @@ def parse_original(signature):
 
 def main():
     text = open(os.path.join(sf.ROOT, "code_compiler", "source", "builtins.inc")).read()
-    ours = {m.group(1): (m.group(3), m.group(4), int(m.group(5))) for m in ROW.finditer(text)}
+    ours = {m.group(1).lower(): (m.group(3), m.group(4), int(m.group(5))) for m in ROW.finditer(text)}
     problems = 0
     for name, (module, signature) in sorted(sf.originals().items()):
         if name not in ours:

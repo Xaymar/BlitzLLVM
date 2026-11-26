@@ -128,9 +128,9 @@ def load_builtins(root):
 	try:
 		with open(path, encoding='utf-8') as f:
 			for line in f:
-				m = re.match(r'\s*\{\s*"([a-z0-9_]+)",\s*"(\w+)",\s*\'(\w)\',\s*"(\w*)"', line)
+				m = re.match(r'\s*\{\s*"([A-Za-z0-9_]+)",\s*"(\w+)",\s*\'(\w)\',\s*"(\w*)"', line)
 				if m:
-					out[m.group(1)] = (m.group(2), m.group(3) + ':' + m.group(4))
+					out[m.group(1).lower()] = (m.group(2), m.group(3) + ':' + m.group(4))
 	except OSError:
 		return None
 	return out

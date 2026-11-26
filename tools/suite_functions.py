@@ -492,7 +492,7 @@ def originals():
 
 def implemented():
     text = open(os.path.join(ROOT, "code_compiler", "source", "builtins.inc")).read()
-    return set(re.findall(r'\{\s*"([a-z0-9_]+)"', text)) | BY_COMPILER
+    return {name.lower() for name in re.findall(r'\{\s*"([A-Za-z0-9_]+)"', text)} | BY_COMPILER
 
 
 def compiler_words():
