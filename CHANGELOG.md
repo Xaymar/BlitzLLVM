@@ -37,7 +37,7 @@ Each of these made a program from the original behave differently.
 - `EntityParent` with `global=True` keeps rotation and scale, not only the position ([#556](https://github.com/Xaymar/BlitzLLVM/pull/556)).
 - Collisions: a new entity no longer inherits those of a freed one ([#554](https://github.com/Xaymar/BlitzLLVM/pull/554)); hits told to an entity with a higher handle than the mover are no longer lost in `UpdateWorld` ([#555](https://github.com/Xaymar/BlitzLLVM/pull/555)).
 - `SetBuffer TextureBuffer(tex)` works for 2D commands without flag 4096. Only `RenderWorld` into such a texture is an error in debug builds ([#557](https://github.com/Xaymar/BlitzLLVM/pull/557)).
-- `.3ds` loading: one vertex per vertex of the file ([#559](https://github.com/Xaymar/BlitzLLVM/pull/559)) and no tint on materials with a picture ([#561](https://github.com/Xaymar/BlitzLLVM/pull/561)). Not run against the original binary, compared with its source.
+- `.3ds` loading: one vertex per vertex of the file ([#559](https://github.com/Xaymar/BlitzLLVM/pull/559)) and no tint on materials with a picture ([#561](https://github.com/Xaymar/BlitzLLVM/pull/561)).
 - A surface with several textures is see-through only after `EntityBlend`/`BrushBlend 1` and when a texture has alpha ([#562](https://github.com/Xaymar/BlitzLLVM/pull/562)).
 - `HidePointer` before `Graphics` is kept ([#563](https://github.com/Xaymar/BlitzLLVM/pull/563)), and works with the window thread ([#634](https://github.com/Xaymar/BlitzLLVM/pull/634)).
 - The `AppTitle` close prompt survives `EndGraphics` ([#560](https://github.com/Xaymar/BlitzLLVM/pull/560)); `AppTitle` before `Graphics` names the window ([#511](https://github.com/Xaymar/BlitzLLVM/pull/511)).
