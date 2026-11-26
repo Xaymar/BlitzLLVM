@@ -215,16 +215,26 @@ namespace bb {
 			return;
 		}
 		float px = x / l1, py = y / l1;
-		if (z < 0) {
-			float fx = (1.0f - fabsf(py)) * (px >= 0 ? 1.0f : -1.0f);
-			float fy = (1.0f - fabsf(px)) * (py >= 0 ? 1.0f : -1.0f);
-			px = fx;
-			py = fy;
-		}
+		// The lower half folds over the upper. Worked out for both halves and then picked with bit masks instead of branches: the sign of z
+		// and of x and y changes from one vertex to the next in any closed mesh, so branches on them are guessed wrong often (skinning
+		// encodes every normal of every frame), and compilers turn plain selects back into branches. The result is the same as with them:
+		// px < 0 is false for -0, which keeps -0 on the positive side as px >= 0 did.
+		auto bits_of  = [](float f) { uint32_t u; memcpy(&u, &f, 4); return u; };
+		auto float_of = [](uint32_t u) { float f; memcpy(&f, &u, 4); return f; };
+		uint32_t fx   = bits_of(1.0f - fabsf(py)) | (uint32_t(px < 0) << 31); // Both are at least 0 here, so the sign bit is free.
+		uint32_t fy   = bits_of(1.0f - fabsf(px)) | (uint32_t(py < 0) << 31);
+		uint32_t lower = 0u - uint32_t(z < 0);
+		px             = float_of((fx & lower) | (bits_of(px) & ~lower));
+		py             = float_of((fy & lower) | (bits_of(py) & ~lower));
+		// Clamped with the comparisons that become minss and maxss (px and py are never NaN here).
+		px = px > -1.0f ? px : -1.0f;
+		px = px < 1.0f ? px : 1.0f;
+		py = py > -1.0f ? py : -1.0f;
+		py = py < 1.0f ? py : 1.0f;
 		// Rounded to the nearest: worst error 0.0037 degrees. The precise encoder (the best of the four ways to round) would be 0.0025
 		// degrees, but only with a careful error measure, and it took four times as long, which large meshes notice when they are made.
-		code[0] = int16_t(round_small((px < -1 ? -1 : (px > 1 ? 1 : px)) * 32767.0f));
-		code[1] = int16_t(round_small((py < -1 ? -1 : (py > 1 ? 1 : py)) * 32767.0f));
+		code[0] = int16_t(round_small(px * 32767.0f));
+		code[1] = int16_t(round_small(py * 32767.0f));
 	}
 
 	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
