@@ -349,6 +349,60 @@ elseif(CASE STREQUAL "wrap")
 	blitz_format(--wrap-after=5000 --print-config)
 	expect_rc(2)
 
+elseif(CASE STREQUAL "split_if")
+	# never leaves one-line Ifs alone. incompatible is the default.
+	expect_format("If a Then Foo(1, 2) Else Bar()\n" "If a Then Foo(1, 2) Else Bar()\n" --split-one-line-if=never)
+	expect_format("If a Then Foo(1, 2) Else Bar()\nIf a Then Foo(1) Else Bar()\n" "If a Then\n\tFoo(1, 2)\nElse\n\tBar()\nEndIf\nIf a Then Foo(1) Else Bar()\n")
+	# incompatible splits the Ifs with a call in parentheses (no or more than one argument) right before Else, which the original rejects.
+	expect_format("If a Then Foo(1, 2) Else Bar(3, 4) ;why\n" "If a Then ;why\n\tFoo(1, 2)\nElse\n\tBar(3, 4)\nEndIf\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo() Else Bar\n" "If a Then\n\tFoo()\nElse\n\tBar\nEndIf\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo(1) Else Bar(1, 2)\nIf a Then Foo 1, 2 Else Bar(1, 2)\nIf a Then Foo(1, 2)\n" "If a Then Foo(1) Else Bar(1, 2)\nIf a Then Foo 1, 2 Else Bar(1, 2)\nIf a Then Foo(1, 2)\n" --split-one-line-if=incompatible)
+	expect_format("If a Then Foo 1 : Bar() Else Baz\n" "If a Then\n\tFoo 1 : Bar()\nElse\n\tBaz\nEndIf\n" --split-one-line-if=incompatible)
+	# always splits every one-line If, also the ones inside. The first Else belongs to the inner If.
+	expect_format("If a Then Print 1\n" "If a Then\n\tPrint 1\nEndIf\n" --split-one-line-if=always)
+	expect_format("x = 1 : If a Then If b Then c() Else d() Else e()\n" "x = 1\nIf a Then\n\tIf b Then\n\t\tc()\n\tElse\n\t\td()\n\tEndIf\nElse\n\te()\nEndIf\n" --split-one-line-if=always)
+	expect_format("If a Then If b Then c() Else d()\n" "If a Then\n\tIf b Then\n\t\tc()\n\tElse\n\t\td()\n\tEndIf\nEndIf\n" --split-one-line-if=always)
+	expect_format("Local y:Int32 = 3 : If y > 2 Then Print \"big\" Else Print \"small\"\n" "Local y:Int32 = 3\nIf y > 2 Then\n\tPrint \"big\"\nElse\n\tPrint \"small\"\nEndIf\n" --split-one-line-if=always)
+	# Left alone: block Ifs, an If without Then, and ElseIf or EndIf on the line.
+	foreach(_SAME IN ITEMS "If a Then\n\tFoo(1, 2)\nEndIf\n" "If a Foo(1, 2) Else Bar()\n" "If a Then Foo(1, 2) ElseIf b Then Bar()\n" "If a Then Foo(1, 2) Else Bar() EndIf\n" "If a : Foo(1, 2) : EndIf\n")
+		expect_format("${_SAME}" "${_SAME}" --split-one-line-if=always)
+	endforeach()
+	# Inside a block, with the indent of the block.
+	expect_format("While a\nIf b Then Foo(1, 2) Else Bar()\nWend\n" "While a\n\tIf b Then\n\t\tFoo(1, 2)\n\tElse\n\t\tBar()\n\tEndIf\nWend\n" --split-one-line-if=incompatible)
+	# The split program is the same program: the compiler makes the same of it, and it gives the same output.
+	write_bytes("${WORK}/oneline.bb"
+		"Function Pick(a%, b%)\n\tPrint a + b\nEnd Function\n"
+		"Function Nothing()\n\tPrint \"n\"\nEnd Function\n"
+		"Local c% = 1, d% = 0\n"
+		"If c Then Pick(1, 2) Else Pick(3, 4)\n"
+		"If d Then Pick 5, 6 : Nothing() Else Pick(7, 8)\n"
+		"If c Then If d Then Pick(1, 2) Else Nothing() Else Pick(9, 9)\n"
+		"If d Then If c Then Pick(1, 2) Else Nothing() Else Pick(9, 9)\n")
+	foreach(_MODE IN ITEMS incompatible always)
+		set(INPUT "${WORK}/oneline.bb")
+		blitz_format(--split-one-line-if=${_MODE})
+		expect_rc(0)
+		write_bytes("${WORK}/oneline_${_MODE}.bb" "${OUT}")
+	endforeach()
+	foreach(_NAME IN ITEMS oneline oneline_incompatible oneline_always)
+		execute_process(COMMAND "${BLITZCC}" -q "${WORK}/${_NAME}.bb" -o "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _OUT ERROR_VARIABLE _ERR)
+		if(NOT _RC EQUAL 0)
+			message(FATAL_ERROR "Compiling ${_NAME}.bb failed:\n${_OUT}${_ERR}")
+		endif()
+		execute_process(COMMAND "${WORK}/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}" RESULT_VARIABLE _RC OUTPUT_VARIABLE _RUN_${_NAME} ERROR_VARIABLE _ERR)
+	endforeach()
+	if(NOT _RUN_oneline STREQUAL "3\n15\nn\n18\n" OR NOT _RUN_oneline_incompatible STREQUAL _RUN_oneline OR NOT _RUN_oneline_always STREQUAL _RUN_oneline)
+		message(FATAL_ERROR "The split programs print something else:\n${_RUN_oneline}----\n${_RUN_oneline_incompatible}----\n${_RUN_oneline_always}")
+	endif()
+	# The setting is listed, and wrong values are refused.
+	blitz_format(--print-config --split-one-line-if=incompatible)
+	expect_rc(0)
+	if(NOT OUT MATCHES "split-one-line-if = incompatible\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+	blitz_format(--split-one-line-if=sometimes --print-config)
+	expect_rc(2)
+
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
 	expect_format("a=1\r\nb=2\r\n" "a = 1\r\nb = 2\r\n")

@@ -9,6 +9,7 @@
 #include <optional>
 #include <stdexcept>
 #include "keywords.hpp"
+#include "split_if.hpp"
 #include "tokens.hpp"
 
 using blitz::tools::kind;
@@ -638,6 +639,9 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 	if (bom) {
 		source.erase(0, 3);
 	}
+	// Splitting one-line Ifs changes the statements on the lines, so the result is compared with the split source.
+	source                = split_one_line_ifs(source, o.split_one_line_if);
+	std::string const split_source = source;
 
 	auto        tokens = blitz::tools::tokenize(source);
 	std::string first_newline;
@@ -836,7 +840,7 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 		text.insert(0, "\xEF\xBB\xBF");
 	}
 
-	if (!same_program(source_in, text)) {
+	if (!same_program(split_source, text)) {
 		throw std::runtime_error("The formatted program is not the same program as the input. This is a bug in blitz-format, nothing was changed.");
 	}
 	return text;

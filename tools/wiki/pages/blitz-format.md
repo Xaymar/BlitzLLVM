@@ -82,6 +82,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `align-assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align-declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
 | `align-data` | left \| right \| off | `off` | Line up the values of `Data` statements on consecutive lines in columns, to the left or to the right (so that the commas line up). `true` is `left` and `false` is `off`. See [Alignment](#alignment). |
+| `split-one-line-if` | never \| incompatible \| always | `incompatible` | Turn a one-line `If` into an `If` block. `incompatible` only splits the ones that the original rejects, which does not change the program. See [One-line If](#one-line-if). |
 | `wrap-after` | 0 - 1000 | `120` | Break a line that is longer than this many characters after a `:` between statements. See [Long lines](#long-lines). |
 | `trim-trailing-space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
 | `final-newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
@@ -211,6 +212,26 @@ Next
 ```
 
 That is the only place where the program stays the same: Blitz has no way to continue a statement on the next line. A single statement that is too long stays as it is, and so does everything that follows an `If` on its line, as in `If a Then b : c` the `c` belongs to the `If` and would not on a line of its own. The statements in front of such an `If` are still broken off.
+
+## One-line If
+
+`split-one-line-if` turns an `If` that is on one line into an `If` block, with its statements, `Else` and `EndIf` on lines of their own. `always` splits every one-line `If`, `incompatible` (the default) only the ones that the original Blitz3D and BlitzPlus reject: those with a call whose arguments are in parentheses right before `Else`, which the original reads as one expression in parentheses (`')' expected`).
+
+```blitzbasic
+If over Then Ui3_Color(190, 70, 70, 1.0) Else Ui3_Color(30, 120, 138, 1.0) ; hover
+```
+
+becomes
+
+```blitzbasic
+If over Then ; hover
+	Ui3_Color(190, 70, 70, 1.0)
+Else
+	Ui3_Color(30, 120, 138, 1.0)
+EndIf
+```
+
+The statements in front of the `If` go onto a line of their own, the comment stays on the line of the `If`, and a one-line `If` inside the `Then` or `Else` part is split as well (`If a Then If b Then c Else d Else e`, where the first `Else` belongs to the inner `If`). A one-line `If` without `Then`, or with `ElseIf` or `EndIf` on its line, is left alone.
 
 ## Notes
 

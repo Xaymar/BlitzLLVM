@@ -11,7 +11,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME blitz-lsp)
 # their own because they and the compiler have headers of the same name (keywords.hpp, config.hpp).
 set(_FORMAT "${PROJECT_SOURCE_DIR}/../code_format/source")
 set(_TIDY "${PROJECT_SOURCE_DIR}/../code_tidy/source")
-add_library(lsp_format STATIC "source/bridge.hpp" "source/bridge_tools.cpp" "${_FORMAT}/format.cpp" "${_FORMAT}/options.cpp")
+add_library(lsp_format STATIC "source/bridge.hpp" "source/bridge_tools.cpp" "${_FORMAT}/format.cpp" "${_FORMAT}/options.cpp" "${_FORMAT}/split_if.cpp")
 init_project(lsp_format)
 target_include_directories(lsp_format PRIVATE "${PROJECT_SOURCE_DIR}/source" "${_FORMAT}")
 target_link_libraries(lsp_format PUBLIC tools)
