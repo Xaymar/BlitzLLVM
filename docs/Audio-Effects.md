@@ -104,13 +104,14 @@ build "world → master" and "music → master", or "cave → world → master".
 
 ### Effects
 
-Effects sit in a chain on a bus and run in the order they were added. Parameters are numbered constants (decided, see
+Effects sit in a chain on a bus or a channel and run in the order they were added. Parameters are numbered constants (decided, see
 *Decisions*): a number is faster to look up than a name, and `Include "<audio.bb>"` gives every number a name, so code
 reads like `AudioEffectParam echo, BB_EFFECTPARAM_DELAY, 0.3`.
 
 | Command | What it does |
 | --- | --- |
 | `effect = AddAudioEffect(bus, type[, position=-1])` | Adds an effect to the bus' chain, at the end or before `position`. |
+| `effect = AddChannelEffect(channel, type[, position=-1])` | The same for one channel, e.g. a low-pass for a sound behind a wall. |
 | `FreeAudioEffect effect` | Removes it. A reverb's tail is cut. |
 | `AudioEffectParam effect, param%, value#[, fade_ms%=0]` | Sets a parameter, fading linearly over `fade_ms`. A parameter the effect doesn't have is a runtime error. |
 | `value# = GetAudioEffectParam(effect, param%)` | The value it is at (or fading to). |
@@ -172,7 +173,6 @@ can take the doppler down over a few seconds instead of in one step:
 | `GetListenerRolloff#()`, `GetListenerDoppler#()`, `GetListenerDistance#()`, `GetSpeedOfSound#()` | What they are at now. |
 | `ChannelDoppler channel, scale#` | Per-channel multiplier on top of the listener's (default 1), e.g. 0 for a radio the player carries. |
 | `ListenerAirAbsorption amount#` | Distant emitted sounds lose high frequencies: a low-pass per 3D channel whose cutoff falls with distance. 0 (default) is off. |
-| `ChannelLowPass channel, hz#` | Muffles one channel, for occlusion behind walls. 0 or 20000+ is off. |
 
 All of these also work before `CreateListener`, on the default listener at the origin.
 
@@ -329,10 +329,30 @@ Cost estimate (not measured): a stereo Freeverb at 48 kHz is about 24 filters ×
 million multiply-adds a second, well under 1% of one core. Biquads are cheaper still. Benchmarks on a physical machine
 go into the implementation PRs.
 
-### Air absorption and channel low-pass
+### Channel effects and air absorption
 
-Both are a one-pole or biquad low-pass on the channel's track, in its cooked callback (the same one that does sends),
-with the cutoff moved by `bb_channel_follow` for air absorption. A channel without either has no callback.
+Buses and channels both have effect chains (decided, see *Decisions*), with the same effect types and parameters.
+A bus effect works on everything on the bus and keeps ringing after its sounds stop; a channel effect works on one
+sound and ends with it. Occlusion is the usual case: each emitter behind a wall gets its own low-pass, set from the
+program's own line-of-sight test:
+
+```blitzbasic
+ch = EmitSound(engine, ship)
+Global wall = AddChannelEffect(ch, BB_EFFECT_LOWPASS)
+...
+If EntityVisible(camera, ship) Then cutoff = 20000 Else cutoff = 800
+AudioEffectParam wall, BB_EFFECTPARAM_FREQUENCY, cutoff, 150
+```
+
+A channel's chain runs in the cooked callback of its track: after gain and pitch, before the stereo gains of
+`bb_channel_apply`, in the track's own format. It is a few filters on one sound, so a channel chain costs a fraction of a
+bus chain; a game with 64 occluded emitters runs 64 biquads. The chain ends when the channel does, and so does a reverb
+or echo tail on it; put a channel on a bus with the effect when the tail should ring out. Its effect handles are freed
+with the channel, and commands on them afterwards behave like channel commands on a channel that has ended.
+
+`ListenerAirAbsorption` is a low-pass the runtime puts in front of every emitted channel's chain, with the cutoff moved
+by `bb_channel_follow` from the distance. Sends take the channel's audio after its chain. A channel with no chain, no
+air absorption and no send has no callback, as today.
 
 ## Compatibility
 
@@ -366,7 +386,7 @@ with the cutoff moved by `bb_channel_follow` for air absorption. A channel witho
 2. Buses: `CreateAudioBus`, `FreeAudioBus`, `AudioBusParent`, `AudioBusVolume`, pause/resume/stop, `ChannelBus`,
    `SoundBus`.
 3. Effects: the chain, parameters, fades, bypass, and the twelve effect types. `<audio.bb>`.
-4. Sends, `ChannelLowPass`, `ListenerAirAbsorption`.
+4. Channel effect chains (`AddChannelEffect`), sends, `ListenerAirAbsorption`.
 5. If wanted: snapshots and reverb zones.
 
 ## Open questions
@@ -376,8 +396,9 @@ with the cutoff moved by `bb_channel_follow` for air absorption. A channel witho
 
 ## Decisions
 
-- **Effects on buses only** (Xaymar, 26 Nov 2026). A channel that needs its own effect goes on its own bus. The only
-  per-channel filter is `ChannelLowPass`, for occlusion; there is no `AddChannelEffect`.
+- **Effects on buses and on channels** (Xaymar, 26 Nov 2026, "keep things flexible"). First answered as buses only,
+  but occlusion needs a filter per channel anyway, so channels get the same effect chains as buses (`AddChannelEffect`)
+  instead of a one-off `ChannelLowPass`.
 - **Parameters by numbered constant** (Xaymar, 26 Nov 2026), not by name: faster, and the shipped `<audio.bb>` gives
   the numbers names.
 - **Own effects** (Xaymar, 26 Nov 2026). The effects are written in the runtime. SoLoud's filters were never reachable
