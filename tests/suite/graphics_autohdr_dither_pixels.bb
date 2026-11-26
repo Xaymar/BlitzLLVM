@@ -84,7 +84,19 @@ For y = 0 To H - 1
 		sum = sum + v
 	Next
 Next
-If (high - low) <= 0.02 Then RuntimeError "Dither 1 in HDR with 6 bits makes noise: low " + low + " high " + high + " mean " + (sum / (W * H))
+If (high - low) <= 0.02 Then
+	; Not the noise that was expected: find out which part is missing.
+	Dither 1
+	Show
+	low2# = 9.0
+	high2# = -9.0
+	For x = 0 To W - 1
+		v# = Shown(x, 3, 1)
+		If v < low2 Then low2 = v
+		If v > high2 Then high2 = v
+	Next
+	RuntimeError "Dither 1 in HDR with 6 bits makes noise: low " + low + " high " + high + " env '" + GetEnv$("BLITZLLVM_AUTOHDR_BITS") + "' dither again: low " + low2 + " high " + high2
+EndIf
 CheckTrue "the noise of Dither 1 in HDR stays within a few steps", (high - low) < 0.25
 Check "the noise of Dither 1 in HDR keeps the grey", sum / (W * H), 0.4316, 0.02
 EndGraphics
