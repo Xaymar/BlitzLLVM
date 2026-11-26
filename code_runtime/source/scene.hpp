@@ -198,6 +198,14 @@ namespace bb {
 		normal_unfold(code[0] * (1.0f / 32767.0f), code[1] * (1.0f / 32767.0f), out);
 	}
 
+	/** Rounds to the nearest whole number, ties to even, exactly like lrintf in the default rounding mode, for |v| below 2^22.
+	 *  Adding 1.5 * 2^23 leaves no bits below the point, so the FPU itself rounds. lrintf is no inline instruction with MinGW: the call
+	 *  into the UCRT saves and restores the floating point environment, which made it most of the time of skinned meshes. */
+	inline int32_t round_small(float v)
+	{
+		return int32_t((v + 12582912.0f) - 12582912.0f);
+	}
+
 	inline void normal_encode(float x, float y, float z, int16_t* code)
 	{
 		float l1 = fabsf(x) + fabsf(y) + fabsf(z);
@@ -215,8 +223,8 @@ namespace bb {
 		}
 		// Rounded to the nearest: worst error 0.0037 degrees. The precise encoder (the best of the four ways to round) would be 0.0025
 		// degrees, but only with a careful error measure, and it took four times as long, which large meshes notice when they are made.
-		code[0] = int16_t(lrintf((px < -1 ? -1 : (px > 1 ? 1 : px)) * 32767.0f));
-		code[1] = int16_t(lrintf((py < -1 ? -1 : (py > 1 ? 1 : py)) * 32767.0f));
+		code[0] = int16_t(round_small((px < -1 ? -1 : (px > 1 ? 1 : px)) * 32767.0f));
+		code[1] = int16_t(round_small((py < -1 ? -1 : (py > 1 ? 1 : py)) * 32767.0f));
 	}
 
 	// A vertex of a surface, as the CPU keeps it and the GPU reads it (the same bytes, so an upload is a copy). The normal and the color are
