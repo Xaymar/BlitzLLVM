@@ -339,9 +339,9 @@ on llvmpipe say nothing about the change.
 What this says, to be checked on the real machines:
 
 * The one-time step is short: about 13 s on 4 cores, so a few seconds on Irkela.
-* The first link after it costs 2–4 s, far from the 16–32 s of #82. Why #82 was so much slower is not known (it may have
-  used full LTO, or linked every runtime function without dead stripping); the real runs will show whether it comes back
-  on Windows.
+* The first link after it costs 2–4 s, far from the 16–32 s of #82. Xaymar remembers the #82 times as a runaway in the
+  compiler from an integer issue that has since been fixed, which also happened without LTO, so they were not the cost
+  of LTO itself. The real runs will confirm that on Windows.
 * After that, a rebuild costs about as much as today's `inline` build or less, because the ThinLTO cache also keeps the
   program's own module when it did not change. A command the program never used before pulls in its runtime modules
   once (2.4 s for the first `RenderWorld`).
