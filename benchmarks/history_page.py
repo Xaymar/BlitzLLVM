@@ -243,8 +243,15 @@ def render_tags(results_dir, out):
                  "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
                  "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
         if m.get("baseline_gpu"):
-            text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root there "
-                     "too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
+            if any(t["tag"] == "root-igpu" for t in tags):
+                text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root "
+                         "there too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
+            else:
+                text += ["The original can only use the GPU that drives the display, so the baseline runs on the %s and every BlitzLLVM row on the %s: "
+                         "the change against the baseline includes the difference of the two GPUs." % (m["baseline_gpu"], m["gpu"]), ""]
+    m_gpu = ""
+    if os.path.isfile(mpath):
+        m_gpu = json.load(open(mpath)).get("baseline_gpu_short", "")
     if no_numbers:
         text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
     for category in CATEGORIES:
@@ -259,7 +266,7 @@ def render_tags(results_dir, out):
                      "| --- | " + " | ".join("---:" for _ in metrics) + " |"]
             for rev, cells in rows:
                 if not rev["tag"]:
-                    text.append("| Baseline: original Blitz3D 1.118 | %s |" % " | ".join(cells))
+                    text.append("| Baseline: original Blitz3D 1.118%s | %s |" % (" (%s)" % m_gpu if m_gpu else "", " | ".join(cells)))
                     continue
                 if rev["tag"] in ("root", "root-igpu"):
                     name = "root (not released)" if rev["tag"] == "root" else "root on the GPU of the baseline"
