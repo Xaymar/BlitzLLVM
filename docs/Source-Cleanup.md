@@ -326,7 +326,11 @@ than less:
     effects is assumed to end, a signed overflow or an out-of-range shift is assumed not to happen, a value read
     through a pointer of another type is assumed not to change. So: bits are reinterpreted with `std::bit_cast` or
     `memcpy`, never through a cast pointer or a union; checks come before the access they guard; arithmetic that can
-    wrap is done in unsigned types. Today no build of the repository runs a sanitizer. A Linux CI job with
+    wrap is done in unsigned types. The runtime and the inline C are built with `-fno-finite-loops`: clang otherwise
+    marks C++ loops (and C11 loops with a non-constant condition) `mustprogress` and may delete a loop it guesses has
+    no side effects, the same overeager assumption as GCC's `-ffinite-loops` (Xaymar, 26 Nov). The IR that blitzcc
+    writes for Blitz loops has no `mustprogress` today (checked: the compiler never emits it), and that stays so; a
+    test in the compiler's IR tests keeps it out. The flag goes into the LTO manifest with the others. Today no build of the repository runs a sanitizer. A Linux CI job with
     `-fsanitize=address,undefined` over the test suite comes in phase 1, before the moves and before whole-runtime
     ThinLTO, which Runtime-LTO.md already warns can expose UB that the prebuilt library hides.
 
@@ -408,7 +412,8 @@ Every PR in the plan:
 3. `api.h` (in the flat folder for now, `core/api.h` after the moves): the cross-file `bb_` declarations, removing the 125
    hand-written ones. This is the only step in phase 1 that touches many files, and it can find real mismatches; any it
    finds are fixed in a commit of their own and named in the PR.
-4. A sanitizer job (ASan and UBSan, Linux, the test suite) in CI, see rule 24. Findings are fixed one per PR.
+4. A sanitizer job (ASan and UBSan, Linux, the test suite) in CI, and `-fno-finite-loops` for the runtime, the
+   inline C and the tools, see rule 24. Findings are fixed one per PR.
 5. Fix the wrong and missing first comments (`userlib.c`, `graphics_streaming.cpp`, `graphics_presenter.cpp`,
    `rhi.hpp`, and the files with none).
 
