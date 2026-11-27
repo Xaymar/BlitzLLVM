@@ -26,6 +26,7 @@ Wend
 | `entity.bb` | `BB_FX_*` for `EntityFX` and `BrushFX`, `BB_BLEND_*`, `BB_LIGHT_*`, `BB_PROJ_*` for `CameraProjMode`, `BB_SPRITE_*` for `SpriteViewMode`, `BB_ANIM_*` for `Animate`, `BB_COLLIDE_*` and `BB_RESPONSE_*` for `Collisions`, `BB_PICK_*` for `EntityPickMode`. |
 | `physics.bb` | `BB_MOTION_*`, `BB_SHAPE_*` for `CreatePhysicsBody`, `BB_ENTITYSHAPE_*` for `CreatePhysicsBodyFromEntity`, and the modes of `PhysicsMode`, `PhysicsSolver`, `PhysicsContinuous` and `PhysicsConstraintMotor`. |
 | `gui.bb` | BlitzPlus: `BB_EVENT_*` ids, `BB_WINDOW_*`, `BB_BUTTON_*` and `BB_LABEL_*` styles, `BB_GADGET_NO_FOLLOW` and `BB_EDGE_*` for `SetGadgetLayout`. |
+| `audio.bb` | `BB_FALLOFF_*` for `SetFalloff`, `SetChannelFalloff` and `ListenerFalloff`, `BB_MASTER_BUS`, and `BB_LISTENER_*` for `AudioSceneListener`. |
 | `all.bb` | All of the above. |
 
 The files are in the `include` folder of the installation (`share/blitzllvm/include` for the Linux packages). The compiler looks in the folders given with `-I <folder>` first, so a project can keep its own shared files there and include them the same way. `BLITZLLVM_INCLUDE` replaces the folder of the installation. A file is included once, however often and from wherever it is named.

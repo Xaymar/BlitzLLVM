@@ -8,7 +8,7 @@ Commands that exist in BlitzBasic, Blitz3D and BlitzPlus alike.
 
 Back to [Home](Home) or the [Command Index](Command-Index).
 
-* [Audio](BlitzBasic-Audio) (17): Sounds, channels and music.
+* [Audio](BlitzBasic-Audio) (39): Sounds, channels and music.
 * [Banks](BlitzBasic-Banks) (15): Raw memory blocks you can peek, poke and pass to libraries.
 * [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) (20): Drawing targets, locking and reading or writing single pixels.
 * [Display](BlitzBasic-Display) (50): Opening a graphics mode, listing drivers, displays and modes, gamma and video memory.
@@ -19,7 +19,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Joystick](BlitzBasic-Joystick) (26): Joystick and gamepad axes, buttons and hats.
 * [Keyboard](BlitzBasic-Keyboard) (13): Key state, key hits and waiting for keys.
 * [Mouse](BlitzBasic-Mouse) (25): Mouse position, speed and buttons.
-* [Movies](BlitzBasic-Movies) (15): Playing back movie files.
+* [Movies](BlitzBasic-Movies) (17): Playing back movie files.
 * [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.
 * [Network](BlitzBasic-Network) (26): TCP and UDP streams, servers and host lookup.
 * [Streams](BlitzBasic-Streams) (15): Reading and writing bytes, numbers and text on files, TCP and UDP streams.

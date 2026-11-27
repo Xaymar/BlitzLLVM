@@ -28,6 +28,7 @@ Sets the volume of the sound of a movie, from 0 (silent) to 1 (the sound of the 
 
 ## Differences
 
+* The sound of a movie plays on a channel of its own ([MovieChannel](MovieChannel)), so [ChannelVolume](ChannelVolume) on it sets the same volume, and the volume of its [audio bus](Audio-Buses) applies on top.
 * A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
@@ -38,7 +39,7 @@ MovieVolume movie, 0.5   ; half as loud
 
 ## Related Commands
 
-[CloseMovie](CloseMovie) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [DrawMovie](DrawMovie) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [GetMovieTexture](GetMovieTexture) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MovieHeight](MovieHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [MovieLength](MovieLength) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MoviePlaying](MoviePlaying) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [MoviePosition](MoviePosition) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MovieWidth](MovieWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+[CloseMovie](CloseMovie) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [MovieBus](MovieBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MovieChannel](MovieChannel) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MovieHeight](MovieHeight) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [MovieLength](MovieLength) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MoviePlaying](MoviePlaying) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">, [MoviePosition](MoviePosition) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MovieWidth](MovieWidth) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 
 <div align="center">
 
