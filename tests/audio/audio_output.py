@@ -41,7 +41,7 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 	"""Plays a file and returns the left channel of what was sent to the disk driver."""
 	with open("play.bb", "w") as source:
 		if music is not None:
-			source.write('c = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, music, milliseconds))
+			source.write('%s\nc = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (setup, name, music, milliseconds))
 		else:
 			source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
 	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
@@ -124,6 +124,43 @@ for what, setup, after, expected in (
 	samples, log = play("tone.wav", setup, after)
 	frequency, smoothness, length = analyze(samples)
 	check("%s: pitch %.1f Hz is %.1f Hz" % (what, frequency, expected), abs(frequency - expected) < expected * 0.01)
+
+# Buses (BlitzLLVM): a channel on a bus is as loud as the volumes of its bus and of every bus that bus feeds, master included. A fade glides
+# without steps, a paused bus pauses its channels, and without any bus command the output is the same as before.
+def steady_peak(samples, start=4000, length=30000):
+	loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+	if not loud:
+		return 0
+	return max(abs(v) for v in samples[loud[0] + start : loud[0] + start + length])
+
+
+tone("tone.wav", 22050, 1, 16)
+reference = steady_peak(play("tone.wav")[0])
+for what, setup, after, ratio in (
+	("AudioBusVolume on the bus of SoundBus", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nSoundBus s, b", "", 0.5),
+	("a bus that feeds a bus", "a = CreateAudioBus()\nb = CreateAudioBus(a)\nAudioBusVolume a, 0.5\nAudioBusVolume b, 0.5\nSoundBus s, b", "", 0.25),
+	("the master bus", "AudioBusVolume 0, 0.5", "", 0.5),
+	("ChannelBus on a playing channel", "b = CreateAudioBus()\nAudioBusVolume b, 0.5", "ChannelBus c, b", 0.5),
+	("AudioBusParent", "a = CreateAudioBus()\nb = CreateAudioBus()\nAudioBusVolume a, 0.5\nSoundBus s, b\nAudioBusParent b, a", "", 0.5),
+	("FreeAudioBus moves its channels to its parent", "a = CreateAudioBus()\nb = CreateAudioBus(a)\nAudioBusVolume a, 0.5\nAudioBusVolume b, 0.1\nSoundBus s, b", "FreeAudioBus b", 0.5),
+	("a bus that was made and left alone", "b = CreateAudioBus()", "", 1.0),
+):
+	peak = steady_peak(play("tone.wav", setup, after)[0])
+	check("bus, %s: peak %d is %.2f of %d" % (what, peak, ratio, reference), abs(peak - reference * ratio) <= reference * 0.03 + 2)
+samples = play("tone.wav", "b = CreateAudioBus()\nSoundBus s, b", "AudioBusVolume b, 0, 1000")[0]
+loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+first = max(abs(v) for v in samples[loud[0] : loud[0] + 2000])
+later = max(abs(v) for v in samples[loud[0] + 22050 : loud[0] + 24050])  # Half a second into the fade.
+cycle_peaks = [max(abs(v) for v in samples[i : i + CYCLE]) for i in range(loud[0], loud[0] + 40000, CYCLE)]
+step = max(abs(cycle_peaks[i + 1] - cycle_peaks[i]) for i in range(len(cycle_peaks) - 1))
+check("bus fade: half way the peak %d is about half of %d" % (later, first), 0.35 < later / first < 0.65)
+check("bus fade: no step between cycles above 2%% (largest %d of %d)" % (step, first), step <= first * 0.02 + 2)
+samples, log = play("tone.wav", "b = CreateAudioBus()\nSoundBus s, b", "Delay 200\nPauseAudioBus b")
+frequency, smoothness, length = analyze(samples)
+check("PauseAudioBus: the sound stops after %.2f s and the channel is still there" % length, length < 0.5 and "playing 1" in log)
+samples, log = play("tone.wav", "b = CreateAudioBus()\nMusicBus b\nAudioBusVolume b, 0.5", music=1)
+peak = steady_peak(samples)
+check("MusicBus: peak %d is half of %d" % (peak, reference), abs(peak - reference * 0.5) <= reference * 0.03 + 2)
 
 # BLITZLLVM_LEGACY_AUDIO_RESAMPLING resamples like the original (linear interpolation), which keeps the pitch but adds the mirror images of a low-rate
 # sound above its own bandwidth. SDL_mixer's own resampling leaves them out.
@@ -402,6 +439,38 @@ for volume in ("1.0", "0.5", "0.0"):
 	count = len(data) // 4
 	peaks[volume] = max([abs(v) for v in struct.unpack("<%dh" % (count * 2), data[: count * 4])] + [0])
 check("MovieVolume: the peak is %d at 1, %d at 0.5 and %d at 0" % (peaks["1.0"], peaks["0.5"], peaks["0.0"]), peaks["1.0"] > 1000 and 0.45 < peaks["0.5"] / peaks["1.0"] < 0.55 and peaks["0.0"] < 10)
+
+# The sound of a movie plays on a channel of the mixer: MovieChannel gives it, MovieBus picks its bus, and EmitMovie makes it come from an
+# entity, with the distance volume of 3D sounds (0.167 at 100 units with the default curve) and no doppler shift on a moving entity.
+def movie_peak(setup):
+	with open("play.bb", "w") as source:
+		source.write('m = OpenMovie("colors.mp4")\n%s\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % setup)
+	if procutil.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZLLVM_HEADLESS", None)
+	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
+	count = len(data) // 4
+	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+	return max([abs(v) for v in samples] + [0]), samples, run.stderr.decode(errors="replace")
+
+
+full = peaks["1.0"]
+for what, setup, ratio in (
+	("ChannelVolume on MovieChannel", "ChannelVolume MovieChannel(m), 0.5", 0.5),
+	("MovieBus", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nMovieBus b\nm2 = OpenMovie(\"colors.mp4\")\nCloseMovie m\nm = m2", 0.5),
+	("ChannelBus on MovieChannel", "b = CreateAudioBus()\nAudioBusVolume b, 0.5\nChannelBus MovieChannel(m), b", 0.5),
+	("EmitMovie 100 units away", "CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 100\nEmitMovie m, p", 0.167),
+	("EmitMovie and back to the speakers", "CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 100\nEmitMovie m, p\nEmitMovie m, 0", 1.0),
+):
+	peak, samples, log = movie_peak(setup)
+	check("movie, %s: peak %d is %.3f of %d" % (what, peak, ratio, full), abs(peak - full * ratio) <= full * 0.04 + 2)
+peak, samples, log = movie_peak("CreateListener CreatePivot()\np = CreatePivot()\nPositionEntity p, 0, 0, 10\nEmitMovie m, p\nWhile MoviePlaying(m)\n\tMoveEntity p, 0, 0, 1\n\tDelay 20\nWend")
+frequency, smoothness, length = analyze(samples)
+check("movie, EmitMovie from a moving entity has no doppler shift: %.1f Hz is 440 Hz" % frequency, abs(frequency - 440.0) < 440.0 * 0.01)
 
 # Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
 # 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.

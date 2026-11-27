@@ -6,6 +6,7 @@
 ; ResumeChannel ChannelPitch ChannelVolume ChannelPan ChannelPlaying PlayMusic PlayCDTrack. Without a sound device (like in the automatic
 ; tests) nothing plays, so the parts that need one are skipped when PlaySound has no channel to give.
 Include "check.bb"
+Include "<audio.bb>"
 
 ; A short sound is made here, a 440 Hz tone of a tenth of a second as a WAV file.
 folder$ = "suite_tmp_audio"
@@ -206,6 +207,147 @@ ChannelDoppler 0, 0
 ChannelRadius 0, 1
 Check "GetChannelDoppler without a channel", GetChannelDoppler(0), 1
 Check "GetChannelRadius without a channel", GetChannelRadius(0), 0
+
+; Buses (BlitzLLVM). Bus 0 is the master bus, which everything plays on until it is moved. Buses feed other buses, and work without a
+; sound device too: only what plays on them is silent then.
+Check "GetAudioBusVolume of master", GetAudioBusVolume(0), 1
+world = CreateAudioBus()
+CheckTrue "CreateAudioBus", world > 0
+cave = CreateAudioBus(world)
+CheckTrue "CreateAudioBus with a parent", cave > 0 And cave <> world
+Check "GetAudioBusParent", GetAudioBusParent(cave), world
+Check "GetAudioBusParent of a new bus", GetAudioBusParent(world), 0
+Check "GetAudioBusVolume of a new bus", GetAudioBusVolume(cave), 1
+AudioBusVolume cave, 0.5
+Check "AudioBusVolume", GetAudioBusVolume(cave), 0.5
+AudioBusVolume cave, 2
+Check "AudioBusVolume above 1", GetAudioBusVolume(cave), 2
+AudioBusVolume world, 0, 400
+fading# = GetAudioBusVolume(world)
+CheckTrue "AudioBusVolume fades", fading > 0 And fading <= 1
+Delay 600
+Check "AudioBusVolume faded", GetAudioBusVolume(world), 0
+AudioBusVolume world, 1
+other = CreateAudioBus()
+AudioBusParent cave, other
+Check "AudioBusParent", GetAudioBusParent(cave), other
+AudioBusParent cave, world
+; A bus that is freed gives its children to its parent.
+FreeAudioBus world
+Check "FreeAudioBus moves the children", GetAudioBusParent(cave), 0
+FreeAudioBus 0
+again = CreateAudioBus()
+CheckTrue "CreateAudioBus reuses a freed handle", again > 0
+
+SoundBus sound, cave
+MusicBus cave
+channel = PlaySound(sound)
+If channel <> 0
+	Check "SoundBus", GetChannelBus(channel), cave
+	ChannelBus channel, other
+	Check "ChannelBus", GetChannelBus(channel), other
+	PauseAudioBus other
+	CheckTrue "PauseAudioBus keeps the channel", ChannelPlaying(channel)
+	ResumeAudioBus other
+	StopAudioBus other
+	CheckFalse "StopAudioBus", ChannelPlaying(channel)
+Else
+	suite_checks = suite_checks + 4
+EndIf
+music = PlayMusic(name)
+If music <> 0
+	Check "MusicBus", GetChannelBus(music), cave
+	StopChannel music
+Else
+	suite_checks = suite_checks + 1
+EndIf
+; A channel paused on its own stays paused when its bus resumes.
+channel = PlaySound(sound)
+If channel <> 0
+	PauseChannel channel
+	PauseAudioBus cave
+	ResumeAudioBus cave
+	Delay 300
+	CheckTrue "A paused channel stays paused", ChannelPlaying(channel)
+	StopChannel channel
+Else
+	suite_checks = suite_checks + 1
+EndIf
+ChannelBus 0, cave
+Check "GetChannelBus without a channel", GetChannelBus(0), 0
+SoundBus 0, cave
+FreeAudioBus cave
+FreeAudioBus other
+FreeAudioBus again
+MusicBus 0
+SoundBus sound, 0
+
+; Audio scenes (BlitzLLVM) hold bus volumes and listener settings, and set only what they hold when applied.
+world = CreateAudioBus()
+music = CreateAudioBus()
+paused = CreateAudioScene()
+CheckTrue "CreateAudioScene", paused > 0
+AudioSceneVolume paused, world, 0.25
+AudioSceneListener paused, BB_LISTENER_DOPPLER, 0
+AudioBusVolume music, 0.75
+ApplyAudioScene paused
+Check "ApplyAudioScene sets a bus", GetAudioBusVolume(world), 0.25
+Check "ApplyAudioScene sets the listener", GetListenerDoppler(), 0
+Check "ApplyAudioScene leaves the rest", GetAudioBusVolume(music), 0.75
+; Capture and apply gives back every value.
+normal = CreateAudioScene()
+AudioBusVolume world, 1
+ListenerDoppler 1
+SpeedOfSound 500
+CaptureAudioScene normal
+ApplyAudioScene paused
+SpeedOfSound 340
+ApplyAudioScene normal, 300
+fading# = GetAudioBusVolume(world)
+CheckTrue "ApplyAudioScene fades", fading >= 0.25 And fading < 1
+Delay 500
+Check "CaptureAudioScene bus", GetAudioBusVolume(world), 1
+Check "CaptureAudioScene master", GetAudioBusVolume(BB_MASTER_BUS), 1
+Check "CaptureAudioScene other bus", GetAudioBusVolume(music), 0.75
+Check "CaptureAudioScene listener", GetListenerDoppler(), 1
+Check "CaptureAudioScene speed of sound", GetSpeedOfSound(), 500
+SpeedOfSound 340
+; Blending: 0 is the first scene, 1 the second, a value only one holds is mixed with its default.
+BlendAudioScene paused, normal, 0
+Check "BlendAudioScene 0", GetAudioBusVolume(world), 0.25
+BlendAudioScene paused, normal, 1
+Check "BlendAudioScene 1", GetAudioBusVolume(world), 1
+BlendAudioScene paused, normal, 0.5
+Check "BlendAudioScene half", GetAudioBusVolume(world), 0.625
+other = CreateAudioScene()
+AudioSceneVolume other, music, 0.5
+BlendAudioScene paused, other, 0.5
+Check "BlendAudioScene with the default of a bus", GetAudioBusVolume(world), 0.625
+Check "BlendAudioScene with the default of the other", GetAudioBusVolume(music), 0.75
+Check "BlendAudioScene with the default of the listener", GetListenerDoppler(), 0.5
+; Copy, clear, and a freed bus drops out of every scene.
+copy = CopyAudioScene(paused)
+ClearAudioScene copy, world
+AudioBusVolume world, 1
+ApplyAudioScene copy
+Check "ClearAudioScene one bus", GetAudioBusVolume(world), 1
+Check "CopyAudioScene keeps the rest", GetListenerDoppler(), 0
+ClearAudioScene copy
+ListenerDoppler 1
+ApplyAudioScene copy
+Check "ClearAudioScene everything", GetListenerDoppler(), 1
+FreeAudioBus world
+again = CreateAudioBus()
+ApplyAudioScene paused
+Check "A freed bus drops out of scenes", GetAudioBusVolume(again), 1
+ListenerDoppler 1
+FreeAudioScene paused
+FreeAudioScene normal
+FreeAudioScene other
+FreeAudioScene copy
+FreeAudioScene 0
+FreeAudioBus again
+FreeAudioBus music
 
 FreeSound sound
 FreeSound sound3d

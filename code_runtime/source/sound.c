@@ -45,6 +45,7 @@ typedef struct bb_sound {
 	float      pan;
 	int        pitch; // In Hz, 0 for what the file has.
 	int        is_3d;
+	int32_t    bus; // SoundBus: the bus that its channels start on (0 for the master bus).
 } bb_sound;
 
 // Where something was the last time it moved, which its speed is worked out from.
@@ -72,6 +73,9 @@ typedef struct bb_channel {
 	Uint64     shift_time; // When it was last moved toward it, 0 while it has not started.
 	float      doppler;    // ChannelDoppler: how much of the listener's doppler scale this channel gets (1 for all of it).
 	float      radius;     // ChannelRadius: how big the source is, in units of the world (0 for a point).
+	int32_t    bus;        // ChannelBus: the bus it plays on (0 for the master bus).
+	int        paused;     // PauseChannel: paused on its own, so that it stays paused when its bus resumes.
+	int        movie;      // The sound of a movie, which the movie plays, pauses and stops (MovieChannel).
 } bb_channel;
 
 // A setting of the listener that can glide to a new value: it goes from `from` to `to` over `length` nanoseconds from `start`.
@@ -81,6 +85,38 @@ typedef struct bb_fade {
 	Uint64 start;
 	Uint64 length;
 } bb_fade;
+
+// The part of a bus that the audio thread reads while it mixes: its volume and the bus it feeds. It is changed only with the mixer locked,
+// and has its own memory, as the state of the program below is thread_local and so not the same on the audio thread.
+typedef struct bb_bus_mix {
+	struct bb_bus_mix* parent; // NULL for the master bus, whose volume is put on the final mix.
+	bb_fade            volume;
+	float              last; // The volume at the end of the last block, which the next block starts from.
+	int                known;
+} bb_bus_mix;
+
+// A bus: a group of channels with its own volume and pause state, that feeds another bus. Bus 0 is the master bus.
+typedef struct bb_bus {
+	int         used;
+	int32_t     parent;
+	int         paused;
+	MIX_Group*  group; // Made when a channel is first put on the bus while there is a sound device. The master bus has none.
+	bb_bus_mix* mix;
+} bb_bus;
+
+// One value that an audio scene holds: the volume of a bus, or a setting of the listener.
+typedef struct bb_scene_value {
+	int     kind;   // BB_SCENE_*
+	int32_t target; // The bus, or the setting of the listener (BB_LISTENER_*).
+	float   value;
+} bb_scene_value;
+
+typedef struct bb_scene {
+	int             used;
+	bb_scene_value* values;
+	int32_t         count;
+	int32_t         cap;
+} bb_scene;
 
 // Everything the sound system keeps for the running program, in one place. It is thread_local, as the program runs on one
 // thread and nothing else may touch the device.
@@ -103,6 +139,19 @@ typedef struct bb_audio_state {
 	bb_motion listener_motion;
 	int       falloff_default; // The curve that new channels start with (BB_FALLOFF_*).
 	int       falloff_known;   // 0 until it was set, by SetFalloff or by BLITZLLVM_VOLUME_FALLOFF when first asked.
+	// Buses, made by CreateAudioBus. The first one is the master bus, made with the first bus command.
+	bb_bus* buses;
+	int32_t bus_count;
+	int32_t bus_cap;
+	int32_t music_bus;     // MusicBus: the bus that PlayMusic channels start on.
+	int     master_hooked; // Whether the volume of the master bus is put on the final mix.
+	int32_t movie_bus;     // MovieBus: the bus that the sound of movies starts on.
+	// Audio scenes, made by CreateAudioScene.
+	bb_scene* scenes;
+	int32_t   scene_count;
+	int32_t   scene_cap;
+	int       listener_created;     // Whether CreateListener was called, and so listener_defaults is known.
+	float     listener_defaults[3]; // What CreateListener was last given (rolloff, doppler, distance), which BlendAudioScene blends with.
 } bb_audio_state;
 
 // How fast sound moves, in meters per second, until SpeedOfSound changes it.
@@ -136,6 +185,7 @@ static void bb_audio_shutdown(void)
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
 		if (bb_audio.channels[i].used) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
+			bb_audio.channels[i].used = 0; // Movies that are closed after this let go of nothing.
 		}
 	}
 	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
@@ -345,7 +395,7 @@ void bb_free_sound(int32_t handle)
 	}
 	bb_sound* sound = bb_sound_get(handle, "FreeSound");
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && (bb_audio.channels[i].sound == handle)) {
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && (bb_audio.channels[i].sound == handle)) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
 			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
@@ -390,7 +440,24 @@ static void bb_channel_apply(bb_channel* channel)
 }
 
 static void bb_channel_start_3d(bb_channel* channel);
+
+// The channel of a movie is played, paused and stopped by the movie, and its pitch would play the sound apart from the picture.
+static void bb_movie_owns(const bb_channel* channel, const char* what)
+{
+	if (channel && channel->movie) {
+		char message[160];
+		snprintf(message, sizeof(message), "%s: the channel is the sound of a movie, which the movie commands play, pause and stop", what);
+		bb_runtime_error(message);
+	}
+}
 static int  bb_falloff_default(void);
+static int  bb_bus_valid(int32_t bus);
+static int  bb_bus_paused(int32_t bus);
+static MIX_Group* bb_bus_group(int32_t bus);
+static void bb_bus_hook_master(void);
+#define BB_SCENE_BUS_VOLUME 1
+#define BB_SCENE_LISTENER   2
+static void bb_scenes_forget(int kind, int32_t target);
 
 static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 {
@@ -402,7 +469,8 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	// Reuse the slot of a channel that is over.
 	int32_t slot = 0;
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && !MIX_TrackPlaying(bb_audio.channels[i].track) && !MIX_TrackPaused(bb_audio.channels[i].track)) {
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && !MIX_TrackPlaying(bb_audio.channels[i].track) &&
+		    !MIX_TrackPaused(bb_audio.channels[i].track)) {
 			MIX_DestroyTrack(bb_audio.channels[i].track);
 			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
@@ -434,6 +502,11 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	channel->gain3d    = 1.0f;
 	channel->falloff   = bb_falloff_default();
 	channel->doppler   = 1.0f;
+	channel->bus       = bb_bus_valid(sound->bus) ? sound->bus : 0;
+	bb_bus_hook_master();
+	if (channel->bus) {
+		MIX_SetTrackGroup(channel->track, bb_bus_group(channel->bus));
+	}
 
 	MIX_SetTrackAudio(channel->track, sound->audio);
 	if (sound->pitch > 0 && sound->frequency > 0) {
@@ -449,6 +522,9 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, sound->loop ? -1 : 0);
 	MIX_PlayTrack(channel->track, options);
 	SDL_DestroyProperties(options);
+	if (bb_bus_paused(channel->bus)) {
+		MIX_PauseTrack(channel->track); // It starts where it would be if it had played before its bus was paused.
+	}
 	return slot;
 }
 
@@ -470,6 +546,7 @@ int32_t bb_play_music(const char* path, int32_t flags)
 	if (flags & 1) {
 		bb_loop_sound(sound);
 	}
+	bb_audio.sounds[sound].bus = bb_audio.music_bus;
 	int32_t channel = bb_play(sound, 0, "PlayMusic");
 	if (channel && (flags & 2)) {
 		bb_pause_channel(channel);
@@ -493,6 +570,7 @@ int32_t bb_emit_sound(int32_t handle, int32_t entity)
 void bb_stop_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "StopChannel");
+	bb_movie_owns(channel, "StopChannel");
 	if (channel) {
 		MIX_StopTrack(channel->track, 0);
 		MIX_DestroyTrack(channel->track);
@@ -503,7 +581,9 @@ void bb_stop_channel(int32_t handle)
 void bb_pause_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "PauseChannel");
+	bb_movie_owns(channel, "PauseChannel");
 	if (channel) {
+		channel->paused = 1;
 		MIX_PauseTrack(channel->track);
 	}
 }
@@ -511,8 +591,12 @@ void bb_pause_channel(int32_t handle)
 void bb_resume_channel(int32_t handle)
 {
 	bb_channel* channel = bb_channel_get(handle, "ResumeChannel");
+	bb_movie_owns(channel, "ResumeChannel");
 	if (channel) {
-		MIX_ResumeTrack(channel->track);
+		channel->paused = 0;
+		if (!bb_bus_paused(channel->bus)) {
+			MIX_ResumeTrack(channel->track); // A channel on a paused bus plays on when the bus resumes.
+		}
 	}
 }
 
@@ -543,6 +627,7 @@ void bb_channel_pan(int32_t handle, float pan)
 void bb_channel_pitch(int32_t handle, int32_t hertz)
 {
 	bb_channel* channel = bb_channel_get(handle, "ChannelPitch");
+	bb_movie_owns(channel, "ChannelPitch");
 	if (channel && (hertz > 0)) {
 		bb_sound* sound = &bb_audio.sounds[channel->sound];
 		if (sound->frequency > 0) {
@@ -706,6 +791,10 @@ int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float d
 	bb_fade_set(&bb_audio.listener_rolloff, rolloff);
 	bb_fade_set(&bb_audio.listener_doppler, doppler);
 	bb_fade_set(&bb_audio.listener_distance, distance > 0.0f ? distance : 1.0f);
+	bb_audio.listener_created     = 1;
+	bb_audio.listener_defaults[0] = rolloff;
+	bb_audio.listener_defaults[1] = doppler;
+	bb_audio.listener_defaults[2] = distance > 0.0f ? distance : 1.0f;
 	memset(&bb_audio.listener_motion, 0, sizeof(bb_audio.listener_motion));
 	return bb_audio.listener_entity;
 }
@@ -868,8 +957,9 @@ static void bb_channel_follow(bb_channel* channel, const float* listener, Uint64
 	channel->pan3d  = pan;
 	bb_channel_apply(channel);
 
-	// The pitch: what the source moves along the line to the listener, and what the listener does.
-	if (reach > 1e-3f) {
+	// The pitch: what the source moves along the line to the listener, and what the listener does. Not for movies, whose sound would
+	// drift away from the picture.
+	if ((reach > 1e-3f) && !channel->movie) {
 		float ux = dx / reach, uy = dy / reach, uz = dz / reach;
 		float* sv = channel->motion.speed;
 		float* lv = bb_audio.listener_motion.speed;
@@ -920,4 +1010,724 @@ void bb_sound_update(void)
 			bb_channel_follow(channel, listener, now);
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Buses
+////////////////////////////////////////////////////////////////////////////////
+// Nothing here runs until a program uses a bus command, so programs that don't are mixed exactly as before: no MIX_Group and no callback
+// exists. A bus other than master is a MIX_Group; its volume (and the volumes of the buses it feeds, up to but not including master) is put
+// on the group's mix in the group's callback, gliding over each block from where the last block ended, so a fade has no steps. The
+// volume of the master bus is put on the final mix the same way.
+
+static float bb_bus_gain(bb_bus_mix* mix, Uint64 now)
+{
+	float gain = 1.0f;
+	for (; mix && mix->parent; mix = mix->parent) {
+		gain *= bb_fade_value(&mix->volume, now);
+	}
+	return gain;
+}
+
+// Puts a volume on a block of interleaved samples, gliding from the volume the last block ended at.
+static void bb_bus_ramp(bb_bus_mix* mix, float gain, float* pcm, int samples, int channels)
+{
+	float from = mix->known ? mix->last : gain;
+	mix->last  = gain;
+	mix->known = 1;
+	if ((from == 1.0f) && (gain == 1.0f)) {
+		return;
+	}
+	int frames = channels > 0 ? samples / channels : samples;
+	for (int f = 0; f < frames; f++) {
+		float g = (frames > 1) ? from + (gain - from) * (float)f / (float)(frames - 1) : gain;
+		for (int c = 0; c < channels; c++) {
+			pcm[f * channels + c] *= g;
+		}
+	}
+}
+
+static void SDLCALL bb_bus_group_mixed(void* userdata, MIX_Group* group, const SDL_AudioSpec* spec, float* pcm, int samples)
+{
+	(void)group;
+	bb_bus_mix* mix = (bb_bus_mix*)userdata;
+	bb_bus_ramp(mix, bb_bus_gain(mix, SDL_GetTicksNS()), pcm, samples, spec->channels);
+}
+
+static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const SDL_AudioSpec* spec, float* pcm, int samples)
+{
+	(void)mixer;
+	bb_bus_mix* mix = (bb_bus_mix*)userdata;
+	bb_bus_ramp(mix, bb_fade_value(&mix->volume, SDL_GetTicksNS()), pcm, samples, spec->channels);
+}
+
+static void bb_bus_lock(void)
+{
+	if (bb_audio.mixer) {
+		MIX_LockMixer(bb_audio.mixer);
+	}
+}
+
+static void bb_bus_unlock(void)
+{
+	if (bb_audio.mixer) {
+		MIX_UnlockMixer(bb_audio.mixer);
+	}
+}
+
+// The table of buses, with the master bus in it, made the first time a bus command is used.
+static void bb_bus_table(void)
+{
+	if (bb_audio.bus_count) {
+		return;
+	}
+	bb_audio.bus_cap   = 8;
+	bb_audio.buses     = (bb_bus*)bb_malloc_or_fail((size_t)bb_audio.bus_cap * sizeof(bb_bus));
+	memset(bb_audio.buses, 0, (size_t)bb_audio.bus_cap * sizeof(bb_bus));
+	bb_audio.bus_count = 1;
+	bb_bus* master     = &bb_audio.buses[0];
+	master->used       = 1;
+	master->mix        = (bb_bus_mix*)bb_malloc_or_fail(sizeof(bb_bus_mix));
+	memset(master->mix, 0, sizeof(bb_bus_mix));
+	bb_fade_set(&master->mix->volume, 1.0f);
+}
+
+static int bb_bus_valid(int32_t bus)
+{
+	return (bus >= 0) && (bus < bb_audio.bus_count) && bb_audio.buses[bus].used;
+}
+
+static bb_bus* bb_bus_get(int32_t bus, const char* what)
+{
+	bb_bus_table();
+	if (!bb_bus_valid(bus)) {
+		bb_handle_error(what, "audio bus", bus);
+	}
+	return &bb_audio.buses[bus];
+}
+
+static int bb_bus_paused(int32_t bus)
+{
+	for (int guard = 0; bb_bus_valid(bus) && guard < bb_audio.bus_count; guard++) {
+		if (bb_audio.buses[bus].paused) {
+			return 1;
+		}
+		if (bus == 0) {
+			break;
+		}
+		bus = bb_audio.buses[bus].parent;
+	}
+	return 0;
+}
+
+// Whether `bus` is `ancestor` or feeds into it, through any number of buses.
+static int bb_bus_under(int32_t bus, int32_t ancestor)
+{
+	for (int guard = 0; bb_bus_valid(bus) && guard <= bb_audio.bus_count; guard++) {
+		if (bus == ancestor) {
+			return 1;
+		}
+		if (bus == 0) {
+			break;
+		}
+		bus = bb_audio.buses[bus].parent;
+	}
+	return 0;
+}
+
+// The volume of the master bus goes on the final mix once it was set, also when the sound device is opened after that.
+static void bb_bus_hook_master(void)
+{
+	if (bb_audio.mixer && bb_audio.bus_count && !bb_audio.master_hooked) {
+		MIX_SetPostMixCallback(bb_audio.mixer, bb_bus_master_mixed, bb_audio.buses[0].mix);
+		bb_audio.master_hooked = 1;
+	}
+}
+
+static MIX_Group* bb_bus_group(int32_t handle)
+{
+	if (!bb_audio.mixer || (handle == 0) || !bb_bus_valid(handle)) {
+		return NULL;
+	}
+	bb_bus* bus = &bb_audio.buses[handle];
+	if (!bus->group) {
+		bus->group = MIX_CreateGroup(bb_audio.mixer);
+		if (bus->group) {
+			MIX_SetGroupPostMixCallback(bus->group, bb_bus_group_mixed, bus->mix);
+		}
+	}
+	return bus->group;
+}
+
+int32_t bb_create_audio_bus(int32_t parent)
+{
+	bb_bus_get(parent, "CreateAudioBus");
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.bus_count; i++) {
+		if (!bb_audio.buses[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.bus_count >= bb_audio.bus_cap) {
+			bb_audio.bus_cap *= 2;
+			bb_audio.buses = (bb_bus*)bb_realloc_or_fail(bb_audio.buses, (size_t)bb_audio.bus_cap * sizeof(bb_bus));
+		}
+		slot = bb_audio.bus_count++;
+	}
+	bb_bus_mix* mix = (bb_bus_mix*)bb_malloc_or_fail(sizeof(bb_bus_mix));
+	memset(mix, 0, sizeof(*mix));
+	bb_fade_set(&mix->volume, 1.0f);
+	bb_bus_lock();
+	mix->parent = bb_audio.buses[parent].mix;
+	bb_bus_unlock();
+	bb_bus* bus = &bb_audio.buses[slot];
+	memset(bus, 0, sizeof(*bus));
+	bus->used   = 1;
+	bus->parent = parent;
+	bus->mix    = mix;
+	return slot;
+}
+
+// Pauses or resumes the tracks of every channel on a bus and the buses that feed it, as their buses and they themselves say.
+static void bb_bus_update_pause(int32_t handle)
+{
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		bb_channel* channel = &bb_audio.channels[i];
+		if (!channel->used || !bb_bus_under(channel->bus, handle)) {
+			continue;
+		}
+		if (channel->paused || bb_bus_paused(channel->bus)) {
+			MIX_PauseTrack(channel->track);
+		} else {
+			MIX_ResumeTrack(channel->track);
+		}
+	}
+}
+
+// Its channels, child buses and sounds go to its parent, which also takes over playing them without a gap.
+void bb_free_audio_bus(int32_t handle)
+{
+	if (handle == 0) {
+		return;
+	}
+	bb_bus* bus    = bb_bus_get(handle, "FreeAudioBus");
+	int32_t parent = bus->parent;
+	bb_bus_lock();
+	for (int32_t i = 1; i < bb_audio.bus_count; i++) {
+		if (bb_audio.buses[i].used && (bb_audio.buses[i].parent == handle)) {
+			bb_audio.buses[i].parent      = parent;
+			bb_audio.buses[i].mix->parent = bb_audio.buses[parent].mix;
+		}
+	}
+	bb_bus_unlock();
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && (bb_audio.channels[i].bus == handle)) {
+			bb_audio.channels[i].bus = parent;
+			MIX_SetTrackGroup(bb_audio.channels[i].track, bb_bus_group(parent));
+		}
+	}
+	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
+		if (bb_audio.sounds[i].bus == handle) {
+			bb_audio.sounds[i].bus = parent;
+		}
+	}
+	if (bb_audio.music_bus == handle) {
+		bb_audio.music_bus = parent;
+	}
+	if (bb_audio.movie_bus == handle) {
+		bb_audio.movie_bus = parent;
+	}
+	bb_scenes_forget(BB_SCENE_BUS_VOLUME, handle);
+	if (bus->group) {
+		MIX_DestroyGroup(bus->group);
+	}
+	bb_free(bus->mix); // Its group is gone, and no other bus feeds it any more, so nothing on the audio thread still reads it.
+	memset(bus, 0, sizeof(*bus));
+	bb_bus_update_pause(parent);
+}
+
+void bb_audio_bus_parent(int32_t handle, int32_t parent)
+{
+	if (handle == 0) {
+		bb_runtime_error("AudioBusParent: the master bus feeds nothing");
+	}
+	bb_bus* bus = bb_bus_get(handle, "AudioBusParent");
+	bb_bus_get(parent, "AudioBusParent");
+	if (bb_bus_under(parent, handle)) {
+		bb_runtime_error("AudioBusParent: a bus can't feed itself, or a bus that feeds it");
+	}
+	bus->parent = parent;
+	bb_bus_lock();
+	bus->mix->parent = bb_audio.buses[parent].mix;
+	bb_bus_unlock();
+	bb_bus_update_pause(handle);
+}
+
+int32_t bb_get_audio_bus_parent(int32_t handle)
+{
+	return bb_bus_get(handle, "GetAudioBusParent")->parent;
+}
+
+void bb_audio_bus_volume(int32_t handle, float volume, int32_t milliseconds)
+{
+	bb_bus* bus = bb_bus_get(handle, "AudioBusVolume");
+	if (!(volume >= 0.0f)) {
+		bb_runtime_error("AudioBusVolume: the volume can't be below 0");
+	}
+	bb_fade_check(milliseconds, "AudioBusVolume: the fade time can't be below 0");
+	if (handle == 0) {
+		bb_bus_hook_master();
+	}
+	bb_bus_lock();
+	bb_fade_to(&bus->mix->volume, volume, milliseconds);
+	bb_bus_unlock();
+}
+
+float bb_get_audio_bus_volume(int32_t handle)
+{
+	bb_bus* bus = bb_bus_get(handle, "GetAudioBusVolume");
+	return bb_fade_value(&bus->mix->volume, SDL_GetTicksNS());
+}
+
+void bb_pause_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "PauseAudioBus")->paused = 1;
+	bb_bus_update_pause(handle);
+}
+
+void bb_resume_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "ResumeAudioBus")->paused = 0;
+	bb_bus_update_pause(handle);
+}
+
+void bb_stop_audio_bus(int32_t handle)
+{
+	bb_bus_get(handle, "StopAudioBus");
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && bb_bus_under(bb_audio.channels[i].bus, handle)) {
+			bb_stop_channel(i); // Movies stop with StopMovie: their sound is silent while the bus is paused or turned down instead.
+		}
+	}
+}
+
+void bb_channel_bus(int32_t handle, int32_t bus)
+{
+	bb_bus_get(bus, "ChannelBus");
+	bb_channel* channel = bb_channel_get(handle, "ChannelBus");
+	if (channel) {
+		channel->bus = bus;
+		MIX_SetTrackGroup(channel->track, bb_bus_group(bus));
+		if (channel->paused || bb_bus_paused(bus)) {
+			MIX_PauseTrack(channel->track);
+		} else {
+			MIX_ResumeTrack(channel->track);
+		}
+	}
+}
+
+int32_t bb_get_channel_bus(int32_t handle)
+{
+	bb_channel* channel = bb_channel_get(handle, "GetChannelBus");
+	return channel ? channel->bus : 0;
+}
+
+void bb_sound_bus(int32_t handle, int32_t bus)
+{
+	bb_bus_get(bus, "SoundBus");
+	bb_sound* sound = bb_sound_get(handle, "SoundBus");
+	if (handle) {
+		sound->bus = bus;
+	}
+}
+
+void bb_music_bus(int32_t bus)
+{
+	bb_bus_get(bus, "MusicBus");
+	bb_audio.music_bus = bus;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Audio scenes
+////////////////////////////////////////////////////////////////////////////////
+// A scene holds values for buses and the listener, and sets them (with a fade) when it is applied. It holds only what was set in it, so
+// applying one leaves everything else alone. Effect parameters join them with the effects.
+
+#define BB_LISTENER_ROLLOFF      1
+#define BB_LISTENER_DOPPLER      2
+#define BB_LISTENER_DISTANCE     3
+#define BB_LISTENER_SPEEDOFSOUND 4
+#define BB_LISTENER_RADIUS       5
+
+static bb_scene* bb_scene_get(int32_t handle, const char* what)
+{
+	if ((handle <= 0) || (handle >= bb_audio.scene_count) || !bb_audio.scenes[handle].used) {
+		bb_handle_error(what, "audio scene", handle);
+	}
+	return &bb_audio.scenes[handle];
+}
+
+static bb_scene_value* bb_scene_find(bb_scene* scene, int kind, int32_t target)
+{
+	for (int32_t i = 0; i < scene->count; i++) {
+		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
+			return &scene->values[i];
+		}
+	}
+	return NULL;
+}
+
+static void bb_scene_set(bb_scene* scene, int kind, int32_t target, float value)
+{
+	bb_scene_value* known = bb_scene_find(scene, kind, target);
+	if (!known) {
+		if (scene->count >= scene->cap) {
+			scene->cap    = scene->cap ? scene->cap * 2 : 8;
+			scene->values = (bb_scene_value*)bb_realloc_or_fail(scene->values, (size_t)scene->cap * sizeof(bb_scene_value));
+		}
+		known         = &scene->values[scene->count++];
+		known->kind   = kind;
+		known->target = target;
+	}
+	known->value = value;
+}
+
+static void bb_scene_remove(bb_scene* scene, int kind, int32_t target)
+{
+	for (int32_t i = 0; i < scene->count; i++) {
+		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
+			scene->values[i] = scene->values[--scene->count];
+			return;
+		}
+	}
+}
+
+// A bus that is freed drops out of every scene, so that an old scene never touches the bus that gets its handle next.
+static void bb_scenes_forget(int kind, int32_t target)
+{
+	for (int32_t i = 1; i < bb_audio.scene_count; i++) {
+		if (bb_audio.scenes[i].used) {
+			bb_scene_remove(&bb_audio.scenes[i], kind, target);
+		}
+	}
+}
+
+int32_t bb_create_audio_scene(void)
+{
+	if (!bb_audio.scene_count) {
+		bb_audio.scene_count = 1; // 0 is no scene.
+	}
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.scene_count; i++) {
+		if (!bb_audio.scenes[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.scene_count >= bb_audio.scene_cap) {
+			bb_audio.scene_cap = bb_audio.scene_cap ? bb_audio.scene_cap * 2 : 8;
+			bb_audio.scenes    = (bb_scene*)bb_realloc_or_fail(bb_audio.scenes, (size_t)bb_audio.scene_cap * sizeof(bb_scene));
+		}
+		slot = bb_audio.scene_count++;
+	}
+	memset(&bb_audio.scenes[slot], 0, sizeof(bb_scene));
+	bb_audio.scenes[slot].used = 1;
+	return slot;
+}
+
+void bb_free_audio_scene(int32_t handle)
+{
+	if (handle == 0) {
+		return;
+	}
+	bb_scene* scene = bb_scene_get(handle, "FreeAudioScene");
+	bb_free(scene->values);
+	memset(scene, 0, sizeof(*scene));
+}
+
+int32_t bb_copy_audio_scene(int32_t handle)
+{
+	bb_scene_get(handle, "CopyAudioScene");
+	int32_t   copy = bb_create_audio_scene();
+	bb_scene* from = &bb_audio.scenes[handle]; // After the create, which can move the scenes.
+	bb_scene* to   = &bb_audio.scenes[copy];
+	for (int32_t i = 0; i < from->count; i++) {
+		bb_scene_set(to, from->values[i].kind, from->values[i].target, from->values[i].value);
+	}
+	return copy;
+}
+
+void bb_audio_scene_volume(int32_t handle, int32_t bus, float volume)
+{
+	bb_scene* scene = bb_scene_get(handle, "AudioSceneVolume");
+	bb_bus_get(bus, "AudioSceneVolume");
+	if (!(volume >= 0.0f)) {
+		bb_runtime_error("AudioSceneVolume: the volume can't be below 0");
+	}
+	bb_scene_set(scene, BB_SCENE_BUS_VOLUME, bus, volume);
+}
+
+// The same checks as the setters of the listener make.
+static void bb_listener_setting_check(int32_t setting, float value, const char* what)
+{
+	char message[192];
+	switch (setting) {
+	case BB_LISTENER_ROLLOFF:
+	case BB_LISTENER_DOPPLER:
+	case BB_LISTENER_RADIUS:
+		if (!(value >= 0.0f)) {
+			snprintf(message, sizeof(message), "%s: the value of listener setting %d can't be below 0", what, (int)setting);
+			bb_runtime_error(message);
+		}
+		break;
+	case BB_LISTENER_DISTANCE:
+	case BB_LISTENER_SPEEDOFSOUND:
+		if (!(value > 0.0f)) {
+			snprintf(message, sizeof(message), "%s: the value of listener setting %d has to be above 0", what, (int)setting);
+			bb_runtime_error(message);
+		}
+		break;
+	default:
+		snprintf(message, sizeof(message), "%s: the listener setting has to be 1 to 5 (BB_LISTENER_ROLLOFF to BB_LISTENER_RADIUS), not %d", what,
+		         (int)setting);
+		bb_runtime_error(message);
+	}
+}
+
+void bb_audio_scene_listener(int32_t handle, int32_t setting, float value)
+{
+	bb_scene* scene = bb_scene_get(handle, "AudioSceneListener");
+	bb_listener_setting_check(setting, value, "AudioSceneListener");
+	bb_scene_set(scene, BB_SCENE_LISTENER, setting, value);
+}
+
+void bb_clear_audio_scene(int32_t handle, int32_t target)
+{
+	bb_scene* scene = bb_scene_get(handle, "ClearAudioScene");
+	if (target == 0) {
+		scene->count = 0;
+		return;
+	}
+	bb_bus_get(target, "ClearAudioScene");
+	bb_scene_remove(scene, BB_SCENE_BUS_VOLUME, target);
+}
+
+static bb_fade* bb_listener_fade(int32_t setting)
+{
+	switch (setting) {
+	case BB_LISTENER_ROLLOFF: return &bb_audio.listener_rolloff;
+	case BB_LISTENER_DOPPLER: return &bb_audio.listener_doppler;
+	case BB_LISTENER_DISTANCE: return &bb_audio.listener_distance;
+	case BB_LISTENER_SPEEDOFSOUND: return &bb_audio.speed_of_sound;
+	default: return &bb_audio.listener_radius;
+	}
+}
+
+// What a value is when no scene holds it: what a new bus starts with, and what CreateListener set for the listener (FMOD's 1, 1, 1 before).
+static float bb_scene_default(int kind, int32_t target)
+{
+	if (kind == BB_SCENE_BUS_VOLUME) {
+		return 1.0f;
+	}
+	switch (target) {
+	case BB_LISTENER_ROLLOFF: return bb_audio.listener_created ? bb_audio.listener_defaults[0] : 1.0f;
+	case BB_LISTENER_DOPPLER: return bb_audio.listener_created ? bb_audio.listener_defaults[1] : 1.0f;
+	case BB_LISTENER_DISTANCE: return bb_audio.listener_created ? bb_audio.listener_defaults[2] : 1.0f;
+	case BB_LISTENER_SPEEDOFSOUND: return BB_SPEED_OF_SOUND;
+	default: return 0.0f;
+	}
+}
+
+void bb_capture_audio_scene(int32_t handle)
+{
+	bb_scene* scene = bb_scene_get(handle, "CaptureAudioScene");
+	scene->count    = 0;
+	Uint64 now      = SDL_GetTicksNS();
+	bb_bus_table();
+	for (int32_t i = 0; i < bb_audio.bus_count; i++) {
+		if (bb_audio.buses[i].used) {
+			bb_scene_set(scene, BB_SCENE_BUS_VOLUME, i, bb_fade_value(&bb_audio.buses[i].mix->volume, now));
+		}
+	}
+	for (int32_t setting = BB_LISTENER_ROLLOFF; setting <= BB_LISTENER_RADIUS; setting++) {
+		bb_scene_set(scene, BB_SCENE_LISTENER, setting, bb_fade_value(bb_listener_fade(setting), now));
+	}
+}
+
+static void bb_scene_value_apply(int kind, int32_t target, float value, int32_t milliseconds)
+{
+	if (kind == BB_SCENE_BUS_VOLUME) {
+		if (bb_bus_valid(target)) {
+			bb_audio_bus_volume(target, value, milliseconds);
+		}
+	} else {
+		bb_fade_to(bb_listener_fade(target), value, milliseconds);
+	}
+}
+
+void bb_apply_audio_scene(int32_t handle, int32_t milliseconds)
+{
+	bb_scene* scene = bb_scene_get(handle, "ApplyAudioScene");
+	bb_fade_check(milliseconds, "ApplyAudioScene: the fade time can't be below 0");
+	for (int32_t i = 0; i < scene->count; i++) {
+		bb_scene_value_apply(scene->values[i].kind, scene->values[i].target, scene->values[i].value, milliseconds);
+	}
+}
+
+// Every value that either scene holds, mixed by the weight. A value that only one of them holds is mixed with its default.
+void bb_blend_audio_scene(int32_t handle_a, int32_t handle_b, float weight, int32_t milliseconds)
+{
+	bb_scene* a = bb_scene_get(handle_a, "BlendAudioScene");
+	bb_scene* b = bb_scene_get(handle_b, "BlendAudioScene");
+	bb_fade_check(milliseconds, "BlendAudioScene: the fade time can't be below 0");
+	float w = bb_clamp(weight, 0.0f, 1.0f);
+	for (int32_t i = 0; i < a->count; i++) {
+		bb_scene_value* v     = &a->values[i];
+		bb_scene_value* other = bb_scene_find(b, v->kind, v->target);
+		float           to    = other ? other->value : bb_scene_default(v->kind, v->target);
+		bb_scene_value_apply(v->kind, v->target, v->value + (to - v->value) * w, milliseconds);
+	}
+	for (int32_t i = 0; i < b->count; i++) {
+		bb_scene_value* v = &b->values[i];
+		if (!bb_scene_find(a, v->kind, v->target)) {
+			float from = bb_scene_default(v->kind, v->target);
+			bb_scene_value_apply(v->kind, v->target, from + (v->value - from) * w, milliseconds);
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// The sound of movies
+////////////////////////////////////////////////////////////////////////////////
+// A movie queues its sound on an audio stream (movie.cpp), which a channel of the mixer plays. So its sound goes through the buses like
+// every other channel, and can come from an entity in the world. The movie plays, pauses and stops it.
+
+int32_t bb_movie_channel_open(SDL_AudioStream* stream)
+{
+	if (!stream || !bb_audio_ready()) {
+		return 0;
+	}
+	int32_t slot = 0;
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (!bb_audio.channels[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (!slot) {
+		if (bb_audio.channel_count >= bb_audio.channel_cap) {
+			bb_audio.channel_cap = bb_audio.channel_cap ? bb_audio.channel_cap * 2 : 64;
+			bb_audio.channels    = (bb_channel*)bb_realloc_or_fail(bb_audio.channels, (size_t)bb_audio.channel_cap * sizeof(bb_channel));
+		}
+		slot = bb_audio.channel_count++;
+	}
+	bb_channel* channel = &bb_audio.channels[slot];
+	memset(channel, 0, sizeof(*channel));
+	channel->track = MIX_CreateTrack(bb_audio.mixer);
+	if (!channel->track || !MIX_SetTrackAudioStream(channel->track, stream)) {
+		if (channel->track) {
+			MIX_DestroyTrack(channel->track);
+		}
+		memset(channel, 0, sizeof(*channel));
+		return 0;
+	}
+	channel->used    = 1;
+	channel->movie   = 1;
+	channel->paused  = 1; // Until the clock of the movie starts.
+	channel->volume  = 1.0f;
+	channel->ratio   = 1.0f;
+	channel->gain3d  = 1.0f;
+	channel->falloff = bb_falloff_default();
+	channel->doppler = 1.0f;
+	channel->bus     = bb_bus_valid(bb_audio.movie_bus) ? bb_audio.movie_bus : 0;
+	bb_bus_hook_master();
+	if (channel->bus) {
+		MIX_SetTrackGroup(channel->track, bb_bus_group(channel->bus));
+	}
+	bb_channel_apply(channel);
+	return slot;
+}
+
+static bb_channel* bb_movie_channel(int32_t handle)
+{
+	if ((handle <= 0) || (handle >= bb_audio.channel_count) || !bb_audio.channels[handle].used || !bb_audio.channels[handle].movie) {
+		return NULL;
+	}
+	return &bb_audio.channels[handle];
+}
+
+// Before the movie lets go of its stream.
+void bb_movie_channel_close(int32_t handle)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel) {
+		MIX_DestroyTrack(channel->track);
+		memset(channel, 0, sizeof(*channel));
+	}
+}
+
+// The clock of the movie started (running) or stood still.
+void bb_movie_channel_run(int32_t handle, int running)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (!channel) {
+		return;
+	}
+	channel->paused = running ? 0 : 1;
+	if (!running) {
+		MIX_PauseTrack(channel->track);
+	} else if (!bb_bus_paused(channel->bus)) {
+		if (MIX_TrackPaused(channel->track)) {
+			MIX_ResumeTrack(channel->track);
+		} else if (!MIX_TrackPlaying(channel->track)) {
+			MIX_PlayTrack(channel->track, 0);
+		}
+	}
+}
+
+// A track that plays a stream stops when the stream runs dry (at the start, after a seek, or when decoding fell behind), so the movie starts
+// it again once there is sound queued.
+void bb_movie_channel_keep(int32_t handle)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel && !channel->paused && !bb_bus_paused(channel->bus) && !MIX_TrackPlaying(channel->track) && !MIX_TrackPaused(channel->track)) {
+		MIX_PlayTrack(channel->track, 0);
+	}
+}
+
+void bb_movie_channel_volume(int32_t handle, float volume)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (channel) {
+		channel->volume = bb_clamp(volume, 0.0f, 1.0f);
+		bb_channel_apply(channel);
+	}
+}
+
+// EmitMovie: the sound of the movie comes from an entity, with distance, panning and radius but no doppler shift. 0 puts it back on the
+// speakers.
+void bb_movie_channel_emit(int32_t handle, int32_t entity)
+{
+	bb_channel* channel = bb_movie_channel(handle);
+	if (!channel) {
+		return;
+	}
+	channel->entity = entity;
+	memset(&channel->motion, 0, sizeof(channel->motion));
+	if (entity) {
+		bb_channel_start_3d(channel);
+	} else {
+		channel->gain3d = 1.0f;
+		channel->pan3d  = 0.0f;
+		bb_channel_apply(channel);
+	}
+}
+
+void bb_movie_bus(int32_t bus)
+{
+	bb_bus_get(bus, "MovieBus");
+	bb_audio.movie_bus = bus;
 }
