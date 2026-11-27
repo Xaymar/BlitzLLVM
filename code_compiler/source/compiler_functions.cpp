@@ -274,8 +274,9 @@ void blitz::compiler::gen_gosub_return(ast::location const& where)
 
 	begin_label(none_l);
 	if (_in_main) {
-		call_runtime("bb_runtime_error", type::UNKNOWN, { { string_constant("Return without Gosub."), type::STRING } });
-		emit_terminator("unreachable");
+		// Like in the original, a Return in the main program with no Gosub left to go back to ends the program, like End.
+		call_runtime("bb_end", type::UNKNOWN, {});
+		emit_terminator("ret i32 0");
 	} else {
 		// In a function, Return also means returning from the function itself.
 		auto llvm = blitz::types::to_llvm(_return_type);
