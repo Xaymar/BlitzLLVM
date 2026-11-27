@@ -3,7 +3,7 @@
 Builds and runs the microbenchmarks (micro_*.bb): every case times one builtin, or one small piece of work, in a tight loop and gives
 the time of one iteration in nanoseconds.
 
-    python3 benchmarks/micro.py [--group core] [--filter sin,banks] [--samples 11] [--target-us 2000] [common options]
+    python3 benchmarks/micro.py [--group core,2d] [--filter sin,banks] [--samples 11] [--target-us 2000] [common options]
     python3 benchmarks/ab.py --a A/blitzcc --b B/blitzcc --metric 'ns:*' micro --filter banks,stride
 
 The game benchmarks (forest, spacebattle) vary by about 10% between runs, and even ab.py with many runs only resolves about 1% of a
@@ -13,6 +13,7 @@ code. It does not say whether the change matters in a frame; that is still for t
 Groups (one program each, see the comment at the top of each file):
 
   core  strings, math, conversions, the language, types, banks and the allocator behind them, files (micro_core.bb)
+  2d    2D drawing, images, pixels (micro_2d.bb)
 
 Each case runs until one pass takes --target-us (calibration, not counted), then times --samples passes; the time of an iteration is the
 median pass divided by its iterations. The spread column is the half distance between the first and third quartile of the passes, in
@@ -32,7 +33,7 @@ import sys
 import tempfile
 import benchutil
 
-GROUPS = ("core",)
+GROUPS = ("core", "2d",)
 LLVM_ONLY = ("llvm",)
 
 
