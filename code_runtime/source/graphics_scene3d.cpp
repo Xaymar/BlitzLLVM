@@ -2437,6 +2437,34 @@ namespace bb::gfx {
 		}
 	}
 
+	// What a unit of draws (a surface and the layers over it) is grouped by, read once from its first draw into one place, so that the
+	// sort does not go back to the draws, which are far apart and big.
+	struct unit_key {
+		bool      opaque; // Draws that can discard go after those that cannot (see group_draws_between).
+		bool      cull, depth_write;
+		uint32_t  layer_group;
+		uintptr_t pipeline, texture_set;
+		uint64_t  vertex_buffer, index_buffer;
+		uint32_t  index_count;
+		uint32_t  start, end; // The draws of the unit; start also keeps the order of units that are the same.
+
+		bool operator<(unit_key const& o) const
+		{
+			if (opaque != o.opaque) return opaque < o.opaque;
+			if (pipeline != o.pipeline) return pipeline < o.pipeline;
+			if (cull != o.cull) return cull < o.cull;
+			if (depth_write != o.depth_write) return depth_write < o.depth_write;
+			if (texture_set != o.texture_set) return texture_set < o.texture_set;
+			if (layer_group != o.layer_group) return layer_group < o.layer_group;
+			if (vertex_buffer != o.vertex_buffer) return vertex_buffer < o.vertex_buffer;
+			if (index_buffer != o.index_buffer) return index_buffer < o.index_buffer;
+			if (index_count != o.index_count) return index_count < o.index_count;
+			return start < o.start;
+		}
+	};
+	static bb::buffer<unit_key>    group_keys;    // Kept from frame to frame, so that grouping allocates nothing once they are big enough.
+	static bb::buffer<draw_record> group_scratch;
+
 	// What is solid does not depend on the order it is drawn in, so the draws that are the same in what the GPU has to be
 	// told are put next to each other, which makes the calls and changes of state fewer. A surface and the layers that are
 	// drawn over it stay together, in the order they were in.
@@ -2445,27 +2473,31 @@ namespace bb::gfx {
 		if (last - first < 2) {
 			return;
 		}
-		std::vector<uint32_t> units; // Where each unit starts.
+		group_keys.clear();
 		for (uint32_t i = first; i < last; i++) {
 			if (draws[i].unit_start) {
-				units.push_back(i);
+				if (group_keys.size) {
+					group_keys[group_keys.size - 1].end = i;
+				}
+				draw_record const& d = draws[i];
+				group_keys.push({ d.pipeline == g.opaque3d, d.cull, d.depth_write, d.layer_group, uintptr_t(d.pipeline.id), d.texture_set, d.vertex_buffer, d.index_buffer, d.index_count, i, last });
 			}
 		}
-		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
-		// be depth tested before they are shaded.
-		auto key = [&](draw_record const& d) {
-			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline.id), d.cull, d.depth_write, d.texture_set, d.layer_group, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
-		};
-		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
-		std::vector<draw_record> sorted;
-		sorted.reserve(last - first);
-		for (size_t u = 0; u < units.size(); u++) {
-			for (uint32_t i = units[u]; (i < last) && ((i == units[u]) || !draws[i].unit_start); i++) {
-				sorted.push_back(draws[i]);
-			}
+		if (group_keys.size == 0) {
+			return;
 		}
-		for (uint32_t i = 0; i < sorted.size(); i++) {
-			draws[first + i] = sorted[i];
+		// The draws before the first unit (there are none: every run starts with one) stay where they are.
+		uint32_t begin = group_keys[0].start;
+		// The start breaks every tie, which makes this the same order as a stable sort by the rest.
+		std::sort(group_keys.data, group_keys.data + group_keys.size);
+		uint32_t count = last - begin;
+		group_scratch.reserve(count);
+		memcpy(group_scratch.data, draws.data + begin, size_t(count) * sizeof(draw_record));
+		uint32_t at = begin;
+		for (uint32_t u = 0; u < group_keys.size; u++) {
+			uint32_t n = group_keys[u].end - group_keys[u].start;
+			memcpy(draws.data + at, group_scratch.data + (group_keys[u].start - begin), size_t(n) * sizeof(draw_record));
+			at += n;
 		}
 	}
 
