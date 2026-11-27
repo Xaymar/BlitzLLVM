@@ -87,6 +87,22 @@ verdict: B is faster or slower only when the permutation p is below `--alpha` (0
 (twenty runs of each build) find differences of about a third of the spread between runs; smaller ones need more rounds, or a
 benchmark that times only the part that changed.
 
+=== Under load: memload
+
+`--load "ARGS"` keeps `memload` (`memload.c`, built by `ab.py` with `$CC`, `clang` or `cc`) running through all runs of both builds,
+so that a cost of the caches or the memory that a fast machine hides shows as it would on one with less cache or slower memory.
+`--mode chase` (the default) walks a random cycle through a buffer of `--kb` kilobytes per thread, one cache line per step;
+`--mode stream` reads and writes it from start to end, for the bandwidth of the memory. `--cpus 2,4,6` pins one thread to each
+listed logical processor.
+
+* L3: a buffer a few times the size of L3 on other cores, such as `--load "--kb 24576 --cpus 4,6,8,10"`.
+* L1 and L2: a buffer about the size of L2 on the SMT sibling of the processor that the program runs on, such as
+  `--load "--kb 1024 --cpus 1"` with the program on processor 0 (on Windows logical processors 0 and 1 are usually the two of core 0;
+  on Linux see `lscpu -e`). Pin the program yourself, for example by running `ab.py` itself under `start /affinity 1` or `taskset -c 0`.
+
+`memload` prints the rate of each thread at the end, which says whether both builds had the same load. Numbers from runs under load
+only compare with each other.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The
