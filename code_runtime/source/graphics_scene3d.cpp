@@ -4427,7 +4427,9 @@ namespace bb::gfx {
 			// SMAA T2x: the picture moves by a fraction of a pixel, which the pass after the camera undoes by looking at where everything was.
 			if (!reflected) {
 				bb::mat_multiply(aa_vp, proj, view_rotation);
-				memcpy(aa_origin, current_origin, sizeof(aa_origin));
+				for (int k = 0; k < 3; k++) {
+					aa_origin[k] = double(current_origin[k]); // Floats to doubles: a memcpy would read past current_origin.
+				}
 			}
 			// Moves the picture in clip space: what the fourth row gives (z for a perspective, 1 for an orthographic matrix) times the jitter.
 			for (int c = 0; c < 4; c++) {
