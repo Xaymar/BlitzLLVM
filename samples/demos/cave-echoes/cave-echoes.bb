@@ -69,6 +69,13 @@ Global dataDir$ = Trim(CommandLine$())
 If Left(dataDir, 1) = Chr(34) Then dataDir = Mid(dataDir, 2)
 If Right(dataDir, 1) = Chr(34) Then dataDir = Left(dataDir, Len(dataDir) - 1)
 If dataDir = "" Then dataDir = appDir + "data"
+; Run straight from the compiler, the program sits in a temporary folder: then data/ is in the current folder,
+; which is the folder of the .bb file.
+If FileType(dataDir) <> 2
+	Local here$ = CurrentDir$()
+	If here <> "" And Right(here, 1) <> "\" And Right(here, 1) <> "/" Then here = here + "/"
+	If FileType(here + "data") = 2 Then dataDir = here + "data"
+EndIf
 If Right(dataDir, 1) <> "\" And Right(dataDir, 1) <> "/" Then dataDir = dataDir + "/"
 
 ; --- Menus ---------------------------------------------------------------------------------------------------------
