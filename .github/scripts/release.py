@@ -98,12 +98,18 @@ def changes(previous, target):
     return grouped
 
 
+def no_mentions(subject):
+    """GitHub turns every @name in release notes into a mention and credits that user ("Add ;@pragma lines" credited a user named pragma).
+    A zero width space after the @ ends the mention and shows the same text."""
+    return subject.replace("@", "@\u200b")
+
+
 def notes(repo, tag, previous, target):
     grouped = changes(previous, target)
     lines = []
     for name, subjects in grouped.items():
         if subjects:
-            lines += [f"## {name}", ""] + [f"- {s}" for s in subjects] + [""]
+            lines += [f"## {name}", ""] + [f"- {no_mentions(s)}" for s in subjects] + [""]
     if not lines:
         lines = ["No notable changes.", ""]
     if previous:
