@@ -87,6 +87,33 @@ verdict: B is faster or slower only when the permutation p is below `--alpha` (0
 (twenty runs of each build) find differences of about a third of the spread between runs; smaller ones need more rounds, or a
 benchmark that times only the part that changed.
 
+== micro: what one builtin costs, in nanoseconds
+
+The game benchmarks vary by about 10% between runs, and `ab.py` with them resolves about 1% of a frame: a change that saves a millionth of
+a frame is invisible there. `micro.py` times single builtins (and a few small pieces of work, such as walking over 4096 entities) in a
+tight loop and gives the time of one iteration in nanoseconds, so such a change can be measured. It does not say whether the change
+matters in a frame; that is still for the game benchmarks.
+
+----
+python3 benchmarks/micro.py                                   # every case of every group
+python3 benchmarks/micro.py --group core --filter banks,stride  # some of them
+python3 benchmarks/ab.py --a base/code_compiler/blitzcc --b change/code_compiler/blitzcc --rounds 10 --metric 'ns:*' micro --filter stride
+----
+
+The cases are in four programs, one per group: `micro_core.bb` (strings, math, conversions, the language, types, banks and the allocator
+behind them, files), `micro_2d.bb` (2D drawing, images, pixels), `micro_3d.bb` (entities, transforms, appearance, meshes, textures,
+brushes, cameras, lights, picks, collisions, RenderWorld) and `micro_llvm.bb` (what only BlitzLLVM has; left out with the original
+Blitz3D). They share `micro.bi`, which says how a case is written. A case raises its iterations until one pass takes `--target-us`
+(2000 µs; 50000 µs with the millisecond timer of the original), then times `--samples` passes (11), and the result is the median pass
+per iteration. The iteration includes the loop, about a nanosecond. Cases that draw time the call: the work it leaves for `Flip` is done
+after each pass, outside the timed part. The `render/frame-*` cases time whole frames (RenderWorld and `Flip 0`), the `render/renderworld-*` cases RenderWorld alone (with up to 10000 draws), since the time of Flip hides a saving per draw.
+
+`--json` writes `ns:<case>` for every case, which is what `ab.py --metric 'ns:*'` compares: one line per case, and since some of
+hundreds of cases fall below `--alpha` by chance alone, only those whose Holm-adjusted p value does count.
+
+The numbers belong to the machine they were measured on. In the cloud container (a shared virtual machine, llvmpipe) the spread is
+larger than on a desktop and the drawing and RenderWorld cases measure the software renderer.
+
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 3 times each, and saves the runs with their mean and standard deviation in a JSON file. The

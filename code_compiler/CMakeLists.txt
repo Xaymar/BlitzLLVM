@@ -476,6 +476,17 @@ if(Python3_FOUND)
 	set_tests_properties(procutil PROPERTIES TIMEOUT 300)
 endif()
 
+# The microbenchmarks (benchmarks/micro_*.bb) have to compile, so that none of them breaks without anyone noticing when a builtin changes.
+# With the GPU tests they also run once, with short passes, so that none of them stops with an error.
+if(Python3_FOUND)
+	add_test(NAME benchmarks-micro-compile COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../benchmarks/micro.py" --blitzcc $<TARGET_FILE:${PROJECT_NAME}> --build-only --no-save)
+	set_tests_properties(benchmarks-micro-compile PROPERTIES LABELS "benchmarks" TIMEOUT 600)
+	if(BLITZ_TEST_GPU)
+		add_test(NAME benchmarks-micro-run_pixels COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../benchmarks/micro.py" --blitzcc $<TARGET_FILE:${PROJECT_NAME}> --samples 1 --target-us 100 --no-save)
+		set_tests_properties(benchmarks-micro-run_pixels PROPERTIES LABELS "benchmarks;gpu" TIMEOUT 900 RUN_SERIAL TRUE)
+	endif()
+endif()
+
 # Closing a window that has an AppTitle close prompt needs a window, so it only runs with the GPU tests.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	foreach(_CONFIG IN ITEMS release debug)
