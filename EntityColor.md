@@ -26,6 +26,8 @@ EntityColor:Void entity:Int32, red:Float32, green:Float32, blue:Float32
 
 Sets the color of the entity, multiplied with its texture. The default is 255, 255, 255. With the vertex color flag of [EntityFX](EntityFX) the original ignores it and shows the vertex colors only; here it is always multiplied with them, which is the same while the vertices are white.
 
+On a model whose brushes have a color of their own, the two are multiplied like in the original; with `;#pragma entity-overrides` (see [Modern Mode](Modern-Mode)) the color of the entity replaces the one of the brushes.
+
 ## Examples
 
 ```blitzbasic

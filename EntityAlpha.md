@@ -24,6 +24,8 @@ EntityAlpha:Void entity:Int32, alpha:Float32
 
 Sets how see-through an entity is: 1 is solid, 0 is invisible and values in between let what is behind show through. An entity with alpha 0 is not drawn at all but still takes part in collisions, unlike [HideEntity](HideEntity). See-through entities are drawn after the solid ones.
 
+On a model whose brushes have an alpha of their own, the two are multiplied like in the original; with `;#pragma entity-overrides` (see [Modern Mode](Modern-Mode)) the alpha of the entity replaces the one of the brushes.
+
 ## Examples
 
 ```blitzbasic

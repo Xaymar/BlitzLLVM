@@ -31,6 +31,8 @@ Switches extra effects on for an entity. The flags add up, so 3 is full-bright w
 * **16**: draw both sides of the triangles.
 * **32**: force alpha blending, which is needed for the alpha of vertex colors to work.
 
+The flags of the brushes of a model are added to these like in the original, so a flag that a brush has can't be turned off here; with `;#pragma entity-overrides` (see [Modern Mode](Modern-Mode)) the flags of the entity replace the ones of the brushes.
+
 ## Examples
 
 ```blitzbasic

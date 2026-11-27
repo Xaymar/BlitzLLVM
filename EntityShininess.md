@@ -24,6 +24,8 @@ EntityShininess:Void entity:Int32, shininess:Float32
 
 Sets how strongly lights shine back from the entity as highlights. 0, the default, is matt. Values near 1 give a polished look, like a billiard ball, but only where a light hits the surface head on.
 
+The shininess of the brushes of a model is added to this like in the original; with `;#pragma entity-overrides` (see [Modern Mode](Modern-Mode)) the shininess of the entity replaces the one of the brushes.
+
 ## Related Commands
 
 [EntityAlpha](EntityAlpha) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityAutoFade](EntityAutoFade) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityBlend](EntityBlend) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityClass](EntityClass) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityColor](EntityColor) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityDepthFade](EntityDepthFade) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [EntityDistance](EntityDistance) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">, [EntityFX](EntityFX) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
