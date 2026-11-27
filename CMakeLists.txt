@@ -159,6 +159,10 @@ add_subdirectory("code_tidy")
 add_subdirectory("code_lsp")
 add_subdirectory("code_recompiler")
 
+# The changelog: <prefix>/CHANGELOG.md in a plain install (the zips and the Windows installer, which tools/build.cmake copies there), <prefix>/share/doc/blitzllvm in the
+# packages. It tells people and AI agents what changed between versions and how to migrate.
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.md" DESTINATION share/doc/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
+
 # The HTML help, in the layout of the Blitz3D help: <prefix>/help in a plain install (the zips), <prefix>/share/doc/blitzllvm/help in the
 # packages. It is generated from the wiki text by tools/wiki/wiki.py (and never committed), which needs Python.
 option(BLITZLLVM_REQUIRE_HELP "Fail instead of leaving the help out when Python is missing" OFF)

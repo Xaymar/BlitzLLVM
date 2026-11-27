@@ -77,6 +77,7 @@ Source: "{#ToolsDir}\x86_64\*"; DestDir: "{app}\bin"; Flags: recursesubdirs crea
 [Icons]
 Name: "{group}\BlitzLLVM Help"; Filename: "{app}\help\index.html"; Check: DirExists(ExpandConstant('{app}\help'))
 Name: "{group}\BlitzLLVM Readme"; Filename: "{app}\README.adoc"
+Name: "{group}\BlitzLLVM Changelog"; Filename: "{app}\CHANGELOG.md"
 Name: "{group}\BlitzLLVM Samples"; Filename: "{app}\samples"; Check: DirExists(ExpandConstant('{app}\samples'))
 Name: "{group}\Uninstall BlitzLLVM"; Filename: "{uninstallexe}"
 
