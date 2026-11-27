@@ -21,6 +21,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 		{ "compatibility-one-line-if-else", 0, false, "A command or function called with its arguments in parentheses right before Else (If a Then Foo(1, 2) Else ...), which the original rejects with \"')' expected\"." },
 		{ "pragma-unknown", 1, false, "A ;#pragma line names something that this BlitzLLVM doesn't know, which does nothing." },
 		{ "pragma-misplaced", 1, false, "A ;#pragma that changes how the program is compiled comes after the first statement of its file, where it does nothing." },
+		{ "pragma-pop-unmatched", 1, false, "A ;#pragma warning(pop) has no warning(push) before it, so there are no warning settings to go back to." },
 		{ "pragma-mismatch", 1, false, "An Include'd file asks for a feature (;#pragma) differently than the program, whose main file decides." },
 		{ "literal-out-of-range", 1, false, "A whole number without a suffix does not fit into an Int, so it is clamped to the Int range like in the original." },
 		{ "implicit-lossy-int-to-int", 1, false, "An integer is turned into one that is smaller or has another sign, which can change the number." },

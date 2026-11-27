@@ -305,7 +305,12 @@ namespace blitz {
 		void         warn_call_parentheses(std::vector<ast::call_parentheses> const& calls);
 		void         warn_array_suffix(ast::reference const* r, ast::location const& bracket);
 		std::set<std::string> _array_suffixes; // Where compatibility-blitz-array-suffix was reported, as file:line:column.
-		void         apply_pragmas(std::vector<ast::pragma> const& pragmas);
+		void         apply_pragmas(ast::program const& program);
+		void         apply_warning_pragmas(ast::program const& program);
+		/** The warning settings at a place in the program: warning_options, with the warning pragmas before it on top. */
+		blitz::warning_settings const& warnings_at(ast::location const& where) const;
+		// Where the warning pragmas change the settings, per file: from (line, column) on, until the next entry. Empty without them.
+		std::map<std::string, std::vector<std::pair<std::pair<uint64_t, uint64_t>, blitz::warning_settings>>> _warning_points;
 		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
 		void         report_unused(std::map<std::string, variable>& variables);
 		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal, ast::expression const* source = nullptr);

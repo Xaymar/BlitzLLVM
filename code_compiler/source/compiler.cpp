@@ -14,7 +14,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <functional>
 #include <iostream>
+#include <limits>
+#include <set>
+#include <variant>
 #include "compiler_internal.hpp"
 #include "util.hpp"
 
@@ -46,13 +50,14 @@ size_t blitz::compiler::warning_errors() const
 
 void blitz::compiler::warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice, std::vector<edit> edits, std::string const& detail)
 {
-	if (!warning_options.enabled(name)) {
+	auto const& settings = warnings_at(where);
+	if (!settings.enabled(name)) {
 		return;
 	}
 	_warnings++;
 	findings.push_back(finding{ name, where, reason, notice, std::move(edits), detail });
 	// With -Werror the warning is an error: It is printed as one, even with -q, and fails the compilation after everything was checked.
-	bool as_error = warning_options.is_error(name);
+	bool as_error = settings.is_error(name);
 	if (as_error) {
 		_warning_errors++;
 	}
@@ -779,8 +784,101 @@ namespace {
 	}
 } // namespace
 
-void blitz::compiler::apply_pragmas(std::vector<ast::pragma> const& pragmas)
+namespace {
+	// `Wno-x`, `warning(push)` and the like, which go to apply_warning_pragmas. The parser turns the C forms into the -W form, or into
+	// `#push`, `#pop` and `#?`.
+	bool is_warning_pragma(blitz::ast::pragma const& p)
+	{
+		return !p.name.empty() && ((p.name[0] == '#') || ((p.name[0] == 'w') && !find_feature(p.name)));
+	}
+} // namespace
+
+blitz::warning_settings const& blitz::compiler::warnings_at(ast::location const& where) const
 {
+	if (_warning_points.empty() || !where.file) {
+		return warning_options;
+	}
+	auto file = _warning_points.find(where.file->generic_string());
+	if (file == _warning_points.end()) {
+		return warning_options;
+	}
+	auto const& points = file->second;
+	auto        after  = std::upper_bound(points.begin(), points.end(), std::make_pair(where.line, where.column), [](auto const& at, auto const& point) { return at < point.first; });
+	return (after == points.begin()) ? warning_options : std::prev(after)->second;
+}
+
+// Warning pragmas work like in C: from their place on, through the Include'd files in the order they are read, and out of them again.
+void blitz::compiler::apply_warning_pragmas(ast::program const& program)
+{
+	if (std::none_of(program.pragmas.begin(), program.pragmas.end(), is_warning_pragma)) {
+		return;
+	}
+	std::vector<warning_settings> saved;
+	warning_settings              current = warning_options;
+	std::set<std::string>         walked;
+	std::function<void(std::filesystem::path const&)> walk = [&](std::filesystem::path const& file) {
+		auto key = file.generic_string();
+		if (!walked.insert(key).second) {
+			return;
+		}
+		auto& points = _warning_points[key];
+		points.emplace_back(std::make_pair(uint64_t(0), uint64_t(0)), current);
+		// The pragmas and Includes of this file, by place.
+		std::vector<std::pair<std::pair<uint64_t, uint64_t>, std::variant<ast::pragma const*, ast::include const*>>> steps;
+		for (auto const& p : program.pragmas) {
+			if (p.where.file && (*p.where.file == file) && is_warning_pragma(p)) {
+				steps.emplace_back(std::make_pair(p.where.line, p.where.column), &p);
+			}
+		}
+		for (auto const& inc : program.includes) {
+			if (inc.where.file && (*inc.where.file == file)) {
+				steps.emplace_back(std::make_pair(inc.where.line, inc.where.column), &inc);
+			}
+		}
+		std::stable_sort(steps.begin(), steps.end(), [](auto const& a, auto const& b) { return a.first < b.first; });
+		for (auto const& [at, step] : steps) {
+			if (auto const* inc = std::get_if<ast::include const*>(&step)) {
+				walk((*inc)->file);
+				// What the Include'd file changed goes on after the Include, from the next line.
+				_warning_points[key].emplace_back(std::make_pair(at.first, std::numeric_limits<uint64_t>::max()), current);
+				continue;
+			}
+			auto const& p     = *std::get<ast::pragma const*>(step);
+			bool        known = true;
+			if (p.name == "#push") {
+				saved.push_back(current);
+			} else if (p.name == "#pop") {
+				if (saved.empty()) {
+					_warning_points[key].emplace_back(at, current);
+					warn(p.where, "pragma-pop-unmatched", "'" + p.text + "' has no warning(push) before it, so it does nothing.", "Remove it, or add ;#pragma warning(push) before the warnings it should restore.");
+					continue;
+				}
+				current = saved.back();
+				saved.pop_back();
+			} else if ((p.name == "#?") || !p.on) {
+				known = false;
+			} else {
+				try {
+					known = current.parse("-" + p.name);
+				} catch (std::exception const&) {
+					known = false;
+				}
+			}
+			_warning_points[key].emplace_back(at, current);
+			if (!known) {
+				warn(p.where, "pragma-unknown", "'" + p.text + "' is not a warning pragma that this BlitzLLVM knows, it does nothing.",
+				     "Use the name of a warning, as in Wno-<name> or warning(disable: <name>), see the list of warnings.");
+			}
+		}
+	};
+	walk(program.file);
+}
+
+void blitz::compiler::apply_pragmas(ast::program const& program)
+{
+	auto const& pragmas = program.pragmas;
+	apply_warning_pragmas(program);
+
 	// Checks a name, and calls `set` for every feature it stands for.
 	auto each = [&](ast::pragma const& p, auto const& set) {
 		if (p.name == "modern") {
@@ -806,6 +904,9 @@ void blitz::compiler::apply_pragmas(std::vector<ast::pragma> const& pragmas)
 
 	// The main file decides, the last name for a feature wins.
 	for (auto const& p : pragmas) {
+		if (is_warning_pragma(p)) {
+			continue;
+		}
 		if (p.main_file && !too_late(p)) {
 			each(p, [&](feature const& f) { this->*f.flag = p.on; });
 		}
@@ -818,7 +919,7 @@ void blitz::compiler::apply_pragmas(std::vector<ast::pragma> const& pragmas)
 	};
 	std::vector<std::pair<std::shared_ptr<const std::filesystem::path>, std::map<std::string, expectation>>> files;
 	for (auto const& p : pragmas) {
-		if (p.main_file || too_late(p)) {
+		if (p.main_file || is_warning_pragma(p) || too_late(p)) {
 			continue;
 		}
 		auto found = std::find_if(files.begin(), files.end(), [&](auto const& entry) { return entry.first == p.where.file; });
@@ -846,7 +947,7 @@ std::string blitz::compiler::generate(ast::program const& program)
 {
 	di_begin_module();
 
-	apply_pragmas(program.pragmas);
+	apply_pragmas(program);
 
 	warn_short_notations(program.short_notations);
 	warn_call_parentheses(program.call_parentheses_before_else);
