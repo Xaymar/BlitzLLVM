@@ -33,8 +33,8 @@ Dim MicroPivots(65535)
 Global MicroPivotCount = 4096
 Dim MicroGrid(99)
 Dim MicroBalls(99)
-Dim MicroCubes(1000)
-Dim MicroTextures(1000)
+Dim MicroCubes(10000)
+Dim MicroTextures(10000)
 Global MicroMesh = 0
 Global MicroSurface = 0
 For i = 0 To 4095
@@ -135,6 +135,11 @@ Render_Frame(0, 0)
 Render_Frame(100, 0)
 Render_Frame(100, 1)
 Render_Frame(1000, 1)
+; RenderWorld alone (Flip after each pass, outside the timed part), with many draws: a saving per draw shows here, where the time of
+; Flip would hide it.
+Render_World(1000, 1)
+Render_World(10000, 0)
+Render_World(10000, 1)
 
 MicroEnd()
 
@@ -974,12 +979,9 @@ End Function
 
 ; RenderWorld and Flip -----------------------------------------------------------------------------------------------------------
 
-; Per frame (RenderWorld and Flip 0): cubes in a grid, textured or not. With textures every cube has its own, so the renderer looks up
-; one texture per draw (texture_of).
-Function Render_Frame(count, textured)
-	name$ = "render/frame-" + count + "-cubes"
-	If textured Then name$ = name$ + "-textured"
-	If Not MicroCase(name$) Then Return
+; count cubes in a grid in front of the camera, textured or not. With textures every cube has its own, so the renderer looks up one
+; texture per draw (texture_of).
+Function MicroMakeCubes(count, textured)
 	side = Int(Ceil(Sqr(count)))
 	If side < 1 Then side = 1
 	For i = 0 To count - 1
@@ -992,14 +994,44 @@ Function Render_Frame(count, textured)
 			EntityTexture MicroCubes(i), MicroTextures(i)
 		EndIf
 	Next
+End Function
+
+Function MicroFreeCubes(count, textured)
+	For i = 0 To count - 1
+		FreeEntity MicroCubes(i)
+		If textured Then FreeTexture MicroTextures(i)
+	Next
+End Function
+
+Function MicroCubesName$(what$, count, textured)
+	name$ = "render/" + what$ + "-" + count + "-cubes"
+	If textured Then name$ = name$ + "-textured"
+	Return name$
+End Function
+
+; Per frame: RenderWorld and Flip 0.
+Function Render_Frame(count, textured)
+	If Not MicroCase(MicroCubesName$("frame", count, textured)) Then Return
+	MicroMakeCubes count, textured
 	While MicroRun()
 		For i = 1 To MicroN
 			RenderWorld
 			Flip 0
 		Next
 	Wend
-	For i = 0 To count - 1
-		FreeEntity MicroCubes(i)
-		If textured Then FreeTexture MicroTextures(i)
-	Next
+	MicroFreeCubes count, textured
+End Function
+
+; Per RenderWorld, without Flip: MicroRun flips after each pass, outside the timed part. The time of Flip (a few hundred microseconds)
+; does not hide what the draws cost here.
+Function Render_World(count, textured)
+	If Not MicroCase(MicroCubesName$("renderworld", count, textured)) Then Return
+	MicroMakeCubes count, textured
+	MicroFlip = 1
+	While MicroRun()
+		For i = 1 To MicroN
+			RenderWorld
+		Next
+	Wend
+	MicroFreeCubes count, textured
 End Function
