@@ -8,6 +8,8 @@ a simple stand-in for it, so it always runs.
 
 Each name below can end in `.ogg`, `.wav`, `.flac` or `.mp3` (tried in that order). To keep the sounds somewhere else,
 start the demo with that folder as its command line, for example `cave-echoes.exe "D:\Sounds\Cave"`.
+When the demo is run straight from the compiler (`blitzcc cave-echoes.bb`, without `-o`), it finds this folder
+next to the `.bb` file.
 
 | File | Where it plays | Loops | Tips |
 | --- | --- | --- | --- |
