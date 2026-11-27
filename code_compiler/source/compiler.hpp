@@ -239,6 +239,15 @@ namespace blitz {
 		compiler();
 		~compiler();
 
+		/** A feature that `;#pragma <name>`, `;#pragma no-<name>` and --[no-]<name> switch, and that `modern` turns on. */
+		struct pragma_feature {
+			const char* name;
+			const char* description; // What the program does with it.
+		};
+
+		/** Every feature that a pragma can switch, without `modern` itself. For blitz-lsp and the wiki. */
+		static std::vector<pragma_feature> pragma_features();
+
 		/** Whether this is a debug build, where Stop breaks into the debugger. */
 		bool debug = false;
 

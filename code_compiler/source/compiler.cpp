@@ -784,6 +784,15 @@ namespace {
 	}
 } // namespace
 
+std::vector<blitz::compiler::pragma_feature> blitz::compiler::pragma_features()
+{
+	std::vector<pragma_feature> out;
+	for (auto const& f : features) {
+		out.push_back({ f.name, f.when_on });
+	}
+	return out;
+}
+
 namespace {
 	// `Wno-x`, `warning(push)` and the like, which go to apply_warning_pragmas. The parser turns the C forms into the -W form, or into
 	// `#push`, `#pop` and `#?`.

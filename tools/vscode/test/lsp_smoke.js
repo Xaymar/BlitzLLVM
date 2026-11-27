@@ -370,6 +370,30 @@ function stage(name) {
 
   stage('shipped');
 
+  // Completion after ;#pragma: the features and modern, the -W forms, and the names inside warning(disable:
+  const pragmas = ';#pragma mo\n;#pragma Wno-\n;#pragma warning(disable:impl\nPrint 1 ;#pragma W\nPrint "a;#pragma " ; plain\n';
+  notify('textDocument/didChange', { textDocument: { uri, version: 40 }, contentChanges: [{ text: pragmas }] });
+  await diagnosticsFor(uri);
+  const complete = async (line, character) => (await request('textDocument/completion', { textDocument: { uri }, position: { line, character } })).result;
+  result = await complete(0, 11);
+  let pragmaLabels = result.items.map((i) => i.label);
+  for (const l of ['modern', 'no-modern', 'sane-evaluation-order', 'no-field-defaults', 'Wno-pragma-unknown', 'warning(push)']) assert(pragmaLabels.includes(l), l + ' in pragma completion');
+  assert(!pragmaLabels.includes('Print'), 'only pragmas after ;#pragma');
+  assert.deepStrictEqual(result.items.find((i) => i.label === 'modern').textEdit.range, { start: { line: 0, character: 9 }, end: { line: 0, character: 11 } });
+  result = await complete(1, 13);
+  assert.deepStrictEqual(result.items.find((i) => i.label === 'Wno-pragma-unknown').textEdit.range, { start: { line: 1, character: 9 }, end: { line: 1, character: 13 } });
+  result = await complete(2, 29);
+  pragmaLabels = result.items.map((i) => i.label);
+  assert(pragmaLabels.includes('warning(disable:pragma-unknown)'), JSON.stringify(pragmaLabels.slice(0, 5)));
+  assert(!pragmaLabels.includes('modern'), 'only warning names inside warning(disable:');
+  result = await complete(3, 18);
+  assert(result.items.some((i) => i.label === 'W1'), 'pragma after a statement');
+  // `;#pragma` inside a string is no comment, so the commands come back
+  result = await complete(4, 17);
+  assert(result.items.some((i) => i.label === 'Print'), 'no pragma inside a string');
+
+  stage('pragma');
+
   // Tidy
   notify('textDocument/didChange', { textDocument: { uri, version: 5 }, contentChanges: [{ text: 'Local x% = 1.5\nPrint x\n' }] });
   await diagnosticsFor(uri);

@@ -963,12 +963,100 @@ namespace blitz::lsp {
 		return json();
 	}
 
+	// The names after `;#pragma`: the features, `modern`, and the warning forms. Null if the cursor isn't in such a comment.
+	json server::pragma_completion(state& s, size_t offset)
+	{
+		std::string const& text  = s.doc->text;
+		size_t             start = text.rfind('\n', offset == 0 ? 0 : offset - 1);
+		start                    = (start == std::string::npos || offset == 0) ? 0 : start + 1;
+		// The comment starts at the first `;` outside of a string; the pragma ends at a second `;`.
+		size_t comment = std::string::npos;
+		bool   quoted  = false;
+		for (size_t i = start; i < offset; i++) {
+			if (text[i] == '"') {
+				quoted = !quoted;
+			} else if (text[i] == ';' && !quoted) {
+				comment = i;
+				break;
+			}
+		}
+		static const std::string directive = "#pragma";
+		if (comment == std::string::npos || offset < comment + 1 + directive.size() + 1)
+			return json();
+		std::string after = text.substr(comment + 1, offset - comment - 1);
+		if (lower(after.substr(0, directive.size())) != directive || (after[directive.size()] != ' ' && after[directive.size()] != '\t'))
+			return json();
+		if (after.find(';') != std::string::npos)
+			return json();
+		// The word being typed, from the last space or comma up to the cursor: all of `warning(disable:impl` too.
+		size_t word = offset;
+		while (word > comment + 1 + directive.size() && text[word - 1] != ' ' && text[word - 1] != '\t' && text[word - 1] != ',')
+			word--;
+		std::string typed = text.substr(word, offset - word);
+		size_t      open  = typed.find('(');
+		size_t      colon = typed.find(':');
+
+		json                  items = json::array();
+		std::set<std::string> seen;
+		auto                  add = [&](std::string const& label, int kind, std::string const& detail) {
+            if (!seen.insert(label).second)
+                return;
+            json edit = json::object();
+            edit.set("range", range_json(s.doc->to_range(word, offset)));
+            edit.set("newText", label);
+            json i = json::object();
+            i.set("label", label).set("kind", kind).set("filterText", label).set("textEdit", edit);
+            if (!detail.empty())
+                i.set("detail", detail);
+            items.push(std::move(i));
+		};
+		auto warning_names = [&](auto&& each) {
+			for (auto const& w : blitz::all_warnings())
+				each(std::string(w.name), std::string(w.description));
+			for (auto const& g : blitz::warning_groups())
+				each(std::string(g.name), std::string(g.description));
+		};
+		if (open != std::string::npos && colon != std::string::npos && colon > open) {
+			// `warning(disable:` and the like: the names, and the closing parenthesis.
+			std::string call = typed.substr(0, colon + 1);
+			warning_names([&](std::string const& name, std::string const& description) { add(call + name + ")", 12, description); });
+		} else {
+			add("modern", 14, "Turns on every feature below, the newest set of this BlitzLLVM.");
+			add("no-modern", 14, "Turns off every feature below.");
+			for (auto const& f : blitz::compiler::pragma_features()) {
+				add(f.name, 14, std::string("The program ") + f.description + ".");
+				add(std::string("no-") + f.name, 14, std::string("The program doesn't, like the original."));
+			}
+			for (int level = 0; level <= 4; level++)
+				add("W" + std::to_string(level), 12, "The warnings of this level and below, from here on.");
+			add("Werror", 12, "Every warning is an error from here on.");
+			add("Wno-error", 12, "Warnings are no errors from here on.");
+			for (auto const* call : { "warning", "error" }) {
+				add(std::string(call) + "(push)", 12, "Saves the warning settings, until the matching pop.");
+				add(std::string(call) + "(pop)", 12, "Goes back to the settings of the matching push.");
+			}
+			warning_names([&](std::string const& name, std::string const& description) {
+				add("W" + name, 12, description);
+				add("Wno-" + name, 12, description);
+				add("Werror=" + name, 12, description);
+				add("Wno-error=" + name, 12, description);
+			});
+		}
+		json r = json::object();
+		r.set("isIncomplete", false).set("items", items);
+		return r;
+	}
+
 	json server::completion(json const& params)
 	{
 		auto* s = find(params["textDocument"]["uri"].as_string());
 		if (s) {
-			json shipped = shipped_completion(*s, s->doc->to_offset(position_from(params["position"])));
+			size_t offset  = s->doc->to_offset(position_from(params["position"]));
+			json   shipped = shipped_completion(*s, offset);
 			if (!shipped.is_null()) return shipped;
+			json pragma = pragma_completion(*s, offset);
+			if (!pragma.is_null())
+				return pragma;
 		}
 		json  items = json::array();
 		std::set<std::string> seen;

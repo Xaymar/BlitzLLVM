@@ -109,6 +109,7 @@ namespace blitz::lsp {
 		json           code_actions(json const& params);
 		json           document_links(json const& params);
 		json           shipped_completion(state& s, size_t offset);
+		json                  pragma_completion(state& s, size_t offset);
 		json           edit_to(state& s, std::string const& result);
 		std::string    tidy(state& s, bool& ok);
 		json           range_json(range r) const;
