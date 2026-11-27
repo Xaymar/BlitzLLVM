@@ -390,10 +390,19 @@ namespace blitz {
 			bool        on          = true; // False for `no-<name>`.
 			bool        main_file   = false; // In the file the program was started from, not in an Include.
 			bool        before_code = true; // Before the first statement of its file.
+			std::string text;               // As written, such as `warning(disable: x)` for each of the names it has.
+		};
+
+		/** Where an `Include` read a file, for the pragmas that go on into it. Only for files that were read, not for a second Include of one. */
+		struct include {
+			location              where; // The `Include` in the including file.
+			std::filesystem::path file;  // The file that was read, as the `location` of its nodes has it.
 		};
 
 		struct program {
-			std::vector<pragma>                    pragmas; // In the order they were read, Includes in place.
+			std::filesystem::path                  file;     // The main file.
+			std::vector<pragma>                    pragmas;  // In the order of each file; the files in the order they were read.
+			std::vector<include>                   includes; // In the order they were read.
 			std::vector<short_notation>            short_notations;
 			std::vector<call_parentheses>          call_parentheses_before_else;
 			std::vector<std::unique_ptr<type_decl>> types;

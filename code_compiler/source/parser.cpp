@@ -45,6 +45,7 @@ std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path 
 	_scope_count = 0;
 	_in_function = false;
 	_suffix_error.reset();
+	_program->file = file;
 	parse_file(file, _program->main);
 	resolve_suffixes();
 	return std::move(_program);
@@ -269,29 +270,88 @@ void blitz::parser::read_pragma(blitz::token const& comment, bool before_code)
 	if (end == std::string::npos) {
 		end = text.size();
 	}
+	auto is_space = [](char c) { return (c == ' ') || (c == '\t') || (c == ','); };
+	auto add      = [&](size_t start, size_t length, std::string name) {
+        ast::pragma pragma;
+        // The comment token starts at the `;`, its text after it.
+        pragma.where       = ast::location{ _file_ptr, comment.location.first, comment.location.second + 1 + start, length };
+        pragma.text        = text.substr(start, length);
+        pragma.name        = std::move(name);
+        pragma.main_file   = (_include_stack.size() == 1);
+        pragma.before_code = before_code;
+        if (pragma.name.rfind("no-", 0) == 0) {
+            pragma.on   = false;
+            pragma.name = pragma.name.substr(3);
+        }
+        _program->pragmas.push_back(std::move(pragma));
+	};
 	size_t pos = directive.size();
 	while (pos < end) {
-		while ((pos < end) && ((text[pos] == ' ') || (text[pos] == '\t') || (text[pos] == ','))) {
+		while ((pos < end) && is_space(text[pos])) {
 			pos++;
 		}
 		size_t start = pos;
-		while ((pos < end) && (text[pos] != ' ') && (text[pos] != '\t') && (text[pos] != ',')) {
+		std::string rest = lower(text.substr(pos, end - pos));
+		bool        call = (rest.rfind("warning(", 0) == 0) || (rest.rfind("error(", 0) == 0);
+		if (call) {
+			// The C form `warning(disable: a b)`, `error(enable: a)`, `warning(push)`: turned into the names of the -W form, `#push`
+			// and `#pop`, or `#?` if it makes no sense.
+			bool   is_error = (rest[0] == 'e');
+			size_t open     = text.find('(', pos);
+			size_t close    = text.find(')', open);
+			if ((close == std::string::npos) || (close > end)) {
+				add(start, end - start, "#?");
+				break;
+			}
+			pos               = close + 1;
+			std::string inner = lower(text.substr(open + 1, close - open - 1));
+			auto        trim  = [&](std::string s) {
+                size_t a = s.find_first_not_of(" \t");
+                size_t b = s.find_last_not_of(" \t");
+                return (a == std::string::npos) ? std::string() : s.substr(a, b - a + 1);
+			};
+			size_t colon = inner.find(':');
+			if (colon == std::string::npos) {
+				std::string what = trim(inner);
+				add(start, pos - start, ((what == "push") || (what == "pop")) ? "#" + what : "#?");
+				continue;
+			}
+			std::string action = trim(inner.substr(0, colon));
+			std::string prefix;
+			if (action == "enable") {
+				prefix = is_error ? "werror=" : "w";
+			} else if (action == "disable") {
+				prefix = is_error ? "wno-error=" : "wno-";
+			} else if ((action == "error") && !is_error) {
+				prefix = "werror=";
+			}
+			std::string names = inner.substr(colon + 1);
+			bool        any   = false;
+			for (size_t at = 0; at < names.size();) {
+				while ((at < names.size()) && is_space(names[at])) {
+					at++;
+				}
+				size_t from = at;
+				while ((at < names.size()) && !is_space(names[at])) {
+					at++;
+				}
+				if (at > from) {
+					any = true;
+					add(start, pos - start, prefix.empty() ? std::string("#?") : prefix + names.substr(from, at - from));
+				}
+			}
+			if (!any) {
+				add(start, pos - start, "#?");
+			}
+			continue;
+		}
+		while ((pos < end) && !is_space(text[pos])) {
 			pos++;
 		}
 		if (pos == start) {
 			break;
 		}
-		ast::pragma pragma;
-		// The comment token starts at the `;`, its text after it.
-		pragma.where       = ast::location{ _file_ptr, comment.location.first, comment.location.second + 1 + start, pos - start };
-		pragma.name        = lower(text.substr(start, pos - start));
-		pragma.main_file   = (_include_stack.size() == 1);
-		pragma.before_code = before_code;
-		if (pragma.name.rfind("no-", 0) == 0) {
-			pragma.on   = false;
-			pragma.name = pragma.name.substr(3);
-		}
-		_program->pragmas.push_back(std::move(pragma));
+		add(start, pos - start, lower(text.substr(start, pos - start)));
 	}
 }
 

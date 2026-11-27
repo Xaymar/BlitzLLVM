@@ -571,6 +571,46 @@ elseif(CASE STREQUAL "pragmas")
 		message(FATAL_ERROR "-Werror=pragma-mismatch did not fail.")
 	endif()
 
+	# Warning pragmas can be anywhere and work from their line on, like in C, into Include'd files and out of them again
+	# (q is quiet: the Wno- at the end of wp_lib.bb goes on after the Include, until the pop).
+	file(WRITE "${WORK}/wp_lib.bb" "Type LibT\n\tField a% = 1\nEnd Type\n;#pragma Wno-implicit-variable\n")
+	file(WRITE "${WORK}/wp_main.bb"
+		"Global y = 0\n"
+		";#pragma warning(push)\n"
+		";#pragma warning(disable: field-default-ignored)\n"
+		"Include \"wp_lib.bb\"\n"
+		"q = 1\n"
+		";#pragma warning(pop)\n"
+		"Type U\n\tField b% = 2\nEnd Type\n"
+		"p = 1\n"
+		";#pragma Wimplicit-variable, error(enable: implicit-variable)\n"
+		"r = 1\n"
+		";#pragma warning(pop) Wbogus warning(frob: x) warning(error: pragma-unknown\n")
+	blitzcc(-c "${WORK}/wp_main.bb")
+	expect_no_err("wp_lib.bb:2")
+	expect_no_err("'q' was not declared")
+	expect_err("wp_main.bb:8:11: warning: The default value of field 'b' is never used")
+	expect_err("wp_main.bb:10:1: warning: 'p' was not declared, it is a new local variable. [-Wimplicit-variable]")
+	expect_err("wp_main.bb:12:1: error: 'r' was not declared, it is a new local variable. [-Werror=implicit-variable]")
+	expect_err("wp_main.bb:13:10: warning: 'warning(pop)' has no warning(push) before it, so it does nothing. [-Wpragma-pop-unmatched]")
+	expect_err("wp_main.bb:13:23: warning: 'Wbogus' is not a warning pragma that this BlitzLLVM knows, it does nothing. [-Wpragma-unknown]")
+	expect_err("'warning(frob: x)' is not a warning pragma")
+	expect_err("'warning(error: pragma-unknown' is not a warning pragma")
+	if(RC EQUAL 0)
+		message(FATAL_ERROR "The warning made an error by a pragma did not fail.")
+	endif()
+	# The settings of the build are where every file starts; -Werror=x stays an error unless a pragma says otherwise.
+	file(WRITE "${WORK}/wp_noerror.bb" ";#pragma Wno-error=implicit-variable\nz = 1\n")
+	blitzcc(-c -Werror=implicit-variable "${WORK}/wp_noerror.bb")
+	expect_ok()
+	expect_err("'z' was not declared, it is a new local variable. [-Wimplicit-variable]")
+	# A warning pragma is not a feature: it neither switches nor mismatches anything.
+	file(WRITE "${WORK}/wp_quiet_lib.bb" ";#pragma Wno-implicit-variable\nFunction WpQuiet()\nEnd Function\n")
+	file(WRITE "${WORK}/wp_quiet.bb" "Include \"wp_quiet_lib.bb\"\n${_ORDER}")
+	blitzcc(-c "${WORK}/wp_quiet.bb")
+	expect_ok()
+	expect_no_err("[-Wpragma")
+
 elseif(CASE STREQUAL "fast_math")
 	# Float math is precise by default (the same result on every CPU). --fast-math safe adds everything but the NaN and Infinity
 	# assumptions, which would break "x <> x" checks.

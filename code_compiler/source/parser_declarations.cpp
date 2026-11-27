@@ -228,6 +228,7 @@ void blitz::parser::parse_include(ast::block& into)
 		return;
 	}
 	parse_file(target, into);
+	_program->includes.push_back(ast::include{ here(file_tk), target });
 }
 
 std::filesystem::path blitz::parser::installed_include_dir(std::filesystem::path const& bin_dir)
