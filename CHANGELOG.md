@@ -5,9 +5,13 @@
 
 Newest release first. Each entry says what it was, what it is now and, where something has to change in your program or build, how to migrate. Pull request numbers link to the full description. "Not verified" marks what has only been tested in CI, under Wine, or by reading the original source, and not on the real thing.
 
-## 2.0 (unreleased)
+## 2.1 (unreleased)
 
-Everything merged into `root` since 1.0 (`2026.11.5.23019`).
+Everything merged into `root` since 2.0 (`2026.11.27.28792`).
+
+## 2.0 (2026.11.27.28792)
+
+Everything merged into `root` between 1.0 (`2026.11.5.23019`) and 2.0.
 
 ### Things that can break existing programs
 
