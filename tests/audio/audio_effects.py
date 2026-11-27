@@ -50,6 +50,22 @@ ceiling = 32767 * 10 ** (-12 / 20.0)
 samples = play("tone.wav", 'Include "<audio.bb>"\nb = CreateAudioBus()\na = CreateAudioBus(b)\nAudioBusVolume a, 4\nSoundBus s, a\ne = AddAudioEffect(b, BB_EFFECT_LIMITER)\nAudioEffectParam e, BB_EFFECTPARAM_CEILING, -12\n')[0]
 peak = max(abs(v) for v in samples)
 check("effect, limiter: peak %d stays at its ceiling of %d" % (peak, ceiling), ceiling * 0.9 < peak <= ceiling + 2)
+def largest_step(samples):
+	"""The largest change from one sample to the next, from 4000 samples after the sound starts (it starts mid-block) for 30000 samples
+	(0.68 s), which holds the change made 300 ms in. The end of the render is left out: what the device writes while the program exits is
+	not part of the test."""
+	loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+	if not loud:
+		return 0
+	start = loud[0] + 4000
+	end = min(len(samples) - 1, start + 30000)
+	steps = [(abs(samples[i + 1] - samples[i]), i - loud[0]) for i in range(start, end)]
+	step, at = max(steps) if steps else (0, 0)
+	if step > 2000:  # Where it was, for a failure: in samples after the start of the sound, of how many it played.
+		print("     largest step at sample %d after the start, %d samples after the start in all" % (at, len(samples) - loud[0]))
+	return step
+
+
 # A step of a parameter without a fade glides: no sample moves further from the one before than the tone itself does at its loudest.
 for what, setup, after, loudest in (
 	("a low-pass closing", fx_setup("LOWPASS"), "Delay 300\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 100", 1.0),
@@ -58,9 +74,7 @@ for what, setup, after, loudest in (
 ):
 	samples = play("tone.wav", setup, after)[0]
 	natural = 2 * math.pi * 441 / OUTPUT_RATE * reference * loudest
-	loud = [i for i, v in enumerate(samples) if abs(v) > 30]
-	start = loud[0] + 4000 if loud else 0  # Past the start of the sound, which comes in mid-block.
-	step = max([abs(samples[i + 1] - samples[i]) for i in range(start, len(samples) - 1)] + [0])
+	step = largest_step(samples)
 	check("effect, %s: largest step %d is within the tone's %d" % (what, step, natural), step <= natural * 1.1 + 2)
 # A short sound (10 cycles, 23 ms) and what comes after it.
 tone("blip.wav", 22050, 1, 16, cycles=10)
@@ -109,9 +123,7 @@ error = play("tone.wav", CH, "For i = 1 To 5\n\tChannelSend c, CreateAudioBus(),
 check("channel, a fifth send stops the program", "can send to 4 buses at most" in error)
 samples = play("tone.wav", CH, "ChannelSend c, b, 1\nDelay 300\nChannelSend c, b, 0.01")[0]
 natural = 2 * math.pi * 441 / OUTPUT_RATE * reference * 2
-loud = [i for i, v in enumerate(samples) if abs(v) > 30]
-start = loud[0] + 4000 if loud else 0
-step = max([abs(samples[i + 1] - samples[i]) for i in range(start, len(samples) - 1)] + [0])
+step = largest_step(samples)
 check("channel, a send level that jumps glides: largest step %d is within the tone's %d" % (step, natural), step <= natural * 1.1 + 2)
 samples = play("blip.wav", CH, "e = AddChannelEffect(c, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25", loop=False)[0]
 check("channel, an echo on a channel ends with its sound", max(bursts(samples)[5:] + [0]) <= 2)
