@@ -153,6 +153,13 @@ SoLoud's set as a guide for what Blitz programs are likely to want (parameters b
 | 11 Distortion | `BB_EFFECT_DISTORTION` | `DRIVE` (0.5), `MIX` (1) |
 | 12 Lo-fi | `BB_EFFECT_LOFI` | `RATE` Hz (8000), `BITS` (8) |
 
+For the echo and the reverb, `MIX` puts the repeats on top of the sound instead of crossfading: the sound is at
+`min(1, 2 × (1 − mix))` and the repeats at `min(1, 2 × mix)`, so 0.5 is the sound and its repeats both at full level and 1
+is only the repeats (for a bus that only holds a reverb, which phase 4's sends feed). A bypassed echo or reverb takes in
+nothing new, and what it holds rings out; the other types fade over to the dry sound in 5 ms. `position` in
+`AddAudioEffect` counts from 0 (before the first effect). Effect handles start at 65536, so `ClearAudioScene` can tell an
+effect from a bus (there can be at most 65535 buses).
+
 Later, if asked for: chorus/flanger, pitch shift, convolution reverb from a sound file.
 
 ### Listener-wide 3D settings
