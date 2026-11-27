@@ -251,6 +251,10 @@ namespace blitz {
 		/** Let New set the fields that have a default value (Field x% = 5) to it. The original accepts the default but never uses it. */
 		bool field_defaults = false;
 
+		/** EntityColor, EntityAlpha, EntityFX, EntityShininess and PaintEntity replace the brushes of the surfaces instead of being combined
+		 * with them. A runtime behaviour: the program tells the runtime when it starts. */
+		bool entity_overrides = false;
+
 		/** Functions of the userlibs that the program may call, set before generating. */
 		std::vector<blitz::keywords::user_function> userlibs;
 

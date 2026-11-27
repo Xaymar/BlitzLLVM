@@ -2032,7 +2032,7 @@ namespace bb::gfx {
 		bb::material const* paint     = s.painted ? &s.paint : nullptr;
 		int            texture_handle = layer_texture(e, paint, 0);
 		int            blend          = surface_blend(e, paint);
-		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
+		bb::material        look           = bb::surface_look(e, s);
 		texture_entry* texture        = texture_of(texture_handle);
 		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
 		// The original looks at the textures of a brush by how many there are: without BrushBlend or EntityBlend of 1 only a lone
@@ -2052,8 +2052,8 @@ namespace bb::gfx {
 		if (top_layer > 0) {
 			see_through = explicit_alpha ? any_alpha : false;
 		}
-		bool vertex_alpha  = ((e.fx | (s.painted ? s.paint.fx : 0)) & 32) != 0;
-		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
+		bool vertex_alpha = ((e.fx | look.fx) & 32) != 0;
+		return (alpha * look.alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
 	}
 
 	// Whether the eight corners of a box (relative to the camera) are all on the outside of one of the planes of the view.
@@ -3448,10 +3448,7 @@ namespace bb::gfx {
 			}
 
 			// A painted surface changes what the entity looks like.
-			bb::material paint;
-			if (surface.painted) {
-				paint = surface.paint;
-			}
+			bb::material paint          = bb::surface_look(*e, surface);
 			int  texture_handle = layer_texture(*e, &paint, 0);
 			int  blend          = surface_blend(*e, surface.painted ? &paint : nullptr);
 			// Direct3D 7 gets the stages of Blitz3D without the layers that have no texture or a TextureBlend of 0, so the layers that follow

@@ -480,6 +480,7 @@ namespace bb {
 		uint8_t stencil_reference = 0, stencil_read_mask = 0xFF, stencil_write_mask = 0xFF;
 		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
 		bool  blend_set = false; // EntityBlend was called: the original then looks at every texture for alpha, not just a lone one.
+		uint8_t          overrides = 0;     // What the program set on the entity: 1 EntityColor, 2 EntityAlpha, 4 EntityFX, 8 EntityShininess (PaintEntity all four), see entity_overrides.
 		float shininess = 0;
 		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
 		buffer<surface*> surfaces;
@@ -622,6 +623,12 @@ namespace bb {
 	extern float ambient_light[3];
 	/** How far between CaptureWorld and now entities are drawn, 1 for where they are. Set by RenderWorld. */
 	extern float render_tween;
+	/** The program was built with the feature entity-overrides (`;#pragma modern`): what it set with EntityColor, EntityAlpha, EntityFX,
+	 * EntityShininess or PaintEntity replaces the brushes of the surfaces. Without it they are combined like in the original: the colors
+	 * and alphas multiplied, the FX OR'd, the shininess added. */
+	extern bool entity_overrides;
+	/** The look of a surface as the entity draws it: the brush of the surface, without what entity_overrides says the entity replaces. */
+	material     surface_look(entity const& e, surface const& s);
 	extern bool  rendering_world; // RenderWorld is drawing, which is the only time that the bodies of the physics simulation are shown between their steps (tween_alpha).
 	/** The alpha and color of an entity as RenderWorld draws them: between where they were at CaptureWorld and now. */
 	float        tweened_alpha(entity const& e);

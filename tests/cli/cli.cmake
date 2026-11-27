@@ -611,6 +611,28 @@ elseif(CASE STREQUAL "pragmas")
 	expect_ok()
 	expect_no_err("[-Wpragma")
 
+	# entity-overrides is a runtime behaviour: the program tells the runtime at its start, with modern, the pragma or the option.
+	file(WRITE "${WORK}/overrides.bb" "Print 1\n")
+	file(WRITE "${WORK}/overrides_modern.bb" ";#pragma modern\nPrint 1\n")
+	file(WRITE "${WORK}/overrides_only.bb" ";#pragma entity-overrides\nPrint 1\n")
+	file(WRITE "${WORK}/overrides_off.bb" ";#pragma modern no-entity-overrides\nPrint 1\n")
+	foreach(_CASE IN ITEMS "overrides_modern|1|" "overrides_only|1|" "overrides|1|--entity-overrides" "overrides|1|--modern"
+	                       "overrides|0|" "overrides_off|0|" "overrides_off|0|--entity-overrides" "overrides|0|--modern;--no-entity-overrides")
+		string(REPLACE "|" ";" _PARTS "${_CASE}")
+		list(GET _PARTS 0 _NAME)
+		list(GET _PARTS 1 _WANT)
+		list(SUBLIST _PARTS 2 -1 _ARGS)
+		blitzcc(-S ${_ARGS} "${WORK}/${_NAME}.bb" -o "${WORK}/${_NAME}.ll")
+		expect_ok()
+		file(READ "${WORK}/${_NAME}.ll" _IR)
+		string(FIND "${_IR}" "@bb_set_entity_overrides(i32 1)" _AT)
+		if(_WANT AND _AT EQUAL -1)
+			message(FATAL_ERROR "${_NAME}.bb ${_ARGS} does not turn on entity-overrides.")
+		elseif(NOT _WANT AND NOT _AT EQUAL -1)
+			message(FATAL_ERROR "${_NAME}.bb ${_ARGS} turns on entity-overrides.")
+		endif()
+	endforeach()
+
 elseif(CASE STREQUAL "fast_math")
 	# Float math is precise by default (the same result on every CPU). --fast-math safe adds everything but the NaN and Infinity
 	# assumptions, which would break "x <> x" checks.

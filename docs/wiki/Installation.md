@@ -121,7 +121,9 @@ Arguments and operands are evaluated in the order of the original Blitz3D, which
 
 The original accepts default values of fields (`Field lives% = 3`) but never uses them. `--field-defaults` lets `New` set the fields to them, see [Language Quirks](Language-Quirks).
 
-`--modern` turns on both, and `--no-<name>` turns one off again (`--modern --no-field-defaults`); the last option for a feature wins. A program can also ask for them itself, with a comment the original ignores in the comments at the top of its main file: `;#pragma modern`, `;#pragma field-defaults` or `;#pragma no-sane-evaluation-order`. That wins over the options, see [Modern Mode](Modern-Mode).
+`--entity-overrides` lets `EntityColor`, `EntityAlpha`, `EntityFX`, `EntityShininess` and `PaintEntity` replace what the brushes of a model say, where the original combines them (colors and alphas multiplied, FX OR'd, shininess added).
+
+`--modern` turns on all of them, and `--no-<name>` turns one off again (`--modern --no-field-defaults`); the last option for a feature wins. A program can also ask for them itself, with a comment the original ignores in the comments at the top of its main file: `;#pragma modern`, `;#pragma entity-overrides` or `;#pragma no-sane-evaluation-order`. That wins over the options, see [Modern Mode](Modern-Mode).
 
 Programs written for BlitzPlus need `--blitzplus`: BlitzPlus kept images and fonts when `Graphics` or `EndGraphics` ran, while Blitz3D freed them, see [Graphics](Graphics).
 

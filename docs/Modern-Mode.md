@@ -85,6 +85,7 @@ keeps the two in step and means the help only has to explain each feature once.
 | --- | --- | --- |
 | `sane-evaluation-order` | `--sane-evaluation-order` | Left to right evaluation, see [Language Quirks](../tools/wiki/pages/Language-Quirks.md#order-of-evaluation). |
 | `field-defaults` | `--field-defaults` | `New` applies field defaults, see [Language Quirks](../tools/wiki/pages/Language-Quirks.md#default-values-of-fields). |
+| `entity-overrides` | `--entity-overrides` | `EntityColor`, `EntityAlpha`, `EntityFX`, `EntityShininess` and `PaintEntity` replace the brushes of the surfaces, see below. |
 | `modern` | `--modern` (new) | All of the above. |
 
 `modern` is the umbrella and always means the newest set (Xaymar, 26 Nov 2026): it turns on every feature that is in
@@ -151,16 +152,18 @@ harmless, and it only works for the warning it names.
 
 `pragma-unknown` also covers unknown warning names, so a warning that a newer BlitzLLVM added doesn't break an older one.
 
-### Decided for later
+### Entity overrides
 
-Features Xaymar decided on that join the modern set once modern mode exists, each in its own PR:
+Added after the first two features, each in its own PR:
 
 * `entity-overrides` (Xaymar, 26 Nov 2026, from the masked texture work in
   [#713](https://github.com/Xaymar/BlitzLLVM/pull/713)): what the program sets with `EntityFX`, `EntityColor`,
   `EntityAlpha` and `EntityShininess` replaces the values of the brushes of the model and its surfaces. Without it the
   original combining stays: the FX flags are OR'd, color and alpha are multiplied, shininess is added. Textures and
   blend modes already follow the original in #713 and are not part of it. It is a runtime behaviour, so the compiler
-  hands the setting of the program to the runtime when the program starts (like `--blitzplus` does).
+  hands the setting of the program to the runtime when the program starts (`bb_set_entity_overrides`, like `--blitzplus`
+  does). Only what the program set counts: each entity remembers which of the four it set (`PaintEntity` sets all of
+  them), the others still come from the brush.
 
 ```blitzbasic
 ;#pragma modern
