@@ -424,6 +424,31 @@ namespace bb {
 
 	struct model_load; // A model that is still being parsed on a loader thread, see b3d.cpp.
 
+	// What only a camera has: kept out of entity, which every mesh, pivot and light walks through each frame, so that entity stays small
+	// (a scene has one or two cameras, and thousands of other entities).
+	struct camera_data {
+		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
+		float cam_color[3] = { 0, 0, 0 };
+		bool  cam_clear_color = true, cam_clear_depth = true;
+		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
+		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
+		int   cam_cull_flags = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 1.
+		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
+		int   cam_buffer = 0;      // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
+		bool  cam_custom_projection = false; // SetCameraProjectionMatrix: cam_projection_matrix replaces CameraRange, CameraZoom and CameraProjMode.
+		bool  cam_custom_view       = false; // SetCameraViewMatrix: cam_view_matrix replaces where the camera entity is.
+		float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
+		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
+		float cam_clip_planes[6][4] = {};   // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
+		int   cam_clip_enabled      = 0;    // SetCameraClipPlaneEnabled: one bit for each plane.
+		bool  cam_stencil           = false; // SetCameraStencil: the depth buffer the camera draws with has stencil, and entities with SetEntityStencil use it.
+		bool  cam_stencil_clear     = true;  // SetCameraStencilClear: whether the stencil is cleared when the camera starts drawing, and to what.
+		uint8_t cam_stencil_value   = 0;
+		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
+		float fog_near = 1, fog_far = 1000;
+		float fog_color[3] = { 0, 0, 0 };
+	};
+
 	struct entity {
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
@@ -493,27 +518,8 @@ namespace bb {
 		bool             unresolved = false; // The model of loading is not built yet.
 		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
 
-		// Camera
-		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
-		float cam_color[3] = { 0, 0, 0 };
-		bool  cam_clear_color = true, cam_clear_depth = true;
-		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
-		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
-		int   cam_cull_flags = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 1.
-		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
-		int   cam_buffer = 0;      // SetCameraBuffer: the buffer the camera always draws to, 0 for the one of SetBuffer.
-		bool  cam_custom_projection = false; // SetCameraProjectionMatrix: cam_projection_matrix replaces CameraRange, CameraZoom and CameraProjMode.
-		bool  cam_custom_view       = false; // SetCameraViewMatrix: cam_view_matrix replaces where the camera entity is.
-		float cam_projection_matrix[16] = {}; // As the program gave it: Y up, depth 0 at the near and 1 at the far plane, column-major.
-		float cam_view_matrix[16]          = {}; // From the world to the camera, column-major, the last row 0 0 0 1.
-		float cam_clip_planes[6][4] = {};   // SetCameraClipPlane: a, b, c and d of each plane in the world; what has ax + by + cz + d < 0 is cut away.
-		int   cam_clip_enabled      = 0;    // SetCameraClipPlaneEnabled: one bit for each plane.
-		bool  cam_stencil           = false; // SetCameraStencil: the depth buffer the camera draws with has stencil, and entities with SetEntityStencil use it.
-		bool  cam_stencil_clear     = true;  // SetCameraStencilClear: whether the stencil is cleared when the camera starts drawing, and to what.
-		uint8_t cam_stencil_value   = 0;
-		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
-		float fog_near = 1, fog_far = 1000;
-		float fog_color[3] = { 0, 0, 0 };
+		// Of a camera only (made with it by add_entity, freed with it): see camera_data.
+		camera_data* cam = nullptr;
 
 		// Light
 		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot
