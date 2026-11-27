@@ -77,6 +77,8 @@ typedef struct bb_channel {
 	int32_t    bus;        // ChannelBus: the bus it plays on (0 for the master bus).
 	int        paused;     // PauseChannel: paused on its own, so that it stays paused when its bus resumes.
 	int        movie;      // The sound of a movie, which the movie plays, pauses and stops (MovieChannel).
+	struct bb_channel_mix* mix; // Its effects, sends and air absorption, made when the first of them is set (NULL until then).
+	float      meters;     // How far the entity is from the listener, in meters, as of the last update.
 } bb_channel;
 
 // A setting of the listener that can glide to a new value: it goes from `from` to `to` over `length` nanoseconds from `start`.
@@ -102,7 +104,32 @@ typedef struct bb_bus_mix {
 	int     got;   // Whether its group filled the buffer in this block.
 	int     depth; // How many buses there are between it and master, in this block.
 	Uint64  still; // How long its input and output were silent, in nanoseconds.
+	// What channels send to it (ChannelSend), added by their tracks while the block is mixed and taken in before its effects run.
+	float*  send;
+	int     send_cap;
+	int     sent;          // How many frames of `send` hold something.
+	int     send_channels; // How many channels a frame of `send` has.
+	int     channels;      // Master only: how many channels the device has, as of the last block.
 } bb_bus_mix;
+
+// What a channel sends to another bus.
+typedef struct bb_send {
+	bb_bus_mix* bus; // NULL for a free one.
+	float       level;
+	float       last; // The level at the end of the last block, which the next block starts from.
+} bb_send;
+
+#define BB_CHANNEL_SENDS 4
+
+// The part of a channel that its track's callback reads while it mixes: its effects, air absorption and sends, and its pan. Like
+// bb_bus_mix it is changed only with the mixer locked.
+typedef struct bb_channel_mix {
+	bb_fx*      air;   // The low-pass of ListenerAirAbsorption, in front of the chain (NULL while it has none).
+	bb_fx*      chain; // Its effects, in the order they run.
+	bb_send     sends[BB_CHANNEL_SENDS];
+	float       left, right; // What the track puts on the left and right speakers, for the sends.
+	bb_bus_mix* master;
+} bb_channel_mix;
 
 // A bus: a group of channels with its own volume and pause state, that feeds another bus. Bus 0 is the master bus.
 typedef struct bb_bus {
@@ -113,10 +140,12 @@ typedef struct bb_bus {
 	bb_bus_mix* mix;
 } bb_bus;
 
-// An effect on a bus, made by AddAudioEffect.
+// An effect on a bus, made by AddAudioEffect, or on a channel, made by AddChannelEffect.
 typedef struct bb_effect {
 	int     used;
-	int32_t bus;
+	int32_t bus;     // -1 for an effect on a channel.
+	int32_t channel; // The channel it is on, 0 for an effect on a bus.
+	int     ended;   // Its channel ended: it is in no chain any more, and its handle works on until the slot is used again.
 	bb_fx*  fx;
 } bb_effect;
 
@@ -173,6 +202,7 @@ typedef struct bb_audio_state {
 	int32_t   scene_cap;
 	int       listener_created;     // Whether CreateListener was called, and so listener_defaults is known.
 	float     listener_defaults[3]; // What CreateListener was last given (rolloff, doppler, distance), which BlendAudioScene blends with.
+	float     air_absorption;       // ListenerAirAbsorption, 0 for none.
 } bb_audio_state;
 
 // How fast sound moves, in meters per second, until SpeedOfSound changes it.
@@ -331,6 +361,21 @@ static bb_channel* bb_channel_get(int32_t handle, const char* what)
 	return &bb_audio.channels[handle];
 }
 
+static void bb_channel_mix_free(int32_t slot);
+static void bb_channel_air(bb_channel* channel, float meters, Uint64 now);
+static void bb_channel_air_start(bb_channel* channel);
+
+// Lets go of a channel: its track, and its effects, sends and air absorption.
+static void bb_channel_release(int32_t slot)
+{
+	bb_channel* channel = &bb_audio.channels[slot];
+	if (channel->track) {
+		MIX_DestroyTrack(channel->track); // After this its callback no longer runs, so what it read can go.
+	}
+	bb_channel_mix_free(slot);
+	memset(channel, 0, sizeof(*channel));
+}
+
 static int32_t bb_load(const char* path, int is_3d)
 {
 	if (!path) {
@@ -417,8 +462,7 @@ void bb_free_sound(int32_t handle)
 	bb_sound* sound = bb_sound_get(handle, "FreeSound");
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
 		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && (bb_audio.channels[i].sound == handle)) {
-			MIX_DestroyTrack(bb_audio.channels[i].track);
-			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
+			bb_channel_release(i);
 		}
 	}
 	if (sound->audio) {
@@ -458,6 +502,12 @@ static void bb_channel_apply(bb_channel* channel)
 	gains.left  = pan > 0 ? 1.0f - pan : 1.0f;
 	gains.right = pan < 0 ? 1.0f + pan : 1.0f;
 	MIX_SetTrackStereo(channel->track, &gains);
+	if (channel->mix) { // Its sends are panned the same way.
+		MIX_LockMixer(bb_audio.mixer);
+		channel->mix->left  = gains.left;
+		channel->mix->right = gains.right;
+		MIX_UnlockMixer(bb_audio.mixer);
+	}
 }
 
 static void bb_channel_start_3d(bb_channel* channel);
@@ -496,8 +546,7 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
 		if (bb_audio.channels[i].used && !bb_audio.channels[i].movie && !MIX_TrackPlaying(bb_audio.channels[i].track) &&
 		    !MIX_TrackPaused(bb_audio.channels[i].track)) {
-			MIX_DestroyTrack(bb_audio.channels[i].track);
-			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
+			bb_channel_release(i);
 		}
 		if (!slot && !bb_audio.channels[i].used) {
 			slot = i;
@@ -540,6 +589,7 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	}
 	bb_channel_apply(channel);
 	if (entity) {
+		bb_channel_air_start(channel);
 		bb_channel_start_3d(channel);
 	}
 	// The loop count has to be given while starting, MIX_SetTrackLoops does nothing for a track that is not playing yet.
@@ -598,8 +648,7 @@ void bb_stop_channel(int32_t handle)
 	bb_movie_owns(channel, "StopChannel");
 	if (channel) {
 		MIX_StopTrack(channel->track, 0);
-		MIX_DestroyTrack(channel->track);
-		memset(channel, 0, sizeof(*channel));
+		bb_channel_release(handle);
 	}
 }
 
@@ -980,7 +1029,9 @@ static void bb_channel_follow(bb_channel* channel, const float* listener, Uint64
 	}
 	channel->gain3d = gain;
 	channel->pan3d  = pan;
+	channel->meters = distance;
 	bb_channel_apply(channel);
+	bb_channel_air(channel, distance, now);
 
 	// The pitch: what the source moves along the line to the listener, and what the listener does. Not for movies, whose sound would
 	// drift away from the picture.
@@ -1125,6 +1176,23 @@ static void bb_bus_effects(bb_bus_mix* mix, float* pcm, int samples, const SDL_A
 	}
 }
 
+// Adds what channels sent to a bus in this block to its buffer, and empties what they sent.
+static void bb_bus_take_sends(bb_bus_mix* mix, float* pcm, int samples, int channels)
+{
+	if (!mix->sent) {
+		return;
+	}
+	int count = mix->sent * mix->send_channels;
+	if (mix->send_channels == channels) { // The device did not change in between.
+		count = count < samples ? count : samples;
+		for (int i = 0; i < count; i++) {
+			pcm[i] += mix->send[i];
+		}
+	}
+	memset(mix->send, 0, (size_t)(mix->sent * mix->send_channels) * sizeof(float));
+	mix->sent = 0;
+}
+
 static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const SDL_AudioSpec* spec, float* pcm, int samples)
 {
 	(void)mixer;
@@ -1133,6 +1201,7 @@ static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const 
 	int         frames = spec->channels > 0 ? samples / spec->channels : 0;
 	Uint64      length = (spec->freq > 0) ? (Uint64)frames * 1000000000ull / (Uint64)spec->freq : 0;
 	int         deepest = 0;
+	master->channels    = spec->channels;
 	for (bb_bus_mix* mix = master->others; mix; mix = mix->others) {
 		mix->depth = 0;
 		for (bb_bus_mix* up = mix; up->parent; up = up->parent) {
@@ -1144,6 +1213,11 @@ static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const 
 			} else {
 				mix->depth = -1; // Without a buffer it can't take part in this block.
 			}
+		}
+		if (mix->depth >= 0) {
+			bb_bus_take_sends(mix, mix->buffer, samples, spec->channels);
+		} else {
+			bb_bus_take_sends(mix, NULL, 0, -1);
 		}
 		deepest = mix->depth > deepest ? mix->depth : deepest;
 	}
@@ -1162,6 +1236,7 @@ static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const 
 			}
 		}
 	}
+	bb_bus_take_sends(master, pcm, samples, spec->channels);
 	bb_bus_effects(master, pcm, samples, spec, now, length);
 	bb_bus_ramp(master, bb_fade_value(&master->volume, now), pcm, samples, spec->channels);
 	for (bb_bus_mix* mix = master->others; mix; mix = mix->others) {
@@ -1247,6 +1322,10 @@ static int bb_bus_under(int32_t bus, int32_t ancestor)
 static void bb_bus_hook_master(void)
 {
 	if (bb_audio.mixer && bb_audio.bus_count && !bb_audio.master_hooked) {
+		SDL_AudioSpec spec;
+		if (MIX_GetMixerFormat(bb_audio.mixer, &spec)) {
+			bb_audio.buses[0].mix->channels = spec.channels; // For sends made before the first block.
+		}
 		MIX_SetPostMixCallback(bb_audio.mixer, bb_bus_master_mixed, bb_audio.buses[0].mix);
 		bb_audio.master_hooked = 1;
 	}
@@ -1349,6 +1428,26 @@ void bb_free_audio_bus(int32_t handle)
 			break;
 		}
 	}
+	// What channels sent to it goes to its parent, like its channels do.
+	bb_bus_mix* to = bb_audio.buses[parent].mix;
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		bb_channel_mix* cm = bb_audio.channels[i].used ? bb_audio.channels[i].mix : NULL;
+		for (int k = 0; cm && (k < BB_CHANNEL_SENDS); k++) {
+			if (cm->sends[k].bus != mix) {
+				continue;
+			}
+			bb_send* same = NULL;
+			for (int j = 0; j < BB_CHANNEL_SENDS; j++) {
+				same = (cm->sends[j].bus == to) ? &cm->sends[j] : same;
+			}
+			if (same) {
+				same->level += cm->sends[k].level;
+				memset(&cm->sends[k], 0, sizeof(bb_send));
+			} else {
+				cm->sends[k].bus = to;
+			}
+		}
+	}
 	bb_bus_unlock();
 	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
 		if (bb_audio.sounds[i].bus == handle) {
@@ -1372,6 +1471,7 @@ void bb_free_audio_bus(int32_t handle)
 		}
 	}
 	SDL_free(mix->buffer);
+	SDL_free(mix->send);
 	bb_free(mix);
 	memset(bus, 0, sizeof(*bus));
 	bb_bus_update_pause(parent);
@@ -1533,21 +1633,25 @@ static void bb_effect_value_check(int32_t param, float value, const char* what)
 	}
 }
 
-int32_t bb_add_audio_effect(int32_t handle, int32_t type, int32_t position)
+// The checks of AddAudioEffect and AddChannelEffect, and a slot for the new effect. A slot whose channel ended is used again, like the
+// slot of a channel that ended is.
+static int32_t bb_effect_new(int32_t type, int32_t position, const char* what)
 {
-	bb_bus* bus = bb_bus_get(handle, "AddAudioEffect");
-	char    message[256];
+	char message[256];
 	if (type == 0) {
-		bb_runtime_error("AddAudioEffect: the effect type is 0, which is none. The types are BB_EFFECT_LOWPASS to BB_EFFECT_LOFI (1 to 12), "
-		                 "from Include \"<audio.bb>\"; a name that is not included is a new variable that is 0");
+		snprintf(message, sizeof(message),
+		         "%s: the effect type is 0, which is none. The types are BB_EFFECT_LOWPASS to BB_EFFECT_LOFI (1 to 12), from Include "
+		         "\"<audio.bb>\"; a name that is not included is a new variable that is 0",
+		         what);
+		bb_runtime_error(message);
 	}
 	if ((type < 1) || (type > BB_FX_TYPES)) {
-		snprintf(message, sizeof(message), "AddAudioEffect: the effect type has to be 1 to 12 (BB_EFFECT_LOWPASS to BB_EFFECT_LOFI), not %d",
+		snprintf(message, sizeof(message), "%s: the effect type has to be 1 to 12 (BB_EFFECT_LOWPASS to BB_EFFECT_LOFI), not %d", what,
 		         (int)type);
 		bb_runtime_error(message);
 	}
 	if (position < -1) {
-		snprintf(message, sizeof(message), "AddAudioEffect: the position has to be -1 (the end) or 0 and up, not %d", (int)position);
+		snprintf(message, sizeof(message), "%s: the position has to be -1 (the end) or 0 and up, not %d", what, (int)position);
 		bb_runtime_error(message);
 	}
 	int32_t slot = -1;
@@ -1557,6 +1661,12 @@ int32_t bb_add_audio_effect(int32_t handle, int32_t type, int32_t position)
 			break;
 		}
 	}
+	for (int32_t i = 0; (slot < 0) && (i < bb_audio.effect_count); i++) {
+		if (bb_audio.effects[i].ended) {
+			bb_effect_forget(i);
+			slot = i;
+		}
+	}
 	if (slot < 0) {
 		if (bb_audio.effect_count >= bb_audio.effect_cap) {
 			bb_audio.effect_cap = bb_audio.effect_cap ? bb_audio.effect_cap * 2 : 16;
@@ -1564,18 +1674,44 @@ int32_t bb_add_audio_effect(int32_t handle, int32_t type, int32_t position)
 		}
 		slot = bb_audio.effect_count++;
 	}
-	bb_fx* fx                = bb_fx_create(type);
-	bb_audio.effects[slot].used = 1;
-	bb_audio.effects[slot].bus  = handle;
-	bb_audio.effects[slot].fx   = fx;
-	bb_bus_hook_master();
-	bb_bus_lock();
-	bb_fx** link = &bus->mix->chain;
+	bb_effect* effect = &bb_audio.effects[slot];
+	memset(effect, 0, sizeof(*effect));
+	effect->used = 1;
+	effect->fx   = bb_fx_create(type);
+	return slot;
+}
+
+// Puts an effect into a chain, at the end or before `position`. With the mixer locked.
+static void bb_effect_link(bb_fx** chain, bb_fx* fx, int32_t position)
+{
+	bb_fx** link = chain;
 	for (int32_t i = 0; *link && ((position < 0) || (i < position)); i++) {
 		link = bb_fx_next(*link);
 	}
 	*bb_fx_next(fx) = *link;
 	*link           = fx;
+}
+
+// Takes an effect out of a chain. With the mixer locked.
+static void bb_effect_unlink(bb_fx** chain, bb_fx* fx)
+{
+	for (bb_fx** link = chain; *link; link = bb_fx_next(*link)) {
+		if (*link == fx) {
+			*link = *bb_fx_next(fx);
+			break;
+		}
+	}
+	*bb_fx_next(fx) = NULL;
+}
+
+int32_t bb_add_audio_effect(int32_t handle, int32_t type, int32_t position)
+{
+	bb_bus* bus  = bb_bus_get(handle, "AddAudioEffect");
+	int32_t slot = bb_effect_new(type, position, "AddAudioEffect");
+	bb_audio.effects[slot].bus = handle;
+	bb_bus_hook_master();
+	bb_bus_lock();
+	bb_effect_link(&bus->mix->chain, bb_audio.effects[slot].fx, position);
 	bb_bus_unlock();
 	return BB_EFFECT_HANDLES + slot;
 }
@@ -1596,15 +1732,257 @@ void bb_free_audio_effect(int32_t handle)
 		return;
 	}
 	bb_effect* effect = bb_effect_get(handle, "FreeAudioEffect");
-	bb_bus_lock();
-	for (bb_fx** link = &bb_audio.buses[effect->bus].mix->chain; *link; link = bb_fx_next(*link)) {
-		if (*link == effect->fx) {
-			*link = *bb_fx_next(effect->fx);
-			break;
+	if (!effect->ended) {
+		bb_bus_lock();
+		if (effect->channel) {
+			bb_effect_unlink(&bb_audio.channels[effect->channel].mix->chain, effect->fx);
+		} else {
+			bb_effect_unlink(&bb_audio.buses[effect->bus].mix->chain, effect->fx);
+		}
+		bb_bus_unlock();
+	}
+	bb_effect_forget(bb_effect_slot(handle));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Channel effects, sends and air absorption
+////////////////////////////////////////////////////////////////////////////////
+// A channel gets a callback on its track once it has an effect, a send or air absorption. It runs on the channel's sound after its volume
+// and pitch, before its pan: first the low-pass of air absorption, then its effects, then it adds the sound to the buses it sends to,
+// panned like the channel. A channel with none of these has no callback, as before.
+
+// How far the cutoff of air absorption falls: at an amount of 1 it is 20 kHz at 100 meters, 2 kHz at 1 km, 200 Hz at 10 km.
+#define BB_AIR_CUTOFF_METERS 2000000.0f
+
+static void SDLCALL bb_channel_cooked(void* userdata, MIX_Track* track, const SDL_AudioSpec* spec, float* pcm, int samples)
+{
+	(void)track;
+	bb_channel_mix* mix      = (bb_channel_mix*)userdata;
+	int             channels = spec->channels;
+	if ((channels <= 0) || (spec->freq <= 0)) {
+		return;
+	}
+	int    frames = samples / channels;
+	Uint64 now    = SDL_GetTicksNS();
+	Uint64 length = (Uint64)frames * 1000000000ull / (Uint64)spec->freq;
+	if (mix->air) {
+		bb_fx_run(mix->air, pcm, frames, channels, spec->freq, now, length);
+	}
+	for (bb_fx* fx = mix->chain; fx; fx = *bb_fx_next(fx)) {
+		bb_fx_run(fx, pcm, frames, channels, spec->freq, now, length);
+	}
+	int device = mix->master ? mix->master->channels : 0;
+	for (int k = 0; (k < BB_CHANNEL_SENDS) && (device > 0); k++) {
+		bb_send*    send = &mix->sends[k];
+		bb_bus_mix* bus  = send->bus;
+		if (!bus) {
+			continue;
+		}
+		float from = send->last, to = send->level;
+		send->last = to;
+		if ((from == 0.0f) && (to == 0.0f)) {
+			continue;
+		}
+		if (bus->sent && (bus->send_channels != device)) {
+			continue; // Sent before the device changed: the next block starts over.
+		}
+		int need = frames * device;
+		if (bus->send_cap < need) {
+			float* grown = (float*)SDL_realloc(bus->send, (size_t)need * sizeof(float));
+			if (!grown) {
+				continue;
+			}
+			memset(grown + bus->send_cap, 0, (size_t)(need - bus->send_cap) * sizeof(float));
+			bus->send     = grown;
+			bus->send_cap = need;
+		}
+		// The same panning as SDL3_mixer's: a stereo track goes to the front pair, a mono one (on a mono device) gets half of each side.
+		for (int f = 0; f < frames; f++) {
+			float  g   = (frames > 1) ? from + (to - from) * (float)f / (float)(frames - 1) : to;
+			float* dst = bus->send + f * device;
+			if (channels >= 2) {
+				dst[0] += pcm[f * channels] * mix->left * g;
+				if (device >= 2) {
+					dst[1] += pcm[f * channels + 1] * mix->right * g;
+				}
+			} else {
+				dst[0] += pcm[f] * (mix->left + mix->right) * 0.5f * g;
+			}
+		}
+		bus->send_channels = device;
+		bus->sent          = frames > bus->sent ? frames : bus->sent;
+	}
+}
+
+// The part of the channel that its track's callback reads, made with the first effect, send or air absorption.
+static bb_channel_mix* bb_channel_mix_get(bb_channel* channel)
+{
+	if (!channel->mix) {
+		bb_bus_table();
+		bb_channel_mix* mix = (bb_channel_mix*)bb_malloc_or_fail(sizeof(bb_channel_mix));
+		memset(mix, 0, sizeof(*mix));
+		mix->left   = 1.0f;
+		mix->right  = 1.0f;
+		mix->master = bb_audio.buses[0].mix;
+		channel->mix = mix;
+		bb_channel_apply(channel); // Its pan.
+		MIX_SetTrackCookedCallback(channel->track, bb_channel_cooked, mix);
+	}
+	return channel->mix;
+}
+
+// The effects of a channel that is let go of end, and what it holds goes with it. The track is gone already.
+static void bb_channel_mix_free(int32_t slot)
+{
+	bb_channel* channel = &bb_audio.channels[slot];
+	if (!channel->mix) {
+		return;
+	}
+	for (int32_t i = 0; i < bb_audio.effect_count; i++) {
+		bb_effect* effect = &bb_audio.effects[i];
+		if (effect->used && !effect->ended && (effect->channel == slot)) {
+			*bb_fx_next(effect->fx) = NULL;
+			effect->ended           = 1;
 		}
 	}
+	bb_fx_free(channel->mix->air);
+	bb_free(channel->mix);
+	channel->mix = NULL;
+}
+
+// The channel of an effect handle: an effect on a channel that ended, or on none (no sound device), still takes its commands, which then
+// change nothing that is heard, like channel commands on a channel that ended.
+int32_t bb_add_channel_effect(int32_t handle, int32_t type, int32_t position)
+{
+	bb_channel* channel = bb_channel_get(handle, "AddChannelEffect");
+	int32_t     slot    = bb_effect_new(type, position, "AddChannelEffect");
+	bb_effect*  effect  = &bb_audio.effects[slot];
+	effect->bus         = -1;
+	if (!channel) {
+		effect->ended = 1;
+		return BB_EFFECT_HANDLES + slot;
+	}
+	effect->channel     = handle;
+	bb_channel_mix* mix = bb_channel_mix_get(channel);
+	bb_bus_lock();
+	bb_effect_link(&mix->chain, effect->fx, position);
 	bb_bus_unlock();
-	bb_effect_forget(bb_effect_slot(handle));
+	return BB_EFFECT_HANDLES + slot;
+}
+
+void bb_channel_send(int32_t handle, int32_t bus, float level)
+{
+	bb_bus_get(bus, "ChannelSend");
+	if (!(level >= 0.0f)) {
+		bb_runtime_error("ChannelSend: the level can't be below 0");
+	}
+	bb_channel* channel = bb_channel_get(handle, "ChannelSend");
+	if (!channel) {
+		return;
+	}
+	if (!channel->mix && (level == 0.0f)) {
+		return;
+	}
+	bb_channel_mix* mix    = bb_channel_mix_get(channel);
+	bb_bus_mix*     target = bb_audio.buses[bus].mix;
+	bb_send*        send   = NULL;
+	for (int k = 0; k < BB_CHANNEL_SENDS; k++) {
+		send = (mix->sends[k].bus == target) ? &mix->sends[k] : send;
+	}
+	for (int k = 0; !send && (level > 0.0f) && (k < BB_CHANNEL_SENDS); k++) {
+		send = (!mix->sends[k].bus || (mix->sends[k].level == 0.0f)) ? &mix->sends[k] : NULL; // A removed one is free again.
+	}
+	if (!send) {
+		if (level > 0.0f) {
+			bb_runtime_error("ChannelSend: a channel can send to 4 buses at most; a level of 0 removes a send");
+		}
+		return;
+	}
+	bb_bus_hook_master();
+	bb_bus_lock();
+	if (send->bus != target) {
+		send->bus  = target;
+		send->last = 0.0f; // It fades in over the next block, and a removed one fades out, so neither clicks.
+	}
+	send->level = level;
+	bb_bus_unlock();
+}
+
+float bb_get_channel_send(int32_t handle, int32_t bus)
+{
+	bb_bus_get(bus, "GetChannelSend");
+	bb_channel* channel = bb_channel_get(handle, "GetChannelSend");
+	if (!channel || !channel->mix) {
+		return 0.0f;
+	}
+	float level = 0.0f;
+	for (int k = 0; k < BB_CHANNEL_SENDS; k++) {
+		level += (channel->mix->sends[k].bus == bb_audio.buses[bus].mix) ? channel->mix->sends[k].level : 0.0f;
+	}
+	return level;
+}
+
+// Moves the cutoff of a channel's air absorption to where its distance puts it.
+static void bb_channel_air(bb_channel* channel, float meters, Uint64 now)
+{
+	if (!channel->mix || !channel->mix->air) {
+		return;
+	}
+	float amount = bb_audio.air_absorption;
+	float cutoff = (amount * meters > 0.0f) ? BB_AIR_CUTOFF_METERS / (amount * meters) : 100000.0f;
+	cutoff       = bb_clamp(cutoff, 20.0f, 100000.0f);
+	bb_bus_lock();
+	bb_fx_set(channel->mix->air, BB_FXP_FREQUENCY, cutoff, now, 0);
+	bb_bus_unlock();
+}
+
+// Gives an emitted channel the low-pass of air absorption when there is some, or turns it off.
+static void bb_channel_air_start(bb_channel* channel)
+{
+	if (!channel->track) {
+		return;
+	}
+	if (channel->entity && (bb_audio.air_absorption > 0.0f)) {
+		bb_channel_mix* mix = bb_channel_mix_get(channel);
+		if (!mix->air) {
+			bb_fx* air = bb_fx_create(BB_FX_LOWPASS);
+			bb_fx_set(air, BB_FXP_FREQUENCY, 100000.0f, 0, 0);
+			bb_bus_lock();
+			mix->air = air;
+			bb_bus_unlock();
+		}
+		bb_bus_lock();
+		bb_fx_bypass(mix->air, 0);
+		bb_bus_unlock();
+	} else if (channel->mix && channel->mix->air) {
+		bb_bus_lock();
+		bb_fx_bypass(channel->mix->air, 1);
+		bb_bus_unlock();
+	}
+}
+
+void bb_listener_air_absorption(float amount)
+{
+	if (!(amount >= 0.0f)) {
+		bb_runtime_error("ListenerAirAbsorption: the amount can't be below 0");
+	}
+	bb_audio.air_absorption = amount;
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used) {
+			bb_channel_air_start(&bb_audio.channels[i]);
+		}
+	}
+	Uint64 now = SDL_GetTicksNS();
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && bb_audio.channels[i].entity) {
+			bb_channel_air(&bb_audio.channels[i], bb_audio.channels[i].meters, now);
+		}
+	}
+}
+
+float bb_get_listener_air_absorption(void)
+{
+	return bb_audio.air_absorption;
 }
 
 void bb_audio_effect_param(int32_t handle, int32_t param, float value, int32_t milliseconds)
@@ -1870,8 +2248,8 @@ void bb_capture_audio_scene(int32_t handle)
 		}
 	}
 	for (int32_t i = 0; i < bb_audio.effect_count; i++) {
-		if (!bb_audio.effects[i].used) {
-			continue;
+		if (!bb_audio.effects[i].used || (bb_audio.effects[i].bus < 0)) {
+			continue; // The effects of channels end with their sounds, so scenes hold them only when asked to.
 		}
 		bb_fx* fx = bb_audio.effects[i].fx;
 		for (int32_t param = 1; param <= BB_FXP_COUNT; param++) {
@@ -2007,8 +2385,7 @@ void bb_movie_channel_close(int32_t handle)
 {
 	bb_channel* channel = bb_movie_channel(handle);
 	if (channel) {
-		MIX_DestroyTrack(channel->track);
-		memset(channel, 0, sizeof(*channel));
+		bb_channel_release(handle);
 	}
 }
 
@@ -2060,6 +2437,7 @@ void bb_movie_channel_emit(int32_t handle, int32_t entity)
 	}
 	channel->entity = entity;
 	memset(&channel->motion, 0, sizeof(channel->motion));
+	bb_channel_air_start(channel);
 	if (entity) {
 		bb_channel_start_3d(channel);
 	} else {
