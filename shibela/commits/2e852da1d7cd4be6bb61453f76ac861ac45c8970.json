@@ -1,0 +1,368 @@
+{
+ "commit": "2e852da1d7cd4be6bb61453f76ac861ac45c8970",
+ "commits": [
+  "2e852da1d7cd4be6bb61453f76ac861ac45c8970"
+ ],
+ "subject": "Merge pull request #726 from Xaymar/claude/changelog-in-packages",
+ "date": "2026-11-27",
+ "label": "c0016-2e852da1",
+ "rev": "2e852da1d7cd4be6bb61453f76ac861ac45c8970",
+ "compiler": "Compiler version:2026.11.27.31040-2e852da Runtime version:2026.11.27.31040-2e852da",
+ "wrapper": [],
+ "runs": 3,
+ "set": "real",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800H",
+  "threads": 16,
+  "ram": "16 GB DDR4-3200",
+  "os": "Windows 11 Pro 26H2 (10.0.26300)",
+  "gpu": "AMD Radeon RX 6600M (8 GB)",
+  "baseline_gpu": "AMD Radeon Graphics (Vega 8, integrated, drives the display)",
+  "vram": "8 GB",
+  "renderer": "Vulkan, AMD Software: Adrenalin Edition 25.10.45.29 (driver 32.0.21045.29003, native)",
+  "baseline_gpu_short": "Vega iGPU",
+  "baselines": [
+   {
+    "file": "r00-original-dxwrapper.json",
+    "name": "Baseline: original Blitz3D 1.118 via DxWrapper 1.9.8700.25 (D3D9, RX 6600M)"
+   },
+   {
+    "file": "r00-original.json",
+    "name": "Original Blitz3D 1.118, native (Windows D3D7 layer, Vega iGPU)"
+   }
+  ],
+  "baseline_note": "Windows 10 and 11 run DirectX 1 to 8 through Microsoft's own built-in emulation layer on top of Direct3D 9, not through the GPU driver, and that layer's DirectDraw only sees the adapter that drives the display: on this laptop the Vega iGPU, so the original can not use the RX 6600M on its own. The native row is the original as it runs on this laptop today, through Windows' D3D7 layer on the Vega. The first baseline row runs the same program through DxWrapper 1.9.8700.25 (Dd7to9: its own Direct3D 7 to 9 layer, ddraw.dll next to the program), which can use the RX 6600M, the GPU of the BlitzLLVM rows. Both rows end on Direct3D 9, so they differ in the layer, not the API: on the Vega alone, DxWrapper drew the first 30 frames of the forest 18 times faster than Windows' layer (172 ms against 3123 ms per frame, the same picture). The DxWrapper row therefore flatters the original's engine, and the native row shows what it really does on this laptop. In the forest that cost grows with the triangle count (about 220 ns of single-thread CPU work per triangle in Windows' layer against about 10 ns in DxWrapper's; removing the bloom's back-buffer copies changed it by 0.1%), so the native row is slowest where most geometry is in view."
+ },
+ "benchmarks": {
+  "forest_full": {
+   "ms_avg": {
+    "value": 28.795366666666666,
+    "stdev": 0.7434488841429074,
+    "runs": [
+     29.6538,
+     28.3721,
+     28.3602
+    ],
+    "min": 28.3602,
+    "max": 29.6538,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 32.519,
+    "stdev": 1.3620539636886662,
+    "runs": [
+     34.09,
+     31.798,
+     31.669
+    ],
+    "min": 31.669,
+    "max": 34.09,
+    "n": 3
+   },
+   "update_ms": {
+    "value": 16.725266666666666,
+    "stdev": 0.422745139928696,
+    "runs": [
+     17.2134,
+     16.4784,
+     16.484
+    ],
+    "min": 16.4784,
+    "max": 17.2134,
+    "n": 3
+   },
+   "tris": {
+    "value": 10026105.0,
+    "stdev": 0.0,
+    "runs": [
+     10026105.0,
+     10026105.0,
+     10026105.0
+    ],
+    "min": 10026105.0,
+    "max": 10026105.0,
+    "n": 3
+   },
+   "draws": {
+    "value": 182.0,
+    "stdev": 0.0,
+    "runs": [
+     182.0,
+     182.0,
+     182.0
+    ],
+    "min": 182.0,
+    "max": 182.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle": {
+   "ms_avg": {
+    "value": 5.017353333333333,
+    "stdev": 0.019740649263216295,
+    "runs": [
+     5.03515,
+     5.02079,
+     4.99612
+    ],
+    "min": 4.99612,
+    "max": 5.03515,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 6.31,
+    "stdev": 0.02426932219902334,
+    "runs": [
+     6.323,
+     6.325,
+     6.282
+    ],
+    "min": 6.282,
+    "max": 6.325,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.6758276666666667,
+    "stdev": 0.0006275741656038101,
+    "runs": [
+     0.676407,
+     0.675915,
+     0.675161
+    ],
+    "min": 0.675161,
+    "max": 0.676407,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 1.0449566666666665,
+    "stdev": 0.0035304437870235373,
+    "runs": [
+     1.04832,
+     1.04527,
+     1.04128
+    ],
+    "min": 1.04128,
+    "max": 1.04832,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.273607,
+    "stdev": 0.0030882232756068817,
+    "runs": [
+     0.276581,
+     0.273824,
+     0.270416
+    ],
+    "min": 0.270416,
+    "max": 0.276581,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 2.1921866666666667,
+    "stdev": 0.007333787107172822,
+    "runs": [
+     2.19821,
+     2.19433,
+     2.18402
+    ],
+    "min": 2.18402,
+    "max": 2.19821,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 2.7444466666666668e-05,
+    "stdev": 1.5752659976439966e-06,
+    "runs": [
+     2.56667e-05,
+     2.86667e-05,
+     2.8e-05
+    ],
+    "min": 2.56667e-05,
+    "max": 2.86667e-05,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 0.8311320000000001,
+    "stdev": 0.005223915868388397,
+    "runs": [
+     0.835964,
+     0.831843,
+     0.825589
+    ],
+    "min": 0.825589,
+    "max": 0.835964,
+    "n": 3
+   },
+   "kills": {
+    "value": 517.0,
+    "stdev": 0.0,
+    "runs": [
+     517.0,
+     517.0,
+     517.0
+    ],
+    "min": 517.0,
+    "max": 517.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 12010.0,
+    "stdev": 0.0,
+    "runs": [
+     12010.0,
+     12010.0,
+     12010.0
+    ],
+    "min": 12010.0,
+    "max": 12010.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  },
+  "spacebattle_physics": {
+   "ms_avg": {
+    "value": 5.684259999999999,
+    "stdev": 0.027767169463234948,
+    "runs": [
+     5.65438,
+     5.70927,
+     5.68913
+    ],
+    "min": 5.65438,
+    "max": 5.70927,
+    "n": 3
+   },
+   "ms_p95": {
+    "value": 7.021999999999999,
+    "stdev": 0.03306055050963327,
+    "runs": [
+     6.986,
+     7.051,
+     7.029
+    ],
+    "min": 6.986,
+    "max": 7.051,
+    "n": 3
+   },
+   "ai_ms": {
+    "value": 0.7086566666666666,
+    "stdev": 0.0032545660745072146,
+    "runs": [
+     0.705047,
+     0.709556,
+     0.711367
+    ],
+    "min": 0.705047,
+    "max": 0.711367,
+    "n": 3
+   },
+   "pick_ms": {
+    "value": 1.1363633333333334,
+    "stdev": 0.002782558774461593,
+    "runs": [
+     1.13347,
+     1.13902,
+     1.1366
+    ],
+    "min": 1.13347,
+    "max": 1.13902,
+    "n": 3
+   },
+   "effects_ms": {
+    "value": 0.25395233333333334,
+    "stdev": 0.0008520782436685723,
+    "runs": [
+     0.253107,
+     0.254811,
+     0.253939
+    ],
+    "min": 0.253107,
+    "max": 0.254811,
+    "n": 3
+   },
+   "collide_ms": {
+    "value": 2.2324466666666667,
+    "stdev": 0.012045299221411437,
+    "runs": [
+     2.2216,
+     2.24541,
+     2.23033
+    ],
+    "min": 2.2216,
+    "max": 2.24541,
+    "n": 3
+   },
+   "physics_ms": {
+    "value": 0.34734266666666663,
+    "stdev": 0.004941349748128878,
+    "runs": [
+     0.345866,
+     0.352854,
+     0.343308
+    ],
+    "min": 0.343308,
+    "max": 0.352854,
+    "n": 3
+   },
+   "render_ms": {
+    "value": 1.005962,
+    "stdev": 0.009322716985943537,
+    "runs": [
+     0.995756,
+     1.0081,
+     1.01403
+    ],
+    "min": 0.995756,
+    "max": 1.01403,
+    "n": 3
+   },
+   "kills": {
+    "value": 517.0,
+    "stdev": 0.0,
+    "runs": [
+     517.0,
+     517.0,
+     517.0
+    ],
+    "min": 517.0,
+    "max": 517.0,
+    "n": 3
+   },
+   "shots": {
+    "value": 12010.0,
+    "stdev": 0.0,
+    "runs": [
+     12010.0,
+     12010.0,
+     12010.0
+    ],
+    "min": 12010.0,
+    "max": 12010.0,
+    "n": 3
+   },
+   "_timer": "microseconds",
+   "_settings": {
+    "BENCH_FRAMES": "3000",
+    "BENCH_W": "640",
+    "BENCH_H": "360",
+    "BENCH_GPU": "1",
+    "BENCH_DEPTH": "0"
+   }
+  }
+ }
+}
