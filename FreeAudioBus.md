@@ -23,7 +23,7 @@ FreeAudioBus:Void bus:Int32
 
 <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"> This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Frees a bus. Its channels, the buses that feed it, the sounds that [SoundBus](SoundBus) put on it and [MusicBus](MusicBus) go to the bus it fed, and play on without a gap. This is a BlitzLLVM extension.
+Frees a bus. Its channels, the buses that feed it, the sounds that [SoundBus](SoundBus) put on it and [MusicBus](MusicBus) go to the bus it fed, and play on without a gap. Its [effects](AddAudioEffect) are freed with it. This is a BlitzLLVM extension.
 
 ## Examples
 
@@ -33,7 +33,7 @@ FreeAudioBus cave
 
 ## Related Commands
 
-[ChannelBus](ChannelBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioBus](CreateAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GetChannelBus](GetChannelBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [MusicBus](MusicBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [PauseAudioBus](PauseAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [ResumeAudioBus](ResumeAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [StopAudioBus](StopAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[ChannelBus](ChannelBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioBus](CreateAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioEffect](FreeAudioEffect) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [GetChannelBus](GetChannelBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [PauseAudioBus](PauseAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [ResumeAudioBus](ResumeAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [StopAudioBus](StopAudioBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

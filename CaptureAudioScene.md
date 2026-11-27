@@ -23,7 +23,7 @@ CaptureAudioScene:Void scene:Int32
 
 <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"> This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Fills a scene with what everything is at right now: the volume of every bus and every listener setting. Applying it later brings all of it back. This is a BlitzLLVM extension.
+Fills a scene with what everything is at right now: the volume of every bus, every parameter and the bypass of every bus effect, and every listener setting. Applying it later brings all of it back. This is a BlitzLLVM extension.
 
 ## Differences
 
@@ -41,7 +41,7 @@ ApplyAudioScene saved, 500
 
 ## Related Commands
 
-[ApplyAudioScene](ApplyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneListener](AudioSceneListener) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneVolume](AudioSceneVolume) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [BlendAudioScene](BlendAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [ClearAudioScene](ClearAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CopyAudioScene](CopyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioScene](CreateAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[ApplyAudioScene](ApplyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneBypass](AudioSceneBypass) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneListener](AudioSceneListener) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [BlendAudioScene](BlendAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [ClearAudioScene](ClearAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CopyAudioScene](CopyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioScene](CreateAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 

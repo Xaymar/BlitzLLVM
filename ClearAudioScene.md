@@ -18,7 +18,7 @@ ClearAudioScene:Void scene:Int32, target:Int32=0
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `scene` | In | Int32 | required | A scene from [CreateAudioScene](CreateAudioScene). Anything else is a runtime error. |
-| `target` | In | Int32 | `0` | A bus, to forget its volume, or `0` (the default) to forget everything. |
+| `target` | In | Int32 | `0` | A bus, to forget its volume, an effect from [AddAudioEffect](AddAudioEffect), to forget its parameters and bypass, or `0` (the default) to forget everything. |
 
 ## Description
 
@@ -30,12 +30,13 @@ Makes a scene forget values that were set in it. This is a BlitzLLVM extension.
 
 ```blitzbasic
 ClearAudioScene paused, music ; the pause menu leaves the music alone now
+ClearAudioScene paused, muffle ; and the low-pass of the world
 ClearAudioScene paused        ; it holds nothing
 ```
 
 ## Related Commands
 
-[ApplyAudioScene](ApplyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneListener](AudioSceneListener) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneVolume](AudioSceneVolume) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [BlendAudioScene](BlendAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CaptureAudioScene](CaptureAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CopyAudioScene](CopyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioScene](CreateAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+[ApplyAudioScene](ApplyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneBypass](AudioSceneBypass) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [AudioSceneListener](AudioSceneListener) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [BlendAudioScene](BlendAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CaptureAudioScene](CaptureAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CopyAudioScene](CopyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [CreateAudioScene](CreateAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">, [FreeAudioScene](FreeAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 
 <div align="center">
 
