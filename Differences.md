@@ -28,6 +28,7 @@ Differences that are not caused by one command.
 * [Language: Data](Language#data): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
 * [Model formats](Model-Formats): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` and glTF 2.0 (`.gltf`, `.glb`) files, and `LoadTexture` and `LoadImage` read the pictures inside glTF files. A damaged DirectX `.x` file loads what is before the damage, with a warning.
+* [Modern mode](Modern-Mode): Extension: one comment at the top of a program, `;#pragma modern`, turns on the newer behaviour of BlitzLLVM, and the original reads it as a comment.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
 * [Parameter modes (In, Out, InOut)](Parameter-Modes): Extension: function parameters can be written as `In`, `Out` or `InOut`, which decides if a value goes into the function, comes back out of it, or both.

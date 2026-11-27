@@ -19,6 +19,7 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
 <li><a href="Language-Quirks">Language Quirks</a></li>
+<li><a href="Modern-Mode">Modern mode</a></li>
 <li><a href="Include-Files">Include Files</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 </ul>
@@ -1385,7 +1386,7 @@
 <details><summary><b>Differences</b></summary>
 <ul>
 <li><a href="Differences">Overview</a></li>
-<li><details><summary>Features (36)</summary>
+<li><details><summary>Features (37)</summary>
 <ul>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
 <li><a href="Blitz-Recompiler">Blitz-Recompiler</a></li>
@@ -1403,6 +1404,7 @@
 <li><a href="Language#data">Language: Data</a></li>
 <li><a href="Lost-Graphics-Device">Lost graphics device</a></li>
 <li><a href="Model-Formats">Model formats</a></li>
+<li><a href="Modern-Mode">Modern mode</a></li>
 <li><a href="Movie-Controls">Movie controls</a></li>
 <li><a href="Multiplayer">Multiplayer</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>

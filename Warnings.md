@@ -70,7 +70,7 @@ Include "oldlib.bb"     ; Its field defaults don't warn.
 | `warning(push)`, `error(push)` | Save the warning settings. |
 | `warning(pop)`, `error(pop)` | Go back to the settings of the last push. |
 
-Several names can follow the `:`, separated by spaces or commas. The pragmas of the program win over the options of `blitzcc`. An unknown name is the warning `pragma-unknown`, not an error.
+Several names can follow the `:`, separated by spaces or commas. The pragmas of the program win over the options of `blitzcc`. An unknown name is the warning `pragma-unknown`, not an error. The same `;#pragma` lines switch the features of [[Modern-Mode]].
 
 ## The warnings
 
