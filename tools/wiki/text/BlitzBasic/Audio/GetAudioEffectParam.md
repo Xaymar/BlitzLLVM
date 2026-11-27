@@ -7,6 +7,6 @@ Tells what a parameter of an effect is at right now, also half way through a fad
 Include "<audio.bb>"
 Print GetAudioEffectParam(muffle, BB_EFFECTPARAM_FREQUENCY)
 ```
-@param effect  An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error.
+@param effect  An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error.
 @param param  A parameter the effect has (`BB_EFFECTPARAM_*` from audio.bb). Any other is a runtime error.
 @return The value, in the unit of the parameter.

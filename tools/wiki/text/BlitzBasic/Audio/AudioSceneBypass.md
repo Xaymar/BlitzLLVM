@@ -8,6 +8,6 @@ AudioSceneBypass outside, reverb, True
 AudioSceneBypass cave, reverb, False
 ```
 @param scene  A scene from [CreateAudioScene](CreateAudioScene). Anything else is a runtime error.
-@param effect  An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error.
+@param effect  An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error.
 @param bypass  As for [AudioEffectBypass](AudioEffectBypass).
 @gap [BlendAudioScene](BlendAudioScene) bypasses the effect from a weight of half way toward the scene that bypasses it.

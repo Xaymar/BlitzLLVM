@@ -447,6 +447,22 @@ with the channel, and commands on them afterwards behave like channel commands o
 by `bb_channel_follow` from the distance. Sends take the channel's audio after its chain. A channel with no chain, no
 air absorption and no send has no callback, as today.
 
+Decided while implementing (phase 4):
+
+- **Air absorption curve.** The cutoff is 2,000,000 Hz / (amount × meters): at amount 1 it is 20 kHz at 100 m, 2 kHz at
+  1 km and 200 Hz at 10 km, clamped to 20 Hz at the bottom. Amount 0 bypasses the low-pass (it glides out over 5 ms).
+  `GetListenerAirAbsorption` was added next to the other listener getters.
+- **Ended channels.** When a channel is over, its effects leave the chain but keep their handles and settings, so
+  commands on them do nothing harmful, like channel commands on a channel that is over. Their slots are used again
+  only when a new effect needs one, the same way channel slots are. `AddChannelEffect` on a channel that is over (or
+  `0`, without a sound device) gives such an effect too, after checking the type.
+- **Scenes.** `CaptureAudioScene` leaves channel effects out, as they end with their sounds; `AudioSceneParam` and
+  `AudioSceneBypass` still take them.
+- **Sends.** `GetChannelSend` tells the level. A new send fades in, a level change glides and a removed send fades
+  out, each over one mixing block. A freed bus' sends go to its parent (added to a send that is already there). A fifth send is a
+  runtime error. Sends are panned the way SDL3_mixer pans the track (front pair, or half of each side on a mono
+  device).
+
 ## Compatibility
 
 - The audio commands of the original and `CreateListener`/`EmitSound` keep their behavior and their output, sample
