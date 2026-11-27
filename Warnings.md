@@ -50,6 +50,28 @@ The `compatibility-*` warnings are not part of any level: they are off until `-W
 
 `-W<name>` and `-Wno-<name>` win over the level, and `-Werror=<name>` and `-Wno-error=<name>` win over `-Werror`, wherever on the command line they are. The options are not case sensitive. An unknown name is an error. `-q` hides warnings and notices (not the ones that are errors) and `+q` hides everything.
 
+### In the program
+
+A program can change the warnings itself, with comments the original reads as comments. They work from their line on, like `#pragma warning` in C: through the files that an `Include` after them reads, and what an included file changes goes on after the `Include`. Every option above works without the `-` (`;#pragma Wno-implicit-variable`, `;#pragma W3`, `;#pragma Werror=implicit-variable`), and so does the C form:
+
+```blitzbasic
+;#pragma warning(push)
+;#pragma warning(disable: field-default-ignored)
+Include "oldlib.bb"     ; Its field defaults don't warn.
+;#pragma warning(pop)   ; Back to the warnings before the push.
+```
+
+| Pragma | Same as |
+| --- | --- |
+| `warning(enable: <name>)` | `W<name>` |
+| `warning(disable: <name>)` | `Wno-<name>` |
+| `warning(error: <name>)`, `error(enable: <name>)` | `Werror=<name>` |
+| `error(disable: <name>)` | `Wno-error=<name>` |
+| `warning(push)`, `error(push)` | Save the warning settings. |
+| `warning(pop)`, `error(pop)` | Go back to the settings of the last push. |
+
+Several names can follow the `:`, separated by spaces or commas. The pragmas of the program win over the options of `blitzcc`. An unknown name is the warning `pragma-unknown`, not an error.
+
 ## The warnings
 
 | Name | Level | Warns about |
@@ -57,8 +79,9 @@ The `compatibility-*` warnings are not part of any level: they are off until `-W
 | `compatibility-blitz-array-suffix` | off | A Blitz array used with a type behind its name (`weights#[0] = 1.5` after `Global weights#[5]`). BlitzLLVM compiles it, but the original takes the type as the one of the whole array, which is no `Float`, and stops with `Variable type mismatch`. The type only belongs where the array is declared: write `weights[0]`. A field (`t\v#[1]`) is fine in both. Turn it on with `-Wcompatibility`. |
 | `compatibility-one-line-if-else` | off | A command or function called with its arguments in parentheses right before `Else` (`If a Then Foo(1, 2) Else Bar()`). BlitzLLVM compiles it, but the original only takes the parentheses as the ones of the call when the line ends or a `:` follows: before `Else` it reads `(1, 2)` as one expression in parentheses and stops with `')' expected` (`Expecting expression` for `Foo()`). One argument (`Foo(1) Else`) is fine in both. Leave out the parentheses (`Foo 1, 2 Else`), or write the `If` on several lines. Turn it on with `-Wcompatibility`. |
 | `loop-type-mismatch` | 1 | The start, end or step of a `For` loop has another type than the counter (`For b:Byte = 0 To n` with an `Int`). A value that does not fit in the counter can never be reached, so the loop may never end; a real number is rounded for an integer counter. A number written in the program that fits is fine. |
-| `pragma-unknown` | 1 | A `;#pragma` line names something this BlitzLLVM does not know (`;#pragma moden`). It does nothing, so a program written for a newer BlitzLLVM still builds. Other comments that start with `;#` are ordinary comments. |
+| `pragma-unknown` | 1 | A `;#pragma` line names something this BlitzLLVM does not know (`;#pragma moden`, or a warning that does not exist in `;#pragma Wno-moden`). It does nothing, so a program written for a newer BlitzLLVM still builds. Other comments that start with `;#` are ordinary comments. |
 | `pragma-misplaced` | 1 | A `;#pragma` that changes how the program is compiled (`modern`, `field-defaults`, `sane-evaluation-order`) comes after the first statement of its file, where it does nothing. It belongs in the comments at the top of the file. |
+| `pragma-pop-unmatched` | 1 | A `;#pragma warning(pop)` (or `error(pop)`) has no `warning(push)` before it, so there are no warning settings to go back to, and it does nothing. |
 | `pragma-mismatch` | 1 | An `Include`d file asks for a feature with `;#pragma` differently than the program uses it. Only the main file (or the `blitzcc` options) decides for the whole program, so the included file may not work as its author meant. `-Werror=pragma-mismatch` refuses to build then. |
 | `literal-out-of-range` | 1 | A whole number written without a suffix does not fit into an `Int` (`Local x = 5000000000`). Like in the original it is clamped to the largest `Int` (2147483647), and `-2147483648` becomes -2147483647. Write `i64` or `ui64` (or `ui32`, `i32`) behind the number to keep it, see [Types and numbers](Types#number-suffixes). |
 | `loop-iterator-type-unsafe` | 1 | A `For` loop whose variable is a real number (`Float`, `Half`, `Double`). Reals do not count exactly, so the loop can run once more or less than expected, or never end. |
