@@ -62,6 +62,8 @@ target_sources(blitzrt PRIVATE
 	"source/network.c"
 	"source/multiplayer.c"
 	"source/sound.c"
+	"source/sound_effects.h"
+	"source/sound_effects.c"
 	"source/streams.h"
 	"source/path.h"
 	"source/graphics_window.cpp"
