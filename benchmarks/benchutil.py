@@ -163,6 +163,7 @@ class Runner:
         p.add_argument("--label", default="", help="name of this run in the result, such as the GPU")
         p.add_argument("--shot", help="save the last frame to this file")
         p.add_argument("--no-save", action="store_true", help="don't write benchmarks/results/")
+        p.add_argument("--json", help="also write the result (the RESULT values and the frame times) to this file, for ab.py")
         self.quick_frames = quick_frames
         self.args = None
         self.values = {}
@@ -307,6 +308,9 @@ class Runner:
     def save(self, tag, fields):
         """Saves the result as benchmarks/results/<name>-<date>-<tag>.json and adds it to <name>.csv, with the RESULT values fields
         (the benchmark's own) and the common ones."""
+        if self.args.json:
+            with open(self.args.json, "w") as f:
+                json.dump(dict(self.record(), frame_times_us=self.frametimes), f)
         if self.args.no_save:
             return
         common = ("frames", "seed", "width", "height", "depth", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps",

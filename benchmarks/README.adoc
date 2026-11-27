@@ -34,7 +34,7 @@ Every benchmark has the same frame: the parts that all benchmarks share are in a
 and what it does every frame.
 
 * `benchutil.py` is the shared part of the runners. `benchutil.Runner` has the options every benchmark has (`--blitzcc`, `--frames`,
-  `--warmup`, `--seed`, `--size`, `--depth`, `--gpu`, `--quick`, `--debug`, `--profile`, `--label`, `--shot`, `--no-save`), tells
+  `--warmup`, `--seed`, `--size`, `--depth`, `--gpu`, `--quick`, `--debug`, `--profile`, `--label`, `--shot`, `--no-save`, `--json`), tells
   BlitzLLVM from the original Blitz3D by `blitzcc -v` (and then leaves out `-O3` and `--profile`, sets `BLITZPATH`, checks the window
   size), builds the program under a random name, runs it (under `xvfb-run` without a display), reads its RESULT line and prints and
   saves it. A runner adds its own options and lines.
@@ -63,6 +63,29 @@ A new benchmark is a `.bb` file that includes `bench_compiler.bi`, its own `<nam
 makes its scene, includes `bench_end.bi` and defines the six functions; and a runner that makes a `benchutil.Runner`. A benchmark
 that does not time frames (`loading.bb`) leaves out `bench_end.bi` and writes its RESULT line with `BenchWriteResult`. Variables of the
 setup that the functions use must be `Global`, as in every Blitz program.
+
+== ab: is build B faster than build A, or is it noise?
+
+`ab.py` compares two builds of BlitzLLVM on one benchmark and says whether the difference is real. A single run of each build cannot
+tell a change of 1% from the spread between runs; `ab.py` runs both builds many times and tests the difference.
+
+----
+python3 benchmarks/ab.py --a base/code_compiler/blitzcc --b change/code_compiler/blitzcc --rounds 10 flythrough --quick
+python3 benchmarks/ab.py --values-a 33.47,33.52,33.25,33.42 --values-b 34.22,34.33,33.80,34.08 --higher-is-better
+----
+
+The first form runs the runner (here `flythrough`, followed by its own options) with each compiler in rounds of A B B A, so that a
+machine that slowly warms up or cools down hits both builds alike. Each build first runs once untimed, because the first start of a
+program pays for the shader and pipeline caches of the driver, and keeps one program path (`BENCH_PROGRAM`) for all its runs, so that
+those caches stay warm. Each run gives one value, the `--metric` of its RESULT line (`ms_avg` by default; a metric that starts with
+`fps` counts higher as better). The runner writes it with `--json`. The second form only does the statistics, for values measured
+some other way, such as a game that shows its own frame rate.
+
+It prints the mean, standard deviation and median of each build, the difference B - A with a 95% bootstrap interval, the p value of a
+permutation test (no assumption about the distribution) and of the Mann-Whitney U test (ranks, so one odd run weighs little), and a
+verdict: B is faster or slower only when the permutation p is below `--alpha` (0.05) and the interval does not contain 0. Ten rounds
+(twenty runs of each build) find differences of about a third of the spread between runs; smaller ones need more rounds, or a
+benchmark that times only the part that changed.
 
 == history: the numbers of the Performance History wiki page
 
