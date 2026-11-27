@@ -29,6 +29,7 @@
 #include "path.h"
 #include "handle_check.h"
 #include "environment.h"
+#include "sound_effects.h"
 
 extern void bb_runtime_error(const char* message);
 extern void* bb_malloc_or_fail(size_t size);
@@ -86,13 +87,21 @@ typedef struct bb_fade {
 	Uint64 length;
 } bb_fade;
 
-// The part of a bus that the audio thread reads while it mixes: its volume and the bus it feeds. It is changed only with the mixer locked,
-// and has its own memory, as the state of the program below is thread_local and so not the same on the audio thread.
+// The part of a bus that the audio thread reads while it mixes: its volume, its effects and the bus it feeds. It is changed only with the
+// mixer locked, and has its own memory, as the state of the program below is thread_local and so not the same on the audio thread.
 typedef struct bb_bus_mix {
 	struct bb_bus_mix* parent; // NULL for the master bus, whose volume is put on the final mix.
+	struct bb_bus_mix* others; // The list of every bus but master, which starts at master.
 	bb_fade            volume;
 	float              last; // The volume at the end of the last block, which the next block starts from.
 	int                known;
+	bb_fx*             chain; // Its effects, in the order they run.
+	// Only the audio thread touches these.
+	float*  buffer; // What its channels and the buses that feed it mixed into this block.
+	int     buffer_cap;
+	int     got;   // Whether its group filled the buffer in this block.
+	int     depth; // How many buses there are between it and master, in this block.
+	Uint64  still; // How long its input and output were silent, in nanoseconds.
 } bb_bus_mix;
 
 // A bus: a group of channels with its own volume and pause state, that feeds another bus. Bus 0 is the master bus.
@@ -104,10 +113,18 @@ typedef struct bb_bus {
 	bb_bus_mix* mix;
 } bb_bus;
 
-// One value that an audio scene holds: the volume of a bus, or a setting of the listener.
+// An effect on a bus, made by AddAudioEffect.
+typedef struct bb_effect {
+	int     used;
+	int32_t bus;
+	bb_fx*  fx;
+} bb_effect;
+
+// One value that an audio scene holds: the volume of a bus, a parameter or the bypass of an effect, or a setting of the listener.
 typedef struct bb_scene_value {
 	int     kind;   // BB_SCENE_*
-	int32_t target; // The bus, or the setting of the listener (BB_LISTENER_*).
+	int32_t target; // The bus, the effect, or the setting of the listener (BB_LISTENER_*).
+	int32_t param;  // The parameter of an effect (BB_EFFECTPARAM_*), 0 for the others.
 	float   value;
 } bb_scene_value;
 
@@ -146,6 +163,10 @@ typedef struct bb_audio_state {
 	int32_t music_bus;     // MusicBus: the bus that PlayMusic channels start on.
 	int     master_hooked; // Whether the volume of the master bus is put on the final mix.
 	int32_t movie_bus;     // MovieBus: the bus that the sound of movies starts on.
+	// Effects, made by AddAudioEffect. Their handles start at BB_EFFECT_HANDLES, so that they are never the handle of a bus.
+	bb_effect* effects;
+	int32_t    effect_count;
+	int32_t    effect_cap;
 	// Audio scenes, made by CreateAudioScene.
 	bb_scene* scenes;
 	int32_t   scene_count;
@@ -455,8 +476,12 @@ static int  bb_bus_valid(int32_t bus);
 static int  bb_bus_paused(int32_t bus);
 static MIX_Group* bb_bus_group(int32_t bus);
 static void bb_bus_hook_master(void);
-#define BB_SCENE_BUS_VOLUME 1
-#define BB_SCENE_LISTENER   2
+#define BB_SCENE_BUS_VOLUME   1
+#define BB_SCENE_LISTENER     2
+#define BB_SCENE_EFFECT_PARAM 3
+#define BB_SCENE_EFFECT_BYPASS 4
+#define BB_EFFECT_HANDLES      65536 // The first handle of an effect: buses have smaller ones.
+static void bb_effect_forget(int32_t slot);
 static void bb_scenes_forget(int kind, int32_t target);
 
 static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
@@ -1016,18 +1041,15 @@ void bb_sound_update(void)
 // Buses
 ////////////////////////////////////////////////////////////////////////////////
 // Nothing here runs until a program uses a bus command, so programs that don't are mixed exactly as before: no MIX_Group and no callback
-// exists. A bus other than master is a MIX_Group; its volume (and the volumes of the buses it feeds, up to but not including master) is put
-// on the group's mix in the group's callback, gliding over each block from where the last block ended, so a fade has no steps. The
-// volume of the master bus is put on the final mix the same way.
+// exists. A bus other than master is a MIX_Group. Its callback takes what the group mixed into the bus' own buffer, and leaves the group
+// silent, so SDL3_mixer adds nothing for it. The callback of the final mix then goes over the buses from the deepest up: it runs the
+// bus' effects, puts its volume on (gliding over each block from where the last block ended, so a fade has no steps), and adds it to the
+// bus it feeds. Master comes last, on the final mix. As the effects run on every block, also when nothing plays on their bus any more,
+// the tails of echoes and reverbs ring out.
 
-static float bb_bus_gain(bb_bus_mix* mix, Uint64 now)
-{
-	float gain = 1.0f;
-	for (; mix && mix->parent; mix = mix->parent) {
-		gain *= bb_fade_value(&mix->volume, now);
-	}
-	return gain;
-}
+// How long a bus with effects goes on running them on silence: longer than the longest echo and pre-delay, so nothing they still hold is
+// lost. After that, and until something plays on it again, they are skipped.
+#define BB_BUS_TAIL_NS 5500000000ull
 
 // Puts a volume on a block of interleaved samples, gliding from the volume the last block ended at.
 static void bb_bus_ramp(bb_bus_mix* mix, float gain, float* pcm, int samples, int channels)
@@ -1047,18 +1069,104 @@ static void bb_bus_ramp(bb_bus_mix* mix, float gain, float* pcm, int samples, in
 	}
 }
 
+static int bb_bus_room(bb_bus_mix* mix, int samples)
+{
+	if (mix->buffer_cap < samples) {
+		float* grown = (float*)SDL_realloc(mix->buffer, (size_t)samples * sizeof(float));
+		if (!grown) {
+			return 0;
+		}
+		mix->buffer     = grown;
+		mix->buffer_cap = samples;
+	}
+	return 1;
+}
+
 static void SDLCALL bb_bus_group_mixed(void* userdata, MIX_Group* group, const SDL_AudioSpec* spec, float* pcm, int samples)
 {
 	(void)group;
+	(void)spec;
 	bb_bus_mix* mix = (bb_bus_mix*)userdata;
-	bb_bus_ramp(mix, bb_bus_gain(mix, SDL_GetTicksNS()), pcm, samples, spec->channels);
+	if (bb_bus_room(mix, samples)) {
+		memcpy(mix->buffer, pcm, (size_t)samples * sizeof(float));
+		mix->got = 1;
+	}
+	memset(pcm, 0, (size_t)samples * sizeof(float));
+}
+
+static float bb_bus_peak(const float* pcm, int samples)
+{
+	float peak = 0.0f;
+	for (int i = 0; i < samples; i++) {
+		float v = fabsf(pcm[i]);
+		peak    = v > peak ? v : peak;
+	}
+	return peak;
+}
+
+// Runs the effects of a bus on a block, unless it and they were silent for long enough.
+static void bb_bus_effects(bb_bus_mix* mix, float* pcm, int samples, const SDL_AudioSpec* spec, Uint64 now, Uint64 length)
+{
+	if (!mix->chain) {
+		return;
+	}
+	int heard = bb_bus_peak(pcm, samples) > 0.0f;
+	if (!heard && (mix->still >= BB_BUS_TAIL_NS)) {
+		return;
+	}
+	int frames = samples / spec->channels;
+	for (bb_fx* fx = mix->chain; fx; fx = *bb_fx_next(fx)) {
+		bb_fx_run(fx, pcm, frames, spec->channels, spec->freq, now, length);
+	}
+	if (heard || (bb_bus_peak(pcm, samples) > 1e-6f)) {
+		mix->still = 0;
+	} else {
+		mix->still += length;
+	}
 }
 
 static void SDLCALL bb_bus_master_mixed(void* userdata, MIX_Mixer* mixer, const SDL_AudioSpec* spec, float* pcm, int samples)
 {
 	(void)mixer;
-	bb_bus_mix* mix = (bb_bus_mix*)userdata;
-	bb_bus_ramp(mix, bb_fade_value(&mix->volume, SDL_GetTicksNS()), pcm, samples, spec->channels);
+	bb_bus_mix* master = (bb_bus_mix*)userdata;
+	Uint64      now    = SDL_GetTicksNS();
+	int         frames = spec->channels > 0 ? samples / spec->channels : 0;
+	Uint64      length = (spec->freq > 0) ? (Uint64)frames * 1000000000ull / (Uint64)spec->freq : 0;
+	int         deepest = 0;
+	for (bb_bus_mix* mix = master->others; mix; mix = mix->others) {
+		mix->depth = 0;
+		for (bb_bus_mix* up = mix; up->parent; up = up->parent) {
+			mix->depth++;
+		}
+		if (!mix->got) {
+			if (bb_bus_room(mix, samples)) {
+				memset(mix->buffer, 0, (size_t)samples * sizeof(float));
+			} else {
+				mix->depth = -1; // Without a buffer it can't take part in this block.
+			}
+		}
+		deepest = mix->depth > deepest ? mix->depth : deepest;
+	}
+	for (int depth = deepest; depth >= 1; depth--) {
+		for (bb_bus_mix* mix = master->others; mix; mix = mix->others) {
+			if (mix->depth != depth) {
+				continue;
+			}
+			bb_bus_effects(mix, mix->buffer, samples, spec, now, length);
+			bb_bus_ramp(mix, bb_fade_value(&mix->volume, now), mix->buffer, samples, spec->channels);
+			float* into = (mix->parent == master) ? pcm : (mix->parent->depth >= 0 ? mix->parent->buffer : NULL);
+			if (into) {
+				for (int i = 0; i < samples; i++) {
+					into[i] += mix->buffer[i];
+				}
+			}
+		}
+	}
+	bb_bus_effects(master, pcm, samples, spec, now, length);
+	bb_bus_ramp(master, bb_fade_value(&master->volume, now), pcm, samples, spec->channels);
+	for (bb_bus_mix* mix = master->others; mix; mix = mix->others) {
+		mix->got = 0;
+	}
 }
 
 static void bb_bus_lock(void)
@@ -1135,7 +1243,7 @@ static int bb_bus_under(int32_t bus, int32_t ancestor)
 	return 0;
 }
 
-// The volume of the master bus goes on the final mix once it was set, also when the sound device is opened after that.
+// The buses are mixed in the callback of the final mix, once any bus was used, also when the sound device is opened after that.
 static void bb_bus_hook_master(void)
 {
 	if (bb_audio.mixer && bb_audio.bus_count && !bb_audio.master_hooked) {
@@ -1150,6 +1258,7 @@ static MIX_Group* bb_bus_group(int32_t handle)
 		return NULL;
 	}
 	bb_bus* bus = &bb_audio.buses[handle];
+	bb_bus_hook_master(); // Which mixes the buffer of the group into the final mix.
 	if (!bus->group) {
 		bus->group = MIX_CreateGroup(bb_audio.mixer);
 		if (bus->group) {
@@ -1174,13 +1283,19 @@ int32_t bb_create_audio_bus(int32_t parent)
 			bb_audio.bus_cap *= 2;
 			bb_audio.buses = (bb_bus*)bb_realloc_or_fail(bb_audio.buses, (size_t)bb_audio.bus_cap * sizeof(bb_bus));
 		}
+		if (bb_audio.bus_count >= BB_EFFECT_HANDLES) {
+			bb_runtime_error("CreateAudioBus: there can't be more than 65535 buses at once");
+		}
 		slot = bb_audio.bus_count++;
 	}
 	bb_bus_mix* mix = (bb_bus_mix*)bb_malloc_or_fail(sizeof(bb_bus_mix));
 	memset(mix, 0, sizeof(*mix));
 	bb_fade_set(&mix->volume, 1.0f);
+	bb_bus_mix* master = bb_audio.buses[0].mix;
 	bb_bus_lock();
-	mix->parent = bb_audio.buses[parent].mix;
+	mix->parent    = bb_audio.buses[parent].mix;
+	mix->others    = master->others;
+	master->others = mix;
 	bb_bus_unlock();
 	bb_bus* bus = &bb_audio.buses[slot];
 	memset(bus, 0, sizeof(*bus));
@@ -1214,6 +1329,13 @@ void bb_free_audio_bus(int32_t handle)
 	}
 	bb_bus* bus    = bb_bus_get(handle, "FreeAudioBus");
 	int32_t parent = bus->parent;
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && (bb_audio.channels[i].bus == handle)) {
+			bb_audio.channels[i].bus = parent;
+			MIX_SetTrackGroup(bb_audio.channels[i].track, bb_bus_group(parent));
+		}
+	}
+	bb_bus_mix* mix = bus->mix;
 	bb_bus_lock();
 	for (int32_t i = 1; i < bb_audio.bus_count; i++) {
 		if (bb_audio.buses[i].used && (bb_audio.buses[i].parent == handle)) {
@@ -1221,13 +1343,13 @@ void bb_free_audio_bus(int32_t handle)
 			bb_audio.buses[i].mix->parent = bb_audio.buses[parent].mix;
 		}
 	}
-	bb_bus_unlock();
-	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
-		if (bb_audio.channels[i].used && (bb_audio.channels[i].bus == handle)) {
-			bb_audio.channels[i].bus = parent;
-			MIX_SetTrackGroup(bb_audio.channels[i].track, bb_bus_group(parent));
+	for (bb_bus_mix** link = &bb_audio.buses[0].mix->others; *link; link = &(*link)->others) {
+		if (*link == mix) {
+			*link = mix->others;
+			break;
 		}
 	}
+	bb_bus_unlock();
 	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
 		if (bb_audio.sounds[i].bus == handle) {
 			bb_audio.sounds[i].bus = parent;
@@ -1243,7 +1365,14 @@ void bb_free_audio_bus(int32_t handle)
 	if (bus->group) {
 		MIX_DestroyGroup(bus->group);
 	}
-	bb_free(bus->mix); // Its group is gone, and no other bus feeds it any more, so nothing on the audio thread still reads it.
+	// Its group is gone and it is out of the list, so nothing on the audio thread still reads it or its effects.
+	for (int32_t i = 0; i < bb_audio.effect_count; i++) {
+		if (bb_audio.effects[i].used && (bb_audio.effects[i].bus == handle)) {
+			bb_effect_forget(i);
+		}
+	}
+	SDL_free(mix->buffer);
+	bb_free(mix);
 	memset(bus, 0, sizeof(*bus));
 	bb_bus_update_pause(parent);
 }
@@ -1350,10 +1479,165 @@ void bb_music_bus(int32_t bus)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Effects
+////////////////////////////////////////////////////////////////////////////////
+// An effect sits in the chain of a bus and runs on everything the bus mixes (sound_effects.c). Its parameters are numbered constants
+// (BB_EFFECTPARAM_* in audio.bb), shared by all types, and each type takes only its own.
+
+static int32_t bb_effect_slot(int32_t handle)
+{
+	int32_t slot = handle - BB_EFFECT_HANDLES;
+	return ((handle >= BB_EFFECT_HANDLES) && (slot < bb_audio.effect_count) && bb_audio.effects[slot].used) ? slot : -1;
+}
+
+static bb_effect* bb_effect_get(int32_t handle, const char* what)
+{
+	int32_t slot = bb_effect_slot(handle);
+	if (slot < 0) {
+		bb_handle_error(what, "audio effect", handle);
+	}
+	return &bb_audio.effects[slot];
+}
+
+// The checks of a parameter number, for the effect it is meant for.
+static void bb_effect_param_check(const bb_effect* effect, int32_t param, const char* what)
+{
+	char message[256];
+	int  type = bb_fx_type(effect->fx);
+	if (param == 0) {
+		snprintf(message, sizeof(message),
+		         "%s: the parameter is 0, which is none. The parameters are BB_EFFECTPARAM_MIX to BB_EFFECTPARAM_BITS (1 to 18), from "
+		         "Include \"<audio.bb>\"; a name that is not included is a new variable that is 0",
+		         what);
+		bb_runtime_error(message);
+	}
+	if ((param < 1) || (param > BB_FXP_COUNT)) {
+		snprintf(message, sizeof(message), "%s: the parameter has to be 1 to 18 (BB_EFFECTPARAM_MIX to BB_EFFECTPARAM_BITS), not %d", what,
+		         (int)param);
+		bb_runtime_error(message);
+	}
+	if (!bb_fx_has(type, param)) {
+		snprintf(message, sizeof(message), "%s: the %s effect has no %s (%d)", what, bb_fx_type_name(type), bb_fx_param_name(param), (int)param);
+		bb_runtime_error(message);
+	}
+}
+
+static void bb_effect_value_check(int32_t param, float value, const char* what)
+{
+	float low, high;
+	if (!bb_fx_in_range(param, value, &low, &high)) {
+		char message[256];
+		snprintf(message, sizeof(message), "%s: %s (%d) has to be %g to %g, not %g", what, bb_fx_param_name(param), (int)param, (double)low,
+		         (double)high, (double)value);
+		bb_runtime_error(message);
+	}
+}
+
+int32_t bb_add_audio_effect(int32_t handle, int32_t type, int32_t position)
+{
+	bb_bus* bus = bb_bus_get(handle, "AddAudioEffect");
+	char    message[256];
+	if (type == 0) {
+		bb_runtime_error("AddAudioEffect: the effect type is 0, which is none. The types are BB_EFFECT_LOWPASS to BB_EFFECT_LOFI (1 to 12), "
+		                 "from Include \"<audio.bb>\"; a name that is not included is a new variable that is 0");
+	}
+	if ((type < 1) || (type > BB_FX_TYPES)) {
+		snprintf(message, sizeof(message), "AddAudioEffect: the effect type has to be 1 to 12 (BB_EFFECT_LOWPASS to BB_EFFECT_LOFI), not %d",
+		         (int)type);
+		bb_runtime_error(message);
+	}
+	if (position < -1) {
+		snprintf(message, sizeof(message), "AddAudioEffect: the position has to be -1 (the end) or 0 and up, not %d", (int)position);
+		bb_runtime_error(message);
+	}
+	int32_t slot = -1;
+	for (int32_t i = 0; i < bb_audio.effect_count; i++) {
+		if (!bb_audio.effects[i].used) {
+			slot = i;
+			break;
+		}
+	}
+	if (slot < 0) {
+		if (bb_audio.effect_count >= bb_audio.effect_cap) {
+			bb_audio.effect_cap = bb_audio.effect_cap ? bb_audio.effect_cap * 2 : 16;
+			bb_audio.effects    = (bb_effect*)bb_realloc_or_fail(bb_audio.effects, (size_t)bb_audio.effect_cap * sizeof(bb_effect));
+		}
+		slot = bb_audio.effect_count++;
+	}
+	bb_fx* fx                = bb_fx_create(type);
+	bb_audio.effects[slot].used = 1;
+	bb_audio.effects[slot].bus  = handle;
+	bb_audio.effects[slot].fx   = fx;
+	bb_bus_hook_master();
+	bb_bus_lock();
+	bb_fx** link = &bus->mix->chain;
+	for (int32_t i = 0; *link && ((position < 0) || (i < position)); i++) {
+		link = bb_fx_next(*link);
+	}
+	*bb_fx_next(fx) = *link;
+	*link           = fx;
+	bb_bus_unlock();
+	return BB_EFFECT_HANDLES + slot;
+}
+
+// Lets go of an effect that is no longer in a chain.
+static void bb_effect_forget(int32_t slot)
+{
+	int32_t handle = BB_EFFECT_HANDLES + slot;
+	bb_scenes_forget(BB_SCENE_EFFECT_PARAM, handle);
+	bb_scenes_forget(BB_SCENE_EFFECT_BYPASS, handle);
+	bb_fx_free(bb_audio.effects[slot].fx);
+	memset(&bb_audio.effects[slot], 0, sizeof(bb_effect));
+}
+
+void bb_free_audio_effect(int32_t handle)
+{
+	if (handle == 0) {
+		return;
+	}
+	bb_effect* effect = bb_effect_get(handle, "FreeAudioEffect");
+	bb_bus_lock();
+	for (bb_fx** link = &bb_audio.buses[effect->bus].mix->chain; *link; link = bb_fx_next(*link)) {
+		if (*link == effect->fx) {
+			*link = *bb_fx_next(effect->fx);
+			break;
+		}
+	}
+	bb_bus_unlock();
+	bb_effect_forget(bb_effect_slot(handle));
+}
+
+void bb_audio_effect_param(int32_t handle, int32_t param, float value, int32_t milliseconds)
+{
+	bb_effect* effect = bb_effect_get(handle, "AudioEffectParam");
+	bb_effect_param_check(effect, param, "AudioEffectParam");
+	bb_effect_value_check(param, value, "AudioEffectParam");
+	bb_fade_check(milliseconds, "AudioEffectParam: the fade time can't be below 0");
+	bb_bus_lock();
+	bb_fx_set(effect->fx, param, value, SDL_GetTicksNS(), (Uint64)milliseconds * 1000000ull);
+	bb_bus_unlock();
+}
+
+float bb_get_audio_effect_param(int32_t handle, int32_t param)
+{
+	bb_effect* effect = bb_effect_get(handle, "GetAudioEffectParam");
+	bb_effect_param_check(effect, param, "GetAudioEffectParam");
+	return bb_fx_get(effect->fx, param, SDL_GetTicksNS());
+}
+
+void bb_audio_effect_bypass(int32_t handle, int32_t bypass)
+{
+	bb_effect* effect = bb_effect_get(handle, "AudioEffectBypass");
+	bb_bus_lock();
+	bb_fx_bypass(effect->fx, bypass != 0);
+	bb_bus_unlock();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Audio scenes
 ////////////////////////////////////////////////////////////////////////////////
-// A scene holds values for buses and the listener, and sets them (with a fade) when it is applied. It holds only what was set in it, so
-// applying one leaves everything else alone. Effect parameters join them with the effects.
+// A scene holds values for buses, bus effects and the listener, and sets them (with a fade) when it is applied. It holds only what was set
+// in it, so applying one leaves everything else alone.
 
 #define BB_LISTENER_ROLLOFF      1
 #define BB_LISTENER_DOPPLER      2
@@ -1369,19 +1653,19 @@ static bb_scene* bb_scene_get(int32_t handle, const char* what)
 	return &bb_audio.scenes[handle];
 }
 
-static bb_scene_value* bb_scene_find(bb_scene* scene, int kind, int32_t target)
+static bb_scene_value* bb_scene_find(bb_scene* scene, int kind, int32_t target, int32_t param)
 {
 	for (int32_t i = 0; i < scene->count; i++) {
-		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
+		if ((scene->values[i].kind == kind) && (scene->values[i].target == target) && (scene->values[i].param == param)) {
 			return &scene->values[i];
 		}
 	}
 	return NULL;
 }
 
-static void bb_scene_set(bb_scene* scene, int kind, int32_t target, float value)
+static void bb_scene_set(bb_scene* scene, int kind, int32_t target, int32_t param, float value)
 {
-	bb_scene_value* known = bb_scene_find(scene, kind, target);
+	bb_scene_value* known = bb_scene_find(scene, kind, target, param);
 	if (!known) {
 		if (scene->count >= scene->cap) {
 			scene->cap    = scene->cap ? scene->cap * 2 : 8;
@@ -1390,21 +1674,24 @@ static void bb_scene_set(bb_scene* scene, int kind, int32_t target, float value)
 		known         = &scene->values[scene->count++];
 		known->kind   = kind;
 		known->target = target;
+		known->param  = param;
 	}
 	known->value = value;
 }
 
+// Forgets every value of the kind for the target (every parameter, for an effect).
 static void bb_scene_remove(bb_scene* scene, int kind, int32_t target)
 {
-	for (int32_t i = 0; i < scene->count; i++) {
+	for (int32_t i = 0; i < scene->count;) {
 		if ((scene->values[i].kind == kind) && (scene->values[i].target == target)) {
 			scene->values[i] = scene->values[--scene->count];
-			return;
+		} else {
+			i++;
 		}
 	}
 }
 
-// A bus that is freed drops out of every scene, so that an old scene never touches the bus that gets its handle next.
+// A bus or effect that is freed drops out of every scene, so that an old scene never touches the one that gets its handle next.
 static void bb_scenes_forget(int kind, int32_t target)
 {
 	for (int32_t i = 1; i < bb_audio.scene_count; i++) {
@@ -1455,7 +1742,7 @@ int32_t bb_copy_audio_scene(int32_t handle)
 	bb_scene* from = &bb_audio.scenes[handle]; // After the create, which can move the scenes.
 	bb_scene* to   = &bb_audio.scenes[copy];
 	for (int32_t i = 0; i < from->count; i++) {
-		bb_scene_set(to, from->values[i].kind, from->values[i].target, from->values[i].value);
+		bb_scene_set(to, from->values[i].kind, from->values[i].target, from->values[i].param, from->values[i].value);
 	}
 	return copy;
 }
@@ -1467,7 +1754,23 @@ void bb_audio_scene_volume(int32_t handle, int32_t bus, float volume)
 	if (!(volume >= 0.0f)) {
 		bb_runtime_error("AudioSceneVolume: the volume can't be below 0");
 	}
-	bb_scene_set(scene, BB_SCENE_BUS_VOLUME, bus, volume);
+	bb_scene_set(scene, BB_SCENE_BUS_VOLUME, bus, 0, volume);
+}
+
+void bb_audio_scene_param(int32_t handle, int32_t target, int32_t param, float value)
+{
+	bb_scene*  scene  = bb_scene_get(handle, "AudioSceneParam");
+	bb_effect* effect = bb_effect_get(target, "AudioSceneParam");
+	bb_effect_param_check(effect, param, "AudioSceneParam");
+	bb_effect_value_check(param, value, "AudioSceneParam");
+	bb_scene_set(scene, BB_SCENE_EFFECT_PARAM, target, param, value);
+}
+
+void bb_audio_scene_bypass(int32_t handle, int32_t target, int32_t bypass)
+{
+	bb_scene* scene = bb_scene_get(handle, "AudioSceneBypass");
+	bb_effect_get(target, "AudioSceneBypass");
+	bb_scene_set(scene, BB_SCENE_EFFECT_BYPASS, target, 0, bypass ? 1.0f : 0.0f);
 }
 
 // The same checks as the setters of the listener make.
@@ -1501,7 +1804,7 @@ void bb_audio_scene_listener(int32_t handle, int32_t setting, float value)
 {
 	bb_scene* scene = bb_scene_get(handle, "AudioSceneListener");
 	bb_listener_setting_check(setting, value, "AudioSceneListener");
-	bb_scene_set(scene, BB_SCENE_LISTENER, setting, value);
+	bb_scene_set(scene, BB_SCENE_LISTENER, setting, 0, value);
 }
 
 void bb_clear_audio_scene(int32_t handle, int32_t target)
@@ -1509,6 +1812,12 @@ void bb_clear_audio_scene(int32_t handle, int32_t target)
 	bb_scene* scene = bb_scene_get(handle, "ClearAudioScene");
 	if (target == 0) {
 		scene->count = 0;
+		return;
+	}
+	if (target >= BB_EFFECT_HANDLES) {
+		bb_effect_get(target, "ClearAudioScene");
+		bb_scene_remove(scene, BB_SCENE_EFFECT_PARAM, target);
+		bb_scene_remove(scene, BB_SCENE_EFFECT_BYPASS, target);
 		return;
 	}
 	bb_bus_get(target, "ClearAudioScene");
@@ -1526,11 +1835,19 @@ static bb_fade* bb_listener_fade(int32_t setting)
 	}
 }
 
-// What a value is when no scene holds it: what a new bus starts with, and what CreateListener set for the listener (FMOD's 1, 1, 1 before).
-static float bb_scene_default(int kind, int32_t target)
+// What a value is when no scene holds it: what a new bus or effect starts with, and what CreateListener set for the listener (FMOD's 1, 1,
+// 1 before).
+static float bb_scene_default(int kind, int32_t target, int32_t param)
 {
 	if (kind == BB_SCENE_BUS_VOLUME) {
 		return 1.0f;
+	}
+	if (kind == BB_SCENE_EFFECT_PARAM) {
+		int32_t slot = bb_effect_slot(target);
+		return slot >= 0 ? bb_fx_default(bb_fx_type(bb_audio.effects[slot].fx), param) : 0.0f;
+	}
+	if (kind == BB_SCENE_EFFECT_BYPASS) {
+		return 0.0f;
 	}
 	switch (target) {
 	case BB_LISTENER_ROLLOFF: return bb_audio.listener_created ? bb_audio.listener_defaults[0] : 1.0f;
@@ -1549,19 +1866,45 @@ void bb_capture_audio_scene(int32_t handle)
 	bb_bus_table();
 	for (int32_t i = 0; i < bb_audio.bus_count; i++) {
 		if (bb_audio.buses[i].used) {
-			bb_scene_set(scene, BB_SCENE_BUS_VOLUME, i, bb_fade_value(&bb_audio.buses[i].mix->volume, now));
+			bb_scene_set(scene, BB_SCENE_BUS_VOLUME, i, 0, bb_fade_value(&bb_audio.buses[i].mix->volume, now));
 		}
 	}
+	for (int32_t i = 0; i < bb_audio.effect_count; i++) {
+		if (!bb_audio.effects[i].used) {
+			continue;
+		}
+		bb_fx* fx = bb_audio.effects[i].fx;
+		for (int32_t param = 1; param <= BB_FXP_COUNT; param++) {
+			if (bb_fx_has(bb_fx_type(fx), param)) {
+				bb_scene_set(scene, BB_SCENE_EFFECT_PARAM, BB_EFFECT_HANDLES + i, param, bb_fx_get(fx, param, now));
+			}
+		}
+		bb_scene_set(scene, BB_SCENE_EFFECT_BYPASS, BB_EFFECT_HANDLES + i, 0, bb_fx_bypassed(fx) ? 1.0f : 0.0f);
+	}
 	for (int32_t setting = BB_LISTENER_ROLLOFF; setting <= BB_LISTENER_RADIUS; setting++) {
-		bb_scene_set(scene, BB_SCENE_LISTENER, setting, bb_fade_value(bb_listener_fade(setting), now));
+		bb_scene_set(scene, BB_SCENE_LISTENER, setting, 0, bb_fade_value(bb_listener_fade(setting), now));
 	}
 }
 
-static void bb_scene_value_apply(int kind, int32_t target, float value, int32_t milliseconds)
+static void bb_scene_value_apply(int kind, int32_t target, int32_t param, float value, int32_t milliseconds)
 {
 	if (kind == BB_SCENE_BUS_VOLUME) {
 		if (bb_bus_valid(target)) {
 			bb_audio_bus_volume(target, value, milliseconds);
+		}
+	} else if (kind == BB_SCENE_EFFECT_PARAM) {
+		int32_t slot = bb_effect_slot(target);
+		if (slot >= 0) {
+			bb_bus_lock();
+			bb_fx_set(bb_audio.effects[slot].fx, param, value, SDL_GetTicksNS(), (Uint64)milliseconds * 1000000ull);
+			bb_bus_unlock();
+		}
+	} else if (kind == BB_SCENE_EFFECT_BYPASS) {
+		int32_t slot = bb_effect_slot(target);
+		if (slot >= 0) {
+			bb_bus_lock();
+			bb_fx_bypass(bb_audio.effects[slot].fx, value >= 0.5f); // A blend of two scenes bypasses it from half way.
+			bb_bus_unlock();
 		}
 	} else {
 		bb_fade_to(bb_listener_fade(target), value, milliseconds);
@@ -1573,7 +1916,7 @@ void bb_apply_audio_scene(int32_t handle, int32_t milliseconds)
 	bb_scene* scene = bb_scene_get(handle, "ApplyAudioScene");
 	bb_fade_check(milliseconds, "ApplyAudioScene: the fade time can't be below 0");
 	for (int32_t i = 0; i < scene->count; i++) {
-		bb_scene_value_apply(scene->values[i].kind, scene->values[i].target, scene->values[i].value, milliseconds);
+		bb_scene_value_apply(scene->values[i].kind, scene->values[i].target, scene->values[i].param, scene->values[i].value, milliseconds);
 	}
 }
 
@@ -1586,15 +1929,15 @@ void bb_blend_audio_scene(int32_t handle_a, int32_t handle_b, float weight, int3
 	float w = bb_clamp(weight, 0.0f, 1.0f);
 	for (int32_t i = 0; i < a->count; i++) {
 		bb_scene_value* v     = &a->values[i];
-		bb_scene_value* other = bb_scene_find(b, v->kind, v->target);
-		float           to    = other ? other->value : bb_scene_default(v->kind, v->target);
-		bb_scene_value_apply(v->kind, v->target, v->value + (to - v->value) * w, milliseconds);
+		bb_scene_value* other = bb_scene_find(b, v->kind, v->target, v->param);
+		float           to    = other ? other->value : bb_scene_default(v->kind, v->target, v->param);
+		bb_scene_value_apply(v->kind, v->target, v->param, v->value + (to - v->value) * w, milliseconds);
 	}
 	for (int32_t i = 0; i < b->count; i++) {
 		bb_scene_value* v = &b->values[i];
-		if (!bb_scene_find(a, v->kind, v->target)) {
-			float from = bb_scene_default(v->kind, v->target);
-			bb_scene_value_apply(v->kind, v->target, from + (v->value - from) * w, milliseconds);
+		if (!bb_scene_find(a, v->kind, v->target, v->param)) {
+			float from = bb_scene_default(v->kind, v->target, v->param);
+			bb_scene_value_apply(v->kind, v->target, v->param, from + (v->value - from) * w, milliseconds);
 		}
 	}
 }

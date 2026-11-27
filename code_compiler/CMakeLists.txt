@@ -570,7 +570,12 @@ if(Python3_FOUND AND NOT WIN32)
 	set_tests_properties(audio-output-debug PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600 ENVIRONMENT "BLITZCC_OPTIONS=-d")
 	# They measure what comes out of the speakers in real time (the Doppler pitch, the loops), so they run alone: a busy machine
 	# makes them miss.
-	set_tests_properties(audio-output audio-output-debug PROPERTIES RUN_SERIAL TRUE)
+	# The effects of audio buses, in a test of their own so that each stays well inside its time limit on the slower runners.
+	add_test(NAME audio-effects COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_effects.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio-effects")
+	set_tests_properties(audio-effects PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600)
+	add_test(NAME audio-effects-debug COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_effects.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio-effects-debug")
+	set_tests_properties(audio-effects-debug PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600 ENVIRONMENT "BLITZCC_OPTIONS=-d")
+	set_tests_properties(audio-output audio-output-debug audio-effects audio-effects-debug PROPERTIES RUN_SERIAL TRUE)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.

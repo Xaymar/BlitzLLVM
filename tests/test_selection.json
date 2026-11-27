@@ -12,7 +12,7 @@
 		},
 		"audio": {
 			"description": "Sound, music and what comes out of the speakers.",
-			"tests": ["^suite-(debug-)?(compile|run)-(audio(_endgraphics)?$|fail-(playsound|freesound|stopchannel|listenerrolloff|speedofsound|audiobusparent|audiobusvolume|audioscenelistener|applyaudioscene)_)", "^audio-output"]
+			"tests": ["^suite-(debug-)?(compile|run)-(audio(_endgraphics)?$|fail-(playsound|freesound|stopchannel|listenerrolloff|speedofsound|audiobusparent|audiobusvolume|audioscenelistener|applyaudioscene|addaudioeffect|audioeffectparam)_)", "^audio-output", "^audio-effects"]
 		},
 		"network": {
 			"description": "Sockets, streams over the network and multiplayer.",
@@ -98,7 +98,7 @@
 		{"match": "^(code_recompiler/|tests/recompiler/|code_runtime/source/blitz32\\.[ch]$)", "areas": "recompiler"},
 		{"match": "^code_compiler/userlibs/", "areas": "cli"},
 
-		{"match": "^code_runtime/source/sound\\.c$", "areas": "audio"},
+		{"match": "^code_runtime/source/sound(_effects)?\\.[ch]$", "areas": "audio"},
 		{"match": "^code_runtime/source/(network|multiplayer)\\.c$", "areas": "network"},
 		{"match": "^code_runtime/source/(files|filesystem|banks)\\.c$|^code_runtime/source/(files_internal|streams)\\.h$", "areas": "files"},
 		{"match": "^code_runtime/source/movie\\.cpp$", "areas": "movies"},

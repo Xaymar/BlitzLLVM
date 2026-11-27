@@ -17,3 +17,37 @@ Const BB_LISTENER_DOPPLER = 2      ; ListenerDoppler
 Const BB_LISTENER_DISTANCE = 3     ; ListenerDistance
 Const BB_LISTENER_SPEEDOFSOUND = 4 ; SpeedOfSound
 Const BB_LISTENER_RADIUS = 5       ; ListenerRadius
+
+; Effect types, for AddAudioEffect.
+Const BB_EFFECT_LOWPASS = 1     ; FREQUENCY, RESONANCE
+Const BB_EFFECT_HIGHPASS = 2    ; FREQUENCY, RESONANCE
+Const BB_EFFECT_BANDPASS = 3    ; FREQUENCY, RESONANCE
+Const BB_EFFECT_PEAK = 4        ; FREQUENCY, RESONANCE, GAIN
+Const BB_EFFECT_LOWSHELF = 5    ; FREQUENCY, GAIN
+Const BB_EFFECT_HIGHSHELF = 6   ; FREQUENCY, GAIN
+Const BB_EFFECT_ECHO = 7        ; DELAY, FEEDBACK, DAMPING
+Const BB_EFFECT_REVERB = 8      ; SIZE, DAMPING, WIDTH, PREDELAY
+Const BB_EFFECT_COMPRESSOR = 9  ; THRESHOLD, RATIO, ATTACK, RELEASE, GAIN
+Const BB_EFFECT_LIMITER = 10    ; CEILING, RELEASE
+Const BB_EFFECT_DISTORTION = 11 ; DRIVE
+Const BB_EFFECT_LOFI = 12       ; RATE, BITS
+
+; Effect parameters, for AudioEffectParam, GetAudioEffectParam and AudioSceneParam. Every effect has MIX, and only the others listed above.
+Const BB_EFFECTPARAM_MIX = 1        ; 0 (only the sound) to 1 (only what the effect makes of it)
+Const BB_EFFECTPARAM_FREQUENCY = 2  ; Hz, 1 to 100000
+Const BB_EFFECTPARAM_RESONANCE = 3  ; Q, 0.05 to 40
+Const BB_EFFECTPARAM_GAIN = 4       ; dB, -60 to 60
+Const BB_EFFECTPARAM_DELAY = 5      ; Seconds, 0 to 4
+Const BB_EFFECTPARAM_FEEDBACK = 6   ; 0 to 0.99
+Const BB_EFFECTPARAM_DAMPING = 7    ; 0 to 1
+Const BB_EFFECTPARAM_SIZE = 8       ; 0 to 1
+Const BB_EFFECTPARAM_WIDTH = 9      ; 0 to 1
+Const BB_EFFECTPARAM_PREDELAY = 10  ; Seconds, 0 to 1
+Const BB_EFFECTPARAM_THRESHOLD = 11 ; dB, -96 to 0
+Const BB_EFFECTPARAM_RATIO = 12     ; 1 to 100
+Const BB_EFFECTPARAM_ATTACK = 13    ; Seconds, 0 to 5
+Const BB_EFFECTPARAM_RELEASE = 14   ; Seconds, 0 to 5
+Const BB_EFFECTPARAM_CEILING = 15   ; dB, -60 to 0
+Const BB_EFFECTPARAM_DRIVE = 16     ; 0 to 1
+Const BB_EFFECTPARAM_RATE = 17      ; Hz, 100 to 192000
+Const BB_EFFECTPARAM_BITS = 18      ; 1 to 24

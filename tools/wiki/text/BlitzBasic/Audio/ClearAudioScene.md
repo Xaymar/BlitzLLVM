@@ -5,7 +5,8 @@ Makes a scene forget values that were set in it. This is a BlitzLLVM extension.
 
 ```blitzbasic
 ClearAudioScene paused, music ; the pause menu leaves the music alone now
+ClearAudioScene paused, muffle ; and the low-pass of the world
 ClearAudioScene paused        ; it holds nothing
 ```
 @param scene  A scene from [CreateAudioScene](CreateAudioScene). Anything else is a runtime error.
-@param target  A bus, to forget its volume, or `0` (the default) to forget everything.
+@param target  A bus, to forget its volume, an effect from [AddAudioEffect](AddAudioEffect), to forget its parameters and bypass, or `0` (the default) to forget everything.
