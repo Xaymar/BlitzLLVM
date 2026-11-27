@@ -7,6 +7,6 @@ Turns an effect off and on again without losing its settings. A bypassed echo or
 AudioEffectBypass muffle, True  ; in the open
 AudioEffectBypass muffle, False ; behind the wall again
 ```
-@param effect  An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error.
+@param effect  An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error.
 @param bypass  `True` turns it off, `False` on.
 @gap Switching glides over about 5 milliseconds, so it does not click.

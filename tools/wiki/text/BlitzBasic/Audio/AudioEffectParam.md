@@ -8,7 +8,7 @@ Include "<audio.bb>"
 ; Behind a wall: close the low-pass over 150 milliseconds.
 AudioEffectParam muffle, BB_EFFECTPARAM_FREQUENCY, 800, 150
 ```
-@param effect  An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error.
+@param effect  An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error.
 @param param  `BB_EFFECTPARAM_MIX` to `BB_EFFECTPARAM_BITS` (1 to 18) from the shipped include file audio.bb. A parameter the effect does not have is a runtime error, and so is `0`, which a `BB_` name is when audio.bb is not included.
 @param value  The new value, in the unit of the parameter. A value outside the range of the parameter is a runtime error.
 @param fade_ms  How many milliseconds it takes to get to the new value. `0` (the default) changes it at once. Below 0 is a runtime error.

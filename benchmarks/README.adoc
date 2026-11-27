@@ -557,3 +557,19 @@ It was made for #600 and #615: before #615 every query compared the pose of ever
 with 1000 bodies, and a query now costs what the search in the physics library costs (0.8 µs for a ray, 1.3 µs for a sphere cast, 1.9 µs
 for a sphere overlap with 1000 bodies on the machine of #615). With `BENCH_BODIES` 100, 1000 and 4000 it shows how the queries grow with
 the number of bodies.
+
+== audio_effects: what bus and channel effects cost
+
+`audio_effects.bb` plays `BENCH_CHANNELS` looped sounds (default 32) from entities around the listener for `BENCH_PLAY_MS` (default
+5000) and does nothing else, with one setup of `BENCH_SETUP`: `none`, `bus-filters` (low-pass, peak and high shelf on the bus of all
+sounds), `bus-echo`, `bus-reverb`, `bus-chain` (low-pass, compressor, echo, reverb and limiter), `channel-lowpass` (one low-pass on every
+channel), `channel-chain` (three filters on every channel), `sends-reverb` (every channel sends to a bus with a reverb) and `air`
+(`ListenerAirAbsorption`). `audio_effects.py` makes a test sound, runs every setup in turn for `--rounds` rounds (the order reversed
+every other round) and prints the CPU time of the process per second of sound, and what each setup adds to `none`, also as a share of
+one core. As the program only waits, its CPU time is what mixing cost. It is BlitzLLVM only.
+
+[source,sh]
+----
+python3 benchmarks/audio_effects.py --rounds 7
+SDL_AUDIODRIVER=dummy python3 benchmarks/audio_effects.py --setups bus-reverb,channel-chain
+----
