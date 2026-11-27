@@ -29,7 +29,8 @@ Global MicroTexture2 = CreateTexture(64, 64)
 Global MicroBrush = CreateBrush(255, 128, 64)
 
 ; 4096 pivots in a row, for the cases that walk over many entities (entity memory layout, #744).
-Dim MicroPivots(4095)
+Dim MicroPivots(65535)
+Global MicroPivotCount = 4096
 Dim MicroGrid(99)
 Dim MicroBalls(99)
 Dim MicroCubes(1000)
@@ -68,9 +69,14 @@ Entity_ShowHide()
 Entity_InView()
 
 ; Many entities
-Stride_EntityX()
-Stride_Position()
-Stride_Turn()
+Stride_EntityX(4096)
+Stride_Position(4096)
+Stride_Turn(4096)
+; The same with 65536 pivots: more entity memory than the last level cache of a desktop CPU, where 4096 pivots fit.
+Stride_EntityX(65536)
+Stride_Position(65536)
+Stride_Turn(65536)
+MicroPivotsTo(4096)
 
 ; Transforms
 TForm_Point()
@@ -407,33 +413,57 @@ End Function
 
 ; Many entities ------------------------------------------------------------------------------------------------------------------
 
-; Per entity: EntityX of each of 4096 pivots, one after the other. Shows the cost of the entity's memory layout and stride.
-Function Stride_EntityX()
-	If Not MicroCase("stride/entityx-4096-pivots") Then Return
+; Makes or frees pivots until there are count of them (4096 at the start).
+Function MicroPivotsTo(count)
+	While MicroPivotCount < count
+		MicroPivots(MicroPivotCount) = CreatePivot()
+		PositionEntity MicroPivots(MicroPivotCount), MicroPivotCount And 63, (MicroPivotCount Shr 6) And 63, 0
+		MicroPivotCount = MicroPivotCount + 1
+	Wend
+	While MicroPivotCount > count
+		MicroPivotCount = MicroPivotCount - 1
+		FreeEntity MicroPivots(MicroPivotCount)
+	Wend
+End Function
+
+; The name of a case over count pivots.
+Function MicroPivotsName$(what$, count)
+	Return "stride/" + what$ + "-" + count + "-pivots"
+End Function
+
+; Per entity: EntityX of each of count pivots, one after the other. Shows the cost of the entity's memory layout and stride.
+Function Stride_EntityX(count)
+	If Not MicroCase(MicroPivotsName$("entityx", count)) Then Return
+	MicroPivotsTo count
+	mask = count - 1
 	s# = 0
 	While MicroRun()
 		For i = 1 To MicroN
-			s = s + EntityX(MicroPivots(i And 4095), True)
+			s = s + EntityX(MicroPivots(i And mask), True)
 		Next
 	Wend
 	MicroSinkF = MicroSinkF + s
 End Function
 
-Function Stride_Position()
-	If Not MicroCase("stride/positionentity-4096-pivots") Then Return
+Function Stride_Position(count)
+	If Not MicroCase(MicroPivotsName$("positionentity", count)) Then Return
+	MicroPivotsTo count
+	mask = count - 1
 	While MicroRun()
 		For i = 1 To MicroN
-			j = i And 4095
+			j = i And mask
 			PositionEntity MicroPivots(j), j And 63, (j Shr 6) And 63, i And 1
 		Next
 	Wend
 End Function
 
-Function Stride_Turn()
-	If Not MicroCase("stride/turnentity-4096-pivots") Then Return
+Function Stride_Turn(count)
+	If Not MicroCase(MicroPivotsName$("turnentity", count)) Then Return
+	MicroPivotsTo count
+	mask = count - 1
 	While MicroRun()
 		For i = 1 To MicroN
-			TurnEntity MicroPivots(i And 4095), 0, MicroHalf#, 0
+			TurnEntity MicroPivots(i And mask), 0, MicroHalf#, 0
 		Next
 	Wend
 End Function

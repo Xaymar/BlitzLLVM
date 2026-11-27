@@ -32,7 +32,7 @@ Type MicroItem
 End Type
 
 Dim MicroArray(4095)
-Dim MicroBanks(4095)
+Dim MicroBanks(65535)
 Global MicroCallValue = 0
 Global MicroPath$ = Env$("MICRO_FILE", "micro_file.tmp")
 
@@ -121,11 +121,16 @@ Banks_Resize()
 
 ; Allocator strides: the first word of 4096 blocks of the same size, one after the other. A power of two stride puts all of them in a
 ; few sets of the cache (#744: an entity of 904 bytes in the 1024 byte class was 1.5% slower in beyond.frontiers than in the 1280 class).
-Stride_Banks(880)
-Stride_Banks(895)
-Stride_Banks(1023)
-Stride_Banks(1279)
-Stride_Banks(2047)
+Stride_Banks(880, 4096)
+Stride_Banks(895, 4096)
+Stride_Banks(1023, 4096)
+Stride_Banks(1279, 4096)
+Stride_Banks(2047, 4096)
+; The same with 65536 blocks (56 to 128 MiB), more than the last level cache of a desktop CPU (16 to 96 MiB): 4096 blocks fit in it, and
+; there a power of two stride costs less.
+Stride_Banks(895, 65536)
+Stride_Banks(1023, 65536)
+Stride_Banks(1279, 65536)
 
 ; Time
 Time_MilliSecs()
@@ -946,20 +951,24 @@ Function Banks_Resize()
 	FreeBank bank
 End Function
 
-; Per access: the first word of each of 4096 banks of size bytes, one bank after the other.
-Function Stride_Banks(size)
-	If Not MicroCase("stride/banks-" + size) Then Return
-	For j = 0 To 4095
+; Per access: the first word of each of count banks (4096 or 65536) of size bytes, one bank after the other. The case of 4096 banks keeps
+; its old name (stride/banks-<size>), the others say how many (stride/banks-<size>-x<count>).
+Function Stride_Banks(size, count)
+	name$ = "stride/banks-" + size
+	If count <> 4096 Then name$ = name$ + "-x" + count
+	If Not MicroCase(name$) Then Return
+	mask = count - 1
+	For j = 0 To mask
 		MicroBanks(j) = CreateBank(size)
 		PokeInt MicroBanks(j), 0, j
 	Next
 	s = 0
 	While MicroRun()
 		For i = 1 To MicroN
-			s = s + PeekInt(MicroBanks(i And 4095), 0)
+			s = s + PeekInt(MicroBanks(i And mask), 0)
 		Next
 	Wend
-	For j = 0 To 4095
+	For j = 0 To mask
 		FreeBank MicroBanks(j)
 	Next
 	MicroSinkI = MicroSinkI + s
