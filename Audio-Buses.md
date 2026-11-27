@@ -37,6 +37,7 @@ PauseAudioBus world
 | [AudioBusVolume](AudioBusVolume), [GetAudioBusVolume](GetAudioBusVolume) | Its volume, set at once or over a fade time. |
 | [PauseAudioBus](PauseAudioBus), [ResumeAudioBus](ResumeAudioBus), [StopAudioBus](StopAudioBus) | All its channels at once. |
 | [ChannelBus](ChannelBus), [GetChannelBus](GetChannelBus) | The bus of one channel. |
+| [ChannelSend](ChannelSend), [GetChannelSend](GetChannelSend) | Also sends a channel to another bus, for example a shared reverb. |
 | [SoundBus](SoundBus), [MusicBus](MusicBus) | The bus that channels of a sound, or of [PlayMusic](PlayMusic), start on. |
 | [AddAudioEffect](AddAudioEffect) | A filter, echo, reverb or other [effect](Audio-Effects) on everything the bus plays. |
 

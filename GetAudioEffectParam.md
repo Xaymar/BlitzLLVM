@@ -17,7 +17,7 @@ GetAudioEffectParam:Float32 effect:Int32, param:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error. |
+| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error. |
 | `param` | In | Int32 | required | A parameter the effect has (`BB_EFFECTPARAM_*` from audio.bb). Any other is a runtime error. |
 
 ## Description

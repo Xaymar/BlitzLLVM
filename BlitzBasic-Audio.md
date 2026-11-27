@@ -10,6 +10,7 @@ Sounds, channels and music.
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [AddAudioEffect](AddAudioEffect) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [AddChannelEffect](AddChannelEffect) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [ApplyAudioScene](ApplyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [AudioBusParent](AudioBusParent) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [AudioBusVolume](AudioBusVolume) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
@@ -25,6 +26,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [ChannelPan](ChannelPan) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [ChannelPitch](ChannelPitch) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [ChannelPlaying](ChannelPlaying) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
+* [ChannelSend](ChannelSend) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [ChannelVolume](ChannelVolume) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [ClearAudioScene](ClearAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [CopyAudioScene](CopyAudioScene) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
@@ -38,6 +40,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GetAudioBusVolume](GetAudioBusVolume) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [GetAudioEffectParam](GetAudioEffectParam) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [GetChannelBus](GetChannelBus) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
+* [GetChannelSend](GetChannelSend) <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14">
 * [Load3DSound](Load3DSound) <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14">
 * [LoadSound](LoadSound) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">
 * [LoopSound](LoopSound) <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14">

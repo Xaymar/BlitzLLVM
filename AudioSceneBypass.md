@@ -18,7 +18,7 @@ AudioSceneBypass:Void scene:Int32, effect:Int32, bypass:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `scene` | In | Int32 | required | A scene from [CreateAudioScene](CreateAudioScene). Anything else is a runtime error. |
-| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error. |
+| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error. |
 | `bypass` | In | Int32 | required | As for [AudioEffectBypass](AudioEffectBypass). |
 
 ## Description

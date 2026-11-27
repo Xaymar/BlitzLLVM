@@ -17,7 +17,7 @@ AudioEffectBypass:Void effect:Int32, bypass:Int32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error. |
+| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error. |
 | `bypass` | In | Int32 | required | `True` turns it off, `False` on. |
 
 ## Description

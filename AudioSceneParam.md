@@ -18,7 +18,7 @@ AudioSceneParam:Void scene:Int32, effect:Int32, param:Int32, value:Float32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `scene` | In | Int32 | required | A scene from [CreateAudioScene](CreateAudioScene). Anything else is a runtime error. |
-| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error. |
+| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error. |
 | `param` | In | Int32 | required | A parameter the effect has, as for [AudioEffectParam](AudioEffectParam). |
 | `value` | In | Float32 | required | As for [AudioEffectParam](AudioEffectParam). A value outside the range of the parameter is a runtime error. |
 
@@ -26,7 +26,7 @@ AudioSceneParam:Void scene:Int32, effect:Int32, param:Int32, value:Float32
 
 <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"> This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Sets the value that a parameter of a bus effect gets when the scene is applied. This is a BlitzLLVM extension.
+Sets the value that a parameter of an effect gets when the scene is applied. This is a BlitzLLVM extension.
 
 ## Differences
 

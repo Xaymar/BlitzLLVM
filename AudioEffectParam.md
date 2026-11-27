@@ -17,7 +17,7 @@ AudioEffectParam:Void effect:Int32, param:Int32, value:Float32, fade_ms:Int32=0
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect). Anything else is a runtime error. |
+| `effect` | In | Int32 | required | An effect from [AddAudioEffect](AddAudioEffect) or [AddChannelEffect](AddChannelEffect). Anything else is a runtime error. |
 | `param` | In | Int32 | required | `BB_EFFECTPARAM_MIX` to `BB_EFFECTPARAM_BITS` (1 to 18) from the shipped include file audio.bb. A parameter the effect does not have is a runtime error, and so is `0`, which a `BB_` name is when audio.bb is not included. |
 | `value` | In | Float32 | required | The new value, in the unit of the parameter. A value outside the range of the parameter is a runtime error. |
 | `fade_ms` | In | Int32 | `0` | How many milliseconds it takes to get to the new value. `0` (the default) changes it at once. Below 0 is a runtime error. |

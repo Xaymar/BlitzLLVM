@@ -8,7 +8,7 @@ Commands that exist in BlitzBasic, Blitz3D and BlitzPlus alike.
 
 Back to [Home](Home) or the [Command Index](Command-Index).
 
-* [Audio](BlitzBasic-Audio) (46): Sounds, channels and music.
+* [Audio](BlitzBasic-Audio) (49): Sounds, channels and music.
 * [Banks](BlitzBasic-Banks) (15): Raw memory blocks you can peek, poke and pass to libraries.
 * [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) (20): Drawing targets, locking and reading or writing single pixels.
 * [Display](BlitzBasic-Display) (50): Opening a graphics mode, listing drivers, displays and modes, gamma and video memory.

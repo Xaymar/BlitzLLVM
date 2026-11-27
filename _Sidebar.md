@@ -221,10 +221,11 @@
 <details><summary><b>BlitzBasic</b></summary>
 <ul>
 <li><a href="BlitzBasic">Overview</a></li>
-<li><details><summary>Audio (46)</summary>
+<li><details><summary>Audio (49)</summary>
 <ul>
 <li><a href="BlitzBasic-Audio">Overview</a></li>
 <li><a href="AddAudioEffect">AddAudioEffect</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AddChannelEffect">AddChannelEffect</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ApplyAudioScene">ApplyAudioScene</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="AudioBusParent">AudioBusParent</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="AudioBusVolume">AudioBusVolume</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -240,6 +241,7 @@
 <li><a href="ChannelPan">ChannelPan</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ChannelPitch">ChannelPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ChannelPlaying">ChannelPlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
+<li><a href="ChannelSend">ChannelSend</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ChannelVolume">ChannelVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ClearAudioScene">ClearAudioScene</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="CopyAudioScene">CopyAudioScene</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -253,6 +255,7 @@
 <li><a href="GetAudioBusVolume">GetAudioBusVolume</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetAudioEffectParam">GetAudioEffectParam</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetChannelBus">GetChannelBus</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetChannelSend">GetChannelSend</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="Load3DSound">Load3DSound</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="LoadSound">LoadSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="LoopSound">LoopSound</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
@@ -652,7 +655,7 @@
 <details><summary><b>Blitz3D</b></summary>
 <ul>
 <li><a href="Blitz3D">Overview</a></li>
-<li><details><summary>3D Sound (22)</summary>
+<li><details><summary>3D Sound (24)</summary>
 <ul>
 <li><a href="Blitz3D-3D-Sound">Overview</a></li>
 <li><a href="ChannelDoppler">ChannelDoppler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -664,11 +667,13 @@
 <li><a href="GetChannelFalloff">GetChannelFalloff</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetChannelRadius">GetChannelRadius</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetFalloff">GetFalloff</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="GetListenerAirAbsorption">GetListenerAirAbsorption</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetListenerDistance">GetListenerDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetListenerDoppler">GetListenerDoppler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetListenerRadius">GetListenerRadius</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetListenerRolloff">GetListenerRolloff</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="GetSpeedOfSound">GetSpeedOfSound</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ListenerAirAbsorption">ListenerAirAbsorption</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerDistance">ListenerDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerDoppler">ListenerDoppler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerFalloff">ListenerFalloff</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
@@ -1459,12 +1464,13 @@
 <li><a href="Vectors-and-Matrices">Vectors and matrices</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (491)</summary>
+<li><details><summary>Commands (494)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="ActiveWindow#differences">ActiveWindow</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="AddAudioEffect#differences">AddAudioEffect</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="AddChannelEffect#differences">AddChannelEffect</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="AddVertex#differences">AddVertex</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="AnimateMD2#differences">AnimateMD2</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
 <li><a href="AntiAlias#differences">AntiAlias</a> <img class="product" src="media/b3d-20x14.png" alt="Blitz3D" title="Blitz3D" width="20" height="14"></li>
@@ -1497,6 +1503,7 @@
 <li><a href="ChannelPitch#differences">ChannelPitch</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ChannelPlaying#differences">ChannelPlaying</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ChannelRadius#differences">ChannelRadius</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ChannelSend#differences">ChannelSend</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ChannelVolume#differences">ChannelVolume</a> <img class="product" src="media/bb-20x14.png" alt="BlitzBasic" title="BlitzBasic" width="20" height="14"></li>
 <li><a href="ClientHeight#differences">ClientHeight</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
 <li><a href="ClientWidth#differences">ClientWidth</a> <img class="product" src="media/bp-20x14.png" alt="BlitzPlus" title="BlitzPlus" width="20" height="14"></li>
@@ -1708,6 +1715,7 @@
 <li><a href="LastKeyboardDevice#differences">LastKeyboardDevice</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="LastMouseDevice#differences">LastMouseDevice</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="LeadingZeros#differences">LeadingZeros</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
+<li><a href="ListenerAirAbsorption#differences">ListenerAirAbsorption</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerDistance#differences">ListenerDistance</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerDoppler#differences">ListenerDoppler</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
 <li><a href="ListenerFalloff#differences">ListenerFalloff</a> <img class="product" src="media/bl-20x14.png" alt="BlitzLLVM" title="BlitzLLVM" width="20" height="14"></li>
