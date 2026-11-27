@@ -44,10 +44,42 @@ RotateEntity pivot, 10, 20, 30
 Check "RotateEntity pitch", EntityPitch(pivot), 10, 0.001
 Check "RotateEntity yaw", EntityYaw(pivot), 20, 0.001
 Check "RotateEntity roll", EntityRoll(pivot), 30, 0.001
+; TurnEntity puts a turn of its own on top of the one the entity has, about its own axes (the angles are not added).
+; The numbers are those of the original's quaternions: rotation(10, 20, 30) * rotation(5, 5, 5).
 TurnEntity pivot, 5, 5, 5
-Check "TurnEntity pitch", EntityPitch(pivot), 15, 0.01
-Check "TurnEntity yaw", EntityYaw(pivot), 25, 0.01
-Check "TurnEntity roll", EntityRoll(pivot), 35, 0.01
+Check "TurnEntity pitch", EntityPitch(pivot), 16.8229, 0.01
+Check "TurnEntity yaw", EntityYaw(pivot), 21.8927, 0.01
+Check "TurnEntity roll", EntityRoll(pivot), 34.7786, 0.01
+; In the world the turn comes first: rotation(5, 5, 5) * rotation(10, 20, 30).
+RotateEntity pivot, 10, 20, 30
+TurnEntity pivot, 5, 5, 5, True
+Check "TurnEntity global pitch", EntityPitch(pivot), 16.3933, 0.01
+Check "TurnEntity global yaw", EntityYaw(pivot), 24.5109, 0.01
+Check "TurnEntity global roll", EntityRoll(pivot), 33.0939, 0.01
+; Upside down (a roll of 180), the own x axis of the entity points the other way, so a pitch turns it back.
+RotateEntity pivot, 0, 0, 180
+TurnEntity pivot, 10, 0, 0
+Check "TurnEntity upside down pitch", EntityPitch(pivot), -10, 0.01
+Check "TurnEntity upside down roll", Abs(EntityRoll(pivot)), 180, 0.01
+RotateEntity pivot, 0, 0, 0
+
+; A ball rolled by a pivot, like in old rolling-ball examples: the ball is put under the pivot (keeping where it is in
+; the world), the pivot is turned and the ball is let go again (keeping the turn). Each step tilts the top of the ball
+; forward by 30 degrees, so after three steps it points straight ahead.
+roller = CreatePivot()
+RotateEntity roller, 0, 0, 180
+ball = CreatePivot()
+For roll_step = 1 To 3
+	EntityParent ball, roller
+	TurnEntity roller, -30, 0, 0
+	EntityParent ball, 0
+Next
+TFormVector 0, 1, 0, ball, 0
+Check "Rolled ball top x", TFormedX(), 0, 0.001
+Check "Rolled ball top y", TFormedY(), 0, 0.001
+Check "Rolled ball top z", TFormedZ(), 1, 0.001
+FreeEntity ball
+FreeEntity roller
 
 turner = CreatePivot()
 RotateEntity turner, 0, 90, 0
