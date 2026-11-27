@@ -18,7 +18,7 @@ Return value
 
 ## Description
 
-Leaves the current [Function](Function), giving back `value` when the function has a return type. In a function declared `Void`, `Return` can not give a value. In code that was entered with [Gosub](Gosub), `Return` goes back to the line after the `Gosub`.
+Leaves the current [Function](Function), giving back `value` when the function has a return type. In a function declared `Void`, `Return` can not give a value. In code that was entered with [Gosub](Gosub), `Return` goes back to the line after the `Gosub`. In the main program with no `Gosub` to go back to, `Return` ends the program like [End](End).
 
 ## Examples
 
