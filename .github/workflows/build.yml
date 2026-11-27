@@ -534,6 +534,8 @@ jobs:
         run: |
           # The install of the build, packed as two Flatpaks (see packaging/flatpak): the compiler, and the extension with the shared libraries that
           # programs load, which the compiler and every game share. The build was configured without system libraries.
+          # The package lists of the runner image go stale when Ubuntu replaces a package (a 404 for the old version), so they are read again first.
+          sudo apt-get update
           sudo apt-get install -y --no-install-recommends flatpak flatpak-builder appstream elfutils
           # Ubuntu 24.04 stops flatpak-builder from making the namespaces of its sandbox otherwise.
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
