@@ -16,7 +16,9 @@ and `MovieVolume`.
 The demo plays the first of these that exists:
 
 1. The path given on the command line, for example `movie-billboard.exe "D:\Videos\trailer.mp4"`.
-2. The first movie file in the `data` folder next to the program, in name order. The file name does not matter, only
+2. The first movie file in the `data` folder next to the program, in name order. When blitzcc runs the program
+   straight away (no `-o`), the program is built in a temp folder, so the `data` folder of the current directory
+   (the folder of the `.bb` file when started from an editor) is tried next. The file name does not matter, only
    the extension: `.mp4`, `.m4v`, `.mov`, `.mkv`, `.webm`, `.avi`, `.mpg`, `.mpeg`, `.ts`, `.wmv`, `.ogv` or `.flv`.
 3. Nothing: the screen shows a test pattern and hums, so the demo still runs.
 

@@ -9,7 +9,8 @@
 ;
 ; Which movie it plays, first match wins:
 ;   1. The path given on the command line, for example: movie-billboard.exe "D:\Videos\trailer.mp4"
-;   2. The first movie file in the data folder next to the program (see README.md). Files are tried in name order.
+;   2. The first movie file in the data folder next to the program, else in the data folder of the current directory
+;      (see README.md). Files are tried in name order.
 ;   3. No movie: the screen shows a test pattern and hums, so the demo still runs.
 ;
 ; Controls:
@@ -168,7 +169,15 @@ Function FindMovie$()
 	If Right(arg, 1) = Chr(34) Then arg = Left(arg, Len(arg) - 1)
 	If arg <> "" And FileType(arg) = 1 Then Return arg
 
-	Local dataPath$ = folder + "data/"
+	; The data folder next to the program first. A program that blitzcc runs straight away (no -o) is built in a temp
+	; folder, so the data folder of the current directory comes next.
+	Local found$ = FindMovieIn(folder + "data/")
+	If found = "" Then found = FindMovieIn(WithSlash(CurrentDir$()) + "data/")
+	Return found
+End Function
+
+; The first movie file in a folder, in name order, or "".
+Function FindMovieIn$(dataPath$)
 	Local best$ = ""
 	Local dir = ReadDir(dataPath)
 	If dir = 0 Then Return ""
@@ -182,6 +191,11 @@ Function FindMovie$()
 	CloseDir dir
 	If best = "" Then Return ""
 	Return dataPath + best
+End Function
+
+Function WithSlash$(path$)
+	If path <> "" And Right(path, 1) <> "\" And Right(path, 1) <> "/" Then Return path + "/"
+	Return path
 End Function
 
 Function IsMovieFile(f$)
@@ -823,7 +837,7 @@ End Function
 Function DrawMovieLine(y)
 	If movie = 0
 		If moviePath = ""
-			SmallText(16, y, "No movie found. Put one into the data folder or give its path on the command line (see README.md).", False)
+			SmallText(16, y, "No movie found in " + folder + "data/ or " + WithSlash(CurrentDir$()) + "data/ (see README.md).", False)
 		Else
 			SmallText(16, y, "Could not open " + moviePath + ". The test pattern plays instead.", False)
 		EndIf
