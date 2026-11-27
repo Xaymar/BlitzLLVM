@@ -349,6 +349,80 @@ FreeAudioScene 0
 FreeAudioBus again
 FreeAudioBus music
 
+; Effects (BlitzLLVM) sit in the chain of a bus. Their parameters start at the defaults of their type and can be set and faded.
+world = CreateAudioBus()
+lowpass = AddAudioEffect(world, BB_EFFECT_LOWPASS)
+CheckTrue "AddAudioEffect", lowpass <> 0
+Check "AddAudioEffect frequency", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 20000
+Check "AddAudioEffect mix", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_MIX), 1
+echo = AddAudioEffect(world, BB_EFFECT_ECHO, 0)
+Check "AddAudioEffect echo delay", GetAudioEffectParam(echo, BB_EFFECTPARAM_DELAY), 0.3
+Check "AddAudioEffect echo mix", GetAudioEffectParam(echo, BB_EFFECTPARAM_MIX), 0.5
+reverb = AddAudioEffect(BB_MASTER_BUS, BB_EFFECT_REVERB)
+CheckTrue "AddAudioEffect handles", lowpass <> echo And echo <> reverb And lowpass <> world
+Check "AddAudioEffect reverb mix", GetAudioEffectParam(reverb, BB_EFFECTPARAM_MIX), 0.3
+Check "AddAudioEffect reverb width", GetAudioEffectParam(reverb, BB_EFFECTPARAM_WIDTH), 1
+AudioEffectParam lowpass, BB_EFFECTPARAM_FREQUENCY, 800
+Check "AudioEffectParam", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 800
+AudioEffectParam lowpass, BB_EFFECTPARAM_FREQUENCY, 20000, 300
+fading# = GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY)
+CheckTrue "AudioEffectParam fades", fading >= 800 And fading < 20000
+Delay 400
+Check "AudioEffectParam faded", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 20000
+AudioEffectBypass echo, True
+AudioEffectBypass echo, False
+; Every type, with the parameters it has.
+For kind = BB_EFFECT_LOWPASS To BB_EFFECT_LOFI
+	effect = AddAudioEffect(world, kind)
+	CheckTrue "AddAudioEffect type " + kind, effect <> 0
+	FreeAudioEffect effect
+Next
+compressor = AddAudioEffect(world, BB_EFFECT_COMPRESSOR)
+Check "Compressor threshold", GetAudioEffectParam(compressor, BB_EFFECTPARAM_THRESHOLD), -12
+Check "Compressor ratio", GetAudioEffectParam(compressor, BB_EFFECTPARAM_RATIO), 4
+Check "Compressor attack", GetAudioEffectParam(compressor, BB_EFFECTPARAM_ATTACK), 0.01
+Check "Compressor release", GetAudioEffectParam(compressor, BB_EFFECTPARAM_RELEASE), 0.2
+limiter = AddAudioEffect(world, BB_EFFECT_LIMITER)
+Check "Limiter ceiling", GetAudioEffectParam(limiter, BB_EFFECTPARAM_CEILING), -0.3
+lofi = AddAudioEffect(world, BB_EFFECT_LOFI)
+Check "Lo-fi rate", GetAudioEffectParam(lofi, BB_EFFECTPARAM_RATE), 8000
+Check "Lo-fi bits", GetAudioEffectParam(lofi, BB_EFFECTPARAM_BITS), 8
+FreeAudioEffect compressor
+FreeAudioEffect limiter
+FreeAudioEffect lofi
+; Scenes hold parameters and the bypass of bus effects.
+under = CreateAudioScene()
+AudioSceneParam under, lowpass, BB_EFFECTPARAM_FREQUENCY, 500
+AudioSceneBypass under, echo, True
+ApplyAudioScene under
+Check "AudioSceneParam", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 500
+Check "ApplyAudioScene leaves other parameters", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_RESONANCE), 0.707107
+captured = CreateAudioScene()
+AudioEffectParam lowpass, BB_EFFECTPARAM_FREQUENCY, 1000
+CaptureAudioScene captured
+AudioEffectParam lowpass, BB_EFFECTPARAM_FREQUENCY, 3000
+AudioEffectParam echo, BB_EFFECTPARAM_FEEDBACK, 0.8
+ApplyAudioScene captured
+Check "CaptureAudioScene effect parameter", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 1000
+Check "CaptureAudioScene other effect", GetAudioEffectParam(echo, BB_EFFECTPARAM_FEEDBACK), 0.4
+empty = CreateAudioScene()
+BlendAudioScene under, empty, 0.5
+Check "BlendAudioScene with the default of an effect", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 10250
+ClearAudioScene under, lowpass
+AudioEffectParam lowpass, BB_EFFECTPARAM_FREQUENCY, 2000
+ApplyAudioScene under
+Check "ClearAudioScene one effect", GetAudioEffectParam(lowpass, BB_EFFECTPARAM_FREQUENCY), 2000
+FreeAudioEffect lowpass
+again = AddAudioEffect(world, BB_EFFECT_LOWPASS)
+ApplyAudioScene captured
+Check "A freed effect drops out of scenes", GetAudioEffectParam(again, BB_EFFECTPARAM_FREQUENCY), 20000
+FreeAudioScene under
+FreeAudioScene captured
+FreeAudioScene empty
+FreeAudioEffect reverb
+FreeAudioEffect 0
+FreeAudioBus world
+
 FreeSound sound
 FreeSound sound3d
 DeleteFile name
