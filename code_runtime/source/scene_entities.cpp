@@ -14,6 +14,7 @@
 // Entities: making them, the tree they are in, where they are, and their names, copies and appearance.
 
 #include <initializer_list>
+#include <stddef.h>
 #include "memory.h"
 #include "scene_internal.hpp"
 #include "runtime_internal.h"
@@ -66,6 +67,32 @@ namespace bb::scene {
 	static buffer<entity*>  entities; // Handle - 1, null if freed.
 	static buffer<cull_record> cull_records; // What the renderer remembers of each entity to cull it, see cull_record.
 	static buffer<uint8_t>  entity_kinds; // The kind of each entity (as in entities), plus 1; 0 if the slot is free. A scan for one kind reads this and not the entities.
+
+	// What the rotation and world matrix of each entity (handle - 1) were last worked out to, and from what. Like the original, which
+	// keeps the matrices of an entity until it moves, EntityX(e, True), EntityDistance, TFormPoint and MoveEntity then do not work out
+	// sines and cosines again for an entity that has not changed. The entity's fields are written in many places, so instead of being
+	// told about each change the cache compares what a matrix is made of with what it was made of: the same bits give the same matrix,
+	// so the results are exactly those of working it out again.
+	// Three cache lines: the first says what world was made of, the second is world (EntityX and the like read these two), the third is
+	// the rotation (MoveEntity reads only that one).
+	struct alignas(64) transform_cache {
+		// What world was made from: the parent's world matrix (by its stamp), and the entity's position, rotation and scale.
+		uint64_t stamp        = 0; // Different for every world matrix worked out, 0 if world holds nothing.
+		uint64_t parent_stamp = 0;
+		int      parent       = 0;
+		float    made_of[9]   = {};
+		alignas(64) float world[16] = {};
+		// rotation_matrix of rotation_of, for MoveEntity as well as for world.
+		alignas(64) float rotation_of[3] = {};
+		float    rotation[9]    = {};
+		bool     rotation_valid = false;
+	};
+	static_assert(sizeof(transform_cache) == 192, "three cache lines");
+	// made_of is compared with the entity's position, rotation and scale at once.
+	static_assert(offsetof(entity, rotation) == offsetof(entity, position) + 3 * sizeof(float), "position, rotation and scale follow each other");
+	static_assert(offsetof(entity, scale) == offsetof(entity, rotation) + 3 * sizeof(float), "position, rotation and scale follow each other");
+	static buffer<transform_cache, 64> transforms; // Starts on a cache line, so every entry has its lines to itself.
+	static uint64_t                transform_stamps = 0;
 	buffer<surface*> surface_table;
 	float            tformed[3] = { 0, 0, 0 };
 
@@ -137,6 +164,7 @@ namespace bb::scene {
 				entities[i]     = e;
 				entity_kinds[i] = uint8_t(kind + 1);
 				cull_records[i].epoch = 0;
+				transforms[i]   = transform_cache{};
 				first_free      = i + 1;
 				grid_entity_added(int(i) + 1, kind);
 				pick_touched(int(i) + 1);
@@ -149,6 +177,7 @@ namespace bb::scene {
 			entities.push(e);
 			entity_kinds.push(uint8_t(kind + 1));
 			cull_records.push(cull_record{});
+			transforms.push(transform_cache{});
 			grid_entity_added(int(entities.size), kind);
 			pick_touched(int(entities.size));
 			handle = int(entities.size);
@@ -258,9 +287,8 @@ namespace bb::scene {
 		if (!global) {
 			return e->position[axis];
 		}
-		float world[16];
-		world_matrix(handle, world);
-		return world[12 + axis];
+		float scratch[16];
+		return world_matrix_of(handle, scratch)[12 + axis];
 	}
 
 	static float entity_angle(int32_t handle, int axis, int32_t global, const char* what)
@@ -463,22 +491,81 @@ bb::cull_record& bb::cull_record_of(int handle)
 	return cull_records[uint32_t(handle) - 1];
 }
 
+const float* bb::scene::entity_rotation(int handle, entity const& e)
+{
+	transform_cache& c = transforms[uint32_t(handle) - 1];
+	if (!c.rotation_valid || memcmp(c.rotation_of, e.rotation, sizeof(c.rotation_of))) {
+		rotation_matrix(c.rotation, e.rotation);
+		memcpy(c.rotation_of, e.rotation, sizeof(c.rotation_of));
+		c.rotation_valid = true;
+	}
+	return c.rotation;
+}
+
+namespace {
+	// The world matrix of an entity, from the cache if nothing it is made of changed. stamp is that of the matrix, or 0 if it can't be
+	// kept (the entity or one of its parents is between two captures, see local_tweened); then the matrix is in scratch.
+	const float* cached_world(int handle, uint64_t& stamp, float* scratch)
+	{
+		entity* e = get_entity(handle);
+		stamp     = 0;
+		if (!e) {
+			mat_identity(scratch);
+			return scratch;
+		}
+		uint64_t     parent_stamp = 0;
+		const float* parent       = nullptr;
+		float        parent_scratch[16];
+		if (e->parent) {
+			parent = cached_world(e->parent, parent_stamp, parent_scratch);
+		}
+		float local[16];
+		if (local_tweened(*e)) {
+			local_matrix(*e, local);
+			if (parent) {
+				mat_multiply(scratch, parent, local);
+			} else {
+				memcpy(scratch, local, sizeof(local));
+			}
+			return scratch;
+		}
+		transform_cache& c        = transforms[uint32_t(handle) - 1];
+		const bool       keepable = !parent || parent_stamp;
+		if (keepable && c.stamp && (c.parent == e->parent) && (c.parent_stamp == parent_stamp)
+		    && !memcmp(c.made_of, e->position, sizeof(c.made_of))) {
+			stamp = c.stamp;
+			return c.world;
+		}
+		compose_local(entity_rotation(handle, *e), e->position, e->scale, local);
+		float* out = keepable ? c.world : scratch;
+		if (parent) {
+			mat_multiply(out, parent, local);
+		} else {
+			memcpy(out, local, sizeof(local));
+		}
+		if (keepable) {
+			c.parent       = e->parent;
+			c.parent_stamp = parent_stamp;
+			memcpy(c.made_of, e->position, sizeof(c.made_of));
+			c.stamp = stamp = ++transform_stamps;
+		}
+		return out;
+	}
+} // namespace
+
 void bb::world_matrix(int handle, float* out)
 {
-	entity* e = get_entity(handle);
-	if (!e) {
-		mat_identity(out);
-		return;
+	uint64_t     stamp;
+	const float* world = cached_world(handle, stamp, out);
+	if (world != out) {
+		memcpy(out, world, sizeof(float) * 16);
 	}
-	float local[16];
-	local_matrix(*e, local);
-	if (e->parent) {
-		float parent[16];
-		world_matrix(e->parent, parent);
-		mat_multiply(out, parent, local);
-	} else {
-		memcpy(out, local, sizeof(local));
-	}
+}
+
+const float* bb::scene::world_matrix_of(int handle, float* scratch)
+{
+	uint64_t stamp;
+	return cached_world(handle, stamp, scratch);
 }
 
 void bb::for_each_visible(int kind, void (*visit)(int, entity&, void*), void* user)
@@ -667,9 +754,8 @@ void bb_translate_entity(int32_t handle, float x, float y, float z, int32_t glob
 // Moves relative to where the entity is facing.
 void bb_move_entity(int32_t handle, float x, float y, float z)
 {
-	entity* e = need_moving(handle, "MoveEntity");
-	float   r[9];
-	rotation_matrix(r, e->rotation);
+	entity*      e = need_moving(handle, "MoveEntity");
+	const float* r = entity_rotation(handle, *e);
 	for (int row = 0; row < 3; row++) {
 		e->position[row] += r[0 + row] * x + r[3 + row] * y + r[6 + row] * z;
 	}
@@ -916,9 +1002,9 @@ float bb_entity_distance(int32_t a, int32_t b)
 {
 	need(a, "EntityDistance");
 	need(b, "EntityDistance");
-	float ma[16], mb[16];
-	world_matrix(a, ma);
-	world_matrix(b, mb);
+	float        scratch_a[16], scratch_b[16];
+	const float* ma = world_matrix_of(a, scratch_a);
+	const float* mb = world_matrix_of(b, scratch_b);
 	float dx = ma[12] - mb[12], dy = ma[13] - mb[13], dz = ma[14] - mb[14];
 	return sqrtf(dx * dx + dy * dy + dz * dz);
 }
