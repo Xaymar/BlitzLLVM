@@ -96,13 +96,15 @@ Each of these made a program from the original behave differently.
 
 - Exit crash 0xC0000005 in `SDL_DestroyAudioQueue`: `EndGraphics` no longer shuts down all of SDL ([#575](https://github.com/Xaymar/BlitzLLVM/pull/575)).
 - Missing C headers in the Windows package made the inline runtime build without it ([#584](https://github.com/Xaymar/BlitzLLVM/pull/584)); Direct3D 11 multisampled depth ([#585](https://github.com/Xaymar/BlitzLLVM/pull/585)).
+- `AntiAlias 1` and `AntiAlias 2` (SMAA T2x) copied 24 bytes from a 12 byte camera position, so with a moving camera the previous picture was reprojected to the wrong place ([#747](https://github.com/Xaymar/BlitzLLVM/pull/747)).
 - Wiki tables show every parameter and `""` defaults ([#689](https://github.com/Xaymar/BlitzLLVM/pull/689), [#690](https://github.com/Xaymar/BlitzLLVM/pull/690)); help media is stored as WebP and Ogg ([#698](https://github.com/Xaymar/BlitzLLVM/pull/698)).
 
 ### Samples, tutorials and documentation
 
 - Tutorials in chapters (language, 2D, 3D, effects, BlitzPlus GUI), including Minesweeper, Solitaire and a falling block puzzle; samples and the original Blitz3D tutorials ship in the installs ([#619](https://github.com/Xaymar/BlitzLLVM/pull/619)).
-- Games: Rally, Shatterwall, Ion Tide, Blockwright, Hoverline, Hullbreach, Ghost Run, Blitzard, Panewalk, Foldgate.
-- Designs only, nothing implemented yet: audio buses and effects ([#644](https://github.com/Xaymar/BlitzLLVM/pull/644)), hand-written shader sources ([#591](https://github.com/Xaymar/BlitzLLVM/pull/591)), the vertex format ([#651](https://github.com/Xaymar/BlitzLLVM/pull/651)), modern mode pragmas and overrides ([#700](https://github.com/Xaymar/BlitzLLVM/pull/700), [#716](https://github.com/Xaymar/BlitzLLVM/pull/716)).
+- Games: Rally, Shatterwall, Ion Tide, Blockwright, Hoverline, Hullbreach, Ghost Run, Blitzard, Panewalk, Foldgate, Mage Tower (1 to 4 players, physics, wind and weather) ([#752](https://github.com/Xaymar/BlitzLLVM/pull/752)).
+- Demos: Neon Plaza, a movie on a big screen with its sound coming from the screen ([#753](https://github.com/Xaymar/BlitzLLVM/pull/753)); Cave Echoes, a walk that shows audio effects, scenes and air absorption ([#754](https://github.com/Xaymar/BlitzLLVM/pull/754)).
+- Designs only, nothing implemented yet: hand-written shader sources ([#591](https://github.com/Xaymar/BlitzLLVM/pull/591)), the vertex format ([#651](https://github.com/Xaymar/BlitzLLVM/pull/651)), modern mode pragmas and overrides ([#700](https://github.com/Xaymar/BlitzLLVM/pull/700), [#716](https://github.com/Xaymar/BlitzLLVM/pull/716)).
 
 ### Internal, no change for programs
 
