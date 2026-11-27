@@ -87,4 +87,58 @@ check("effect, reverb: the tail rings out after the sound (%d at 0.1 to 0.4 s) a
 samples = play("blip.wav", 'Include "<audio.bb>"\nb = CreateAudioBus()\nSoundBus s, b\n', loop=False)[0]
 check("effect, a bus without effects is silent after the sound", max(bursts(samples)[5:] + [0]) <= 2)
 
+# Effects on channels, and sends. The tone plays on the master bus; what the channel sends adds to it, panned like the channel.
+CH = 'Include "<audio.bb>"\nb = CreateAudioBus()\n'
+for what, after, ratio in (
+	("a low-pass on the channel", "e = AddChannelEffect(c, BB_EFFECT_LOWPASS)\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 441", 0.7071),
+	("two filters on the channel", "e = AddChannelEffect(c, BB_EFFECT_LOWPASS)\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 441\nf = AddChannelEffect(c, BB_EFFECT_PEAK, 0)\nAudioEffectParam f, BB_EFFECTPARAM_FREQUENCY, 441\nAudioEffectParam f, BB_EFFECTPARAM_GAIN, 6.0206", 1.4142),
+	("a freed channel effect", "e = AddChannelEffect(c, BB_EFFECT_LOWPASS)\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 50\nFreeAudioEffect e", 1.0),
+	("a send to an empty bus", "ChannelSend c, b, 1", 2.0),
+	("a send at half the level", "ChannelSend c, b, 0.5", 1.5),
+	("a send removed again", "ChannelSend c, b, 1\nChannelSend c, b, 0", 1.0),
+	("a send to a bus that is turned off", "AudioBusVolume b, 0\nChannelSend c, b, 1", 1.0),
+	("a send panned to the left", "ChannelPan c, -1\nChannelSend c, b, 1", 2.0),
+	("a send panned to the right", "ChannelPan c, 1\nChannelSend c, b, 1", 0.0),
+	("a send to a bus with a low-pass", "e = AddAudioEffect(b, BB_EFFECT_LOWPASS)\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 441\nChannelSend c, b, 1", abs(1 - 0.70711j)),
+	("a send to a freed bus goes to its parent", "a = CreateAudioBus(b)\nAudioBusVolume b, 0.5\nChannelSend c, a, 1\nFreeAudioBus a", 1.5),
+	("a channel effect before its send", "e = AddChannelEffect(c, BB_EFFECT_LOWPASS)\nAudioEffectParam e, BB_EFFECTPARAM_FREQUENCY, 441\nChannelSend c, b, 1", 1.4142),
+):
+	peak = steady_peak(play("tone.wav", CH, after)[0])
+	check("channel, %s: peak %d is %.3f of %d" % (what, peak, ratio, reference), abs(peak - reference * ratio) <= reference * ratio * 0.03 + 3)
+error = play("tone.wav", CH, "For i = 1 To 5\n\tChannelSend c, CreateAudioBus(), 1\nNext", milliseconds=100)[1]
+check("channel, a fifth send stops the program", "can send to 4 buses at most" in error)
+samples = play("tone.wav", CH, "ChannelSend c, b, 1\nDelay 300\nChannelSend c, b, 0.01")[0]
+natural = 2 * math.pi * 441 / OUTPUT_RATE * reference * 2
+loud = [i for i, v in enumerate(samples) if abs(v) > 30]
+start = loud[0] + 4000 if loud else 0
+step = max([abs(samples[i + 1] - samples[i]) for i in range(start, len(samples) - 1)] + [0])
+check("channel, a send level that jumps glides: largest step %d is within the tone's %d" % (step, natural), step <= natural * 1.1 + 2)
+samples = play("blip.wav", CH, "e = AddChannelEffect(c, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25", loop=False)[0]
+check("channel, an echo on a channel ends with its sound", max(bursts(samples)[5:] + [0]) <= 2)
+levels = bursts(play("blip.wav", CH + "e = AddAudioEffect(b, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25\nAudioEffectParam e, BB_EFFECTPARAM_MIX, 1\n", "ChannelSend c, b, 1", loop=False)[0])
+first = max(levels[0:3]) if levels else 0
+repeat = max(levels[24:28]) if len(levels) > 28 else 0
+check("channel, a send to a bus with an echo repeats at 0.25 s: %d of %d" % (repeat, first), first > 1000 and abs(repeat / first - 1.0) < 0.05)
+
+# Air absorption: a source 1000 meters away, without falloff or doppler, so that only the low-pass changes it. An amount of 10 puts the
+# cutoff at 2,000,000 / (10 * 1000) = 200 Hz, which leaves 1 / sqrt(1 + (441 / 200)^4) of the 441 Hz tone.
+def play_far(setup="", after=""):
+	with open("play.bb", "w") as source:
+		source.write(
+			's = Load3DSound("tone.wav")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, 1000\n'
+			"CreateListener listener, 0, 0, 1\n%s\nc = EmitSound(s, source)\n%s\nDelay 1500\n" % (setup, after)
+		)
+	return steady_peak(render()[0])
+
+
+near = play_far()
+for what, setup, after, ratio in (
+	("air absorption at 1 km", "ListenerAirAbsorption 10", "", 1 / math.sqrt(1 + (441 / 200.0) ** 4)),
+	("air absorption set while it plays", "", "ListenerAirAbsorption 10", 1 / math.sqrt(1 + (441 / 200.0) ** 4)),
+	("air absorption turned off again", "ListenerAirAbsorption 10", "ListenerAirAbsorption 0", 1.0),
+	("air absorption that is small", "ListenerAirAbsorption 0.1", "", 1 / math.sqrt(1 + (441 / 20000.0) ** 4)),
+):
+	peak = play_far(setup, after)
+	check("air, %s: peak %d is %.3f of %d" % (what, peak, ratio, near), abs(peak - near * ratio) <= near * ratio * 0.03 + 3)
+
 sys.exit(1 if failures else 0)

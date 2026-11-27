@@ -43,6 +43,11 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 			source.write('%s\nc = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (setup, name, music, milliseconds))
 		else:
 			source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
+	return render(classic)
+
+
+def render(classic=False):
+	"""Compiles and runs play.bb, and returns the left channel of what it sent to the disk driver."""
 	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
