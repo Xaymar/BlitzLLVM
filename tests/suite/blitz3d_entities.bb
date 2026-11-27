@@ -61,6 +61,42 @@ RotateEntity pivot, 0, 0, 180
 TurnEntity pivot, 10, 0, 0
 Check "TurnEntity upside down pitch", EntityPitch(pivot), -10, 0.01
 Check "TurnEntity upside down roll", Abs(EntityRoll(pivot)), 180, 0.01
+; Turns about one axis that only change one angle (roll in the entity's space, yaw in the world, or yaw and pitch while the
+; angles after them are 0) end up where the matrices put them, past 180 too.
+RotateEntity pivot, 10, 20, 30
+TurnEntity pivot, 0, 0, 170
+Check "TurnEntity roll only pitch", EntityPitch(pivot), 10, 0.01
+Check "TurnEntity roll only yaw", EntityYaw(pivot), 20, 0.01
+Check "TurnEntity roll only roll", EntityRoll(pivot), -160, 0.01
+RotateEntity pivot, 10, 20, 30
+TurnEntity pivot, 0, 15, 0, True
+Check "TurnEntity global yaw pitch", EntityPitch(pivot), 10, 0.01
+Check "TurnEntity global yaw yaw", EntityYaw(pivot), 35, 0.01
+Check "TurnEntity global yaw roll", EntityRoll(pivot), 30, 0.01
+RotateEntity pivot, 0, 170, 0
+TurnEntity pivot, 0, 20, 0
+Check "TurnEntity yaw only yaw", EntityYaw(pivot), -170, 0.01
+RotateEntity pivot, 0, 20, 0
+TurnEntity pivot, 30, 0, 0
+Check "TurnEntity pitch only pitch", EntityPitch(pivot), 30, 0.01
+Check "TurnEntity pitch only yaw", EntityYaw(pivot), 20, 0.01
+; Over the top: pitch 100 is pitch 80 seen from behind, upside down.
+RotateEntity pivot, 80, 0, 0
+TurnEntity pivot, 20, 0, 0
+Check "TurnEntity over the top pitch", EntityPitch(pivot), 80, 0.01
+Check "TurnEntity over the top yaw", Abs(EntityYaw(pivot)), 180, 0.01
+Check "TurnEntity over the top roll", Abs(EntityRoll(pivot)), 180, 0.01
+; Straight up from upside down: yaw and roll are the same turn there, and the axes still have to come out right.
+RotateEntity pivot, 0, 0, 180
+TurnEntity pivot, -90, 0, 0
+TFormVector 0, 0, 1, pivot, 0
+Check "TurnEntity straight up z x", TFormedX(), 0, 0.001
+Check "TurnEntity straight up z y", TFormedY(), -1, 0.001
+Check "TurnEntity straight up z z", TFormedZ(), 0, 0.001
+TFormVector 1, 0, 0, pivot, 0
+Check "TurnEntity straight up x x", TFormedX(), -1, 0.001
+Check "TurnEntity straight up x y", TFormedY(), 0, 0.001
+Check "TurnEntity straight up x z", TFormedZ(), 0, 0.001
 RotateEntity pivot, 0, 0, 0
 
 ; A ball rolled by a pivot, like in old rolling-ball examples: the ball is put under the pivot (keeping where it is in

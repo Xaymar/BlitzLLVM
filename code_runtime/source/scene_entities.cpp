@@ -701,15 +701,92 @@ void bb_rotate_entity(int32_t handle, float pitch, float yaw, float roll, int32_
 	e->rotation[2] = roll;
 }
 
+namespace {
+	// An angle of an Euler rotation as euler_from_matrix_impl gives it: yaw and roll in (-180, 180].
+	float wrap_half_turn(float angle)
+	{
+		if (angle > 180.0f || angle <= -180.0f) {
+			angle -= 360.0f * floorf((angle + 180.0f) / 360.0f);
+			if (angle <= -180.0f) {
+				angle += 360.0f;
+			}
+		}
+		return angle;
+	}
+
+	// Sine and cosine of an angle in degrees; 0 is common in a turn (TurnEntity e, 0, 1, 0) and costs no call.
+	inline void sin_cos(float degrees, float& s, float& c)
+	{
+		if (degrees == 0.0f) {
+			s = 0.0f;
+			c = 1.0f;
+		} else {
+			float r = rad(degrees);
+			s       = sinf(r);
+			c       = cosf(r);
+		}
+	}
+
+	// rotation_matrix, with sin_cos: Ry * Rx * Rz, 3x3, column-major.
+	void turn_matrix(float* r, const float* rotation)
+	{
+		float sp, cp, sy, cy, sr, cr;
+		sin_cos(rotation[0], sp, cp);
+		sin_cos(rotation[1], sy, cy);
+		sin_cos(rotation[2], sr, cr);
+		float x1 = cr, y1 = sr * cp, z1 = sr * sp; // +X after Rz and Rx
+		r[0] = x1 * cy - z1 * sy;
+		r[1] = y1;
+		r[2] = x1 * sy + z1 * cy;
+		x1 = -sr, y1 = cr * cp, z1 = cr * sp; // +Y
+		r[3] = x1 * cy - z1 * sy;
+		r[4] = y1;
+		r[5] = x1 * sy + z1 * cy;
+		r[6] = -cp * sy; // +Z
+		r[7] = -sp;
+		r[8] = cp * cy;
+	}
+
+	// Whether the angles are the ones euler_from_matrix_impl would give for their own rotation, so that a turn about a single
+	// axis may change one of them without going through a matrix. A pitch of +-90 is left to the matrix, where yaw and roll are one.
+	inline bool canonical_angles(const float* a)
+	{
+		return a[0] > -90.0f && a[0] < 90.0f && a[1] > -180.0f && a[1] <= 180.0f && a[2] > -180.0f && a[2] <= 180.0f;
+	}
+}
+
 // Like the original, a turn is a rotation of its own that is put on top of the one the entity has: in the space of the
 // entity (turned with it, so a pitch turns about the entity's own x axis whatever its roll is) or in the world. Adding the
 // angles would turn about the wrong axes as soon as the entity has more than one of them.
+//
+// Games turn thousands of entities each frame, so the common turns about one axis that give the same rotation as adding the
+// angle skip the matrices: with R = Ry(yaw) * Rx(pitch) * Rz(roll), a roll in the entity's space is Rz(roll) on the right, a
+// yaw in the world (without a parent) Ry(yaw) on the left, and a yaw or pitch in the entity's space where the angles after it
+// in R are 0. Otherwise only the parts of the turned matrix that the Euler angles are read from are made.
 void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t global)
 {
-	entity* e         = need_moving(handle, "TurnEntity");
-	float   turn[3]   = { pitch, yaw, roll };
-	float   by[9], current[9];
-	rotation_matrix(by, turn);
+	entity* e   = need_moving(handle, "TurnEntity");
+	float*  rot = e->rotation;
+	if ((!global || !e->parent) && canonical_angles(rot)) {
+		if (pitch == 0.0f && yaw == 0.0f && !global) {
+			rot[2] = wrap_half_turn(rot[2] + roll);
+			return;
+		}
+		if (pitch == 0.0f && roll == 0.0f && (global || (rot[0] == 0.0f && rot[2] == 0.0f))) {
+			rot[1] = wrap_half_turn(rot[1] + yaw);
+			return;
+		}
+		if (yaw == 0.0f && roll == 0.0f && !global && rot[2] == 0.0f) {
+			float turned = rot[0] + pitch;
+			if (turned > -90.0f && turned < 90.0f) {
+				rot[0] = turned;
+				return;
+			}
+		}
+	}
+	float turn[3] = { pitch, yaw, roll };
+	float by[9], current[9];
+	turn_matrix(by, turn);
 	if (global) {
 		float world[16];
 		world_matrix(handle, world);
@@ -718,20 +795,21 @@ void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t 
 			length_normalize(current + col * 3);
 		}
 	} else {
-		rotation_matrix(current, e->rotation);
+		turn_matrix(current, rot);
 	}
-	// Local: current * by. World: by * current.
+	// Local: current * by. World: by * current. Only the +Z axis and the y of +X and +Y of the result are needed (see
+	// euler_from_matrix_impl); a product of rotations keeps its axes 1 long, so they are not normalized again.
 	const float* a = global ? by : current;
 	const float* b = global ? current : by;
-	float        turned[16] = {};
-	for (int col = 0; col < 3; col++) {
-		for (int row = 0; row < 3; row++) {
-			turned[col * 4 + row] = a[0 * 3 + row] * b[col * 3 + 0] + a[1 * 3 + row] * b[col * 3 + 1] + a[2 * 3 + row] * b[col * 3 + 2];
-		}
+	float        z[3];
+	for (int row = 0; row < 3; row++) {
+		z[row] = a[0 * 3 + row] * b[6] + a[1 * 3 + row] * b[7] + a[2 * 3 + row] * b[8];
 	}
-	turned[15] = 1;
-	float angles[3];
-	euler_from_matrix_impl(turned, angles);
+	float x1 = a[1] * b[0] + a[4] * b[1] + a[7] * b[2];
+	float y1 = a[1] * b[3] + a[4] * b[4] + a[7] * b[5];
+	float s  = -z[1];
+	s        = s > 1 ? 1 : (s < -1 ? -1 : s);
+	float angles[3] = { deg(asinf(s)), deg(atan2f(-z[0], z[2])), deg(atan2f(x1, y1)) };
 	bb_rotate_entity(handle, angles[0], angles[1], angles[2], global);
 }
 
