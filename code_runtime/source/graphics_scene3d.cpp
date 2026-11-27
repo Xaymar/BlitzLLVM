@@ -2670,14 +2670,14 @@ namespace bb::gfx {
 		grid.enabled = false;
 		static const bool allowed = bb_env_bool("BLITZLLVM_LIGHT_GRID", true);
 		// The grid follows a view that is the same on both sides, which a matrix of the program does not have to be.
-		if (!allowed || current_light_count <= draw_lights || cam.cam_projection != 1 || cam.cam_custom_projection || cam.cam_near <= 0 || cam.cam_far <= cam.cam_near * 1.5f) {
+		if (!allowed || current_light_count <= draw_lights || cam.cam->cam_projection != 1 || cam.cam->cam_custom_projection || cam.cam->cam_near <= 0 || cam.cam->cam_far <= cam.cam->cam_near * 1.5f) {
 			return;
 		}
 		grid.enabled    = true;
-		grid.sx         = cam.cam_zoom;
-		grid.sy         = cam.cam_zoom * (width / height);
-		grid.near_plane = cam.cam_near;
-		grid.log_range  = logf(cam.cam_far / cam.cam_near);
+		grid.sx         = cam.cam->cam_zoom;
+		grid.sy         = cam.cam->cam_zoom * (width / height);
+		grid.near_plane = cam.cam->cam_near;
+		grid.log_range  = logf(cam.cam->cam_far / cam.cam->cam_near);
 		for (int axis = 0; axis < 3; axis++) {
 			memcpy(grid.axes[axis], data.camera[axis], sizeof(float) * 3);
 		}
@@ -4190,10 +4190,10 @@ namespace bb::gfx {
 	// instead of using most of it close to the camera.
 	static void projection(float* p, bb::entity const& cam, float width, float height)
 	{
-		if (cam.cam_custom_projection) {
+		if (cam.cam->cam_custom_projection) {
 			// The matrix of the program has Y up and the depth from 0 at the near plane to 1 at the far plane. The renderer's Y points
 			// down and its depth is reversed: the second row is negated and the third becomes the fourth minus the third.
-			const float* m = cam.cam_projection_matrix;
+			const float* m = cam.cam->cam_projection_matrix;
 			for (int c = 0; c < 4; c++) {
 				p[c * 4 + 0] = m[c * 4 + 0];
 				p[c * 4 + 1] = -m[c * 4 + 1];
@@ -4202,12 +4202,12 @@ namespace bb::gfx {
 			}
 			return;
 		}
-		float sx = cam.cam_zoom, sy = cam.cam_zoom * (width / height);
-		float n = cam.cam_near, f = cam.cam_far;
+		float sx = cam.cam->cam_zoom, sy = cam.cam->cam_zoom * (width / height);
+		float n = cam.cam->cam_near, f = cam.cam->cam_far;
 		memset(p, 0, sizeof(float) * 16);
-		if (cam.cam_projection == 2) {
+		if (cam.cam->cam_projection == 2) {
 			// Orthographic: the view is as wide as the perspective one is at the near plane, and depth is linear.
-			sx    = cam.cam_zoom / n;
+			sx    = cam.cam->cam_zoom / n;
 			sy    = sx * (width / height);
 			p[0]  = sx;
 			p[5]  = -sy; // Vulkan's Y points down.
@@ -4234,14 +4234,14 @@ namespace bb::gfx {
 
 	static camera_lens lens_of(bb::entity const& cam, float width, float height)
 	{
-		camera_lens lens = { cam.cam_near, cam.cam_far, cam.cam_zoom, cam.cam_zoom, cam.cam_projection == 2, false };
+		camera_lens lens = { cam.cam->cam_near, cam.cam->cam_far, cam.cam->cam_zoom, cam.cam->cam_zoom, cam.cam->cam_projection == 2, false };
 		if (lens.ortho) {
-			lens.pixels = cam.cam_zoom / cam.cam_near;
+			lens.pixels = cam.cam->cam_zoom / cam.cam->cam_near;
 		}
-		if (!cam.cam_custom_projection) {
+		if (!cam.cam->cam_custom_projection) {
 			return lens;
 		}
-		const float* m = cam.cam_projection_matrix;
+		const float* m = cam.cam->cam_projection_matrix;
 		lens.custom    = true;
 		lens.ortho     = (fabsf(m[3]) < 1e-7f) && (fabsf(m[7]) < 1e-7f) && (fabsf(m[11]) < 1e-7f);
 		double w       = lens.ortho ? 1.0 : double(m[11]); // How much of z the fourth row takes.
@@ -4270,8 +4270,8 @@ namespace bb::gfx {
 	// Where the camera is in the world and the view from there: its entity, or the matrix of SetCameraViewMatrix.
 	static void camera_view(int handle, bb::entity const& cam, float* world, float* view)
 	{
-		if (cam.cam_custom_view) {
-			memcpy(view, cam.cam_view_matrix, sizeof(float) * 16);
+		if (cam.cam->cam_custom_view) {
+			memcpy(view, cam.cam->cam_view_matrix, sizeof(float) * 16);
 			bb::mat_affine_inverse(view, world);
 			return;
 		}
@@ -4282,15 +4282,15 @@ namespace bb::gfx {
 	// The part of a buffer of the given size that the camera draws to. Returns false if there is none.
 	static bool camera_viewport(bb::entity const& cam, int buffer_w, int buffer_h, int& vx, int& vy, int& vw, int& vh)
 	{
-		vx = cam.cam_viewport[0];
-		vy = cam.cam_viewport[1];
-		vw = cam.cam_viewport[2] < 0 ? buffer_w : cam.cam_viewport[2];
-		vh = cam.cam_viewport[3] < 0 ? buffer_h : cam.cam_viewport[3];
+		vx = cam.cam->cam_viewport[0];
+		vy = cam.cam->cam_viewport[1];
+		vw = cam.cam->cam_viewport[2] < 0 ? buffer_w : cam.cam->cam_viewport[2];
+		vh = cam.cam->cam_viewport[3] < 0 ? buffer_h : cam.cam->cam_viewport[3];
 		if (vx < 0) { vw += vx; vx = 0; }
 		if (vy < 0) { vh += vy; vy = 0; }
 		if (vx + vw > buffer_w) { vw = buffer_w - vx; }
 		if (vy + vh > buffer_h) { vh = buffer_h - vy; }
-		return (vw > 0) && (vh > 0) && ((cam.cam_projection != 0) || cam.cam_custom_projection);
+		return (vw > 0) && (vh > 0) && ((cam.cam->cam_projection != 0) || cam.cam->cam_custom_projection);
 	}
 
 	// Mirrors are pivots of the class Mirror, and show the world as it would be seen from the other side of their ground.
@@ -4360,9 +4360,9 @@ namespace bb::gfx {
 		int            count   = 0;
 		int            current = handle;
 		bb::entity const* e = &cam;
-		while (e->cam_cull_source && count < 8) {
+		while (e->cam->cam_cull_source && count < 8) {
 			seen[count++] = current;
-			int next = e->cam_cull_source;
+			int next = e->cam->cam_cull_source;
 			bb::entity const* n = bb::get_entity(next);
 			bool loops = false;
 			for (int i = 0; i < count; i++) {
@@ -4374,7 +4374,7 @@ namespace bb::gfx {
 			current = next;
 			e       = n;
 		}
-		choice.flags = e->cam_cull_flags;
+		choice.flags = e->cam->cam_cull_flags;
 		if (current != handle) {
 			choice.has_source = true;
 			culling_planes_of(*e, current, target_w, target_h, choice.planes, choice.origin);
@@ -4403,7 +4403,7 @@ namespace bb::gfx {
 		float proj[16];
 		memcpy(current_camera, cam_world, sizeof(float) * 16);
 		current_reflected = reflected;
-		current_stencil   = cam.cam_stencil;
+		current_stencil   = cam.cam->cam_stencil;
 		camera_lens lens = lens_of(cam, float(vw), float(vh));
 		current_view[0] = lens.zoom;
 		current_view[1] = lens.far_plane;
@@ -4442,10 +4442,10 @@ namespace bb::gfx {
 			}
 			data.camera[axis][3] = 0;
 		}
-		data.fog[0] = cam.fog_near;
-		data.fog[1] = cam.fog_far;
-		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
-		data.fog[3] = (cam.fog_mode == 2) ? 1.0f : 0.0f;
+		data.fog[0] = cam.cam->fog_near;
+		data.fog[1] = cam.cam->fog_far;
+		data.fog[2] = cam.cam->fog_mode ? 1.0f : 0.0f;
+		data.fog[3] = (cam.cam->fog_mode == 2) ? 1.0f : 0.0f;
 		data.projection[0] = lens.near_plane;
 		data.projection[1] = lens.far_plane;
 		data.projection[2] = lens.ortho ? 1.0f : 0.0f;
@@ -4461,11 +4461,11 @@ namespace bb::gfx {
 				}
 			}
 		}
-		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
+		memcpy(data.fog_color, cam.cam->fog_color, sizeof(cam.cam->fog_color));
 		// The clip planes move with everything else to be relative to the camera: d grows by the distance of the camera along the normal.
 		for (int i = 0; i < 6; i++) {
-			const float* plane = cam.cam_clip_planes[i];
-			if (cam.cam_clip_enabled & (1 << i)) {
+			const float* plane = cam.cam->cam_clip_planes[i];
+			if (cam.cam->cam_clip_enabled & (1 << i)) {
 				double shift = double(plane[0]) * double(current_origin[0]) + double(plane[1]) * double(current_origin[1]) + double(plane[2]) * double(current_origin[2]);
 				data.clip_planes[i][0] = plane[0];
 				data.clip_planes[i][1] = plane[1];
@@ -4595,10 +4595,10 @@ namespace bb::gfx {
 		scene.draw_count  = draws.size - scene.first_draw;
 		scene.clear_color = clear_color;
 		scene.clear_depth = clear_depth;
-		scene.stencil       = cam.cam_stencil;
+		scene.stencil       = cam.cam->cam_stencil;
 		scene.clear_stencil = clear_stencil;
-		scene.stencil_value = cam.cam_stencil_value;
-		memcpy(scene.color, cam.cam_color, sizeof(scene.color));
+		scene.stencil_value = cam.cam->cam_stencil_value;
+		memcpy(scene.color, cam.cam->cam_color, sizeof(scene.color));
 		scene.x = target.x + vx;
 		scene.y = target.y + vy;
 		scene.w = vw;
@@ -4613,10 +4613,10 @@ namespace bb::gfx {
 	// the camera goes back to the buffer of SetBuffer.
 	static int camera_target(bb::entity& cam)
 	{
-		if ((cam.cam_buffer >= texture_buffer_base) && !live_texture_of((cam.cam_buffer - texture_buffer_base) >> 10)) {
-			cam.cam_buffer = 0;
+		if ((cam.cam->cam_buffer >= texture_buffer_base) && !live_texture_of((cam.cam->cam_buffer - texture_buffer_base) >> 10)) {
+			cam.cam->cam_buffer = 0;
 		}
-		return cam.cam_buffer ? cam.cam_buffer : g.target;
+		return cam.cam->cam_buffer ? cam.cam->cam_buffer : g.target;
 	}
 
 	// While a camera draws to a buffer of its own, that is the buffer that what is recorded goes to, without the 2D viewport of SetBuffer's.
@@ -4653,7 +4653,7 @@ namespace bb::gfx {
 			return;
 		}
 		// A camera with stencil draws with a depth buffer that has it (made again with it the first time, before anything of this camera is recorded).
-		if (cam.cam_stencil) {
+		if (cam.cam->cam_stencil) {
 			want_stencil_depth(target.image->width, target.image->height);
 		}
 
@@ -4668,7 +4668,7 @@ namespace bb::gfx {
 		aa_plan = antialias_begin(handle, int(g.target), target, vx, vy, vw, vh);
 
 		// The camera is cleared once, before anything is drawn.
-		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth, clear_stencil = cam.cam_stencil && cam.cam_stencil_clear;
+		bool clear_color = cam.cam->cam_clear_color, clear_depth = cam.cam->cam_clear_depth, clear_stencil = cam.cam->cam_stencil && cam.cam->cam_stencil_clear;
 		for (uint32_t i = 0; i < mirrors.size; i++) {
 			// Where the camera would have to be to see what a mirror shows: on the other side of its ground.
 			float t[16], inverse[16], flip[16], reflect[16], steps[16], mirrored[16], mirrored_view[16];
@@ -4685,7 +4685,7 @@ namespace bb::gfx {
 		}
 		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, clear_stencil, vx, vy, vw, vh, target);
 		if (aa_plan.mode) {
-			antialias_end(aa_plan, handle, int(g.target), target, vx, vy, vw, vh, aa_vp, aa_origin, !cam.cam_clear_color);
+			antialias_end(aa_plan, handle, int(g.target), target, vx, vy, vw, vh, aa_vp, aa_origin, !cam.cam->cam_clear_color);
 			aa_plan = antialias_plan();
 		}
 	}
@@ -4791,8 +4791,8 @@ namespace bb::gfx {
 	{
 		for (int h = 1; h <= bb::entity_count(); h++) {
 			bb::entity* e = bb::get_entity(h);
-			if (e && (e->kind == bb::CAMERA) && (e->cam_buffer >= texture_buffer_base) && (((e->cam_buffer - texture_buffer_base) >> 10) == texture)) {
-				e->cam_buffer = 0;
+			if (e && (e->kind == bb::CAMERA) && (e->cam->cam_buffer >= texture_buffer_base) && (((e->cam->cam_buffer - texture_buffer_base) >> 10) == texture)) {
+				e->cam->cam_buffer = 0;
 			}
 		}
 	}
@@ -4942,15 +4942,15 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 	if (!camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh)) {
 		return 0;
 	}
-	float sx = cam->cam_zoom, sy = cam->cam_zoom * (float(vw) / float(vh));
+	float sx = cam->cam->cam_zoom, sy = cam->cam->cam_zoom * (float(vw) / float(vh));
 	float ndc_x = (x - float(vx)) / float(vw) * 2 - 1, ndc_y = (y - float(vy)) / float(vh) * 2 - 1;
 	float local[3] = { ndc_x / sx, -ndc_y / sy, 1 };
 	float m[16], view[16];
 	camera_view(camera, *cam, m, view);
-	if (cam->cam_custom_projection) {
+	if (cam->cam->cam_custom_projection) {
 		// The line goes from the near to the far plane of the matrix, through the pixel: both ends are found with its inverse.
 		double inverse[16];
-		if (!invert_matrix(cam->cam_projection_matrix, inverse)) {
+		if (!invert_matrix(cam->cam->cam_projection_matrix, inverse)) {
 			return 0;
 		}
 		double ends[2][3];
@@ -4974,7 +4974,7 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 		return bb_line_pick(float(start[0]), float(start[1]), float(start[2]), float(finish[0] - start[0]), float(finish[1] - start[1]), float(finish[2] - start[2]), 0);
 	}
 	// Like the original the line ends as far along the view direction as the far plane, so its time is the depth over the far plane.
-	float range = cam->cam_far;
+	float range = cam->cam->cam_far;
 	float dx = (m[0] * local[0] + m[4] * local[1] + m[8] * local[2]) * range;
 	float dy = (m[1] * local[0] + m[5] * local[1] + m[9] * local[2]) * range;
 	float dz = (m[2] * local[0] + m[6] * local[1] + m[10] * local[2]) * range;
@@ -5006,14 +5006,14 @@ void bb_set_camera_buffer(int32_t camera, int32_t buffer)
 			return;
 		}
 	}
-	cam->cam_buffer = buffer;
+	cam->cam->cam_buffer = buffer;
 }
 
 // GetCameraBuffer camera: the buffer of SetCameraBuffer, or 0 if the camera draws into the buffer of SetBuffer. A texture that was freed counts as 0.
 int32_t bb_get_camera_buffer(int32_t camera)
 {
 	bb::entity* cam = need_camera(camera, "GetCameraBuffer");
-	return (cam->cam_buffer == 0) ? 0 : (camera_target(*cam) == cam->cam_buffer ? cam->cam_buffer : 0);
+	return (cam->cam->cam_buffer == 0) ? 0 : (camera_target(*cam) == cam->cam->cam_buffer ? cam->cam->cam_buffer : 0);
 }
 
 // The checks that RenderWorld and RenderCamera make of the buffer they draw into.
@@ -5110,8 +5110,8 @@ static void world_end(camera_collector& mirrors)
 void bb_set_camera_projection_matrix(int32_t camera, const float* matrix)
 {
 	bb::entity* cam = need_camera(camera, "SetCameraProjectionMatrix");
-	memcpy(cam->cam_projection_matrix, matrix, sizeof(cam->cam_projection_matrix));
-	cam->cam_custom_projection = true;
+	memcpy(cam->cam->cam_projection_matrix, matrix, sizeof(cam->cam->cam_projection_matrix));
+	cam->cam->cam_custom_projection = true;
 }
 
 // GetCameraProjectionMatrix(camera): the matrix of SetCameraProjectionMatrix, or the one CameraRange, CameraZoom and CameraProjMode make for
@@ -5119,8 +5119,8 @@ void bb_set_camera_projection_matrix(int32_t camera, const float* matrix)
 void bb_get_camera_projection_matrix(float* out, int32_t camera)
 {
 	bb::entity* cam = need_camera(camera, "GetCameraProjectionMatrix");
-	if (cam->cam_custom_projection) {
-		memcpy(out, cam->cam_projection_matrix, sizeof(cam->cam_projection_matrix));
+	if (cam->cam->cam_custom_projection) {
+		memcpy(out, cam->cam->cam_projection_matrix, sizeof(cam->cam->cam_projection_matrix));
 		return;
 	}
 	int w, h, vx, vy, vw, vh;
@@ -5144,7 +5144,7 @@ void bb_get_camera_projection_matrix(float* out, int32_t camera)
 // ResetCameraProjectionMatrix camera: back to CameraRange, CameraZoom and CameraProjMode.
 void bb_reset_camera_projection_matrix(int32_t camera)
 {
-	need_camera(camera, "ResetCameraProjectionMatrix")->cam_custom_projection = false;
+	need_camera(camera, "ResetCameraProjectionMatrix")->cam->cam_custom_projection = false;
 }
 
 // SetCameraViewMatrix camera, matrix: the camera looks at the world through this FloatMatrix4x3 (from the world to the camera) instead of from
@@ -5152,13 +5152,13 @@ void bb_reset_camera_projection_matrix(int32_t camera)
 void bb_set_camera_view_matrix(int32_t camera, const float* matrix)
 {
 	bb::entity* cam = need_camera(camera, "SetCameraViewMatrix");
-	bb::mat_identity(cam->cam_view_matrix);
+	bb::mat_identity(cam->cam->cam_view_matrix);
 	for (int c = 0; c < 4; c++) {
 		for (int r = 0; r < 3; r++) {
-			cam->cam_view_matrix[c * 4 + r] = matrix[c * 3 + r];
+			cam->cam->cam_view_matrix[c * 4 + r] = matrix[c * 3 + r];
 		}
 	}
-	cam->cam_custom_view = true;
+	cam->cam->cam_custom_view = true;
 }
 
 // GetCameraViewMatrix(camera): the matrix of SetCameraViewMatrix, or the one that the camera entity has (the inverse of where it is).
@@ -5177,7 +5177,7 @@ void bb_get_camera_view_matrix(float* out, int32_t camera)
 // ResetCameraViewMatrix camera: back to the view from the camera entity.
 void bb_reset_camera_view_matrix(int32_t camera)
 {
-	need_camera(camera, "ResetCameraViewMatrix")->cam_custom_view = false;
+	need_camera(camera, "ResetCameraViewMatrix")->cam->cam_custom_view = false;
 }
 
 static int clip_plane_index(int32_t index, const char* what)
@@ -5195,7 +5195,7 @@ static int clip_plane_index(int32_t index, const char* what)
 void bb_set_camera_clip_plane(int32_t camera, int32_t index, float a, float b, float c, float d)
 {
 	bb::entity* cam   = need_camera(camera, "SetCameraClipPlane");
-	float*      plane = cam->cam_clip_planes[clip_plane_index(index, "SetCameraClipPlane")];
+	float*      plane = cam->cam->cam_clip_planes[clip_plane_index(index, "SetCameraClipPlane")];
 	plane[0]          = a;
 	plane[1]          = b;
 	plane[2]          = c;
@@ -5206,7 +5206,7 @@ void bb_set_camera_clip_plane(int32_t camera, int32_t index, float a, float b, f
 void bb_get_camera_clip_plane(float* out, int32_t camera, int32_t index)
 {
 	bb::entity* cam = need_camera(camera, "GetCameraClipPlane");
-	memcpy(out, cam->cam_clip_planes[clip_plane_index(index, "GetCameraClipPlane")], sizeof(float) * 4);
+	memcpy(out, cam->cam->cam_clip_planes[clip_plane_index(index, "GetCameraClipPlane")], sizeof(float) * 4);
 }
 
 // SetCameraClipPlaneEnabled camera, index, enabled: turns a clip plane on or off.
@@ -5214,14 +5214,14 @@ void bb_set_camera_clip_plane_enabled(int32_t camera, int32_t index, int32_t ena
 {
 	bb::entity* cam = need_camera(camera, "SetCameraClipPlaneEnabled");
 	int         bit = 1 << clip_plane_index(index, "SetCameraClipPlaneEnabled");
-	cam->cam_clip_enabled = enabled ? (cam->cam_clip_enabled | bit) : (cam->cam_clip_enabled & ~bit);
+	cam->cam->cam_clip_enabled = enabled ? (cam->cam->cam_clip_enabled | bit) : (cam->cam->cam_clip_enabled & ~bit);
 }
 
 // GetCameraClipPlaneEnabled(camera, index): 1 if the clip plane is on.
 int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
 {
 	bb::entity* cam = need_camera(camera, "GetCameraClipPlaneEnabled");
-	return (cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
+	return (cam->cam->cam_clip_enabled >> clip_plane_index(index, "GetCameraClipPlaneEnabled")) & 1;
 }
 
 // SetCameraStencil camera, enabled: the depth buffer that the camera draws with gets a stencil (8 bits per pixel), which the entities
@@ -5229,13 +5229,13 @@ int32_t bb_get_camera_clip_plane_enabled(int32_t camera, int32_t index)
 // A BlitzLLVM extension.
 void bb_set_camera_stencil(int32_t camera, int32_t enabled)
 {
-	need_camera(camera, "SetCameraStencil")->cam_stencil = enabled != 0;
+	need_camera(camera, "SetCameraStencil")->cam->cam_stencil = enabled != 0;
 }
 
 // GetCameraStencil(camera): 1 if the camera has a stencil.
 int32_t bb_get_camera_stencil(int32_t camera)
 {
-	return need_camera(camera, "GetCameraStencil")->cam_stencil ? 1 : 0;
+	return need_camera(camera, "GetCameraStencil")->cam->cam_stencil ? 1 : 0;
 }
 
 // SetCameraStencilClear camera, clear, value: whether the camera clears the stencil of its viewport when it starts drawing (it does by
@@ -5248,8 +5248,8 @@ void bb_set_camera_stencil_clear(int32_t camera, int32_t clear, int32_t value)
 		snprintf(message, sizeof(message), "SetCameraStencilClear: the value has to be 0 to 255, not %d.", int(value));
 		bb_runtime_error(message);
 	}
-	cam->cam_stencil_clear = clear != 0;
-	cam->cam_stencil_value = uint8_t(value);
+	cam->cam->cam_stencil_clear = clear != 0;
+	cam->cam->cam_stencil_value = uint8_t(value);
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.
@@ -5289,8 +5289,8 @@ void bb_render_camera(int32_t camera, float tween)
 {
 	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
 	bb::entity* cam = need_camera(camera, "RenderCamera");
-	check_world_target(cam->cam_buffer ? cam->cam_buffer : g.target, "RenderCamera");
-	if ((cam->cam_projection == 0) && !cam->cam_custom_projection) {
+	check_world_target(cam->cam->cam_buffer ? cam->cam->cam_buffer : g.target, "RenderCamera");
+	if ((cam->cam->cam_projection == 0) && !cam->cam->cam_custom_projection) {
 		return;
 	}
 	scene_data       data;

@@ -123,6 +123,9 @@ namespace bb::scene {
 	{
 		entity* e = new entity();
 		e->kind   = kind;
+		if (kind == CAMERA) {
+			e->cam = new camera_data();
+		}
 		if (parent) {
 			need(parent, "CreateEntity");
 			e->parent = parent;
@@ -233,6 +236,7 @@ namespace bb::scene {
 		}
 		collision_entity_destroyed(handle);
 		bb_free(e->name);
+		delete e->cam;
 		grid_entity_removed(handle, e->kind);
 		pick_touched(handle);
 		delete e;
@@ -303,6 +307,7 @@ namespace bb::scene {
 		copy.prev_sibling = to->prev_sibling; // Where add_entity put it in the children of its parent.
 		copy.next_sibling = to->next_sibling;
 		copy.name   = nullptr;
+		copy.cam    = nullptr; // A camera is copied as a pivot.
 		copy.anim   = nullptr;
 		copy.md2    = nullptr;
 		copy.pending_keys = nullptr;
