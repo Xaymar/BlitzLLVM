@@ -25,6 +25,7 @@ The original Blitz3D and BlitzPlus see a comment and build the program as always
 | `modern` | `--modern` | All of the features below. |
 | `sane-evaluation-order` | `--sane-evaluation-order` | Arguments, operators, array indices and stores are evaluated from left to right, see [Language Quirks](Language-Quirks#left-to-right). |
 | `field-defaults` | `--field-defaults` | `New` sets fields to their default values (`Field lives% = 3`), see [Language Quirks](Language-Quirks#default-values-of-fields). |
+| `entity-overrides` | `--entity-overrides` | `EntityColor`, `EntityAlpha`, `EntityFX`, `EntityShininess` and `PaintEntity` replace what the brushes of a model say, instead of being combined with them (colors and alphas multiplied, FX OR'd, shininess added). Only what the program set on the entity counts. |
 
 `modern` always means every feature of the BlitzLLVM that builds the program, so a newer BlitzLLVM can add more. A program that has to stay the same lists the features it wants instead of `modern`. `no-` in front of a name turns a feature off again, and the last pragma for a feature wins:
 

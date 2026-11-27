@@ -771,6 +771,7 @@ namespace {
 	feature const features[] = {
 		{ "sane-evaluation-order", &blitz::compiler::sane_evaluation_order, "evaluates from left to right", "evaluates in the order of the original" },
 		{ "field-defaults", &blitz::compiler::field_defaults, "lets New apply the default values of fields", "ignores the default values of fields like the original" },
+		{ "entity-overrides", &blitz::compiler::entity_overrides, "lets EntityColor, EntityAlpha, EntityFX and EntityShininess replace the brushes of a model", "combines them with the brushes like the original" },
 	};
 
 	feature const* find_feature(std::string const& name)

@@ -113,6 +113,7 @@ namespace {
 		bool                     blitzplus    = false; // --blitzplus
 		bool                     sane_order   = false; // --sane-evaluation-order
 		bool                     field_defaults = false; // --field-defaults
+		bool                               entity_overrides = false; // --entity-overrides
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
 		bool                     dump_native  = false; // --dump-keywords
@@ -173,6 +174,8 @@ namespace {
 				  << "                        order of the original Blitz3D (the part that needs more registers first, so F(a(), b(), c()) calls b, c, a).\n"
 				  << "  --field-defaults      Let New set a field to its default value (Field lives% = 3). The original accepts the default but never\n"
 				  << "                        uses it, so by default the field starts at 0, 0.0, \"\" or Null (see -Wfield-default-ignored).\n"
+				  << "  --entity-overrides    EntityColor, EntityAlpha, EntityFX, EntityShininess and PaintEntity replace the brushes of the surfaces\n"
+				  << "                        of a model. The original combines them: colors and alphas multiplied, FX OR'd, shininess added.\n"
 				  << "  --modern              All of the above (the modern features), like ;#pragma modern. --no-<name> turns one off again\n"
 				  << "                        (--no-field-defaults), the last option for a feature wins. A ;#pragma in the main file wins over\n"
 				  << "                        these options, see Modern-Mode in the wiki.\n"
@@ -430,10 +433,13 @@ namespace {
 				opt.sane_order = (arg[2] != 'n');
 			} else if ((arg == "--field-defaults") || (arg == "--no-field-defaults")) {
 				opt.field_defaults = (arg[2] != 'n');
+			} else if ((arg == "--entity-overrides") || (arg == "--no-entity-overrides")) {
+				opt.entity_overrides = (arg[2] != 'n');
 			} else if ((arg == "--modern") || (arg == "--no-modern")) {
 				// Every feature of ;#pragma modern, in the order of the command line like the others.
 				opt.sane_order     = (arg[2] != 'n');
 				opt.field_defaults = (arg[2] != 'n');
+				opt.entity_overrides = (arg[2] != 'n');
 			} else if (arg == "--profile") {
 				opt.profile = true;
 			} else if (lowered == "--blitzplus") {
@@ -594,6 +600,7 @@ static int compiler_main(int argc, char** argv)
 			compiler.blitzplus  = opt.blitzplus;
 			compiler.sane_evaluation_order = opt.sane_order;
 			compiler.field_defaults = opt.field_defaults;
+			compiler.entity_overrides      = opt.entity_overrides;
 			compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
 			compiler.codeview   = windows_target;
 			compiler.source     = opt.input;

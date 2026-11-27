@@ -795,6 +795,9 @@ void blitz::compiler::gen_main(ast::program const& program)
 	if (blitzplus) {
 		call_runtime("bb_set_blitzplus", type::UNKNOWN, { { "1", type::INT32 } });
 	}
+	if (entity_overrides) {
+		call_runtime("bb_set_entity_overrides", type::UNKNOWN, { { "1", type::INT32 } });
+	}
 	if (profile) {
 		// Bit 0: time the runtime. Bit 1: the program has symbols, so BLITZLLVM_PROFILE_SAMPLE also records call stacks.
 		call_runtime("bb_set_profile", type::UNKNOWN, { { debug_info ? "3" : "1", type::INT32 } });
