@@ -5,27 +5,31 @@
 ;
 ; Every picture and sound in this game is made by the code itself, so there are no files to ship with it.
 ;
-; Each mage builds inside their own tower. Stones made of four blocks fall from the top: move and turn them so that
-; they fill whole rows. A full row is sealed into a new floor of the tower and disappears. A tower that fills up to
-; the top falls, and its mage is out.
+; Each mage stacks stones of four blocks on top of their own small tower. A stone is guided while it floats down;
+; once it touches the tower it is let go and real physics takes over: stones rest, slide, wobble and topple. A stone
+; that drops off the tower costs a heart. The tower grows as high as its stones stand.
 ;
-; Some blocks carry a rune. Sealing the row that holds a rune casts its spell:
-;   Boons help the caster:     Fire  burns away the two bottom rows of the caster's tower
-;                              Calm  the caster's stones fall at half speed for 15 seconds
-;                              Gold  bonus points
-;   Hexes hit the rival with   Stone pushes two rows of rubble up under the tower
-;   the most floors:           Storm the stones fall three times as fast for 10 seconds
-;                              Shade hides the tower and the next stone for 10 seconds
-;                              Twist swaps left and right for 10 seconds
+; Some stones carry a rune. The rune works when its stone lands:
+;   Boons help the mage:            Anchor  the stone welds itself to every stone it rests on
+;                                   Feather the mage's stones float down at half speed for 15 seconds
+;                                   Mend    gives back a lost heart
+;   Hexes hit the rival with the    Gust    a gust of wind pushes against the rival's tower
+;   highest tower:                  Quake   the rival's tower shakes for two seconds
+;                                   Ice     the rival's next three stones are as slippery as ice
+;                                   Storm   the rival's stones fall three times as fast for 10 seconds
+;                                   Twist   swaps left and right of the rival for 10 seconds
 ; A mage who plays alone has no rivals: hexes then bounce back onto their own tower, so every rune is a gamble.
 ;
-; Modes: "Last tower standing" ends when one mage is left (alone: when the tower falls), "Race" ends when a mage has
-; sealed the chosen number of floors. Empty seats can be taken by computer mages of three strengths.
+; Modes: "Last tower standing" (five hearts each, the last mage with hearts wins; alone: build as high as you can)
+; and "Race" (the first tower to stand above the line wins). Empty seats can be taken by computer mages.
+;
+; The stones are physics bodies (CreatePhysicsBody): four boxes welded together with fixed constraints, held
+; between two invisible glass walls so that they stay in the plane. An orthographic camera per tower draws them.
 ;
 ; Controls (choose them per mage under "New game"):
-;   Keyboard left   A / D move, W turn, Q turn back, S faster, Space drop at once
-;   Keyboard right  Left / Right move, Up turn, Right Ctrl turn back, Down faster, Enter drop at once
-;   Gamepad         D-pad or stick move, button 1 turn, button 2 turn back, down faster, up or button 3 drop at once
+;   Keyboard left   A / D move, W turn, S faster, Space drop at once
+;   Keyboard right  Left / Right move, Up turn, Down faster, Enter drop at once
+;   Gamepad         D-pad or stick move, button 1 turn, down faster, up or button 3 drop at once
 ;   P or Escape     pause
 ;   Menus           Up/Down or the mouse choose, Enter/Space or a click select, Left/Right change an option
 ;
@@ -35,13 +39,19 @@ Include "<keys.bb>"
 Include "<mouse.bb>"
 Include "<joystick.bb>"
 Include "<graphics.bb>"
+Include "<physics.bb>"
 
 Const SCREEN_W = 1280, SCREEN_H = 720
-Const COLUMNS = 10, ROWS = 22, HIDDEN_ROWS = 2 ; The two top rows are above the tower: new stones appear there.
-Const CELL = 24
-Const WELL_TOP = 178                           ; Screen row of the first visible row of every tower.
-Const KINDS = 7, RUBBLE = 8                    ; Stone kinds 1 to 7 in the grid, 8 is rubble from a Stone hex.
+Const VIEW_W = 300, VIEW_SPACING = 310        ; Every tower has its own camera, this wide on the screen.
+Const PIXELS_PER_METRE# = 22.0                ; A block is one metre.
+Const HUD_H = 160                             ; The name, the next stone and the hearts are drawn over the top of a view.
+Const KINDS = 7
+Const CELL = 24                              ; The size of a block in the 2D pictures (menus, help).
 Const MAX_PLAYERS = 4
+Const BASE_HALF# = 3.0                        ; Half the width of the top of a tower before any stones are on it.
+Const TOWER_SPACING# = 60.0                   ; The towers stand this far apart in the physics world.
+Const START_HEARTS = 5, MAX_HEARTS = 6
+Const LOST_DEPTH# = -12.0                     ; A block that falls below this is gone.
 
 Const STATE_MENU = 0, STATE_SETUP = 1, STATE_OPTIONS = 2, STATE_HELP = 3, STATE_PLAY = 4, STATE_PAUSED = 5
 Const STATE_RESULT = 6
@@ -54,64 +64,75 @@ Const CONTROL_COUNT = 10
 
 Const MODE_STANDING = 0, MODE_RACE = 1
 
-; The runes. 1 to 3 are boons, 4 to 7 are hexes.
-Const RUNE_NONE = 0, RUNE_FIRE = 1, RUNE_CALM = 2, RUNE_GOLD = 3
-Const RUNE_STONE = 4, RUNE_STORM = 5, RUNE_SHADE = 6, RUNE_TWIST = 7
-Const RUNES = 7
+; The runes. 1 to 3 are boons, 4 to 8 are hexes.
+Const RUNE_NONE = 0, RUNE_ANCHOR = 1, RUNE_FEATHER = 2, RUNE_MEND = 3
+Const RUNE_GUST = 4, RUNE_QUAKE = 5, RUNE_ICE = 6, RUNE_STORM = 7, RUNE_TWIST = 8
+Const RUNES = 8
 
-Const LOCK_FRAMES = 30, LOCK_RESETS = 15        ; A landed stone waits half a second before it is set in place.
-Const REPEAT_WAIT = 10, REPEAT_STEP = 3         ; Held keys: one step at once, a pause, then a step every 3 frames.
-Const EFFECT_FRAMES = 600                       ; Ten seconds for Storm, Shade and Twist.
-Const CALM_FRAMES = 900
+; Physics layers: everything that stands (tower tops and stones that were let go) and the stone that is still guided.
+Const LAYER_SOLID = 1, LAYER_GUIDED = 2, LAYER_GLASS = 3
+Const MASK_SOLID = 2 ; Bit 1: only layer 1, for the queries that look for the tower below a guided stone.
+
+Const REPEAT_WAIT = 10, REPEAT_STEP = 4
+Const EFFECT_FRAMES = 600, FEATHER_FRAMES = 900, QUAKE_FRAMES = 120
 
 ; --- The stones ------------------------------------------------------------------------------------------------------
 ; Every stone sits in a square box. For each kind and each quarter turn, cellX and cellY hold its four blocks.
 Dim stoneSize(KINDS), stoneRed(KINDS + 1), stoneGreen(KINDS + 1), stoneBlue(KINDS + 1)
 Dim cellX(KINDS, 3, 3), cellY(KINDS, 3, 3) ; (kind, turn, block)
 
-; --- The towers ------------------------------------------------------------------------------------------------------
-Dim grid(MAX_PLAYERS - 1, COLUMNS - 1, ROWS - 1)     ; 0 empty, 1 to 7 a stone's colour, 8 rubble
-Dim gridRune(MAX_PLAYERS - 1, COLUMNS - 1, ROWS - 1) ; The rune on that block, or 0
-
-; Per mage. Arrays instead of a Type, because every tower has a fixed seat on the screen.
+; --- The mages -------------------------------------------------------------------------------------------------------
 Dim seatControl(MAX_PLAYERS - 1)
-Dim playing(MAX_PLAYERS - 1), alive(MAX_PLAYERS - 1), place(MAX_PLAYERS - 1), towerX(MAX_PLAYERS - 1)
-Dim kind(MAX_PLAYERS - 1), turn(MAX_PLAYERS - 1), stoneX(MAX_PLAYERS - 1), stoneY(MAX_PLAYERS - 1)
-Dim runeBlock(MAX_PLAYERS - 1), runeKind(MAX_PLAYERS - 1)           ; Which of the four blocks carries a rune (-1 none)
+Dim playing(MAX_PLAYERS - 1), alive(MAX_PLAYERS - 1), place(MAX_PLAYERS - 1), viewX(MAX_PLAYERS - 1)
+Dim baseX#(MAX_PLAYERS - 1), camera(MAX_PLAYERS - 1), camY#(MAX_PLAYERS - 1), towerTop(MAX_PLAYERS - 1)
+Dim hearts(MAX_PLAYERS - 1), height#(MAX_PLAYERS - 1), bestHeight#(MAX_PLAYERS - 1), stonesPlaced(MAX_PLAYERS - 1)
+Dim guided.Stone(MAX_PLAYERS - 1)                                  ; The stone the mage guides, or Null
 Dim nextKind(MAX_PLAYERS - 1), nextRuneBlock(MAX_PLAYERS - 1), nextRune(MAX_PLAYERS - 1)
 Dim bag(MAX_PLAYERS - 1, KINDS - 1), bagPos(MAX_PLAYERS - 1)
-Dim fallTimer#(MAX_PLAYERS - 1), lockTimer(MAX_PLAYERS - 1), lockResets(MAX_PLAYERS - 1)
-Dim score(MAX_PLAYERS - 1), floors(MAX_PLAYERS - 1), finishFrame(MAX_PLAYERS - 1)
-Dim calmTimer(MAX_PLAYERS - 1), stormTimer(MAX_PLAYERS - 1), shadeTimer(MAX_PLAYERS - 1), twistTimer(MAX_PLAYERS - 1)
+Dim waitFrames(MAX_PLAYERS - 1)                                    ; Frames until the next stone appears
+Dim featherTimer(MAX_PLAYERS - 1), stormTimer(MAX_PLAYERS - 1), twistTimer(MAX_PLAYERS - 1)
+Dim quakeTimer(MAX_PLAYERS - 1), iceStones(MAX_PLAYERS - 1), raceHold(MAX_PLAYERS - 1)
 Dim holdLeft(MAX_PLAYERS - 1), holdRight(MAX_PLAYERS - 1), holdUp(MAX_PLAYERS - 1), repeatTimer(MAX_PLAYERS - 1)
-Dim shake#(MAX_PLAYERS - 1), casting(MAX_PLAYERS - 1)
-Dim aiTurn(MAX_PLAYERS - 1), aiX(MAX_PLAYERS - 1), aiWait(MAX_PLAYERS - 1), aiTries(MAX_PLAYERS - 1)
+Dim shake#(MAX_PLAYERS - 1), casting(MAX_PLAYERS - 1), finishFrame(MAX_PLAYERS - 1)
+Dim aiTurn(MAX_PLAYERS - 1), aiX#(MAX_PLAYERS - 1), aiWait(MAX_PLAYERS - 1), aiTries(MAX_PLAYERS - 1)
 Dim mageName$(MAX_PLAYERS - 1), mageRed(MAX_PLAYERS - 1), mageGreen(MAX_PLAYERS - 1), mageBlue(MAX_PLAYERS - 1)
-Dim aiGrid(COLUMNS - 1, ROWS - 1)
-Dim castList(39) ; The runes of the rows sealed by one stone
-Global boltX#, boltY# ; Where BoltPosition found a bolt
-Global mageScale# = 1.0
 
-; What a mage wants to do this frame, filled by ReadControls.
-Global wantLeft, wantRight, wantTurn, wantTurnBack, wantFaster, wantDrop
+; What a mage wants to do this frame, filled by ReadControls or AiControls.
+Global wantLeft, wantRight, wantTurn, wantFaster, wantDrop
 
 ; --- Runes -----------------------------------------------------------------------------------------------------------
 Dim runeName$(RUNES), runeInfo$(RUNES), runeRed(RUNES), runeGreen(RUNES), runeBlue(RUNES), runeImage(RUNES)
+Dim runeTexture(RUNES), runeShort$(RUNES)
+Dim aiHit#(3) ; Where the rays of AiPlan hit below each block
+
+; --- Wind and weather ------------------------------------------------------------------------------------------------
+Const WEATHER_CLEAR = 0, WEATHER_RAIN = 1, WEATHER_SNOW = 2, WEATHER_GALE = 3
+Global weather, weatherTimer, windForce#, windTarget#, windTimer
+Dim weatherName$(3)
+weatherName(WEATHER_CLEAR) = "Clear" : weatherName(WEATHER_RAIN) = "Rain"
+weatherName(WEATHER_SNOW) = "Snow" : weatherName(WEATHER_GALE) = "Gale"
+Dim glass(1)
+
+Type Drop ; A raindrop or a snowflake, in screen space.
+	Field x#, y#, speed#
+End Type
+
 
 ; --- Options -----------------------------------------------------------------------------------------------------------
 Global optMode = MODE_STANDING
-Global optRaceFloors = 1          ; Index into raceFloors
+Global optRaceHeight = 1          ; Index into raceHeight
 Global optRunes = 2               ; 0 none, 1 few, 2 some, 3 many
-Global optStartLevel = 1
+Global optStartSpeed = 1          ; 1 to 5
 Global optVolume = 4              ; 0 to 4, in quarters
 Global optShake = True
 Global optFullscreen = False
-Dim raceFloors(2), runeChanceName$(3), runeChance(3), controlName$(CONTROL_COUNT - 1)
-raceFloors(0) = 20 : raceFloors(1) = 30 : raceFloors(2) = 40
+Global optWeather = True
+Dim raceHeight(2), runeChanceName$(3), runeChance(3), controlName$(CONTROL_COUNT - 1)
+raceHeight(0) = 15 : raceHeight(1) = 20 : raceHeight(2) = 25
 runeChanceName(0) = "none" : runeChance(0) = 0
-runeChanceName(1) = "few" : runeChance(1) = 12
-runeChanceName(2) = "some" : runeChance(2) = 25
-runeChanceName(3) = "many" : runeChance(3) = 45
+runeChanceName(1) = "few" : runeChance(1) = 15
+runeChanceName(2) = "some" : runeChance(2) = 30
+runeChanceName(3) = "many" : runeChance(3) = 55
 controlName(CONTROL_OFF) = "empty seat"
 controlName(CONTROL_KEYS_LEFT) = "keyboard left (WASD)"
 controlName(CONTROL_KEYS_RIGHT) = "keyboard right (arrows)"
@@ -126,8 +147,8 @@ seatControl(0) = CONTROL_KEYS_RIGHT
 seatControl(1) = CONTROL_ADEPT
 seatControl(2) = CONTROL_OFF
 seatControl(3) = CONTROL_OFF
-Global bestSolo                   ; Best score of a mage alone in "Last tower standing"
-Dim bestRace(2)                   ; Fastest solo race per floor count, in frames (0 = none yet)
+Global bestSolo#                  ; Highest tower of a mage alone in "Last tower standing", in metres
+Dim bestRace(2)                   ; Fastest solo race per height, in frames (0 = none yet)
 
 mageName(0) = "Ember" : mageRed(0) = 235 : mageGreen(0) = 90 : mageBlue(0) = 70
 mageName(1) = "Azure" : mageRed(1) = 80 : mageGreen(1) = 140 : mageBlue(1) = 240
@@ -145,9 +166,23 @@ Global frame                     ; Frames since the round started
 Global countdown                 ; Frames until the stones start falling
 Global seatsPlaying, nextPlace
 Global roundOver, winner, winText$
+Global boltX#, boltY#            ; Where BoltPosition found a bolt
+Global mageScale# = 1.0
+Global light
 
 Dim menuText$(9)
 Global menuCount, menuSelected, menuTop, menuWidth = 520
+
+; A stone: four block bodies, welded together once it is let go.
+Type Stone
+	Field owner, kind, turn
+	Field x#, y#                 ; The middle of its box while it is guided
+	Field rune, runeBlock
+	Field icy
+	Field landed                 ; The frame it was let go, 0 while guided
+	Field anchored, lost
+	Field body[3], mesh[3]
+End Type
 
 Type Spark
 	Field x#, y#, vx#, vy#
@@ -176,7 +211,7 @@ End Type
 ReadStones()
 SetUpRunes()
 
-Global background, towerImage, fallenImage, shadeBlock
+Global background, shadeBlock
 Dim blockImage(KINDS + 1)
 Global fontTitle, fontBig, fontText, fontSmall
 OpenScreen()
@@ -184,10 +219,10 @@ OpenScreen()
 Const WAVE_SQUARE = 0, WAVE_SINE = 1, WAVE_NOISE = 2
 Global soundMove = MakeSound(520, 500, 25, WAVE_SQUARE, 0.12)
 Global soundTurn = MakeSound(660, 880, 40, WAVE_SINE, 0.25)
-Global soundLock = MakeSound(160, 90, 70, WAVE_SQUARE, 0.25)
-Global soundSeal = MakeSound(700, 1400, 260, WAVE_SINE, 0.3)
+Global soundLand = MakeSound(160, 90, 90, WAVE_SQUARE, 0.25)
 Global soundCast = MakeSound(300, 1800, 420, WAVE_SINE, 0.3)
 Global soundHex = MakeSound(900, 120, 380, WAVE_NOISE, 0.25)
+Global soundLost = MakeSound(500, 90, 500, WAVE_SQUARE, 0.25)
 Global soundFall = MakeSound(220, 40, 900, WAVE_NOISE, 0.35)
 Global soundWin = MakeSound(440, 1320, 900, WAVE_SINE, 0.35)
 Global soundTick = MakeSound(880, 880, 60, WAVE_SINE, 0.25)
@@ -213,6 +248,7 @@ While Not quit
 		Case STATE_PAUSED
 			UpdatePause()
 		Case STATE_RESULT
+			PhysicsUpdate 1.0 / 60 ; The towers keep standing (or falling) behind the results.
 			UpdateEffects()
 			If KeyHit(BB_KEY_ESCAPE) Then GoToMenu()
 			Select MenuInput()
@@ -227,13 +263,14 @@ While Not quit
 Wend
 
 SaveSettings()
+ClearRound()
 FreeScreen()
 End
 
 ; --- Screen ------------------------------------------------------------------------------------------------------------
 
 Function OpenScreen()
-	If optFullscreen Then Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
+	If optFullscreen Then Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_FULLSCREEN Else Graphics3D SCREEN_W, SCREEN_H, 0, BB_GRAPHICS_WINDOWED
 	AppTitle "Mage Tower"
 	SetBuffer BackBuffer()
 	SeedRnd MilliSecs()
@@ -242,13 +279,17 @@ Function OpenScreen()
 	fontText = LoadFont("Arial", 20)
 	fontSmall = LoadFont("Arial", 15)
 	MakeImages()
+	AmbientLight 120, 115, 140
+	light = CreateLight()
+	RotateEntity light, 40, 30, 0
+	; Stones are heavy and do not bounce; the accurate solver keeps tall towers from creeping.
+	PhysicsGravity 0, -9.81, 0
+	PhysicsSolver BB_SOLVER_ACCURATE
 End Function
 
-; Graphics frees everything that belongs to the old screen, so the images and fonts are freed first and made again.
+; Graphics3D frees everything that belongs to the old screen, so the images and fonts are freed first and made again.
 Function FreeScreen()
 	If background <> 0 Then FreeImage background : background = 0
-	If towerImage <> 0 Then FreeImage towerImage : towerImage = 0
-	If fallenImage <> 0 Then FreeImage fallenImage : fallenImage = 0
 	If shadeBlock <> 0 Then FreeImage shadeBlock : shadeBlock = 0
 	Local i
 	For i = 1 To KINDS + 1
@@ -256,11 +297,13 @@ Function FreeScreen()
 	Next
 	For i = 1 To RUNES
 		If runeImage(i) <> 0 Then FreeImage runeImage(i) : runeImage(i) = 0
+		If runeTexture(i) <> 0 Then FreeTexture runeTexture(i) : runeTexture(i) = 0
 	Next
 	If fontTitle <> 0 Then FreeFont fontTitle : fontTitle = 0
 	If fontBig <> 0 Then FreeFont fontBig : fontBig = 0
 	If fontText <> 0 Then FreeFont fontText : fontText = 0
 	If fontSmall <> 0 Then FreeFont fontSmall : fontSmall = 0
+	ClearWorld
 End Function
 
 Function ToggleFullscreen()
@@ -275,19 +318,20 @@ Function LoadSettings()
 	If FileType(settingsPath) <> 1 Then Return
 	Local file = ReadFile(settingsPath)
 	If Not file Then Return
-	If ReadInt(file) = 1 ; A version number, so a changed file format can be recognised later.
-		Local i
+	Local i
+	If ReadInt(file) = 2 ; A version number, so a changed file format can be recognised later.
 		For i = 0 To MAX_PLAYERS - 1
 			seatControl(i) = ReadInt(file)
 		Next
 		optMode = ReadInt(file)
-		optRaceFloors = ReadInt(file)
+		optRaceHeight = ReadInt(file)
 		optRunes = ReadInt(file)
-		optStartLevel = ReadInt(file)
+		optStartSpeed = ReadInt(file)
 		optVolume = ReadInt(file)
 		optShake = ReadInt(file)
 		optFullscreen = ReadInt(file)
-		bestSolo = ReadInt(file)
+		optWeather = ReadInt(file)
+		bestSolo = ReadFloat(file)
 		For i = 0 To 2
 			bestRace(i) = ReadInt(file)
 		Next
@@ -298,42 +342,43 @@ Function LoadSettings()
 		If seatControl(i) < 0 Or seatControl(i) >= CONTROL_COUNT Then seatControl(i) = CONTROL_OFF
 	Next
 	If optMode <> MODE_STANDING And optMode <> MODE_RACE Then optMode = MODE_STANDING
-	If optRaceFloors < 0 Or optRaceFloors > 2 Then optRaceFloors = 1
+	If optRaceHeight < 0 Or optRaceHeight > 2 Then optRaceHeight = 1
 	If optRunes < 0 Or optRunes > 3 Then optRunes = 2
-	If optStartLevel < 1 Or optStartLevel > 10 Then optStartLevel = 1
+	If optStartSpeed < 1 Or optStartSpeed > 5 Then optStartSpeed = 1
 	If optVolume < 0 Or optVolume > 4 Then optVolume = 4
-	If bestSolo < 0 Then bestSolo = 0
+	If bestSolo < 0 Or bestSolo > 10000 Then bestSolo = 0
 End Function
 
 Function SaveSettings()
 	Local file = WriteFile(settingsPath)
 	If Not file Then Return ; A read-only folder: the game still works, it just forgets the options.
-	WriteInt file, 1
+	WriteInt file, 2
 	Local i
 	For i = 0 To MAX_PLAYERS - 1
 		WriteInt file, seatControl(i)
 	Next
 	WriteInt file, optMode
-	WriteInt file, optRaceFloors
+	WriteInt file, optRaceHeight
 	WriteInt file, optRunes
-	WriteInt file, optStartLevel
+	WriteInt file, optStartSpeed
 	WriteInt file, optVolume
 	WriteInt file, optShake
 	WriteInt file, optFullscreen
-	WriteInt file, bestSolo
+	WriteInt file, optWeather
+	WriteFloat file, bestSolo
 	For i = 0 To 2
 		WriteInt file, bestRace(i)
 	Next
 	CloseFile file
 End Function
 
-; Every sound goes through here, so the volume option works everywhere.
 Function PlaySfx(sound, pitch# = 1.0)
 	If sound = 0 Or optVolume = 0 Then Return
 	Local channel = PlaySound(sound)
 	ChannelVolume channel, optVolume / 4.0
 	If pitch <> 1.0 Then ChannelPitch channel, Int(22050 * pitch)
 End Function
+
 
 ; --- Stones and runes ----------------------------------------------------------------------------------------------------
 
@@ -362,38 +407,22 @@ Function ReadStones()
 			Next
 		Next
 	Next
-	stoneRed(RUBBLE) = 105 : stoneGreen(RUBBLE) = 98 : stoneBlue(RUBBLE) = 92
+	stoneRed(KINDS + 1) = 105 : stoneGreen(KINDS + 1) = 98 : stoneBlue(KINDS + 1) = 92 ; Plain grey stone for pictures
 End Function
 
 Function SetUpRunes()
 	Restore RuneList
 	Local r
 	For r = 1 To RUNES
-		Read runeName(r), runeRed(r), runeGreen(r), runeBlue(r), runeInfo(r)
+		Read runeName(r), runeRed(r), runeGreen(r), runeBlue(r), runeShort(r), runeInfo(r)
 	Next
 End Function
 
 Function IsHex(rune)
-	Return rune >= RUNE_STONE
+	Return rune >= RUNE_GUST
 End Function
 
-; --- Images --------------------------------------------------------------------------------------------------------------
 
-Function MakeImages()
-	background = MakeBackground()
-	towerImage = MakeTower(False)
-	fallenImage = MakeTower(True)
-	Local k
-	For k = 1 To KINDS + 1
-		blockImage(k) = MakeBlock(stoneRed(k), stoneGreen(k), stoneBlue(k), k = RUBBLE)
-	Next
-	shadeBlock = MakeBlock(40, 30, 60, False)
-	For k = 1 To RUNES
-		runeImage(k) = MakeRune(k)
-	Next
-End Function
-
-; A block of enchanted stone: a light top left edge, a dark bottom right edge and a few grains.
 Function MakeBlock(r, g, b, rough)
 	Local image = CreateImage(CELL, CELL)
 	SetBuffer ImageBuffer(image)
@@ -415,64 +444,6 @@ Function MakeBlock(r, g, b, rough)
 End Function
 
 ; The glyph of a rune, drawn with lines on black. MaskImage makes the black see-through.
-Function MakeRune(rune)
-	Local image = CreateImage(CELL, CELL)
-	SetBuffer ImageBuffer(image)
-	Color 0, 0, 0 : Rect 0, 0, CELL, CELL, 1
-	Local c = CELL / 2
-	Local pass
-	For pass = 0 To 1
-		; The first pass draws a dark outline one pixel wider, so the glyph reads on every stone colour.
-		Local o = 1 - pass
-		If pass = 0 Then Color 20, 10, 30 Else Color runeRed(rune), runeGreen(rune), runeBlue(rune)
-		Select rune
-			Case RUNE_FIRE ; A flame
-				ThickLine c, 4 - o, c - 6 - o, 14, 2 + o
-				ThickLine c - 6 - o, 14, c, 20 + o, 2 + o
-				ThickLine c, 20 + o, c + 6 + o, 14, 2 + o
-				ThickLine c + 6 + o, 14, c, 4 - o, 2 + o
-				ThickLine c, 10, c, 17, 2 + o
-			Case RUNE_CALM ; Three waves
-				Local wy
-				For wy = 7 To 17 Step 5
-					ThickLine 5, wy, 9, wy - 2, 2 + o
-					ThickLine 9, wy - 2, 14, wy + 1, 2 + o
-					ThickLine 14, wy + 1, 19, wy - 1, 2 + o
-				Next
-			Case RUNE_GOLD ; A star
-				ThickLine c, 3, c + 5, 19, 2 + o
-				ThickLine c + 5, 19, c - 7, 9, 2 + o
-				ThickLine c - 7, 9, c + 7, 9, 2 + o
-				ThickLine c + 7, 9, c - 5, 19, 2 + o
-				ThickLine c - 5, 19, c, 3, 2 + o
-			Case RUNE_STONE ; A heavy square with a crack
-				ThickLine 5, 6, 19, 6, 2 + o
-				ThickLine 19, 6, 19, 18, 2 + o
-				ThickLine 19, 18, 5, 18, 2 + o
-				ThickLine 5, 18, 5, 6, 2 + o
-				ThickLine 12, 6, 10, 12, 2 + o
-				ThickLine 10, 12, 14, 18, 2 + o
-			Case RUNE_STORM ; A lightning bolt
-				ThickLine 14, 3, 7, 13, 2 + o
-				ThickLine 7, 13, 16, 11, 2 + o
-				ThickLine 16, 11, 9, 21, 2 + o
-			Case RUNE_SHADE ; A closed eye
-				ThickLine 4, 11, 12, 16, 2 + o
-				ThickLine 12, 16, 20, 11, 2 + o
-				ThickLine 8, 14, 6, 18, 2 + o
-				ThickLine 12, 16, 12, 20, 2 + o
-				ThickLine 16, 14, 18, 18, 2 + o
-			Case RUNE_TWIST ; Two arrows in opposite directions
-				ThickLine 4, 8, 18, 8, 2 + o
-				ThickLine 18, 8, 14, 4, 2 + o
-				ThickLine 20, 16, 6, 16, 2 + o
-				ThickLine 6, 16, 10, 20, 2 + o
-		End Select
-	Next
-	SetBuffer BackBuffer()
-	MaskImage image, 0, 0, 0
-	Return image
-End Function
 
 Function ThickLine(x0, y0, x1, y1, width)
 	Local dx, dy
@@ -516,52 +487,6 @@ End Function
 
 ; The tower around one well: stone walls, battlements at the top and a door at the bottom. A fallen tower is drawn
 ; darker and with cracks.
-Function MakeTower(fallen)
-	Local w = COLUMNS * CELL + 40, h = (ROWS - HIDDEN_ROWS) * CELL + 64
-	Local image = CreateImage(w, h)
-	SetBuffer ImageBuffer(image)
-	Color 0, 0, 0 : Rect 0, 0, w, h, 1
-	Local x, y, row
-	Local wallTop = 24
-	; The walls are drawn as rows of bricks, every second row shifted by half a brick.
-	For y = wallTop To h - 1 Step 12
-		row = (y - wallTop) / 12
-		For x = 0 To w - 1 Step 20
-			Local bx = x
-			If row Mod 2 = 1 Then bx = x - 10
-			Local light = Rand(70, 95)
-			If fallen Then light = light / 2
-			Color light, light - 6, light + 8
-			Rect bx + 1, y + 1, 18, 10, 1
-		Next
-	Next
-	; Battlements
-	For x = 0 To w - 1 Step 28
-		Local l2 = 85
-		If fallen Then l2 = 40
-		Color l2, l2 - 6, l2 + 8 : Rect x, 6, 16, wallTop - 6, 1
-	Next
-	; The inside of the tower: a dark well with a faint grid.
-	Color 14, 12, 26 : Rect 20, wallTop, COLUMNS * CELL, (ROWS - HIDDEN_ROWS) * CELL, 1
-	Color 26, 22, 44
-	For x = 1 To COLUMNS - 1
-		Rect 20 + x * CELL, wallTop, 1, (ROWS - HIDDEN_ROWS) * CELL, 1
-	Next
-	For y = 1 To ROWS - HIDDEN_ROWS - 1
-		Rect 20, wallTop + y * CELL, COLUMNS * CELL, 1, 1
-	Next
-	If fallen
-		Color 10, 8, 14
-		Local i
-		For i = 1 To 6
-			Local cx = Rand(0, w - 1), cy = Rand(wallTop, h - 20)
-			ThickLine cx, cy, cx + Rand(-30, 30), cy + Rand(20, 60), 2
-		Next
-	EndIf
-	SetBuffer BackBuffer()
-	MaskImage image, 0, 0, 0
-	Return image
-End Function
 
 ; --- Watermark -----------------------------------------------------------------------------------------------------------
 ; Every frame carries a faint pattern that nobody can see: some background pixels are one step bluer than the rest.
@@ -674,33 +599,6 @@ Function OnOff$(value)
 End Function
 
 ; The "New game" screen: who sits at which tower, the mode, and Start.
-Function GoToSetup()
-	state = STATE_SETUP
-	menuCount = 8
-	menuTop = 250
-	menuWidth = 560
-	menuSelected = 7
-	RefreshSetupText()
-	ForgetInput()
-End Function
-
-Function RefreshSetupText()
-	Local i
-	For i = 0 To MAX_PLAYERS - 1
-		menuText(i) = mageName(i) + ": " + controlName(seatControl(i))
-		If seatControl(i) >= CONTROL_PAD1 And seatControl(i) <= CONTROL_PAD4
-			If JoyType(seatControl(i) - CONTROL_PAD1) = BB_JOYTYPE_NONE Then menuText(i) = menuText(i) + " (not connected)"
-		EndIf
-	Next
-	If optMode = MODE_STANDING
-		menuText(4) = "Mode: last tower standing"
-	Else
-		menuText(4) = "Mode: race to " + raceFloors(optRaceFloors) + " floors"
-	EndIf
-	menuText(5) = "Runes: " + runeChanceName(optRunes)
-	menuText(6) = "Back"
-	If CountSeats() = 0 Then menuText(7) = "Start (take a seat first)" Else menuText(7) = "Start"
-End Function
 
 Function CountSeats()
 	Local i, count = 0
@@ -715,12 +613,12 @@ Function UpdateSetup()
 	If KeyHit(BB_KEY_LEFT) Then change = -1
 	If KeyHit(BB_KEY_RIGHT) Then change = 1
 	Local chosen = MenuInput()
-	If KeyHit(BB_KEY_ESCAPE) Or chosen = 6
+	If KeyHit(BB_KEY_ESCAPE) Or chosen = 7
 		SaveSettings()
 		GoToMenu()
 		Return
 	EndIf
-	If chosen = 7
+	If chosen = 8
 		If CountSeats() > 0
 			SaveSettings()
 			StartRound()
@@ -734,12 +632,13 @@ Function UpdateSetup()
 		Case 0, 1, 2, 3
 			seatControl(menuSelected) = (seatControl(menuSelected) + change + CONTROL_COUNT) Mod CONTROL_COUNT
 		Case 4
-			; Last tower standing, then the race with 20, 30 and 40 floors.
+			; Last tower standing, then the race to 15, 20 and 25 metres.
 			Local m = 0
-			If optMode = MODE_RACE Then m = 1 + optRaceFloors
+			If optMode = MODE_RACE Then m = 1 + optRaceHeight
 			m = (m + change + 4) Mod 4
-			If m = 0 Then optMode = MODE_STANDING Else optMode = MODE_RACE : optRaceFloors = m - 1
+			If m = 0 Then optMode = MODE_STANDING Else optMode = MODE_RACE : optRaceHeight = m - 1
 		Case 5 : optRunes = (optRunes + change + 4) Mod 4
+		Case 6 : optWeather = Not optWeather
 		Default : Return
 	End Select
 	PlaySfx(soundTurn)
@@ -757,7 +656,7 @@ Function GoToOptions()
 End Function
 
 Function RefreshOptionsText()
-	menuText(0) = "Starting speed: " + optStartLevel
+	menuText(0) = "Starting speed: " + optStartSpeed
 	menuText(1) = "Sound volume: " + (optVolume * 25) + "%"
 	menuText(2) = "Tower shake: " + OnOff(optShake)
 	menuText(3) = "Display: " + DisplayName$()
@@ -785,7 +684,7 @@ Function UpdateOptions()
 	If change = 0 Then Return
 
 	Select menuSelected
-		Case 0 : optStartLevel = (optStartLevel - 1 + change + 10) Mod 10 + 1
+		Case 0 : optStartSpeed = (optStartSpeed - 1 + change + 5) Mod 5 + 1
 		Case 1 : optVolume = (optVolume + change + 5) Mod 5
 		Case 2 : optShake = Not optShake
 		Case 3
@@ -818,17 +717,37 @@ Function UpdatePause()
 	End Select
 End Function
 
+
 ; --- Rounds --------------------------------------------------------------------------------------------------------------
 
 Function ClearRound()
 	Delete Each Spark
 	Delete Each Bolt
 	Delete Each Popup
+	Delete Each Drop
+	Local s.Stone, b
+	For s = Each Stone
+		FreeStone(s)
+	Next
 	Local p
 	For p = 0 To MAX_PLAYERS - 1
 		playing(p) = False
 		alive(p) = False
+		guided(p) = Null
+		If camera(p) <> 0 Then FreeEntity camera(p) : camera(p) = 0
+		If towerTop(p) <> 0 Then FreeEntity towerTop(p) : towerTop(p) = 0
 	Next
+	For p = 0 To 1
+		If glass(p) <> 0 Then FreeEntity glass(p) : glass(p) = 0
+	Next
+End Function
+
+Function FreeStone(s.Stone)
+	Local b
+	For b = 0 To 3
+		If s\body[b] <> 0 Then FreeEntity s\body[b] ; The mesh is its child and goes with it.
+	Next
+	Delete s
 End Function
 
 Function StartRound()
@@ -840,50 +759,78 @@ Function StartRound()
 	winner = -1
 	winText = ""
 	seatsPlaying = 0
-	Local p, x, y
+	Local p
 	For p = 0 To MAX_PLAYERS - 1
 		If seatControl(p) <> CONTROL_OFF Then seatsPlaying = seatsPlaying + 1
 	Next
 	nextPlace = seatsPlaying
-	; The towers stand side by side, centred on the screen.
-	Local spacing = 310
-	Local leftEdge = SCREEN_W / 2 - (seatsPlaying * spacing) / 2
+	; Two panes of glass in front of and behind all towers keep the stones in a flat world.
+	Local z
+	For z = 0 To 1
+		glass(z) = CreatePhysicsBody(BB_SHAPE_BOX, BB_MOTION_STATIC, TOWER_SPACING * MAX_PLAYERS, 400, 0.5)
+		PositionEntity glass(z), TOWER_SPACING * (MAX_PLAYERS - 1) / 2.0, 300, (z * 2 - 1) * 1.0
+		PhysicsFriction glass(z), 0
+		PhysicsLayer glass(z), LAYER_GLASS, -1, -1
+	Next
+	; The views stand side by side, centred on the screen.
+	Local leftEdge = SCREEN_W / 2 - (seatsPlaying * VIEW_SPACING) / 2
 	Local seat = 0
 	For p = 0 To MAX_PLAYERS - 1
 		If seatControl(p) <> CONTROL_OFF
 			playing(p) = True
 			alive(p) = True
-			towerX(p) = leftEdge + seat * spacing + (spacing - COLUMNS * CELL) / 2
+			viewX(p) = leftEdge + seat * VIEW_SPACING + (VIEW_SPACING - VIEW_W) / 2
 			seat = seat + 1
-			For x = 0 To COLUMNS - 1
-				For y = 0 To ROWS - 1
-					grid(p, x, y) = 0
-					gridRune(p, x, y) = 0
-				Next
-			Next
-			score(p) = 0 : floors(p) = 0 : place(p) = 0 : finishFrame(p) = 0
-			calmTimer(p) = 0 : stormTimer(p) = 0 : shadeTimer(p) = 0 : twistTimer(p) = 0
-			shake(p) = 0 : casting(p) = 0
+			baseX(p) = p * TOWER_SPACING
+			towerTop(p) = MakeTowerTop(baseX(p))
+			camera(p) = CreateCamera()
+			CameraProjMode camera(p), 2
+			CameraViewport camera(p), viewX(p), 0, VIEW_W, SCREEN_H
+			CameraZoom camera(p), 2.0 * PIXELS_PER_METRE / VIEW_W
+			CameraClsMode camera(p), False, True ; The sky is drawn with 2D before RenderWorld.
+			camY(p) = CameraLowest()
+			PositionEntity camera(p), baseX(p), camY(p), -50
+			hearts(p) = START_HEARTS
+			height(p) = 0 : bestHeight(p) = 0 : stonesPlaced(p) = 0 : place(p) = 0 : finishFrame(p) = 0
+			featherTimer(p) = 0 : stormTimer(p) = 0 : twistTimer(p) = 0 : quakeTimer(p) = 0 : iceStones(p) = 0
+			raceHold(p) = 0 : shake(p) = 0 : casting(p) = 0
 			holdLeft(p) = False : holdRight(p) = False : holdUp(p) = False
 			bagPos(p) = KINDS
+			waitFrames(p) = 0
 			PickNext(p)
-			NewStone(p)
 		EndIf
 	Next
+	StartWeather()
+	PhysicsUpdate 0
 	ForgetInput()
 End Function
 
-Function Level(p)
-	Return optStartLevel + floors(p) / 10
+; The top of a mage's tower: a static stone slab with the rest of the tower below it, out of sight.
+Function MakeTowerTop(x#)
+	Local body = CreatePhysicsBody(BB_SHAPE_BOX, BB_MOTION_STATIC, BASE_HALF, 0.5, 0.45)
+	PositionEntity body, x, -0.5, 0
+	PhysicsFriction body, 1.0
+	PhysicsLayer body, LAYER_SOLID, -1, -1
+	Local slab = CreateCube(body)
+	ScaleEntity slab, BASE_HALF, 0.5, 0.45
+	EntityColor slab, 120, 112, 130
+	Local wall = CreateCube(body)
+	ScaleEntity wall, BASE_HALF - 0.3, 30, 0.4
+	PositionEntity wall, 0, -30.5, 0.1
+	EntityColor wall, 70, 64, 88
+	Local i
+	For i = 0 To 3 ; Battlements
+		Local merlon = CreateCube(body)
+		ScaleEntity merlon, 0.3, 0.3, 0.3
+		PositionEntity merlon, -BASE_HALF + 0.3 + i * (BASE_HALF * 2 - 0.6) / 3.0, -1.2, -0.2
+		EntityColor merlon, 95, 88, 110
+	Next
+	Return body
 End Function
 
-; Frames a stone waits before it falls one row.
-Function FallFrames#(p)
-	Local frames# = 48.0 * 0.82 ^ (Level(p) - 1)
-	If frames < 1.5 Then frames = 1.5
-	If stormTimer(p) > 0 Then frames = frames / 3.0
-	If calmTimer(p) > 0 Then frames = frames * 2.0
-	Return frames
+; The lowest the camera goes: the tower top sits a little above the bottom of the view.
+Function CameraLowest#()
+	Return SCREEN_H / 2.0 / PIXELS_PER_METRE - 3.0
 End Function
 
 ; The next stone comes from a "bag" holding one stone of each kind in a random order, so no kind is missing for long.
@@ -909,36 +856,110 @@ Function PickNext(p)
 	EndIf
 End Function
 
+; Where block b of a guided stone is, relative to the middle of its box. y points up.
+Function BlockOffsetX#(k, t, b)
+	Return cellX(k, t, b) - (stoneSize(k) - 1) / 2.0
+End Function
+
+Function BlockOffsetY#(k, t, b)
+	Return (stoneSize(k) - 1) / 2.0 - cellY(k, t, b)
+End Function
+
+; The height at which new stones appear: well above the tower and the stones still falling.
+Function SpawnY#(p)
+	Return camY(p) + SCREEN_H / 2.0 / PIXELS_PER_METRE - HUD_H / PIXELS_PER_METRE - 2.0
+End Function
+
 Function NewStone(p)
-	kind(p) = nextKind(p)
-	runeBlock(p) = nextRuneBlock(p)
-	runeKind(p) = nextRune(p)
+	Local s.Stone = New Stone
+	s\owner = p
+	s\kind = nextKind(p)
+	s\rune = nextRune(p)
+	s\runeBlock = nextRuneBlock(p)
 	PickNext(p)
-	turn(p) = 0
-	stoneX(p) = (COLUMNS - stoneSize(kind(p))) / 2
-	stoneY(p) = HIDDEN_ROWS - 1 ; The bottom row of the stone is just inside the tower.
-	fallTimer(p) = 0
-	lockTimer(p) = 0
-	lockResets(p) = 0
-	aiTries(p) = 0
-	If Not Fits(p, kind(p), turn(p), stoneX(p), stoneY(p))
-		TowerFalls(p)
-		Return
+	s\turn = 0
+	s\x = baseX(p)
+	If stoneSize(s\kind) Mod 2 = 0 Then s\x = s\x + 0.5 ; Even boxes sit between two columns.
+	s\y = SpawnY(p)
+	If iceStones(p) > 0
+		s\icy = True
+		iceStones(p) = iceStones(p) - 1
 	EndIf
+	Local b
+	For b = 0 To 3
+		s\body[b] = CreatePhysicsBody(BB_SHAPE_BOX, BB_MOTION_KINEMATIC, 0.48, 0.48, 0.45)
+		PhysicsLayer s\body[b], LAYER_GUIDED, 0, 0 ; A guided stone touches nothing; the program checks its way.
+		s\mesh[b] = CreateCube(s\body[b])
+		ScaleEntity s\mesh[b], 0.48, 0.48, 0.45
+		If b = s\runeBlock
+			EntityColor s\mesh[b], 255, 255, 255
+			EntityTexture s\mesh[b], runeTexture(s\rune)
+		ElseIf s\icy
+			EntityColor s\mesh[b], 200, 235, 255
+			EntityAlpha s\mesh[b], 0.85
+		Else
+			EntityColor s\mesh[b], Float(stoneRed(s\kind)), Float(stoneGreen(s\kind)), Float(stoneBlue(s\kind))
+		EndIf
+		EntityShininess s\mesh[b], 0.3
+	Next
+	PlaceGuided(s)
+	guided(p) = s
+	aiTries(p) = 0
 	If seatControl(p) >= CONTROL_APPRENTICE Then AiPlan(p)
 End Function
 
-Function Fits(p, k, t, x, y)
-	Local b, cx, cy
+Function PlaceGuided(s.Stone)
+	Local b
 	For b = 0 To 3
-		cx = x + cellX(k, t, b)
-		cy = y + cellY(k, t, b)
-		If cx < 0 Or cx >= COLUMNS Or cy >= ROWS Then Return False
-		If cy >= 0
-			If grid(p, cx, cy) <> 0 Then Return False
-		EndIf
+		PositionEntity s\body[b], s\x + BlockOffsetX(s\kind, s\turn, b), s\y + BlockOffsetY(s\kind, s\turn, b), 0
+		RotateEntity s\body[b], 0, 0, 0
+	Next
+End Function
+
+; Can the stone be at x, y with turn t? Every block's box is checked against everything that stands.
+Function GuidedFits(s.Stone, t, x#, y#)
+	Local b
+	For b = 0 To 3
+		If PhysicsOverlapBox(x + BlockOffsetX(s\kind, t, b), y + BlockOffsetY(s\kind, t, b), 0, 0.47, 0.47, 0.3, 0, 0, 0, MASK_SOLID, 0) > 0 Then Return False
 	Next
 	Return True
+End Function
+
+; Lets go of a guided stone: its blocks become dynamic bodies, welded to each other.
+Function LetGo(s.Stone, fallSpeed#)
+	Local b, p = s\owner
+	For b = 0 To 3
+		PhysicsBodyMotion s\body[b], BB_MOTION_DYNAMIC
+		PhysicsLayer s\body[b], LAYER_SOLID, -1, -1
+		PhysicsMass s\body[b], 1.0
+		PhysicsFriction s\body[b], BlockFriction(s)
+		PhysicsRestitution s\body[b], 0.0
+		PhysicsLinearVelocity s\body[b], 0, -fallSpeed, 0, True
+	Next
+	For b = 1 To 3
+		CreatePhysicsFixedConstraint(s\body[0], s\body[b])
+	Next
+	s\landed = frame
+	guided(p) = Null
+	waitFrames(p) = 20
+	stonesPlaced(p) = stonesPlaced(p) + 1
+	PlaySfx(soundLand)
+	If s\rune <> RUNE_NONE Then CastRune(p, s\rune, s)
+End Function
+
+Function BlockFriction#(s.Stone)
+	If s\icy Then Return 0.03
+	If weather = WEATHER_RAIN Then Return 0.35
+	Return 0.8
+End Function
+
+; Metres per frame a guided stone floats down.
+Function FallSpeed#(p)
+	Local speed# = (2.6 + 0.5 * (optStartSpeed - 1) + bestHeight(p) * 0.04) / 60.0
+	If stormTimer(p) > 0 Then speed = speed * 3.0
+	If featherTimer(p) > 0 Then speed = speed * 0.5
+	If weather = WEATHER_SNOW Then speed = speed * 0.7
+	Return speed
 End Function
 
 Function UpdateRound()
@@ -946,31 +967,60 @@ Function UpdateRound()
 		countdown = countdown - 1
 		If countdown Mod 60 = 0 Then PlaySfx(soundTick, 1.0 + 0.5 * (countdown = 0))
 		UpdateEffects()
+		UpdateWeather()
 		Return
 	EndIf
 	frame = frame + 1
+	UpdateWeather()
 	Local p
 	For p = 0 To MAX_PLAYERS - 1
 		If alive(p) And (Not roundOver) Then UpdateMage(p)
 	Next
+	PushStones()
+	PhysicsUpdate 1.0 / 60
+	CheckStones()
 	UpdateEffects()
 	CheckRoundEnd()
 End Function
 
 Function UpdateMage(p)
-	If calmTimer(p) > 0 Then calmTimer(p) = calmTimer(p) - 1
+	If featherTimer(p) > 0 Then featherTimer(p) = featherTimer(p) - 1
 	If stormTimer(p) > 0 Then stormTimer(p) = stormTimer(p) - 1
-	If shadeTimer(p) > 0 Then shadeTimer(p) = shadeTimer(p) - 1
 	If twistTimer(p) > 0 Then twistTimer(p) = twistTimer(p) - 1
+	If quakeTimer(p) > 0 Then quakeTimer(p) = quakeTimer(p) - 1
 	If casting(p) > 0 Then casting(p) = casting(p) - 1
+
+	; The camera follows the tower up, slowly.
+	Local wantY# = CameraLowest()
+	If bestHeight(p) + 6.0 > wantY Then wantY = bestHeight(p) + 6.0
+	camY(p) = camY(p) + (wantY - camY(p)) * 0.03
+	PositionEntity camera(p), baseX(p), camY(p), -50
+
+	If guided(p) = Null
+		waitFrames(p) = waitFrames(p) - 1
+		If waitFrames(p) <= 0 Then NewStone(p)
+		Return
+	EndIf
+	Local s.Stone = guided(p)
 
 	If seatControl(p) >= CONTROL_APPRENTICE Then AiControls(p) Else ReadControls(p)
 
-	Local moved = False
-	If wantTurn Then moved = TryTurn(p, 1)
-	If wantTurnBack Then moved = TryTurn(p, 3) Or moved
+	If wantTurn
+		Local t = (s\turn + 1) Mod 4
+		Restore TurnNudges
+		Local i, dx#
+		For i = 1 To 5
+			Read dx
+			If GuidedFits(s, t, s\x + dx, s\y)
+				s\turn = t
+				s\x = s\x + dx
+				PlaySfx(soundTurn)
+				Exit
+			EndIf
+		Next
+	EndIf
 
-	; Left and right: one step at once, then repeated steps while held.
+	; Left and right in steps of half a block: one step at once, then repeated steps while held.
 	Local dir = 0
 	If wantLeft And (Not wantRight) Then dir = -1
 	If wantRight And (Not wantLeft) Then dir = 1
@@ -984,9 +1034,8 @@ Function UpdateMage(p)
 			If repeatTimer(p) <= 0 Then stepNow = True : repeatTimer(p) = REPEAT_STEP
 		EndIf
 		If stepNow
-			If Fits(p, kind(p), turn(p), stoneX(p) + dir, stoneY(p))
-				stoneX(p) = stoneX(p) + dir
-				moved = True
+			If GuidedFits(s, s\turn, s\x + dir * 0.5, s\y)
+				s\x = s\x + dir * 0.5
 				PlaySfx(soundMove)
 			EndIf
 		EndIf
@@ -994,78 +1043,42 @@ Function UpdateMage(p)
 	holdLeft(p) = (dir = -1)
 	holdRight(p) = (dir = 1)
 
-	If moved And lockTimer(p) > 0 And lockResets(p) < LOCK_RESETS
-		lockTimer(p) = 0
-		lockResets(p) = lockResets(p) + 1
-	EndIf
-
 	If wantDrop
-		Local rows = 0
-		While Fits(p, kind(p), turn(p), stoneX(p), stoneY(p) + 1)
-			stoneY(p) = stoneY(p) + 1
-			rows = rows + 1
+		; Straight down until it touches, then it is let go with some speed.
+		While GuidedFits(s, s\turn, s\x, s\y - 0.1) And s\y > LOST_DEPTH
+			s\y = s\y - 0.1
 		Wend
-		score(p) = score(p) + rows * 2
-		LockStone(p)
+		PlaceGuided(s)
+		LetGo(s, 3.0)
 		Return
 	EndIf
 
-	; Gravity: the fall timer counts frames, a faster key lets the stone fall at least every second frame.
-	Local frames# = FallFrames(p)
-	If wantFaster And frames > 2 Then frames = 2
-	fallTimer(p) = fallTimer(p) + 1
-	While fallTimer(p) >= frames
-		fallTimer(p) = fallTimer(p) - frames
-		If Fits(p, kind(p), turn(p), stoneX(p), stoneY(p) + 1)
-			stoneY(p) = stoneY(p) + 1
-			If wantFaster Then score(p) = score(p) + 1
-		Else
-			fallTimer(p) = 0
-		EndIf
-	Wend
-
-	If Fits(p, kind(p), turn(p), stoneX(p), stoneY(p) + 1)
-		lockTimer(p) = 0
+	Local speed# = FallSpeed(p)
+	If wantFaster Then speed = 0.25
+	If GuidedFits(s, s\turn, s\x, s\y - speed)
+		s\y = s\y - speed
+		PlaceGuided(s)
+		If s\y < LOST_DEPTH Then LetGo(s, speed * 60) ; Missed the tower completely.
 	Else
-		lockTimer(p) = lockTimer(p) + 1
-		If lockTimer(p) >= LOCK_FRAMES Then LockStone(p)
+		PlaceGuided(s)
+		LetGo(s, speed * 60)
 	EndIf
-End Function
-
-; Turns the stone a quarter (1) or three quarters (3). Next to a wall or other blocks it tries a few nudges.
-Function TryTurn(p, quarters)
-	Local t = (turn(p) + quarters) Mod 4
-	Restore TurnNudges
-	Local i, dx, dy
-	For i = 1 To 6
-		Read dx, dy
-		If Fits(p, kind(p), t, stoneX(p) + dx, stoneY(p) + dy)
-			stoneX(p) = stoneX(p) + dx
-			stoneY(p) = stoneY(p) + dy
-			turn(p) = t
-			PlaySfx(soundTurn)
-			Return True
-		EndIf
-	Next
-	Return False
 End Function
 
 ; Reads the keys or the gamepad of a human mage into the want* globals.
 Function ReadControls(p)
-	wantLeft = False : wantRight = False : wantTurn = False : wantTurnBack = False : wantFaster = False : wantDrop = False
+	wantLeft = False : wantRight = False : wantTurn = False : wantFaster = False : wantDrop = False
 	Select seatControl(p)
 		Case CONTROL_KEYS_LEFT
 			wantLeft = KeyDown(BB_KEY_A)
 			wantRight = KeyDown(BB_KEY_D)
 			wantTurn = KeyHit(BB_KEY_W)
-			wantTurnBack = KeyHit(BB_KEY_Q)
 			wantFaster = KeyDown(BB_KEY_S)
 			wantDrop = KeyHit(BB_KEY_SPACE)
 		Case CONTROL_KEYS_RIGHT
 			wantLeft = KeyDown(BB_KEY_LEFT)
 			wantRight = KeyDown(BB_KEY_RIGHT)
 			wantTurn = KeyHit(BB_KEY_UP)
-			wantTurnBack = KeyHit(BB_KEY_RCTRL)
 			wantFaster = KeyDown(BB_KEY_DOWN)
 			wantDrop = KeyHit(BB_KEY_ENTER) Or KeyHit(BB_KEY_KP_ENTER)
 		Default
@@ -1077,7 +1090,6 @@ Function ReadControls(p)
 			wantFaster = (yDir = BB_JOYDIR_POSITIVE) Or (hat = BB_JOYHAT_DOWN)
 			Local up = (yDir = BB_JOYDIR_NEGATIVE) Or (hat = BB_JOYHAT_UP)
 			wantTurn = JoyHit(1, port)
-			wantTurnBack = JoyHit(2, port)
 			wantDrop = JoyHit(3, port) Or (up And (Not holdUp(p)))
 			holdUp(p) = up
 	End Select
@@ -1089,115 +1101,95 @@ Function ReadControls(p)
 	EndIf
 End Function
 
-; Sets the stone into the tower, seals full rows and casts their runes.
-Function LockStone(p)
-	Local b, cx, cy
+; Wind, quakes and the Anchor rune act on the stones that were let go.
+Function PushStones()
+	Local s.Stone, b, p
+	For s = Each Stone
+		If s\landed > 0 And (Not s\lost)
+			p = s\owner
+			For b = 0 To 3
+				If windForce <> 0 Then PhysicsApplyForce s\body[b], windForce, 0, 0, True
+				If quakeTimer(p) > 0 And frame Mod 6 = 0 Then PhysicsApplyImpulse s\body[b], Rnd(-0.35, 0.35), Rnd(0, 0.3), 0, True
+			Next
+			If s\rune = RUNE_ANCHOR And (Not s\anchored) And frame - s\landed > 30 Then AnchorStone(s)
+		EndIf
+	Next
+End Function
+
+; Welds every block of the stone to the blocks of other stones that touch it, and to the tower top.
+Function AnchorStone(s.Stone)
+	s\anchored = True
+	Local b, n, i, other, welds = 0
 	For b = 0 To 3
-		cx = stoneX(p) + cellX(kind(p), turn(p), b)
-		cy = stoneY(p) + cellY(kind(p), turn(p), b)
-		If cy >= 0
-			grid(p, cx, cy) = kind(p)
-			If b = runeBlock(p) Then gridRune(p, cx, cy) = runeKind(p) Else gridRune(p, cx, cy) = RUNE_NONE
-		EndIf
-	Next
-	PlaySfx(soundLock)
-
-	; Find full rows from the bottom up. Their runes are collected first and cast after the rows are gone.
-	Local sealed = 0, y = ROWS - 1, x, full
-	Local runeCount = 0
-	While y >= 0
-		full = True
-		For x = 0 To COLUMNS - 1
-			If grid(p, x, y) = 0 Then full = False
+		n = PhysicsOverlapBox(EntityX(s\body[b], True), EntityY(s\body[b], True), 0, 0.6, 0.6, 0.3, 0, 0, EntityRoll(s\body[b], True), MASK_SOLID, 0)
+		For i = 0 To n - 1
+			other = GetPhysicsOverlap(i)
+			If Not IsOwnBlock(s, other)
+				CreatePhysicsFixedConstraint(s\body[b], other)
+				welds = welds + 1
+			EndIf
 		Next
-		If full
-			sealed = sealed + 1
-			For x = 0 To COLUMNS - 1
-				If gridRune(p, x, y) <> RUNE_NONE And runeCount < 40
-					castList(runeCount) = gridRune(p, x, y)
-					runeCount = runeCount + 1
+	Next
+	If welds > 0
+		Local sx = WorldToScreenX(s\owner, EntityX(s\body[0], True)), sy = WorldToScreenY(s\owner, EntityY(s\body[0], True))
+		BurstAt(sx, sy, runeRed(RUNE_ANCHOR), runeGreen(RUNE_ANCHOR), runeBlue(RUNE_ANCHOR), 30)
+		PlaySfx(soundTurn, 0.6)
+	EndIf
+End Function
+
+Function IsOwnBlock(s.Stone, entity)
+	Local b
+	For b = 0 To 3
+		If s\body[b] = entity Then Return True
+	Next
+	Return False
+End Function
+
+; Measures the towers and finds stones that dropped off.
+Function CheckStones()
+	Local p
+	For p = 0 To MAX_PLAYERS - 1
+		height(p) = 0
+	Next
+	Local s.Stone, b, y#, top#, still
+	For s = Each Stone
+		If s\landed > 0
+			p = s\owner
+			top = -100
+			still = True
+			For b = 0 To 3
+				y = EntityY(s\body[b], True)
+				If y + 0.5 > top Then top = y + 0.5
+				If Abs(GetPhysicsLinearVelocityY(s\body[b], True)) > 0.6 Then still = False
+			Next
+			If top < LOST_DEPTH
+				If Not s\lost
+					s\lost = True
+					If alive(p) And (Not roundOver) Then StoneLost(p, s)
 				EndIf
-				BurstAt(towerX(p) + x * CELL + CELL / 2, CellScreenY(y) + CELL / 2, stoneRed(grid(p, x, y)), stoneGreen(grid(p, x, y)), stoneBlue(grid(p, x, y)), 4)
-			Next
-			RemoveRow(p, y)
-			; The same y is checked again, because the rows above moved down into it.
-		Else
-			y = y - 1
+				FreeStone(s)
+			ElseIf still And frame - s\landed > 40 And Abs(EntityX(s\body[0], True) - baseX(p)) < 14
+				; A stone counts for the height once it has come to rest on the tower.
+				If top > height(p) Then height(p) = top
+			EndIf
 		EndIf
-	Wend
-
-	If sealed > 0
-		Local points = 0
-		Select sealed
-			Case 1 : points = 100
-			Case 2 : points = 300
-			Case 3 : points = 500
-			Default : points = 800
-		End Select
-		score(p) = score(p) + points * Level(p)
-		floors(p) = floors(p) + sealed
-		PlaySfx(soundSeal, 1.0 + 0.12 * (sealed - 1))
-		Local message$ = "+" + sealed + " floor"
-		If sealed > 1 Then message = message + "s"
-		If sealed = 4 Then message = "Grand seal!"
-		AddPopup(towerX(p) + COLUMNS * CELL / 2, WELL_TOP + 120, message, 255, 240, 200)
-		Local i
-		For i = 0 To runeCount - 1
-			CastRune(p, castList(i))
-		Next
-	EndIf
-
-	If optMode = MODE_RACE And floors(p) >= raceFloors(optRaceFloors) And (Not roundOver)
-		finishFrame(p) = frame
-		EndRound(p)
-		Return
-	EndIf
-	NewStone(p)
-End Function
-
-; Removes a row: everything above moves down by one.
-Function RemoveRow(p, row)
-	Local x, y
-	For y = row To 1 Step -1
-		For x = 0 To COLUMNS - 1
-			grid(p, x, y) = grid(p, x, y - 1)
-			gridRune(p, x, y) = gridRune(p, x, y - 1)
-		Next
 	Next
-	For x = 0 To COLUMNS - 1
-		grid(p, x, 0) = 0
-		gridRune(p, x, 0) = RUNE_NONE
+	For p = 0 To MAX_PLAYERS - 1
+		If playing(p)
+			If height(p) > bestHeight(p) Then bestHeight(p) = height(p)
+			; Slowly forget a best height that has fallen away, so the camera follows a collapse.
+			If height(p) < bestHeight(p) - 1.0 Then bestHeight(p) = bestHeight(p) - 0.05
+		EndIf
 	Next
 End Function
 
-; Pushes rows of rubble up under a tower, with one gap so that they can be sealed again.
-Function AddRubble(p, count)
-	Local i, x, y
-	Local gap = Rand(0, COLUMNS - 1)
-	For i = 1 To count
-		; A block pushed out at the top makes the tower fall.
-		For x = 0 To COLUMNS - 1
-			If grid(p, x, 0) <> 0 Then TowerFalls(p) : Return
-		Next
-		For y = 0 To ROWS - 2
-			For x = 0 To COLUMNS - 1
-				grid(p, x, y) = grid(p, x, y + 1)
-				gridRune(p, x, y) = gridRune(p, x, y + 1)
-			Next
-		Next
-		For x = 0 To COLUMNS - 1
-			If x = gap Then grid(p, x, ROWS - 1) = 0 Else grid(p, x, ROWS - 1) = RUBBLE
-			gridRune(p, x, ROWS - 1) = RUNE_NONE
-		Next
-	Next
-	; The falling stone is lifted out of the new rubble if it has to be.
-	i = 0
-	While Not Fits(p, kind(p), turn(p), stoneX(p), stoneY(p)) And i < count + 2
-		stoneY(p) = stoneY(p) - 1
-		i = i + 1
-	Wend
-	If Not Fits(p, kind(p), turn(p), stoneX(p), stoneY(p)) Then TowerFalls(p)
-	If seatControl(p) >= CONTROL_APPRENTICE Then AiPlan(p)
+Function StoneLost(p, s.Stone)
+	hearts(p) = hearts(p) - 1
+	PlaySfx(soundLost)
+	If optShake Then shake(p) = 8
+	AddPopup(viewX(p) + VIEW_W / 2, SCREEN_H - 120, "A stone fell! -1 heart", 255, 140, 120)
+	If hearts(p) <= 0 And optMode = MODE_STANDING Then TowerFalls(p)
+	If hearts(p) < 0 Then hearts(p) = 0
 End Function
 
 Function TowerFalls(p)
@@ -1207,18 +1199,10 @@ Function TowerFalls(p)
 	nextPlace = nextPlace - 1
 	finishFrame(p) = frame
 	PlaySfx(soundFall)
-	If optShake Then shake(p) = 14
-	Local x, y
-	For y = HIDDEN_ROWS To ROWS - 1
-		For x = 0 To COLUMNS - 1
-			If grid(p, x, y) <> 0
-				BurstAt(towerX(p) + x * CELL + CELL / 2, CellScreenY(y) + CELL / 2, stoneRed(grid(p, x, y)), stoneGreen(grid(p, x, y)), stoneBlue(grid(p, x, y)), 2)
-			EndIf
-		Next
-	Next
-	AddPopup(towerX(p) + COLUMNS * CELL / 2, WELL_TOP + 200, "The tower fell!", 255, 120, 100)
+	If guided(p) <> Null Then FreeStone(guided(p)) : guided(p) = Null
+	AddPopup(viewX(p) + VIEW_W / 2, 300, "Out of hearts!", 255, 120, 100)
 	If seatControl(p) < CONTROL_APPRENTICE And seatsPlaying = 1 And optMode = MODE_STANDING
-		If score(p) > bestSolo Then bestSolo = score(p) : SaveSettings()
+		If bestHeight(p) > bestSolo Then bestSolo = bestHeight(p) : SaveSettings()
 	EndIf
 End Function
 
@@ -1226,7 +1210,18 @@ Function CheckRoundEnd()
 	If roundOver Then Return
 	Local p, count = 0, lastAlive = -1
 	For p = 0 To MAX_PLAYERS - 1
-		If alive(p) Then count = count + 1 : lastAlive = p
+		If alive(p)
+			count = count + 1 : lastAlive = p
+			; In a race, the tower has to stand above the line for two seconds.
+			If optMode = MODE_RACE
+				If height(p) >= raceHeight(optRaceHeight)
+					raceHold(p) = raceHold(p) + 1
+					If raceHold(p) >= 120 Then finishFrame(p) = frame : EndRound(p) : Return
+				Else
+					raceHold(p) = 0
+				EndIf
+			EndIf
+		EndIf
 	Next
 	If seatsPlaying > 1 And count = 1 And optMode = MODE_STANDING
 		EndRound(lastAlive)
@@ -1238,13 +1233,17 @@ End Function
 Function EndRound(champion)
 	roundOver = True
 	winner = champion
+	Local p
+	For p = 0 To MAX_PLAYERS - 1
+		If guided(p) <> Null Then FreeStone(guided(p)) : guided(p) = Null
+	Next
 	If champion >= 0
 		place(champion) = 1
 		If seatsPlaying = 1 And optMode = MODE_RACE
 			Local frames = finishFrame(champion)
-			winText = mageName(champion) + " sealed " + raceFloors(optRaceFloors) + " floors in " + TimeText(frames)
-			If bestRace(optRaceFloors) = 0 Or frames < bestRace(optRaceFloors)
-				bestRace(optRaceFloors) = frames
+			winText = mageName(champion) + " reached " + raceHeight(optRaceHeight) + " m in " + TimeText(frames)
+			If bestRace(optRaceHeight) = 0 Or frames < bestRace(optRaceHeight)
+				bestRace(optRaceHeight) = frames
 				winText = winText + " - a new record!"
 				SaveSettings()
 			EndIf
@@ -1254,25 +1253,24 @@ Function EndRound(champion)
 		PlaySfx(soundWin)
 		Local i
 		For i = 1 To 80
-			BurstAt(towerX(champion) + Rand(0, COLUMNS * CELL), WELL_TOP + Rand(0, 200), mageRed(champion), mageGreen(champion), mageBlue(champion), 1)
+			BurstAt(viewX(champion) + Rand(0, VIEW_W), Rand(200, 500), mageRed(champion), mageGreen(champion), mageBlue(champion), 1)
 		Next
 	Else
 		If seatsPlaying = 1
-			Local p
 			For p = 0 To MAX_PLAYERS - 1
-				If playing(p) Then winText = mageName(p) + "'s tower reached " + floors(p) + " floors, " + score(p) + " points"
+				If playing(p) Then winText = mageName(p) + "'s tower reached " + MetresText(bestHeight(p))
 			Next
 		Else
-			winText = "Every tower fell."
+			winText = "Every mage ran out of hearts."
 		EndIf
 	EndIf
-	; Mages still standing in a race are ranked by their floors.
+	; Mages still standing are ranked by the height of their towers.
 	Local q, r, better
 	For q = 0 To MAX_PLAYERS - 1
 		If playing(q) And place(q) = 0
 			better = 1
 			For r = 0 To MAX_PLAYERS - 1
-				If r <> q And playing(r) And (place(r) = 1 Or (place(r) = 0 And floors(r) > floors(q))) Then better = better + 1
+				If r <> q And playing(r) And (place(r) = 1 Or (place(r) = 0 And bestHeight(r) > bestHeight(q))) Then better = better + 1
 			Next
 			place(q) = better
 		EndIf
@@ -1295,87 +1293,192 @@ Function TimeText$(frames)
 	Return (seconds / 60) + ":" + secondsText + "." + tenths
 End Function
 
+Function MetresText$(metres#)
+	Local tenths = Int(metres * 10)
+	If tenths < 0 Then tenths = 0
+	Return (tenths / 10) + "." + (tenths Mod 10) + " m"
+End Function
+
+; --- Weather ---------------------------------------------------------------------------------------------------------------
+; The same weather and the same wind blow over every tower. Every half minute or so the weather changes, and the wind
+; picks a new strength and direction every few seconds.
+
+Function StartWeather()
+	weather = WEATHER_CLEAR
+	weatherTimer = Rand(900, 1500)
+	windForce = 0 : windTarget = 0 : windTimer = 120
+End Function
+
+Function UpdateWeather()
+	If optWeather
+		weatherTimer = weatherTimer - 1
+		If weatherTimer <= 0
+			Local old = weather
+			While weather = old
+				weather = Rand(0, 3)
+			Wend
+			weatherTimer = Rand(1200, 2100)
+			AddPopup(SCREEN_W / 2, 330, "The weather turns: " + weatherName(weather), 210, 220, 255)
+			SetAllFriction()
+		EndIf
+		windTimer = windTimer - 1
+		If windTimer <= 0
+			windTimer = Rand(180, 420)
+			Local strongest# = 1.2
+			If weather = WEATHER_GALE Then strongest = 3.5
+			windTarget = Rnd(-strongest, strongest)
+			If Rand(1, 3) = 1 And weather <> WEATHER_GALE Then windTarget = 0
+		EndIf
+		windForce = windForce + (windTarget - windForce) * 0.01
+	Else
+		weather = WEATHER_CLEAR : windForce = 0
+	EndIf
+	; Rain and snow, drawn over every view.
+	If weather = WEATHER_RAIN Or weather = WEATHER_SNOW
+		Local i, count = 6
+		If weather = WEATHER_SNOW Then count = 2
+		For i = 1 To count
+			Local d.Drop = New Drop
+			d\x = Rnd(-100, SCREEN_W + 100)
+			d\y = -10
+			If weather = WEATHER_RAIN Then d\speed = Rnd(10, 14) Else d\speed = Rnd(1.0, 2.2)
+		Next
+	EndIf
+	For d = Each Drop
+		d\y = d\y + d\speed
+		If weather = WEATHER_SNOW Then d\x = d\x + windForce * 1.2 + Sin(d\y * 2 + d\speed * 100) * 0.6 Else d\x = d\x + windForce * 2.5
+		If d\y > SCREEN_H Then Delete d
+	Next
+End Function
+
+; Rain makes every stone slippery; when it stops they grip again.
+Function SetAllFriction()
+	Local s.Stone, b
+	For s = Each Stone
+		If s\landed > 0
+			For b = 0 To 3
+				PhysicsFriction s\body[b], BlockFriction(s)
+			Next
+		EndIf
+	Next
+End Function
+
+Function DrawWeather()
+	Local d.Drop
+	If weather = WEATHER_RAIN
+		Color 150, 170, 220
+		For d = Each Drop
+			Line Int(d\x), Int(d\y), Int(d\x + windForce * 3), Int(d\y + 12)
+		Next
+	Else
+		Color 235, 240, 255
+		For d = Each Drop
+			Rect Int(d\x), Int(d\y), 3, 3, 1
+		Next
+	EndIf
+	; The wind vane at the top of the screen.
+	SetFont fontSmall
+	Local cx = SCREEN_W / 2, cy = 8
+	Color 200, 205, 240
+	Local label$ = weatherName(weather)
+	If Abs(windForce) > 0.1
+		label = label + ", wind " + (Int(Abs(windForce) * 10) / 10) + "." + (Int(Abs(windForce) * 10) Mod 10)
+		If windForce > 0 Then label = label + " >>" Else label = "<< " + label
+	Else
+		label = label + ", calm"
+	EndIf
+	Text cx, cy, label, True, False
+End Function
+
 ; --- Spells ----------------------------------------------------------------------------------------------------------------
 
-Function CastRune(p, rune)
+Function CastRune(p, rune, s.Stone)
 	casting(p) = 40
 	PlaySfx(soundCast)
-	Local cx = towerX(p) + COLUMNS * CELL / 2, cy = WELL_TOP - 40
-	BurstAt(cx, cy, runeRed(rune), runeGreen(rune), runeBlue(rune), 30)
+	Local sx = WorldToScreenX(p, s\x), sy = WorldToScreenY(p, s\y)
+	BurstAt(sx, sy, runeRed(rune), runeGreen(rune), runeBlue(rune), 30)
 	If Not IsHex(rune)
 		ApplyRune(p, p, rune)
 		Return
 	EndIf
-	; A hex flies to the rival with the most floors, so the leader has to watch out. Between rivals with the same
-	; number of floors it picks one at random. A mage alone gets it back.
+	; A hex flies to the rival with the highest tower, so the leader has to watch out. Between rivals with the same
+	; height it picks one at random. A mage alone gets it back.
 	Local q, target = -1, ties = 0
 	For q = 0 To MAX_PLAYERS - 1
 		If q <> p And alive(q)
 			If target < 0
 				target = q : ties = 1
-			ElseIf floors(q) > floors(target)
+			ElseIf bestHeight(q) > bestHeight(target) + 0.25
 				target = q : ties = 1
-			ElseIf floors(q) = floors(target)
+			ElseIf Abs(bestHeight(q) - bestHeight(target)) <= 0.25
 				ties = ties + 1
 				If Rand(1, ties) = 1 Then target = q
 			EndIf
 		EndIf
 	Next
 	If target < 0 Then target = p
-	SendBolt(p, target, rune)
+	SendBolt(p, target, rune, sx, sy)
 End Function
 
-Function SendBolt(caster, target, rune)
+Function SendBolt(caster, target, rune, fromX, fromY)
 	Local bolt.Bolt = New Bolt
 	bolt\caster = caster
 	bolt\target = target
 	bolt\rune = rune
-	bolt\x0 = Float(towerX(caster) + COLUMNS * CELL / 2)
-	bolt\y0 = WELL_TOP - 40
-	bolt\x1 = Float(towerX(target) + COLUMNS * CELL / 2)
-	bolt\y1 = WELL_TOP + 60
+	bolt\x0 = Float(fromX)
+	bolt\y0 = Float(fromY)
+	bolt\x1 = Float(viewX(target) + VIEW_W / 2)
+	bolt\y1 = Float(WorldToScreenY(target, bestHeight(target)))
 	bolt\t = 0
 End Function
 
 Function ApplyRune(caster, p, rune)
 	If Not alive(p) Then Return
-	Local cx = towerX(p) + COLUMNS * CELL / 2
+	Local cx = viewX(p) + VIEW_W / 2, cy = 250
+	Local message$ = runeName(rune) + ": " + runeShort(rune)
 	Select rune
-		Case RUNE_FIRE
-			Local x, y
-			For y = ROWS - 2 To ROWS - 1
-				For x = 0 To COLUMNS - 1
-					If grid(p, x, y) <> 0 Then BurstAt(towerX(p) + x * CELL + CELL / 2, CellScreenY(y) + CELL / 2, 255, 140, 40, 5)
-				Next
-			Next
-			RemoveRow(p, ROWS - 1)
-			RemoveRow(p, ROWS - 1)
-			AddPopup(cx, WELL_TOP + 160, "Fire: two rows burned", runeRed(rune), runeGreen(rune), runeBlue(rune))
-		Case RUNE_CALM
-			calmTimer(p) = CALM_FRAMES
-			AddPopup(cx, WELL_TOP + 160, "Calm: slower stones", runeRed(rune), runeGreen(rune), runeBlue(rune))
-		Case RUNE_GOLD
-			score(p) = score(p) + 250 * Level(p)
-			AddPopup(cx, WELL_TOP + 160, "Gold: +" + (250 * Level(p)), runeRed(rune), runeGreen(rune), runeBlue(rune))
-		Case RUNE_STONE
+		Case RUNE_ANCHOR
+			; Welding is done by PushStones once the stone has settled.
+		Case RUNE_FEATHER
+			featherTimer(p) = FEATHER_FRAMES
+		Case RUNE_MEND
+			If hearts(p) < MAX_HEARTS Then hearts(p) = hearts(p) + 1
+		Case RUNE_GUST
 			PlaySfx(soundHex)
+			Local s.Stone, b, push# = Rnd(5, 7)
+			If Rand(0, 1) Then push = -push
+			For s = Each Stone
+				If s\owner = p And s\landed > 0
+					For b = 0 To 3
+						PhysicsApplyImpulse s\body[b], push * (0.5 + 0.08 * (EntityY(s\body[b], True))), 0, 0, True
+					Next
+				EndIf
+			Next
+		Case RUNE_QUAKE
+			PlaySfx(soundHex)
+			quakeTimer(p) = QUAKE_FRAMES
 			If optShake Then shake(p) = 10
-			AddRubble(p, 2)
-			AddPopup(cx, WELL_TOP + 160, "Stone hex: rubble!", runeRed(rune), runeGreen(rune), runeBlue(rune))
+		Case RUNE_ICE
+			PlaySfx(soundHex)
+			iceStones(p) = 3
 		Case RUNE_STORM
 			PlaySfx(soundHex)
 			stormTimer(p) = EFFECT_FRAMES
-			AddPopup(cx, WELL_TOP + 160, "Storm hex: fast stones!", runeRed(rune), runeGreen(rune), runeBlue(rune))
-		Case RUNE_SHADE
-			PlaySfx(soundHex)
-			shadeTimer(p) = EFFECT_FRAMES
-			AddPopup(cx, WELL_TOP + 160, "Shade hex: darkness!", runeRed(rune), runeGreen(rune), runeBlue(rune))
 		Case RUNE_TWIST
 			PlaySfx(soundHex)
 			twistTimer(p) = EFFECT_FRAMES
-			AddPopup(cx, WELL_TOP + 160, "Twist hex: left is right!", runeRed(rune), runeGreen(rune), runeBlue(rune))
 	End Select
+	AddPopup(cx, cy, message, runeRed(rune), runeGreen(rune), runeBlue(rune))
 End Function
+
+Function WorldToScreenX(p, x#)
+	Return viewX(p) + VIEW_W / 2 + Int((x - baseX(p)) * PIXELS_PER_METRE)
+End Function
+
+Function WorldToScreenY(p, y#)
+	Return SCREEN_H / 2 - Int((y - camY(p)) * PIXELS_PER_METRE)
+End Function
+
 
 ; --- Effects ---------------------------------------------------------------------------------------------------------------
 
@@ -1468,170 +1571,6 @@ Function UpdateFallers()
 	Next
 End Function
 
-; --- Computer mages ----------------------------------------------------------------------------------------------------------
-; When a stone appears, the computer tries every turn and every column, lets the stone fall there in a copy of the
-; tower, and rates the result: low towers, few covered holes and an even top are good, sealed rows are better.
-
-Function AiPlan(p)
-	Local bestValue# = -1000000, t, x, y, b, cx, cy
-	aiTurn(p) = turn(p)
-	aiX(p) = stoneX(p)
-	Local noise# = 0
-	Select seatControl(p)
-		Case CONTROL_APPRENTICE : noise = 3.0
-		Case CONTROL_ADEPT : noise = 0.6
-	End Select
-	For t = 0 To 3
-		For x = -2 To COLUMNS - 1
-			If Fits(p, kind(p), t, x, stoneY(p))
-				y = stoneY(p)
-				While Fits(p, kind(p), t, x, y + 1)
-					y = y + 1
-				Wend
-				; Copy the tower and put the stone in.
-				For cy = 0 To ROWS - 1
-					For cx = 0 To COLUMNS - 1
-						aiGrid(cx, cy) = grid(p, cx, cy)
-					Next
-				Next
-				For b = 0 To 3
-					cy = y + cellY(kind(p), t, b)
-					If cy >= 0 Then aiGrid(x + cellX(kind(p), t, b), cy) = 1
-				Next
-				Local value# = RateTower() + Rnd(-noise, noise)
-				If value > bestValue
-					bestValue = value
-					aiTurn(p) = t
-					aiX(p) = x
-				EndIf
-			EndIf
-		Next
-	Next
-	aiWait(p) = AiStepFrames(p)
-End Function
-
-Function RateTower#()
-	Local x, y, sealed = 0, full
-	; Sealed rows are removed first, then the rest is rated.
-	y = ROWS - 1
-	While y >= 0
-		full = True
-		For x = 0 To COLUMNS - 1
-			If aiGrid(x, y) = 0 Then full = False
-		Next
-		If full
-			sealed = sealed + 1
-			Local yy
-			For yy = y To 1 Step -1
-				For x = 0 To COLUMNS - 1
-					aiGrid(x, yy) = aiGrid(x, yy - 1)
-				Next
-			Next
-			For x = 0 To COLUMNS - 1
-				aiGrid(x, 0) = 0
-			Next
-		Else
-			y = y - 1
-		EndIf
-	Wend
-	Local heights = 0, holes = 0, bumps = 0, lastHeight = -1, h, tallest = 0
-	For x = 0 To COLUMNS - 1
-		h = 0
-		For y = 0 To ROWS - 1
-			If aiGrid(x, y) <> 0
-				If h = 0 Then h = ROWS - y
-			ElseIf h > 0
-				holes = holes + 1
-			EndIf
-		Next
-		heights = heights + h
-		If h > tallest Then tallest = h
-		If lastHeight >= 0 Then bumps = bumps + Abs(h - lastHeight)
-		lastHeight = h
-	Next
-	Local value# = -0.51 * heights + 0.76 * sealed - 0.36 * holes * 2.0 - 0.18 * bumps
-	If tallest > ROWS - 6 Then value = value - (tallest - (ROWS - 6)) * 3.0 ; Danger near the top.
-	Return value
-End Function
-
-; How many frames the computer waits between two key presses.
-Function AiStepFrames(p)
-	Local frames = 4
-	Select seatControl(p)
-		Case CONTROL_APPRENTICE : frames = 10
-		Case CONTROL_ADEPT : frames = 5
-	End Select
-	If twistTimer(p) > 0 Then frames = frames * 2 ; Even a computer needs to think twice when left is right.
-	If shadeTimer(p) > 0 Then frames = frames + 4
-	Return frames
-End Function
-
-Function AiControls(p)
-	wantLeft = False : wantRight = False : wantTurn = False : wantTurnBack = False : wantFaster = False : wantDrop = False
-	; Pretend nothing is held, so every press is a single step.
-	holdLeft(p) = False : holdRight(p) = False
-	aiWait(p) = aiWait(p) - 1
-	If aiWait(p) > 0 Then Return
-	aiWait(p) = AiStepFrames(p)
-	aiTries(p) = aiTries(p) + 1
-	If turn(p) <> aiTurn(p) And aiTries(p) < 12
-		If (aiTurn(p) - turn(p) + 4) Mod 4 = 3 Then wantTurnBack = True Else wantTurn = True
-	ElseIf stoneX(p) > aiX(p) And aiTries(p) < 24
-		wantLeft = True
-	ElseIf stoneX(p) < aiX(p) And aiTries(p) < 24
-		wantRight = True
-	Else
-		; In place: the archmage drops at once, the others let it fall faster.
-		If seatControl(p) = CONTROL_ARCHMAGE Then wantDrop = True Else wantFaster = True : aiWait(p) = 1
-	EndIf
-End Function
-
-; --- Drawing ---------------------------------------------------------------------------------------------------------------
-
-Function CellScreenY(row)
-	Return WELL_TOP + (row - HIDDEN_ROWS) * CELL
-End Function
-
-Function DrawFrame()
-	DrawImage background, 0, 0
-	Select state
-		Case STATE_MENU
-			DrawFallers()
-			DrawTitle()
-			DrawMenu()
-			SetFont fontSmall
-			Color 150, 140, 190
-			Local bestText$ = "Best alone: " + bestSolo + " points"
-			Local i
-			For i = 0 To 2
-				If bestRace(i) > 0 Then bestText = bestText + "   Race " + raceFloors(i) + ": " + TimeText(bestRace(i))
-			Next
-			Text SCREEN_W / 2, SCREEN_H - 40, bestText, True, True
-		Case STATE_SETUP
-			DrawFallers()
-			DrawHeading("New game")
-			SetFont fontSmall
-			Color 170, 160, 210
-			Text SCREEN_W / 2, 205, "Choose who builds each tower: a keyboard, a gamepad, a computer mage, or nobody.", True, True
-			DrawMenu()
-			DrawSeatMarks()
-		Case STATE_OPTIONS
-			DrawFallers()
-			DrawHeading("Options")
-			DrawMenu()
-		Case STATE_HELP
-			DrawHelp()
-		Default
-			DrawRound()
-			If state = STATE_PAUSED
-				DimScreen()
-				DrawHeading("Paused")
-				DrawMenu()
-			ElseIf state = STATE_RESULT
-				DrawResult()
-			EndIf
-	End Select
-End Function
 
 Function DimScreen()
 	; Draws every second line dark: a cheap way to dim the picture without alpha blending.
@@ -1727,14 +1666,15 @@ Function DrawHelp()
 	DrawHeading("How to play")
 	SetFont fontText
 	Color 220, 215, 240
-	Local y = 200
-	Text SCREEN_W / 2, y, "Stones of four blocks fall into your tower. Move and turn them to fill whole rows.", True, True
-	Text SCREEN_W / 2, y + 26, "A full row is sealed as a new floor. When a tower fills up to the top, it falls.", True, True
-	Text SCREEN_W / 2, y + 52, "Sealing a row with a rune casts its spell. Boons help you, hexes hit the rival with the most floors.", True, True
+	Local y = 190
+	Text SCREEN_W / 2, y, "Guide the stones that float down onto your tower: move and turn them, drop them when they fit.", True, True
+	Text SCREEN_W / 2, y + 26, "Once a stone touches the tower it is real: it can slide, wobble and topple. A stone that falls off costs a heart.", True, True
+	Text SCREEN_W / 2, y + 52, "Wind and weather are the same for everyone: rain makes stones slippery, snow slows them, a gale pushes hard.", True, True
+	Text SCREEN_W / 2, y + 78, "A rune works when its stone lands. Boons help you, hexes hit the rival with the highest tower.", True, True
 	Local r, x0 = SCREEN_W / 2 - 330
 	For r = 1 To RUNES
-		Local ry = y + 92 + (r - 1) * 34
-		DrawImage blockImage(8), x0, ry - 12
+		Local ry = y + 118 + (r - 1) * 30
+		DrawImage blockImage(KINDS + 1), x0, ry - 12
 		DrawImage runeImage(r), x0, ry - 12
 		If IsHex(r) Then Color 255, 160, 170 Else Color 170, 240, 180
 		Text x0 + 40, ry, runeName(r), False, True
@@ -1743,19 +1683,271 @@ Function DrawHelp()
 	Next
 	SetFont fontSmall
 	Color 190, 185, 220
-	y = 580
-	Text SCREEN_W / 2, y, "Keyboard left: A / D move, W turn, Q turn back, S faster, Space drops at once.", True, True
-	Text SCREEN_W / 2, y + 22, "Keyboard right: arrows move, Up turns, Right Ctrl turns back, Down faster, Enter drops at once.", True, True
-	Text SCREEN_W / 2, y + 44, "Gamepad: D-pad or stick move, button 1 turns, button 2 turns back, up or button 3 drops at once.  P pauses.", True, True
+	y = 590
+	Text SCREEN_W / 2, y, "Keyboard left: A / D move, W turns, S faster, Space drops at once.", True, True
+	Text SCREEN_W / 2, y + 22, "Keyboard right: arrows move, Up turns, Down faster, Enter drops at once.", True, True
+	Text SCREEN_W / 2, y + 44, "Gamepad: D-pad or stick move, button 1 turns, up or button 3 drops at once.  P pauses.", True, True
 	Text SCREEN_W / 2, y + 66, "Playing alone, hexes bounce back onto your own tower.", True, True
 End Function
 
+
+Function PlaceName$(n)
+	Select n
+		Case 1 : Return "1st"
+		Case 2 : Return "2nd"
+		Case 3 : Return "3rd"
+	End Select
+	Return n + "th"
+End Function
+
+; A rune on a block pulses gently, so it stands out in a busy tower.
+
+; --- Images --------------------------------------------------------------------------------------------------------------
+
+Function MakeImages()
+	background = MakeBackground()
+	Local k
+	For k = 1 To KINDS + 1
+		blockImage(k) = MakeBlock(stoneRed(k), stoneGreen(k), stoneBlue(k), k = KINDS + 1)
+	Next
+	shadeBlock = MakeBlock(40, 30, 60, False)
+	For k = 1 To RUNES
+		runeImage(k) = MakeRune(k)
+		runeTexture(k) = MakeRuneTexture(k)
+	Next
+End Function
+
+; The glyph of a rune, drawn with lines on black. MaskImage makes the black see-through.
+Function MakeRune(rune)
+	Local image = CreateImage(CELL, CELL)
+	SetBuffer ImageBuffer(image)
+	Color 0, 0, 0 : Rect 0, 0, CELL, CELL, 1
+	Local c = CELL / 2
+	Local pass
+	For pass = 0 To 1
+		; The first pass draws a dark outline one pixel wider, so the glyph reads on every colour.
+		Local o = 1 - pass
+		If pass = 0 Then Color 20, 10, 30 Else Color runeRed(rune), runeGreen(rune), runeBlue(rune)
+		Select rune
+			Case RUNE_ANCHOR ; An anchor
+				ThickLine c, 4, c, 19, 2 + o
+				ThickLine c - 5, 8, c + 5, 8, 2 + o
+				ThickLine c - 7, 14, c, 19, 2 + o
+				ThickLine c, 19, c + 7, 14, 2 + o
+			Case RUNE_FEATHER ; A feather
+				ThickLine 6, 19, 18, 5, 2 + o
+				ThickLine 10, 14, 9, 8, 1 + o
+				ThickLine 12, 11, 12, 5, 1 + o
+				ThickLine 10, 14, 16, 14, 1 + o
+				ThickLine 12, 11, 18, 11, 1 + o
+			Case RUNE_MEND ; A heart
+				ThickLine c, 19, c - 7, 10, 2 + o
+				ThickLine c - 7, 10, c - 4, 5, 2 + o
+				ThickLine c - 4, 5, c, 9, 2 + o
+				ThickLine c, 9, c + 4, 5, 2 + o
+				ThickLine c + 4, 5, c + 7, 10, 2 + o
+				ThickLine c + 7, 10, c, 19, 2 + o
+			Case RUNE_GUST ; Three lines of wind
+				ThickLine 4, 7, 16, 7, 2 + o
+				ThickLine 16, 7, 19, 4, 2 + o
+				ThickLine 4, 12, 20, 12, 2 + o
+				ThickLine 4, 17, 14, 17, 2 + o
+				ThickLine 14, 17, 17, 20, 2 + o
+			Case RUNE_QUAKE ; A crack
+				ThickLine 12, 3, 8, 9, 2 + o
+				ThickLine 8, 9, 15, 13, 2 + o
+				ThickLine 15, 13, 9, 21, 2 + o
+				ThickLine 4, 21, 20, 21, 2 + o
+			Case RUNE_ICE ; A snowflake
+				ThickLine c, 4, c, 20, 2 + o
+				ThickLine c - 7, 8, c + 7, 16, 2 + o
+				ThickLine c - 7, 16, c + 7, 8, 2 + o
+			Case RUNE_STORM ; A lightning bolt
+				ThickLine 14, 3, 7, 13, 2 + o
+				ThickLine 7, 13, 16, 11, 2 + o
+				ThickLine 16, 11, 9, 21, 2 + o
+			Case RUNE_TWIST ; Two arrows in opposite directions
+				ThickLine 4, 8, 18, 8, 2 + o
+				ThickLine 18, 8, 14, 4, 2 + o
+				ThickLine 20, 16, 6, 16, 2 + o
+				ThickLine 6, 16, 10, 20, 2 + o
+		End Select
+	Next
+	SetBuffer BackBuffer()
+	MaskImage image, 0, 0, 0
+	Return image
+End Function
+
+; The face of a rune stone: dark slate with the glowing glyph, used as the texture of the block that carries it.
+Function MakeRuneTexture(rune)
+	Local texture = CreateTexture(32, 32)
+	SetBuffer TextureBuffer(texture)
+	Color 50, 44, 70 : Rect 0, 0, 32, 32, 1
+	Color runeRed(rune) / 2, runeGreen(rune) / 2, runeBlue(rune) / 2 : Rect 1, 1, 30, 30, 0
+	DrawImage runeImage(rune), 4, 4
+	SetBuffer BackBuffer()
+	Return texture
+End Function
+
+; --- Computer mages ----------------------------------------------------------------------------------------------------------
+; When a stone appears, the computer tries every turn and every place, finds with rays where the stone would come to
+; rest, and rates it: a low top, no air under the blocks and a place near the middle of the tower are good. Blocks
+; that would miss the tower are very bad.
+
+Function AiPlan(p)
+	Local s.Stone = guided(p)
+	If s = Null Then Return
+	Local bestValue# = -1000000, t, b, i
+	Local x#, noise# = 0
+	Select seatControl(p)
+		Case CONTROL_APPRENTICE : noise = 2.5
+		Case CONTROL_ADEPT : noise = 0.6
+	End Select
+	aiTurn(p) = s\turn
+	aiX(p) = s\x
+	Local reach# = BASE_HALF + 2.0 + bestHeight(p) * 0.1
+	For t = 0 To 3
+		x = s\x - Int(reach * 2) * 0.5
+		While x <= s\x + reach
+			Local drop# = 1000, bx#, bottom#, hitY#, k
+			For b = 0 To 3
+				bx = x + BlockOffsetX(s\kind, t, b)
+				bottom = s\y + BlockOffsetY(s\kind, t, b) - 0.5
+				aiHit(b) = -1000
+				For k = -1 To 1
+					If PhysicsRayCast(bx + k * 0.4, bottom, 0, bx + k * 0.4, LOST_DEPTH, 0, MASK_SOLID, 0)
+						hitY = GetPhysicsHitY()
+						If hitY > aiHit(b) Then aiHit(b) = hitY
+					EndIf
+				Next
+				If bottom - aiHit(b) < drop Then drop = bottom - aiHit(b)
+			Next
+			Local top# = -1000, air# = 0, missing = 0
+			For b = 0 To 3
+				bottom = s\y + BlockOffsetY(s\kind, t, b) - 0.5 - drop
+				If bottom + 1 > top Then top = bottom + 1
+				; Only the lowest block of each column counts: the others rest on their own stone.
+				If Not HasBlockBelow(s\kind, t, b)
+					If aiHit(b) < -500 Then missing = missing + 1 Else air = air + (bottom - aiHit(b))
+				EndIf
+			Next
+			Local value# = -top - air * 1.5 - missing * 4.0 - Abs(x - baseX(p)) * 0.35 + Rnd(-noise, noise)
+			If drop > 500 Then value = -10000 - Abs(x - baseX(p)) ; Nothing below at all: the stone would be lost.
+			If value > bestValue
+				bestValue = value
+				aiTurn(p) = t
+				aiX(p) = x
+			EndIf
+			x = x + 0.5
+		Wend
+	Next
+	aiWait(p) = AiStepFrames(p)
+End Function
+
+Function HasBlockBelow(k, t, b)
+	Local o
+	For o = 0 To 3
+		If cellX(k, t, o) = cellX(k, t, b) And cellY(k, t, o) = cellY(k, t, b) + 1 Then Return True
+	Next
+	Return False
+End Function
+
+; How many frames the computer waits between two key presses.
+Function AiStepFrames(p)
+	Local frames = 4
+	Select seatControl(p)
+		Case CONTROL_APPRENTICE : frames = 12
+		Case CONTROL_ADEPT : frames = 7
+	End Select
+	If twistTimer(p) > 0 Then frames = frames * 2 ; Even a computer needs to think twice when left is right.
+	Return frames
+End Function
+
+Function AiControls(p)
+	wantLeft = False : wantRight = False : wantTurn = False : wantFaster = False : wantDrop = False
+	holdLeft(p) = False : holdRight(p) = False ; Every press is a single step.
+	Local s.Stone = guided(p)
+	aiWait(p) = aiWait(p) - 1
+	If aiWait(p) > 0 Then Return
+	aiWait(p) = AiStepFrames(p)
+	aiTries(p) = aiTries(p) + 1
+	If s\turn <> aiTurn(p) And aiTries(p) < 10
+		wantTurn = True
+	ElseIf s\x > aiX(p) + 0.01 And aiTries(p) < 30
+		wantLeft = True
+	ElseIf s\x < aiX(p) - 0.01 And aiTries(p) < 30
+		wantRight = True
+	Else
+		; In place: the archmage drops at once, the adept lets it fall faster, the apprentice waits.
+		Select seatControl(p)
+			Case CONTROL_ARCHMAGE : wantDrop = True
+			Case CONTROL_ADEPT : wantFaster = True : aiWait(p) = 1
+		End Select
+	EndIf
+End Function
+
+; --- Drawing ---------------------------------------------------------------------------------------------------------------
+
+Function DrawFrame()
+	DrawImage background, 0, 0
+	Select state
+		Case STATE_MENU
+			DrawFallers()
+			DrawTitle()
+			DrawMenu()
+			SetFont fontSmall
+			Color 150, 140, 190
+			Local bestText$ = "Highest alone: " + MetresText(bestSolo)
+			Local i
+			For i = 0 To 2
+				If bestRace(i) > 0 Then bestText = bestText + "   Race " + raceHeight(i) + " m: " + TimeText(bestRace(i))
+			Next
+			Text SCREEN_W / 2, SCREEN_H - 40, bestText, True, True
+		Case STATE_SETUP
+			DrawFallers()
+			DrawHeading("New game")
+			SetFont fontSmall
+			Color 170, 160, 210
+			Text SCREEN_W / 2, 205, "Choose who builds each tower: a keyboard, a gamepad, a computer mage, or nobody.", True, True
+			DrawMenu()
+			DrawSeatMarks()
+		Case STATE_OPTIONS
+			DrawFallers()
+			DrawHeading("Options")
+			DrawMenu()
+		Case STATE_HELP
+			DrawHelp()
+		Default
+			DrawRound()
+			If state = STATE_PAUSED
+				DimScreen()
+				DrawHeading("Paused")
+				DrawMenu()
+			ElseIf state = STATE_RESULT
+				DrawResult()
+			EndIf
+	End Select
+End Function
+
 Function DrawRound()
+	; The sky first, then the towers: the cameras do not clear the picture.
 	Local p
 	For p = 0 To MAX_PLAYERS - 1
-		If playing(p) Then DrawTowerOf(p)
+		If playing(p)
+			Local sx = 0, sy = 0
+			If shake(p) > 0.5 Then sx = Int(Rnd(-shake(p), shake(p))) : sy = Int(Rnd(-shake(p), shake(p)) * 0.5)
+			CameraViewport camera(p), viewX(p) + sx, sy, VIEW_W, SCREEN_H
+			; A dark glass frame shows where each tower's view is.
+			Color 20, 16, 40
+			Rect viewX(p) - 2, 0, VIEW_W + 4, SCREEN_H, 0
+		EndIf
 	Next
-	; Sparks, bolts and popups on top of all towers.
+	RenderWorld
+	For p = 0 To MAX_PLAYERS - 1
+		If playing(p) Then DrawViewHud(p)
+	Next
+	DrawWeather()
+	; Sparks, bolts and popups on top of all views.
 	Local s.Spark
 	For s = Each Spark
 		Color Int(s\r * s\life) + 20, Int(s\g * s\life) + 20, Int(s\b * s\life) + 20
@@ -1783,157 +1975,104 @@ Function DrawRound()
 		Color 40, 20, 70 : Text SCREEN_W / 2 + 4, SCREEN_H / 2 + 4, message, True, True
 		Color 255, 230, 160 : Text SCREEN_W / 2, SCREEN_H / 2, message, True, True
 	EndIf
-	; In a race, the time at the top of the screen.
 	If optMode = MODE_RACE
 		SetFont fontSmall
 		Color 200, 190, 240
-		Text SCREEN_W / 2, 4, "Race to " + raceFloors(optRaceFloors) + " floors   " + TimeText(frame), True, False
+		Text SCREEN_W / 2, 26, "Race to " + raceHeight(optRaceHeight) + " m   " + TimeText(frame), True, False
 	EndIf
 End Function
 
-Function DrawTowerOf(p)
-	Local ox = towerX(p), oy = WELL_TOP
-	If shake(p) > 0.5
-		ox = ox + Int(Rnd(-shake(p), shake(p)))
-		oy = oy + Int(Rnd(-shake(p), shake(p)) * 0.5)
-	EndIf
-	; Tower and battlements. The image has a 20 pixel wall on both sides and 24 pixels of battlements on top.
-	If alive(p) Or (roundOver And place(p) = 1)
-		DrawImage towerImage, ox - 20, oy - 24
-	Else
-		DrawImage fallenImage, ox - 20, oy - 24
-	EndIf
-
-	Local x, y, k, sy, hidden = shadeTimer(p) > 0 And alive(p)
-	For y = HIDDEN_ROWS To ROWS - 1
-		sy = oy + (y - HIDDEN_ROWS) * CELL
-		For x = 0 To COLUMNS - 1
-			k = grid(p, x, y)
-			If k <> 0
-				If hidden
-					DrawImage shadeBlock, ox + x * CELL, sy
-				Else
-					DrawImage blockImage(k), ox + x * CELL, sy
-					If gridRune(p, x, y) <> RUNE_NONE Then DrawRuneOn(ox + x * CELL, sy, gridRune(p, x, y))
-				EndIf
-			EndIf
-		Next
-	Next
-
-	If alive(p) And (Not roundOver) And countdown = 0
-		; Where the stone would land, unless the tower is in the dark.
-		If Not hidden
-			Local landY = stoneY(p)
-			While Fits(p, kind(p), turn(p), stoneX(p), landY + 1)
-				landY = landY + 1
-			Wend
-			Color stoneRed(kind(p)) / 2, stoneGreen(kind(p)) / 2, stoneBlue(kind(p)) / 2
-			Local b
-			For b = 0 To 3
-				y = landY + cellY(kind(p), turn(p), b)
-				If y >= HIDDEN_ROWS Then Rect ox + (stoneX(p) + cellX(kind(p), turn(p), b)) * CELL + 1, oy + (y - HIDDEN_ROWS) * CELL + 1, CELL - 2, CELL - 2, 0
+Function DrawViewHud(p)
+	Local ox = viewX(p), cx = ox + VIEW_W / 2
+	; In a race: the line to reach.
+	If optMode = MODE_RACE
+		Local ly = WorldToScreenY(p, Float(raceHeight(optRaceHeight)))
+		If ly > HUD_H And ly < SCREEN_H
+			Color 255, 220, 120
+			Local x
+			For x = ox To ox + VIEW_W - 12 Step 16
+				Rect x, ly, 10, 2, 1
 			Next
 		EndIf
-		DrawStone(ox + stoneX(p) * CELL, oy + (stoneY(p) - HIDDEN_ROWS) * CELL, kind(p), turn(p), runeBlock(p), runeKind(p), HIDDEN_ROWS - stoneY(p))
+	EndIf
+	; The best height so far, as a mark on the left edge.
+	Local hy = WorldToScreenY(p, bestHeight(p))
+	If hy > HUD_H And hy < SCREEN_H
+		Color mageRed(p), mageGreen(p), mageBlue(p)
+		Rect ox, hy, 14, 2, 1
+		SetFont fontSmall
+		Text ox + 18, hy - 8, MetresText(bestHeight(p))
 	EndIf
 
-	; Above the tower: the mage, the name and the next stone.
-	Local cx = ox + COLUMNS * CELL / 2
-	DrawMage(ox + 18, oy - 26, p, alive(p), 1.0)
+	; The top: a dark band with the mage, the name, the hearts and the next stone.
+	Color 16, 12, 34 : Rect ox, 0, VIEW_W, HUD_H - 10, 1
+	Color 70, 56, 110 : Rect ox, HUD_H - 10, VIEW_W, 2, 1
+	DrawMage(ox + 26, HUD_H - 24, p, alive(p), 1.0)
 	SetFont fontBig
 	Color mageRed(p), mageGreen(p), mageBlue(p)
-	Text cx, oy - 150, mageName(p), True, True
+	Text cx, 22, mageName(p), True, True
 	SetFont fontSmall
 	Color 190, 185, 220
-	Text cx, oy - 124, controlName(seatControl(p)), True, True
-	; The next stone, in a small frame on the right.
-	Local boxX = ox + COLUMNS * CELL - 84, boxY = oy - 106
-	Color 20, 16, 36 : Rect boxX, boxY, 84, 78, 1
-	Color 90, 80, 130 : Rect boxX, boxY, 84, 78, 0
-	Color 170, 160, 210 : Text boxX + 42, boxY + 9, "next", True, True
-	If hidden
-		Color 120, 90, 160 : Text boxX + 42, boxY + 46, "?", True, True
-	ElseIf alive(p)
-		Local nk = nextKind(p), size = stoneSize(nk)
-		Local small# = 0.6
-		DrawStoneSmall(boxX + 42 - Int(size * CELL * small / 2), boxY + 46 - Int(size * CELL * small / 2), nk, nextRuneBlock(p), nextRune(p), small)
-	EndIf
-
-	; Below the tower: floors, score and the spells that are working on it.
-	Local by = oy + (ROWS - HIDDEN_ROWS) * CELL + 14
+	Text cx, 48, controlName(seatControl(p)), True, True
+	; Hearts
+	Local i
+	For i = 0 To MAX_HEARTS - 1
+		If i < hearts(p)
+			DrawHeart(ox + 70 + i * 22, 70, 230, 70, 90)
+		ElseIf i < START_HEARTS
+			DrawHeart(ox + 70 + i * 22, 70, 60, 40, 60)
+		EndIf
+	Next
 	SetFont fontText
 	Color 240, 230, 200
-	Text cx, by, FloorsText(floors(p)) + "   " + score(p) + " pts   speed " + Level(p), True, False
+	Text ox + 70, 96, MetresText(bestHeight(p))
 	SetFont fontSmall
 	Local status$ = ""
-	If Not alive(p) Then calmTimer(p) = 0 : stormTimer(p) = 0 : shadeTimer(p) = 0 : twistTimer(p) = 0
-	If calmTimer(p) > 0 Then status = status + "Calm " + (calmTimer(p) / 60 + 1) + "  "
-	If stormTimer(p) > 0 Then status = status + "Storm " + (stormTimer(p) / 60 + 1) + "  "
-	If shadeTimer(p) > 0 Then status = status + "Shade " + (shadeTimer(p) / 60 + 1) + "  "
-	If twistTimer(p) > 0 Then status = status + "Twist " + (twistTimer(p) / 60 + 1) + "  "
+	If featherTimer(p) > 0 Then status = status + "Feather " + (featherTimer(p) / 60 + 1) + " "
+	If stormTimer(p) > 0 Then status = status + "Storm " + (stormTimer(p) / 60 + 1) + " "
+	If twistTimer(p) > 0 Then status = status + "Twist " + (twistTimer(p) / 60 + 1) + " "
+	If quakeTimer(p) > 0 Then status = status + "Quake "
+	If iceStones(p) > 0 Then status = status + "Ice x" + iceStones(p)
 	If status <> ""
-		If calmTimer(p) > 0 And stormTimer(p) = 0 And shadeTimer(p) = 0 And twistTimer(p) = 0 Then Color 150, 210, 255 Else Color 255, 150, 170
-		Text cx, by + 24, status, True, False
+		If stormTimer(p) + twistTimer(p) + quakeTimer(p) + iceStones(p) > 0 Then Color 255, 150, 170 Else Color 150, 210, 255
+		Text ox + 70, 122, status
 	EndIf
-
-	; In a race, a bar on the right wall shows how far the tower has come.
-	If optMode = MODE_RACE
-		Local total = raceFloors(optRaceFloors), barH = (ROWS - HIDDEN_ROWS) * CELL
-		Local filled = barH * floors(p) / total
-		If filled > barH Then filled = barH
-		Color 30, 24, 50 : Rect ox + COLUMNS * CELL + 6, oy, 8, barH, 1
-		Color mageRed(p), mageGreen(p), mageBlue(p) : Rect ox + COLUMNS * CELL + 6, oy + barH - filled, 8, filled, 1
+	; The next stone, in a small frame on the right.
+	Local boxX = ox + VIEW_W - 84, boxY = 62
+	Color 20, 16, 36 : Rect boxX, boxY, 76, 76, 1
+	Color 90, 80, 130 : Rect boxX, boxY, 76, 76, 0
+	Color 170, 160, 210 : Text boxX + 38, boxY + 9, "next", True, True
+	If alive(p)
+		Local nk = nextKind(p), size = stoneSize(nk)
+		DrawStoneSmall(boxX + 38 - size * 7, boxY + 44 - size * 7, nk, nextRuneBlock(p), nextRune(p), 14)
 	EndIf
 
 	If (Not alive(p)) And place(p) > 0
 		SetFont fontBig
 		Local label$ = PlaceName(place(p))
-		Color 20, 10, 30 : Text cx + 2, oy + 222, label, True, True
-		Color 255, 230, 170 : Text cx, oy + 220, label, True, True
+		Color 20, 10, 30 : Text cx + 2, 302, label, True, True
+		Color 255, 230, 170 : Text cx, 300, label, True, True
 	EndIf
 End Function
 
-Function FloorsText$(n)
-	If n = 1 Then Return "1 floor"
-	Return n + " floors"
-End Function
-
-Function PlaceName$(n)
-	Select n
-		Case 1 : Return "1st"
-		Case 2 : Return "2nd"
-		Case 3 : Return "3rd"
-	End Select
-	Return n + "th"
-End Function
-
-; A rune on a block pulses gently, so it stands out in a busy tower.
-Function DrawRuneOn(x, y, rune)
-	Local glow# = 0.6 + 0.4 * Sin(MilliSecs() * 0.4 + x * 3 + y * 5)
-	Color Int(runeRed(rune) * glow), Int(runeGreen(rune) * glow), Int(runeBlue(rune) * glow)
-	Rect x + 1, y + 1, CELL - 2, CELL - 2, 0
-	DrawImage runeImage(rune), x, y
-End Function
-
-; Draws a falling stone; blocks in the hidden rows above the tower are left out.
-Function DrawStone(x, y, k, t, withRune, rune, skipRows)
-	Local b, by
-	For b = 0 To 3
-		If cellY(k, t, b) >= skipRows
-			by = y + cellY(k, t, b) * CELL
-			DrawImage blockImage(k), x + cellX(k, t, b) * CELL, by
-			If b = withRune Then DrawRuneOn(x + cellX(k, t, b) * CELL, by, rune)
-		EndIf
+Function DrawHeart(x, y, r, g, b)
+	Color r, g, b
+	Oval x, y, 9, 9, 1
+	Oval x + 8, y, 9, 9, 1
+	Local i
+	For i = 0 To 8
+		Rect x + i, y + 5 + i, 17 - i * 2, 1, 1
 	Next
 End Function
 
-Function DrawStoneSmall(x, y, k, withRune, rune, scale#)
-	Local b, size = Int(CELL * scale)
+Function DrawStoneSmall(x, y, k, withRune, rune, size)
+	Local b
 	For b = 0 To 3
 		Local bx = x + cellX(k, 0, b) * size, by = y + cellY(k, 0, b) * size
 		Color stoneRed(k) / 2, stoneGreen(k) / 2, stoneBlue(k) / 2 : Rect bx, by, size, size, 1
 		Color stoneRed(k), stoneGreen(k), stoneBlue(k) : Rect bx + 1, by + 1, size - 2, size - 2, 1
 		If b = withRune
+			Color 50, 44, 70 : Rect bx + 1, by + 1, size - 2, size - 2, 1
 			Color runeRed(rune), runeGreen(rune), runeBlue(rune)
 			Rect bx + 4, by + 4, size - 8, size - 8, 1
 		EndIf
@@ -1957,14 +2096,73 @@ Function DrawResult()
 				Color mageRed(p), mageGreen(p), mageBlue(p)
 				Text SCREEN_W / 2 - 240, y, PlaceName(n) + "  " + mageName(p)
 				Color 230, 225, 245
-				Text SCREEN_W / 2 + 10, y, FloorsText(floors(p))
-				Text SCREEN_W / 2 + 130, y, score(p) + " pts"
+				Text SCREEN_W / 2 + 10, y, MetresText(bestHeight(p))
+				Text SCREEN_W / 2 + 130, y, stonesPlaced(p) + " stones"
 				y = y + 34
 			EndIf
 		Next
 	Next
 	DrawMenu()
 End Function
+
+; --- Setup screen ------------------------------------------------------------------------------------------------------------
+
+; The "New game" screen: who sits at which tower, the mode, and Start.
+Function GoToSetup()
+	state = STATE_SETUP
+	menuCount = 9
+	menuTop = 240
+	menuWidth = 560
+	menuSelected = 8
+	RefreshSetupText()
+	ForgetInput()
+End Function
+
+Function RefreshSetupText()
+	Local i
+	For i = 0 To MAX_PLAYERS - 1
+		menuText(i) = mageName(i) + ": " + controlName(seatControl(i))
+		If seatControl(i) >= CONTROL_PAD1 And seatControl(i) <= CONTROL_PAD4
+			If JoyType(seatControl(i) - CONTROL_PAD1) = BB_JOYTYPE_NONE Then menuText(i) = menuText(i) + " (not connected)"
+		EndIf
+	Next
+	If optMode = MODE_STANDING
+		menuText(4) = "Mode: last tower standing"
+	Else
+		menuText(4) = "Mode: race to " + raceHeight(optRaceHeight) + " m"
+	EndIf
+	menuText(5) = "Runes: " + runeChanceName(optRunes)
+	menuText(6) = "Wind and weather: " + OnOff(optWeather)
+	menuText(7) = "Back"
+	If CountSeats() = 0 Then menuText(8) = "Start (take a seat first)" Else menuText(8) = "Start"
+End Function
+
+; --- Data ------------------------------------------------------------------------------------------------------------------
+
+; Box size, colour, then one line per row of the box.
+.StoneShapes
+Data 4, 110, 200, 230, "....", "XXXX", "....", "...."
+Data 2, 230, 196, 90, "XX", "XX"
+Data 3, 170, 110, 220, ".X.", "XXX", "..."
+Data 3, 110, 196, 120, ".XX", "XX.", "..."
+Data 3, 220, 92, 92, "XX.", ".XX", "..."
+Data 3, 90, 120, 230, "X..", "XXX", "..."
+Data 3, 230, 150, 70, "..X", "XXX", "..."
+
+; Name, colour, short popup text, what it does.
+.RuneList
+Data "Anchor", 230, 190, 120, "welded!", "Boon: the stone welds itself to every stone it rests on."
+Data "Feather", 160, 220, 255, "slow stones", "Boon: your stones float down at half speed for 15 seconds."
+Data "Mend", 255, 120, 150, "+1 heart", "Boon: gives back a lost heart."
+Data "Gust", 200, 240, 220, "wind blast!", "Hex: a blast of wind pushes against the tower."
+Data "Quake", 210, 160, 110, "the ground shakes!", "Hex: the tower shakes for two seconds."
+Data "Ice", 170, 230, 255, "icy stones!", "Hex: the next three stones are as slippery as ice."
+Data "Storm", 230, 250, 255, "fast stones!", "Hex: stones fall three times as fast for 10 seconds."
+Data "Twist", 140, 255, 140, "left is right!", "Hex: swaps left and right for 10 seconds."
+
+; Where a turned stone may be nudged to when it does not fit where it is, in metres.
+.TurnNudges
+Data 0.0, -0.5, 0.5, -1.0, 1.0
 
 ; --- Sounds ----------------------------------------------------------------------------------------------------------------
 ; Makes a short sound effect without any sound file: it writes a WAV file into a bank, saves it to the temporary folder,
@@ -2038,29 +2236,3 @@ End Function
 Function Smaller#(a#, b#)
 	If a < b Then Return a Else Return b
 End Function
-
-; --- Data ------------------------------------------------------------------------------------------------------------------
-
-; Box size, colour, then one line per row of the box.
-.StoneShapes
-Data 4, 110, 200, 230, "....", "XXXX", "....", "...."
-Data 2, 230, 196, 90, "XX", "XX"
-Data 3, 170, 110, 220, ".X.", "XXX", "..."
-Data 3, 110, 196, 120, ".XX", "XX.", "..."
-Data 3, 220, 92, 92, "XX.", ".XX", "..."
-Data 3, 90, 120, 230, "X..", "XXX", "..."
-Data 3, 230, 150, 70, "..X", "XXX", "..."
-
-; Name, colour, what it does.
-.RuneList
-Data "Fire", 255, 150, 50, "Boon: burns away the two bottom rows of your tower."
-Data "Calm", 140, 210, 255, "Boon: your stones fall at half speed for 15 seconds."
-Data "Gold", 255, 220, 80, "Boon: bonus points."
-Data "Stone", 200, 170, 130, "Hex: pushes two rows of rubble under the tower."
-Data "Storm", 220, 250, 255, "Hex: stones fall three times as fast for 10 seconds."
-Data "Shade", 200, 120, 255, "Hex: hides the tower and the next stone for 10 seconds."
-Data "Twist", 140, 255, 140, "Hex: swaps left and right for 10 seconds."
-
-; Where a turned stone may be nudged to when it does not fit where it is: (columns, rows).
-.TurnNudges
-Data 0, 0, -1, 0, 1, 0, 0, -1, -2, 0, 2, 0
