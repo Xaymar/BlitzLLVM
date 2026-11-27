@@ -171,8 +171,9 @@ class Runner:
         self.frametimes = []
         self.output = ""
 
-    def parse(self):
-        """Reads the options, finds the compiler and checks what every benchmark checks. Returns the options."""
+    def parse(self, run=True):
+        """Reads the options, finds the compiler and checks what every benchmark checks. Returns the options. run False is for a runner
+        that only builds the programs (micro.py --build-only): it needs no display then."""
         args = self.args = self.parser.parse_args()
         if args.quick:
             args.frames = self.quick_frames
@@ -197,7 +198,7 @@ class Runner:
         # Without a display the program runs under xvfb-run, which with Mesa means llvmpipe.
         self.display = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else \
             ["xvfb-run", "-a", "-s", "-screen 0 %dx%dx24" % (self.width, self.height)]
-        if self.display and not shutil.which("xvfb-run"):
+        if run and self.display and not shutil.which("xvfb-run"):
             sys.exit("There is no display and no xvfb-run.")
         return args
 

@@ -67,7 +67,8 @@ def main():
     p.add_argument("--samples", type=int, default=int(os.environ.get("MICRO_SAMPLES", 11)), help="timed passes per case (default %(default)s)")
     p.add_argument("--target-us", type=int, default=int(os.environ.get("MICRO_TARGET_US", 0)),
                    help="length of one pass in microseconds (default 2000, 50000 with the original's millisecond timer)")
-    args = runner.parse()
+    p.add_argument("--build-only", action="store_true", help="only build the programs of the groups, for the test that they still compile")
+    args = runner.parse(run="--build-only" not in sys.argv[1:])
     if args.quick:
         args.samples = min(args.samples, 3)
         if not args.target_us:
@@ -86,12 +87,17 @@ def main():
         runner.name = runner.own = "micro_" + group
         with tempfile.TemporaryDirectory() as directory:
             program = runner.build(directory, files=[os.path.join(benchutil.HERE, "micro.bi")])
+            if args.build_only:
+                print("Built %s" % runner.name, flush=True)
+                continue
             print("Running %s, %d passes per case, build %s" % (runner.name, args.samples, " ".join(runner.flags) or "no options"), flush=True)
             runner.execute(program, directory, dict(env, MICRO_FILE=os.path.join(directory, "micro_file.tmp")))
             found = read_cases(os.path.join(directory, "result.txt"))
         for name, case in found.items():
             case["group"] = group
             cases[name] = case
+    if args.build_only:
+        return
     if not cases:
         sys.exit("No case ran%s." % (" (the filter %s matches none)" % args.filter if args.filter else ""))
 
