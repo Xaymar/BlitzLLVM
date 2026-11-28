@@ -126,7 +126,7 @@ namespace {
 
 	void usage(const char* self)
 	{
-		std::cout << "Usage: " << self << " [options] <input.bb|input.ll>\n"
+		std::cout << "Usage: " << self << " [options] <input.bb|input.ll> [program arguments]\n"
 				  << "\n"
 				  << "Compiles a BlitzBasic program into a single executable using LLVM.\n"
 				  << "\n"
@@ -134,7 +134,8 @@ namespace {
 				  << "  -o <file>             Create an executable with this name. Without -o (and -S, -c) the program is built\n"
 				  << "                        in a temporary directory with a random name (blitzllvm_<hex>) and run right away,\n"
 				  << "                        like the original blitzcc, and blitzcc returns the exit code of the program.\n"
-				  << "  --args <arg>...       Everything after this is passed to the program that is run.\n"
+				  << "  --args <arg>...       Everything after this is passed to the program that is run. Like the original, so is\n"
+				  << "                        everything after the input file from the first word that is no option of blitzcc.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
 				  << "                        LLVM optimization level, defaults to -O3 (-O0 with -d).\n"
 				  << "  --fast-math <mode>    How Float math is optimized: full (reassociation, reciprocals, contraction and the\n"
@@ -348,13 +349,19 @@ namespace {
 	{
 		// --help and --version answer before anything else is looked at, so a bad option next to them does not matter. What is
 		// after --args or -- belongs to the program or to clang, and the value of an option such as -o is skipped. Whichever of the two
-		// comes first wins.
+		// comes first wins. A second word that is no option starts the arguments of the program (see below), so it ends the search too.
+		bool input_seen = false;
 		for (int idx = 1; idx < argc; idx++) {
 			std::string arg = argv[idx];
 			std::string lowered = arg;
 			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
 			if ((arg == "--args") || (arg == "--")) {
 				break;
+			} else if (arg.empty() || ((arg[0] != '-') && (arg[0] != '+'))) {
+				if (input_seen) {
+					break;
+				}
+				input_seen = true;
 			} else if ((lowered == "--fast-math") || (arg == "--userlibs-dir") || (arg == "-o") || (arg == "--target") || (arg == "--llvm-flag")
 					   || (arg == "--llvm-arg") || (arg == "--cc") || (arg == "--runtime-dir") || (arg == "--icon")
 					   || (arg == "-I") || (arg == "--include-dir")) {
@@ -378,6 +385,22 @@ namespace {
 
 			std::string lowered = arg;
 			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
+			// After the source file, a word that only looks like a -W option (-windowed) is the first argument of the program.
+			auto parse_warning = [&](std::string const& option) {
+				if (opt.input.empty()) {
+					return opt.warnings.parse(option);
+				}
+				auto settings = opt.warnings;
+				try {
+					if (!settings.parse(option)) {
+						return false;
+					}
+				} catch (std::exception const&) {
+					return false;
+				}
+				opt.warnings = settings;
+				return true;
+			};
 
 			if ((arg == "-h") || (arg == "--help")) {
 				opt.help = true;
@@ -385,7 +408,7 @@ namespace {
 				opt.quiet = true;
 			} else if (lowered == "+q") {
 				opt.quiet = opt.very_quiet = true;
-			} else if (opt.warnings.parse(lowered)) {
+			} else if (parse_warning(lowered)) {
 				// A -W option, the warnings are set up.
 			} else if (lowered == "-c") {
 				opt.compile_only = true;
@@ -462,12 +485,17 @@ namespace {
 				for (idx++; idx < argc; idx++) {
 					opt.flags.push_back(argv[idx]);
 				}
+			} else if (!opt.input.empty()) {
+				// Like the original, whatever follows the source file belongs to the program from the first word on that is no option of
+				// the compiler. The IDE of the original runs "blitzcc -q file.bb <program arguments>". Options of the compiler after the
+				// file still count, so "blitzcc file.bb -o game" builds game.
+				for (; idx < argc; idx++) {
+					opt.run_args.push_back(argv[idx]);
+				}
 			} else if (!arg.empty() && (arg[0] == '-')) {
 				throw std::runtime_error("Unknown option " + arg + ", see --help.");
-			} else if (opt.input.empty()) {
-				opt.input = arg;
 			} else {
-				throw std::runtime_error("Only one input file is supported.");
+				opt.input = arg;
 			}
 		}
 		return true;
