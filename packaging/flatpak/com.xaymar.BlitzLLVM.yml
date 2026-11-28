@@ -16,7 +16,9 @@ command: blitzcc
 
 add-extensions:
   org.freedesktop.Sdk.Extension.llvm21:
-    # Downloaded with the app (flatpak install pulls it in as a dependency), and found by blitzcc through BLITZLLVM_CC below.
+    # Found by blitzcc through BLITZLLVM_CC below. Flatpak pulls it in with the app only from a remote that has it: installing from a .flatpak
+    # bundle does not (the bundle's own remote has no related refs), so users install it from flathub themselves (docs/wiki/Flatpak.md), and
+    # blitzcc says how when it is missing.
     directory: sdk/llvm21
     version: '25.08'
 

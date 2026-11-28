@@ -540,8 +540,6 @@ jobs:
           # Ubuntu 24.04 stops flatpak-builder from making the namespaces of its sandbox otherwise.
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          # clang for the compiler's own smoke test below; users get it as a dependency of the compiler (add-extensions).
-          flatpak install --user --noninteractive flathub org.freedesktop.Sdk.Extension.llvm21//25.08
           packaging/flatpak/split.sh flatpak-stage flatpak-runtime ${{ matrix.arch }}
           sed -i "s/@VERSION@/$VERSION/;s/@DATE@/$(date -u +%Y-%m-%d)/" packaging/flatpak/com.xaymar.BlitzLLVM.metainfo.xml
           appstreamcli validate --no-net --pedantic packaging/flatpak/com.xaymar.BlitzLLVM.metainfo.xml
@@ -555,12 +553,21 @@ jobs:
           (cd flatpak-build/files && find . -type f) | .github/scripts/check-help.sh "${ARTIFACT}.flatpak"
           # The compiler must not carry the libraries that the extension has.
           ! (cd flatpak-build/files && find . -name 'libavcodec*' -o -name 'libjxl*' -o -name 'libopus*' | grep .)
-          # Install them like a user does, compile a program in the sandbox and run it.
-          flatpak uninstall --user --noninteractive com.xaymar.BlitzLLVM
+          # Install them like a user does, into a user installation of its own that has nothing that the build installed (no flathub remote,
+          # no SDK, no llvm21), with the commands of docs/wiki/Flatpak.md. The later steps use it too.
+          export FLATPAK_USER_DIR="$RUNNER_TEMP/flatpak-user"
+          echo "FLATPAK_USER_DIR=$FLATPAK_USER_DIR" >> "$GITHUB_ENV"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}-runtime.flatpak"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}.flatpak"
           mkdir -p "$HOME/flatpak-smoke"
           echo 'Print "Hello from the Flatpak"' > "$HOME/flatpak-smoke/hello.bb"
+          # Installing from a bundle does not bring the SDK extension with clang along (its remote has no related refs), and blitzcc says how to.
+          if flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb" 2> smoke-err.txt; then
+            echo "blitzcc worked without org.freedesktop.Sdk.Extension.llvm21, so the bundle brings it along now: update docs/wiki/Flatpak.md."; exit 1
+          fi
+          cat smoke-err.txt
+          grep -q 'flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08' smoke-err.txt
+          flatpak install --user --noninteractive flathub org.freedesktop.Sdk.Extension.llvm21//25.08
           flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb"
           # blitzcc copied no shared library next to the program: the extension has them.
           ! ls "$HOME/flatpak-smoke" | grep -E '\.so'

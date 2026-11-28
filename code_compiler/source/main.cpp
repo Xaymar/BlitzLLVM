@@ -804,6 +804,34 @@ static int compiler_main(int argc, char** argv)
 		}
 
 		// Back-end: LLVM IR + Runtime -> Executable
+		std::string cc = opt.cc;
+		if (cc.empty()) {
+			const char* env = std::getenv("BLITZLLVM_CC");
+			cc              = env ? env : "clang";
+		}
+		// A clang given as a path (not looked up in PATH) that is not there would only fail later as "returned 127", after a warning about
+		// the runtime. The Flatpak points at the SDK extension, which installing from a .flatpak file does not bring along (docs/wiki/Flatpak.md).
+		if (cc.find_first_of("/\\") != std::string::npos) {
+			std::error_code ec;
+			bool        found = std::filesystem::exists(cc, ec);
+#ifdef _WIN32
+			found = found || std::filesystem::exists(cc + ".exe", ec); // CreateProcess adds it.
+#endif
+			if (!found) {
+				if (!opt.very_quiet) {
+					std::cerr << "error: clang was not found at \"" << cc << "\"." << std::endl;
+					if (std::getenv("FLATPAK_ID")) {
+						std::cerr << "The Flatpak takes clang from the extension org.freedesktop.Sdk.Extension.llvm21, which installing from a"
+									 " .flatpak file does not install. Install it with:\n"
+									 "  flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08"
+								  << std::endl;
+					} else {
+						std::cerr << "Pass a clang that exists with --cc, or set BLITZLLVM_CC." << std::endl;
+					}
+				}
+				return 1;
+			}
+		}
 		temp_dir = make_temp_dir();
 		if (run_it) {
 			opt.output = temp_dir / opt.output;
@@ -893,12 +921,6 @@ static int compiler_main(int argc, char** argv)
 					system_libraries.push_back(line);
 				}
 			}
-		}
-
-		std::string cc = opt.cc;
-		if (cc.empty()) {
-			const char* env = std::getenv("BLITZLLVM_CC");
-			cc              = env ? env : "clang";
 		}
 
 		std::vector<std::string> command{ cc, opt.optimization, "-w" };

@@ -9,11 +9,20 @@ The Flatpak is the only Linux release format (there are no deb, rpm, Arch or sna
 * `com.xaymar.BlitzLLVM`: the compiler and the tools (`blitzcc`, `blitz-format`, `blitz-tidy`, `blitz-recompiler`), on the freedesktop SDK because `blitzcc` hands programs to clang (which comes from the SDK extension `org.freedesktop.Sdk.Extension.llvm21`).
 * `com.xaymar.BlitzLLVM.Runtime`: the shared libraries that programs load when they run (FFmpeg for movies, the AVIF, JPEG XL, TIFF and WebP codecs, Opus and Ogg), with their licenses. The compiler and every game ask for it as an extension, so Flatpak installs it once, however many games are installed.
 
+## Installing
+
+Download both files of your architecture from the release (`-linux-x64` or `-linux-arm64`) and install them, then clang:
+
 ```sh
-flatpak install --user --bundle blitzllvm-<version>-flatpak-x64-runtime.flatpak
-flatpak install --user --bundle blitzllvm-<version>-flatpak-x64.flatpak
+flatpak install --user --bundle blitzllvm-<version>-linux-x64-runtime.flatpak
+flatpak install --user --bundle blitzllvm-<version>-linux-x64.flatpak
+flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08
 flatpak run com.xaymar.BlitzLLVM hello.bb
 ```
+
+* Installing the compiler downloads the freedesktop SDK 25.08 from flathub (several hundred MB), and adds flathub as a remote if it was not there.
+* The third line is needed: Flatpak installs the extensions of an app only from the remote the app came from, and a `.flatpak` file has none. Without clang `blitzcc` stops with "clang was not found at /app/sdk/llvm21/bin/clang" and prints that command.
+* BlitzLLVM is a command-line tool, so it has no entry in the application menu and opening it from GNOME Software or Discover does nothing visible. Run it from a terminal. The samples are inside the Flatpak at `/app/share/blitzllvm/samples`; copy them out with `flatpak run --command=cp com.xaymar.BlitzLLVM -r /app/share/blitzllvm/samples ~/blitzllvm-samples`.
 
 Run the other tools with `flatpak run --command=blitz-format com.xaymar.BlitzLLVM file.bb`. The compiler gets your home folder (`flatpak override --user --filesystem=host com.xaymar.BlitzLLVM` for more), the network, sound, a window (Wayland or X11) and the GPU and controllers. Programs that `blitzcc` runs for you run inside the sandbox too.
 
