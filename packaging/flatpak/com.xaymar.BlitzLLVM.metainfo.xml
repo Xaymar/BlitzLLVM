@@ -9,6 +9,7 @@
   <description>
     <p>BlitzLLVM compiles BlitzBasic, Blitz3D and BlitzPlus programs to native executables with LLVM, using Vulkan and SDL3.</p>
     <p>The Flatpak holds the compiler (blitzcc), the formatter and the runtime with the shared libraries of the programs, and takes clang from the freedesktop SDK.</p>
+    <p>It is a command-line tool and has no entry in the application menu: run it with "flatpak run com.xaymar.BlitzLLVM game.bb". Install clang once with "flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08", which installing from a .flatpak file does not do.</p>
   </description>
   <url type="homepage">https://github.com/Xaymar/BlitzLLVM</url>
   <url type="bugtracker">https://github.com/Xaymar/BlitzLLVM/issues</url>
