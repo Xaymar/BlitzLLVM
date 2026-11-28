@@ -1195,12 +1195,16 @@ static int compiler_main(int argc, char** argv)
 			if (!opt.very_quiet) {
 				std::cout << "Executing..." << std::endl;
 			}
-			// Like the original, the program runs in the directory of the source file.
+			// Like the original, the program runs in the directory of the source file. When that folder can't be entered, it is an
+			// error, as the program would not find its files.
 			std::vector<std::string> program{ opt.output.generic_string() };
 			program.insert(program.end(), opt.run_args.begin(), opt.run_args.end());
 			std::error_code ec;
 			auto            directory = std::filesystem::absolute(opt.input).parent_path();
 			std::filesystem::current_path(directory, ec);
+			if (ec) {
+				throw std::runtime_error("Entering the folder '" + directory.generic_string() + "' of the program to run it failed: " + ec.message());
+			}
 			result = run_program(program, directory, opt.verbose);
 		}
 		if (!keep) {
