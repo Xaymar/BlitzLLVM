@@ -65,7 +65,7 @@ blitzcc -o hello hello.bb
 Useful options:
 
 ```sh
-blitzcc program.bb              # build and run right away (arguments for the program go after --args)
+blitzcc program.bb              # build and run right away (arguments for the program go after the file or after --args)
 blitzcc -o program program.bb  # only build the executable
 blitzcc -O2 -o program program.bb   # a lower optimization level (the default is -O3)
 blitzcc --fast-math full -o program program.bb   # also assume that Float math never produces NaN or Infinity (see below)
