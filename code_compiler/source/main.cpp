@@ -38,6 +38,8 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #else
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -126,7 +128,7 @@ namespace {
 
 	void usage(const char* self)
 	{
-		std::cout << "Usage: " << self << " [options] <input.bb|input.ll>\n"
+		std::cout << "Usage: " << self << " [options] <input.bb|input.ll> [program arguments]\n"
 				  << "\n"
 				  << "Compiles a BlitzBasic program into a single executable using LLVM.\n"
 				  << "\n"
@@ -134,7 +136,8 @@ namespace {
 				  << "  -o <file>             Create an executable with this name. Without -o (and -S, -c) the program is built\n"
 				  << "                        in a temporary directory with a random name (blitzllvm_<hex>) and run right away,\n"
 				  << "                        like the original blitzcc, and blitzcc returns the exit code of the program.\n"
-				  << "  --args <arg>...       Everything after this is passed to the program that is run.\n"
+				  << "  --args <arg>...       Everything after this is passed to the program that is run. Like the original, so is\n"
+				  << "                        everything after the input file from the first word that is no option of blitzcc.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
 				  << "                        LLVM optimization level, defaults to -O3 (-O0 with -d).\n"
 				  << "  --fast-math <mode>    How Float math is optimized: full (reassociation, reciprocals, contraction and the\n"
@@ -335,6 +338,113 @@ namespace {
 		return std::system(line.c_str());
 	}
 
+#if defined(_WIN32)
+	// The built program, started straight away with CreateProcess in this folder, like the original does. std::system goes through
+	// cmd.exe, which first runs the AutoRun commands of the registry (HKCU and HKLM\Software\Microsoft\Command Processor), and an AutoRun
+	// with a "cd" in it (conda, clink and others set one up) moved the program away from the folder of its source.
+	std::wstring widen(std::string const& text)
+	{
+		if (text.empty()) {
+			return {};
+		}
+		int          length = MultiByteToWideChar(CP_ACP, 0, text.data(), int(text.size()), nullptr, 0);
+		std::wstring wide(size_t(length), L'\0');
+		MultiByteToWideChar(CP_ACP, 0, text.data(), int(text.size()), wide.data(), length);
+		return wide;
+	}
+
+	// One argument as CommandLineToArgvW and the C runtime split it again: quotes around it when needed, a quote inside it and the
+	// backslashes before a quote doubled.
+	std::wstring quote_argument(std::wstring const& arg)
+	{
+		if (!arg.empty() && (arg.find_first_of(L" \t\n\v\"") == std::wstring::npos)) {
+			return arg;
+		}
+		std::wstring out = L"\"";
+		size_t       backslashes = 0;
+		for (wchar_t c : arg) {
+			if (c == L'\\') {
+				backslashes++;
+				continue;
+			}
+			out.append(c == L'"' ? (backslashes * 2 + 1) : backslashes, L'\\');
+			backslashes = 0;
+			out.push_back(c);
+		}
+		out.append(backslashes * 2, L'\\');
+		return out + L"\"";
+	}
+
+	int run_program(std::vector<std::string> const& command, std::filesystem::path const& directory, bool verbose)
+	{
+		std::wstring line;
+		for (auto const& part : command) {
+			line += (line.empty() ? L"" : L" ") + quote_argument(widen(part));
+		}
+		if (verbose) {
+			std::wcout << line << std::endl;
+		}
+		std::wstring        program = std::filesystem::path(command.front()).make_preferred().wstring();
+		std::wstring        folder  = directory.wstring();
+		STARTUPINFOW        startup{};
+		PROCESS_INFORMATION process{};
+		startup.cb         = sizeof(startup);
+		startup.dwFlags    = STARTF_USESTDHANDLES;
+		startup.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		startup.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		startup.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+		std::cout.flush();
+		std::cerr.flush();
+		if (!CreateProcessW(program.c_str(), line.data(), nullptr, nullptr, TRUE, 0, nullptr, folder.empty() ? nullptr : folder.c_str(), &startup, &process)) {
+			throw std::runtime_error("Starting '" + command.front() + "' failed (error " + std::to_string(GetLastError()) + ").");
+		}
+		WaitForSingleObject(process.hProcess, INFINITE);
+		DWORD code = 1;
+		GetExitCodeProcess(process.hProcess, &code);
+		CloseHandle(process.hThread);
+		CloseHandle(process.hProcess);
+		return int(code);
+	}
+#else
+	// The built program, started straight away with fork and execv in this folder, without a shell in between that could change
+	// the folder or what the arguments are.
+	int run_program(std::vector<std::string> const& command, std::filesystem::path const& directory, bool verbose)
+	{
+		if (verbose) {
+			std::string line;
+			for (auto const& part : command) {
+				line += (line.empty() ? "" : " ") + quote(part);
+			}
+			std::cout << line << std::endl;
+		}
+		std::vector<char*> args;
+		for (auto const& part : command) {
+			args.push_back(const_cast<char*>(part.c_str()));
+		}
+		args.push_back(nullptr);
+		std::cout.flush();
+		std::cerr.flush();
+		pid_t child = fork();
+		if (child < 0) {
+			throw std::runtime_error("Starting '" + command.front() + "' failed: " + std::strerror(errno));
+		}
+		if (child == 0) {
+			if (!directory.empty() && (::chdir(directory.c_str()) != 0)) {
+				_exit(127);
+			}
+			execv(args[0], args.data());
+			_exit(127); // Only async-signal-safe calls between fork and exec.
+		}
+		int status = 0;
+		while (waitpid(child, &status, 0) < 0) {
+			if (errno != EINTR) {
+				return 1;
+			}
+		}
+		return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+	}
+#endif
+
 	void write_file(std::filesystem::path const& path, std::string const& data)
 	{
 		std::ofstream stream(path, std::ios_base::binary);
@@ -348,13 +458,19 @@ namespace {
 	{
 		// --help and --version answer before anything else is looked at, so a bad option next to them does not matter. What is
 		// after --args or -- belongs to the program or to clang, and the value of an option such as -o is skipped. Whichever of the two
-		// comes first wins.
+		// comes first wins. A second word that is no option starts the arguments of the program (see below), so it ends the search too.
+		bool input_seen = false;
 		for (int idx = 1; idx < argc; idx++) {
 			std::string arg = argv[idx];
 			std::string lowered = arg;
 			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
 			if ((arg == "--args") || (arg == "--")) {
 				break;
+			} else if (arg.empty() || ((arg[0] != '-') && (arg[0] != '+'))) {
+				if (input_seen) {
+					break;
+				}
+				input_seen = true;
 			} else if ((lowered == "--fast-math") || (arg == "--userlibs-dir") || (arg == "-o") || (arg == "--target") || (arg == "--llvm-flag")
 					   || (arg == "--llvm-arg") || (arg == "--cc") || (arg == "--runtime-dir") || (arg == "--icon")
 					   || (arg == "-I") || (arg == "--include-dir")) {
@@ -378,6 +494,22 @@ namespace {
 
 			std::string lowered = arg;
 			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
+			// After the source file, a word that only looks like a -W option (-windowed) is the first argument of the program.
+			auto parse_warning = [&](std::string const& option) {
+				if (opt.input.empty()) {
+					return opt.warnings.parse(option);
+				}
+				auto settings = opt.warnings;
+				try {
+					if (!settings.parse(option)) {
+						return false;
+					}
+				} catch (std::exception const&) {
+					return false;
+				}
+				opt.warnings = settings;
+				return true;
+			};
 
 			if ((arg == "-h") || (arg == "--help")) {
 				opt.help = true;
@@ -385,7 +517,7 @@ namespace {
 				opt.quiet = true;
 			} else if (lowered == "+q") {
 				opt.quiet = opt.very_quiet = true;
-			} else if (opt.warnings.parse(lowered)) {
+			} else if (parse_warning(lowered)) {
 				// A -W option, the warnings are set up.
 			} else if (lowered == "-c") {
 				opt.compile_only = true;
@@ -462,12 +594,17 @@ namespace {
 				for (idx++; idx < argc; idx++) {
 					opt.flags.push_back(argv[idx]);
 				}
+			} else if (!opt.input.empty()) {
+				// Like the original, whatever follows the source file belongs to the program from the first word on that is no option of
+				// the compiler. The IDE of the original runs "blitzcc -q file.bb <program arguments>". Options of the compiler after the
+				// file still count, so "blitzcc file.bb -o game" builds game.
+				for (; idx < argc; idx++) {
+					opt.run_args.push_back(argv[idx]);
+				}
 			} else if (!arg.empty() && (arg[0] == '-')) {
 				throw std::runtime_error("Unknown option " + arg + ", see --help.");
-			} else if (opt.input.empty()) {
-				opt.input = arg;
 			} else {
-				throw std::runtime_error("Only one input file is supported.");
+				opt.input = arg;
 			}
 		}
 		return true;
@@ -1092,16 +1229,17 @@ static int compiler_main(int argc, char** argv)
 			if (!opt.very_quiet) {
 				std::cout << "Executing..." << std::endl;
 			}
-			// Like the original, the program runs in the directory of the source file.
+			// Like the original, the program runs in the directory of the source file. When that folder can't be entered, it is an
+			// error, as the program would not find its files.
 			std::vector<std::string> program{ opt.output.generic_string() };
 			program.insert(program.end(), opt.run_args.begin(), opt.run_args.end());
 			std::error_code ec;
 			auto            directory = std::filesystem::absolute(opt.input).parent_path();
 			std::filesystem::current_path(directory, ec);
-			result = run(program, opt.verbose);
-#if !defined(_WIN32)
-			result = WIFEXITED(result) ? WEXITSTATUS(result) : 1;
-#endif
+			if (ec) {
+				throw std::runtime_error("Entering the folder '" + directory.generic_string() + "' of the program to run it failed: " + ec.message());
+			}
+			result = run_program(program, directory, opt.verbose);
 		}
 		if (!keep) {
 			std::error_code ec;

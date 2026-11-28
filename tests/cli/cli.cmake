@@ -1402,12 +1402,35 @@ elseif(CASE STREQUAL "userlib_layout")
 	blitzcc(+q "${TESTS}/cli/userlib/call.bb")
 	expect_userlib_output()
 
+elseif(CASE STREQUAL "run_directory")
+	# Like the original, a program that blitzcc runs starts in the folder of its source file, wherever blitzcc was started, so it finds
+	# its files by their relative names. The test runs it from WORK, which is another folder.
+	blitzcc(+q "${TESTS}/cli/run_directory/where.bb")
+	expect_ok()
+	get_filename_component(_EXPECTED "${TESTS}/cli/run_directory" REALPATH)
+	string(REGEX MATCH "cwd:([^\n]*)" _ "${OUT}")
+	file(TO_CMAKE_PATH "${CMAKE_MATCH_1}" _CWD)
+	get_filename_component(_CWD "${_CWD}" REALPATH)
+	if(NOT _CWD STREQUAL _EXPECTED)
+		message(FATAL_ERROR "The program ran in '${_CWD}', expected the folder of its source '${_EXPECTED}'.\n${OUT}")
+	endif()
+	expect_contains("data:next to the source")
+
 elseif(CASE STREQUAL "run")
 	# Without -o the program is built and run, and nothing is left behind.
 	blitzcc("${TESTS}/cli/run.bb" --args one two)
 	expect_ok()
 	expect_contains("Executing...")
 	expect_contains("ran:one two")
+	# Like the original (its IDE runs "blitzcc -q file.bb <arguments>"), what follows the file belongs to the program from the first word
+	# that is no option of blitzcc, even when it starts with - or looks like a -W option.
+	blitzcc(+q "${TESTS}/cli/run.bb" one -two -windowed)
+	expect_ok()
+	expect_contains("ran:one -two -windowed")
+	blitzcc(+q "${TESTS}/cli/run.bb" -w4 one)
+	expect_ok()
+	expect_contains("ran:one")
+	expect_missing("-w4")
 	file(GLOB _CREATED "${WORK}/*")
 	if(_CREATED)
 		message(FATAL_ERROR "Running created files: ${_CREATED}")
