@@ -38,6 +38,8 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #else
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -404,10 +406,42 @@ namespace {
 		return int(code);
 	}
 #else
-	int run_program(std::vector<std::string> const& command, std::filesystem::path const&, bool verbose)
+	// The built program, started straight away with fork and execv in this folder, without a shell in between that could change
+	// the folder or what the arguments are.
+	int run_program(std::vector<std::string> const& command, std::filesystem::path const& directory, bool verbose)
 	{
-		int result = run(command, verbose);
-		return WIFEXITED(result) ? WEXITSTATUS(result) : 1;
+		if (verbose) {
+			std::string line;
+			for (auto const& part : command) {
+				line += (line.empty() ? "" : " ") + quote(part);
+			}
+			std::cout << line << std::endl;
+		}
+		std::vector<char*> args;
+		for (auto const& part : command) {
+			args.push_back(const_cast<char*>(part.c_str()));
+		}
+		args.push_back(nullptr);
+		std::cout.flush();
+		std::cerr.flush();
+		pid_t child = fork();
+		if (child < 0) {
+			throw std::runtime_error("Starting '" + command.front() + "' failed: " + std::strerror(errno));
+		}
+		if (child == 0) {
+			if (!directory.empty() && (::chdir(directory.c_str()) != 0)) {
+				_exit(127);
+			}
+			execv(args[0], args.data());
+			_exit(127); // Only async-signal-safe calls between fork and exec.
+		}
+		int status = 0;
+		while (waitpid(child, &status, 0) < 0) {
+			if (errno != EINTR) {
+				return 1;
+			}
+		}
+		return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
 	}
 #endif
 
