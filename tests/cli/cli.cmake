@@ -1402,6 +1402,20 @@ elseif(CASE STREQUAL "userlib_layout")
 	blitzcc(+q "${TESTS}/cli/userlib/call.bb")
 	expect_userlib_output()
 
+elseif(CASE STREQUAL "run_directory")
+	# Like the original, a program that blitzcc runs starts in the folder of its source file, wherever blitzcc was started, so it finds
+	# its files by their relative names. The test runs it from WORK, which is another folder.
+	blitzcc(+q "${TESTS}/cli/run_directory/where.bb")
+	expect_ok()
+	get_filename_component(_EXPECTED "${TESTS}/cli/run_directory" REALPATH)
+	string(REGEX MATCH "cwd:([^\n]*)" _ "${OUT}")
+	file(TO_CMAKE_PATH "${CMAKE_MATCH_1}" _CWD)
+	get_filename_component(_CWD "${_CWD}" REALPATH)
+	if(NOT _CWD STREQUAL _EXPECTED)
+		message(FATAL_ERROR "The program ran in '${_CWD}', expected the folder of its source '${_EXPECTED}'.\n${OUT}")
+	endif()
+	expect_contains("data:next to the source")
+
 elseif(CASE STREQUAL "run")
 	# Without -o the program is built and run, and nothing is left behind.
 	blitzcc("${TESTS}/cli/run.bb" --args one two)
