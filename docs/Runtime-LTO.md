@@ -153,7 +153,7 @@ ours to ship, and the default Windows target is MinGW since #464.
 ### Linux and Flatpak
 
 A developer build uses the system clang with the system's libstdc++ headers and glibc headers, which every clang
-install already has. The Flatpak uses `org.freedesktop.Sdk.Extension.llvm21`, whose version is fixed for a given SDK.
+install already has. The Flatpak ships the clang of `org.freedesktop.Sdk.Extension.llvm21`, whose version is fixed for a given SDK.
 So the Flatpak can later ship a *seed* entry: the runtime prepared by CI with exactly that clang, which blitzcc uses
 (read-only) when its key matches, so Flatpak users never wait for the one-time step. If the extension updates, the key
 no longer matches and the user's cache is used as everywhere else. The Flatpak's cache is

@@ -810,7 +810,7 @@ static int compiler_main(int argc, char** argv)
 			cc              = env ? env : "clang";
 		}
 		// A clang given as a path (not looked up in PATH) that is not there would only fail later as "returned 127", after a warning about
-		// the runtime. The Flatpak points at the SDK extension, which installing from a .flatpak file does not bring along (docs/wiki/Flatpak.md).
+		// the runtime.
 		if (cc.find_first_of("/\\") != std::string::npos) {
 			std::error_code ec;
 			bool        found = std::filesystem::exists(cc, ec);
@@ -820,14 +820,7 @@ static int compiler_main(int argc, char** argv)
 			if (!found) {
 				if (!opt.very_quiet) {
 					std::cerr << "error: clang was not found at \"" << cc << "\"." << std::endl;
-					if (std::getenv("FLATPAK_ID")) {
-						std::cerr << "The Flatpak takes clang from the extension org.freedesktop.Sdk.Extension.llvm21, which installing from a"
-									 " .flatpak file does not install. Install it with:\n"
-									 "  flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08"
-								  << std::endl;
-					} else {
-						std::cerr << "Pass a clang that exists with --cc, or set BLITZLLVM_CC." << std::endl;
-					}
+					std::cerr << "Pass a clang that exists with --cc, or set BLITZLLVM_CC." << std::endl;
 				}
 				return 1;
 			}

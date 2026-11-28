@@ -6,7 +6,7 @@
 # every BLITZ_SYSTEM_* option OFF, as the runtime of a Flatpak does not have the libraries that a distribution's package takes from the system.
 #
 # blitzcc hands the program to clang, so the runtime is the freedesktop SDK (it has the C library, its headers, the C++ library and
-# the linker), and clang itself comes from the LLVM extension of that SDK, mounted at /app/sdk/llvm21. The libraries that programs load when
+# the linker), and clang itself is copied from the LLVM extension of that SDK into /app/llvm. The libraries that programs load when
 # they run are not in this app but in the extension com.xaymar.BlitzLLVM.Runtime, which games ask for as well (packaging/flatpak/split.sh).
 app-id: com.xaymar.BlitzLLVM
 runtime: org.freedesktop.Sdk
@@ -14,14 +14,12 @@ runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 command: blitzcc
 
-add-extensions:
-  org.freedesktop.Sdk.Extension.llvm21:
-    # Found by blitzcc through BLITZLLVM_CC below. Flatpak pulls it in with the app only from a remote that has it: installing from a .flatpak
-    # bundle does not (the bundle's own remote has no related refs), so users install it from flathub themselves (docs/wiki/Flatpak.md), and
-    # blitzcc says how when it is missing.
-    directory: sdk/llvm21
-    version: '25.08'
+# clang and lld of this SDK extension are copied into the app (copy-clang.sh) while it is built, not asked for at run time: Flatpak installs an
+# app's extensions only from the remote the app came from, and the remote of a .flatpak bundle has none.
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.llvm21
 
+add-extensions:
   com.xaymar.BlitzLLVM.Runtime:
     # The shared libraries of the programs, which are installed once for the compiler and all games. Found by the loader through add-ld-path.
     directory: lib/blitzllvm-shared
@@ -39,16 +37,18 @@ finish-args:
   - --share=network
   # blitzcc reads source files and writes programs. Widen with 'flatpak override --user --filesystem=host com.xaymar.BlitzLLVM'.
   - --filesystem=home
-  - --env=BLITZLLVM_CC=/app/sdk/llvm21/bin/clang
+  - --env=BLITZLLVM_CC=/app/llvm/bin/clang
 
 modules:
   - name: blitzllvm
     buildsystem: simple
     build-commands:
       # The staged tree has the prefix /app inside it (DESTDIR).
-      - mkdir -p /app/sdk/llvm21 /app/lib/blitzllvm-shared
+      - mkdir -p /app/lib/blitzllvm-shared
       - cp -a app/. /app/
       - install -Dm644 com.xaymar.BlitzLLVM.metainfo.xml -t /app/share/metainfo
+      - sh copy-clang.sh
+      - install -Dm644 LLVM-LICENSE.TXT /app/share/licenses/blitzllvm/LLVM/LICENSE.TXT
       # The logo, under the id of the app (the only name that Flatpak exports icons under). Only as PNG: appstreamcli compose fails
       # with file-read-error on an SVG when the machine has no SVG loader (librsvg), like the runners of CI.
       - install -Dm644 icon-128.png /app/share/icons/hicolor/128x128/apps/com.xaymar.BlitzLLVM.png
@@ -57,5 +57,9 @@ modules:
         path: ../../flatpak-stage
       - type: file
         path: com.xaymar.BlitzLLVM.metainfo.xml
+      - type: file
+        path: copy-clang.sh
+      - type: file
+        path: LLVM-LICENSE.TXT
       - type: file
         path: ../../media/icon-128.png
