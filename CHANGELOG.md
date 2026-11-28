@@ -9,6 +9,10 @@ Newest release first. Each entry says what it was, what it is now and, where som
 
 Everything merged into `root` since 2.0 (`2026.11.27.28792`).
 
+### Added
+
+- **Linux has a .tar.gz and a self-installing script besides the Flatpak**. Was: Linux came only as two Flatpaks. Now: `blitzllvm-<version>-linux-<arch>.tar.gz` (the layout of the Windows and macOS zips, unpack anywhere) and `...-installer.sh`, which installs it into `~/.local` (`--prefix`, `--uninstall`) and with `--install-clang` gets clang 21 or newer and lld from apt (apt.llvm.org on older Ubuntu), dnf, pacman or zypper; built on Ubuntu 22.04, so glibc 2.35 or newer. blitzcc uses the system's clang, found by the installer (a `clang-21` gets a launcher that sets `BLITZLLVM_CC`). When: a user can't or won't use Flatpak.
+
 ### Fixes
 
 - **A program run by blitzcc on Windows starts in the folder of its .bb file, whatever cmd.exe's AutoRun does** ([#762](https://github.com/Xaymar/BlitzLLVM/pull/762)). Was: blitzcc started it through `cmd.exe /c`, which first runs the `AutoRun` command of `HKCU`/`HKLM\Software\Microsoft\Command Processor`; one with a `cd` in it (conda, clink and others set one up) moved the program elsewhere (such as Temp), and `LoadTexture("asset\wall.jpg")` and other relative file names failed unless the program was built with `-o` next to its source. Now: blitzcc starts it with CreateProcess in that folder, like the original (and with fork and exec instead of `sh` on Linux and macOS), and stops with an error if it can't enter that folder. When: a user reports relative file names failing only when run from blitzcc.
