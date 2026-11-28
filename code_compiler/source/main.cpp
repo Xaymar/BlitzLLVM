@@ -336,6 +336,81 @@ namespace {
 		return std::system(line.c_str());
 	}
 
+#if defined(_WIN32)
+	// The built program, started straight away with CreateProcess in this folder, like the original does. std::system goes through
+	// cmd.exe, which first runs the AutoRun commands of the registry (HKCU and HKLM\Software\Microsoft\Command Processor), and an AutoRun
+	// with a "cd" in it (conda, clink and others set one up) moved the program away from the folder of its source.
+	std::wstring widen(std::string const& text)
+	{
+		if (text.empty()) {
+			return {};
+		}
+		int          length = MultiByteToWideChar(CP_ACP, 0, text.data(), int(text.size()), nullptr, 0);
+		std::wstring wide(size_t(length), L'\0');
+		MultiByteToWideChar(CP_ACP, 0, text.data(), int(text.size()), wide.data(), length);
+		return wide;
+	}
+
+	// One argument as CommandLineToArgvW and the C runtime split it again: quotes around it when needed, a quote inside it and the
+	// backslashes before a quote doubled.
+	std::wstring quote_argument(std::wstring const& arg)
+	{
+		if (!arg.empty() && (arg.find_first_of(L" \t\n\v\"") == std::wstring::npos)) {
+			return arg;
+		}
+		std::wstring out = L"\"";
+		size_t       backslashes = 0;
+		for (wchar_t c : arg) {
+			if (c == L'\\') {
+				backslashes++;
+				continue;
+			}
+			out.append(c == L'"' ? (backslashes * 2 + 1) : backslashes, L'\\');
+			backslashes = 0;
+			out.push_back(c);
+		}
+		out.append(backslashes * 2, L'\\');
+		return out + L"\"";
+	}
+
+	int run_program(std::vector<std::string> const& command, std::filesystem::path const& directory, bool verbose)
+	{
+		std::wstring line;
+		for (auto const& part : command) {
+			line += (line.empty() ? L"" : L" ") + quote_argument(widen(part));
+		}
+		if (verbose) {
+			std::wcout << line << std::endl;
+		}
+		std::wstring        program = std::filesystem::path(command.front()).make_preferred().wstring();
+		std::wstring        folder  = directory.wstring();
+		STARTUPINFOW        startup{};
+		PROCESS_INFORMATION process{};
+		startup.cb         = sizeof(startup);
+		startup.dwFlags    = STARTF_USESTDHANDLES;
+		startup.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		startup.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		startup.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+		std::cout.flush();
+		std::cerr.flush();
+		if (!CreateProcessW(program.c_str(), line.data(), nullptr, nullptr, TRUE, 0, nullptr, folder.empty() ? nullptr : folder.c_str(), &startup, &process)) {
+			throw std::runtime_error("Starting '" + command.front() + "' failed (error " + std::to_string(GetLastError()) + ").");
+		}
+		WaitForSingleObject(process.hProcess, INFINITE);
+		DWORD code = 1;
+		GetExitCodeProcess(process.hProcess, &code);
+		CloseHandle(process.hThread);
+		CloseHandle(process.hProcess);
+		return int(code);
+	}
+#else
+	int run_program(std::vector<std::string> const& command, std::filesystem::path const&, bool verbose)
+	{
+		int result = run(command, verbose);
+		return WIFEXITED(result) ? WEXITSTATUS(result) : 1;
+	}
+#endif
+
 	void write_file(std::filesystem::path const& path, std::string const& data)
 	{
 		std::ofstream stream(path, std::ios_base::binary);
@@ -1126,10 +1201,7 @@ static int compiler_main(int argc, char** argv)
 			std::error_code ec;
 			auto            directory = std::filesystem::absolute(opt.input).parent_path();
 			std::filesystem::current_path(directory, ec);
-			result = run(program, opt.verbose);
-#if !defined(_WIN32)
-			result = WIFEXITED(result) ? WEXITSTATUS(result) : 1;
-#endif
+			result = run_program(program, directory, opt.verbose);
 		}
 		if (!keep) {
 			std::error_code ec;
