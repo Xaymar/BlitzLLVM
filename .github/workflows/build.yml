@@ -45,13 +45,14 @@ jobs:
       # time, so that other pull requests can run too. The platforms that run the tests are first in the list, so they start first.
       max-parallel: 3
       matrix:
-        # Linux is released as a Flatpak only (packaging/flatpak), built on Ubuntu 24.04 with every library bundled, as the freedesktop runtime has none
-        # of the ones that a distribution has. "test" is the name of the platform in the test comment, and marks the ones that are
+        # Linux is released as Flatpaks (packaging/flatpak), built on Ubuntu 24.04 with every library bundled, as the freedesktop runtime has none
+        # of the ones that a distribution has, and as a .tar.gz with a self-installing .sh (packaging/linux, "tarball"), built the same way on
+        # Ubuntu 22.04 so that it runs with glibc 2.35 and newer. "test" is the name of the platform in the test comment, and marks the ones that are
         # built without packages, and tested by the Test workflow (the Linux tests run the very build that is packaged).
         # This is the list of all of them; the entries with "test" are repeated in the shorter lists for builds without packages (all test
         # platforms, or Linux alone with 'all-tests' off),
         # because a matrix can only be cut down by an expression on the inputs (an 'exclude' does not apply to entries of 'include').
-        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64"},{"name":"linux-arm64","os":"ubuntu-24.04-arm","kind":"flatpak"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"}]')) }}
+        include: ${{ fromJSON(inputs.packages && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"},{"name":"windows-arm64","os":"windows-11-arm","platform":"ARM64","msystem":"CLANGARM64"},{"name":"linux-arm64","os":"ubuntu-24.04-arm","kind":"flatpak"},{"name":"linux-x64-tarball","os":"ubuntu-22.04","kind":"tarball"},{"name":"linux-arm64-tarball","os":"ubuntu-22.04-arm","kind":"tarball"}]' || (inputs.all-tests && '[{"name":"windows-x64","os":"windows-latest","platform":"x64","msystem":"CLANG64","test":"Windows"},{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"},{"name":"macos-universal","os":"macos-latest","architectures":"arm64;x86_64","test":"macOS"}]' || '[{"name":"linux-x64","os":"ubuntu-24.04","kind":"flatpak","test":"Linux"}]')) }}
     runs-on: ${{ matrix.os }}
     steps:
       # Containers have no git yet when checkout runs, so it is installed first.
@@ -100,23 +101,24 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Date the package cache
         id: month
-        if: (matrix.kind == 'flatpak' || runner.os == 'Windows') && !inputs.clean
+        if: (runner.os == 'Linux' || runner.os == 'Windows') && !inputs.clean
         # Ubuntu and MSYS2 publish updates to these packages, so the caches are replaced every month and never serve old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install Linux dependencies for SDL (clean)
-        if: matrix.kind == 'flatpak' && inputs.clean
+        if: runner.os == 'Linux' && inputs.clean
         # No package cache: apt installs the current packages.
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev  zstd
       - name: Install Linux dependencies for SDL
-        if: matrix.kind == 'flatpak' && !inputs.clean
+        if: runner.os == 'Linux' && !inputs.clean
         uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
           packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev  zstd
-          version: 2-${{ runner.arch }}-${{ steps.month.outputs.month }}
+          # Ubuntu 22.04 (the tarball) has packages of its own, which must not come from the cache of 24.04.
+          version: 2-${{ runner.arch }}-${{ steps.month.outputs.month }}${{ matrix.kind == 'tarball' && '-jammy' || '' }}
       # NASM on macOS, and the packages of MSYS2 on Windows, are installed by tools/build.cmake (--install-deps below), which also downloads
       # Ninja and llvm-mingw. The downloads are cached; the key is the script, which pins their versions.
       - name: Cache the tools of the build script
@@ -166,14 +168,23 @@ jobs:
       # configures, builds and, for the packages, installs into dist. Windows is built with llvm-mingw's clang (Ninja, lld) for the MinGW target,
       # so that building and linking programs needs neither Visual Studio nor the Windows SDK; the script also puts llvm-mingw on the PATH of the
       # later steps. Linux builds every library from the submodules, as the Flatpaks have to bundle them.
+      - name: Install clang 21 (Linux tarball)
+        # Ubuntu 22.04's own compilers are too old for the build, and the tarball's smoke test needs the clang that users are told to install
+        # (21 or newer). From the packages of the LLVM project, through their script, which adds apt.llvm.org for this Ubuntu.
+        if: matrix.kind == 'tarball'
+        run: |
+          wget -qO "$RUNNER_TEMP/llvm.sh" https://apt.llvm.org/llvm.sh
+          sudo bash "$RUNNER_TEMP/llvm.sh" 21
+          sudo apt-get install -y --no-install-recommends lld-21
+          { echo "CC=clang-21"; echo "CXX=clang++-21"; } >> "$GITHUB_ENV"
       - name: Build
         shell: bash
         env:
           ARCHITECTURES: ${{ matrix.architectures }}
           # Registers the tests that need a window and a GPU, which the test steps below run (it does not change what is built).
           GPU_TESTS: ${{ inputs.tests && matrix.test && '--gpu-tests' || '' }}
-          # The archives and installers are made from an install; Linux stages its own for the Flatpaks below.
-          INSTALL: ${{ inputs.packages && runner.os != 'Linux' && '--install dist' || '' }}
+          # The archives and installers are made from an install; Linux stages its own for the Flatpaks below (the tarball uses dist).
+          INSTALL: ${{ inputs.packages && (runner.os != 'Linux' || matrix.kind == 'tarball') && '--install dist' || '' }}
         run: |
           ARCH="$ARCHITECTURES"
           if [ "$RUNNER_OS" = Windows ]; then ARCH=x64; [ "${{ matrix.platform }}" != ARM64 ] || ARCH=arm64; fi
@@ -208,9 +219,9 @@ jobs:
           retention-days: 1
           compression-level: 0
       - name: Package
-        # Linux ships only the Flatpaks (see below), no archive. Windows is packed once for both architectures by the job 'package-windows',
-        # so here it only installs, checks and uploads the install tree of its own architecture.
-        if: runner.os != 'Linux' && inputs.packages
+        # Linux packs the Flatpaks from its own stage (see below) and the tarball from dist here. Windows is packed once for both architectures by the
+        # job 'package-windows', so here it only installs, checks and uploads the install tree of its own architecture.
+        if: (runner.os != 'Linux' || matrix.kind == 'tarball') && inputs.packages
         shell: bash
         env:
           LOOSE: ${{ inputs.loose }}
@@ -251,7 +262,29 @@ jobs:
             "$RUNNER_TEMP/packaged_plain.exe" | grep -q "packaged ok"
           fi
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
-          if [ "$LOOSE" = true ] && [ "$RUNNER_OS" != Windows ]; then
+          if [ "$RUNNER_OS" = Linux ]; then
+            # The .tar.gz and the self-installing .sh (packaging/linux), named without the "-tarball" of the platform.
+            NAME="${ARTIFACT%-tarball}"
+            echo "PACKAGE=$NAME" >> "$GITHUB_ENV"
+            packaging/linux/make-packages.sh dist "$NAME" packages
+            # Installed like a user does, into a prefix of its own, and used with the clang 21 that the installer finds (clang-21 here).
+            sh "packages/$NAME-installer.sh" --prefix "$RUNNER_TEMP/prefix"
+            grep -q 'clang-21' "$RUNNER_TEMP/prefix/bin/blitzcc"
+            printf 'Print "packaged ok"\n' > "$RUNNER_TEMP/packaged.bb"
+            BLITZLLVM_HEADLESS=1 "$RUNNER_TEMP/prefix/bin/blitzcc" "$RUNNER_TEMP/packaged.bb" -o "$RUNNER_TEMP/packaged" 2>&1 | tee "$RUNNER_TEMP/packaged.log"
+            # (A leading ! does not stop a script with -e, so this is an if.)
+            if grep -qiE "error|failed, building without it" "$RUNNER_TEMP/packaged.log"; then echo "blitzcc reported a problem"; exit 1; fi
+            BLITZLLVM_HEADLESS=1 "$RUNNER_TEMP/packaged" | grep -q "packaged ok"
+            # The programs and libraries need nothing newer than the glibc of Ubuntu 22.04 (2.35).
+            # (objdump fails on the files that are no ELF, such as scripts, which pipefail would take for a failed check.)
+            newest=$({ find "$RUNNER_TEMP/prefix/opt/blitzllvm" -type f \( -perm -u+x -o -name '*.so*' \) -exec objdump -T {} + 2>/dev/null || true; } | grep -o 'GLIBC_[0-9.]*' | sort -u -V | tail -n 1)
+            test -n "$newest"
+            echo "Newest glibc symbol: $newest"
+            [ "$(printf '%s\n' "$newest" GLIBC_2.35 | sort -V | tail -n 1)" = GLIBC_2.35 ]
+            sh "packages/$NAME-installer.sh" --prefix "$RUNNER_TEMP/prefix" --uninstall
+            test ! -e "$RUNNER_TEMP/prefix/opt/blitzllvm"
+            list() { tar tzf "packages/$NAME.tar.gz" | sed "s|^$NAME/||"; }
+          elif [ "$LOOSE" = true ] && [ "$RUNNER_OS" != Windows ]; then
             # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
             (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
             NAME="${ARTIFACT}.zip"
@@ -262,6 +295,21 @@ jobs:
           fi
           list | .github/scripts/check-licenses.sh "$NAME" build/required-licenses.txt
           list | .github/scripts/check-help.sh "$NAME"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: matrix.kind == 'tarball' && inputs.packages && !inputs.loose
+        with:
+          name: ${{ env.PACKAGE }}-packages
+          path: packages
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: matrix.kind == 'tarball' && inputs.packages && inputs.loose
+        with:
+          path: packages/${{ env.PACKAGE }}.tar.gz
+          archive: false
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: matrix.kind == 'tarball' && inputs.packages && inputs.loose
+        with:
+          path: packages/${{ env.PACKAGE }}-installer.sh
+          archive: false
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: runner.os == 'macOS' && inputs.packages && !inputs.loose
         with:
