@@ -549,6 +549,8 @@ jobs:
           flatpak build-bundle --runtime --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}-runtime.flatpak" com.xaymar.BlitzLLVM.Runtime 25.08
           flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo flatpak-repo "packages/${ARTIFACT}.flatpak" com.xaymar.BlitzLLVM
           # Licenses and help are in the two together; the shared libraries are in the extension alone.
+          # The compiler also carries clang and lld (copy-clang.sh).
+          echo LLVM/LICENSE.TXT >> build/required-licenses.txt
           (cd flatpak-build/files && find . -type f; cd ../../flatpak-runtime-build/files && find . -type f) | .github/scripts/check-licenses.sh "${ARTIFACT}.flatpak" build/required-licenses.txt
           (cd flatpak-build/files && find . -type f) | .github/scripts/check-help.sh "${ARTIFACT}.flatpak"
           # The compiler must not carry the libraries that the extension has.
@@ -559,16 +561,14 @@ jobs:
           echo "FLATPAK_USER_DIR=$FLATPAK_USER_DIR" >> "$GITHUB_ENV"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}-runtime.flatpak"
           flatpak install --user --noninteractive --bundle "packages/${ARTIFACT}.flatpak"
+          # clang comes with the compiler (copy-clang.sh): the SDK extension is not installed and not needed.
+          if flatpak list --user --columns=application | grep -q 'org.freedesktop.Sdk.Extension.llvm21'; then echo "llvm21 got installed"; exit 1; fi
+          flatpak run --command=sh com.xaymar.BlitzLLVM -c '! test -e /usr/lib/sdk/llvm21/bin/clang && /app/llvm/bin/clang --version && /app/llvm/bin/ld.lld --version'
           mkdir -p "$HOME/flatpak-smoke"
           echo 'Print "Hello from the Flatpak"' > "$HOME/flatpak-smoke/hello.bb"
-          # Installing from a bundle does not bring the SDK extension with clang along (its remote has no related refs), and blitzcc says how to.
-          if flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb" 2> smoke-err.txt; then
-            echo "blitzcc worked without org.freedesktop.Sdk.Extension.llvm21, so the bundle brings it along now: update docs/wiki/Flatpak.md."; exit 1
-          fi
-          cat smoke-err.txt
-          grep -q 'flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08' smoke-err.txt
-          flatpak install --user --noninteractive flathub org.freedesktop.Sdk.Extension.llvm21//25.08
-          flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb"
+          flatpak run --env=BLITZLLVM_HEADLESS=1 com.xaymar.BlitzLLVM --verbose -o "$HOME/flatpak-smoke/hello" "$HOME/flatpak-smoke/hello.bb" 2>&1 | tee smoke-build.txt
+          # The whole build ran: the runtime was optimized together with the program (ThinLTO through ld.lld), with no fallback.
+          if grep -q 'building without it' smoke-build.txt; then exit 1; fi
           # blitzcc copied no shared library next to the program: the extension has them.
           ! ls "$HOME/flatpak-smoke" | grep -E '\.so'
           "$HOME/flatpak-smoke/hello" | tee smoke.txt
