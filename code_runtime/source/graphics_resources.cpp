@@ -26,7 +26,7 @@ using namespace bb::gfx;
 namespace bb::gfx {
 
 	constinit thread_local state g{};
-	bb::buffer<texture_entry> texture_table;
+	bb::buffer<texture_entry, 64> texture_table;
 	bb::buffer<image_entry> image_table;
 	bb::buffer<sampler_entry> sampler_table;
 
