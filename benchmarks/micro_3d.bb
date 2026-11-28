@@ -35,6 +35,7 @@ Dim MicroGrid(99)
 Dim MicroBalls(99)
 Dim MicroCubes(10000)
 Dim MicroTextures(10000)
+Dim MicroChanging(63)
 Global MicroMesh = 0
 Global MicroSurface = 0
 For i = 0 To 4095
@@ -140,6 +141,10 @@ Render_Frame(1000, 1)
 Render_World(1000, 1)
 Render_World(10000, 0)
 Render_World(10000, 1)
+; Surfaces that change every frame, as text and UI made of meshes do: the frames in flight still read their buffers.
+Render_Changing(8, 0)
+Render_Changing(8, 1)
+Render_Changing(64, 1)
 
 MicroEnd()
 
@@ -1034,4 +1039,53 @@ Function Render_World(count, textured)
 		Next
 	Wend
 	MicroFreeCubes count, textured
+End Function
+
+; Per frame: count meshes of 64 vertices and 98 triangles that change, then RenderWorld and Flip 0. rebuilt 0 moves a vertex of each
+; (same triangles), 1 clears each surface and adds its vertices and triangles again (new triangles, like Text3D).
+Function Render_Changing(count, rebuilt)
+	name$ = "render/frame-" + count + "-moving-surfaces"
+	If rebuilt Then name$ = "render/frame-" + count + "-rebuilt-surfaces"
+	If Not MicroCase(name$) Then Return
+	For m = 0 To count - 1
+		MicroChanging(m) = CreateMesh()
+		MicroFillGrid CreateSurface(MicroChanging(m))
+		PositionEntity MicroChanging(m), (m Mod 8) * 2.5 - 9, (m / 8) * 2.5 - 9, 20
+	Next
+	frame = 0
+	While MicroRun()
+		For i = 1 To MicroN
+			frame = frame + 1
+			For m = 0 To count - 1
+				surf = GetSurface(MicroChanging(m), 1)
+				If rebuilt Then
+					ClearSurface surf
+					MicroFillGrid surf
+				Else
+					VertexCoords surf, 0, 0, 0, Float(frame Mod 7) * 0.01
+				EndIf
+			Next
+			RenderWorld
+			Flip 0
+		Next
+	Wend
+	For m = 0 To count - 1
+		FreeEntity MicroChanging(m)
+	Next
+End Function
+
+; An 8 by 8 grid of vertices (7 by 7 quads, 98 triangles) on a surface.
+Function MicroFillGrid(surf)
+	For y = 0 To 7
+		For x = 0 To 7
+			AddVertex surf, x * 0.25, y * 0.25, 0, x / 7.0, y / 7.0
+		Next
+	Next
+	For y = 0 To 6
+		For x = 0 To 6
+			v = y * 8 + x
+			AddTriangle surf, v, v + 8, v + 1
+			AddTriangle surf, v + 1, v + 8, v + 9
+		Next
+	Next
 End Function
