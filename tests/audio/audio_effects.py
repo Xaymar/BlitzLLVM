@@ -6,6 +6,7 @@
 import math
 import os
 import sys
+import wave
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from audio_common import *  # noqa: E402,F403
 
@@ -78,6 +79,15 @@ for what, setup, after, loudest in (
 	check("effect, %s: largest step %d is within the tone's %d" % (what, step, natural), step <= natural * 1.1 + 2)
 # A short sound (10 cycles, 23 ms) and what comes after it.
 tone("blip.wav", 22050, 1, 16, cycles=10)
+# The same blip after 0.3 s of silence, for the tests that change the channel after PlaySound: the mixer plays a block of about
+# 23 ms whenever it wants, so on a busy machine it can play all of blip.wav before the next line of the program has run.
+with wave.open("blip.wav", "rb") as source:
+	blip = source.readframes(source.getnframes())
+with wave.open("late_blip.wav", "wb") as out:
+	out.setnchannels(1)
+	out.setsampwidth(2)
+	out.setframerate(22050)
+	out.writeframes(bytes(2 * int(22050 * 0.3)) + blip)
 
 
 def bursts(samples, window=441):
@@ -125,9 +135,9 @@ samples = play("tone.wav", CH, "ChannelSend c, b, 1\nDelay 300\nChannelSend c, b
 natural = 2 * math.pi * 441 / OUTPUT_RATE * reference * 2
 step = largest_step(samples)
 check("channel, a send level that jumps glides: largest step %d is within the tone's %d" % (step, natural), step <= natural * 1.1 + 2)
-samples = play("blip.wav", CH, "e = AddChannelEffect(c, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25", loop=False)[0]
+samples = play("late_blip.wav", CH, "e = AddChannelEffect(c, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25", loop=False)[0]
 check("channel, an echo on a channel ends with its sound", max(bursts(samples)[5:] + [0]) <= 2)
-levels = bursts(play("blip.wav", CH + "e = AddAudioEffect(b, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25\nAudioEffectParam e, BB_EFFECTPARAM_MIX, 1\n", "ChannelSend c, b, 1", loop=False)[0])
+levels = bursts(play("late_blip.wav", CH + "e = AddAudioEffect(b, BB_EFFECT_ECHO)\nAudioEffectParam e, BB_EFFECTPARAM_DELAY, 0.25\nAudioEffectParam e, BB_EFFECTPARAM_MIX, 1\n", "ChannelSend c, b, 1", loop=False)[0])
 first = max(levels[0:3]) if levels else 0
 repeat = max(levels[24:28]) if len(levels) > 28 else 0
 check("channel, a send to a bus with an echo repeats at 0.25 s: %d of %d" % (repeat, first), first > 1000 and abs(repeat / first - 1.0) < 0.05)
