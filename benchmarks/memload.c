@@ -2,12 +2,16 @@
  * memload: a steady load on the caches and the memory, for A/B runs (ab.py --load) that should show what a change costs on a machine
  * with less cache or slower memory than this one.
  *
- *     memload [--mode chase|stream] [--kb N] [--threads N] [--cpus LIST] [--seconds N]
+ *     memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--seconds N]
  *
  * chase walks a random cycle through a buffer of --kb kilobytes, one cache line per step, so that every step is a miss of the levels
  * the buffer does not fit in: run on the other logical processor of the core that the program runs on (its SMT sibling), with a buffer
  * about the size of L2, it takes half of L1 and L2 away from it; on other cores, with a buffer a few times the size of L3, it takes L3.
  * stream reads and writes the buffer from start to end, which takes the bandwidth of the memory.
+ * stress is the load of the --stress option of datapath's benchmark (github.com/Xaymar/datapath): every round is a burst of work in
+ * registers, then one pass that reads and writes one word of each cache line of the buffer (8 MB by default), then one read at a place
+ * that the burst picked. It keeps all cores busy and the caches full of other data, and by default runs one unpinned thread on every
+ * logical processor (--threads all), so that the program that is measured has to share the cores, the caches and the memory.
  *
  * Every thread has a buffer of its own. --cpus pins thread i to the i-th logical processor of the list (such as 1,3,5), one thread for
  * each unless --threads says fewer; without it the system places --threads threads (1 by default). It runs for --seconds (0, the default, until it is stopped) and prints the steps per second of each thread at the
@@ -40,9 +44,11 @@ typedef pthread_t thread_t;
 #define LINE 64
 #define MAX_THREADS 256
 
+enum mode { CHASE, STREAM, STRESS };
+
 struct worker {
 	int            cpu; // -1 for any.
-	int            stream;
+	enum mode      mode;
 	size_t         bytes;
 	volatile int*  stop;
 	volatile long* ready; // Counts the threads whose buffer is made, after which the load is steady.
@@ -105,7 +111,7 @@ static void* work(void* arg)
 		exit(1);
 	}
 	memset(buffer, 1, lines * LINE);
-	if (!w->stream) {
+	if (w->mode == CHASE) {
 		// A single random cycle through all lines (Sattolo's shuffle), stored as the index of the next line at the start of each.
 		size_t* order = (size_t*)malloc(lines * sizeof(size_t));
 		uint64_t seed = 0x9E3779B97F4A7C15ull ^ (uint64_t)(uintptr_t)w;
@@ -131,12 +137,23 @@ static void* work(void* arg)
 	double   start = now();
 	uint64_t steps = 0;
 	size_t   at    = 0;
+	uint64_t x     = 0x9E3779B97F4A7C15ull * (uint64_t)((uintptr_t)w / sizeof(*w) + 1);
 	while (!*w->stop) {
-		if (w->stream) {
+		if (w->mode == STREAM) {
 			for (size_t i = 0; i < lines; i++) {
 				buffer[i * LINE] += 1;
 			}
 			steps += lines;
+		} else if (w->mode == STRESS) {
+			// One round, as in datapath: work in registers, a pass over every line, one read where the work points.
+			for (int i = 0; i < 100000; i++) {
+				x ^= (x << 13) ^ (x >> 7) ^ (x << 17);
+			}
+			for (size_t i = 0; i < lines; i++) {
+				*(uint64_t*)(buffer + i * LINE) += x;
+			}
+			at += *(volatile uint64_t*)(buffer + (size_t)(x % lines) * LINE);
+			steps += 1;
 		} else {
 			for (int i = 0; i < 4096; i++) {
 				at = *(volatile size_t*)(buffer + at * LINE);
@@ -153,16 +170,29 @@ static void* work(void* arg)
 	return 0;
 }
 
+static int logical_processors(void)
+{
+#if defined(_WIN32)
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	int n = (int)info.dwNumberOfProcessors;
+#else
+	int n = (int)sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+	return (n < 1) ? 1 : (n > MAX_THREADS) ? MAX_THREADS : n;
+}
+
 static void usage(void)
 {
-	fprintf(stderr, "usage: memload [--mode chase|stream] [--kb N] [--threads N] [--cpus LIST] [--seconds N]\n");
+	fprintf(stderr, "usage: memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--seconds N]\n");
 	exit(2);
 }
 
 int main(int argc, char** argv)
 {
-	int    stream = 0, threads = 0, cpus[MAX_THREADS], cpu_count = 0;
-	double kb = 1024, seconds = 0;
+	enum mode mode = CHASE;
+	int       threads = 0, all = 0, cpus[MAX_THREADS], cpu_count = 0;
+	double    kb = 0, seconds = 0;
 	for (int i = 1; i < argc; i += 2) {
 		const char* a = argv[i];
 		const char* v = (i + 1 < argc) ? argv[i + 1] : NULL;
@@ -171,14 +201,22 @@ int main(int argc, char** argv)
 		}
 		if (!strcmp(a, "--mode")) {
 			if (!strcmp(v, "stream")) {
-				stream = 1;
-			} else if (strcmp(v, "chase")) {
+				mode = STREAM;
+			} else if (!strcmp(v, "stress")) {
+				mode = STRESS;
+			} else if (!strcmp(v, "chase")) {
+				mode = CHASE;
+			} else {
 				usage();
 			}
 		} else if (!strcmp(a, "--kb")) {
 			kb = atof(v);
 		} else if (!strcmp(a, "--threads")) {
-			threads = atoi(v);
+			if (!strcmp(v, "all")) {
+				all = 1;
+			} else {
+				threads = atoi(v);
+			}
 		} else if (!strcmp(a, "--seconds")) {
 			seconds = atof(v);
 		} else if (!strcmp(a, "--cpus")) {
@@ -195,7 +233,12 @@ int main(int argc, char** argv)
 			usage();
 		}
 	}
-	if (!threads) {
+	if (kb == 0) {
+		kb = (mode == STRESS) ? 8192 : 1024;
+	}
+	if (all || (!threads && !cpu_count && mode == STRESS)) {
+		threads = logical_processors(); // stress, like datapath's, takes every logical processor unless told otherwise.
+	} else if (!threads) {
 		threads = cpu_count ? cpu_count : 1; // One thread for each listed processor.
 	}
 	if (threads < 1 || threads > MAX_THREADS || kb <= 0 || (cpu_count && cpu_count < threads)) {
@@ -207,7 +250,7 @@ int main(int argc, char** argv)
 	volatile long        ready = 0;
 	for (int i = 0; i < threads; i++) {
 		workers[i].cpu    = cpu_count ? cpus[i] : -1;
-		workers[i].stream = stream;
+		workers[i].mode   = mode;
 		workers[i].bytes  = (size_t)(kb * 1024);
 		workers[i].stop   = &stop;
 		workers[i].ready  = &ready;
@@ -225,7 +268,8 @@ int main(int argc, char** argv)
 #endif
 	}
 	// ab.py waits for this line before it starts the program that is measured.
-	printf("memload: ready, %s, %g KB per thread, %d threads\n", stream ? "stream" : "chase", kb, threads);
+	static const char* names[] = {"chase", "stream", "stress"};
+	printf("memload: ready, %s, %g KB per thread, %d threads\n", names[mode], kb, threads);
 	fflush(stdout);
 	if (seconds > 0) {
 #if defined(_WIN32)
@@ -245,7 +289,12 @@ int main(int argc, char** argv)
 #else
 		pthread_join(handles[i], NULL);
 #endif
-		printf("memload: thread %d (cpu %d) %.1f M steps/s\n", i, workers[i].cpu, (workers[i].seconds > 0) ? workers[i].steps / workers[i].seconds / 1e6 : 0.0);
+		double rate = (workers[i].seconds > 0) ? workers[i].steps / workers[i].seconds : 0.0;
+		if (mode == STRESS) {
+			printf("memload: thread %d (cpu %d) %.1f rounds/s\n", i, workers[i].cpu, rate);
+		} else {
+			printf("memload: thread %d (cpu %d) %.1f M steps/s\n", i, workers[i].cpu, rate / 1e6);
+		}
 	}
 	return 0;
 }
