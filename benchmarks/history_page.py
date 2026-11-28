@@ -203,8 +203,9 @@ RELEASE_URL = "https://github.com/Xaymar/BlitzLLVM/releases/tag/%s"
 COMMIT_URL = "https://github.com/Xaymar/BlitzLLVM/commit/%s"
 
 
-def render_tags(results_dir, out):
-    """The page with one row per version tag (X.Y.Z): the release notes say what changed, so the rows only link to them. Needs tags/<tag>.json (history_commits.py --tags)."""
+def load_rows(results_dir, machine):
+    """The rows of one folder of results: its baselines (machine.json "baselines", file names relative to the folder), then one row per version
+    tag. Gives (revs, results, no_numbers, tags)."""
     tags_dir = os.path.join(results_dir, "tags")
     tags = [json.load(open(os.path.join(tags_dir, n))) for n in os.listdir(tags_dir)] if os.path.isdir(tags_dir) else []
 
@@ -215,8 +216,6 @@ def render_tags(results_dir, out):
         return (order, tuple(int(x) for x in re.findall(r"\d+", t["tag"])))
     tags.sort(key=version)
     revs, results, no_numbers = [], {}, []
-    mpath = os.path.join(results_dir, "machine.json")
-    machine = json.load(open(mpath)) if os.path.isfile(mpath) else {}
     # The baselines, the original Blitz3D, always the top rows. machine.json "baselines" can name several ([{"file", "name"}], the first is the
     # one the changes are against), such as the original through DxWrapper on the GPU of the rows and the original as it runs natively.
     short = machine.get("baseline_gpu_short", "")
@@ -236,37 +235,12 @@ def render_tags(results_dir, out):
             continue
         revs.append({"label": t["tag"], "rev": t["commit"], "prs": [], "tag": t["tag"]})
         results[t["tag"]] = dict(r, date=t["date"])
-    sets = {r.get("set") for r in results.values() if r.get("set")}
-    what = "the game benchmarks (`benchmarks/history_commits.py --tags --head --set real`" if sets == {"real"} else \
-        "the short benchmark set (`benchmarks/history_commits.py --tags`"
-    text = [
-        "# Performance History",
-        "",
-        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM%s, built and benchmarked on its own with %s, 3 runs, "
-        "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the baseline "
-        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s."
-        % (" and the root that is not released yet as the last row" if any(t["tag"] == "root" for t in tags) else "", what, datetime.date.today().isoformat()),
-        "",
-    ]
-    if machine:
-        m = machine
-        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"]] + \
-            (["| GPU of the baseline | %s |" % m["baseline_gpu"]] if m.get("baseline_gpu") else []) + [
-                 "| OS and version | %s |" % m["os"], "| RAM | %s |" % m["ram"], "| VRAM | %s |" % m["vram"],
-                 "| Renderer / converter | %s |" % m["renderer"], "",
-                 "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
-                 "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
-        if m.get("baseline_note"):  # how the baseline runs, when it is not the plain original on the GPU of the rows (DxWrapper)
-            text += [m["baseline_note"], ""]
-        elif m.get("baseline_gpu"):
-            if any(t["tag"] == "root-igpu" for t in tags):
-                text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root "
-                         "there too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
-            else:
-                text += ["The original can only use the GPU that drives the display, so the baseline runs on the %s and every BlitzLLVM row on the %s: "
-                         "the change against the baseline includes the difference of the two GPUs." % (m["baseline_gpu"], m["gpu"]), ""]
-    if no_numbers:
-        text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
+    return revs, results, no_numbers, tags
+
+
+def render_tables(revs, results, heading):
+    """The tables of one set of rows, each under a heading of the level `heading` ("##" or "###")."""
+    text = []
     for category in CATEGORIES:
         for cat, title, bench, metrics in TABLES:
             if cat != category:
@@ -274,7 +248,7 @@ def render_tags(results_dir, out):
             rows, _ = metric_table(revs, results, bench, metrics)
             if not rows:
                 continue
-            text += ["## %s: %s" % (category, title), "",
+            text += ["%s %s: %s" % (heading, category, title), "",
                      "| Version | " + " | ".join(c + (" (%s)" % u if u else "") for _, c, u in metrics) + " |",
                      "| --- | " + " | ".join("---:" for _ in metrics) + " |"]
             for rev, cells in rows:
@@ -292,6 +266,69 @@ def render_tags(results_dir, out):
                 text += ["", "The original is too slow here to finish the frames in the time a run may take, so the changes in this table are against "
                          "the first row with a number."]
             text.append("")
+    return text
+
+
+def render_tags(results_dir, out):
+    """The page with one row per version tag (X.Y.Z): the release notes say what changed, so the rows only link to them. Needs tags/<tag>.json (history_commits.py --tags).
+
+    machine.json "parts" ([{"dir", "title"}]) adds more sets of rows of the same machine, each a folder of results of its own below results_dir
+    (machine.json with "gpu", "baselines" and "note", tags/, commits/), such as BlitzLLVM on the other GPU of a laptop. The page then has one section
+    per set: machine.json "title" names the first one."""
+    mpath = os.path.join(results_dir, "machine.json")
+    machine = json.load(open(mpath)) if os.path.isfile(mpath) else {}
+    revs, results, no_numbers, tags = load_rows(results_dir, machine)
+    parts = []
+    for p in machine.get("parts", []):
+        pdir = os.path.join(results_dir, p["dir"])
+        ppath = os.path.join(pdir, "machine.json")
+        pmachine = json.load(open(ppath)) if os.path.isfile(ppath) else {}
+        parts.append((p, pmachine) + load_rows(pdir, pmachine))
+    all_results = [results] + [part[3] for part in parts]
+    all_tags = tags + [t for part in parts for t in part[5]]
+    sets = {r.get("set") for res in all_results for r in res.values() if r.get("set")}
+    what = "the game benchmarks (`benchmarks/history_commits.py --tags --head --set real`" if sets == {"real"} else \
+        "the short benchmark set (`benchmarks/history_commits.py --tags`"
+    text = [
+        "# Performance History",
+        "",
+        "The original Blitz3D is the baseline at the top, then one row per version tag of BlitzLLVM%s, built and benchmarked on its own with %s, 3 runs, "
+        "mean ± standard deviation). What changed in a version is in its release notes. 📈 is better, 📉 is worse and ➖ is the same as the baseline "
+        "(a change under 3%%, or one under two standard deviations of the difference, counts as the same). Last updated %s."
+        % (" and the root that is not released yet as the last row" if any(t["tag"] == "root" for t in all_tags) else "", what, datetime.date.today().isoformat()),
+        "",
+    ]
+    if machine:
+        m = machine
+        text += ["## Machine", "", "| | |", "| --- | --- |", "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]), "| GPU | %s |" % m["gpu"]] + \
+            ["| GPU of the section \"%s\" | %s |" % (p["title"], pm["gpu"]) for p, pm, *_ in parts if pm.get("gpu")] + \
+            (["| GPU of the baseline | %s |" % m["baseline_gpu"]] if m.get("baseline_gpu") else []) + [
+                 "| OS and version | %s |" % m["os"], "| RAM | %s |" % m["ram"], "| VRAM | %s |" % m["vram"],
+                 "| Renderer / converter | %s |" % m["renderer"], "",
+                 "The baseline, the original Blitz3D 1.118, does no optimization at all and relies on legacy Windows libraries (DirectX 7, DirectInput, DirectPlay, DirectShow), "
+                 "so the rows compare what a program does, not how the two are built. Numbers of different machine definitions can not be compared. Every program runs windowed, one after the other, with nothing else running.", ""]
+        if m.get("baseline_note"):  # how the baseline runs, when it is not the plain original on the GPU of the rows (DxWrapper)
+            text += [m["baseline_note"], ""]
+        elif m.get("baseline_gpu"):
+            if any(t["tag"] == "root-igpu" for t in tags):
+                text += ["The original can only use the GPU that drives the display (%s), so the row \"root on the GPU of the baseline\" runs the root "
+                         "there too: that pair compares the two on the same GPU, the other rows show BlitzLLVM on the %s." % (m["baseline_gpu"], m["gpu"]), ""]
+            else:
+                text += ["The original can only use the GPU that drives the display, so the baseline runs on the %s and every BlitzLLVM row on the %s: "
+                         "the change against the baseline includes the difference of the two GPUs." % (m["baseline_gpu"], m["gpu"]), ""]
+    if no_numbers:
+        text += ["Left out because the build does not run: %s." % ", ".join(no_numbers), ""]
+    if not parts:
+        text += render_tables(revs, results, "##")
+    else:
+        text += ["## %s" % machine.get("title", "BlitzLLVM on the %s" % machine.get("gpu", "GPU")), ""] + render_tables(revs, results, "###")
+        for p, pm, prevs, presults, pmissing, _ in parts:
+            text += ["## %s" % p["title"], ""]
+            if pm.get("note"):
+                text += [pm["note"], ""]
+            if pmissing:
+                text += ["Left out because the build does not run: %s." % ", ".join(pmissing), ""]
+            text += render_tables(prevs, presults, "###") if prevs else ["No version has a result yet.", ""]
     if not revs:
         text += ["No version has a result yet.", ""]
     open(out, "w").write("<!-- AUTOGENERATED COPYRIGHT HEADER START -->\n<!-- Copyright (C) 2026 Claude <noreply@anthropic.com> -->\n"
