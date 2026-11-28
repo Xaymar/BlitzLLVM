@@ -15,7 +15,8 @@
  *
  * Every thread has a buffer of its own. --cpus pins thread i to the i-th logical processor of the list (such as 1,3,5), one thread for
  * each unless --threads says fewer; without it the system places --threads threads (1 by default). It runs for --seconds (0, the default, until it is stopped) and prints the steps per second of each thread at the
- * end, so that two runs can be told to have had the same load.
+ * end, so that two runs can be told to have had the same load, and how many cores its threads kept busy on average: when that is under
+ * half the threads, the program that is measured (or something else) took the cores, and the run was not under the full load.
  *
  * Build: cc -O2 -o memload memload.c -lpthread (clang or MinGW on Windows: clang -O2 -o memload.exe memload.c). ab.py builds it itself.
  */
@@ -36,6 +37,7 @@ typedef HANDLE thread_t;
 #else
 #include <pthread.h>
 #include <sched.h>
+#include <sys/resource.h>
 #include <time.h>
 #include <unistd.h>
 typedef pthread_t thread_t;
@@ -67,6 +69,29 @@ static double now(void)
 	struct timespec t;
 	clock_gettime(CLOCK_MONOTONIC, &t);
 	return t.tv_sec + t.tv_nsec * 1e-9;
+#endif
+}
+
+// The processor time of all threads of this process so far, in seconds.
+static double cpu_seconds(void)
+{
+#if defined(_WIN32)
+	FILETIME created, exited, kernel, user;
+	if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user)) {
+		return -1;
+	}
+	ULARGE_INTEGER k, u;
+	k.LowPart  = kernel.dwLowDateTime;
+	k.HighPart = kernel.dwHighDateTime;
+	u.LowPart  = user.dwLowDateTime;
+	u.HighPart = user.dwHighDateTime;
+	return (double)(k.QuadPart + u.QuadPart) * 1e-7;
+#else
+	struct rusage r;
+	if (getrusage(RUSAGE_SELF, &r)) {
+		return -1;
+	}
+	return r.ru_utime.tv_sec + r.ru_stime.tv_sec + (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 1e-6;
 #endif
 }
 
@@ -271,6 +296,7 @@ int main(int argc, char** argv)
 	static const char* names[] = {"chase", "stream", "stress"};
 	printf("memload: ready, %s, %g KB per thread, %d threads\n", names[mode], kb, threads);
 	fflush(stdout);
+	double wall_start = now(), cpu_start = cpu_seconds();
 	if (seconds > 0) {
 #if defined(_WIN32)
 		Sleep((DWORD)(seconds * 1000));
@@ -282,6 +308,7 @@ int main(int argc, char** argv)
 		while (getchar() != EOF) {
 		}
 	}
+	double wall = now() - wall_start, cpu = cpu_seconds() - cpu_start;
 	stop = 1;
 	for (int i = 0; i < threads; i++) {
 #if defined(_WIN32)
@@ -294,6 +321,13 @@ int main(int argc, char** argv)
 			printf("memload: thread %d (cpu %d) %.1f rounds/s\n", i, workers[i].cpu, rate);
 		} else {
 			printf("memload: thread %d (cpu %d) %.1f M steps/s\n", i, workers[i].cpu, rate / 1e6);
+		}
+	}
+	if (cpu_start >= 0 && wall > 0) {
+		double busy = cpu / wall;
+		printf("memload: %d threads averaged %.1f busy cores over %.1f s\n", threads, busy, wall);
+		if (busy < 0.5 * threads) {
+			fprintf(stderr, "memload: warning: the threads got under half of their processor time; this was not a full-load run\n");
 		}
 	}
 	return 0;
