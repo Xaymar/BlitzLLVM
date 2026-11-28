@@ -2,7 +2,7 @@
  * memload: a steady load on the caches and the memory, for A/B runs (ab.py --load) that should show what a change costs on a machine
  * with less cache or slower memory than this one.
  *
- *     memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--seconds N]
+ *     memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--nice N] [--seconds N]
  *
  * chase walks a random cycle through a buffer of --kb kilobytes, one cache line per step, so that every step is a miss of the levels
  * the buffer does not fit in: run on the other logical processor of the core that the program runs on (its SMT sibling), with a buffer
@@ -17,6 +17,10 @@
  * each unless --threads says fewer; without it the system places --threads threads (1 by default). It runs for --seconds (0, the default, until it is stopped) and prints the steps per second of each thread at the
  * end, so that two runs can be told to have had the same load, and how many cores its threads kept busy on average: when that is under
  * half the threads, the program that is measured (or something else) took the cores, and the run was not under the full load.
+ *
+ * --nice N lowers the priority of the load (datapath's --stress-nice): the nice value N on Linux and macOS, and on Windows the class
+ * below normal for 1 to 9 and idle for 10 and more. With threads on every logical processor, a nice load still takes the caches and the
+ * memory from the program, but not most of its processor time.
  *
  * Build: cc -O2 -o memload memload.c -lpthread (clang or MinGW on Windows: clang -O2 -o memload.exe memload.c). ab.py builds it itself.
  */
@@ -209,14 +213,14 @@ static int logical_processors(void)
 
 static void usage(void)
 {
-	fprintf(stderr, "usage: memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--seconds N]\n");
+	fprintf(stderr, "usage: memload [--mode chase|stream|stress] [--kb N] [--threads N|all] [--cpus LIST] [--nice N] [--seconds N]\n");
 	exit(2);
 }
 
 int main(int argc, char** argv)
 {
 	enum mode mode = CHASE;
-	int       threads = 0, all = 0, cpus[MAX_THREADS], cpu_count = 0;
+	int       threads = 0, all = 0, cpus[MAX_THREADS], cpu_count = 0, nice_value = 0;
 	double    kb = 0, seconds = 0;
 	for (int i = 1; i < argc; i += 2) {
 		const char* a = argv[i];
@@ -242,6 +246,8 @@ int main(int argc, char** argv)
 			} else {
 				threads = atoi(v);
 			}
+		} else if (!strcmp(a, "--nice")) {
+			nice_value = atoi(v);
 		} else if (!strcmp(a, "--seconds")) {
 			seconds = atof(v);
 		} else if (!strcmp(a, "--cpus")) {
@@ -268,6 +274,19 @@ int main(int argc, char** argv)
 	}
 	if (threads < 1 || threads > MAX_THREADS || kb <= 0 || (cpu_count && cpu_count < threads)) {
 		usage();
+	}
+	if (nice_value) {
+		// Before the threads start, which take the priority of this one.
+#if defined(_WIN32)
+		DWORD priority = (nice_value >= 10) ? IDLE_PRIORITY_CLASS : (nice_value > 0) ? BELOW_NORMAL_PRIORITY_CLASS : ABOVE_NORMAL_PRIORITY_CLASS;
+		if (!SetPriorityClass(GetCurrentProcess(), priority)) {
+			fprintf(stderr, "memload: could not change the priority class\n");
+		}
+#else
+		if (setpriority(PRIO_PROCESS, 0, nice_value)) {
+			perror("memload: setpriority");
+		}
+#endif
 	}
 	static struct worker workers[MAX_THREADS];
 	static thread_t      handles[MAX_THREADS];
