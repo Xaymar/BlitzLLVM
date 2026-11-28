@@ -100,8 +100,18 @@ listed logical processor.
   `--load "--kb 1024 --cpus 1"` with the program on processor 0 (on Windows logical processors 0 and 1 are usually the two of core 0;
   on Linux see `lscpu -e`). Pin the program yourself, for example by running `ab.py` itself under `start /affinity 1` or `taskset -c 0`.
 
-`memload` prints the rate of each thread at the end, which says whether both builds had the same load. Numbers from runs under load
-only compare with each other.
+* Everything at once: `--mode stress` is the load of the `--stress` option of the benchmark of
+  https://github.com/Xaymar/datapath[datapath]. Every round of a thread is a burst of work in registers, one pass that reads and
+  writes one word of each cache line of its buffer (`--kb`, 8192 by default), and one read at a place that the burst picked. By
+  default it runs one unpinned thread on every logical processor, so that the program shares the cores, the caches and the memory
+  with it. `ab.py --stress N` is short for `--load "--mode stress --threads N"`, with 0 for every logical processor, and
+  `--stress-nice M` runs it at nice M (below normal priority for 1 to 9 and idle for 10 and more on Windows), which keeps the load on
+  the caches and the memory but leaves the program most of its processor time. Without it, the program also has to win processor
+  time from the load, which is a different test.
+
+`memload` prints the rate of each thread at the end, and how many cores its threads kept busy on average, which says whether both
+builds had the same load; under half of its threads, it warns that the run was not under the full load. Numbers from runs under
+load only compare with each other.
 
 == history: the numbers of the Performance History wiki page
 
