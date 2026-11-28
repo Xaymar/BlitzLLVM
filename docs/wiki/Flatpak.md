@@ -6,29 +6,28 @@
 
 The Flatpak is the only Linux release format (there are no deb, rpm, Arch or snap packages). There are two parts, both built by the `Build` workflow (`flatpak x86_64` and `flatpak arm64`, one pair per architecture, as a Flatpak holds only one):
 
-* `com.xaymar.BlitzLLVM`: the compiler and the tools (`blitzcc`, `blitz-format`, `blitz-tidy`, `blitz-recompiler`), on the freedesktop SDK because `blitzcc` hands programs to clang (which comes from the SDK extension `org.freedesktop.Sdk.Extension.llvm21`).
+* `com.xaymar.BlitzLLVM`: the compiler and the tools (`blitzcc`, `blitz-format`, `blitz-tidy`, `blitz-recompiler`), on the freedesktop SDK because `blitzcc` hands programs to clang. clang and lld come with it, in `/app/llvm` (copied from the SDK extension `org.freedesktop.Sdk.Extension.llvm21` when the Flatpak is built).
 * `com.xaymar.BlitzLLVM.Runtime`: the shared libraries that programs load when they run (FFmpeg for movies, the AVIF, JPEG XL, TIFF and WebP codecs, Opus and Ogg), with their licenses. The compiler and every game ask for it as an extension, so Flatpak installs it once, however many games are installed.
 
 ## Installing
 
-Download both files of your architecture from the release (`-linux-x64` or `-linux-arm64`) and install them, then clang:
+Download both files of your architecture from the release (`-linux-x64` or `-linux-arm64`) and install them:
 
 ```sh
 flatpak install --user --bundle blitzllvm-<version>-linux-x64-runtime.flatpak
 flatpak install --user --bundle blitzllvm-<version>-linux-x64.flatpak
-flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08
 flatpak run com.xaymar.BlitzLLVM hello.bb
 ```
 
 * Installing the compiler downloads the freedesktop SDK 25.08 from flathub (several hundred MB), and adds flathub as a remote if it was not there.
-* The third line is needed: Flatpak installs the extensions of an app only from the remote the app came from, and a `.flatpak` file has none. Without clang `blitzcc` stops with "clang was not found at /app/sdk/llvm21/bin/clang" and prints that command.
+* clang is part of the compiler Flatpak and needs no extra install. (It can't be an extension that comes along: Flatpak installs the extensions of an app only from the remote the app came from, and a `.flatpak` file has none.)
 * BlitzLLVM is a command-line tool, so it has no entry in the application menu and opening it from GNOME Software or Discover does nothing visible. Run it from a terminal. The samples are inside the Flatpak at `/app/share/blitzllvm/samples`; copy them out with `flatpak run --command=cp com.xaymar.BlitzLLVM -r /app/share/blitzllvm/samples ~/blitzllvm-samples`.
 
 Run the other tools with `flatpak run --command=blitz-format com.xaymar.BlitzLLVM file.bb`. The compiler gets your home folder (`flatpak override --user --filesystem=host com.xaymar.BlitzLLVM` for more), the network, sound, a window (Wayland or X11) and the GPU and controllers. Programs that `blitzcc` runs for you run inside the sandbox too.
 
 ## Programs for the other architecture
 
-Each compiler Flatpak holds the runtime of x86-64 and of arm64, but its clang does not: the one from `org.freedesktop.Sdk.Extension.llvm21` only has the target of its own CPU. So the Flatpak makes programs for its own architecture. For the other one, give `blitzcc` a clang that has both targets (a distribution's `clang`, for instance) and the C library of the target as the sysroot, like with any cross compile:
+Each compiler Flatpak holds the runtime of x86-64 and of arm64, but its clang does not: the one copied from `org.freedesktop.Sdk.Extension.llvm21` only has the target of its own CPU. So the Flatpak makes programs for its own architecture. For the other one, give `blitzcc` a clang that has both targets (a distribution's `clang`, for instance) and the C library of the target as the sysroot, like with any cross compile:
 
 ```sh
 flatpak run --env=BLITZLLVM_CC=/usr/bin/clang --filesystem=/usr:ro com.xaymar.BlitzLLVM --target aarch64-linux-gnu --llvm-flag --sysroot=/path/to/sysroot -o game-arm64 game.bb
