@@ -450,18 +450,22 @@ namespace bb {
 	};
 
 	struct entity {
+		// The first cache line has what nearly every command reads: the parent, where the entity is, whether it is hidden, still loading,
+		// static or captured, and the tree of children.
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
+		float       position[3] = { 0, 0, 0 };
+		float       rotation[3] = { 0, 0, 0 }; // Pitch, Yaw, Roll
+		float       scale[3]    = { 1, 1, 1 };
+		bool        hidden = false;
+		bool        unresolved = false; // The model of loading is not built yet; get_entity reads it every time.
+		int8_t      static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
+		bool        captured = false; // CaptureWorld has kept where the entity was (the capt_ fields), which tweening reads.
 		int         children = 0; // How many entities have this one as their parent.
 		// The children, which are numbered in the order they became children (not by their handle, like the original): a list through the
 		// children that goes from the first one to the last, so that nothing has to search every entity for them. All 0 for none.
 		int         first_child = 0, last_child = 0, prev_sibling = 0, next_sibling = 0;
-		bool        hidden = false;
 		char*       name   = nullptr;
-
-		float position[3] = { 0, 0, 0 };
-		float rotation[3] = { 0, 0, 0 }; // Pitch, Yaw, Roll
-		float scale[3]    = { 1, 1, 1 };
 
 		// Appearance (meshes)
 		float color[3] = { 1, 1, 1 };
@@ -490,14 +494,12 @@ namespace bb {
 		bool  has_cull_box = false;      // MeshCullBox: the box that decides whether the mesh is seen.
 		float cull_box[6]  = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
 		// Where it was at CaptureWorld, to draw it between there and where it is now.
-		bool  captured = false;
 		float tween_alpha = -1; // How far between capt_* and where it is the entity is drawn, if it is not RenderWorld's tween (a body of the physics simulation), else -1.
 		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
 		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
 		float capt_color[3] = { 1, 1, 1 }, capt_alpha = 1;
 		float sprite_angle    = 0;
 		float depth_fade = 0;             // SpriteDepthFade, EntityDepthFade: how far from what is behind it a blended entity fades out, 0 for not at all.
-		int   static_mode = 0; // EntityStatic: -1 never in the GPU-driven draw table, 0 decided by the renderer, 1 goes in as soon as it can.
 		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
 		// SetEntityStencil, SetEntityStencilBack: the stencil test and operations of the front ([0]) and back ([1]) faces, in the numbers of the commands
 		// (compare 0 never .. 7 always, operations 0 keep .. 7 decrement and wrap). Always with keep everywhere is no stencil at all.
@@ -515,7 +517,6 @@ namespace bb {
 		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
 		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
 		model_load*      loading = nullptr; // Set for a model from LoadMesh or LoadAnimMesh with AsyncLoading on, see resolve_model.
-		bool             unresolved = false; // The model of loading is not built yet.
 		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
 
 		// Of a camera only (made with it by add_entity, freed with it): see camera_data.
