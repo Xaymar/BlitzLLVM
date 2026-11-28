@@ -9,6 +9,10 @@ Newest release first. Each entry says what it was, what it is now and, where som
 
 Everything merged into `root` since 2.0 (`2026.11.27.28792`).
 
+### Fixes
+
+- **`TurnEntity` is cheaper again** ([#760](https://github.com/Xaymar/BlitzLLVM/pull/760)). Was: since the own-axes fix of 2.0 ([#741](https://github.com/Xaymar/BlitzLLVM/pull/741)) every turn built two rotation matrices and read the Euler angles back (about 105 ns, 6 ns before). Now: turns about one axis that equal adding one angle (a roll, a yaw in the world without a parent, a yaw or pitch while the angles after it are 0) only add it, and other turns do less matrix work (about 71 ns). The angles that come out are the same. On Irkela spacebattle's effects part (1516 turns per frame) went from 0.34 to 0.25 ms. When: a program turns thousands of entities each frame; prefer one-axis turns where they do the job.
+
 ## 2.0 (2026.11.27.28792)
 
 Everything merged into `root` between 1.0 (`2026.11.5.23019`) and 2.0.
