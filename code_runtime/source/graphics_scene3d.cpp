@@ -60,12 +60,9 @@ namespace bb::gfx {
 			gpu->next->previous = gpu->previous;
 		}
 		// Things that were asked to be drawn can still use it, so it is only destroyed once they have been drawn.
-		if (gpu->vertex_buffer) {
-			graveyard.push({ gpu->vertex_buffer.vk, gpu->vertex_buffer.allocation });
-		}
-		if (gpu->index_buffer) {
-			graveyard.push({ gpu->index_buffer.vk, gpu->index_buffer.allocation });
-		}
+		// The buffers of the vertices and indices are kept for a surface that makes new ones (see take_mesh_buffer).
+		give_mesh_buffer(gpu->vertex_buffer, rhi::vertex_data);
+		give_mesh_buffer(gpu->index_buffer, rhi::index_data);
 		if (gpu->cluster_index_buffer) {
 			graveyard.push({ gpu->cluster_index_buffer.vk, gpu->cluster_index_buffer.allocation });
 		}
@@ -83,6 +80,7 @@ namespace bb::gfx {
 			}
 			prebuilt_list = nullptr; // The jobs that hold them only delete the records.
 		}
+		drop_mesh_buffers();
 		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
 			rhi::destroy_buffer(gpu->vertex_buffer);
 			rhi::destroy_buffer(gpu->index_buffer);
@@ -294,7 +292,10 @@ namespace bb::gfx {
 
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
-		rhi::create_buffer(gpu->vertex_buffer, vertex_buffer_size(gpu->vertex_capacity, second, gpu->second_offset), rhi::vertex_data, rhi::memory::mesh);
+		const uint64_t vertex_bytes = vertex_buffer_size(gpu->vertex_capacity, second, gpu->second_offset);
+		if (!take_mesh_buffer(gpu->vertex_buffer, vertex_bytes, rhi::vertex_data)) {
+			rhi::create_buffer(gpu->vertex_buffer, vertex_bytes, rhi::vertex_data, rhi::memory::mesh);
+		}
 		copy_vertices(gpu->vertex_buffer.mapped, s.vertices.data, size_t(vsize));
 		if (second) {
 			copy_vertices(static_cast<uint8_t*>(gpu->vertex_buffer.mapped) + gpu->second_offset, s.second.data, size_t(s.vertices.size) * sizeof(bb::vertex3d_second));
@@ -302,7 +303,10 @@ namespace bb::gfx {
 
 		if (!same_triangles) {
 			gpu->index_capacity = s.indices.size + s.indices.size / 4 + 48;
-			rhi::create_buffer(gpu->index_buffer, uint64_t(gpu->index_capacity) * sizeof(uint32_t), rhi::index_data, rhi::memory::mesh);
+			const uint64_t index_bytes = uint64_t(gpu->index_capacity) * sizeof(uint32_t);
+			if (!take_mesh_buffer(gpu->index_buffer, index_bytes, rhi::index_data)) {
+				rhi::create_buffer(gpu->index_buffer, index_bytes, rhi::index_data, rhi::memory::mesh);
+			}
 			memcpy(gpu->index_buffer.mapped, s.indices.data, size_t(isize));
 		}
 
