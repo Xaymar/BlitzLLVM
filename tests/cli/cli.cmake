@@ -1004,6 +1004,27 @@ elseif(CASE STREQUAL "runtime_inline")
 	expect_ok()
 	expect_missing("-flto=thin")
 
+elseif(CASE STREQUAL "missing_cc")
+	# A clang given as a path that is not there stops blitzcc before it builds anything, with a message that says where it looked.
+	blitzcc(--cc "${WORK}/no-such-folder/clang" "${PROGRAM}" -o "${EXE}")
+	if(RC EQUAL 0)
+		message(FATAL_ERROR "Expected a failure without clang.")
+	endif()
+	string(FIND "${ERR}" "clang was not found at" _AT)
+	string(FIND "${ERR}" "no-such-folder/clang" _AT2)
+	string(FIND "${ERR}" "returned" _AT3)
+	if((_AT EQUAL -1) OR (_AT2 EQUAL -1) OR (NOT _AT3 EQUAL -1))
+		message(FATAL_ERROR "Expected the message to name the missing clang, got:\n${ERR}")
+	endif()
+	# Inside the Flatpak (which sets FLATPAK_ID) it says how to install the SDK extension that has clang.
+	set(ENV{FLATPAK_ID} "com.xaymar.BlitzLLVM")
+	blitzcc(--cc "${WORK}/no-such-folder/clang" "${PROGRAM}" -o "${EXE}")
+	unset(ENV{FLATPAK_ID})
+	string(FIND "${ERR}" "flatpak install --user flathub org.freedesktop.Sdk.Extension.llvm21//25.08" _AT)
+	if(_AT EQUAL -1)
+		message(FATAL_ERROR "Expected the Flatpak install command, got:\n${ERR}")
+	endif()
+
 elseif(CASE STREQUAL "runtime_layout")
 	# The compiler finds the runtime from where it is: <prefix>/lib/blitzllvm/runtime for <prefix>/bin/blitzcc (zips and packages),
 	# and 'runtime' next to it in the build directory, which is what the other tests use.
